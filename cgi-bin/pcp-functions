@@ -1,0 +1,413 @@
+# pcp-functions
+# These are the common functions used by piCorePlayer
+
+# Version: 0.08 2014-08-26 GE
+#	Removed TEST from controls.
+#	Fixed TZ/date routine in footer.
+
+# Version: 0.07 2014-08-17 SBP
+#	Removed backup from pcp_reboot and pcp_shutdown.
+#	Added piCorePlayer home as system wide variable.
+
+# Version: 0.06 2014-08-14 GE
+#	Added linux release (pcp_linux_release) to pcp_footer.
+#	Added pcp_squeezelite_restart, pcp_squeezelite_restart routines.
+
+# Version: 0.05 2014-08-12 GE
+#	Added sudo to pcp_squeezelite_version routine.
+
+# Version: 0.04 2014-08-11 SBP
+#	Updated $LMSIP to use $SERVER_IP (set in Squeezelite settings).
+#	Updated pcp_controls routine.
+
+# Version: 0.03 2014-08-05 GE
+#	Updated pcp_controls_mac_address routine to check for $WIFI = "on".
+
+# Version: 0.02 2014-07-18 GE
+#	Added routine pcp_config_mac_address, pcp_controls_mac_address, pcp_go_main_button.
+#	Updated routine pcp_footer to use pcp_controls_mac_address.
+#	Minor indent reformatting.
+
+# Version: 0.01 2014-06-25 GE
+#	Original.
+
+#=========================================================================================
+# System wide variables
+#-----------------------------------------------------------------------------------------
+pcp_variables() {
+	# The following variable are standard piCorePlayer variables, do not edit
+	CONFIGCFG=/usr/local/sbin/config.cfg
+	CONFIGTXT=/mnt/mmcblk0p1/config.txt
+	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
+	BOOTLOCAL=/opt/bootlocal.sh
+	BOOTSYNC=/opt/bootsync.sh
+	SHUTDOWN=/opt/shutdown.sh
+	HTTPDCONF=/home/tc/httpd.conf
+	WIFIDB=/home/tc/wifi.db
+	VOLUME=/mnt/mmcblk0p1
+	DEVICE=/dev/mmcblk0p1
+	UPD_PCP=/tmp/upd_picoreplayer
+	pCPHOME=/home/tc/www/cgi-bin
+
+	# This uses the IP address given in the Squeezelite page and hides the controls if no Server IP address is given
+	LMSIP=`echo $SERVER_IP | awk -F: '{ print $1 }'`
+
+	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
+	DEBUG=0
+
+	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
+	TEST=0
+
+	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
+	MODE=5
+}
+
+pcp_variables && . $CONFIGCFG
+
+#=========================================================================================
+# The MAC addresses used by this piCorePlayer can be:
+#	1. An arbitrarily assigned MAC address via Squeezelite software (in config.cfg)
+#	2. The MAC address of the wireless card (if installed)
+#	3. The physical MAC address of ethernet card (Raspberry Pi Model B)
+#		PLAYER_MAC=${MAC_ADDRESS:-$(pcp_eth0_mac_address)}
+#-----------------------------------------------------------------------------------------
+pcp_config_mac_address() {
+	echo $MAC_ADDRESS
+}
+
+pcp_wlan0_mac_address() {
+	# The wireless MAC address (if installed)
+	ifconfig wlan0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+}
+
+pcp_eth0_mac_address() {
+	# The physical MAC address of Raspberry Pi Model B
+	ifconfig eth0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+}
+
+pcp_controls_mac_address() {
+	PLAYER_MAC="00:00:00:00:00:00"
+	[ $(pcp_eth0_mac_address) ] && PLAYER_MAC=$(pcp_eth0_mac_address)
+	[ $(pcp_wlan0_mac_address) ] && [ $WIFI = "on" ] && PLAYER_MAC=$(pcp_wlan0_mac_address)
+	[ $(pcp_config_mac_address) ] && PLAYER_MAC=$(pcp_config_mac_address)
+	echo $PLAYER_MAC
+}
+
+#=========================================================================================
+# Banner, navigation, footer and controls html
+#-----------------------------------------------------------------------------------------
+pcp_banner() {
+	echo '<!-- Start of pcp_banner -->'
+	echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="958" /></p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of pcp_banner -->'
+}
+
+pcp_navigation() {
+	echo '<!-- Start of pcp_navigation -->'
+	echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="nav" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="nav" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
+	echo '        <a class="nav" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="nav" href="about.cgi" title="pCP - About">About&nbsp;&nbsp;&nbsp;</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of pcp_navigation -->'
+}
+
+pcp_footer() {
+	[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
+
+	echo '<!-- Start of pcp_footer -->'
+	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p><center><font color="ffffff">
+					'$NAME' |
+					'$(pcp_controls_mac_address)' | 
+					piCorePlayer v'$(pcp_picoreplayer_version)' | 
+					linux '$(pcp_linux_release)' | 
+					piCore v'$(pcp_picore_version)' | 
+					Squeezelite v'$(pcp_squeezelite_version)' | 
+					'`TZ=$TZ date`'</center></font></p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of pcp_footer -->'
+}
+
+pcp_controls() {
+	if [ X"" != X"$LMSIP" ]; then
+		echo '<!-- Start of pcp_controls -->'
+		echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_controls -->'
+	fi
+}
+
+#=========================================================================================
+# Versions
+#-----------------------------------------------------------------------------------------
+pcp_picore_version() {
+	echo `version`
+}
+
+pcp_picoreplayer_version() {
+	. /usr/local/sbin/piversion.cfg
+	echo $PIVERS | awk '{ print $2 }'
+}
+
+pcp_squeezelite_version() {
+	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
+}
+
+pcp_linux_release() {
+	uname -r
+}
+
+#=========================================================================================
+# Tiny Core user (tc)
+#-----------------------------------------------------------------------------------------
+pcp_tc_user() {
+	cat /etc/sysconfig/tcuser
+}
+
+#=========================================================================================
+# Show various configuration and setup files
+#-----------------------------------------------------------------------------------------
+pcp_show_config_cfg() {
+	echo '<h2>[ INFO ] Current config.cfg</h2>'
+	echo '<textarea name="TextBox" cols="120" rows="24">'
+	cat $CONFIGCFG
+	echo '</textarea>'
+}
+
+pcp_show_config_txt() {
+	echo '<h2>[ INFO ] Current config.txt</h2>'
+	echo '<textarea name="TextBox" cols="120" rows="15">'
+	cat $CONFIGTXT
+	echo '</textarea>'
+}	
+
+pcp_show_cmdline_txt() {
+	echo '<h2>[ INFO ] Current cmdline.txt</h2>'
+	echo '<textarea name="myTextBox" cols="120" rows="5">'
+	cat $CMDLINETXT
+	echo '</textarea>'
+}
+
+pcp_show_bootlocal_sh() {
+	echo '<h2>[ INFO ] Current bootlocal.sh</h2>'
+	echo '<textarea name="TextBox" cols="120" rows="15">'
+	cat $BOOTLOCAL
+	echo '</textarea>'
+}
+
+pcp_show_bootsync_sh() {
+	echo '<h2>[ INFO ] Current bootsync.sh</h2>'
+	echo '<textarea name="TextBox4" cols="120" rows="8">'
+	cat $BOOTSYNC
+	echo '</textarea>'
+}
+
+#=========================================================================================
+# Busybox httpd
+#-----------------------------------------------------------------------------------------	
+pcp_httpd_query_string() {
+	# Process the $QUERY_STRING from httpd
+	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { print $i} }')
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+#=========================================================================================
+# Start/stop Squeezelite
+#-----------------------------------------------------------------------------------------
+pcp_squeezelite_start() {
+	echo '<p class="info">[ INFO ] '
+	####### Change file name
+	sudo /usr/local/etc/init.d/squeezelite_initd start
+	#sudo /usr/local/etc/init.d/squeezelite start
+	echo '...</p>'
+}
+
+pcp_squeezelite_stop() {
+	echo '<p class="info">[ INFO ] '
+	####### Change file name
+	sudo /usr/local/etc/init.d/squeezelite_initd stop
+	#sudo /usr/local/etc/init.d/squeezelite stop
+	echo '...</p>'
+}
+
+# Not used yet.
+pcp_squeezelite_restart() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/squeezelite restart
+	echo '...</p>'
+}
+
+pcp_squeezelite_status() {
+	sudo /usr/local/etc/init.d/squeezelite status > /dev/null 2>&1
+	echo $?
+}
+
+#=========================================================================================
+# Useful buttons
+#-----------------------------------------------------------------------------------------
+pcp_go_main_button() {
+	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
+	echo '<p><input type="submit" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+}
+
+pcp_go_back_button() {
+	echo '<p><input type="button" value="Go Back" onclick="javascript:location.href=document.referrer;" />&nbsp;&nbsp;Go back to previous page</p>'
+}
+
+pcp_refresh_button() {
+	echo '<p><input type="button" value="Refresh" onClick="window.location.reload()" />&nbsp;&nbsp;Refresh this page</p>'
+}
+
+pcp_reboot_button() {
+	echo "<p><input type="button" value="Reboot" onClick=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" />&nbsp;&nbsp;Reboot piCorePlayer</p>"
+}
+
+#=========================================================================================
+# Backup mydata
+#-----------------------------------------------------------------------------------------
+pcp_backup() {
+	# Delete any previous backup_done file
+	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
+
+	# Do a backup - filetool.sh backs up files in .filetool.lst
+	echo '<p class="info">[ INFO ] '
+	sudo filetool.sh -b
+	sync
+	echo '</p>'
+
+	# If backup_status file exists and is non-zero in size then an error has occurred
+	if [ -s /tmp/backup_status ]; then
+		echo '<p class="error">[ ERROR ] Backup status</p>'
+		echo '<pre>'
+		cat /tmp/backup_status
+		echo '</pre>'
+	fi
+
+	# If backup_done exists then the backup was successful
+	if [ -f /tmp/backup_done ]; then
+		echo '<p class="ok">[ OK ] Backup successful.</p>'
+	else
+		echo '<p class="error">[ ERROR ] Backup failed.</p>'
+	fi
+}
+
+#=========================================================================================
+# Display which script is running
+#-----------------------------------------------------------------------------------------
+pcp_running_script() {
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
+}
+
+#=========================================================================================
+# Mounting/unmounting mmcblk0p1 - boot partition
+#-----------------------------------------------------------------------------------------
+pcp_mount_mmcblk0p1() {
+	# Check if mmcblk0p1 is mounted otherwise mount it
+	if mount | grep $VOLUME; then
+		echo '<p class="error">[ ERROR ] '$VOLUME' already mounted</p>'
+	else
+		echo '<p class="info">[ INFO ] Mounting '$VOLUME'...</p>'
+		echo '<p style="font-size:10px">'
+		sudo mount $DEVICE;
+	#	echo '</p>'
+	fi
+}
+
+pcp_umount_mmcblk0p1() {
+	# Unmount mmcblk0p1
+	sync
+	sync
+	echo '<p class="info">[ INFO ] Unmounting '$VOLUME'...</p>'
+	sudo umount $DEVICE
+}
+
+#=========================================================================================
+# Reboot/shutdown piCorePlayer
+#-----------------------------------------------------------------------------------------
+pcp_reboot() {
+	echo '<p class="info">[ INFO ] piCorePlayer is rebooting...</p>'
+	sudo reboot
+}
+
+pcp_shutdown() {
+	echo '<p class="info">[ INFO ] piCorePlayer is shutting down...</p>'
+	exitcheck.sh
+}
+
+#=========================================================================================
+# Add/remove modules
+#-----------------------------------------------------------------------------------------
+pcp_disable_i2s() {
+	pcp_squeezelite_stop
+
+	# Remove HiFiBerry digi/DAC and IQaudIO DAC modules
+	sudo modprobe -qr snd_soc_hifiberry_dac
+	sudo modprobe -qr snd_soc_hifiberry_digi
+	sudo modprobe -qr snd_soc_iqaudio_dac
+	sudo modprobe -qr snd_soc_pcm5102a
+	sudo modprobe -qr snd_soc_pcm512x
+}
+
+pcp_enable_i2s_dac() {
+	pcp_disable_i2s
+
+	# Load the correct modules for HiFiBerry DAC 
+	sudo modprobe -q snd_soc_bcm2708_i2s
+	sudo modprobe -q bcm2708_dmaengine
+	sudo modprobe -q snd_soc_pcm5102a
+	sudo modprobe -q snd_soc_hifiberry_dac
+}
+
+pcp_enable_i2s_digi() {
+	pcp_disable_i2s
+
+	# Load the correct modules for HiFiBerry Digi 
+	sudo modprobe -q snd_soc_bcm2708_i2s
+	sudo modprobe -q bcm2708_dmaengine
+	sudo modprobe -q snd_soc_wm8804
+	sudo modprobe -q snd_soc_hifiberry_digi
+}
+
+pcp_enable_iqaudio_dac() {
+	pcp_disable_i2s
+
+	# Load the correct modules for IQaudio DAC 
+	sudo modprobe -q snd_soc_bcm2708_i2s
+	sudo modprobe -q bcm2708_dmaengine
+	sudo modprobe -q snd_soc_pcm512x
+	sleep 1
+	sudo modprobe -q snd_soc_iqaudio_dac
+	sleep 1
+}
