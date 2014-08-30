@@ -62,7 +62,6 @@ sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
 # Untar and overwrite the tce files
 echo '<p class="info">[ INFO ] Untarring '$INSITU'_tce.tar.gz...</p>'
 echo '<textarea name="TextBox" cols="120" rows="8">'
-#sudo tar -zxvf $UPD_PCP/tce/"$INSITU"_tce.tar.gz -C /
 sudo tar -zxvf $UPD_PCP/tce/"$INSITU"_tce.tar.gz -C / --exclude='mnt/mmcblk0p2/tce/onboot.lst'
 echo '</textarea>'
 [ $DEBUG = 1 ] && result=$? && echo '<p class="info">[ INFO ] tce tar: '$result'</p>'
