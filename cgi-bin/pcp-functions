@@ -4,6 +4,7 @@
 # Version: 0.08 2014-08-26 GE
 #	Removed TEST from controls.
 #	Fixed TZ/date routine in footer.
+#	Renamed init.d file squeezelite_initd to squeezelite.
 
 # Version: 0.07 2014-08-17 SBP
 #	Removed backup from pcp_reboot and pcp_shutdown.
@@ -248,25 +249,23 @@ pcp_httpd_query_string() {
 #-----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
-	####### Change file name
-	sudo /usr/local/etc/init.d/squeezelite_initd start
-	#sudo /usr/local/etc/init.d/squeezelite start
-	echo '...</p>'
+	#sudo /usr/local/etc/init.d/squeezelite_initd start
+	sudo /usr/local/etc/init.d/squeezelite start
+	echo '</p>'
 }
 
 pcp_squeezelite_stop() {
 	echo '<p class="info">[ INFO ] '
-	####### Change file name
-	sudo /usr/local/etc/init.d/squeezelite_initd stop
-	#sudo /usr/local/etc/init.d/squeezelite stop
-	echo '...</p>'
+	#sudo /usr/local/etc/init.d/squeezelite_initd stop
+	sudo /usr/local/etc/init.d/squeezelite stop
+	echo '</p>'
 }
 
 # Not used yet.
 pcp_squeezelite_restart() {
 	echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite restart
-	echo '...</p>'
+	echo '</p>'
 }
 
 pcp_squeezelite_status() {
