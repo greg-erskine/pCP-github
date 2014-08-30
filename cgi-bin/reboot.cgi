@@ -21,8 +21,7 @@ echo '<body>'
 
 pcp_banner
 pcp_running_script
-#<meta HTTP-EQUIV="REFRESH" content="4; url=http://main.cgi">
-#pcp_reboot
+pcp_reboot
 
 echo '</body>'
 echo '</html>'

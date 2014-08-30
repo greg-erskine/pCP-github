@@ -1,6 +1,12 @@
 #!/bin/sh
 # Diagnostics script
 
+# version: 0.02 2014-07-21 GE
+#	Added pcp_go_main_button.
+#
+# version: 0.01 2014-06-24 GE
+#	Orignal.
+
 . pcp-functions
 pcp_variables
 
@@ -27,6 +33,12 @@ echo '<body>'
 pcp_banner
 pcp_navigation
 pcp_running_script
+pcp_go_main_button
+
+echo '<p style="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
+echo '                 [ DEBUG ] eth0: '$(pcp_eth0_mac_address)'<br />'
+echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
+echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
 
 echo '<h2>[ INFO ] piCore version: '$(pcp_picore_version)'</h2>'
 echo '<textarea name="TextBox4" cols="120" rows="2">'

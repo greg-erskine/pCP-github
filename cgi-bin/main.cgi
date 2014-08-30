@@ -1,4 +1,11 @@
 #!/bin/sh
+
+# Version: 0.02 2014-08-22 GE
+#	Added check for pcp_squeezelite_status.
+
+# Version: 0.01 2014-06-25 GE
+#	Original.
+
 . pcp-functions
 pcp_variables
 
@@ -22,6 +29,8 @@ echo '<body>'
 pcp_controls
 pcp_banner
 pcp_navigation
+
+[ $(pcp_squeezelite_status) = 1 ] && echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
 echo '<table border="0" bgcolor="d8d8d8" cellspacing="0" cellpadding="0" width="960">'
 
