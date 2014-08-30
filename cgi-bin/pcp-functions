@@ -1,5 +1,9 @@
+#!/bin/sh
 # pcp-functions
 # These are the common functions used by piCorePlayer
+
+# Version: 0.08 2014-08-31 GE
+#	Added /bin/sh to first line.
 
 # Version: 0.08 2014-08-26 GE
 #	Removed TEST from controls.
