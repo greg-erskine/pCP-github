@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Version 0.03 2014-08-30 SBP 
+    Clean up + added analog amixer use
+	Improved the alsamixer use
+# Version 0.02 2014-08-26 GE 
+    Clean up
+# Version 0.01 2014-06-25 SBP
+#   Original
+
 # Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
 pcp_variables
@@ -21,11 +29,11 @@ else
 fi
 
 # Check if newconfig.cfg is present
-if [ -f /mnt/sda1/newconfig.cfg ]; then
-	sudo dos2unix -u /mnt/sda1/newconfig.cfg
+if [ -f $MNTUSB/newconfig.cfg ]; then
+	sudo dos2unix -u $MNTUSB/newconfig.cfg
 
 	# Read variables from newconfig and save to config.
-	. /mnt/sda1/newconfig.cfg
+	. $MNTUSB/newconfig.cfg
 
 	# Save the parameters to the config file
 	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
@@ -173,6 +181,25 @@ if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
 if [ $AUDIO = I2SDIG ]; then pcp_enable_i2s_digi; else break; fi
 if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 
+# Check for onboard sound card is card=0, so amixer is only used here
+aplay -l | grep 'card 0: ALSA' &> /dev/null
+	if [ $? == 0 ] && [ $AUDIO = Analog ]
+		then sudo amixer cset numid=3 1
+			if [ $ALSAlevelout = default ]; then
+				sudo amixer set PCM 400 unmute
+			fi
+	fi
+	
+# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
+aplay -l | grep 'card 0: ALSA' &> /dev/null
+	if [ $? == 0 ] && [ $AUDIO = HDMI ]
+		then sudo amixer cset numid=3 2
+	fi
+
+
+
+
+
 # Start the essential stuff for piCorePlayer
 /usr/local/etc/init.d/dropbear start
 /usr/local/etc/init.d/httpd start
@@ -181,7 +208,8 @@ sleep 3
 
 # ALSA output level stuff
 if [ $ALSAlevelout = Custom ]; then
-	sudo alsactl restore
-else
-	sudo amixer set PCM 400 unmute
+		sudo alsactl restore
 fi
+
+
+
