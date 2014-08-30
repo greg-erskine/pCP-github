@@ -1,8 +1,4 @@
 #!/bin/sh
-
-# Version: 0.01 2014-06-25 GE
-#	Original.
-
 . pcp-functions
 pcp_variables
 
@@ -45,14 +41,6 @@ echo '      <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp
 border="0" src="../images/donate.gif" alt="Donate"/></a></p>'
 echo '      <p>//Steen and Greg</p>'
 echo '      <p>****************************************************************************************</p>'
-
-
-
-echo '      <h2>[ INFO ] List to show if /mnt/mmcblk0p2/tce/squeezelite-armv6hf is running</h2>'
-echo '      <textarea name="TextBox" cols="120" rows="5">'
-ps aux | grep 'squeezelite-'
-echo '      </textarea>'
-
 
 echo '      <h2>[ INFO ] piCorePlayer version: '$(pcp_picoreplayer_version)'</h2>'
 echo '      <textarea name="TextBox" cols="120" rows="5">'
