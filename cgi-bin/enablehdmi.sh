@@ -26,8 +26,8 @@ if mount | grep $VOLUME; then
 	# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
 	aplay -l | grep 'card 0: ALSA' &> /dev/null
 	if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2
-	
+	    sudo amixer cset numid=3 2
+	fi 
  
 
 	if [ $DEBUG = 1 ]; then	
