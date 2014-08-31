@@ -23,8 +23,12 @@ if mount | grep $VOLUME; then
 		pcp_show_config_txt
 	fi
 	
-	# Add the line with the HDMI amixer settings in bootlocal.sh by removing #
-	sed -i "/amixer cset numid=/c\amixer cset numid=3 2" /opt/bootlocal.sh 
+	# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
+	aplay -l | grep 'card 0: ALSA' &> /dev/null
+	if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
+	sudo amixer cset numid=3 2
+	
+ 
 
 	if [ $DEBUG = 1 ]; then	
 		pcp_show_bootlocal_sh
