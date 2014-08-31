@@ -1,5 +1,17 @@
 #!/bin/sh
 
+# Version: 0.03 2014-08-30 SBP
+#	Clean up + added analog amixer use.
+#	Improved the alsamixer use.
+
+# Version: 0.02 2014-08-26 GE
+#	Clean up.
+
+# Version: 0.01 2014-06-25 SBP
+#	Original.
+
+# set -x
+
 # Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
 pcp_variables
@@ -21,11 +33,11 @@ else
 fi
 
 # Check if newconfig.cfg is present
-if [ -f /mnt/sda1/newconfig.cfg ]; then
-	sudo dos2unix -u /mnt/sda1/newconfig.cfg
+if [ -f $MNTUSB/newconfig.cfg ]; then
+	sudo dos2unix -u $MNTUSB/newconfig.cfg
 
 	# Read variables from newconfig and save to config.
-	. /mnt/sda1/newconfig.cfg
+	. $MNTUSB/newconfig.cfg
 
 	# Save the parameters to the config file
 	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
@@ -114,17 +126,16 @@ sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
 sudo filetool.sh -b
 fi
 
-#We do have a problem with SSID's which don't have a name - should we use the next section for these SSIDs - I have not tested the code
-#Saves SSID if empty
-#if [ X"" = X"$SSID" ]; then sudo chmod 766 /home/tc/wifi.db; sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db; else fi
-#NEW Section ends here
+# We do have a problem with SSID's which don't have a name - should we use the next section for these SSIDs - I have not tested the code
+# Saves SSID if empty
+# if [ X"" = X"$SSID" ]; then sudo chmod 766 /home/tc/wifi.db; sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db; else fi
+# NEW Section ends here
 
-#Save changes caused by the presence of a newconfig.cfg file and wifi copy from config.cfg to wifi.db fie
+# Save changes caused by the presence of a newconfig.cfg file and wifi copy from config.cfg to wifi.db fie
 # Is already save - I think - sudo filetool.sh -b
 
-
-#Stuff previously handled by bootlocal.sh - but sits better here allowing for in situ update of as bootlocal then can be kept free from piCorePlayer stuff
-#allowing any custom changes to bootlocal.sh to be maintained as it is not overwritten by in situ update.
+# Stuff previously handled by bootlocal.sh - but sits better here allowing for in situ update of as bootlocal then can be kept free from piCorePlayer stuff
+# allowing any custom changes to bootlocal.sh to be maintained as it is not overwritten by in situ update.
  
 sudo modprobe snd-bcm2835
 #sudo modprobe -r snd_soc_wm8731
@@ -173,6 +184,21 @@ if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
 if [ $AUDIO = I2SDIG ]; then pcp_enable_i2s_digi; else break; fi
 if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 
+# Check for onboard sound card is card=0, so amixer is only used here
+aplay -l | grep 'card 0: ALSA' &> /dev/null
+if [ $? == 0 ] && [ $AUDIO = Analog ]; then
+	sudo amixer cset numid=3 1
+	if [ $ALSAlevelout = default ]; then
+		sudo amixer set PCM 400 unmute
+	fi
+fi
+
+# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
+aplay -l | grep 'card 0: ALSA' &> /dev/null
+if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
+	sudo amixer cset numid=3 2
+fi
+
 # Start the essential stuff for piCorePlayer
 /usr/local/etc/init.d/dropbear start
 /usr/local/etc/init.d/httpd start
@@ -182,6 +208,4 @@ sleep 3
 # ALSA output level stuff
 if [ $ALSAlevelout = Custom ]; then
 	sudo alsactl restore
-else
-	sudo amixer set PCM 400 unmute
 fi
