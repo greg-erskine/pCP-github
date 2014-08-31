@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.04 2014-08-31 GE
+#	Increased password length from 32 to 64.
+#	Added some missing html tags.
+#	Some reformatting.
+
 # Version: 0.03 2014-08-28 GE
 #	Formatted wifi scanning section.
 #	Enabled Save button.
@@ -60,6 +65,7 @@ echo '    document.forms[0].SSID.disabled=true;'
 echo '    document.forms[0].PASSWORD.disabled=true;'
 echo '    document.forms[0].ENCRYPTION.disabled=true;'
 echo '}'
+echo ''
 echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
@@ -75,32 +81,41 @@ pcp_navigation
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'</p>'
 
-echo '  <form name="setwifi" action="writetowifi.cgi" method="get">'
-echo '    <table class="sframe" cellspacing="0" cellpadding="0" width="960">'
-echo '      <tr><td class="sframe">'
+echo '<form name="setwifi" action="writetowifi.cgi" method="get">'
+echo '  <table class="sframe" cellspacing="0" cellpadding="0" width="960">'
+echo '    <tr>'
+echo '      <td class="sframe">'
 echo '        <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
 echo '          <tr>'
-echo '            <td colspan="3" class="header"><nobr>Set Wireless configuration.</nobr></td></tr>'
+echo '            <td colspan="3" class="header"><nobr>Set Wireless configuration.</nobr></td>'
+echo '          </tr>'
 echo '          <tr>'
 echo '            <td class="title" width=20%>Wireless</td>'
-echo '            <td class="content" width=40%><input type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
-echo '                                          <input type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
+echo '            <td class="content" width=40%>'
+echo '              <input type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
+echo '              <input type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
+echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td class="title">ESSID</td>'
-echo '            <td class="content"><input type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='$SSID'></td>'
+echo '            <td class="content">'
+echo '              <input type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='$SSID'>'
+echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td class="title">Password</td>'
-echo '            <td class="content"><input type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="32" size="32" value='$PASSWORD'></td>'
+echo '            <td class="content">'
+echo '              <input type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
+echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td class="title">Security Mode</td>'
-echo '            <td class="content"><select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
-echo '                                  <option value="WPA">WPA or WPA2</option>'
-echo '                                  <option value="WEP">WEP</option>'
-echo '                                  <option value="OPEN">Open (No Encyrption)</option>'
-echo '                                </select>'
+echo '            <td class="content">'
+echo '              <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
+echo '                <option value="WPA">WPA or WPA2</option>'
+echo '                <option value="WEP">WEP</option>'
+echo '                <option value="OPEN">Open (No Encyrption)</option>'
+echo '              </select>'
 echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
@@ -109,9 +124,10 @@ echo '              <input type="submit" name="SAVE" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </table>'
-echo '      </td></tr>'
-echo '    </table>'
-echo '  </form>'
+echo '      </td>'
+echo '    </tr>'
+echo '  </table>'
+echo '</form>'
 
 # new section from old wifi page
 sudo iwlist wlan0 scanning > /tmp/wifiscan			#save scan results to a temp file

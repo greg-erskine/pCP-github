@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Version: 0.04 2014-08-31 SBP
-#	Minor formatting.
-
 # Version: 0.03 2014-08-30 SBP
 #	Clean up + added analog amixer use.
 #	Improved the alsamixer use.
@@ -13,7 +10,7 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
-set -x
+# set -x
 
 # Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
@@ -189,22 +186,17 @@ if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 
 # Check for onboard sound card is card=0, so amixer is only used here
 aplay -l | grep 'card 0: ALSA' &> /dev/null
-if [ $? = 0 ] && [ $AUDIO = Analog ]; then
+if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 	sudo amixer cset numid=3 1
-	if [ $ALSAlevelout = Default ]; then
+	if [ $ALSAlevelout = default ]; then
 		sudo amixer set PCM 400 unmute
 	fi
 fi
 
 # Check for onboard sound card is card=0, so HDMI amixer settings is only used here
 aplay -l | grep 'card 0: ALSA' &> /dev/null
-if [ $? = 0 ] && [ $AUDIO = HDMI ]; then
+if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
 	sudo amixer cset numid=3 2
-fi
-
-# ALSA output level stuff
-if [ $ALSAlevelout = Custom ]; then
-	sudo alsactl restore
 fi
 
 # Start the essential stuff for piCorePlayer
@@ -212,3 +204,8 @@ fi
 /usr/local/etc/init.d/httpd start
 sleep 3
 /usr/local/etc/init.d/squeezelite start
+
+# ALSA output level stuff
+if [ $ALSAlevelout = Custom ]; then
+	sudo alsactl restore
+fi
