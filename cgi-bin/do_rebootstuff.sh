@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2014-08-31 SBP
+#	Minor formatting.
+
 # Version: 0.03 2014-08-30 SBP
 #	Clean up + added analog amixer use.
 #	Improved the alsamixer use.
@@ -10,7 +13,7 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
-# set -x
+set -x
 
 # Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
@@ -197,8 +200,3 @@ fi
 /usr/local/etc/init.d/httpd start
 sleep 3
 /usr/local/etc/init.d/squeezelite start
-
-# ALSA output level stuff
-if [ $ALSAlevelout = Custom ]; then
-	sudo alsactl restore
-fi
