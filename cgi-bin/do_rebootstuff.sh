@@ -187,16 +187,9 @@ if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 # Check for onboard sound card is card=0, so amixer is only used here
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	sudo amixer cset numid=3 1
-	if [ $ALSAlevelout = default ]; then
+		if [ $ALSAlevelout = default ]; then
 		sudo amixer set PCM 400 unmute
-	fi
-fi
-
-# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
-aplay -l | grep 'card 0: ALSA' &> /dev/null
-if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2
+		fi
 fi
 
 # Start the essential stuff for piCorePlayer
