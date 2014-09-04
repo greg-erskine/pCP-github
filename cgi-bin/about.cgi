@@ -1,4 +1,14 @@
 #!/bin/sh
+
+# Version: 0.03 2014-09-04 GE
+#	Adjusted size of textareas.
+
+# Version: 0.02 2014-08-02 SBP
+#	Updated information.
+
+# Version: 0.01 2014-06-25 SBP
+#	Original.
+
 . pcp-functions
 pcp_variables
 
@@ -43,12 +53,12 @@ echo '      <p>//Steen and Greg</p>'
 echo '      <p>****************************************************************************************</p>'
 
 echo '      <h2>[ INFO ] piCorePlayer version: '$(pcp_picoreplayer_version)'</h2>'
-echo '      <textarea name="TextBox" cols="120" rows="5">'
+echo '      <textarea name="TextBox" cols="120" rows="2">'
 cat /usr/local/sbin/piversion.cfg
 echo '      </textarea>'
 
 echo '      <h2>[ INFO ] Squeezelite version and license: '$(pcp_squeezelite_version)'</h2>'
-echo '      <textarea name="TextBox" cols="120" rows="15">'
+echo '      <textarea name="TextBox" cols="120" rows="17">'
 /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t
 echo '      </textarea>'
 

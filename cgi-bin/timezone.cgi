@@ -1,4 +1,11 @@
 #!/bin/sh
+
+# Version: 0.03 2014-09-04 GE
+#	Moved code to pcp_set_timezone routine.
+
+# Version: 0.01 2014-06-24 GE
+#	Original.
+
 . pcp-functions
 pcp_variables
 
@@ -24,27 +31,18 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
+# Save the encoded parameter to the config file, with quotes
+sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
+
 # Decode variables using httpd, no quotes
 TIMEZONE=`sudo /usr/local/sbin/httpd -d $TIMEZONE`
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Timezone: '$TIMEZONE'</p>'
 
-echo "TZ="$TIMEZONE > /etc/sysconfig/timezone
-unset TZ
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] System time: '$(date)'</p>'
-export TZ=$TIMEZONE
+pcp_set_timezone
+
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Local time:  '$(date)'</p>'
 
-if [ -f /opt/.filetool.lst ]; then
-	grep timezone /opt/.filetool.lst 1>&2
-	result=$?
-	if [ $result = 0 ]; then
-		echo '<p class="debug">[ DEBUG ] timezone exists in /opt/.filetool.lst: '$result'</p>'
-	else
-		echo '<p class="debug">[ DEBUG ] timezone does not exist in /opt/.filetool.lst: '$result'</p>'
-		sudo echo "etc/sysconfig/timezone" >> /opt/.filetool.lst
-	fi
-fi
 pcp_backup
 pcp_reboot_button
 pcp_go_back_button

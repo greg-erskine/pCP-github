@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.09 2014-09-04 GE
+#	Added timezone routine.
+#	Changed size of config.cfg textbox.
+
 # Version: 0.08 2014-08-31 GE
 #	Added /bin/sh to first line.
 
@@ -58,16 +62,33 @@ pcp_variables() {
 	LMSIP=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	TEST=0
+	TEST=1
 
 	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
 	MODE=5
 }
 
 pcp_variables && . $CONFIGCFG
+
+#=========================================================================================
+# Update the Timezone routine
+#
+# Called from:
+#			timezone.cgi
+#			do_rebootstuff.sh
+#-----------------------------------------------------------------------------------------
+pcp_set_timezone() {
+	[ -f /etc/sysconfig/timezone ] && sudo rm -f /etc/sysconfig/timezone
+	TIMEZONE=`sudo /usr/local/sbin/httpd -d $TIMEZONE`
+	echo "TZ="$TIMEZONE > /etc/sysconfig/timezone
+	sudo chown root:root /etc/sysconfig/timezone
+	sudo chmod 644 /etc/sysconfig/timezone
+	unset TZ
+	export TZ=$TIMEZONE
+}
 
 #=========================================================================================
 # The MAC addresses used by this piCorePlayer can be:
@@ -206,7 +227,7 @@ pcp_tc_user() {
 #-----------------------------------------------------------------------------------------
 pcp_show_config_cfg() {
 	echo '<h2>[ INFO ] Current config.cfg</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="24">'
+	echo '<textarea name="TextBox" cols="120" rows="26">'
 	cat $CONFIGCFG
 	echo '</textarea>'
 }

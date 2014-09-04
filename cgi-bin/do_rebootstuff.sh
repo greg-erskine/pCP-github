@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2014-09-04 GE
+#	Added timezone function.
+
 # Version: 0.04 2014-08-31 SBP
 #	Minor formatting.
 
@@ -13,7 +16,7 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
-set -x
+#set -x
 
 # Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
@@ -68,6 +71,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo sed -i "s/\(WIFI=\).*/\1$WIFI/" $CONFIGCFG
 	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
+	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
 fi
 
 # Rename the newconfig file on USB
@@ -107,6 +111,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo sed -i "s/\(WIFI=\).*/\1$WIFI/" $CONFIGCFG
 	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
+	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
 fi
 
 # Save changes caused by the presence of a newconfig.cfg file
@@ -190,9 +195,9 @@ if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 # Check for onboard sound card is card=0, so amixer is only used here
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-		if [ $ALSAlevelout = default ]; then
+	if [ $ALSAlevelout = default ]; then
 		sudo amixer set PCM 400 unmute
-		fi
+	fi
 fi
 
 # Start the essential stuff for piCorePlayer
@@ -200,3 +205,5 @@ fi
 /usr/local/etc/init.d/httpd start
 sleep 3
 /usr/local/etc/init.d/squeezelite start
+
+pcp_set_timezone
