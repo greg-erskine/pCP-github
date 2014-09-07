@@ -1,4 +1,12 @@
 #!/bin/sh
+
+# Version: 0.02 2014-09-06 SBP
+#   Added cronjob
+
+# Version: 0.01 2014-08-06 GE
+#   Original version
+
+
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -217,6 +225,7 @@ if [ $DEBUG = 1 ]; then
 fi
 
 
+
 echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
 echo '  <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 echo '  <tr><td class="sframe">'
@@ -262,6 +271,91 @@ echo '    </table>'
 echo '    </td></tr>'
 echo '  </form>'
 echo '</table>'
+
+#***************************************4/9 2014
+
+
+# Function in order to check the CRON Job schedule according to what is present in config file
+pcp_variables
+
+if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
+if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
+if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
+if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
+
+
+if [ $DEBUG = 1 ]; then 
+	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
+	echo '                 [ DEBUG ] $REBOOT_Y: '$REBOOT_Y' <br />'
+	echo '                 [ DEBUG ] $REBOOT_N: '$REBOOT_N' <br />'
+	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
+	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y' <br />'
+	echo '                 [ DEBUG ] $RESTART_N: '$RESTART_N' <br />'
+	echo '                 [ DEBUG ] $RB_H: '$RB_H' <br />'
+	echo '                 [ DEBUG ] $RB_WD: '$RB_WD' <br />'
+	echo '                 [ DEBUG ] $RB_DMONTH: '$RB_DMONTH' <br />'
+	echo '                 [ DEBUG ] $RS_H: '$RS_H' <br />'
+	echo '                 [ DEBUG ] $RS_WD: '$RS_WD' <br />'
+	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
+fi
+
+
+
+echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
+echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
+echo '  <tr><td class="sframe">'
+echo '    <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+echo '      <tr>'
+echo '        <td colspan="3" class="header"><nobr>SCHEDULE CRON JOBS.   (you should at least fill out one of the fields)</nobr></td>'
+echo '      <tr>'
+echo '        <td class="title" width=20%>Schedule reboot</td>'
+
+echo '        <td class="content" width=50%>'
+echo '<div class="REBOOTSCHD">'
+echo '        <label for="RB_H">Hour:</label>'
+echo '        <input name="RB_H" id="RB_H" type="text" maxlength="2" size="2" value='$RB_H' />'
+echo '        <label for="RB_WD">Weekday (0-7):</label>'
+echo '        <input name="RB_WD" id="RB_WD" type="text" maxlength="1" size="1" value='$RB_WD' /> '
+echo '        <label for="RB_DMONTH">Day of Month:</label>'
+echo '        <input name="RB_DMONTH" id="RB_DMONTH" type="text" maxlength="2" size="2" value='$RB_DMONTH' /> '
+
+echo '        <td class="content" width=50%><input type="radio" name="REBOOT" id="Scheduled" value="Enabled" '$REBOOT_Y'>Enabled'
+echo '                                      <input type="radio" name="REBOOT" id="Scheduled" value="Disabled" '$REBOOT_N'>Disabled'
+echo '          <br />'
+echo '</div>'
+echo '        </td>'
+echo '      </tr>'
+
+echo '      <tr>'
+echo '        <td class="title" width=20%>Schedule restart Squeezelite</td>'
+echo '        <td class="content" width=40%>'
+echo '<div class="RESTARTSCHD">'
+echo '        <label for="RS_H">Hour:</label>'
+echo '        <input name="RS_H" id="RS_H" type="text" maxlength="2" size="2" value='$RS_H' />'
+echo '        <label for="RS_WD">Weekday (0-7):</label>'
+echo '        <input name="RS_WD" id="RS_WD" type="text" maxlength="1" size="1" value='$RS_WD' /> '
+echo '        <label for="RS_DMONTH">Day of Month:</label>'
+echo '        <input name="RS_DMONTH" id="RS_DMONTH" type="text" maxlength="2" size="2" value='$RS_DMONTH' /> '
+
+echo '        <td class="content" width=50%><input type="radio" name="RESTART" id="Scheduled" value="Enabled" '$RESTART_Y'>Enabled'
+echo '                                      <input type="radio" name="RESTART" id="Scheduled" value="Disabled" '$RESTART_N'>Disabled'
+echo '          <br />'
+echo '</div>'
+echo '        </td>'
+echo '      </tr>'
+
+echo '        <td colspan=3 class="btnline" >'
+echo '          <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '        </td>'
+echo '      </tr>'
+echo '    </table>'
+echo '    </td></tr>'
+echo '  </form>'
+echo '</table>'
+
+#***************************************4/9 2014   
+
+
 
 # Info section:
 

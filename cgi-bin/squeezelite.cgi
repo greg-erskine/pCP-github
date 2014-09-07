@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 0.02 2014-09-06 SBP
+#   Changed selection of output to a dropdown list
+#   Added support for the B+ I2S-cards
+#   Graphical changes in Squeezelite table 
+
+
 # Version: 0.02 2014-08-22 GE
 #	Added check for pcp_squeezelite_status.
 
@@ -12,22 +18,31 @@ pcp_variables
 
 case "$AUDIO" in
 	Analog*)
-		ANCHECKED="checked"
+		ANCHECKED="selected"
 		;;
 	HDMI*)
-		HDMICHECKED="checked"
+		HDMICHECKED="selected"
 		;;
 	USB*)
-		USBCHECKED="checked"
+		USBCHECKED="selected"
 		;;
 	I2SDAC*)
-		I2DACCHECKED="checked"
+		I2DACCHECKED="selected"
 		;;
 	I2SDIG*)
-		I2DIGCHECKED="checked"
+		I2DIGCHECKED="selected"
 		;;
 	IQaudio*)
-		IQaudioCHECKED="checked"
+		IQaudioCHECKED="selected"
+		;;
+	I2SpDAC*)
+		I2SDACpCHECKED="selected"
+		;;
+	I2SpDIG*)
+		I2SDIGpCHECKED="selected"
+		;;
+	I2SpIQaudIO*)
+		IQaudIOpCHECKED="selected"
 		;;
 	*)
 		CHECKED="Not set"
@@ -56,6 +71,7 @@ pcp_navigation
 
 [ $(pcp_squeezelite_status) = 1 ] && echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
+
 echo '<table border="0" width="960">'
 echo ' <tr>'
 echo '  <td>'
@@ -63,61 +79,26 @@ echo '   <form name="setaudio" action="chooseoutput.cgi" method="get" id="setaud
 echo '    <div class="row">'
 echo '    <fieldset>'
 echo '    <legend>Choose audio output</legend>'
-
 echo '     <table border="0">'
 echo '      <tr class="odd">'
-echo '       <td width="300">'
-echo '        <p><input type="radio" name="AUDIO" value="Analog" id="ANALOG" '$ANCHECKED'> Analog audio</p>'
-echo '       </td>'
-echo '       <td width="640">'
-echo '        <p>Will load optimal analog Squeezelite settings - can be changed later.</p>'
-echo '       </td>'
-echo '      </tr>'
+echo '          <tr>'
+echo '            <td class="title">Choose Audio Output</td>'
+echo '            <td class="content">'
+echo '              <select name="AUDIO">'
+echo '                <option value="Analog" id="ANALOG" '$ANCHECKED'> Analog audio</option>'
+echo '                <option value="HDMI" id="HDMI" '$HDMICHECKED'> HDMI audio</option>'
+echo '                <option value="USB" id="USB" '$USBCHECKED'> USB audio</option>'
+echo '                <option value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'> I2S-audio DAC (HiFiBerry or Sabre ES9023)</option>'
+echo '                <option value="I2SDIG" id="I2SDIG" '$I2DIGCHECKED'> I2S-audio Digi (HiFiBerry I2S Digi)</option>'
+echo '                <option value="IQaudio" id="IQaudio" '$IQaudioCHECKED'> I2S-audio IQaudIO (IQaudIO I2S DAC)</option>'
+echo '                <option value="I2SpDAC" id="I2SpDAC" '$I2SDACpCHECKED'> I2S-audio I2SDAC+ (HiFiBerry DAC+)</option>'
+echo '                <option value="I2SpDIG" id="I2SpDIG" '$I2SDIGpCHECKED'> I2S-audio I2SDigi+ (HiFiBerry Digi+)</option>'
+echo '                <option value="I2SpIQaudIO" id="I2SpIQaudIO" '$IQaudIOpCHECKED'> I2S-audio IQaudIO+ (IQaudIO+ DAC)</option>'
+echo '              </select>'
+echo '            </td>'
+echo '          </tr>'
+echo '          <tr>'
 
-echo '      <tr class="even">'
-echo '       <td width="300">'
-echo '        <p><input type="radio" name="AUDIO" value="HDMI" id="HDMI" '$HDMICHECKED'> HDMI audio</p>'
-echo '       </td>'
-echo '       <td width="640">'
-echo '        <p>[REBOOT NEEDED] Will load optimal HDMI Squeezelite settings - can be changed later.</p>'
-echo '       </td>'
-echo '      </tr>'
-
-echo '      <tr class="odd">'
-echo '       <td width="300">'
-echo '        <p><input type="radio" name="AUDIO" value="USB" id="USB" '$USBCHECKED'> USB audio</p>'
-echo '       </td>'
-echo '       <td width="640">'
-echo '        <p>You will need to change <em>Squeezelite output settings</em> to fit your USB-DAC.</p>'
-echo '       </td>'
-echo '      </tr>'
-
-echo '      <tr class="even">'
-echo '       <td width="300">'
-echo '        <p><input type="radio" name="AUDIO" value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'> I2S-audio DAC (HiFiBerry or Sabre ES9023)</p>'
-echo '       </td>'
-echo '       <td width="640">'
-echo '        <p>You might need to change Squeezelite settings to fit your HiFiBerry/Sabre ES9023-DAC.</p>'
-echo '       </td>'
-echo '      </tr>'
-
-echo '      <tr class="odd">'
-echo '       <td width="300">'
-echo '        <p><input type="radio" name="AUDIO" value="I2SDIG" id="I2SDIG" '$I2DIGCHECKED'> I2S-audio Digi (HiFiBerry I2S Digi)</p>'
-echo '       </td>'
-echo '       <td width="640">'
-echo '        <p>You might need to change Squeezelite settings to fit your HiFiBerry-Digi.</p>'
-echo '       </td>'
-echo '      </tr>'
-
-echo '      <tr class="even">'
-echo '       <td width="300">'
-echo '        <p><input type="radio" name="AUDIO" value="IQaudio" id="IQaudio" '$IQaudioCHECKED'> I2S-audio IQaudIO (IQaudIO I2S DAC)</p>'
-echo '       </td>'
-echo '       <td width="640">'
-echo '        <p>You might need to change Squeezelite settings to fit your IQaudIO-DAC.</p>'
-echo '       </td>'
-echo '      </tr>'
 echo '      <tr class="odd">'
 echo '       <td width="300">'
 echo '        <input type="submit" value="Submit">'
@@ -147,10 +128,17 @@ echo ' </tr>'
 echo '</table>'
 echo '</div>'
 
-echo '<h2>Change Squeezelite settings:</h2>'
 
-echo '<table width="960">'
+echo '<table border="0" width="960">'
+echo ' <tr>'
+echo '  <td>'
 echo '  <form name="squeeze" action="writetoconfig.cgi" method="get">'
+echo '    <div class="row">'
+echo '    <fieldset>'
+echo '    <legend>Change Squeezelite settings</legend>'
+echo '     <table border="0">'
+
+#echo '  <form name="squeeze" action="writetoconfig.cgi" method="get">'
 echo '    <tr class="odd">'
 echo '      <td width="150"><p>Name of your player</p></td>'
 echo '      <td width="210"><input type="text" id="NAME" name="NAME" size="32" maxlength="26" value="'$NAME'"></td>'
@@ -231,6 +219,12 @@ echo '      <td colspan="3"><input type="submit" value="Submit"></td>'
 echo '    </tr>'
 echo '  </form>'
 echo '</table>'
+
+echo '       </td>'
+echo '      </tr>'
+echo '     </table>'
+
+
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_refresh_button
