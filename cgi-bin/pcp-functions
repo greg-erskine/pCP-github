@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.10 2014-09-05 GE
+#	Added INSITU_DOWNLOAD variable.
+
 # Version: 0.09 2014-09-04 GE
 #	Added timezone routine.
 #	Changed size of config.cfg textbox.
@@ -58,6 +61,8 @@ pcp_variables() {
 	UPD_PCP=/tmp/upd_picoreplayer
 	pCPHOME=/home/tc/www/cgi-bin
 
+	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
+
 	# This uses the IP address given in the Squeezelite page and hides the controls if no Server IP address is given
 	LMSIP=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 
@@ -69,9 +74,13 @@ pcp_variables() {
 
 	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
 	MODE=5
+
+	# Use test download area
+	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
 }
 
-pcp_variables && . $CONFIGCFG
+pcp_variables
+. $CONFIGCFG
 
 #=========================================================================================
 # Update the Timezone routine
@@ -166,7 +175,7 @@ pcp_footer() {
 					linux '$(pcp_linux_release)' | 
 					piCore v'$(pcp_picore_version)' | 
 					Squeezelite v'$(pcp_squeezelite_version)' | 
-					'`TZ=$TZ date`'</center></font></p>'
+					'`TZ=$TZ date`'</font></center></p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'

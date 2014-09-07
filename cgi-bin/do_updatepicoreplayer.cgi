@@ -1,19 +1,29 @@
 #!/bin/sh
+
+# Version: 0.06 2014-09-05 GE
+#	Added INSITU_DOWNLOAD variable.
+
+# Version: 0.05 2014-08-23 SBP
+#	Added function so that onboot.lst will not be overwritten.
+#	Added function so that new needed packages for piCorePlayer will be added to onboot.lst from list in the new piCorePlayer home.
+
+# Version: 0.04 2014-07-19 GE
+#	Improved error checking.
+#	Added pcp_go_main_button and pcp_navigation.
+
+# Version: 0.03 2014-07-13 SBP
+#	Added command to remove kernel specific files in the optional directory.
+
+# Version: 0.02 2014-06-24 GE
+#	Rewritten.
+
+# Version: 0.01 2014 SBP
+#	Original.
+
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-
-
-# Version: 0.02 2014-08-23 SBP
-#      Added function so that onboot.lst will not be overwritten
-#	Added function so that new needed packages for piCorePlayer will be added to onboot.lst from list in the new piCorePlayer home
-
-# Version: 0.01 2014-06-25 GE
-#	Original
-
-# $UPD_PSP is defined in pcp-functions
-# i.e. UPD_PCP=/tmp/upd_picoreplayer
 # Read the version from the temp file
 . $UPD_PCP/version.cfg
 
@@ -35,6 +45,7 @@ echo ''
 echo '<body>'
 
 pcp_banner
+pcp_navigation
 pcp_running_script
 pcp_mount_mmcblk0p1
 
@@ -50,37 +61,40 @@ echo '<p class="info">[ INFO ] Your config has been saved so your current settin
 echo '<p class="info">[ INFO ] Untarring '$INSITU'_boot.tar.gz...</p>'
 echo '<textarea name="TextBox" cols="120" rows="8">'
 sudo tar -zxvf $UPD_PCP/boot/"$INSITU"_boot.tar.gz -C /
+result_boot=$?
 echo '</textarea>'
-[ $DEBUG = 1 ] && result=$? && echo '<p class="info">[ INFO ] boot tar: '$result'</p>'
+
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] boot tar result: '$result_boot'</p>'
 
 pcp_umount_mmcblk0p1
 
+if [ $result_boot = 0 ]; then
+	# Delete all the kernel specific files in the optional directory - so no stray files are left
+	sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
 
-#First delete all the kernel specific files in optional directory so no stray files are left
-sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
+	# Untar and overwrite the tce files
+	echo '<p class="info">[ INFO ] Untarring '$INSITU'_tce.tar.gz...</p>'
+	echo '<textarea name="TextBox" cols="120" rows="8">'
+	sudo tar -zxvf $UPD_PCP/tce/"$INSITU"_tce.tar.gz -C /
+	result_tce=$?
+	echo '</textarea>'
 
-# Untar and overwrite the tce files
-echo '<p class="info">[ INFO ] Untarring '$INSITU'_tce.tar.gz...</p>'
-echo '<textarea name="TextBox" cols="120" rows="8">'
-sudo tar -zxvf $UPD_PCP/tce/"$INSITU"_tce.tar.gz -C / --exclude='mnt/mmcblk0p2/tce/onboot.lst'
-echo '</textarea>'
-[ $DEBUG = 1 ] && result=$? && echo '<p class="info">[ INFO ] tce tar: '$result'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] tce tar result: '$result_tce'</p>'
 
-# add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.  
+	if [ $result_tce = 0 ]; then
+		echo '<h2>[ INFO ] piCorePlayer has been updated, please reboot now. And then you should have: '$INSITU'</h2>'
+		pcp_reboot_button
+	else
+		echo '<p>[ ERROR ] piCorePlayer has NOT been updated.</p>'
+	fi
+else
+	echo '<p>[ ERROR ] piCorePlayer has NOT been updated.</p>'
+fi
+
+# Add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.
 fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 
+pcp_go_main_button
 
-echo '<h2>piCorePlayer has been updated, please reboot now. And then you should have: '$INSITU'</h2>'
-echo '<table border="0" cellspacing="0" cellpadding="0" width="960">'
-echo '  <tr height="30">'
-echo '    <td width="150" align="center">'
-echo "      <form name=\"Reboot\" action=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" method=\"get\" id=\"Reboot\">"
-echo '      <input type="submit" value="     Reboot      " /></form>'
-echo '    </td>'
-echo '    <td valign="top">'
-echo '      <p>Reboot - in order to finalize the update</p>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 echo '</body>'
 echo '</html>'
