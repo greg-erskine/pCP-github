@@ -1,4 +1,11 @@
 #!/bin/sh
+
+# Version: 0.02 2014-07-18 GE
+# 	Added support for wireless connection, pcp_controls_mac_address.
+#
+# Version: 0.01 2014-06-27 GE
+#	Original.
+
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -25,15 +32,15 @@ echo ''
 
 pcp_httpd_query_string
 
-# Wireless ???
-PLAYER_MAC=${MAC_ADDRESS:-$(pcp_eth0_mac_address)}
+PLAYER_MAC=$(pcp_controls_mac_address)
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] Command: '$COMMAND'<br />'
+	echo '                 [ DEBUG ] LMS IP address: '$LMSIP'<br />'
 	echo '                 [ DEBUG ] $MAC_ADDRESS: '$MAC_ADDRESS'<br />'
 	echo '                 [ DEBUG ] Physical MAC: '$(pcp_eth0_mac_address)'<br />'
-	echo '                 [ DEBUG ] $PLAYER_MAC: '$PLAYER_MAC'<br />'
-	echo '                 [ DEBUG ] LMS IP address: '$LMSIP'</p>'
+	echo '                 [ DEBUG ] Wireless MAC: '$(pcp_wlan0_mac_address)'<br />'
+	echo '                 [ DEBUG ] $PLAYER_MAC: '$PLAYER_MAC'</p>'
 fi
 
 # $LMSIP, the LMS server ip address, needs to be manually set in pcp-functions
@@ -61,7 +68,7 @@ case $COMMAND in
 		;;		
 esac
 
-pcp_footer
+[ $DEBUG = 1 ] && pcp_footer
 
 echo '</body>'
 echo '</html>'

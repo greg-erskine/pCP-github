@@ -2,7 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.11 2014-09-07 GE
+# Version: 0.12 2014-09-08 GE
+#	Fixed pcp_controls_mac_address.
+
+# Version: 0.11 2014-09-07 SBP
 #	Added support for the DAC+ cards.
 
 # Version: 0.10 2014-09-05 GE
@@ -124,10 +127,22 @@ pcp_eth0_mac_address() {
 }
 
 pcp_controls_mac_address() {
-	PLAYER_MAC="00:00:00:00:00:00"
-	[ $(pcp_eth0_mac_address) ] && PLAYER_MAC=$(pcp_eth0_mac_address)
-	[ $(pcp_wlan0_mac_address) ] && [ $WIFI = "on" ] && PLAYER_MAC=$(pcp_wlan0_mac_address)
-	[ $(pcp_config_mac_address) ] && PLAYER_MAC=$(pcp_config_mac_address)
+	ifconfig eth0 | grep inet &> /dev/null
+	eth0_IP=$?
+	ifconfig wlan0 | grep inet &> /dev/null
+	wlan0_IP=$?
+	PLAYER_MAC=$(pcp_eth0_mac_address)
+	if [ $WIFI = "on" ]; then
+		if [ $wlan0_IP = 0 ]; then
+			PLAYER_MAC=$(pcp_wlan0_mac_address)
+		fi
+		if [ $eth0_IP = 0 ]; then
+			PLAYER_MAC=$(pcp_eth0_mac_address)
+		fi
+	fi
+	if [ $(pcp_config_mac_address) ]; then
+		PLAYER_MAC=$(pcp_config_mac_address)
+	fi
 	echo $PLAYER_MAC
 }
 
