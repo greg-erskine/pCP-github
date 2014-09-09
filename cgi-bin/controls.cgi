@@ -1,8 +1,11 @@
 #!/bin/sh
 
+# Version: 0.03 2014-09-09 GE
+#	Removed $LMSIP using $SERVER_IP instead.
+
 # Version: 0.02 2014-07-18 GE
 # 	Added support for wireless connection, pcp_controls_mac_address.
-#
+
 # Version: 0.01 2014-06-27 GE
 #	Original.
 
@@ -36,35 +39,34 @@ PLAYER_MAC=$(pcp_controls_mac_address)
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] Command: '$COMMAND'<br />'
-	echo '                 [ DEBUG ] LMS IP address: '$LMSIP'<br />'
+	echo '                 [ DEBUG ] LMS IP address: '$SERVER_IP'<br />'
 	echo '                 [ DEBUG ] $MAC_ADDRESS: '$MAC_ADDRESS'<br />'
 	echo '                 [ DEBUG ] Physical MAC: '$(pcp_eth0_mac_address)'<br />'
 	echo '                 [ DEBUG ] Wireless MAC: '$(pcp_wlan0_mac_address)'<br />'
 	echo '                 [ DEBUG ] $PLAYER_MAC: '$PLAYER_MAC'</p>'
 fi
 
-# $LMSIP, the LMS server ip address, needs to be manually set in pcp-functions
 case $COMMAND in
 	random_tracks)
-		echo "$PLAYER_MAC randomplay tracks" | telnet $LMSIP:9090
+		echo "$PLAYER_MAC randomplay tracks" | telnet $SERVER_IP:9090
 		;;
 	volume_up)
-		echo "$PLAYER_MAC mixer volume +5" | telnet $LMSIP:9090
+		echo "$PLAYER_MAC mixer volume +5" | telnet $SERVER_IP:9090
 		;;
 	volume_down)
-		echo "$PLAYER_MAC mixer volume -5" | telnet $LMSIP:9090
+		echo "$PLAYER_MAC mixer volume -5" | telnet $SERVER_IP:9090
 		;;		
 	track_next)
-		echo "$PLAYER_MAC playlist index +1" | telnet $LMSIP:9090
+		echo "$PLAYER_MAC playlist index +1" | telnet $SERVER_IP:9090
 		;;
 	track_prev)
-		echo "$PLAYER_MAC playlist index -1" | telnet $LMSIP:9090
+		echo "$PLAYER_MAC playlist index -1" | telnet $SERVER_IP:9090
 		;;
 	play)
-		echo "$PLAYER_MAC play" | telnet $LMSIP:9090
+		echo "$PLAYER_MAC play" | telnet $SERVER_IP:9090
 		;;
 	stop)
-	    echo "$PLAYER_MAC stop" | telnet $LMSIP:9090
+	    echo "$PLAYER_MAC stop" | telnet $SERVER_IP:9090
 		;;		
 esac
 

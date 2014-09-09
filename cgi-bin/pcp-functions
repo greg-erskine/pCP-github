@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.13 2014-09-09 GE
+#	Added pcp_auto_start_lms.
+#	Removed $LMSIP using $SERVER_IP instead.
+
 # Version: 0.12 2014-09-08 GE
 #	Fixed pcp_controls_mac_address.
 
@@ -69,14 +73,11 @@ pcp_variables() {
 
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 
-	# This uses the IP address given in the Squeezelite page and hides the controls if no Server IP address is given
-	LMSIP=`echo $SERVER_IP | awk -F: '{ print $1 }'`
-
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	TEST=1
+	TEST=0
 
 	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
 	MODE=5
@@ -201,7 +202,7 @@ pcp_footer() {
 }
 
 pcp_controls() {
-	if [ X"" != X"$LMSIP" ]; then
+	if [ X"" != X"$SERVER_IP" ]; then
 		echo '<!-- Start of pcp_controls -->'
 		echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
 		echo '  <tr>'
@@ -323,6 +324,27 @@ pcp_squeezelite_restart() {
 pcp_squeezelite_status() {
 	sudo /usr/local/etc/init.d/squeezelite status > /dev/null 2>&1
 	echo $?
+}
+
+#=========================================================================================
+# Auto start LMS routine
+#	This routine will allow you to set a LMS command to auto start a LMS command after
+#	a "hard power on". This will be handy for people building pseudo radios. This routine
+#	is called from do_rebootstuff.sh.
+# 
+# Example $AUTOSTARTLMS:
+#	randomplay tracks
+#	playlist play http://opml.radiotime.com/Tune.ashx?id=s99312&formats=aac,ogg,mp3&partnerId=16&serial=05edb36d50ac02d1d1eeaa23a487968a
+#	playlist play http://stream-tx1.radioparadise.com/aac-32
+#	playlist play http://radioparadise.com/m3u/aac-128.m3u
+#-----------------------------------------------------------------------------------------
+pcp_auto_start_lms() {
+	if [ X"" != X"$SERVER_IP" ] && [ X"" != X"$AUTOSTARTLMS" ]; then
+		PLAYER_MAC=$(pcp_controls_mac_address)
+		# Decode variables using httpd, no quotes
+		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+		echo "$PLAYER_MAC $AUTOSTARTLMS" | telnet $SERVER_IP:9090
+	fi
 }
 
 #=========================================================================================
@@ -483,4 +505,3 @@ pcp_enable_iqaudio_dac_p() {
 #	sudo modprobe -q snd_soc_iqaudio_dac
 #	sleep 1
 }
-

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-09-09 GE
+#	Added pcp_auto_start_lms at end of script.
+
 # Version: 0.05 2014-09-04 GE
 #	Added timezone function.
 
@@ -207,3 +210,4 @@ sleep 3
 /usr/local/etc/init.d/squeezelite start
 
 pcp_set_timezone
+pcp_auto_start_lms

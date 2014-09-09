@@ -1,11 +1,13 @@
 #!/bin/sh
 
+# Version: 0.03 2014-09-09 GE
+#   Added Auto start LMS command.
+
 # Version: 0.02 2014-09-06 SBP
-#   Added cronjob
+#   Added cronjob.
 
 # Version: 0.01 2014-08-06 GE
-#   Original version
-
+#   Original version.
 
 . pcp-functions
 pcp_variables
@@ -136,6 +138,30 @@ echo '          </td>'
 echo '        </tr>'
 echo '      </form>'
 echo '    </table>'
+
+#******************************************************* 2014-09-09 GE *************************************************************
+# Decode variables using httpd, no quotes
+AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+
+echo '    <br />'
+echo '    <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+echo '      <form name="autostartlms" action="autostartlms.cgi" method="get">'
+echo '        <tr>'
+echo '          <td class="title">Auto start LMS</td>'
+echo '          <td class="content" width=80%>'
+echo '            <input type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
+echo '            Cut and paste your auto start LMS command.'
+echo '          </td>'
+echo '        </tr>'
+echo '        <tr>'
+echo '          <td colspan=2 class="btnline" >'
+echo '            <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '          </td>'
+echo '        </tr>'
+echo '      </form>'
+echo '    </table>'
+#******************************************************* 2014-09-09 GE *************************************************************
+
 echo '  </td></tr>'
 echo '</table>'
 
@@ -224,8 +250,6 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
 fi
 
-
-
 echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
 echo '  <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 echo '  <tr><td class="sframe">'
@@ -283,7 +307,6 @@ if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
 if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
 if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
 
-
 if [ $DEBUG = 1 ]; then 
 	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 	echo '                 [ DEBUG ] $REBOOT_Y: '$REBOOT_Y' <br />'
@@ -298,8 +321,6 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $RS_WD: '$RS_WD' <br />'
 	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
 fi
-
-
 
 echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
 echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
