@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2014-09-04 GE
+#	Added cron-job variables and LMS auto-start variable.
+
 # Version: 0.06 2014-09-09 GE
 #	Added pcp_auto_start_lms at end of script.
 
@@ -75,6 +78,15 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
 	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
 fi
 
 # Rename the newconfig file on USB
@@ -115,6 +127,15 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
 	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
 fi
 
 # Save changes caused by the presence of a newconfig.cfg file
