@@ -327,7 +327,7 @@ echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
 echo '  <tr><td class="sframe">'
 echo '    <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
 echo '      <tr>'
-echo '        <td colspan="3" class="header"><nobr>SCHEDULE CRON JOBS.   (you should at least fill out one of the fields)</nobr></td>'
+echo '        <td colspan="3" class="header"><nobr>SCHEDULE CRON JOBS.   (Please fill out the fields. If you use * it means every hour, every day etc)</nobr></td>'
 echo '      <tr>'
 echo '        <td class="title" width=20%>Schedule reboot</td>'
 

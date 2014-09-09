@@ -23,9 +23,12 @@ echo '</head>'
 echo ''
 echo '<body>'
 
+pcp_controls
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
+pcp_navigation
+
 
 
 #---------------------
@@ -34,8 +37,11 @@ pcp_httpd_query_string
 # Decode Reboot variables using httpd, add quotes
 REBOOT=`sudo /usr/local/sbin/httpd -d \"$REBOOT\"`
 RB_H=`sudo /usr/local/sbin/httpd -d \"$RB_H\"`
+if [[ X'""' = X"$RB_H" ]]; then  RB_H='"0"'; else break; fi
 RB_WD=`sudo /usr/local/sbin/httpd -d \"$RB_WD\"`
+if [[ X'""' = X"$RB_WD" ]]; then  RB_WD='"0"'; else break; fi
 RB_DMONTH=`sudo /usr/local/sbin/httpd -d \"$RB_DMONTH\"`
+if [[ X'""' = X"$RB_DMONTH" ]]; then  RB_DMONTH='"1"'; else break; fi
 
 sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
 sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
@@ -48,8 +54,11 @@ sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
 # Decode Reboot variables using httpd, add quotes
 RESTART=`sudo /usr/local/sbin/httpd -d \"$RESTART\"`
 RS_H=`sudo /usr/local/sbin/httpd -d \"$RS_H\"`
+if [[ X'""' = X"$RS_H" ]]; then  RS_H='"0"'; else break; fi
 RS_WD=`sudo /usr/local/sbin/httpd -d \"$RS_WD\"`
+if [[ X'""' = X"$RS_WD" ]]; then  RS_WD='"0"'; else break; fi
 RS_DMONTH=`sudo /usr/local/sbin/httpd -d \"$RS_DMONTH\"`
+if [[ X'""' = X"$RS_DMONTH" ]]; then  RS_DMONTH='"1"'; else break; fi
 
 sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
 sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
@@ -61,25 +70,21 @@ sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
 #--------------------
 # Setup reboot con job
 . /$CONFIGCFG
-RB_CRON="* $RB_H $RB_DMONTH * $RB_WD $pCPHOME/reboot.sh"
-RS_CRON="* $RS_H $RS_DMONTH * $RS_WD $pCPHOME/restart.sh"
+RB_CRON="0 $RB_H $RB_DMONTH * $RB_WD $pCPHOME/reboot.sh"
+RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD $pCPHOME/restart.sh"
 
 
 #Add or remove reboot job dependent upon selection:
 	if [ $REBOOT = Enabled ]; then
-		echo "enabled"
 		( crontab -l | grep -v "reboot" ; echo "$RB_CRON" ) | crontab -
 	else
-		echo "disabled"
 		( crontab -l | grep -v "reboot" ) | crontab -
 	fi 
 
 #Add or remove restart job dependent upon selection:
 	if [ $RESTART = Enabled ]; then
-		echo "enabled"
 		( crontab -l | grep -v "restart" ; echo "$RS_CRON" ) | crontab -
 	else
-		echo "disabled"
 		( crontab -l | grep -v "restart" ) | crontab -
 	fi 
 	
