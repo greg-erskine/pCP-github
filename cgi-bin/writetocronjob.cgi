@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2014-10-09 SBP
+#	Fixed reboot and restart Squeezelite commands, added DEBUG.
+
 # Version: 0.01 2014-09-09 SBP
 #	Original.
 
@@ -25,9 +28,10 @@ echo '<body>'
 
 pcp_controls
 pcp_banner
+pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
-pcp_navigation
+
 
 
 
@@ -68,11 +72,10 @@ sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
 #--------------------
 #Setup cron jobs 
 #--------------------
-# Setup reboot con job
+# Setup reboot cron job
 . /$CONFIGCFG
-RB_CRON="0 $RB_H $RB_DMONTH * $RB_WD $pCPHOME/reboot.sh"
-RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD $pCPHOME/restart.sh"
-
+RB_CRON="0 $RB_H $RB_DMONTH * $RB_WD /sbin/reboot"
+RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD /usr/local/etc/init.d/squeezelite restart"
 
 #Add or remove reboot job dependent upon selection:
 	if [ $REBOOT = Enabled ]; then
@@ -88,21 +91,25 @@ RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD $pCPHOME/restart.sh"
 		( crontab -l | grep -v "restart" ) | crontab -
 	fi 
 	
-	
-	
-	
-#remove cronjob is reboot is disabled
-#( crontab -l | grep -v "reboot" ) | crontab -
 
-#cat < (crontab -l) |grep -v "$RB_CRON" < (echo "$RB_CRON")
-
-# Setup restart squeezelite cron job
-#RS_CRON="* '$RS_H' '$RS_DMONTH' * '$RS_WD' /restart"
-#cat < (crontab -l) |grep -v "${RS_CRON}" < (echo "${RS_CRON}")
-#echo "cronjob er" $RS_CRON
-#( crontab -l | grep -v "$RB_CRON" ; echo "$RB_CRON" ) | crontab -
-
-
+if [ $DEBUG = 1 ]; then 
+	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
+	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
+	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y' <br />'
+	echo '                 [ DEBUG ] $RESTART_N: '$RESTART_N' <br />'
+	echo '                 [ DEBUG ] $RB_H: '$RB_H' <br />'
+	echo '                 [ DEBUG ] $RB_WD: '$RB_WD' <br />'
+	echo '                 [ DEBUG ] $RB_DMONTH: '$RB_DMONTH' <br />'
+	echo '                 [ DEBUG ] $RS_H: '$RS_H' <br />'
+	echo '                 [ DEBUG ] $RS_WD: '$RS_WD' <br />'
+	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
+	echo '                 [ DEBUG ] $RB_CRON: "$RB_CRON" <br />'
+	echo '                 [ DEBUG ] $RS_CRON: "$RS_CRON" <br />'
+	echo '      <textarea name="TextBox" cols="120" rows="7">'
+	echo '			Content of crontab file:'
+					sudo cat /var/spool/cron/crontabs/root
+	echo '      </textarea>'
+fi
 
 
 pcp_show_config_cfg
