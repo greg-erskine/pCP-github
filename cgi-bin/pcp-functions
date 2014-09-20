@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.14 2014-09-20 GE
+#	Modified HTML to improve cross browser support.
+
 # Version: 0.13 2014-09-09 GE
 #	Added pcp_auto_start_lms.
 #	Removed $LMSIP using $SERVER_IP instead.
@@ -74,10 +77,10 @@ pcp_variables() {
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	TEST=0
+	TEST=1
 
 	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
 	MODE=5
@@ -152,7 +155,7 @@ pcp_controls_mac_address() {
 #-----------------------------------------------------------------------------------------
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
-	echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="958" /></p>'
@@ -164,7 +167,7 @@ pcp_banner() {
 
 pcp_navigation() {
 	echo '<!-- Start of pcp_navigation -->'
-	echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
@@ -204,7 +207,7 @@ pcp_footer() {
 pcp_controls() {
 	if [ X"" != X"$SERVER_IP" ]; then
 		echo '<!-- Start of pcp_controls -->'
-		echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+		echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 		echo '  <tr>'
 		echo '    <td>'
 		echo '      <p>'
