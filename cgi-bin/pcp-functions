@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.14 2014-09-25 SBP
+#	Added support for the hifiberry DAC+ and Digi+
+#   Added support for the IQaudIO+ DAC
+
 # Version: 0.13 2014-09-09 GE
 #	Added pcp_auto_start_lms.
 #	Removed $LMSIP using $SERVER_IP instead.
@@ -444,13 +448,14 @@ pcp_shutdown() {
 #-----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
 	pcp_squeezelite_stop
-
+    sleep 1
 	# Remove HiFiBerry digi/DAC and IQaudIO DAC modules
+	sudo modprobe -qr snd_soc_wm8804
 	sudo modprobe -qr snd_soc_hifiberry_dac
 	sudo modprobe -qr snd_soc_hifiberry_digi
 	sudo modprobe -qr snd_soc_iqaudio_dac
-	sudo modprobe -qr snd_soc_pcm5102a
-	sudo modprobe -qr snd_soc_pcm512x
+#	sudo modprobe -qr snd_soc_pcm5102a
+#	sudo modprobe -qr snd_soc_pcm512x
 }
 
 pcp_enable_i2s_dac() {
@@ -470,13 +475,14 @@ pcp_enable_i2s_digi() {
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_wm8804
+	sleep 1
 	sudo modprobe -q snd_soc_hifiberry_digi
 }
 
 pcp_enable_iqaudio_dac() {
 	pcp_disable_i2s
 
-	# Load the correct modules for IQaudio DAC 
+	# Load the correct modules for IQaudio DAC and I think IQaudIO DAC+ 
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm512x
@@ -489,11 +495,16 @@ pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
 
 	# Load the correct modules for HiFiBerry DAC+ 
-	sudo modprobe -q snd_soc_bcm2708
-	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_hifiberry_dacplus
+	sudo modprobe snd_soc_pcm512x_i2c 
+	sudo modprobe snd_soc_pcm512x
+	sudo modprobe snd_soc_bcm2708_i2s
+	sudo modprobe bcm2708_dmaengine
+	sudo modprobe snd_pcm_dmaengine
+	sudo modprobe snd_soc_hifiberry_dacplus
 }
 
+
+	
 pcp_enable_iqaudio_dac_p() {
 	pcp_disable_i2s
 

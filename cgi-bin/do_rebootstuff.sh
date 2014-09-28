@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-09-28 SBP
+#	Added support for the HiFiBerry+ and IQaudIO+ cards. Improved the custom ALSA settings logic.
+
 # Version: 0.05 2014-09-04 GE
 #	Added cron-job variables and LMS auto-start variable.
 
@@ -214,20 +217,32 @@ if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
 if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
 if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
 if [ $AUDIO = I2SDIG ]; then pcp_enable_i2s_digi; else break; fi
+if [ $AUDIO = I2SpDAC ]; then pcp_enable_hifiberry_dac_p; else break; fi
+if [ $AUDIO = I2SpDIG ]; then pcp_enable_i2s_digi; else break; fi
+if [ $AUDIO = I2SpIQaudIO ]; then pcp_enable_iqaudio_dac; else break; fi
 if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 
+
+#need sleep for 1 sec otherwise aplay can not see the card
+sleep 1
 # Check for onboard sound card is card=0, so amixer is only used here
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	if [ $ALSAlevelout = default ]; then
+	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute
 	fi
 fi
 
+#if Custom alsa settings are used, then restore the settings
+if [ $ALSAlevelout = Custom ]; then
+	alsactl restore
+fi
+
+
 # Start the essential stuff for piCorePlayer
 /usr/local/etc/init.d/dropbear start
 /usr/local/etc/init.d/httpd start
-sleep 3
+sleep 1
 /usr/local/etc/init.d/squeezelite start
 
 pcp_set_timezone

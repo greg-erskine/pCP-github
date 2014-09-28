@@ -1,4 +1,16 @@
 #!/bin/sh
+
+# Version: 0.3 2014-09-25 SBP
+#	Added support for the hifiberry DAC+ and Digi+
+#   Added support for the IQaudIO+ DAC
+
+# Version: 0.2 2014-08-08 GE
+#	Major clean up
+
+# Version: 0.1 SBP
+#	Initial version
+
+
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -36,21 +48,11 @@ if [ $DEBUG = 1 ]; then
 fi
 
 ##### Needs work #####
-# Could we just stop Squeezelite for everything? and start again at the end?
+# Could we just stop Squeezelite for everything? and start again at the end? - yep good idea
 #####
-# if using hifiberry DAC or Digi then stop player before removing the modules
-if [ $OUTPUT = hw:CARD=sndrpihifiberry ]; then
-	echo '<p class="info">[ INFO ] Stopping Squeezelite because HiFiBerry module will be manipulated.</p>'
-	echo '<p class="warning">[ WARNING ] You will need to restart Squeezelite from the Main Page.</p>'
-	pcp_squeezelite_stop
-fi 
-if [ $OUTPUT = hw:CARD=sndrpiiqaudioda ]; then
-	echo '<p class="info">[ INFO ] Stopping Squeezelite because IQaudIO module will be manipulated.</p>'
-    echo '<p class="warning">[ WARNING ] You will need to restart Squeezelite from the Main Page.</p>'
-	pcp_squeezelite_stop
-fi
-sleep 1
-######################
+
+pcp_squeezelite_stop
+
 
 # Set the default settings
 case "$AUDIO" in
@@ -103,15 +105,45 @@ case "$AUDIO" in
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
 		pcp_enable_iqaudio_dac
 		sudo ./disablehdmi.sh
-		OUTPUT="hw:CARD=sndrpiiqaudioda"
+		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
 		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
+	\"I2SpDAC*)
+		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
+		pcp_enable_hifiberry_dac_p
+		sudo ./disablehdmi.sh
+		OUTPUT="hw:CARD=sndrpihifiberry"
+		ALSA_PARAMS="80:4::"
+		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
+		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
+		;;	
+	\"I2SpDIG*)
+		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
+		pcp_enable_i2s_digi
+		sudo ./disablehdmi.sh
+		OUTPUT="hw:CARD=sndrpihifiberry"
+		ALSA_PARAMS="80:4::"
+		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
+		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
+		;;
+	\"I2SpIQaudIO*)
+		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
+		pcp_enable_iqaudio_dac
+		sudo ./disablehdmi.sh
+		OUTPUT="hw:CARD=IQaudIODAC"
+		ALSA_PARAMS="80:4::"
+		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
+		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
+		;;	
+		
 	*)
 		echo '<p class="error">[ ERROR ] Error setting '$AUDIO'</p>'
 		;;
 esac
+
+pcp_squeezelite_start
 
 pcp_show_config_cfg
 pcp_backup
