@@ -2,9 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.14 2014-09-25 SBP
+Version: 0.15 2014-09-25 SBP
 #	Added support for the hifiberry DAC+ and Digi+
 #   Added support for the IQaudIO+ DAC
+
+
+# Version: 0.14 2014-09-20 GE
+#	Modified HTML to improve cross browser support.
 
 # Version: 0.13 2014-09-09 GE
 #	Added pcp_auto_start_lms.
@@ -156,7 +160,7 @@ pcp_controls_mac_address() {
 #-----------------------------------------------------------------------------------------
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
-	echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="958" /></p>'
@@ -168,7 +172,7 @@ pcp_banner() {
 
 pcp_navigation() {
 	echo '<!-- Start of pcp_navigation -->'
-	echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
@@ -208,7 +212,7 @@ pcp_footer() {
 pcp_controls() {
 	if [ X"" != X"$SERVER_IP" ]; then
 		echo '<!-- Start of pcp_controls -->'
-		echo '<table border="0" bgcolor="ffffff" cellspacing="0" cellpadding="0" width="960">'
+		echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 		echo '  <tr>'
 		echo '    <td>'
 		echo '      <p>'
