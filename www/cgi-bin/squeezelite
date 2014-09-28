@@ -1,0 +1,88 @@
+#!/bin/sh
+
+PNAME=Squeezelite
+DESC="Squeezelite player"
+DAEMON=/mnt/mmcblk0p2/tce/squeezelite-armv6hf
+PIDFILE=/var/run/squeezelite.pid
+
+# Read from config file..
+. /usr/local/sbin/config.cfg
+
+# Check if variable is present then add the correct option in front
+
+if [[ X"" = X"$NAME" ]]; then NAME=""; else NAME="-n $NAME"; fi
+if [[ X"" = X"$OUTPUT" ]]; then OUTPUT=""; else OUTPUT="-o $OUTPUT"; fi
+if [[ X"" = X"$ALSA_PARAMS" ]]; then ALSA_PARAMS=""; else ALSA_PARAMS="-a $ALSA_PARAMS"; fi
+if [[ X"" = X"$BUFFER_SIZE" ]]; then BUFFER_SIZE=""; else BUFFER_SIZE="-b $BUFFER_SIZE"; fi
+if [[ X"" = X"$_CODEC" ]]; then _CODEC=""; else _CODEC="-c $_CODEC"; fi
+if [[ X"" = X"$PRIORITY" ]]; then PRIORITY=""; else PRIORITY="-p $PRIORITY"; fi
+if [[ X"" = X"$MAX_RATE" ]]; then MAX_RATE=""; else MAX_RATE="-r $MAX_RATE"; fi
+if [[ X"" = X"$UPSAMPLE" ]]; then UPSAMPLE=""; else UPSAMPLE="-R $UPSAMPLE"; fi
+if [[ X"" = X"$MAC_ADDRESS" ]]; then MAC_ADDRESS=""; else MAC_ADDRESS="-m $MAC_ADDRESS"; fi
+if [[ X"" = X"$SERVER_IP" ]]; then SERVER_IP=""; else SERVER_IP="-s $SERVER_IP"; fi
+if [[ X"" = X"$LOGLEVEL" ]]; then LOGLEVEL=""; else LOGLEVEL="-d $LOGLEVEL"; fi
+if [[ X"" = X"$DSDOUT" ]]; then DSDOUT=""; else DSDOUT="-D $DSDOUT"; fi
+if [[ X"" = X"$VISULIZER" ]]; then VISULIZER=""; else VISULIZER="-V $VISULIZER"; fi
+if [[ X"" = X"$OTHER" ]]; then OTHER=""; else OTHER="$OTHER"; fi
+if [[ X"" = X"$LOGFILE" ]]; then LOGFILE=""; else LOGFILE="-f /mnt/sda1/$LOGFILE"; fi
+
+OPTIONS="$NAME $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISULIZER $OTHER $LOGFILE"
+
+case "$1" in
+	start)
+		if [ -f $PIDFILE ] ; then
+			echo "$PNAME already running."
+			exit 1
+		fi
+			echo "Starting $DESC: $PNAME..."
+			start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- $OPTIONS
+			;;
+	stop)
+		if [ ! -f $PIDFILE ] ; then
+			echo "$PNAME is not running."
+			exit 1
+		fi
+			echo "Stopping $DESC: $PNAME..."
+			start-stop-daemon --stop --quiet -p $PIDFILE
+			rm -f $PIDFILE
+			;;
+	restart)
+		if [ ! -f $PIDFILE ] ; then
+			echo "$PNAME is not running."
+#			exit 1
+		fi
+		echo "Restarting $DESC..."
+		start-stop-daemon --stop --quiet -p $PIDFILE
+		sleep 3
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- $OPTIONS
+		;;
+	force)
+		echo "Attempting to force a restart of $PNAME..."
+		if [ -f $PIDFILE ] ; then
+			kill `cat $PIDFILE`
+			rm -f $PIDFILE
+#		else
+#			ps -ef | grep squeeze | grep -v grep | awk '{print $1}' | xargs kill -9
+		fi
+		sleep 5
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- $OPTIONS
+		;;
+	status)
+		if [ -f  $PIDFILE ]; then
+			echo "$PNAME is running with options: $OPTIONS"
+			exit 0
+		else
+			echo "$PNAME not running."
+		exit 1
+		fi
+		;;
+	*)
+		echo ""
+		echo -e "Usage: /usr/local/etc/init.d/`basename $0` [start|stop|restart|force|status]"
+		echo ""
+		exit 1
+		;;
+esac
+
+exit 0
+
