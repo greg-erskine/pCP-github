@@ -100,6 +100,19 @@ a.nav:active, a.nav2:active {
 	border:0px;
 }
 
+.more {
+	display:block;
+}
+
+.less {
+	display:none;
+}
+
+.moreless {
+	font-size:10px;
+	color:#cc3300;
+}
+
 /*This is for making a nice squeezeliteform*/
 
 div.row {background:#cccccc;border:2px solid #eaeaea;margin:0 0 5px 0;float:left;width:100%;padding:6px 0;}
