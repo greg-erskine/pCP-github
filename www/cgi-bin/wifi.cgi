@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-09-30 GE
+#	Added footer when No wifi devices found! .
+
 # Version: 0.05 2014-09-13 GE
 #	Added new available networks routine.
 #	Added double quotes around $SSID to handle spaces in SSID.
@@ -155,6 +158,11 @@ available_networks_1() {
 	done
 	if [ -z "$WIFI" ]; then
 		echo "No wifi devices found!"
+		echo '</textarea>'
+		pcp_refresh_button
+		pcp_footer
+		echo '</body>'
+		echo '</html>'
 		exit 1
 	fi
 	ifconfig "$WIFI" up 2>/dev/null
