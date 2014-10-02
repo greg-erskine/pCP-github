@@ -245,5 +245,9 @@ fi
 sleep 1
 /usr/local/etc/init.d/squeezelite start
 
-pcp_set_timezone
+#only call timezone function if timezone variable is set
+if [ X"" != X"$TIMEZONE" ]; then
+	pcp_set_timezone
+fi
+
 pcp_auto_start_lms
