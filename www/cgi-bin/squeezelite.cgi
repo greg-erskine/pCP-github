@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2014-10-02 GE
+#	Added uptime delay before pcp_squeezelite_status is checked.
+
 # Version: 0.03 2014-09-26 GE
 #	Modified HTML to improve cross browser support.
 #	Added more> function.
@@ -73,7 +76,8 @@ pcp_controls
 pcp_banner
 pcp_navigation
 
-[ $(pcp_squeezelite_status) = 1 ] && echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
+[ $(pcp_uptime_minutes) -gt 0 ] && [ $(pcp_squeezelite_status) = 1 ] &&
+echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
 echo '<table border="0" cellspacing="0" cellpadding="0" width="960">'
 echo '  <tr>'

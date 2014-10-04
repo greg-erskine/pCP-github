@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2014-10-02 GE
+#	Activated $MODE=5 for AUTOSTARTLMS.
+
 # Version: 0.04 2014-09-10 GE
 #   Added reformatted html.
 
@@ -155,24 +158,26 @@ echo '      <br />'
 
 #******************************************************* 2014-09-09 GE *************************************************************
 # Decode variables using httpd, no quotes
-AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+if [ $MODE -gt 4 ]; then
+	AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
 
-echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
-echo '        <form name="autostartlms" action="autostartlms.cgi" method="get">'
-echo '          <tr>'
-echo '            <td class="title">Auto start LMS</td>'
-echo '            <td class="content" width=80%>'
-echo '              <input type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
-echo '                Cut and paste your auto start LMS command.'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
-echo '            </td>'
-echo '          </tr>'
-echo '        </form>'
-echo '      </table>'
+	echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+	echo '        <form name="autostartlms" action="autostartlms.cgi" method="get">'
+	echo '          <tr>'
+	echo '            <td class="title">Auto start LMS</td>'
+	echo '            <td class="content" width=80%>'
+	echo '              <input type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
+	echo '                Cut and paste your auto start LMS command.'
+	echo '            </td>'
+	echo '          </tr>'
+	echo '          <tr>'
+	echo '            <td colspan=2 class="btnline" >'
+	echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+	echo '            </td>'
+	echo '          </tr>'
+	echo '        </form>'
+	echo '      </table>'
+fi
 #******************************************************* 2014-09-09 GE *************************************************************
 
 echo '    </td>'

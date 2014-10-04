@@ -2,10 +2,15 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-Version: 0.15 2014-09-25 SBP
-#	Added support for the hifiberry DAC+ and Digi+
-#   Added support for the IQaudIO+ DAC
+# Version: 0.16 2014-10-02 GE
+#	Added pcp_uptime_minutes routine.
+#	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
+#	Updated footer to use style footer.
+#	Activated $MODE=5 for pcp_controls.
 
+# Version: 0.15 2014-09-25 SBP
+#	Added support for the hifiberry DAC+ and Digi+
+#	Added support for the IQaudIO+ DAC
 
 # Version: 0.14 2014-09-20 GE
 #	Modified HTML to improve cross browser support.
@@ -87,7 +92,7 @@ pcp_variables() {
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
 	TEST=0
 
-	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
+	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
 	MODE=5
 
 	# Use test download area
@@ -194,15 +199,15 @@ pcp_footer() {
 	echo '<!-- Start of pcp_footer -->'
 	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
 	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p><center><font color="ffffff">
+	echo '    <td height="24">'
+	echo '      <p class="footer">
 					'$NAME' |
 					'$(pcp_controls_mac_address)' | 
 					piCorePlayer v'$(pcp_picoreplayer_version)' | 
 					linux '$(pcp_linux_release)' | 
 					piCore v'$(pcp_picore_version)' | 
 					Squeezelite v'$(pcp_squeezelite_version)' | 
-					'`TZ=$TZ date`'</font></center></p>'
+					'`TZ=$TZ date`'</p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -210,24 +215,26 @@ pcp_footer() {
 }
 
 pcp_controls() {
-	if [ X"" != X"$SERVER_IP" ]; then
-		echo '<!-- Start of pcp_controls -->'
-		echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
-		echo '      </p>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-		echo '<!-- End of pcp_controls -->'
+	if [ $MODE -gt 4 ]; then
+		if [ X"" != X"$SERVER_IP" ]; then
+			echo '<!-- Start of pcp_controls -->'
+			echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+			echo '  <tr>'
+			echo '    <td>'
+			echo '      <p>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
+			echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+			echo '      </p>'
+			echo '    </td>'
+			echo '  </tr>'
+			echo '</table>'
+			echo '<!-- End of pcp_controls -->'
+		fi
 	fi
 }
 
@@ -310,14 +317,12 @@ pcp_httpd_query_string() {
 #-----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
-	#sudo /usr/local/etc/init.d/squeezelite_initd start
 	sudo /usr/local/etc/init.d/squeezelite start
 	echo '</p>'
 }
 
 pcp_squeezelite_stop() {
 	echo '<p class="info">[ INFO ] '
-	#sudo /usr/local/etc/init.d/squeezelite_initd stop
 	sudo /usr/local/etc/init.d/squeezelite stop
 	echo '</p>'
 }
@@ -335,6 +340,20 @@ pcp_squeezelite_status() {
 }
 
 #=========================================================================================
+# Determine the system uptime in minutes
+#-----------------------------------------------------------------------------------------
+pcp_uptime_minutes() {
+	uptime | grep min >> /dev/null
+	if [ $? = 0 ]; then 
+		UPTIME_MIN=$(uptime | awk '{ print $3 }')
+	else
+		UPTIME=$(uptime | awk '{ print $3 }' | sed s/,//g)
+		UPTIME_MIN=$(echo $UPTIME | awk -F: '{ print $1*60+$2}')
+	fi
+	echo $UPTIME_MIN
+}
+
+#=========================================================================================
 # Auto start LMS routine
 #	This routine will allow you to set a LMS command to auto start a LMS command after
 #	a "hard power on". This will be handy for people building pseudo radios. This routine
@@ -349,9 +368,10 @@ pcp_squeezelite_status() {
 pcp_auto_start_lms() {
 	if [ X"" != X"$SERVER_IP" ] && [ X"" != X"$AUTOSTARTLMS" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
+		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		# Decode variables using httpd, no quotes
 		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
-		echo "$PLAYER_MAC $AUTOSTARTLMS" | telnet $SERVER_IP:9090
+		echo "$PLAYER_MAC $AUTOSTARTLMS" | telnet $SERVER_IP_NO_PORT:9090
 	fi
 }
 
@@ -507,8 +527,6 @@ pcp_enable_hifiberry_dac_p() {
 	sudo modprobe snd_soc_hifiberry_dacplus
 }
 
-
-	
 pcp_enable_iqaudio_dac_p() {
 	pcp_disable_i2s
 
