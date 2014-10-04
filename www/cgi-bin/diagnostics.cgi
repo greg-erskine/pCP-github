@@ -1,9 +1,13 @@
 #!/bin/sh
 # Diagnostics script
 
+# version: 0.03 2014-10-02 GE
+#	Added $MODE=5 requirement.
+#	Modified textarea behaviour.
+
 # version: 0.02 2014-07-21 GE
 #	Added pcp_go_main_button.
-#
+
 # version: 0.01 2014-06-24 GE
 #	Orignal.
 
@@ -26,6 +30,7 @@ echo '  <title>pCP - Diagnostics</title>'
 echo '  <meta name="author" content="Steen" />'
 echo '  <meta name="description" content="Diagnostics" />'
 echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
+echo '  <script language="Javascript" src="../js/piCorePlayer.js"></script>'
 echo '</head>'
 echo ''
 echo '<body>'
@@ -35,25 +40,33 @@ pcp_navigation
 pcp_running_script
 pcp_go_main_button
 
-echo '<p style="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
-echo '                 [ DEBUG ] eth0: '$(pcp_eth0_mac_address)'<br />'
-echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
-echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
+if [ $MODE -lt 5 ]; then
+	echo '</body>'
+	echo '</html>'
+	exit 1
+fi
+
+if [ $DEBUG = 1 ]; then
+	echo '<p class="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
+	echo '                 [ DEBUG ] eth0: '$(pcp_eth0_mac_address)'<br />'
+	echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
+	echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
+fi
 
 echo '<h2>[ INFO ] piCore version: '$(pcp_picore_version)'</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="2">'
+echo "<textarea id=\"textbox1\" style=\"height:40px;\" onfocus=\"setbg('textbox1','white');\" onblur=\"setbg('textbox1','#d8d8d8')\">"
 version
 echo '</textarea>'
 
 echo '<h2>[ INFO ] piCorePlayer version: '$(pcp_picoreplayer_version)'</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="5">'
+echo "<textarea id=\"textbox2\" style=\"height:80px;\" onfocus=\"setbg('textbox2','white');\" onblur=\"setbg('textbox2','#d8d8d8')\">"
 echo $START
 cat /usr/local/sbin/piversion.cfg
 echo $END
 echo '</textarea>'
 
 echo '<h2>[ INFO ] Squeezelite version and license: '$(pcp_squeezelite_version)'</h2>'
-echo '<textarea name="TextBox" cols="120" rows="15">'
+echo "<textarea id=\"textbox3\" style=\"height:350px;\" onfocus=\"setbg('textbox3','white');\" onblur=\"setbg('textbox3','#d8d8d8')\">"
 echo $START
 /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t
 echo $END
@@ -67,7 +80,6 @@ echo $END
 echo '</textarea>'
 
 echo '<h2>[ INFO ] Squeezelite help</h2>'
-#echo '<p style="font-size:10px">'
 echo '<textarea name="TextBox" cols="120" rows="20">'
 sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -h
 echo '</textarea>'

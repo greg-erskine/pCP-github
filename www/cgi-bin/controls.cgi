@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2014-10-02 GE
+#	Added variable $SERVER_IP_NO_PORT.
+
 # Version: 0.03 2014-09-09 GE
 #	Removed $LMSIP using $SERVER_IP instead.
 
@@ -36,10 +39,12 @@ echo ''
 pcp_httpd_query_string
 
 PLAYER_MAC=$(pcp_controls_mac_address)
+SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] Command: '$COMMAND'<br />'
 	echo '                 [ DEBUG ] LMS IP address: '$SERVER_IP'<br />'
+	echo '                 [ DEBUG ] LMS IP no port: '$SERVER_IP_NO_PORT'<br />'
 	echo '                 [ DEBUG ] $MAC_ADDRESS: '$MAC_ADDRESS'<br />'
 	echo '                 [ DEBUG ] Physical MAC: '$(pcp_eth0_mac_address)'<br />'
 	echo '                 [ DEBUG ] Wireless MAC: '$(pcp_wlan0_mac_address)'<br />'
@@ -48,26 +53,26 @@ fi
 
 case $COMMAND in
 	random_tracks)
-		echo "$PLAYER_MAC randomplay tracks" | telnet $SERVER_IP:9090
+		echo "$PLAYER_MAC randomplay tracks" | telnet $SERVER_IP_NO_PORT:9090
 		;;
 	volume_up)
-		echo "$PLAYER_MAC mixer volume +5" | telnet $SERVER_IP:9090
+		echo "$PLAYER_MAC mixer volume +5" | telnet $SERVER_IP_NO_PORT:9090
 		;;
 	volume_down)
-		echo "$PLAYER_MAC mixer volume -5" | telnet $SERVER_IP:9090
-		;;		
+		echo "$PLAYER_MAC mixer volume -5" | telnet $SERVER_IP_NO_PORT:9090
+		;;
 	track_next)
-		echo "$PLAYER_MAC playlist index +1" | telnet $SERVER_IP:9090
+		echo "$PLAYER_MAC playlist index +1" | telnet $SERVER_IP_NO_PORT:9090
 		;;
 	track_prev)
-		echo "$PLAYER_MAC playlist index -1" | telnet $SERVER_IP:9090
+		echo "$PLAYER_MAC playlist index -1" | telnet $SERVER_IP_NO_PORT:9090
 		;;
 	play)
-		echo "$PLAYER_MAC play" | telnet $SERVER_IP:9090
+		echo "$PLAYER_MAC play" | telnet $SERVER_IP_NO_PORT:9090
 		;;
 	stop)
-	    echo "$PLAYER_MAC stop" | telnet $SERVER_IP:9090
-		;;		
+	    echo "$PLAYER_MAC stop" | telnet $SERVER_IP_NO_PORT:9090
+		;;
 esac
 
 [ $DEBUG = 1 ] && pcp_footer
