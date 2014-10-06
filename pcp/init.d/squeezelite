@@ -1,7 +1,15 @@
 #!/bin/sh
+
+# Version: 0.02 2014-10-07 GE
+#	Force now always kills squeezelite daemon.
+#	Added support for spaces in player name. (I don't understand why it works!)
+#	Trimmed sleep times down to 1 second in Restart and Force.
+
+# Version: 0.01 2014-06-27 GE
+#	Original.
+
 #set -x
 
- 
 PNAME=Squeezelite
 DESC="Squeezelite player"
 DAEMON=/mnt/mmcblk0p2/tce/squeezelite-armv6hf
@@ -11,7 +19,7 @@ PIDFILE=/var/run/squeezelite.pid
 . /usr/local/sbin/config.cfg
 
 # Check if variable is present then add the correct option in front
-[ X"" != X"$NAME" ]        && NAME="-n $NAME"
+[ X"" != X"$NAME" ]        && NAME="$NAME"							# <--- Moved "-n" to allow for spaces
 [ X"" != X"$OUTPUT" ]      && OUTPUT="-o $OUTPUT"
 [ X"" != X"$ALSA_PARAMS" ] && ALSA_PARAMS="-a "$ALSA_PARAMS""
 [ X"" != X"$BUFFER_SIZE" ] && BUFFER_SIZE="-b $BUFFER_SIZE"
@@ -27,8 +35,6 @@ PIDFILE=/var/run/squeezelite.pid
 [ X"" != X"$OTHER" ]       && OTHER="$OTHER"
 [ X"" != X"$LOGFILE" ]     && LOGFILE="-f /mnt/sda1/$LOGFILE"
 
-OPTIONS="$NAME $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISULIZER $OTHER $LOGFILE"
-
 case "$1" in
 	start)
 		if [ -f $PIDFILE ]; then
@@ -36,7 +42,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- $OPTIONS
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISULIZER $OTHER $LOGFILE
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then
@@ -50,23 +56,24 @@ case "$1" in
 	restart)
 		echo "Restarting $DESC..."
 		$0 stop
-		sleep 3
+		sleep 1
 		$0 start
 		;;
 	force)
-                echo "Attempting to force a restart of $PNAME..."
+		# Force should only be used for testing purposes.
+		echo "Forcing a restart of $PNAME..."
 		if [ -f $PIDFILE ]; then
-                        sudo kill `cat $PIDFILE`
+			sudo kill `cat $PIDFILE`
 			sudo rm -f $PIDFILE
-		else
-			sudo ps -ef | grep squeeze | grep -v grep | awk '{print $1}' | xargs kill -9
 		fi
-		sleep 5
+		sudo ps | grep squeezelite-armv6hf | grep -v grep | awk '{print $1}' | xargs kill -9
+		sleep 1
 		$0 start
 		;;
 	status)
+		# Possibly should check for squeezelite daemon as well?
 		if [ -f  $PIDFILE ]; then
-			echo "$PNAME is running with options: $OPTIONS"
+			echo "$PNAME is running."
 			exit 0
 		else
 			echo "$PNAME not running."
@@ -82,4 +89,3 @@ case "$1" in
 esac
 
 exit 0
-
