@@ -1,10 +1,21 @@
 #!/bin/sh
-# Turn HDMI output ON in config.txt and bootlocal.sh files
+# Turn HDMI output ON in config.txt
+
+# Version: 0.03 2014-10-07 SBP
+#	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
+#	Added echos for booting debugging purposes.
+
+# Version: 0.02 2014-09-02 SBP
+#	Added Check for onboard sound card is card=0.
+
+# Version: 0.01 2014-06-25 SBP
+#	Original.
+
+echo "[ INFO ] Running $0..."
 
 . /home/tc/www/cgi-bin/pcp-functions
 pcp_variables
-pcp_running_script
-pcp_mount_mmcblk0p1
+pcp_mount_mmcblk0p1_nohtml
 
 if mount | grep $VOLUME; then
 	# Remove HDMI settings
@@ -19,23 +30,15 @@ if mount | grep $VOLUME; then
 	sudo echo hdmi_force_edid_audio=1 >> /mnt/mmcblk0p1/config.txt                                                        
 	sudo echo hdmi_ignore_edid=0xa5000080 >> /mnt/mmcblk0p1/config.txt
 
-	if [ $DEBUG = 1 ]; then	
-		pcp_show_config_txt
-	fi
-	
+	pcp_umount_mmcblk0p1_nohtml
+	pcp_backup_nohtml
+
 	# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
 	aplay -l | grep 'card 0: ALSA' &> /dev/null
 	if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	    sudo amixer cset numid=3 2
+		sudo amixer cset numid=3 2
 	fi 
+ fi
+
+ echo "[ INFO ] End $0"
  
-
-	if [ $DEBUG = 1 ]; then	
-		pcp_show_bootlocal_sh
-	fi
-	
-	pcp_umount_mmcblk0p1
-	pcp_backup
-fi
-
-

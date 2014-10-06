@@ -2,6 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.17 2014-10-04 GE
+#	Updated pcp_disable_i2s()
+#	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
+#	Added pcp_backup_nohtml.
+
 # Version: 0.16 2014-10-02 GE
 #	Added pcp_uptime_minutes routine.
 #	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
@@ -93,7 +98,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=5
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -424,6 +429,29 @@ pcp_backup() {
 	fi
 }
 
+pcp_backup_nohtml() {
+	# Delete any previous backup_done file
+	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
+
+	# Do a backup - filetool.sh backs up files in .filetool.lst
+	echo -n "[ INFO ] "
+	sudo filetool.sh -b
+	sync
+
+	# If backup_status file exists and is non-zero in size then an error has occurred
+	if [ -s /tmp/backup_status ]; then
+		echo '[ ERROR ] Backup status.'
+		cat /tmp/backup_status
+	fi
+
+	# If backup_done exists then the backup was successful
+	if [ -f /tmp/backup_done ]; then
+		echo '[ OK ] Backup successful.'
+	else
+		echo '[ ERROR ] Backup failed.'
+	fi
+}
+
 #=========================================================================================
 # Display which script is running
 #-----------------------------------------------------------------------------------------
@@ -454,6 +482,24 @@ pcp_umount_mmcblk0p1() {
 	sudo umount $DEVICE
 }
 
+pcp_mount_mmcblk0p1_nohtml() {
+	# Check if mmcblk0p1 is mounted otherwise mount it
+	if mount | grep $VOLUME; then
+		echo '[ ERROR ] '$VOLUME' already mounted'
+	else
+		echo '[ INFO ] Mounting '$VOLUME'...'
+		sudo mount $DEVICE;
+	fi
+}
+
+pcp_umount_mmcblk0p1_nohtml() {
+	# Unmount mmcblk0p1
+	sync
+	sync
+	echo '[ INFO ] Unmounting '$VOLUME'...'
+	sudo umount $DEVICE
+}
+
 #=========================================================================================
 # Reboot/shutdown piCorePlayer
 #-----------------------------------------------------------------------------------------
@@ -471,7 +517,8 @@ pcp_shutdown() {
 # Add/remove modules
 #-----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
-	pcp_squeezelite_stop
+	#pcp_squeezelite_stop
+	sudo /usr/local/etc/init.d/squeezelite stop
     sleep 1
 	# Remove HiFiBerry digi/DAC and IQaudIO DAC modules
 	sudo modprobe -qr snd_soc_wm8804
