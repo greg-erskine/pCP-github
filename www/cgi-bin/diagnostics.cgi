@@ -1,9 +1,12 @@
 #!/bin/sh
 # Diagnostics script
 
-# version: 0.03 2014-10-02 GE
+# version: 0.04 2014-10-02 GE
 #	Added $MODE=5 requirement.
 #	Modified textarea behaviour.
+
+# Version: 0.03 2014-09-21 GE
+#	Added sound diagnostics output.
 
 # version: 0.02 2014-07-21 GE
 #	Added pcp_go_main_button.
@@ -53,6 +56,9 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
 fi
 
+#=========================================================================================
+# The next 2 textareas have a test for highlighting (change to white) when selected.
+#-----------------------------------------------------------------------------------------
 echo '<h2>[ INFO ] piCore version: '$(pcp_picore_version)'</h2>'
 echo "<textarea id=\"textbox1\" style=\"height:40px;\" onfocus=\"setbg('textbox1','white');\" onblur=\"setbg('textbox1','#d8d8d8')\">"
 version
@@ -71,6 +77,7 @@ echo $START
 /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t
 echo $END
 echo '</textarea>'
+#-----------------------------------------------------------------------------------------
 
 echo '<h2>[ INFO ] ALSA output devices</h2>'
 echo '<textarea name="TextBox" cols="120" rows="15">'
@@ -154,9 +161,77 @@ lsmod
 echo '</textarea>'
 
 echo '<h2>[ INFO ] Directory of www/cgi-bin</h2>'
-echo '<pre>'
+echo '<textarea name="TextBox4" cols="120" rows="12">'
 ls -al
-echo '</pre>'
+echo '</textarea>'
+
+#=========================================================================================
+# Sound diagnostics
+#-----------------------------------------------------------------------------------------
+echo '<h2>[ INFO ] amixer cset numid=3</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="5">'
+sudo amixer cset numid=3
+echo '</textarea>'
+
+echo '<h2>[ INFO ] lsmod | grep snd</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="12">'
+lsmod | grep snd
+echo '</textarea>'
+
+echo '<h2>[ INFO ] /proc/asound</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="10">'
+ls -al /proc/asound
+echo '</textarea>'
+
+echo '<h2>[ INFO ] aplay -l</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="15">'
+aplay -l
+echo '</textarea>'
+
+echo '<h2>[ INFO ] aplay -L</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="7">'
+aplay -L
+echo '</textarea>'
+
+echo '<h2>[ INFO ] amixer</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="7">'
+amixer
+echo '</textarea>'
+
+echo '<h2>[ INFO ] aplay -v -D hw:0,0</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="10">'
+aplay -v -D hw:0,0 -f S16_LE -r 96000 -c 2 -t raw -d 1 
+echo '</textarea>'
+
+echo '<h2>[ INFO ] cat /etc/group</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="6">'
+cat /etc/group
+echo '</textarea>'
+
+echo '<h2>[ INFO ] cat /etc/alsa.conf</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="10">'
+cat /etc/alsa.conf
+echo '</textarea>'
+
+echo '<h2>[ INFO ] cat /etc/asound.conf</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="10">'
+cat /etc/asound.conf
+echo '</textarea>'
+
+echo '<h2>[ INFO ] cat /var/lib/alsa/asound.state</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="80">'
+cat /var/lib/alsa/asound.state
+echo '</textarea>'
+
+echo '<h2>[ INFO ] speaker test - left</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="15">'
+speaker-test -t sine -f 480 -c 2 -s 1
+echo '</textarea>'
+
+echo '<h2>[ INFO ] speaker test - right</h2>'
+echo '<textarea name="TextBox4" cols="120" rows="15">'
+speaker-test -t sine -f 480 -c 2 -s 2
+echo '</textarea>'
 
 pcp_refresh_button
 
