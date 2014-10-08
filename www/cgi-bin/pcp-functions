@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.18 2014-10-08 GE
+#	Updated pcp_uptime_minutes routine.
+
 # Version: 0.17 2014-10-04 GE
 #	Updated pcp_disable_i2s()
 #	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
@@ -35,7 +38,7 @@
 
 # Version: 0.09 2014-09-04 GE
 #	Added timezone routine.
-#	Changed size of config.cfg textbox.
+#	Changed size of config.cfg textarea.
 
 # Version: 0.08 2014-08-31 GE
 #	Added /bin/sh to first line.
@@ -92,13 +95,13 @@ pcp_variables() {
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	TEST=0
+	TEST=1
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=5
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -346,14 +349,25 @@ pcp_squeezelite_status() {
 
 #=========================================================================================
 # Determine the system uptime in minutes
+#
+# uptime format:
+#	1. 17:45:13 up 2 min,  2 users,  load average: 0.84, 0.66, 0.27
+#	2. 19:12:35 up  1:29,  2 users,  load average: 0.00, 0.01, 0.04
+#	3. 17:40:17 up 2 days,  1:35,  2 users,  load average: 0.00, 0.02, 0.04
 #-----------------------------------------------------------------------------------------
 pcp_uptime_minutes() {
 	uptime | grep min >> /dev/null
 	if [ $? = 0 ]; then 
 		UPTIME_MIN=$(uptime | awk '{ print $3 }')
 	else
-		UPTIME=$(uptime | awk '{ print $3 }' | sed s/,//g)
-		UPTIME_MIN=$(echo $UPTIME | awk -F: '{ print $1*60+$2}')
+		UPTIME_HOURS=$(uptime | awk '{ print $3 }' | sed s/,//g)
+		UPTIME_MIN=$(echo $UPTIME_HOURS | awk -F: '{ print $1*60+$2 }')
+	fi
+	uptime | grep day >> /dev/null
+	if [ $? = 0 ]; then
+		UPTIME_DAYS=$(uptime | awk '{ print $3*24*60 }')
+		UPTIME_HOURS=$(uptime | awk '{ print $5 }' | sed s/,//g)
+		UPTIME_MIN=$(echo $UPTIME_HOURS | awk -F: '{ print $1*60+$2 }') + $UPTIME_DAYS
 	fi
 	echo $UPTIME_MIN
 }
@@ -385,7 +399,7 @@ pcp_auto_start_lms() {
 #-----------------------------------------------------------------------------------------
 pcp_go_main_button() {
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
-	echo '<p><input type="submit" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<p><input type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
 }
 
 pcp_go_back_button() {

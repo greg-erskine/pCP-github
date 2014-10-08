@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2014-10-08 GE
+#	Size of input buttons controlled through input[type=submit] style.
+
 # Version: 0.04 2014-10-02 GE
 #	Added uptime delay before pcp_squeezelite_status is checked.
 
@@ -36,7 +39,7 @@ pcp_controls
 pcp_banner
 pcp_navigation
 
-[ $(pcp_uptime_minutes) -gt 0 ] && [ $(pcp_squeezelite_status) = 1 ] &&
+[ $(pcp_uptime_minutes) -gt 0 ] &&  [ $(pcp_squeezelite_status) = 1 ] &&
 echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
 if [ $DEBUG = 1 ]; then
@@ -55,7 +58,7 @@ echo '  <tr height="28">'
 echo '    <td align="center" width="180">'
 echo '      <form name="updateTriode" action="updatesqlt.cgi" method="get" id="updateTriode">'
 echo '        <input type="hidden" name="VERSION" value="Triode"/>'
-echo '        <input type="submit" value="      Update      " size="300"/>'
+echo '        <input type="submit" value="Update" size="300"/>'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -67,18 +70,18 @@ echo '  <tr height="28">'
 echo '    <td align="center">'
 echo '      <form name="updateRalphy" action="updatesqlt.cgi" method="get" id="updateRalphy">'
 echo '        <input type="hidden" name="VERSION" value="Ralphy"/>'
-echo '        <input type="submit" value="      Update      " />'
+echo '        <input type="submit" value="Update" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
-echo '      <p>Ralphys newest version. Download and update Squeezelite. This one allows upsampling using SOX and can play wma and alac via ffmpeg.</p>'
+echo '      <p>Ralphy'\''s newest version. Download and update Squeezelite. This one allows upsampling using SOX and can play wma and alac via ffmpeg.</p>'
 echo '    </td>'
 echo '  </tr>'
 
 echo '  <tr height="28">'
 echo '    <td align="center">'
 echo '      <form name="Restart" action="restartsqlt.cgi" method="get" id="Restart">'
-echo '        <input type="submit" value="      Restart      " />'
+echo '        <input type="submit" value="Restart" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -89,7 +92,7 @@ echo '  </tr>'
 echo '  <tr height="28">'
 echo '    <td align="center">'
 echo '      <form name="Stop" action="stop.cgi" method="get" id="Stop">'
-echo '        <input type="submit" value="        Stop        " />'
+echo '        <input type="submit" value="Stop" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -99,8 +102,8 @@ echo '  </tr>'
 
 echo '  <tr height="28">'
 echo '    <td align="center">'
-echo "      <form name=\"backup\" action=\"javascript:pcp_confirm('Do a backup?','backup.cgi')\" method=\"get\" id=\"backup\">"
-echo '        <input type="submit" value="     Backup      " />'
+echo '      <form name="backup" action="javascript:pcp_confirm('\''Do a backup?'\'','\''backup.cgi'\'')" method="get" id="backup">'
+echo '        <input type="submit" value="Backup" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -110,8 +113,8 @@ echo '  </tr>'
 
 echo '  <tr height="28">'
 echo '    <td align="center">'
-echo "      <form name=\"Reboot\" action=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" method=\"get\" id=\"Reboot\">"
-echo '        <input type="submit" value="     Reboot       " />'
+echo '      <form name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get" id="Reboot">'
+echo '        <input type="submit" value="Reboot" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -121,8 +124,8 @@ echo '  </tr>'
 
 echo '  <tr height="28">'
 echo '    <td align="center">'
-echo "      <form name=\"Shutdown\" action=\"javascript:pcp_confirm('Shutdown piCorePlayer?','shutdown.cgi')\" method=\"get\" id=\"Shutdown\">"
-echo '        <input type="submit" value="   Shutdown    " />'
+echo '      <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown piCorePlayer?'\'','\''shutdown.cgi'\'')" method="get" id="Shutdown">'
+echo '        <input type="submit" value="Shutdown" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -133,7 +136,7 @@ echo '  </tr>'
 echo '  <tr height="28">'
 echo '    <td align="center">'
 echo '      <form name="InSitu" action="upd_picoreplayer.cgi" method="get" id="InSitu">'
-echo '        <input type="submit" value="  Update pCP " />'
+echo '        <input type="submit" value="Update pCP" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
@@ -144,7 +147,7 @@ echo '  </tr>'
 echo '  <tr height="28">'
 echo '    <td align="center">'
 echo '      <form name="Saveconfig" action="save2usb.cgi" method="get" id="Saveconfig">'
-echo '        <input type="submit" value=" Save to USB " />'
+echo '        <input type="submit" value="Save to USB" />'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'

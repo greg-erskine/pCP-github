@@ -5,6 +5,9 @@
 */
 
 /*
+Version:0.03 2014-10-08 GE
+	Added input[type=submit] style.
+
 Version:0.02 2014-10-04 GE
 	Major format changes.
 	Added textarea style.
@@ -78,6 +81,15 @@ textarea, textarea.styled {
 	font-size:12px;
 	padding:5px;
 	width:960px;
+}
+
+input[type=submit], input[type=button] {
+	height: 1.85em;
+	width: 9em; 
+}
+
+input[type=submit].large, input[type=button].large {
+	width: 12em; 
 }
 
 /* This is for horizontal navigation bar */
