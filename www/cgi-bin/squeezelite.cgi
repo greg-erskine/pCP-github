@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2014-10-09 GE
+#	Revised uptime delay to use seconds.
+
 # Version: 0.04 2014-10-02 GE
 #	Added uptime delay before pcp_squeezelite_status is checked.
 
@@ -76,7 +79,7 @@ pcp_controls
 pcp_banner
 pcp_navigation
 
-[ $(pcp_uptime_minutes) -gt 0 ] && [ $(pcp_squeezelite_status) = 1 ] &&
+[ $(pcp_uptime_seconds) -gt 60 ] &&  [ $(pcp_squeezelite_status) = 1 ] &&
 echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
 echo '<table border="0" cellspacing="0" cellpadding="0" width="960">'

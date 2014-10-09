@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.19 2014-10-09 GE
+#	Added pcp_uptime_seconds routine.
+#	Updated pcp_uptime_minutes routine.
+
 # Version: 0.18 2014-10-08 GE
 #	Updated pcp_uptime_minutes routine.
 
@@ -348,29 +352,14 @@ pcp_squeezelite_status() {
 }
 
 #=========================================================================================
-# Determine the system uptime in minutes
-#
-# uptime format:
-#	1. 17:45:13 up 2 min,  2 users,  load average: 0.84, 0.66, 0.27
-#	2. 19:12:35 up  1:29,  2 users,  load average: 0.00, 0.01, 0.04
-#	3. 17:47:43 up 1 day, 4 min,  3 users,  load average: 0.12, 0.07, 0.08
-#	4. 17:40:17 up 2 days,  1:35,  2 users,  load average: 0.00, 0.02, 0.04
+# Determine the system uptime in seconds or minutes
 #-----------------------------------------------------------------------------------------
+pcp_uptime_seconds() {
+	printf "%.0f\n" $(cat /proc/uptime | awk '{print $1}')
+}
+
 pcp_uptime_minutes() {
-	uptime | grep min >> /dev/null
-	if [ $? = 0 ]; then 
-		UPTIME_MIN=$(uptime | awk '{ print $3 }')
-	else
-		UPTIME_HOURS=$(uptime | awk '{ print $3 }' | sed s/,//g)
-		UPTIME_MIN=$(echo $UPTIME_HOURS | awk -F: '{ print $1*60+$2 }')
-	fi
-	uptime | grep day >> /dev/null
-	if [ $? = 0 ]; then
-		UPTIME_DAYS=$(uptime | awk '{ print $3*24*60 }')
-		UPTIME_HOURS=$(uptime | awk '{ print $5 }' | sed s/,//g)
-		UPTIME_MIN=$(echo $UPTIME_HOURS | awk -F: '{ print $1*60+$2 }') + $UPTIME_DAYS
-	fi
-	echo $UPTIME_MIN
+	printf "%.0f\n" $(cat /proc/uptime | awk '{print $1/60}')
 }
 
 #=========================================================================================

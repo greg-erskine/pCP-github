@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-10-09 GE
+#	Revised uptime delay to use seconds.
+
 # Version: 0.05 2014-10-08 GE
 #	Size of input buttons controlled through input[type=submit] style.
 
@@ -39,11 +42,12 @@ pcp_controls
 pcp_banner
 pcp_navigation
 
-[ $(pcp_uptime_minutes) -gt 0 ] &&  [ $(pcp_squeezelite_status) = 1 ] &&
+[ $(pcp_uptime_seconds) -gt 60 ] &&  [ $(pcp_squeezelite_status) = 1 ] &&
 echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
 if [ $DEBUG = 1 ]; then
-	echo '<p class="debug">[ DEBUG ] System uptime (min): '$(pcp_uptime_minutes)'<br />'
+	echo '<p class="debug">[ DEBUG ] System uptime (sec): '$(pcp_uptime_seconds)'<br />'
+	echo '                 [ DEBUG ] System uptime (min): '$(pcp_uptime_minutes)'<br />'
 	echo '                 [ DEBUG ] Squeezelite status: '$(pcp_squeezelite_status)'</p>'
 fi
 
@@ -62,7 +66,7 @@ echo '        <input type="submit" value="Update" size="300"/>'
 echo '      </form>'
 echo '    </td>'
 echo '    <td valign="center">'
-echo '      <p>Triodes newest version. Download and update Squeezelite.</p>'
+echo '      <p>Triode'\''s newest version. Download and update Squeezelite.</p>'
 echo '    </td>'
 echo '  </tr>'
 
