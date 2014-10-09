@@ -149,7 +149,7 @@ available_networks_1() {
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
-
+if [ $WIFI = on ]; then
 	unset WIFI && CNT=0
 	until [ -n "$WIFI" ]
 	do
@@ -241,6 +241,9 @@ available_networks_1() {
 		}
 		print "-------------------------------------------------------------------------------------------"
 	} '
+else
+echo "Wifi is disabled"
+fi
 }
 
 available_networks_2() {
