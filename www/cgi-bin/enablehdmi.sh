@@ -1,7 +1,10 @@
 #!/bin/sh
 # Turn HDMI output ON in config.txt
 
-# Version: 0.03 2014-10-07 SBP
+# Version: 0.04 2014-10-07 SBP
+#   Moved the output routing to do_rebootstuff
+
+# Version: 0.03 2014-07-10 SBP
 #	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
 #	Added echos for booting debugging purposes.
 
@@ -32,13 +35,7 @@ if mount | grep $VOLUME; then
 
 	pcp_umount_mmcblk0p1_nohtml
 	pcp_backup_nohtml
-
-	# Check for onboard sound card is card=0, so HDMI amixer settings is only used here
-	aplay -l | grep 'card 0: ALSA' &> /dev/null
-	if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-		sudo amixer cset numid=3 2
-	fi 
- fi
+fi
 
  echo "[ INFO ] End $0"
  

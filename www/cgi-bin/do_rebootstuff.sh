@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 0.07 2014-10-07 SBP
+# Version: 0.08 2014-10-09 SBP
+#   Added Analog/HDMI output selection (moved from enable/disable_HDMI.sh)
+
+# Version: 0.07 2014-10-07 GE
 #	Added echos for booting debugging purposes.
 
 # Version: 0.06 2014-09-28 SBP
@@ -228,7 +231,7 @@ echo "[ INFO ] Loading I2S modules"
 
 if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 
-sleep 5
+sleep 1
 
 if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
 if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
@@ -241,14 +244,22 @@ if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 
 # Sleep for 1 sec otherwise aplay can not see the card
 sleep 1
-# Check for onboard sound card is card=0, so amixer is only used here
+# Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 echo "[ INFO ] Doing ALSA configuration"
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
+	sudo amixer cset numid=3 1   #set the analog output via audio jack
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute
 	fi
 fi
+
+# Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
+	aplay -l | grep 'card 0: ALSA' &> /dev/null
+	if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
+		sudo amixer cset numid=3 2 #set the analog output via HDMI out
+	fi 
+
 
 # If Custom ALSA settings are used, then restore the settings
 if [ $ALSAlevelout = Custom ]; then

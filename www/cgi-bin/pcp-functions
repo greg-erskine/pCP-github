@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version 0.20 2014-10-09 SBP
+    Clean up in the I2S section
+
 # Version: 0.19 2014-10-09 GE
 #	Added pcp_uptime_seconds routine.
 #	Updated pcp_uptime_minutes routine.
@@ -529,8 +532,6 @@ pcp_disable_i2s() {
 	sudo modprobe -qr snd_soc_hifiberry_dac
 	sudo modprobe -qr snd_soc_hifiberry_digi
 	sudo modprobe -qr snd_soc_iqaudio_dac
-#	sudo modprobe -qr snd_soc_pcm5102a
-#	sudo modprobe -qr snd_soc_pcm512x
 }
 
 pcp_enable_i2s_dac() {
@@ -578,14 +579,4 @@ pcp_enable_hifiberry_dac_p() {
 	sudo modprobe snd_soc_hifiberry_dacplus
 }
 
-pcp_enable_iqaudio_dac_p() {
-	pcp_disable_i2s
 
-	# Load the correct modules for IQaudio DAC+ NOT FINISHED
-#	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-#	sudo modprobe -q snd_soc_pcm512x
-#	sleep 1
-#	sudo modprobe -q snd_soc_iqaudio_dac
-#	sleep 1
-}
