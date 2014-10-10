@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version: 0.08 2014-10-09 SBP
-#   Added Analog/HDMI output selection (moved from enable/disable_HDMI.sh)
+#	Added Analog/HDMI output selection (moved from enable/disablehdmi.sh)
 
 # Version: 0.07 2014-10-07 GE
 #	Added echos for booting debugging purposes.
@@ -248,18 +248,17 @@ sleep 1
 echo "[ INFO ] Doing ALSA configuration"
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	sudo amixer cset numid=3 1   #set the analog output via audio jack
+	sudo amixer cset numid=3 1				#set the analog output via audio jack
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute
 	fi
 fi
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
-	aplay -l | grep 'card 0: ALSA' &> /dev/null
-	if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-		sudo amixer cset numid=3 2 #set the analog output via HDMI out
-	fi 
-
+aplay -l | grep 'card 0: ALSA' &> /dev/null
+if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
+	sudo amixer cset numid=3 2				#set the analog output via HDMI out
+fi 
 
 # If Custom ALSA settings are used, then restore the settings
 if [ $ALSAlevelout = Custom ]; then

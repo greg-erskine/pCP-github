@@ -1,7 +1,12 @@
 #!/bin/sh
 
+#	Steen, do you want to keep available_networks_2?
+
+# Version: 0.07 2014-10-10 SBP
+#	Added if [ $WIFI = on ] condition.
+
 # Version: 0.06 2014-09-30 GE
-#	Added footer when No wifi devices found! .
+#	Added footer when No wifi devices found!.
 
 # Version: 0.05 2014-09-13 GE
 #	Added new available networks routine.
@@ -149,101 +154,101 @@ available_networks_1() {
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
-if [ $WIFI = on ]; then
-	unset WIFI && CNT=0
-	until [ -n "$WIFI" ]
-	do
-		[ $((CNT++)) -gt 10 ] && break || sleep 1
-		WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
-	done
-	if [ -z "$WIFI" ]; then
-		echo "No wifi devices found!"
-		echo '</textarea>'
-		pcp_refresh_button
-		pcp_footer
-		echo '</body>'
-		echo '</html>'
-		exit 1
+	if [ $WIFI = on ]; then
+		unset WIFI && CNT=0
+		until [ -n "$WIFI" ]
+		do
+			[ $((CNT++)) -gt 10 ] && break || sleep 1
+			WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
+		done
+		if [ -z "$WIFI" ]; then
+			echo "No wifi devices found!"
+			echo '</textarea>'
+			pcp_refresh_button
+			pcp_footer
+			echo '</body>'
+			echo '</html>'
+			exit 1
+		fi
+		ifconfig "$WIFI" up 2>/dev/null
+		(for i in `seq 5`
+		do
+			iwlist "$WIFI" scanning
+			[ "$?" == 0 ] && break
+			sleep 1
+		done ) | awk -v wifi=$WIFI '
+		BEGIN {
+			RS="\n"
+			FS=":"
+			i = 0
+			title = "Available Wifi Networks for "wifi":"
+		}
+		function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
+			for (i = 2; i <= n; i++)
+				for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
+					# swap qual[j] and qual[j-1]
+					t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
+					t = level[j]; level[j] = level[j-1]; level[j-1] = t
+					t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
+					t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
+					t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
+					t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
+					t = type[j]; type[j] = type[j-1]; type[j-1] = t
+					t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
+				}
+		}
+		# main ()
+		{
+			if ($1 ~ /Cell/) {
+				if ( i == 0  || sid[i] != "" ) i++
+				addr[i] = $2":"$3":"$4":"$5":"$6":"$7
+				gsub(" ","",addr[i])
+			}
+			if ($1 ~ /Frequency/) {
+				split($2,c," ")
+				chan[i] = c[4]
+				gsub("\)","",chan[i])
+				freq[i] = "("c[1]c[2]")"
+				gsub(" ","",freq[i])
+			}
+			if ($1 ~ /Quality/) {
+				q = $2
+				if (index($1,"=")) {
+					split($1,c,"=")
+					q = c[2]
+					level[i] = c[3]
+					gsub(" ","",level[i])
+				}
+				split(q,c," ")
+				qual[i] = c[1] * 10 / 7
+			}
+			if ($1 ~ /Encr/){
+				enc[i] = $2
+			}
+			if ($1 ~ /ESSID/) {
+				sid[i] = $2
+				gsub("\"","",sid[i])
+			}
+			if (enc[i] ~ /off/) type[i]="NONE"
+			if ($2 ~ /WPA/) type[i]="WPA"
+			if ($2 ~ /WPA2 /) type[i]="WPA2"
+			if (type[i] == "" ) type[i]="WEP"
+		}
+		END {
+			rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
+			printf "%s\n", title
+			print "-------------------------------------------------------------------------------------------"
+			print "        SSID                 Quality  Level      Channel     Encryption       Address"
+			print "-------------------------------------------------------------------------------------------"
+			for (l=1; l<15; l++) {
+				++j
+				if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+			}
+			print "-------------------------------------------------------------------------------------------"
+		} '
+	else
+		echo "Wifi is disabled."
 	fi
-	ifconfig "$WIFI" up 2>/dev/null
-	(for i in `seq 5`
-	do
-		iwlist "$WIFI" scanning
-		[ "$?" == 0 ] && break
-		sleep 1
-	done ) | awk -v wifi=$WIFI '
-	BEGIN {
-		RS="\n"
-		FS=":"
-		i = 0
-		title = "Available Wifi Networks for "wifi":"
-	}
-	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
-		for (i = 2; i <= n; i++)
-			for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
-				# swap qual[j] and qual[j-1]
-				t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
-				t = level[j]; level[j] = level[j-1]; level[j-1] = t
-				t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
-				t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
-				t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
-				t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
-				t = type[j]; type[j] = type[j-1]; type[j-1] = t
-				t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
-			}
-	}
-	# main ()
-	{
-		if ($1 ~ /Cell/) {
-			if ( i == 0  || sid[i] != "" ) i++
-			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
-			gsub(" ","",addr[i])
-		}
-		if ($1 ~ /Frequency/) {
-			split($2,c," ")
-			chan[i] = c[4]
-			gsub("\)","",chan[i])
-			freq[i] = "("c[1]c[2]")"
-			gsub(" ","",freq[i])
-		}
-		if ($1 ~ /Quality/) {
-			q = $2
-			if (index($1,"=")) {
-				split($1,c,"=")
-				q = c[2]
-				level[i] = c[3]
-				gsub(" ","",level[i])
-			}
-			split(q,c," ")
-			qual[i] = c[1] * 10 / 7
-		}
-		if ($1 ~ /Encr/){
-			enc[i] = $2
-		}
-		if ($1 ~ /ESSID/) {
-			sid[i] = $2
-			gsub("\"","",sid[i])
-		}
-		if (enc[i] ~ /off/) type[i]="NONE"
-		if ($2 ~ /WPA/) type[i]="WPA"
-		if ($2 ~ /WPA2 /) type[i]="WPA2"
-		if (type[i] == "" ) type[i]="WEP"
-	}
-	END {
-		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-		printf "%s\n", title
-		print "-------------------------------------------------------------------------------------------"
-		print "        SSID                 Quality  Level      Channel     Encryption       Address"
-		print "-------------------------------------------------------------------------------------------"
-		for (l=1; l<15; l++) {
-			++j
-			if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
-		}
-		print "-------------------------------------------------------------------------------------------"
-	} '
-else
-echo "Wifi is disabled"
-fi
 }
 
 available_networks_2() {

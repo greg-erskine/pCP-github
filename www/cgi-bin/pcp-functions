@@ -2,8 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version 0.20 2014-10-09 SBP
-    Clean up in the I2S section
+# Version: 0.20 2014-10-09 SBP
+#	Clean up in the I2S section.
 
 # Version: 0.19 2014-10-09 GE
 #	Added pcp_uptime_seconds routine.
@@ -524,7 +524,6 @@ pcp_shutdown() {
 # Add/remove modules
 #-----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
-	#pcp_squeezelite_stop
 	sudo /usr/local/etc/init.d/squeezelite stop
     sleep 1
 	# Remove HiFiBerry digi/DAC and IQaudIO DAC modules
@@ -578,5 +577,3 @@ pcp_enable_hifiberry_dac_p() {
 	sudo modprobe snd_pcm_dmaengine
 	sudo modprobe snd_soc_hifiberry_dacplus
 }
-
-

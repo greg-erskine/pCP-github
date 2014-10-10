@@ -2,7 +2,7 @@
 # Turn HDMI output OFF in config.txt
 
 # Version: 0.04 2014-10-07 SBP
-#   Moved the output routing to do_rebootstuff
+#	Moved the output routing to do_rebootstuff.cgi
 
 # Version: 0.03 2014-07-10 SBP
 #	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.

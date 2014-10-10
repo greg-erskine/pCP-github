@@ -5,8 +5,6 @@ libfaad.tcz
 libsoxr.tcz
 libmad.tcz
 alsa.tcz
-i2c-tools.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
 firmware-atheros.tcz
-wifi.tcz

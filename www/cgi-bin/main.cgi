@@ -42,7 +42,7 @@ pcp_controls
 pcp_banner
 pcp_navigation
 
-[ $(pcp_uptime_seconds) -gt 60 ] &&  [ $(pcp_squeezelite_status) = 1 ] &&
+[ $(pcp_uptime_seconds) -gt 60 ] && [ $(pcp_squeezelite_status) = 1 ] &&
 echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
 
 if [ $DEBUG = 1 ]; then
