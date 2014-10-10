@@ -4,7 +4,7 @@ libffmpeg.tcz
 libfaad.tcz
 libsoxr.tcz
 libmad.tcz
-alsa.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
 firmware-atheros.tcz
+wifi.tcz
