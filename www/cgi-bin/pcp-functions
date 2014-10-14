@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.21 2014-10-04 GE
+#	Added pcp_lsmip.
+
 # Version: 0.20 2014-10-09 SBP
 #	Clean up in the I2S section.
 
@@ -363,6 +366,15 @@ pcp_uptime_seconds() {
 
 pcp_uptime_minutes() {
 	printf "%.0f\n" $(cat /proc/uptime | awk '{print $1/60}')
+}
+
+#=========================================================================================
+# Determine the LMS server IP address
+#-----------------------------------------------------------------------------------------
+pcp_lsmip() {
+	LMSDNS=`netstat -t 2>&1 | grep 3483 | awk '{print $5}' | awk -F: '{print $1}'`
+	LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{print $3}'`
+	echo $LMSIP
 }
 
 #=========================================================================================

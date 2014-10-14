@@ -1,7 +1,10 @@
 #!/bin/sh
 # Diagnostics script
 
-# version: 0.04 2014-10-02 GE
+# Version: 0.05 2014-10-14 GE
+#	Testing $LMSIP.
+
+# Version: 0.04 2014-10-02 GE
 #	Added $MODE=5 requirement.
 #	Modified textarea behaviour.
 
@@ -41,6 +44,7 @@ echo '<body>'
 pcp_banner
 pcp_navigation
 pcp_running_script
+pcp_refresh_button
 pcp_go_main_button
 
 if [ $MODE -lt 5 ]; then
@@ -55,6 +59,11 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
 	echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
 fi
+
+#LMSDNS=$(netstat -t 2>&1 | grep 3483 | awk '{print $5}' | awk -F: '{print $1}')
+#LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{print $3}'`
+
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMSIP: '$(pcp_lsmip)'</p>'
 
 #=========================================================================================
 # The next 2 textareas have a test for highlighting (change to white) when selected.
