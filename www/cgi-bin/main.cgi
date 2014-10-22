@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2014-10-22 GE
+#	Using pcp_html_head now.
+
 # Version: 0.06 2014-10-09 GE
 #	Revised uptime delay to use seconds.
 
@@ -21,22 +24,7 @@
 . pcp-functions
 pcp_variables
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Main Page</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Main Page" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '  <script language="Javascript" src="../js/piCorePlayer.js"></script>'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Main Page" "SBP"
 
 pcp_controls
 pcp_banner

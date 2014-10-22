@@ -2,8 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.21 2014-10-04 GE
-#	Added pcp_lsmip.
+# Version: 0.21 2014-10-22 GE
+#	Added new pcp_lmsip and pcp_lms_get.
+#	Added pcp_write_to_log and pcp_textarea.
+#	Added pcp_html_head.
+#	Updated useful buttons.
 
 # Version: 0.20 2014-10-09 SBP
 #	Clean up in the I2S section.
@@ -16,7 +19,7 @@
 #	Updated pcp_uptime_minutes routine.
 
 # Version: 0.17 2014-10-04 GE
-#	Updated pcp_disable_i2s()
+#	Updated pcp_disable_i2s().
 #	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
 #	Added pcp_backup_nohtml.
 
@@ -24,11 +27,11 @@
 #	Added pcp_uptime_minutes routine.
 #	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
 #	Updated footer to use style footer.
-#	Activated $MODE=5 for pcp_controls.
+#	Activated $MODE=0
 
 # Version: 0.15 2014-09-25 SBP
-#	Added support for the hifiberry DAC+ and Digi+
-#	Added support for the IQaudIO+ DAC
+#	Added support for the HiFiBerry DAC+ and Digi+.
+#	Added support for the IQaudIO+ DAC.
 
 # Version: 0.14 2014-09-20 GE
 #	Modified HTML to improve cross browser support.
@@ -88,7 +91,7 @@
 # System wide variables
 #-----------------------------------------------------------------------------------------
 pcp_variables() {
-	# The following variable are standard piCorePlayer variables, do not edit
+	# The following variables are standard piCorePlayer variables, do not edit!
 	CONFIGCFG=/usr/local/sbin/config.cfg
 	CONFIGTXT=/mnt/mmcblk0p1/config.txt
 	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
@@ -105,13 +108,13 @@ pcp_variables() {
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	TEST=1
+	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=5
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -181,6 +184,28 @@ pcp_controls_mac_address() {
 #=========================================================================================
 # Banner, navigation, footer and controls html
 #-----------------------------------------------------------------------------------------
+pcp_html_head() {
+	echo '<!-- Start of pcp_html_head -->'
+	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+	echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
+	echo '<!DOCTYPE html>'
+	echo ''
+	echo '<head>'
+	echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
+	echo '  <meta http-equiv="Pragma" content="no-cache" />'
+	echo '  <meta http-equiv="Expires" content="0" />'
+	echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+	echo '  <title>pCP - '$1'</title>'
+	echo '  <meta name="author" content="'$2'" />'
+	echo '  <meta name="description" content="'$1'" />'
+	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
+	echo '  <script language="Javascript" src="../js/piCorePlayer.js"></script>'
+	echo '</head>'
+	echo ''
+	echo '<body>'
+	echo '<!-- End of pcp_html_head -->'
+}
+
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
@@ -285,38 +310,60 @@ pcp_tc_user() {
 
 #=========================================================================================
 # Show various configuration and setup files
+# $1 = title, $2 = command, $3 = height, $4 = write to log
 #-----------------------------------------------------------------------------------------
+pcp_textarea() {
+	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
+	echo '<h2>[ INFO ] '$TITLE'</h2>'
+	echo '<textarea style="height:'$3'px">'
+	echo $START
+	$2
+	echo $END
+	echo '</textarea>'
+	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
+}
+
+pcp_write_to_log() {
+	# TODO Check if $LOG has been set.
+	echo ====================================================================================== >> $LOG
+	echo "$TITLE" >> $LOG
+	echo -------------------------------------------------------------------------------------- >> $LOG
+	$2 >> $LOG
+	echo ====================================================================================== >> $LOG
+	echo >> $LOG
+}
+
 pcp_show_config_cfg() {
 	echo '<h2>[ INFO ] Current config.cfg</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="26">'
+	echo '<textarea name="TextBox" rows="26">'
 	cat $CONFIGCFG
 	echo '</textarea>'
 }
 
 pcp_show_config_txt() {
 	echo '<h2>[ INFO ] Current config.txt</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="15">'
+	echo '<textarea name="TextBox" rows="15">'
 	cat $CONFIGTXT
 	echo '</textarea>'
 }	
 
 pcp_show_cmdline_txt() {
 	echo '<h2>[ INFO ] Current cmdline.txt</h2>'
-	echo '<textarea name="myTextBox" cols="120" rows="5">'
+	echo '<textarea name="myTextBox" rows="5">'
 	cat $CMDLINETXT
 	echo '</textarea>'
 }
 
 pcp_show_bootlocal_sh() {
 	echo '<h2>[ INFO ] Current bootlocal.sh</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="15">'
+	echo '<textarea name="TextBox" rows="15">'
 	cat $BOOTLOCAL
 	echo '</textarea>'
 }
 
 pcp_show_bootsync_sh() {
 	echo '<h2>[ INFO ] Current bootsync.sh</h2>'
-	echo '<textarea name="TextBox4" cols="120" rows="8">'
+	echo '<textarea name="TextBox" rows="8">'
 	cat $BOOTSYNC
 	echo '</textarea>'
 }
@@ -345,7 +392,6 @@ pcp_squeezelite_stop() {
 	echo '</p>'
 }
 
-# Not used yet.
 pcp_squeezelite_restart() {
 	echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite restart
@@ -361,20 +407,25 @@ pcp_squeezelite_status() {
 # Determine the system uptime in seconds or minutes
 #-----------------------------------------------------------------------------------------
 pcp_uptime_seconds() {
-	printf "%.0f\n" $(cat /proc/uptime | awk '{print $1}')
+	printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1 }')
 }
 
 pcp_uptime_minutes() {
-	printf "%.0f\n" $(cat /proc/uptime | awk '{print $1/60}')
+	printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1/60 }')
 }
 
 #=========================================================================================
 # Determine the LMS server IP address
 #-----------------------------------------------------------------------------------------
-pcp_lsmip() {
-	LMSDNS=`netstat -t 2>&1 | grep 3483 | awk '{print $5}' | awk -F: '{print $1}'`
-	LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{print $3}'`
+pcp_lmsip() {
+	LMSDNS=`netstat -t 2>&1 | grep 3483 | awk '{ print $5 }' | awk -F: '{ print $1 }'`
+	LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{ print $3 }'`
 	echo $LMSIP
+}
+
+pcp_lms_get() {
+	RESULT=`( echo "$(pcp_controls_mac_address) $1 ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
+	echo `sudo /usr/local/sbin/httpd -d $RESULT`
 }
 
 #=========================================================================================
@@ -403,20 +454,29 @@ pcp_auto_start_lms() {
 # Useful buttons
 #-----------------------------------------------------------------------------------------
 pcp_go_main_button() {
+	echo '<!-- Start of pcp_go_main_button -->'
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
 	echo '<p><input type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<!-- End of pcp_go_main_button -->'
 }
 
 pcp_go_back_button() {
+	echo '<!-- Start of pcp_go_back_button -->'
 	echo '<p><input type="button" value="Go Back" onclick="javascript:location.href=document.referrer;" />&nbsp;&nbsp;Go back to previous page</p>'
+	echo '<!-- End of pcp_go_back_button -->'
 }
 
 pcp_refresh_button() {
+	echo '<!-- Start of pcp_refresh_button -->'
 	echo '<p><input type="button" value="Refresh" onClick="window.location.reload()" />&nbsp;&nbsp;Refresh this page</p>'
+	echo '<!-- End of pcp_refresh_button -->'
 }
 
 pcp_reboot_button() {
+	echo '<!-- Start of pcp_reboot_button -->'
 	echo "<p><input type="button" value="Reboot" onClick=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" />&nbsp;&nbsp;Reboot piCorePlayer</p>"
+#	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot piCorePlayer</p>'
+	echo '<!-- End of pcp_reboot_button -->'
 }
 
 #=========================================================================================
@@ -558,7 +618,7 @@ pcp_enable_i2s_dac() {
 pcp_enable_i2s_digi() {
 	pcp_disable_i2s
 
-	# Load the correct modules for HiFiBerry Digi and HifiBerry Digi+
+	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_wm8804
@@ -569,7 +629,7 @@ pcp_enable_i2s_digi() {
 pcp_enable_iqaudio_dac() {
 	pcp_disable_i2s
 
-	# Load the correct modules for IQaudio DAC and I think IQaudIO DAC+ 
+	# Load the correct modules for IQaudIO DAC and I think IQaudIO DAC+ 
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm512x

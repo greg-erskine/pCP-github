@@ -10,6 +10,13 @@
 #	2. cp pcp_create_img.sh to /mnt/sda1/pcp
 #	3. sudo ./pcp_create_img.sh
 
+# Version: 0.04 2014-10-19 GE
+#	Updated default configuration.
+
+# Version: 0.03 2014-10-08 GE
+#	Set $MODE=0 in pcp-functions.
+#	Checked for OliWeb.
+
 # Version: 0.02 2014-08-28 GE
 #	Renamed to pcp_create_img.sh
 #	Major changes to piCorePlayer_script.sh
@@ -96,6 +103,31 @@ case $ANS in
 esac
 
 #=========================================================================================
+# Look for old files
+#-----------------------------------------------------------------------------------------
+echo =======================================================
+echo "Looking for old OliWeb..."
+echo -------------------------------------------------------
+sudo find / -name "[O|o]li[W|w]eb*" -print
+echo
+echo =======================================================
+echo
+
+read -p "Continue? (y)es/(n)o " ANS
+
+case $ANS in
+	y|Y|yes)
+		;;
+	n|N|no)
+		exit
+		;;
+	*)
+		echo "[ ERROR ] Invalid option!"
+		exit
+		;;
+esac
+
+#=========================================================================================
 # Sets the following:
 # 	1. $DEBUG=0 and $TEST=0 in pcp-functions
 #	2. /etc/sysconfig/timezone is deleted.
@@ -105,6 +137,7 @@ if [ -f ~/www/cgi-bin/pcp-functions ]; then
 	echo "Updating DEBUG and TEST in pcp-functions..."
 	sed -i "s/\(DEBUG=\).*/\10/" ~/www/cgi-bin/pcp-functions
 	sed -i "s/\(TEST=\).*/\10/" ~/www/cgi-bin/pcp-functions
+	sed -i "s/\(MODE=\).*/\10/" ~/www/cgi-bin/pcp-functions
 fi
 
 if [ -f /etc/sysconfig/timezone ]; then
@@ -146,14 +179,14 @@ if [ -f $CONFIGCFG ]; then
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"Default\"/" $CONFIGCFG
 	sudo sed -i "s/\(TIMEZONE=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
 fi
 
 #=========================================================================================
@@ -166,8 +199,6 @@ rm -f /home/tc/.ash_history
 #-----------------------------------------------------------------------------------------
 echo "Doing a mydata backup..."
 filetool.sh -b
-
-#exit
 
 #=========================================================================================
 # Create tar and image files.
