@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.09 2014-10-09 SBP
+#	Added support for the HiFiBerry AMP card.
+#	Moved saving to config file from extern newconfig to pcp-functions
+#	Moved loading correct audio modules to pcp-functions
+
 # Version: 0.08 2014-10-09 SBP
 #	Added Analog/HDMI output selection (moved from enable/disablehdmi.sh)
 
@@ -50,7 +55,7 @@ echo "[ INFO ] Checking for newconfig.cfg on sda1"
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
 	echo "mounted"
-else
+	else
 	echo "now trying to mount USB"
 	sudo mount /dev/sda1
 fi
@@ -58,46 +63,11 @@ fi
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
-
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
-
-	# Save the parameters to the config file
-	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
-	sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
-	sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1$AUDIO/" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1$HOST/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1$SSID/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1$PASSWORD/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1$ENCRYPTION/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1$OVERCLOCK/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1$CMD/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1$WIFI/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
-	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
+	echo "[ INFO ] Updating configuration"
+	#Save to config file
+	pcp_save_to_config
 fi
 
 # Rename the newconfig file on USB
@@ -108,46 +78,11 @@ echo "[ INFO ] Checking for newconfig.cfg on mmcblk0p1"
 sudo mount /dev/mmcblk0p1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
-
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
-
+	echo "[ INFO ] Updating configuration"
 	# Save the parameters to the config file
-	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
-	sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
-	sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1$AUDIO/" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1$HOST/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1$SSID/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1$PASSWORD/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1$ENCRYPTION/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1$OVERCLOCK/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1$CMD/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1$WIFI/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
-	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
+	pcp_save_to_config	
 fi
 
 # Save changes caused by the presence of a newconfig.cfg file
@@ -232,15 +167,9 @@ echo "[ INFO ] Loading I2S modules"
 if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 
 sleep 1
+# Loads the correct output audio modules
+pcp_read_chosen_audio
 
-if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
-if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
-if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
-if [ $AUDIO = I2SDIG ]; then pcp_enable_i2s_digi; else break; fi
-if [ $AUDIO = I2SpDAC ]; then pcp_enable_hifiberry_dac_p; else break; fi
-if [ $AUDIO = I2SpDIG ]; then pcp_enable_i2s_digi; else break; fi
-if [ $AUDIO = I2SpIQaudIO ]; then pcp_enable_iqaudio_dac; else break; fi
-if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 
 # Sleep for 1 sec otherwise aplay can not see the card
 sleep 1

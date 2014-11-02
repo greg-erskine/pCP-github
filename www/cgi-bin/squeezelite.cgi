@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-10-10 SBP
+#	Added support for HiFiBerry AMP.
+
 # Version: 0.07 2014-10-22 GE
 #	Using pcp_html_head now.
 #	Added more comments to various options.
@@ -51,6 +54,9 @@ case "$AUDIO" in
 	I2SDIG*)
 		I2DIGCHECKED="selected"
 		;;
+	I2SAMP*)
+		I2AMPCHECKED="selected"
+		;;
 	IQaudio*)
 		IQaudioCHECKED="selected"
 		;;
@@ -94,8 +100,9 @@ echo '                <option value="HDMI" id="HDMI" '$HDMICHECKED'> HDMI audio<
 echo '                <option value="USB" id="USB" '$USBCHECKED'> USB audio</option>'
 if [ $(pcp_rpi_is_model_B_rev_2) = 0 ]; then
 	echo '                <option value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'> I2S-audio HiFiBerry/Sabre ES9023/Texas PCM5102A</option>'
-	echo '                <option value="I2SDIG" id="I2SDIG" '$I2DIGCHECKED'> I2S-audio HiFiBerry I2S Digi</option>'
+	echo '                <option value="I2SDIG" id="I2SDIG" '$I2DIGCHECKED'> I2S-audio HiFiBerry Digi</option>'
 	echo '                <option value="IQaudio" id="IQaudio" '$IQaudioCHECKED'> I2S-audio IQaudIO Pi-DAC</option>'
+	echo '                <option value="I2SAMP" id="I2SAMP" '$I2AMPCHECKED'> I2S-audio HiFiBerry AMP</option>'
 fi
 if [ $(pcp_rpi_is_model_Bplus) = 0 ]; then
 	echo '                <option value="I2SpDAC" id="I2SpDAC" '$I2SDACpCHECKED'> I2S-audio+ HiFiBerry DAC+</option>'

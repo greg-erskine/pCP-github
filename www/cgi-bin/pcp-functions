@@ -3,6 +3,9 @@
 # These are the common functions used by piCorePlayer
 
 # Version: 0.21 2014-10-22 GE
+#	Added support for the HiFiBerry AMP.
+
+# Version: 0.21 2014-10-22 GE
 #	Added new pcp_lmsip and pcp_lms_get.
 #	Added pcp_write_to_log and pcp_textarea.
 #	Added pcp_html_head.
@@ -592,9 +595,69 @@ pcp_shutdown() {
 	exitcheck.sh
 }
 
+
+
 #=========================================================================================
-# Add/remove modules
+# Save parameters to the config file
 #-----------------------------------------------------------------------------------------
+
+pcp_save_to_config() {
+	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
+	sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
+	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
+	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
+	sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
+	sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
+	sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
+	sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
+	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
+	sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
+	sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
+	sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
+	sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
+	sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
+	sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
+	sudo sed -i "s/\(AUDIO=\).*/\1$AUDIO/" $CONFIGCFG
+	sudo sed -i "s/\(HOST=\).*/\1$HOST/" $CONFIGCFG
+	sudo sed -i "s/\(SSID=\).*/\1$SSID/" $CONFIGCFG
+	sudo sed -i "s/\(PASSWORD=\).*/\1$PASSWORD/" $CONFIGCFG
+	sudo sed -i "s/\(ENCRYPTION=\).*/\1$ENCRYPTION/" $CONFIGCFG
+	sudo sed -i "s/\(OVERCLOCK=\).*/\1$OVERCLOCK/" $CONFIGCFG
+	sudo sed -i "s/\(CMD=\).*/\1$CMD/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1$WIFI/" $CONFIGCFG
+	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
+	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
+}
+
+
+#=========================================================================================
+# Read which output to use to use
+# Then add/remove modules
+#-----------------------------------------------------------------------------------------
+
+pcp_read_chosen_audio() {
+	if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
+	if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
+	if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
+	if [ $AUDIO = I2SDIG ]; then pcp_enable_i2s_digi; else break; fi
+	if [ $AUDIO = I2SpDAC ]; then pcp_enable_hifiberry_dac_p; else break; fi
+	if [ $AUDIO = I2SpDIG ]; then pcp_enable_i2s_digi; else break; fi
+	if [ $AUDIO = I2SpIQaudIO ]; then pcp_enable_iqaudio_dac; else break; fi
+	if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
+	if [ $AUDIO = I2SAMP ]; then pcp_enable_i2s_AMP; else break; fi
+}
+
+
 pcp_disable_i2s() {
 	sudo /usr/local/etc/init.d/squeezelite stop
     sleep 1
@@ -629,7 +692,7 @@ pcp_enable_i2s_digi() {
 pcp_enable_iqaudio_dac() {
 	pcp_disable_i2s
 
-	# Load the correct modules for IQaudIO DAC and I think IQaudIO DAC+ 
+	# Load the correct modules for IQaudIO DAC and IQaudIO DAC+ 
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm512x
@@ -648,4 +711,15 @@ pcp_enable_hifiberry_dac_p() {
 	sudo modprobe bcm2708_dmaengine
 	sudo modprobe snd_pcm_dmaengine
 	sudo modprobe snd_soc_hifiberry_dacplus
+}
+
+pcp_enable_i2s_AMP() {
+	pcp_disable_i2s
+
+	# Load the correct modules for HiFiBerry AMP
+	sudo modprobe -q snd_soc_bcm2708_i2s
+	sudo modprobe -q bcm2708_dmaengine
+	sudo modprobe -q snd_soc_wm8804
+	sleep 1
+	sudo modprobe -q snd_soc_hifiberry_amp
 }

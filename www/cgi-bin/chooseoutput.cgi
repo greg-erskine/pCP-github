@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.4 2014-09-25 SBP
+#	Added support for the hifiberry AMP
+
 # Version: 0.3 2014-09-25 SBP
 #	Added support for the hifiberry DAC+ and Digi+
 #   Added support for the IQaudIO+ DAC
@@ -95,6 +98,15 @@ case "$AUDIO" in
 	\"I2SDIG*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
 		pcp_enable_i2s_digi
+		sudo ./disablehdmi.sh
+		OUTPUT="hw:CARD=sndrpihifiberry"
+		ALSA_PARAMS="80:4::"
+		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
+		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
+		;;
+	\"I2SAMP*)
+		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
+		pcp_enable_i2s_AMP
 		sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
