@@ -33,6 +33,7 @@ pcp_rpi_details() {
 		*000d) MODEL=B;  PCBREV=2;    MEMORY=512;;
 		*000e) MODEL=B;  PCBREV=2;    MEMORY=512;;
 		*000f) MODEL=B;  PCBREV=2;    MEMORY=512;;
+		*0012) MODEL=A+; PCBREV=1;    MEMORY=256;;
 		*)     MODEL=?;  PCBREV=?;    MEMORY=?;;
 	esac
 
@@ -43,7 +44,9 @@ pcp_rpi_details() {
 		*A)    ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
 		*B+*)  ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*CM*)  ETHER=0; USB=0; LED=X; P2PINS=0; HOLES=0; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
-		*)     ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*A+)   ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*)     ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		
 	esac
 }
 
@@ -83,6 +86,11 @@ pcp_rpi_is_model_Bplus() {
 pcp_rpi_is_model_CM() {
 	pcp_rpi_details
 	[ $MODEL = CM ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_model_Aplus() {
+	pcp_rpi_details
+	[ $MODEL = A+ ] && echo 0 || echo 1
 }
 
 #=========================================================================================

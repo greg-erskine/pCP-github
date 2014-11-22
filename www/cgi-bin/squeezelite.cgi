@@ -104,7 +104,7 @@ if [ $(pcp_rpi_is_model_B_rev_2) = 0 ]; then
 	echo '                <option value="IQaudio" id="IQaudio" '$IQaudioCHECKED'> I2S-audio IQaudIO Pi-DAC</option>'
 	echo '                <option value="I2SAMP" id="I2SAMP" '$I2AMPCHECKED'> I2S-audio HiFiBerry AMP</option>'
 fi
-if [ $(pcp_rpi_is_model_Bplus) = 0 ]; then
+if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] ; then
 	echo '                <option value="I2SpDAC" id="I2SpDAC" '$I2SDACpCHECKED'> I2S-audio+ HiFiBerry DAC+</option>'
 	echo '                <option value="I2SpDIG" id="I2SpDIG" '$I2SDIGpCHECKED'> I2S-audio+ HiFiBerry Digi+</option>'
 	echo '                <option value="I2SpIQaudIO" id="I2SpIQaudIO" '$IQaudIOpCHECKED'> I2S-audio+ IQaudIO Pi-DAC+</option>'
