@@ -582,3 +582,10 @@ a.hyp:active {
 	color:#666666;
 	text-decoration:none;
 }
+
+.circle {
+	border-radius: 50%;
+	width: 20px;
+	height: 20px;
+	/* width and height can be anything but shall be equal */
+}
