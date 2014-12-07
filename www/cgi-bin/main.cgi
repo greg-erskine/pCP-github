@@ -44,7 +44,7 @@ echo '<table border="0" bgcolor="d8d8d8" cellspacing="0" cellpadding="0" width="
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '        <legend>Change Squeezelite settings</legend>'
+echo '        <legend>Basic operations</legend>'
 echo '        <table border="0">'
 
 
