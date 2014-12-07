@@ -41,16 +41,7 @@ fi
 
 #------------------------
 echo '<table border="0" bgcolor="d8d8d8" cellspacing="0" cellpadding="0" width="960">'
-#echo '  <tr>'
-#echo '    <td>'
-#echo '      <div class="row">'
-#echo '        <fieldset>'
-#echo '        <legend>Basic settings</legend>'
-#echo '        <table border="0">'
-
-
 echo '    <td>'
-echo '      <form name="squeeze" action="writetoconfig.cgi" method="get">'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '        <legend>Change Squeezelite settings</legend>'
