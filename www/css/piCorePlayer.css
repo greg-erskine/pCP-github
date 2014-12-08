@@ -35,6 +35,10 @@ h1 {
 	font-size:16px;
 }
 
+h2 {
+	color:#cc3300;
+	font-size:14px;
+}
 /* Set the colour of messages */
 .info {
 	color:black;
@@ -52,10 +56,18 @@ h1 {
 	color:green;
 }
 
+/* Get rid of some space in the banner table */
+.banner {
+	margin-bottom:-6px;
+	margin-top:-4px;
+}
+
 /* Footer text needs to be smaller and white */
 .footer {
 	color:white;
 	font-size:11px;
+	margin-bottom:2px;
+	margin-top:2px;
 	text-align:center;
 }
 
@@ -110,14 +122,42 @@ div.row fieldset legend {
 	font-weight:bold;
 }
 
-/* Size of default and large input buttons */
-input, input.large {
-	height:1.85em;
-	width:9em; 
+/* Define size input buttons and fields */
+input {
+	width:9em;
 }
 
-input.large {
+input.small1 {
+	width:1em; 
+}
+
+input.small2 {
+	width:2em; 
+}
+
+input.large12 {
 	width:12em; 
+}
+
+input.large15 {
+	width:15em; 
+}
+
+input.large18 {
+	width:18em; 
+}
+
+input.large30 {
+	width:30em;
+}
+
+/* Define columns widths */
+.column150 {
+	width:150px;
+}
+
+.column210 {
+	width:210px;
 }
 
 /* Define the tables */
@@ -138,6 +178,22 @@ table.bgblack {
 table.percent100 {
 	width:100%;
 }
+
+textarea, textarea.styled {
+	background:#d8d8d8;
+	border:1px solid grey;
+	font-family:courier;
+	font-size:12px;
+	padding:5px;
+	width:944px;
+}
+
+textarea.white {
+	background:white;
+	border:0px solid white;
+	font-size:12px;
+}
+
 
 /* Horizontal navigation and controls bar */
 a.nav, a.nav:link, a.nav:visited, a.nav2, a.nav2:link, a.nav2:visited  {

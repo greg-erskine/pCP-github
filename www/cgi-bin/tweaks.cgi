@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.06 2014-12-09 GE
+#	Using pcp_html_head now.
+#	HTML5 formatting.
+
 # Version: 0.05 2014-10-02 GE
 #	Activated $MODE=5 for AUTOSTARTLMS.
 
@@ -19,21 +23,7 @@
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Tweaks</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Tweaks" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Tweaks" "SBP"
 
 pcp_controls
 pcp_banner
@@ -42,17 +32,17 @@ pcp_navigation
 # Change password - STILL UNDER DEVELOPMENT
 # Note: changing passwords through a script over html is not very secure
 
-echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
+echo '<table class="bggrey">'
 echo '  <tr>'
-echo '    <td class="sframe">'
-echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+echo '    <td class="even">'
+echo '      <table class="bggrey percent100">'
 echo '        <form name="password" action="changepassword.cgi" method="get">'
 echo '          <tr>'
 echo '            <td colspan="2" class="header"><nobr>GENERAL TWEAKS.</nobr></td>'
 echo '          </tr>'
 echo '          <tr>'
-echo '            <td class="title" width=20%>Password for "'$(pcp_tc_user)'"</td>'
-echo '            <td class="content" width=80%>'
+echo '            <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
+echo '            <td>'
 echo '              <input type="password" id="NEWPASSWORD" name="NEWPASSWORD" size="32" maxlength="26">'
 echo '                Enter new password</td>'
 echo '          <tr>'
@@ -62,7 +52,7 @@ echo '              <input type="password" id="NEWPASSWORD" name="NEWPASSWORD" s
 echo '                Confirm new password</td>'
 echo '          <tr>'
 echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </form>'
@@ -71,7 +61,7 @@ echo '      <br />'
 
 [ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
-echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+echo '      <table class="bggrey percent100">'
 echo '        <form name="tzone" action="timezone.cgi" method="get">'
 echo '          <tr>'
 echo '            <td class="title">Timezone</td>'
@@ -82,14 +72,14 @@ echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </form>'
 echo '      </table>'
 echo '      <br />'
 
-echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+echo '      <table class="bggrey percent100">'
 echo '        <form name="squeeze" action="writetohost.cgi" method="get">'
 echo '          <tr>'
 echo '            <td class="title" width=20%>Host name</td>'
@@ -100,7 +90,7 @@ echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </form>'
@@ -132,7 +122,7 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
 fi
 
-echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+echo '      <table class="bggrey percent100">'
 echo '        <form name="overclock" action= "writetooverclock.cgi" method="get">'
 echo '          <tr class="odd">'
 echo '            <td class="title" width=20%><p>Overclock</p></td>'
@@ -149,7 +139,7 @@ echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </form>'
@@ -161,7 +151,7 @@ echo '      <br />'
 if [ $MODE -gt 4 ]; then
 	AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
 
-	echo '      <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
+	echo '      <table class="bggrey percent100">'
 	echo '        <form name="autostartlms" action="autostartlms.cgi" method="get">'
 	echo '          <tr>'
 	echo '            <td class="title">Auto start LMS</td>'
@@ -172,7 +162,7 @@ if [ $MODE -gt 4 ]; then
 	echo '          </tr>'
 	echo '          <tr>'
 	echo '            <td colspan=2 class="btnline" >'
-	echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+	echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 	echo '            </td>'
 	echo '          </tr>'
 	echo '        </form>'
@@ -184,7 +174,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-echo '<h2>[ INFO ] Current overclocking settings</h2>'
+echo '<h1>[ INFO ] Current overclocking settings</h1>'
 
 case $OVERCLOCK in
 	NONE)
@@ -269,7 +259,7 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
 fi
 
-echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
+echo '<table class="bggrey">'
 echo '  <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 echo '    <tr>'
 echo '      <td class="sframe">'
@@ -312,7 +302,7 @@ echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </table>'
@@ -323,7 +313,7 @@ echo '</table>'
 
 # Info section:
 
-echo '<h2>[ INFO ] Current ALSA output level</h2>'
+echo '<h1>[ INFO ] Current ALSA output level</h1>'
 case $ALSAlevelout in
 	Default)
 		echo '<p class="info">Default - ALSA output level is used<br /></p>'
@@ -333,7 +323,7 @@ case $ALSAlevelout in
 		;;
 esac
 
-echo '<h2>[ INFO ] Current FIG-split acceleration settings</h2>'
+echo '<h1>[ INFO ] Current FIG-split acceleration settings</h1>'
 case $FIQ in
 	0x1)
 		echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
@@ -388,7 +378,7 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
 fi
 
-echo '<table class="sframe" cellspacing="0" cellpadding="0" width="960">'
+echo '<table class="bggrey">'
 echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
 echo '    <tr>'
 echo '      <td class="sframe">'
@@ -428,7 +418,7 @@ echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan=3 class="btnline" >'
-echo '              <input type="submit" name="submit" value="Submit">&nbsp;'
+echo '              <input type="submit" name="submit" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </table>'

@@ -2,6 +2,10 @@
 
 #	Steen, do you want to keep available_networks_2?
 
+# Version: 0.08 2014-12-09 GE
+#	Using pcp_html_head now.
+#	HTML5 formatting.
+
 # Version: 0.07 2014-10-10 SBP
 #	Added if [ $WIFI = on ] condition.
 
@@ -36,19 +40,8 @@
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - WIFI Settings</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="WIFI Settings" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo ''
+pcp_html_head "WIFI Settings" "SBP"
+
 echo '<script type="text/javascript">'
 
 echo 'var enbl = "'$WIFI'";'
@@ -84,6 +77,8 @@ echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 
+# Fix required
+#################
 echo '</script>'
 echo '</head>'
 echo ''
@@ -100,36 +95,36 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'</p>'
 fi
 
-echo '<form name="setwifi" action="writetowifi.cgi" method="get">'
-echo '  <table class="sframe" cellspacing="0" cellpadding="0" width="960">'
-echo '    <tr>'
-echo '      <td class="sframe">'
-echo '        <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
-echo '          <tr>'
-echo '            <td colspan="3" class="header"><nobr>Set Wireless configuration.</nobr></td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title" width=20%>Wireless</td>'
-echo '            <td class="content" width=40%>'
-echo '              <input type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
-echo '              <input type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
+echo '      <div class="row">'
+echo '      <fieldset>'
+echo '        <legend>Set Wireless configuration</legend>'
+echo '        <table class="bggrey percent100">'
+echo '          <tr class="even">'
+echo '            <td class="column150">Wireless</td>'
+echo '            <td>'
+echo '              <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
+echo '              <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
 echo '            </td>'
 echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title">SSID</td>'
-echo '            <td class="content">'
-echo '              <input type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='\"$SSID\"'>'
+echo '          <tr class="odd">'
+echo '            <td class="column150">SSID</td>'
+echo '            <td>'
+echo '              <input class="large15" type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='\"$SSID\"'>'
 echo '            </td>'
 echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title">Password</td>'
-echo '            <td class="content">'
-echo '              <input type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
+echo '          <tr class="even">'
+echo '            <td class="column150">Password</td>'
+echo '            <td>'
+echo '              <input class="large30" type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
 echo '            </td>'
 echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title">Security Mode</td>'
-echo '            <td class="content">'
+echo '          <tr class="odd">'
+echo '            <td class="column150">Security Mode</td>'
+echo '            <td>'
 echo '              <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
 echo '                <option value="WPA">WPA or WPA2</option>'
 echo '                <option value="WEP">WEP</option>'
@@ -138,15 +133,17 @@ echo '              </select>'
 echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
-echo '            <td colspan=2 class="btnline" >'
+echo '            <td colspan=2>'
 echo '              <input type="submit" name="SAVE" value="Save">&nbsp;'
 echo '            </td>'
 echo '          </tr>'
 echo '        </table>'
-echo '      </td>'
-echo '    </tr>'
-echo '  </table>'
-echo '</form>'
+echo '      </fieldset>'
+echo '      </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 
 available_networks_1() {
 	#=========================================================================================

@@ -220,7 +220,7 @@ pcp_banner() {
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="100%" /></p>'
+	echo '      <p class="banner"><img src="../images/banner.jpg" alt="piCorePlayer" width="100%" /></p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -323,7 +323,7 @@ pcp_tc_user() {
 #-----------------------------------------------------------------------------------------
 pcp_textarea() {
 	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
-	echo '<h2>[ INFO ] '$TITLE'</h2>'
+	echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea style="height:'$3'px">'
 	echo $START
 	$2
@@ -343,35 +343,35 @@ pcp_write_to_log() {
 }
 
 pcp_show_config_cfg() {
-	echo '<h2>[ INFO ] Current config.cfg</h2>'
+	echo '<h1>[ INFO ] Current config.cfg</h1>'
 	echo '<textarea name="TextBox" rows="26">'
 	cat $CONFIGCFG
 	echo '</textarea>'
 }
 
 pcp_show_config_txt() {
-	echo '<h2>[ INFO ] Current config.txt</h2>'
+	echo '<h1>[ INFO ] Current config.txt</h1>'
 	echo '<textarea name="TextBox" rows="15">'
 	cat $CONFIGTXT
 	echo '</textarea>'
 }	
 
 pcp_show_cmdline_txt() {
-	echo '<h2>[ INFO ] Current cmdline.txt</h2>'
+	echo '<h1>[ INFO ] Current cmdline.txt</h1>'
 	echo '<textarea name="myTextBox" rows="5">'
 	cat $CMDLINETXT
 	echo '</textarea>'
 }
 
 pcp_show_bootlocal_sh() {
-	echo '<h2>[ INFO ] Current bootlocal.sh</h2>'
+	echo '<h1>[ INFO ] Current bootlocal.sh</h1>'
 	echo '<textarea name="TextBox" rows="15">'
 	cat $BOOTLOCAL
 	echo '</textarea>'
 }
 
 pcp_show_bootsync_sh() {
-	echo '<h2>[ INFO ] Current bootsync.sh</h2>'
+	echo '<h1>[ INFO ] Current bootsync.sh</h1>'
 	echo '<textarea name="TextBox" rows="8">'
 	cat $BOOTSYNC
 	echo '</textarea>'
