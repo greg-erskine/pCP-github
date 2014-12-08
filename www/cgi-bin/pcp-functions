@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.21 2014-10-22 GE
+# Version: 0.22 2014-12-08 SBP
 #	Added support for the HiFiBerry AMP.
 
 # Version: 0.21 2014-10-22 GE
@@ -30,7 +30,7 @@
 #	Added pcp_uptime_minutes routine.
 #	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
 #	Updated footer to use style footer.
-#	Activated $MODE=0
+#	Activated $MODE=5
 
 # Version: 0.15 2014-09-25 SBP
 #	Added support for the HiFiBerry DAC+ and Digi+.
@@ -117,7 +117,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=5
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -187,17 +187,23 @@ pcp_controls_mac_address() {
 #=========================================================================================
 # Banner, navigation, footer and controls html
 #-----------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------
+# $1 = title, $2 = author, $3 = seconds, $4 = url
+#-----------------------------------------------------------------------------------------
 pcp_html_head() {
-	echo '<!-- Start of pcp_html_head -->'
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-	echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-	echo '<!DOCTYPE html>'
+	echo 'Content-Type: text/html'
 	echo ''
+	echo '<!DOCTYPE html>'
+	echo '<!-- Start of pcp_html_head -->'
 	echo '<head>'
+	echo '  <meta charset="UTF-8" />'
 	echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
 	echo '  <meta http-equiv="Pragma" content="no-cache" />'
 	echo '  <meta http-equiv="Expires" content="0" />'
-	echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+	if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
+		echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
+	fi
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'" />'
 	echo '  <meta name="description" content="'$1'" />'
@@ -211,10 +217,10 @@ pcp_html_head() {
 
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
-	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="958" /></p>'
+	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="100%" /></p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -223,7 +229,7 @@ pcp_banner() {
 
 pcp_navigation() {
 	echo '<!-- Start of pcp_navigation -->'
-	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
@@ -243,9 +249,9 @@ pcp_footer() {
 	[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
 	echo '<!-- Start of pcp_footer -->'
-	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td height="24">'
+	echo '    <td>'
 	echo '      <p class="footer">
 					'$NAME' |
 					'$(pcp_controls_mac_address)' | 
@@ -264,7 +270,7 @@ pcp_controls() {
 	if [ $MODE -gt 4 ]; then
 		if [ X"" != X"$SERVER_IP" ]; then
 			echo '<!-- Start of pcp_controls -->'
-			echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+			echo '<table class="bgblack">'
 			echo '  <tr>'
 			echo '    <td>'
 			echo '      <p>'
@@ -595,12 +601,9 @@ pcp_shutdown() {
 	exitcheck.sh
 }
 
-
-
 #=========================================================================================
 # Save parameters to the config file
 #-----------------------------------------------------------------------------------------
-
 pcp_save_to_config() {
 	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
 	sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
@@ -639,12 +642,10 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
 }
 
-
 #=========================================================================================
 # Read which output to use to use
 # Then add/remove modules
 #-----------------------------------------------------------------------------------------
-
 pcp_read_chosen_audio() {
 	if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
 	if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
@@ -656,7 +657,6 @@ pcp_read_chosen_audio() {
 	if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
 	if [ $AUDIO = I2SAMP ]; then pcp_enable_i2s_AMP; else break; fi
 }
-
 
 pcp_disable_i2s() {
 	sudo /usr/local/etc/init.d/squeezelite stop
