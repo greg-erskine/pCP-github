@@ -58,8 +58,8 @@ h2 {
 
 /* Get rid of some space in the banner table */
 .banner {
-	margin-bottom:-6px;
-	margin-top:-4px;
+	margin-bottom:-5px;
+	margin-top:-3px;
 }
 
 /* Footer text needs to be smaller and white */
@@ -80,6 +80,11 @@ h2 {
 
 .even {
 	background:#eaeaea;
+}
+
+.even td p, .odd td p {
+	margin-bottom:5px;
+	margin-top:5px;
 }
 
 /* This is for more / less feature */
@@ -143,6 +148,10 @@ input.large15 {
 	width:15em; 
 }
 
+input.large16 {
+	width:16em; 
+}
+
 input.large18 {
 	width:18em; 
 }
@@ -158,6 +167,14 @@ input.large30 {
 
 .column210 {
 	width:210px;
+}
+
+.column420 {
+	width:420px;
+}
+
+.center {
+	text-align:center;
 }
 
 /* Define the tables */
@@ -193,7 +210,6 @@ textarea.white {
 	border:0px solid white;
 	font-size:12px;
 }
-
 
 /* Horizontal navigation and controls bar */
 a.nav, a.nav:link, a.nav:visited, a.nav2, a.nav2:link, a.nav2:visited  {
