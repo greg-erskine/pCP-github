@@ -455,8 +455,8 @@ echo '  </tr>'
 echo '</table>'
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
-pcp_refresh_button
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

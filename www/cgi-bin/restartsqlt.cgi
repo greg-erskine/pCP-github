@@ -2,27 +2,18 @@
 . pcp-functions
 pcp_variables
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <meta http-equiv="Refresh" content="5; url=main.cgi">'
-echo '  <title>pCP - Restart Squeezelite</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Restart Squeezelite" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+# Version: 0.02 2014-12-09 GE
+#	HTML5 formatted.
+
+# Version: 0.01 2014-06-24 GE
+#	Original.
+
+pcp_html_head "Restart Squeezelite" "SBP" "5" "main.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_squeezelite_stop
-sleep 3
+sleep 2
 pcp_squeezelite_start
 
 echo '</body>'

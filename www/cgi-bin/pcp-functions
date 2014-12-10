@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.23 2014-12-09 GE
+#	HTML5 format.
+
 # Version: 0.22 2014-12-08 SBP
 #	Added support for the HiFiBerry AMP.
 
@@ -196,19 +199,20 @@ pcp_html_head() {
 	echo ''
 	echo '<!DOCTYPE html>'
 	echo '<!-- Start of pcp_html_head -->'
+	echo '<html>'
 	echo '<head>'
-	echo '  <meta charset="UTF-8" />'
-	echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-	echo '  <meta http-equiv="Pragma" content="no-cache" />'
-	echo '  <meta http-equiv="Expires" content="0" />'
+	echo '  <meta charset="UTF-8">'
+	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
+	echo '  <meta http-equiv="Pragma" content="no-cache">'
+	echo '  <meta http-equiv="Expires" content="0">'
 	if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
 		echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
 	fi
 	echo '  <title>pCP - '$1'</title>'
-	echo '  <meta name="author" content="'$2'" />'
-	echo '  <meta name="description" content="'$1'" />'
-	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-	echo '  <script language="Javascript" src="../js/piCorePlayer.js"></script>'
+	echo '  <meta name="author" content="'$2'">'
+	echo '  <meta name="description" content="'$1'">'
+	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">'
+	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
 	echo ''
 	echo '<body>'
@@ -237,7 +241,7 @@ pcp_navigation() {
 	echo '        <a class="nav" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
 	echo '        <a class="nav" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
 	echo '        <a class="nav" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="nav" href="about.cgi" title="pCP - About">About&nbsp;&nbsp;&nbsp;</a>'
+	echo '        <a class="nav" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -465,7 +469,7 @@ pcp_auto_start_lms() {
 pcp_go_main_button() {
 	echo '<!-- Start of pcp_go_main_button -->'
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
-	echo '<p><input type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
 	echo '<!-- End of pcp_go_main_button -->'
 }
 

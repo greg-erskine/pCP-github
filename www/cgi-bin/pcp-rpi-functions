@@ -2,6 +2,12 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.03 2014-12-08 SBP
+#	Added support for Raspberry Pi Model A+.
+
+# Version: 0.02 2014-10-26 GE
+#	Added pcp_rpi_thermal and pcp_rpi_thermal_temp.
+
 # Version: 0.01 2014-10-22 GE
 #	Original.
 
@@ -117,4 +123,27 @@ pcp_rpi_is_memory_256() {
 pcp_rpi_is_memory_512() {
 	pcp_rpi_details
 	[ $MEMORY = 512 ] && echo 0 || echo 1
+}
+
+#=========================================================================================
+# Temperature
+#
+# Options:
+#	mode
+#	policy
+#	passive
+#	temp
+#	trip_point_0_temp
+#	trip_point_0_type
+#	type
+#	uevent
+
+#-----------------------------------------------------------------------------------------
+pcp_rpi_thermal() {
+	cat /sys/devices/virtual/thermal/thermal_zone0/$1
+}
+
+pcp_rpi_thermal_temp() {
+	TEMP_IN_DEGRESS=$(pcp_rpi_thermal "temp")
+	printf "%s %.f" $TEMP_IN_DEGRESS $((($TEMP_IN_DEGRESS+500)/1000))
 }

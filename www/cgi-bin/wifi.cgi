@@ -324,8 +324,8 @@ echo '</textarea>'
 #echo '<p>&nbsp;</p>'
 #available_networks_2
 
-pcp_refresh_button
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'
