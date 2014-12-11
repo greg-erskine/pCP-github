@@ -487,7 +487,6 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-#	echo "<p><input type="button" value="Reboot" onClick=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" />&nbsp;&nbsp;Reboot piCorePlayer</p>"
 	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot piCorePlayer</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }

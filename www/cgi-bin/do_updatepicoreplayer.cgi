@@ -1,30 +1,30 @@
 #!/bin/sh
 
-# Version: 0.8 2014-12-11 GE
+# Version: 0.08 2014-12-11 GE
 #	HTML5 formatting.
 
-# Version: 0.7 2014-10-01 GE
+# Version: 0.07 2014-10-01 GE
 #	Added  class="error" to error messages.
 #	Added check for free space before untarring.
 
-# Version: 0.6 2014-09-05 GE
+# Version: 0.06 2014-09-05 GE
 #	Added INSITU_DOWNLOAD variable.
 
-# Version: 0.5 2014-08-23 SBP
+# Version: 0.05 2014-08-23 SBP
 #	Added function so that onboot.lst will not be overwritten.
 #	Added function so that new needed packages for piCorePlayer will be added to onboot.lst from list in the new piCorePlayer home.
 
-# Version: 0.4 2014-07-19 GE
+# Version: 0.04 2014-07-19 GE
 #	Improved error checking.
 #	Added pcp_go_main_button and pcp_navigation.
 
-# Version: 0.3 2014-07-13 SBP
+# Version: 0.03 2014-07-13 SBP
 #	Added command to remove kernel specific files in the optional directory.
 
-# Version: 0.2 2014-06-24 GE
+# Version: 0.02 2014-06-24 GE
 #	Rewritten.
 
-# Version: 0.1 2014 SBP
+# Version: 0.01 2014 SBP
 #	Original.
 
 . pcp-functions
