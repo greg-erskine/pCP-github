@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-12-11 GE
+#	HTML5 formatted.
+
 # Version: 0.05 2014-09-05 GE
 #	Added INSITU_DOWNLOAD variable.
 
@@ -14,26 +17,12 @@
 #	Rewritten.
 
 # Version: 0.01 2014 SBP
-#	Orignal.
+#	Original.
 
 . pcp-functions
 pcp_variables
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - InSitu upgrade</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="InSitu upgrade" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "InSitu upgrade" "SBP"
 
 pcp_banner
 pcp_navigation
@@ -56,7 +45,7 @@ fi
 echo "INSITU="$INSITU > $UPD_PCP/version.cfg
 #-----------------------------------------------------------------------------------------
 
-echo '<h2>[ INFO ] You are going from piCorePlayer'$(pcp_picoreplayer_version)' to '$INSITU'</h2>'
+echo '<h1>[ INFO ] You are going from piCorePlayer'$(pcp_picoreplayer_version)' to '$INSITU'</h1>'
 
 # Make directories
 sudo mkdir $UPD_PCP/boot

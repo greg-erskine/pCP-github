@@ -23,7 +23,3 @@ if mount | grep $VOLUME; then
 else
 	echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 fi
-
-
-
-

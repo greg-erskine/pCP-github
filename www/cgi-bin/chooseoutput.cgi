@@ -1,38 +1,31 @@
 #!/bin/sh
 
-# Version: 0.4 2014-09-25 SBP
-#	Added support for the hifiberry AMP
+# Version: 0.06 2014-12-11 GE
+#	HTML5 formatting.
 
-# Version: 0.3 2014-09-25 SBP
-#	Added support for the hifiberry DAC+ and Digi+
-#   Added support for the IQaudIO+ DAC
+# Version: 0.05 2014-xx-xx SBP
+#	Added support for the HiFiBerry AMP.
 
-# Version: 0.2 2014-08-08 GE
-#	Major clean up
+# Version: 0.04 2014-10-24 GE
+#	Added textareas.
+#	Using pcp_html_head now.
+#	Minor tidyup.
 
-# Version: 0.1 SBP
-#	Initial version
+# Version: 0.03 2014-09-25 SBP
+#	Added support for the hifiberry DAC+ and Digi+.
+#   Added support for the IQaudIO+ DAC.
 
+# Version: 0.02 2014-08-08 GE
+#	Major clean up.
+
+# Version: 0.01 SBP
+#	Original.
 
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Choose output</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Choose output" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Choose output" "SBP" "10" "squeezelite.cgi"
 
 pcp_banner
 pcp_running_script
@@ -50,19 +43,16 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] OUTPUT: '$OUTPUT'</p>'
 fi
 
-##### Needs work #####
-# Could we just stop Squeezelite for everything? and start again at the end? - yep good idea
-#####
-
 pcp_squeezelite_stop
-
 
 # Set the default settings
 case "$AUDIO" in
 	\"Analog*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_disable_i2s
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_disable_i2s
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="80:::0"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -70,8 +60,10 @@ case "$AUDIO" in
 		;;
 	\"HDMI*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_disable_i2s
-		sudo ./enablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_disable_i2s
+			sudo ./enablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="::32:0"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -79,8 +71,10 @@ case "$AUDIO" in
 		;;
 	\"USB*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_disable_i2s
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_disable_i2s
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT=" "
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -88,8 +82,10 @@ case "$AUDIO" in
 		;;
 	\"I2SDAC*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_i2s_dac
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_i2s_dac
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -97,8 +93,10 @@ case "$AUDIO" in
 		;;
 	\"I2SDIG*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_i2s_digi
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_i2s_digi
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -106,8 +104,10 @@ case "$AUDIO" in
 		;;
 	\"I2SAMP*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_i2s_AMP
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_i2s_AMP
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -115,8 +115,10 @@ case "$AUDIO" in
 		;;
 	\"IQaudio*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_iqaudio_dac
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_iqaudio_dac
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -124,8 +126,10 @@ case "$AUDIO" in
 		;;
 	\"I2SpDAC*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_hifiberry_dac_p
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_hifiberry_dac_p
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -133,8 +137,10 @@ case "$AUDIO" in
 		;;	
 	\"I2SpDIG*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_i2s_digi
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_i2s_digi
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
@@ -142,14 +148,15 @@ case "$AUDIO" in
 		;;
 	\"I2SpIQaudIO*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
-		pcp_enable_iqaudio_dac
-		sudo ./disablehdmi.sh
+		echo '<textarea class="white" style="height: 130px;" >'
+			pcp_enable_iqaudio_dac
+			sudo ./disablehdmi.sh
+		echo '</textarea>'
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
 		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
-		;;	
-		
+		;;
 	*)
 		echo '<p class="error">[ ERROR ] Error setting '$AUDIO'</p>'
 		;;

@@ -487,8 +487,8 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-	echo "<p><input type="button" value="Reboot" onClick=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" />&nbsp;&nbsp;Reboot piCorePlayer</p>"
-#	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot piCorePlayer</p>'
+#	echo "<p><input type="button" value="Reboot" onClick=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" />&nbsp;&nbsp;Reboot piCorePlayer</p>"
+	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot piCorePlayer</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }
 
@@ -647,7 +647,7 @@ pcp_save_to_config() {
 }
 
 #=========================================================================================
-# Read which output to use to use
+# Read which output to use 
 # Then add/remove modules
 #-----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
@@ -709,12 +709,12 @@ pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
 
 	# Load the correct modules for HiFiBerry DAC+ 
-	sudo modprobe snd_soc_pcm512x_i2c 
-	sudo modprobe snd_soc_pcm512x
-	sudo modprobe snd_soc_bcm2708_i2s
-	sudo modprobe bcm2708_dmaengine
-	sudo modprobe snd_pcm_dmaengine
-	sudo modprobe snd_soc_hifiberry_dacplus
+	sudo modprobe -q snd_soc_pcm512x_i2c 
+	sudo modprobe -q snd_soc_pcm512x
+	sudo modprobe -q snd_soc_bcm2708_i2s
+	sudo modprobe -q bcm2708_dmaengine
+	sudo modprobe -q snd_pcm_dmaengine
+	sudo modprobe -q snd_soc_hifiberry_dacplus
 }
 
 pcp_enable_i2s_AMP() {

@@ -1,23 +1,17 @@
 #!/bin/sh
+
+# Version: 0.03 2014-12-10 GE
+#	Using pcp_html_head now.
+#	HTML5 formatting.
+
+# Version: 0.01 2014-06-24 SBP
+#	Original.
+
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Write Overclock to Config</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Write Overclock to Config" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Write Overclock to Config" "SBP" "15" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
@@ -25,8 +19,6 @@ pcp_httpd_query_string
 
 # Decode $OVERCLOCK using httpd, add quotes
 OVERCLOCK=`sudo /usr/local/sbin/httpd -d \"$OVERCLOCK\"`
-
-# Save $OVERCLOCK to config file
 sudo sed -i "s/\(OVERCLOCK *=*\).*/\1$OVERCLOCK/" $CONFIGCFG
 
 pcp_backup

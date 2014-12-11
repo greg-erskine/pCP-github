@@ -46,8 +46,8 @@ pcp_textarea "Current /var/lib/alsa/asound.state" "cat /var/lib/alsa/asound.stat
 pcp_textarea "Left speaker test" "speaker-test -t sine -f 480 -c 2 -s 1" 240 log
 pcp_textarea "Right speaker test" "speaker-test -t sine -f 480 -c 2 -s 2" 240 log
 
-pcp_refresh_button
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

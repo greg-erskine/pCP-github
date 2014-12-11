@@ -6,7 +6,6 @@
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
-
 . pcp-functions
 pcp_variables
 . $CONFIGCFG

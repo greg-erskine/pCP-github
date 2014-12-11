@@ -34,11 +34,7 @@ echo '<h2>[ INFO ] You provided the following information</h2>'
 echo '<p class="info">[ INFO ] WIFI is: '$WIFI'<br />'
 echo '                [ INFO ] Your wifi SSID is: '$SSID'<br />'
 echo '                [ INFO ] Your password is: '$PASSWORD'<br />'
-#echo '                [ INFO ] Your password has been saved but is not revealed here<br />'
 echo '                [ INFO ] Encryption method is: '$ENCRYPTION'</p>'
-
-
-
 
 # NEW section to save the parameters to the wifi.db
 # This is a new version in order to saving space and backslash in SSID which is needed in wifi.db

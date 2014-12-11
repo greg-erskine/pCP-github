@@ -8,6 +8,7 @@ pcp_variables
 . $CONFIGCFG
 
 pcp_html_head "Controls Adv" "GE"
+
 pcp_controls
 pcp_banner
 pcp_navigation

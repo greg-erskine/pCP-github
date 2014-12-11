@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.06 2014-12-11 GE
+#	Added logging to log file.
+
 # Version: 0.05 2014-10-22 GE
 #	Testing $LMSIP.
 #	Removed sound output to diag_snd.cgi
@@ -17,7 +20,7 @@
 #	Added pcp_go_main_button.
 
 # version: 0.01 2014-06-24 GE
-#	Orignal.
+#	Original.
 
 . pcp-functions
 pcp_variables
@@ -25,6 +28,8 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
+LOG="/tmp/diagnostics.log"
+(echo $0; date) > $LOG
 
 pcp_html_head "Diagnostics" "GE"
 
@@ -45,130 +50,50 @@ if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
 	echo '                 [ DEBUG ] eth0: '$(pcp_eth0_mac_address)'<br />'
 	echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
-	echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
+	echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'<br />'
+	echo '                 [ DEBUG ] LMSIP: '$(pcp_lmsip)'</p>'
 fi
 
-#LMSDNS=$(netstat -t 2>&1 | grep 3483 | awk '{print $5}' | awk -F: '{print $1}')
-#LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{print $3}'`
+pcp_textarea "piCore version: $(pcp_picore_version)" "version" 60 log
+pcp_textarea "piCorePlayer version: $(pcp_picoreplayer_version)" "cat /usr/local/sbin/piversion.cfg" 60 log
+pcp_textarea "Squeezelite version and license: $(pcp_squeezelite_version)" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 300 log
+pcp_textarea "Squeezelite ALSA output devices" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l" 150 log
+pcp_textarea "Squeezelite help" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -h" 300 log
 
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMSIP: '$(pcp_lmsip)'</p>'
-
-#=========================================================================================
-# The next 2 textareas have a test for highlighting (change to white) when selected.
-#-----------------------------------------------------------------------------------------
-echo '<h2>[ INFO ] piCore version: '$(pcp_picore_version)'</h2>'
-echo "<textarea id=\"textbox1\" style=\"height:40px;\" onfocus=\"setbg('textbox1','white');\" onblur=\"setbg('textbox1','#d8d8d8')\">"
-version
-echo '</textarea>'
-
-echo '<h2>[ INFO ] piCorePlayer version: '$(pcp_picoreplayer_version)'</h2>'
-echo "<textarea id=\"textbox2\" style=\"height:80px;\" onfocus=\"setbg('textbox2','white');\" onblur=\"setbg('textbox2','#d8d8d8')\">"
-echo $START
-cat /usr/local/sbin/piversion.cfg
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Squeezelite version and license: '$(pcp_squeezelite_version)'</h2>'
-echo "<textarea id=\"textbox3\" style=\"height:350px;\" onfocus=\"setbg('textbox3','white');\" onblur=\"setbg('textbox3','#d8d8d8')\">"
-echo $START
-/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t
-echo $END
-echo '</textarea>'
-#-----------------------------------------------------------------------------------------
-
-echo '<h2>[ INFO ] Squeezelite ALSA output devices</h2>'
-echo '<textarea name="TextBox" rows="15">'
-echo $START
-/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Squeezelite help</h2>'
-echo '<textarea name="TextBox" rows="20">'
-sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -h
-echo '</textarea>'
+#================================Problem=================================================
+pcp_textarea "Squeezelite process" "ps -o args | grep -v grep | grep squeezelite" 60 log
 
 echo '<h2>[ INFO ] Squeezelite process</h2>'
 echo '<textarea name="TextBox" style="height:24px;">'
 ps -o args | grep -v grep | grep squeezelite
 echo '</textarea>'
-
-# Check if mmcblk0p1 is mounted otherwise mount it
+#================================Problem=================================================
 
 pcp_mount_mmcblk0p1
 dmesg | tail -1
 
 if mount | grep $VOLUME; then
-	pcp_show_config_txt
-	pcp_show_cmdline_txt
+	pcp_textarea "Current config.txt" "cat $CONFIGTXT" 150 log
+	pcp_textarea "Current cmdline.txt" "cat $CMDLINETXT" 150 log
 	pcp_umount_mmcblk0p1
 	sleep 2
+	#=========Fix============
 	dmesg | tail -1
 fi
 
-pcp_show_config_cfg
+pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 150 log
+pcp_textarea "Current bootsync.sh" "cat $BOOTSYNC" 150 log
+pcp_textarea "Current bootlocal.sh" "cat $BOOTLOCAL" 150 log
+pcp_textarea "Current shutdown.sh" "cat $SHUTDOWN" 150 log
+pcp_textarea "" "dmesg" 300 log
+pcp_textarea "Current /opt/.filetool.lst" "cat /opt/.filetool.lst" 300 log
+pcp_textarea "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
+pcp_textarea "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
+pcp_textarea "lsmod" "lsmod" 300 log
+pcp_textarea "Directory of www/cgi-bin" "ls -al" 300 log
 
-echo '<h2>[ INFO ] Current bootsync.sh</h2>'
-echo '<textarea name="TextBox4" rows="8">'
-echo $START
-cat $BOOTSYNC
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Current bootlocal.sh</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-echo $START
-cat $BOOTLOCAL
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Current shutdown.sh</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-echo $START
-cat $SHUTDOWN
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] dmesg</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-dmesg
-echo '</textarea>'
-
-# These files are created by the backup process
-#	/tmp/backup_done
-#	/tmp/backup_status
-
-echo '<h2>[ INFO ] Current /opt/.filetool.lst</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-echo $START
-cat /opt/.filetool.lst
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Current /opt/.xfiletool.lst</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-echo $START
-cat /opt/.xfiletool.lst
-echo $END
-echo '</textarea>'
- 
-echo '<h2>[ INFO ] Backup mydata</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-tar tzf /mnt/mmcblk0p2/tce/mydata.tgz
-echo '</textarea>'
-
-echo '<h2>[ INFO ] lsmod</h2>'
-echo '<textarea name="TextBox4" rows="15">'
-lsmod
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Directory of www/cgi-bin</h2>'
-echo '<textarea name="TextBox4" rows="12">'
-ls -al
-echo '</textarea>'
-
-pcp_refresh_button
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

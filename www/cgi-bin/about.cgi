@@ -20,7 +20,7 @@ pcp_variables
 START=""
 END=""
 
-pcp_html_head "Tweaks" "SBP"
+pcp_html_head "About" "SBP"
 
 pcp_controls
 pcp_banner

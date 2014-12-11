@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2014-12-11 GE
+#	HTML5 formatted.
+
 # Version: 0.05 2014-09-05 GE
 #	Added INSITU_DOWNLOAD variable.
 
@@ -23,27 +26,13 @@
 . pcp-functions
 pcp_variables
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Update pCP</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Update pCP" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Update pCP" "SBP"
 
 pcp_banner
 pcp_navigation
 pcp_running_script
 
-echo '<h2>[ INFO ] You are currently using version: piCorePlayer'$(pcp_picoreplayer_version)'</h2>'
+echo '<h1>[ INFO ] You are currently using version: piCorePlayer'$(pcp_picoreplayer_version)'</h1>'
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Tidying up...</p>'
 sudo rm -rf $UPD_PCP
@@ -63,20 +52,20 @@ else
 fi
 
 if [ $result = 0 ]; then
-	echo '<table border="0" width="960">'
+	echo '<table class="gbgrey">'
 	echo '  <form name="insitu" action= "insitu.cgi" method="get">'
 	echo '    <tr class="odd">'
-	echo '      <td width="150">'
+	echo '      <td class="column150">'
 	echo '        <select name="INSITU">'
 
 	awk '{ print "<option value=\""$1"\">" $1"</option>" }' $UPD_PCP/insitu.cfg
 
 	echo '      </td>'
-	echo '      <td width="800"><p>Choose from Drop-Down list which version of piCorePlayer you would like to update/downgrade to.</p></td>'
+	echo '      <td><p>Choose from Drop-Down list which version of piCorePlayer you would like to update/downgrade to.</p></td>'
 	echo '    </tr>'
 	echo '    <tr class="even">'
-	echo '      <td width="150"><input type="submit" value="Update piCorePlayer"></td>'
-	echo '      <td width="800"><p>Update may take a few minutes... please be patient. When the download has finished a new page will load.</p></td>'
+	echo '      <td class="column150"><input type="submit" value="Update piCorePlayer"></td>'
+	echo '      <td><p>Update may take a few minutes... please be patient. When the download has finished a new page will load.</p></td>'
 	echo '    </tr>'
 	echo '  </form>'
 	echo '</table>'

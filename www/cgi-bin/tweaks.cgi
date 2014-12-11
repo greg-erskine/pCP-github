@@ -118,7 +118,7 @@ echo '      <br />'
 [ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
 echo '      <table class="bggrey percent100">'
-echo '        <form name="tzone" action="timezone.cgi" method="get">'
+echo '        <form name="tzone" action="writetotimezone.cgi" method="get">'
 
 echo '          <tr class="even">'
 echo '            <td class="column150">Timezone</td>'
@@ -160,7 +160,7 @@ echo '          </tr>'
 echo '          <tr class="even">'
 echo '            <td class="column150"></td>'
 echo '            <td class="column210">'
-echo '              <input class="large16" type="password" id="NEWPASSWORD" name="NEWPASSWORD" size="32" maxlength="26">'
+echo '              <input class="large16" type="password" id="CONFIRMPASSWORD" name="CONFIRMPASSWORD" size="32" maxlength="26">'
 echo '            </td>'
 echo '            <td>'
 echo '              <p>Confirm new password.</p>'
@@ -183,7 +183,7 @@ if [ $MODE -gt 4 ]; then
 	AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
 
 	echo '      <table class="bggrey percent100">'
-	echo '        <form name="autostartlms" action="autostartlms.cgi" method="get">'
+	echo '        <form name="autostartlms" action="writetoautostartlms.cgi" method="get">'
 
 	echo '          <tr class="even">'
 	echo '            <td class="column150">Auto start LMS</td>'
@@ -312,9 +312,11 @@ echo '          <tr class="even">'
 echo '            <td class="column150">'
 echo '               <p>OTG-Speed</p>'
 echo '            </td>'
-echo '            <td>'
+echo '            <td class="column210">'
 echo '              <input class="small1" type="radio" name="CMD" id="not enabled" value="Default" '$CMDdefault'>Default'
 echo '              <input class="small1" type="radio" name="CMD" id="Custom" value="Slow" '$CMDslow'>dwc_otg.speed=1'
+echo '            </td>'
+echo '            <td>'
 echo '              <p>Often needed for C-Media based DACs, try to use "dwc_otg.speed=1" if sound is crackling.</p>'
 echo '            </td>'
 echo '          </tr>'
@@ -323,9 +325,11 @@ echo '          <tr class="odd">'
 echo '            <td class="column150">'
 echo '              <p>ALSA output level</p>'
 echo '            </td>'
-echo '            <td>'
+echo '            <td class="column210">'
 echo '              <input class="small1" type="radio" name="ALSAlevelout" id="Default" value="Default" '$ALSAdefault'>Default'
-echo '              <input class="small1" type="radio" name="ALSAlevelout" id="Custom" value="Custom" '$ALSAcustom'>Custom ALSA output level'
+echo '              <input class="small1" type="radio" name="ALSAlevelout" id="Custom" value="Custom" '$ALSAcustom'>Custom'
+echo '            </td>'
+echo '            <td>'
 echo '              <p>Use only if you have changed ALSA output level via ALSA-mixer, allows custom output level after reboot.'
 echo '              <span style="color:blue;" title="Use alsamixer via SHH, and save your custom settings by sudo amixer store">HELP</span><p>'
 echo '            </td>'
@@ -344,13 +348,20 @@ echo '                <option value="0x4" '$selected4'> 4. Accelerate high-speed
 echo '                <option value="0x7" '$selected5'> 5. Accelerate all transactions DEFAULT - Value 0x7 </option>'
 echo '                <option value="0x8" '$selected6'> 6. Enable Interrupt/Control Split Transaction hack - Value 0x8 </option>'
 echo '              </select>'
+echo '            </td>'
+echo '          </tr>'
+echo '          <tr class="even">'
+echo '            <td class="column150">'
+echo '              <p>&nbsp;</p>'
+echo '            </td>'
+echo '            <td>'
 echo '              <p>Change FIQ_FSM USB settings. This might solve USB audio problems. Important for specific USB-DACs'
 echo '                 - like the Naim DAC-V1 card, try option 1, 2, 3 or 8. Reboot is needed.</p>'
 echo '            </td>'
 echo '          </tr>'
 
 echo '          <tr class="odd">'
-echo '            <td colspan=2>'
+echo '            <td colspan=3>'
 echo '              <input type="submit" name="submit" value="Save">'
 echo '            </td>'
 echo '          </tr>'
@@ -407,8 +418,9 @@ if [ $DEBUG = 1 ]; then
 	esac
 fi
 
-#******************************************************* 2014-09-04 SBP *************************************************************
-# Function in order to check the CRON Job schedule according to what is present in config file
+#========================================================================================
+# Function to check the CRON Job schedule according to config file
+#----------------------------------------------------------------------------------------
 pcp_variables
 
 if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
@@ -492,7 +504,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-#******************************************************* 2014-09-04 SBP *************************************************************
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
