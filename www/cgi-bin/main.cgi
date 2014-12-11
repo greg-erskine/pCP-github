@@ -77,7 +77,7 @@ else
  echo '          </tr>'
 
 #------------------------------------------Padding---------------------------------------
-echo '          <tr height="8">'
+echo '          <tr class="padding">'
 echo '            <td></td>'
 echo '            <td></td>'
 echo '          </tr>'
@@ -131,7 +131,7 @@ echo '            <td>'
 echo '              <p>Ralphy'\''s newest version. Download and update Squeezelite.&nbsp;&nbsp;'
 echo '              <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a></p>'
 echo '              <div id="ID01" class="less">'
-echo '                <p>This version allows:</p>'
+echo '                <p>This version allows for:</p>'
 echo '                <ul>'
 echo '                  <li>upsampling using SOX</li>'
 echo '                  <li>playing wma and alac via ffmpeg.</li>'

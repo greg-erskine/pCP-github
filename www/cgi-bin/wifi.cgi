@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#	Steen, do you want to keep available_networks_2?
-
 # Version: 0.08 2014-12-09 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -145,7 +143,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-available_networks_1() {
+available_networks() {
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
@@ -248,81 +246,9 @@ available_networks_1() {
 	fi
 }
 
-available_networks_2() {
-	#=========================================================================================
-	# Section added from old wifi page
-	#-----------------------------------------------------------------------------------------
-	#save scan results to a temp file
-	sudo iwlist wlan0 scanning > /tmp/wifiscan
-	#check if the scanning was ok with wlan0
-	scan_ok=$(grep "wlan" /tmp/wifiscan)
-	if [ -z "$scan_ok" ]; then
-		killall -9 wpa_supplicant
-		iwlist wlan0-1 scanning > /tmp/wifiscan
-	fi
-	#check if the scanning was ok
-	scan_ok=$(grep "wlan" /tmp/wifiscan)
-	#if scan was not ok, finish the script
-	if [ -z "$scan_ok" ]; then
-		echo '<p class="error">[ ERROR ] WIFI scanning failed.</p>'
-		pcp_footer
-		echo '</body>'
-		echo '</html>'
-		exit
-	fi
-	if [ -f /tmp/ssids ]; then
-		rm /tmp/ssids
-	fi
-	#save number of scanned cells
-	n_results=$(grep -c "ESSID:" /tmp/wifiscan)
-	i=1
-	while [ "$i" -le "$n_results" ]; do
-		if [ $i -lt 10 ]; then
-			cell=$(echo "Cell 0$i - Address:")
-		else
-			cell=$(echo "Cell $i - Address:")
-		fi
-		j=`expr $i + 1`
-		if [ $j -lt 10 ]; then
-			nextcell=$(echo "Cell 0$j - Address:")
-		else
-			nextcell=$(echo "Cell $j - Address:")
-		fi
-		#store only one cell info in a temp file
-		awk -v v1="$cell" '$0 ~ v1 {p=1}p' /tmp/wifiscan | awk -v v2="$nextcell" '$0 ~ v2 {exit}1' > /tmp/onecell
-
-		oneaddress=$(grep " Address:" /tmp/onecell | awk '{print $5}')
-		onessid=$(grep "ESSID:" /tmp/onecell | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{gsub("ESSID:", "");print}')
-		oneencryption=$(grep "Encryption key:" /tmp/onecell | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{gsub("Encryption key:on", "(secure)");print}' | awk '{gsub("Encryption key:off", "(open)  ");print}')
-		onepower=$(grep "Quality=" /tmp/onecell | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{gsub("Quality=", "");print}' | awk -F '/70' '{print $1}')
-		onepower=$(awk -v v3=$onepower 'BEGIN{ print v3 * 10 / 7}')
-		onepower=${onepower%.*}
-		onepower="(Signal strength: $onepower%)"
-		if [ -n "$oneaddress" ]; then                                                                                                            
-			echo "$onessid  $oneaddress $oneencryption $onepower" >> /tmp/ssids                                                              
-		else                                                                                                                                     
-			echo "$onessid  $oneencryption $onepower" >> /tmp/ssids                                                                          
-		fi
-		i=`expr $i + 1`
-	done
-	rm /tmp/onecell
-	#add numbers at beginning of line
-	awk '{printf("%5d : %s\n", NR,$0)}' /tmp/ssids > /tmp/sec_ssids
-	#generate file with only numbers and names
-	grep ESSID /tmp/wifiscan | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{printf("%5d : %s\n", NR,$0)}' | awk '{gsub("ESSID:", "");print}' > /tmp/ssids
-
-	echo '<textarea name="TextBox" cols="118" rows="8">'
-	echo 'Available WIFI networks:'
-	cat /tmp/sec_ssids #show ssids list
-	echo '</textarea>'
-}
-
 echo '<textarea name="TextBox" cols="118" rows="12">'
-available_networks_1
+available_networks
 echo '</textarea>'
-
-#echo '<p>&nbsp;</p>'
-#available_networks_2
 
 pcp_footer
 pcp_refresh_button
