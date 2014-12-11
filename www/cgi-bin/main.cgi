@@ -128,7 +128,15 @@ echo '                <input type="submit" value="Update" />'
 echo '              </form>'
 echo '            </td>'
 echo '            <td>'
-echo '              <p>Ralphy'\''s newest version. Download and update Squeezelite. This one allows upsampling using SOX and can play wma and alac via ffmpeg.</p>'
+echo '              <p>Ralphy'\''s newest version. Download and update Squeezelite.&nbsp;&nbsp;'
+echo '              <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a></p>'
+echo '              <div id="ID01" class="less">'
+echo '                <p>This version allows:</p>'
+echo '                <ul>'
+echo '                  <li>upsampling using SOX</li>'
+echo '                  <li>playing wma and alac via ffmpeg.</li>'
+echo '                </ul>'
+echo '              </div>'
 echo '            </td>'
 echo '          </tr>'
 
@@ -192,9 +200,8 @@ echo '              <p>Save your current configuration to USB stick for use afte
 echo '            </td>'
 echo '          </tr>'
 
-echo '        </table>'
-
 #----------------------------------------------------------------------------------------
+echo '        </table>'
 echo '      </fieldset>'
 echo '      </div>'
 echo '    </td>'
