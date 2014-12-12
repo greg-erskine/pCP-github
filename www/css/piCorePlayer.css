@@ -71,7 +71,7 @@ h2 {
 	text-align:center;
 }
 
-/* This is for odd even striped tables */
+/* This is for odd and even striped tables */
 .odd, .even{
 	background:#d8d8d8;
 	border:0px;
@@ -87,7 +87,7 @@ h2 {
 	margin-top:5px;
 }
 
-/* This is for more / less feature */
+/* This is for more and less feature */
 .more {
 	display:block;
 }
@@ -101,7 +101,7 @@ h2 {
 	font-size:10px;
 }
 
-/* Squeezelite indicator */
+/* Squeezelite running indicator */
 .circle {
 	border-radius:50%;
 	height:12px;
@@ -114,6 +114,7 @@ h2 {
 	width:8px;
 }
 
+/* fieldset formatting */
 div.row {
 	margin:5px 0 5px 0;
 }
@@ -173,8 +174,8 @@ input.large30 {
 	width:420px;
 }
 
-.center {
-	text-align:center;
+.padding {
+	height:8px;
 }
 
 /* Define the tables */

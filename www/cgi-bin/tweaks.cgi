@@ -59,8 +59,9 @@ echo '        </form>'
 echo '      </table>'
 echo '      <br />'
 
-#----------------------------------------------Overclock---------------------------------
-# Function in order to check the radiobutton according to what is present in config file
+#---------------------------------------Overclock----------------------------------------
+# Function to check the radio button according to config.cfg file
+#----------------------------------------------------------------------------------------
 case "$OVERCLOCK" in 
 	NONE)
 		OCnone="selected"
@@ -77,13 +78,6 @@ case "$OVERCLOCK" in
 		OCmoderate=""
 		;;
 esac
-
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
-	echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
-	echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
-	echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
-fi
 
 echo '      <table class="bggrey percent100">'
 echo '        <form name="overclock" action= "writetooverclock.cgi" method="get">'
@@ -113,6 +107,34 @@ echo '          </tr>'
 echo '        </form>'
 echo '      </table>'
 echo '      <br />'
+
+if [ $DEBUG = 1 ]; then 
+	echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
+	echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
+	echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
+	echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
+
+	case $OVERCLOCK in
+		NONE)
+			echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
+			echo '[ DEBUG ]                  core_freq=250<br />'
+			echo '[ DEBUG ]                  sdram_freq=400<br />'
+			echo '[ DEBUG ]                  force_turbo=1</p>'
+			;;
+		MILD)
+			echo '<p class="debug">[ DEBUG ] arm_freq=800<br />' 
+			echo '[ DEBUG ]                  core_freq=250<br />'
+			echo '[ DEBUG ]                  sdram_freq=400<br />'
+			echo '[ DEBUG ]                  force_turbo=1</p>'
+			;;
+		MODERATE)
+			echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
+			echo '[ DEBUG ]                  core_freq=333<br />'
+			echo '[ DEBUG ]                  sdram_freq=450<br />'
+			echo '[ DEBUG ]                  force_turbo=0</p>'
+			;;
+	esac
+fi
 
 #----------------------------------------------Timezone----------------------------------
 [ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
@@ -212,34 +234,9 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-if [ $DEBUG = 1 ]; then 
-	echo '<h1>[ INFO ] Current overclocking settings</h1>'
-
-	case $OVERCLOCK in
-		NONE)
-			echo '<p class="info">Overclocking is: '$OVERCLOCK'<br /><br />'
-			echo '                arm_freq=700<br />'
-			echo '                core_freq=250<br />'
-			echo '                sdram_freq=400<br />'
-			echo '                force_turbo=1</p>'
-			;;
-		MILD)
-			echo '<p class="info">Overclocking is: '$OVERCLOCK'<br /><br />'
-			echo '                arm_freq=800<br />' 
-			echo '                core_freq=250<br />'
-			echo '                sdram_freq=400<br />'
-			echo '                force_turbo=1</p>'
-			;;
-		MODERATE)
-			echo '<p class="info">Overclocking is: '$OVERCLOCK'<br /><br />'
-			echo '                arm_freq=900<br />'
-			echo '                core_freq=333<br />'
-			echo '                sdram_freq=450<br />'
-			echo '                force_turbo=0</p>'
-			;;
-	esac
-fi
-
+#----------------------------------------------Password----------------------------------
+# Determine state of check boxes.
+#----------------------------------------------------------------------------------------
 # Function to check the CMD-radio button according to config file
 case "$CMD" in 
 	Default)
@@ -254,30 +251,13 @@ case "$CMD" in
 		;;
 esac
 
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
-	echo '                 [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
-	echo '                 [ DEBUG ] $CMDslow: '$CMDslow'</p>'
-fi
-
 # Function to check the FIQ-split radio button according to config file
-
 if [ $FIQ = 0x1 ]; then selected1="selected"; else selected1=""; fi
 if [ $FIQ = 0x2 ]; then selected2="selected"; else selected2=""; fi
 if [ $FIQ = 0x3 ]; then selected3="selected"; else selected3=""; fi
 if [ $FIQ = 0x4 ]; then selected4="selected"; else selected4=""; fi
 if [ $FIQ = 0x7 ]; then selected5="selected"; else selected5=""; fi
 if [ $FIQ = 0x8 ]; then selected6="selected"; else selected6=""; fi
-
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $FIQ: '$FIQ'<br />'
-	echo '                 [ DEBUG ] $selected1: '$selected1'<br />'
-	echo '                 [ DEBUG ] $selected2: '$selected2'<br />'
-	echo '                 [ DEBUG ] $selected3: '$selected3'<br />'
-	echo '                 [ DEBUG ] $selected4: '$selected4'<br />'
-	echo '                 [ DEBUG ] $selected5: '$selected5'<br />'
-	echo '                 [ DEBUG ] $selected6: '$selected6'</p>'
-fi
 
 # Function to check the ALSA-radio button according to config file
 case "$ALSAlevelout" in 
@@ -293,12 +273,6 @@ case "$ALSAlevelout" in
 		;;
 esac
 
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $ALSAlevelout: '$ALSAlevelout'<br />'
-	echo '                 [ DEBUG ] $ALSAdefault: '$ALSAdefault'<br />'
-	echo '                 [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
-fi
-
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -308,6 +282,7 @@ echo '      <fieldset>'
 echo '        <legend>Audio tweaks</legend>'
 echo '        <table class="bggrey percent100">'
 
+#-------------------------------------------dwc_otg.speed--------------------------------
 echo '          <tr class="even">'
 echo '            <td class="column150">'
 echo '               <p>OTG-Speed</p>'
@@ -321,6 +296,19 @@ echo '              <p>Often needed for C-Media based DACs, try to use "dwc_otg.
 echo '            </td>'
 echo '          </tr>'
 
+if [ $DEBUG = 1 ]; then
+	echo '<!-- Start of debug info -->'
+	echo '<tr class="even">'
+	echo '  <td  colspan="3">'
+	echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
+	echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
+	echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+	echo '  </td>'
+	echo '</tr>'
+	echo '<!-- End of debug info -->'
+fi
+
+#-------------------------------------------ALSAlevelout---------------------------------
 echo '          <tr class="odd">'
 echo '            <td class="column150">'
 echo '              <p>ALSA output level</p>'
@@ -335,6 +323,20 @@ echo '              <span style="color:blue;" title="Use alsamixer via SHH, and 
 echo '            </td>'
 echo '          </tr>'
 
+if [ $DEBUG = 1 ]; then 
+	echo '<!-- Start of debug info -->'
+	echo '<tr class="odd">'
+	echo '  <td  colspan="3">'
+	echo '    <p class="debug">[ DEBUG ] $ALSAlevelout: '$ALSAlevelout'<br />'
+	echo '                     [ DEBUG ] $ALSAdefault: '$ALSAdefault'<br />'
+	echo '                     [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
+	echo '  </td>'
+	echo '</tr>'
+	echo '<!-- End of debug info -->'
+fi
+
+
+#-------------------------------------FIQ-Split acceleration-----------------------------
 echo '          <tr class="even">'
 echo '            <td class="column150">'
 echo '              <p>FIQ-Split acceleration</p>'
@@ -360,12 +362,29 @@ echo '                 - like the Naim DAC-V1 card, try option 1, 2, 3 or 8. Reb
 echo '            </td>'
 echo '          </tr>'
 
+if [ $DEBUG = 1 ]; then 
+	echo '<!-- Start of debug info -->'
+	echo '<tr class="even">'
+	echo '  <td  colspan="3">'
+	echo '    <p class="debug">[ DEBUG ] $FIQ: '$FIQ'<br />'
+	echo '                     [ DEBUG ] $selected1: '$selected1'<br />'
+	echo '                     [ DEBUG ] $selected2: '$selected2'<br />'
+	echo '                     [ DEBUG ] $selected3: '$selected3'<br />'
+	echo '                     [ DEBUG ] $selected4: '$selected4'<br />'
+	echo '                     [ DEBUG ] $selected5: '$selected5'<br />'
+	echo '                     [ DEBUG ] $selected6: '$selected6'</p>'
+	echo '  </td>'
+	echo '</tr>'
+	echo '<!-- End of debug info -->'
+fi
+
 echo '          <tr class="odd">'
 echo '            <td colspan=3>'
 echo '              <input type="submit" name="submit" value="Save">'
 echo '            </td>'
 echo '          </tr>'
 
+#----------------------------------------------------------------------------------------
 echo '        </table>'
 echo '      </fieldset>'
 echo '      </div>'
@@ -373,50 +392,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-# Info section:
-if [ $DEBUG = 1 ]; then
-	echo '<h1>[ INFO ] Current ALSA output level</h1>'
-	case $ALSAlevelout in
-		Default)
-			echo '<p class="info">Default - ALSA output level is used<br /></p>'
-			;;
-		Custom)
-			echo '<p class="info">Custom - ALSA output level will be defined from your custom settings.<br /></p>'
-			;;
-	esac
-
-	echo '<h1>[ INFO ] Current FIG-split acceleration settings</h1>'
-	case $FIQ in
-		0x1)
-			echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
-			echo '                Accelerate non-periodic split transactions</p>'
-			;;
-		0x2)
-			echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
-			echo '                Accelerate periodic split transactions</p>'
-			;;
-		0x3)
-			echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
-			echo '                Accelerate all except high-speed isochronous transactions</p>'
-			;;
-		0x4)
-			echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
-			echo '                Accelerate high-speed isochronous transactions</p>'
-			;;
-		0x7)
-			echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
-			echo '                Accelerate all transactions - DEFAULT</p>'
-			;;
-		0x8)
-			echo '<p class="info">FIQ-split value is: '$FIQ'<br />'
-			echo '                Enable Interrupt/Control Split Transaction hack</p>'
-			;;
-		*)
-			echo '<p class="error">FIQ-split value is: INVALID</p>'
-			;;
-	esac
-fi
 
 #========================================================================================
 # Function to check the CRON Job schedule according to config file
@@ -427,21 +402,6 @@ if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
 if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
 if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
 if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
-
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
-	echo '                 [ DEBUG ] $REBOOT_Y: '$REBOOT_Y' <br />'
-	echo '                 [ DEBUG ] $REBOOT_N: '$REBOOT_N' <br />'
-	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
-	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y' <br />'
-	echo '                 [ DEBUG ] $RESTART_N: '$RESTART_N' <br />'
-	echo '                 [ DEBUG ] $RB_H: '$RB_H' <br />'
-	echo '                 [ DEBUG ] $RB_WD: '$RB_WD' <br />'
-	echo '                 [ DEBUG ] $RB_DMONTH: '$RB_DMONTH' <br />'
-	echo '                 [ DEBUG ] $RS_H: '$RS_H' <br />'
-	echo '                 [ DEBUG ] $RS_WD: '$RS_WD' <br />'
-	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
-fi
 
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -496,6 +456,27 @@ echo '            <td colspan=3>'
 echo '              <input type="submit" name="submit" value="Save">'
 echo '            </td>'
 echo '          </tr>'
+
+if [ $DEBUG = 1 ]; then
+	echo '<!-- Start of debug info -->'
+	echo '<tr class="odd">'
+	echo '  <td  colspan="3">'
+	echo '    <p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
+	echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y' <br />'
+	echo '                     [ DEBUG ] $REBOOT_N: '$REBOOT_N' <br />'
+	echo '                     [ DEBUG ] $RESTART: '$RESTART'<br  />'
+	echo '                     [ DEBUG ] $RESTART_Y: '$RESTART_Y' <br />'
+	echo '                     [ DEBUG ] $RESTART_N: '$RESTART_N' <br />'
+	echo '                     [ DEBUG ] $RB_H: '$RB_H' <br />'
+	echo '                     [ DEBUG ] $RB_WD: '$RB_WD' <br />'
+	echo '                     [ DEBUG ] $RB_DMONTH: '$RB_DMONTH' <br />'
+	echo '                     [ DEBUG ] $RS_H: '$RS_H' <br />'
+	echo '                     [ DEBUG ] $RS_WD: '$RS_WD' <br />'
+	echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
+	echo '  </td>'
+	echo '</tr>'
+	echo '<!-- End of debug info -->'
+fi
 
 echo '        </table>'
 echo '      </fieldset>'

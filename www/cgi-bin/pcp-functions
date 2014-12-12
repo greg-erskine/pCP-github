@@ -2,7 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.23 2014-12-09 GE
+# Version: 0.23 2014-12-12 GE
+#	Minor updates to modprode section.
 #	HTML5 format.
 
 # Version: 0.22 2014-12-08 SBP
@@ -33,7 +34,7 @@
 #	Added pcp_uptime_minutes routine.
 #	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
 #	Updated footer to use style footer.
-#	Activated $MODE=5
+#	Activated $MODE=0
 
 # Version: 0.15 2014-09-25 SBP
 #	Added support for the HiFiBerry DAC+ and Digi+.
@@ -120,7 +121,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=5
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -646,10 +647,9 @@ pcp_save_to_config() {
 }
 
 #=========================================================================================
-# Read which output to use 
-# Then add/remove modules
+# Read which output to use then add/remove modules
 #-----------------------------------------------------------------------------------------
-pcp_read_chosen_audio() {
+DELETE_pcp_read_chosen_audio() {
 	if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
 	if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
 	if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
@@ -661,30 +661,62 @@ pcp_read_chosen_audio() {
 	if [ $AUDIO = I2SAMP ]; then pcp_enable_i2s_AMP; else break; fi
 }
 
+#########################################################################################
+# Steen, this is a short hand method for programming the above procedure. I think it
+# looks cleaner and therefore less prone to errors or typos.
+# Also, by convention procedure (sub-routines, functions etc) names are lower case,
+# so I changed pcp_enable_i2s_AMP to pcp_enable_i2s_amp.
+#########################################################################################
+
+pcp_read_chosen_audio() {
+	[ $AUDIO = Analog ] &&      pcp_disable_i2s
+	[ $AUDIO = USB ] &&         pcp_disable_i2s
+	[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
+	[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
+	[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
+	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
+	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac
+	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
+	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
+}
+
+#########################################################################################
+# Steen, it looks like we need to remove more modules in pcp_disable_i2s.
+# At the moment everything will works but there will be additional modules loaded if the
+# user has changed from one i2s option to another option. Though these surplus modules
+# won't be loaded after a reboot though.
+#########################################################################################
+
+#========================================================================================
+# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+#----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
 	sudo /usr/local/etc/init.d/squeezelite stop
-    sleep 1
-	# Remove HiFiBerry digi/DAC and IQaudIO DAC modules
+	sleep 1
 	sudo modprobe -qr snd_soc_wm8804
 	sudo modprobe -qr snd_soc_hifiberry_dac
 	sudo modprobe -qr snd_soc_hifiberry_digi
 	sudo modprobe -qr snd_soc_iqaudio_dac
+	# more
+	# more
 }
 
+#========================================================================================
+# Load the correct modules for HiFiBerry DAC
+#----------------------------------------------------------------------------------------
 pcp_enable_i2s_dac() {
 	pcp_disable_i2s
-
-	# Load the correct modules for HiFiBerry DAC 
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm5102a
 	sudo modprobe -q snd_soc_hifiberry_dac
 }
 
+#========================================================================================
+# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+#----------------------------------------------------------------------------------------
 pcp_enable_i2s_digi() {
 	pcp_disable_i2s
-
-	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_wm8804
@@ -692,10 +724,11 @@ pcp_enable_i2s_digi() {
 	sudo modprobe -q snd_soc_hifiberry_digi
 }
 
+#========================================================================================
+# Load the correct modules for IQaudIO DAC and IQaudIO DAC+
+#----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac() {
 	pcp_disable_i2s
-
-	# Load the correct modules for IQaudIO DAC and IQaudIO DAC+ 
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm512x
@@ -704,10 +737,11 @@ pcp_enable_iqaudio_dac() {
 	sleep 1
 }
 
+#========================================================================================
+# Load the correct modules for HiFiBerry DAC+
+#----------------------------------------------------------------------------------------
 pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
-
-	# Load the correct modules for HiFiBerry DAC+ 
 	sudo modprobe -q snd_soc_pcm512x_i2c 
 	sudo modprobe -q snd_soc_pcm512x
 	sudo modprobe -q snd_soc_bcm2708_i2s
@@ -716,10 +750,16 @@ pcp_enable_hifiberry_dac_p() {
 	sudo modprobe -q snd_soc_hifiberry_dacplus
 }
 
-pcp_enable_i2s_AMP() {
-	pcp_disable_i2s
+#========================================================================================
+# Load the correct modules for HiFiBerry AMP
+#----------------------------------------------------------------------------------------
 
-	# Load the correct modules for HiFiBerry AMP
+#########################################################################################
+# Steen, note "AMP" changed to "amp". Lower case is the convention.
+#########################################################################################
+
+pcp_enable_i2s_amp() {
+	pcp_disable_i2s
 	sudo modprobe -q snd_soc_bcm2708_i2s
 	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_wm8804

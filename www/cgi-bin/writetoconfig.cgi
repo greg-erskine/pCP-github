@@ -1,7 +1,11 @@
 #!/bin/sh
 
+# Version: 0.03 2014-12-12 GE
+#	HTML5 format.
+#	Minor mods.
+
 # Version: 0.02 2014-08-22 SBP
-#	Changed the back button to absolute path back to Squeezelite.cgi. Otherwise we would go in circles
+#	Changed the back button to absolute path back to Squeezelite.cgi. Otherwise we would go in circles.
 
 # Version: 0.01 2014-06-25 GE
 #	Original.
@@ -10,26 +14,9 @@
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Write to config.cfg</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Write to configuration file" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
-echo ''
+pcp_html_head "Write Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
-pcp_controls
 pcp_banner
-pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
@@ -51,24 +38,22 @@ VISULIZER=`sudo /usr/local/sbin/httpd -d \"$VISULIZER\"`
 OTHER=`sudo /usr/local/sbin/httpd -d \"$OTHER\"`
 
 if [ $DEBUG = 1 ]; then
-	echo '<code>[ INFO ] '$QUERY_STRING'</code>'
-	echo '<h2>[ DEBUG ] Parameters from decoded $QUERY_STRING</h2>'
-	echo '<code>NAME=.'$NAME'.<br />'
-	echo 'OUTPUT=.'$OUTPUT'.<br />'
-	echo 'ALSA_PARAMS=.'$ALSA_PARAMS'.<br />'
-	echo 'BUFFER_SIZE=.'$BUFFER_SIZE'.<br />'
-	echo 'CODEC=.'$_CODEC'.<br />'
-	echo 'PRIORITY=.'$PRIORITY'.<br />'
-	echo 'MAX_RATE=.'$MAX_RATE'.<br />'
-	echo 'UPSAMPLE=.'$UPSAMPLE'.<br />'
-	echo 'MAC_ADDRESS=.'$MAC_ADDRESS'.<br />'
-	echo 'SERVER_IP=.'$SERVER_IP'.<br />'
-	echo 'LOGLEVEL=.'$LOGLEVEL'.<br />'
-	echo 'LOGFILE=.'$LOGFILE'.<br />'
-	echo 'DSDOUT=.'$DSDOUT'.<br />'
-	echo 'VISULIZER=.'$VISULIZER'.<br />'
-	echo 'OTHER=.'$OTHER'.<br />'
-	echo '</code>'
+	echo '<p class="debug">[ DEBUG ] Parameters after decoding + . added<br /><br />'
+	echo '                 [ DEBUG ] NAME=.'$NAME'.<br />'
+	echo '                 [ DEBUG ] OUTPUT=.'$OUTPUT'.<br />'
+	echo '                 [ DEBUG ] ALSA_PARAMS=.'$ALSA_PARAMS'.<br />'
+	echo '                 [ DEBUG ] BUFFER_SIZE=.'$BUFFER_SIZE'.<br />'
+	echo '                 [ DEBUG ] CODEC=.'$_CODEC'.<br />'
+	echo '                 [ DEBUG ] PRIORITY=.'$PRIORITY'.<br />'
+	echo '                 [ DEBUG ] MAX_RATE=.'$MAX_RATE'.<br />'
+	echo '                 [ DEBUG ] UPSAMPLE=.'$UPSAMPLE'.<br />'
+	echo '                 [ DEBUG ] MAC_ADDRESS=.'$MAC_ADDRESS'.<br />'
+	echo '                 [ DEBUG ] SERVER_IP=.'$SERVER_IP'.<br />'
+	echo '                 [ DEBUG ] LOGLEVEL=.'$LOGLEVEL'.<br />'
+	echo '                 [ DEBUG ] LOGFILE=.'$LOGFILE'.<br />'
+	echo '                 [ DEBUG ] DSDOUT=.'$DSDOUT'.<br />'
+	echo '                 [ DEBUG ] VISULIZER=.'$VISULIZER'.<br />'
+	echo '                 [ DEBUG ] OTHER=.'$OTHER'.</p>'
 fi
 
 # Save the parameters to the config file
@@ -91,31 +76,36 @@ sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
 . $CONFIGCFG
 
 if [ $DEBUG = 1 ]; then
-	echo '<h2>[ DEBUG ] Parameters after reading config file</h2>'
-	echo '<code>NAME=.'$NAME'.<br />'
-	echo 'OUTPUT=.'$OUTPUT'.<br />'
-	echo 'ALSA_PARAMS=.'$ALSA_PARAMS'.<br />'
-	echo 'BUFFER_SIZE=.'$BUFFER_SIZE'.<br />'
-	echo 'CODEC=.'$_CODEC'.<br />'
-	echo 'PRIORITY=.'$PRIORITY'.<br />'
-	echo 'MAX_RATE=.'$MAX_RATE'.<br />'
-	echo 'UPSAMPLE=.'$UPSAMPLE'.<br />'
-	echo 'MAC_ADDRESS=.'$MAC_ADDRESS'.<br />'
-	echo 'SERVER_IP=.'$SERVER_IP'.<br />'
-	echo 'LOGLEVEL=.'$LOGLEVEL'.<br />'
-	echo 'LOGFILE=.'$LOGFILE'.<br />'
-	echo 'DSDOUT=.'$DSDOUT'.<br />'
-	echo 'VISULIZER=.'$VISULIZER'.<br />'
-	echo 'OTHER=.'$OTHER'.<br />'
-	echo '</code>'
+	echo '<p class="debug">[ DEBUG ] Parameters after reading config file + . added<br /><br />'
+	echo '                 [ DEBUG ] NAME=.'$NAME'.<br />'
+	echo '                 [ DEBUG ] OUTPUT=.'$OUTPUT'.<br />'
+	echo '                 [ DEBUG ] ALSA_PARAMS=.'$ALSA_PARAMS'.<br />'
+	echo '                 [ DEBUG ] BUFFER_SIZE=.'$BUFFER_SIZE'.<br />'
+	echo '                 [ DEBUG ] CODEC=.'$_CODEC'.<br />'
+	echo '                 [ DEBUG ] PRIORITY=.'$PRIORITY'.<br />'
+	echo '                 [ DEBUG ] MAX_RATE=.'$MAX_RATE'.<br />'
+	echo '                 [ DEBUG ] UPSAMPLE=.'$UPSAMPLE'.<br />'
+	echo '                 [ DEBUG ] MAC_ADDRESS=.'$MAC_ADDRESS'.<br />'
+	echo '                 [ DEBUG ] SERVER_IP=.'$SERVER_IP'.<br />'
+	echo '                 [ DEBUG ] LOGLEVEL=.'$LOGLEVEL'.<br />'
+	echo '                 [ DEBUG ] LOGFILE=.'$LOGFILE'.<br />'
+	echo '                 [ DEBUG ] DSDOUT=.'$DSDOUT'.<br />'
+	echo '                 [ DEBUG ] VISULIZER=.'$VISULIZER'.<br />'
+	echo '                 [ DEBUG ] OTHER=.'$OTHER'.</p>'
 fi
 
 pcp_show_config_cfg
 pcp_backup
 
-#We needed a static link to squeezelite.cgi otherwise the go back button would go in circles if coming from usboption.cgi
-#pcp_go_back_button
-echo '<FORM METHOD="LINK" ACTION="squeezelite.cgi"><INPUT TYPE="submit" VALUE="Go back"></FORM>'
+#########################################################################################
+# Steen, is this still vaild?
+# We needed a static link to squeezelite.cgi otherwise the go back button would go
+# in circles if coming from usboption.cgi
+# pcp_go_back_button
+# echo '<FORM METHOD="LINK" ACTION="squeezelite.cgi"><INPUT TYPE="submit" VALUE="Go back"></FORM>'
+#########################################################################################
+
+pcp_go_back_button
 
 echo '</body>'
 echo '</html>'
