@@ -34,7 +34,7 @@
 #	Added pcp_uptime_minutes routine.
 #	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
 #	Updated footer to use style footer.
-#	Activated $MODE=0
+#	Activated $MODE=5
 
 # Version: 0.15 2014-09-25 SBP
 #	Added support for the HiFiBerry DAC+ and Digi+.
@@ -121,7 +121,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=5
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"

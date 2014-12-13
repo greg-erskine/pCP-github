@@ -159,8 +159,8 @@ available_networks() {
 		if [ -z "$WIFI" ]; then
 			echo "No wifi devices found!"
 			echo '</textarea>'
-			pcp_refresh_button
 			pcp_footer
+			pcp_refresh_button
 			echo '</body>'
 			echo '</html>'
 			exit 1
@@ -231,7 +231,7 @@ available_networks() {
 		}
 		END {
 			rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-			printf "%s\n", title
+			printf "%s\n\n", title
 			print "-------------------------------------------------------------------------------------------"
 			print "        SSID                 Quality  Level      Channel     Encryption       Address"
 			print "-------------------------------------------------------------------------------------------"
@@ -242,7 +242,7 @@ available_networks() {
 			print "-------------------------------------------------------------------------------------------"
 		} '
 	else
-		echo "Wifi is disabled."
+		echo "Wifi is off."
 	fi
 }
 
