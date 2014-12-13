@@ -29,7 +29,7 @@ echo '<p class="info">[ INFO ] Timezone: '$TIMEZONE'</p>'
 
 pcp_set_timezone
 
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Local time:  '$(date)'</p>'
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
 
 pcp_backup
 echo '<p class="info">[ INFO ] Reboot is required to set timezone.</p>'

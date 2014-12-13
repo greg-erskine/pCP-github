@@ -38,7 +38,7 @@ is_mounted() {
 	echo '<p class="info">[ INFO ] Copying config.cfg to USB...</p>'
 	sudo /bin/cp -f /usr/local/sbin/config.cfg /mnt/sda1/newconfig.cfg
 	if [ -f /mnt/sda1/newconfig.cfg ]; then
-		echo '<h2>Your config file (config.cfg) has been saved to your USB stick as newconfig.cfg.</h2>'
+		echo '<h1>Your config file (config.cfg) has been saved to your USB stick as newconfig.cfg.</h1>'
 		echo '<p><b>Note:</b> If you boot with this USB-stick attached then this file will be copied by piCorePlayer and used as config file.<br>
 				 This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</p>'
 		pcp_textarea "Config files on USB" "ls -al /mnt/sda1/*config.cfg" 60
