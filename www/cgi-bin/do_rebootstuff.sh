@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 0.09 2014-10-09 SBP
+# Version: 0.09 2014-12-09 SBP
 #	Added support for the HiFiBerry AMP card.
-#	Moved saving to config file from extern newconfig to pcp-functions
-#	Moved loading correct audio modules to pcp-functions
+#	Moved saving to config file from extern newconfig to pcp-functions.
+#	Moved loading correct audio modules to pcp-functions.
 
 # Version: 0.08 2014-10-09 SBP
 #	Added Analog/HDMI output selection (moved from enable/disablehdmi.sh)
@@ -45,7 +45,10 @@ pcp_variables
 
 echo "[ INFO ] Look at piCorePlayer.dep"
 # Add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.
-# moved to do_update script, can be deleted if OK  
+
+######################################################
+# Moved to do_update script, can be deleted if OK  
+######################################################
 fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 
 echo "[ INFO ] Checking for newconfig.cfg on sda1"
@@ -100,7 +103,7 @@ echo "[ INFO ] Reading config.cfg"
 #sudo chmod 766 /home/tc/wifi.db
 #Only add backslash if not empty
 echo "[ INFO ] Updating wifi.db"
-if [ X"" = X"$SSID" ]; then break
+if [ x"" = x"$SSID" ]; then break
 else SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
 #Change SSSID back to SSID
 SSID=$SSSID
@@ -110,7 +113,7 @@ fi
 
 # We do have a problem with SSID's which don't have a name - should we use the next section for these SSIDs - I have not tested the code
 # Saves SSID if empty
-# if [ X"" = X"$SSID" ]; then sudo chmod 766 /home/tc/wifi.db; sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db; else fi
+# if [ x"" = x"$SSID" ]; then sudo chmod 766 /home/tc/wifi.db; sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db; else fi
 # NEW Section ends here
 
 # Save changes caused by the presence of a newconfig.cfg file and wifi copy from config.cfg to wifi.db fie
@@ -139,7 +142,7 @@ if [ $WIFI = on ]; then
 	sudo iwconfig wlan0 power off &>/dev/null
 	sleep 1
 	#usr/local/bin/wifi.sh -a 2>&1 > /tmp/wifi.log
-	usr/local/bin/wifi.sh -a
+	/usr/local/bin/wifi.sh -a
 	sleep 1
 
 	# Logic that will try to reconnect to wifi if failed - will try two times before continuing booting
@@ -169,7 +172,6 @@ if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disab
 sleep 1
 # Loads the correct output audio modules
 pcp_read_chosen_audio
-
 
 # Sleep for 1 sec otherwise aplay can not see the card
 sleep 1
@@ -206,7 +208,7 @@ echo -n "[ INFO ] "
 /usr/local/etc/init.d/squeezelite start
 
 # Only call timezone function if timezone variable is set
-if [ X"" != X"$TIMEZONE" ]; then
+if [ x"" != x"$TIMEZONE" ]; then
 	echo "[ INFO ] Setting timezone"
 	pcp_set_timezone
 fi
