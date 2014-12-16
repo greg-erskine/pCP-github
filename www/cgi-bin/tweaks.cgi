@@ -10,7 +10,7 @@
 #	Activated $MODE = 5 for AUTOSTARTLMS.
 
 # Version: 0.04 2014-09-10 GE
-#	Added reformatted html.
+#	Reformatted html.
 
 # Version: 0.03 2014-09-09 GE
 #	Added Auto start LMS command.
@@ -38,7 +38,7 @@ echo '      <div class="row">'
 echo '      <fieldset>'
 echo '      <legend>General tweaks</legend>'
 
-#----------------------------------------------Host name---------------------------------
+#----------------------------------------------Hostname---------------------------------
 echo '      <table class="bggrey percent100">'
 echo '        <form name="squeeze" action="writetohost.cgi" method="get">'
 
@@ -52,12 +52,16 @@ echo '              <p>Provide a host name, so the player is easier to identify 
 echo '              <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a></p>'
 echo '              <div id="ID01" class="less">'
 echo '                <p><b>Note: </b>This is the linux hostname, not the piCorePlayer name used by LMS.</p>'
+echo '                <p>The Internet standards for protocols mandate that component hostname labels may '
+echo '                   contain only the ASCII letters "a" through "z" (in a case-insensitive manner), '
+echo '                   the digits "0" through "9", and the hyphen ("-"). No other symbols, punctuation '
+echo '                   characters, or white space are permitted.</p>'
 echo '              </div>'
 echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan=3>'
-echo '              <input type="submit" name="submit" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -89,12 +93,14 @@ echo '      <table class="bggrey percent100">'
 echo '        <form name="overclock" action= "writetooverclock.cgi" method="get">'
 
 echo '          <tr class="even">'
-echo '            <td class="column150"><p>Overclock</p></td>'
+echo '            <td class="column150">'
+echo '              <p>Overclock</p>'
+echo '            </td>'
 echo '            <td class="column210">'
 echo '              <select name="OVERCLOCK">'
-echo '                <option value="NONE" '$OCnone'> No overclocking </option>'
-echo '                <option value="MILD" '$OCmild'> Mild overclocking </option>'
-echo '                <option value="MODERATE" '$OCmoderate'> Moderate overclocking </option>'
+echo '                <option value="NONE" '$OCnone'>No overclocking</option>'
+echo '                <option value="MILD" '$OCmild'>Mild overclocking</option>'
+echo '                <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
 echo '              </select>'
 echo '            </td>'
 echo '            <td>'
@@ -104,16 +110,16 @@ echo '              <div id="ID02" class="less">'
 echo '                <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
 echo '                <p>Reboot is needed.<p>'
 echo '                <p><b>Note:</b> If Raspberry fails to boot:</p>'
-echo '                  <ul>'
-echo '                    <li>hold down the shift key during booting, or</li>'
-echo '                    <li>edit the config.txt file manually</li>'
-echo '                  </ul>'
+echo '                <ul>'
+echo '                  <li>hold down the shift key during booting, or</li>'
+echo '                  <li>edit the config.txt file manually</li>'
+echo '                </ul>'
 echo '              </div>'
 echo '            </td>'
 echo '          </tr>'
 echo '          <tr>'
 echo '            <td colspan="3">'
-echo '              <input type="submit" name="submit" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -176,7 +182,7 @@ echo '          </tr>'
 
 echo '          <tr>'
 echo '            <td colspan=2 >'
-echo '              <input type="submit" name="submit" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -218,7 +224,7 @@ echo '          </tr>'
 
 echo '          <tr>'
 echo '            <td colspan=3>'
-echo '              <input type="submit" name="submit" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -246,7 +252,7 @@ if [ $MODE -gt 4 ]; then
 
 	echo '          <tr>'
 	echo '            <td colspan="3">'
-	echo '              <input type="submit" name="submit" value="Save">'
+	echo '              <input type="submit" name="SUBMIT" value="Save">'
 	echo '            </td>'
 	echo '          </tr>'
 
@@ -278,6 +284,17 @@ case "$CMD" in
 		;;
 esac
 
+#########################################################################################
+# Steen, the case statement is probably more appropriate
+#########################################################################################
+#if [ $FIQ = 0x1 ]; then selected1="selected"; else selected1=""; fi
+#if [ $FIQ = 0x2 ]; then selected2="selected"; else selected2=""; fi
+#if [ $FIQ = 0x3 ]; then selected3="selected"; else selected3=""; fi
+#if [ $FIQ = 0x4 ]; then selected4="selected"; else selected4=""; fi
+#if [ $FIQ = 0x7 ]; then selected5="selected"; else selected5=""; fi
+#if [ $FIQ = 0x8 ]; then selected6="selected"; else selected6=""; fi
+#########################################################################################
+
 # Function to check the FIQ-split radio button according to config file
 case "$FIQ" in
 	0x1)
@@ -308,17 +325,6 @@ case "$FIQ" in
 		;;
 esac
 
-#########################################################################################
-# Steen, the case statement is probably more appropriate in this case
-#########################################################################################
-#if [ $FIQ = 0x1 ]; then selected1="selected"; else selected1=""; fi
-#if [ $FIQ = 0x2 ]; then selected2="selected"; else selected2=""; fi
-#if [ $FIQ = 0x3 ]; then selected3="selected"; else selected3=""; fi
-#if [ $FIQ = 0x4 ]; then selected4="selected"; else selected4=""; fi
-#if [ $FIQ = 0x7 ]; then selected5="selected"; else selected5=""; fi
-#if [ $FIQ = 0x8 ]; then selected6="selected"; else selected6=""; fi
-#########################################################################################
-
 # Function to check the ALSA-radio button according to config file
 case "$ALSAlevelout" in 
 	Default)
@@ -345,7 +351,7 @@ echo '        <table class="bggrey percent100">'
 #-------------------------------------------dwc_otg.speed--------------------------------
 echo '          <tr class="even">'
 echo '            <td class="column150">'
-echo '               <p>OTG-Speed</p>'
+echo '              <p>OTG-Speed</p>'
 echo '            </td>'
 echo '            <td class="column210">'
 echo '              <input class="small1" type="radio" name="CMD" id="not enabled" value="Default" '$CMDdefault'>Default'
@@ -455,7 +461,7 @@ fi
 
 echo '          <tr class="odd">'
 echo '            <td colspan=3>'
-echo '              <input type="submit" name="submit" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -484,6 +490,15 @@ case "$REBOOT" in
 		;;
 esac
 
+#########################################################################################
+# Steen, the case statement is probably more appropriate
+#########################################################################################
+#if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
+#if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
+#if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
+#if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
+#########################################################################################
+
 case "$RESTART" in
 	Enabled)
 		RESTART_Y="checked"
@@ -496,15 +511,6 @@ case "$RESTART" in
 		RESTART_N=""
 		;;
 esac
-
-#########################################################################################
-# Steen, the case statement is probably more appropriate in this case
-#########################################################################################
-#if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
-#if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
-#if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
-#if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
-#########################################################################################
 
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -541,7 +547,7 @@ echo '          </tr>'
 
 echo '          <tr class="even">'
 echo '            <td class="column210">'
-echo '              <p>Schedule restart Squeezelite</p>'
+echo '              <p>Schedule Squeezelite restart</p>'
 echo '            </td>'
 echo '            <td class="column420">'
 echo '              <label for="RS_H">Hour:</label>'
@@ -559,7 +565,9 @@ echo '          </tr>'
 
 echo '          <tr class="odd">'
 echo '            <td colspan=3>'
-echo '              <input type="submit" name="submit" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
+[ $MODE -gt 4 ] &&
+echo '              <input type="submit" name="SUBMIT" value="Reset">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -568,17 +576,17 @@ if [ $DEBUG = 1 ]; then
 	echo '<tr class="odd">'
 	echo '  <td  colspan="3">'
 	echo '    <p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
-	echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y' <br />'
-	echo '                     [ DEBUG ] $REBOOT_N: '$REBOOT_N' <br />'
+	echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y'<br />'
+	echo '                     [ DEBUG ] $REBOOT_N: '$REBOOT_N'<br />'
 	echo '                     [ DEBUG ] $RESTART: '$RESTART'<br  />'
-	echo '                     [ DEBUG ] $RESTART_Y: '$RESTART_Y' <br />'
-	echo '                     [ DEBUG ] $RESTART_N: '$RESTART_N' <br />'
-	echo '                     [ DEBUG ] $RB_H: '$RB_H' <br />'
-	echo '                     [ DEBUG ] $RB_WD: '$RB_WD' <br />'
-	echo '                     [ DEBUG ] $RB_DMONTH: '$RB_DMONTH' <br />'
-	echo '                     [ DEBUG ] $RS_H: '$RS_H' <br />'
-	echo '                     [ DEBUG ] $RS_WD: '$RS_WD' <br />'
-	echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
+	echo '                     [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'
+	echo '                     [ DEBUG ] $RESTART_N: '$RESTART_N'<br />'
+	echo '                     [ DEBUG ] $RB_H: '$RB_H'<br />'
+	echo '                     [ DEBUG ] $RB_WD: '$RB_WD'<br />'
+	echo '                     [ DEBUG ] $RB_DMONTH: '$RB_DMONTH'<br />'
+	echo '                     [ DEBUG ] $RS_H: '$RS_H'<br />'
+	echo '                     [ DEBUG ] $RS_WD: '$RS_WD'<br />'
+	echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'</p>'
 	echo '  </td>'
 	echo '</tr>'
 	echo '<!-- End of debug info -->'

@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.03 2014-12-10 GE
+# Version: 0.03 2014-12-16 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
+#	Added Reset section.
 
 # Version: 0.02 2014-10-09 SBP
 #	Fixed reboot and restart Squeezelite commands, added DEBUG.
@@ -20,17 +21,49 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
+# Decode SUBMIT variable using httpd
+SUBMIT=`sudo /usr/local/sbin/httpd -d $SUBMIT`
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT
+
+#----------------------------------------------------------------------------------------
+# Reset section 
+#----------------------------------------------------------------------------------------
+if [ $SUBMIT = Reset ]; then
+	echo '<p class="info">[ INFO ] Reset mode</p>'
+
+	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+
+	( crontab -l | grep -v "reboot" ) | crontab -
+	( crontab -l | grep -v "restart" ) | crontab -
+
+	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
+	pcp_show_config_cfg
+	pcp_backup
+	pcp_go_back_button
+
+	echo '</body>'
+	echo '</html>'
+	exit
+fi
+
 #----------------------------------------------------------------------------------------
 # Reboot section 
 #----------------------------------------------------------------------------------------
 # Decode Reboot variables using httpd, add quotes
 REBOOT=`sudo /usr/local/sbin/httpd -d \"$REBOOT\"`
 RB_H=`sudo /usr/local/sbin/httpd -d \"$RB_H\"`
-if [[ X'""' = X"$RB_H" ]]; then  RB_H='"0"'; else break; fi
+if [[ x'""' = x"$RB_H" ]]; then  RB_H='"0"'; else break; fi
 RB_WD=`sudo /usr/local/sbin/httpd -d \"$RB_WD\"`
-if [[ X'""' = X"$RB_WD" ]]; then  RB_WD='"0"'; else break; fi
+if [[ x'""' = x"$RB_WD" ]]; then  RB_WD='"0"'; else break; fi
 RB_DMONTH=`sudo /usr/local/sbin/httpd -d \"$RB_DMONTH\"`
-if [[ X'""' = X"$RB_DMONTH" ]]; then  RB_DMONTH='"1"'; else break; fi
+if [[ x'""' = x"$RB_DMONTH" ]]; then  RB_DMONTH='"1"'; else break; fi
 
 sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
 sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
@@ -43,11 +76,11 @@ sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
 # Decode Reboot variables using httpd, add quotes
 RESTART=`sudo /usr/local/sbin/httpd -d \"$RESTART\"`
 RS_H=`sudo /usr/local/sbin/httpd -d \"$RS_H\"`
-if [[ X'""' = X"$RS_H" ]]; then  RS_H='"0"'; else break; fi
+if [[ x'""' = x"$RS_H" ]]; then  RS_H='"0"'; else break; fi
 RS_WD=`sudo /usr/local/sbin/httpd -d \"$RS_WD\"`
-if [[ X'""' = X"$RS_WD" ]]; then  RS_WD='"0"'; else break; fi
+if [[ x'""' = x"$RS_WD" ]]; then  RS_WD='"0"'; else break; fi
 RS_DMONTH=`sudo /usr/local/sbin/httpd -d \"$RS_DMONTH\"`
-if [[ X'""' = X"$RS_DMONTH" ]]; then  RS_DMONTH='"1"'; else break; fi
+if [[ x'""' = x"$RS_DMONTH" ]]; then  RS_DMONTH='"1"'; else break; fi
 
 sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
 sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
@@ -88,11 +121,9 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $RS_WD: '$RS_WD' <br />'
 	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
 	echo '                 [ DEBUG ] $RB_CRON: "$RB_CRON" <br />'
-	echo '                 [ DEBUG ] $RS_CRON: "$RS_CRON" <br />'
-	echo '<textarea name="TextBox" cols="120" rows="7">'
-	echo 'Content of crontab file:'
-		  sudo cat /var/spool/cron/crontabs/root
-	echo '</textarea>'
+	echo '                 [ DEBUG ] $RS_CRON: "$RS_CRON" </p>'
+
+	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 fi
 
 pcp_show_config_cfg
