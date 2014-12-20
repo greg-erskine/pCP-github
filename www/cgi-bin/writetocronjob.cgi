@@ -112,16 +112,16 @@ fi
 if [ $DEBUG = 1 ]; then 
 	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
-	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y' <br />'
-	echo '                 [ DEBUG ] $RESTART_N: '$RESTART_N' <br />'
-	echo '                 [ DEBUG ] $RB_H: '$RB_H' <br />'
-	echo '                 [ DEBUG ] $RB_WD: '$RB_WD' <br />'
-	echo '                 [ DEBUG ] $RB_DMONTH: '$RB_DMONTH' <br />'
-	echo '                 [ DEBUG ] $RS_H: '$RS_H' <br />'
-	echo '                 [ DEBUG ] $RS_WD: '$RS_WD' <br />'
-	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH' <br />'
-	echo '                 [ DEBUG ] $RB_CRON: "$RB_CRON" <br />'
-	echo '                 [ DEBUG ] $RS_CRON: "$RS_CRON" </p>'
+	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'
+	echo '                 [ DEBUG ] $RESTART_N: '$RESTART_N'<br />'
+	echo '                 [ DEBUG ] $RB_H: '$RB_H'<br />'
+	echo '                 [ DEBUG ] $RB_WD: '$RB_WD'<br />'
+	echo '                 [ DEBUG ] $RB_DMONTH: '$RB_DMONTH'<br />'
+	echo '                 [ DEBUG ] $RS_H: '$RS_H'<br />'
+	echo '                 [ DEBUG ] $RS_WD: '$RS_WD'<br />'
+	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
+	echo '                 [ DEBUG ] $RB_CRON: 'echo "$RB_CRON"'<br />'
+	echo '                 [ DEBUG ] $RS_CRON: 'echo "$RS_CRON"'</p>'
 
 	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 fi

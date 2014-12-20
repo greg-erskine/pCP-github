@@ -31,7 +31,6 @@ pcp_html_head "Debug" "GE"
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_refresh_button
 pcp_running_script
 
 pcp_httpd_query_string
@@ -66,6 +65,7 @@ echo '                [ INFO ] TEST: '$TEST'<br />'
 echo '                [ INFO ] MODE: '$MODE'</p>'
 
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

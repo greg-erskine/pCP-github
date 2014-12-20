@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.08 2014-12-09 GE
+# Version: 0.08 2014-12-20 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
 
@@ -75,8 +75,9 @@ echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 
-# Fix required
-#################
+#####################
+# Fix required here #
+#####################
 echo '</script>'
 echo '</head>'
 echo ''
@@ -97,47 +98,67 @@ echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
-echo '      <div class="row">'
-echo '      <fieldset>'
-echo '        <legend>Set Wireless configuration</legend>'
-echo '        <table class="bggrey percent100">'
-echo '          <tr class="even">'
-echo '            <td class="column150">Wireless</td>'
-echo '            <td>'
-echo '              <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
-echo '              <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr class="odd">'
-echo '            <td class="column150">SSID</td>'
-echo '            <td>'
-echo '              <input class="large15" type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='\"$SSID\"'>'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr class="even">'
-echo '            <td class="column150">Password</td>'
-echo '            <td>'
-echo '              <input class="large30" type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr class="odd">'
-echo '            <td class="column150">Security Mode</td>'
-echo '            <td>'
-echo '              <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
-echo '                <option value="WPA">WPA or WPA2</option>'
-echo '                <option value="WEP">WEP</option>'
-echo '                <option value="OPEN">Open (No Encyrption)</option>'
-echo '              </select>'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td colspan=2>'
-echo '              <input type="submit" name="SAVE" value="Save">&nbsp;'
-echo '            </td>'
-echo '          </tr>'
-echo '        </table>'
-echo '      </fieldset>'
-echo '      </div>'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Set Wireless configuration</legend>'
+echo '            <table class="bggrey percent100">'
+echo '              <tr class="even">'
+echo '                <td class="column150">'
+echo '                  <p>Wireless</p>'
+echo '                </td>'
+echo '                <td class="column420">'
+echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
+echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Column 3</p>'
+echo '                </td>'
+echo '              </tr>'
+echo '              <tr class="odd">'
+echo '                <td class="column150">'
+echo '                  <p>SSID</p>'
+echo '                </td>'
+echo '                <td class="column420">'
+echo '                  <input class="large15" type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='\"$SSID\"'>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Column 3</p>'
+echo '                </td>'
+echo '              </tr>'
+echo '              <tr class="even">'
+echo '                <td class="column150">'
+echo '                  <p>Password</p>'
+echo '                </td>'
+echo '                <td class="column420">'
+echo '                  <input class="large30" type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Column 3</p>'
+echo '                </td>'
+echo '              </tr>'
+echo '              <tr class="odd">'
+echo '                <td class="column150">'
+echo '                  <p>Security Mode</p>'
+echo '                </td>'
+echo '                <td class="column420">'
+echo '                  <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
+echo '                    <option value="WPA">WPA or WPA2</option>'
+echo '                    <option value="WEP">WEP</option>'
+echo '                    <option value="OPEN">Open (No Encyrption)</option>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Column 3</p>'
+echo '                </td>'
+echo '              </tr>'
+echo '              <tr>'
+echo '                <td colspan=3>'
+echo '                  <input type="submit" name="SAVE" value="Save">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
 echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
@@ -157,6 +178,9 @@ available_networks() {
 			WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
 		done
 		if [ -z "$WIFI" ]; then
+			#################################
+			# FIX: Formatting required here #
+			#################################
 			echo "No wifi devices found!"
 			echo '</textarea>'
 			pcp_footer
@@ -176,7 +200,6 @@ available_networks() {
 			RS="\n"
 			FS=":"
 			i = 0
-			title = "Available Wifi Networks for "wifi":"
 		}
 		function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
 			for (i = 2; i <= n; i++)
@@ -215,7 +238,8 @@ available_networks() {
 					gsub(" ","",level[i])
 				}
 				split(q,c," ")
-				qual[i] = c[1] * 10 / 7
+#				qual[i] = c[1] * 10 / 7
+				qual[i] = c[1]
 			}
 			if ($1 ~ /Encr/){
 				enc[i] = $2
@@ -231,7 +255,6 @@ available_networks() {
 		}
 		END {
 			rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-			printf "%s\n\n", title
 			print "-------------------------------------------------------------------------------------------"
 			print "        SSID                 Quality  Level      Channel     Encryption       Address"
 			print "-------------------------------------------------------------------------------------------"
@@ -246,9 +269,44 @@ available_networks() {
 	fi
 }
 
-echo '<textarea name="TextBox" cols="118" rows="12">'
-available_networks
-echo '</textarea>'
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="wifi_networks" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Available Wifi Networks</legend>'
+echo '            <table class="bggrey percent100">'
+echo '              <tr class="odd">'
+echo '                <td>'
+
+pcp_textarea_inform "none" "available_networks" 110
+
+echo '                </td>'
+echo '              </tr>'
+
+if [ $DEBUG = 1 ]; then
+	echo '              <tr class="odd">'
+	echo '                <td>'
+	echo '                  <p class="debug">[ DEBUG ] Scanning networks</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr class="odd">'
+	echo '                <td>'
+
+	pcp_textarea_inform "none" "iwlist wlan0 scanning" 200
+
+	echo '                </td>'
+	echo '              </tr>'
+fi
+
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 
 pcp_footer
 pcp_refresh_button

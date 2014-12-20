@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.23 2014-12-12 GE
+# Version: 0.23 2014-12-20 GE
 #	Minor updates to modprode section.
 #	HTML5 format.
+#	Added pcp_textarea_inform.
 
 # Version: 0.22 2014-12-08 SBP
 #	Added support for the HiFiBerry AMP.
@@ -121,7 +122,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=5
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -328,13 +329,20 @@ pcp_tc_user() {
 #-----------------------------------------------------------------------------------------
 pcp_textarea() {
 	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
-	echo '<h1>[ INFO ] '$TITLE'</h1>'
+	[ "$TITLE" == "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea style="height:'$3'px">'
 	echo $START
 	$2
 	echo $END
 	echo '</textarea>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
+}
+
+pcp_textarea_inform() {
+	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
+	echo '<textarea class="inform" style="height:'$3'px">'
+	$2
+	echo '</textarea>'
 }
 
 pcp_write_to_log() {

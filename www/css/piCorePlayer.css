@@ -3,7 +3,7 @@
    This style sheet is a combination of about 3 different styles sheets.
    There are a lot of redundant styles that need to be removed.
 
-Version: 0.05 2014-12-08 GE
+Version: 0.05 2014-12-20 GE
 	Severely pruned.
    
 Version: 0.05 2014-12-07 SBP
@@ -174,6 +174,11 @@ input.large30 {
 	width:420px;
 }
 
+.center {
+	text-align:center;
+}
+
+/* Used for adding padding rows in tables */
 .padding {
 	height:8px;
 }
@@ -197,13 +202,20 @@ table.percent100 {
 	width:100%;
 }
 
-textarea, textarea.styled {
+/* Define textareas */
+textarea, textarea.styled, textarea.inform {
 	background:#d8d8d8;
 	border:1px solid grey;
 	font-family:courier;
 	font-size:12px;
 	padding:5px;
 	width:944px;
+}
+
+textarea.inform {
+	background:#eaeaea;
+	border:0px solid grey;
+	width:898px;
 }
 
 textarea.white {
