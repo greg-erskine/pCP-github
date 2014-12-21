@@ -126,6 +126,7 @@ if [ $DEBUG = 1 ]; then
 	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 fi
 
+pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 pcp_show_config_cfg
 pcp_backup
 pcp_go_back_button
