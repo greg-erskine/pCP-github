@@ -13,7 +13,22 @@ pcp_banner
 pcp_running_string
 pcp_navigation
 
+#========================================================================================
+# Increase size of partition 2 - mmcblk0p2
+#----------------------------------------------------------------------------------------
+echo '<br />'
+echo '<p class="error">[ INFO ] Increase size of mmcblk0p2.</p>'
 
+echo '   <form name="increase" action="xtras_incr_mmcblk0p2.cgi" method="get" id="increase">'
+echo '     <input type="submit" value="Increase Size of mmcblk0p2" />'
+echo '   </form>'
+
+echo '<br />'
+echo '<br />'
+
+#========================================================================================
+# Backup config file - DOES NOT WORK
+#----------------------------------------------------------------------------------------
 echo '<script type="text/javascript">'
 
 echo '	var url="test.ext";'
@@ -40,11 +55,9 @@ echo '<input type="button" value="download3" onClick="download3();">'
 echo '<br />'
 echo '<br />'
 
-
 #========================================================================================
-# Raspberry Pi  led
+# Turn off Raspberry Pi activity led - DOES NOT WORK
 #----------------------------------------------------------------------------------------
-
 #sudo sh -c 'echo '"$GPIO"' > /sys/class/gpio/export'
 
 echo '<textarea rows="20">'
@@ -63,9 +76,8 @@ cat /sys/class/leds/led0/brightness
 
 echo ''
 
-
 #========================================================================================
-# rt2800 usb wifi adaptor led
+# Turn off rt2800 usb wifi adaptor led
 #----------------------------------------------------------------------------------------
 #/sys/devices/platform/bcm2708_usb/usb1/1-1/1-1.2/1-1.2:1.0/leds/rt2800usb-phy0::assoc
 

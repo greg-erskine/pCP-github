@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2014-12-22 SBP
+#	Moved box showing "Contents of root crontab" from debug to always display.
+
 # Version: 0.03 2014-12-16 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -122,8 +125,6 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
 	echo '                 [ DEBUG ] $RB_CRON: 'echo "$RB_CRON"'<br />'
 	echo '                 [ DEBUG ] $RS_CRON: 'echo "$RS_CRON"'</p>'
-
-	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 fi
 
 pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
