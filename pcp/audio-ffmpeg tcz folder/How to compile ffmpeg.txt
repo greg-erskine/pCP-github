@@ -1,0 +1,98 @@
+#You will need these packages as well
+sudo apt-get install cmake
+sudo apt-get install squashfs-tools
+
+#Found on this web-page: http://owenashurst.com/?p=242
+
+#Removing any existing dependencies
+sudo apt-get remove --purge libmp3lame-dev libtool libssl-dev libaacplus-* libx264 libvpx librtmp ffmpeg
+
+#Downloading the Dependencies
+sudo apt-get install libmp3lame-dev; sudo apt-get install autoconf; sudo apt-get install libtool; sudo apt-get install checkinstall; sudo apt-get install libssl-dev
+
+#Downloading & Compiling FFMPEG AND It’s Modules
+cd /home/pi/
+mkdir src
+cd src
+
+
+#Downloading & Compiling LibaacPlus
+wget http://tipok.org.ua/downloads/media/aacplus/libaacplus/libaacplus-2.0.2.tar.gz
+tar -xzf libaacplus-2.0.2.tar.gz
+cd libaacplus-2.0.2
+./autogen.sh --with-parameter-expansion-string-replace-capable-shell=/bin/bash --host=arm-unknown-linux-gnueabi --enable-static
+make
+sudo make install
+
+
+#Downloading & Compiling Libx264
+cd /home/pi/src
+git clone git://git.videolan.org/x264
+cd x264
+./configure --host=arm-unknown-linux-gnueabi --enable-static --disable-opencl
+make
+sudo make install
+
+
+#Downloading & Compiling LibVPX
+cd /home/pi/src
+git clone http://git.chromium.org/webm/libvpx.git
+cd libvpx
+./configure
+make
+sudo checkinstall --pkgname=libvpx --pkgversion="1:$(date +%Y%m%d%H%M)-git" --backup=no     --deldoc=yes --fstrans=no --default
+
+
+
+
+#Downloading & Compiling LibRTMP
+cd /home/pi/src
+git clone git://git.ffmpeg.org/rtmpdump
+cd rtmpdump
+make SYS=posix
+sudo checkinstall --pkgname=rtmpdump --pkgversion="2:$(date +%Y%m%d%H%M)-git" --backup=no --deldoc=yes --fstrans=no --default
+
+
+
+
+#Also Soxr needs to be build and installed:
+# get it from here: https://sourceforge.net/projects/soxr/
+#next untar it: 
+tar xpvf soxr-0.1.1-Source.tar.xz
+cd soxr-0.1.1-Source
+./go
+cd Release
+sudo make install
+
+#NOW IT IS IMPORTANT TO UPDATE THE SYSTEM LINKS ETC - Therefore
+sudo ldconfig
+
+
+#Downloading & Compiling FFMPEG (Latest Version)
+cd /home/pi/src
+git clone --depth 1 git://git.videolan.org/ffmpeg
+cd ffmpeg
+./configure --arch=armel --target-os=linux --enable-gpl --enable-libx264 --enable-nonfree --enable-libaacplus --enable-librtmp --enable-libmp3lame
+make
+sudo make install
+
+
+#Then after a reboot
+#When the Pi boots up, type in “ffmpeg” and you should see an output similar to that of what I get below;
+pi@Owens-Raspi ~ $ ffmpeg
+ffmpeg version git-2014-08-20-cb0524f Copyright (c) 2000-2014 the FFmpeg developers
+  built on Aug 20 2014 14:58:46 with gcc 4.6 (Debian 4.6.3-14+rpi1)
+  configuration: --arch=armel --target-os=linux --enable-gpl --enable-libx264 --enable-nonfree --enable-libaacplus --enable-librtmp --enable-libmp3lame
+  libavutil      54.  5.100 / 54.  5.100
+  libavcodec     56.  0.101 / 56.  0.101
+  libavformat    56.  1.100 / 56.  1.100
+  libavdevice    56.  0.100 / 56.  0.100
+  libavfilter     5.  0.100 /  5.  0.100
+  libswscale      3.  0.100 /  3.  0.100
+  libswresample   1.  1.100 /  1.  1.100
+  libpostproc    53.  0.100 / 53.  0.100
+Hyper fast Audio and Video encoder
+usage: ffmpeg [options] [[infile options] -i infile]... {[outfile options] outfile}...
+
+Use -h to get full help or, even better, run 'man ffmpeg'
+pi@Owens-Raspi ~ $
