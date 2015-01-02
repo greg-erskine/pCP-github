@@ -1,0 +1,18 @@
+Title:          audio-ffmpeg.tcz
+Description:    This small audio ffmpeg package contains codecs for wma and ALAC decoding. 
+                It is aimed at supporting high quality audio.
+Version:        2.5
+Author:         
+Original-site:  https://www.ffmpeg.org/ 
+Copying-policy: FFmpeg is licensed under the GNU Lesser General Public License (LGPL) version 2.1 or later. 
+                However, FFmpeg incorporates several optional parts and optimizations that are covered by 
+		  the GNU General Public License (GPL) version 2 or later. If those parts get used the GPL applies to all of FFmpeg.
+Size:		  5410816 b 
+Extension_by:   SBP modified the build script provided by Ralph Irving (https://github.com/ralph-irving/tcz-libffmpeg)
+Tags:	    	  audio-ffmpeg supports wma and ALAC decoding via ffmpeg library.
+Comments:       Binaries only
+                ----
+                Compiled for piCore 6.x with
+                ----
+                PPI compatible
+Change-log:     2015/2/1 First version, 2.5
