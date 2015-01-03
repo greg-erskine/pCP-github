@@ -32,7 +32,7 @@ rm -r -f $TMPDIR-dev
 rm -r -f $TMPDIR-doc
 
 # Crete temporary directory
-mkdir -p $TMPDIR/usr/local
+mkdir -p $TMPDIR/usr/local/sbin
 
 ######################################################
 # Compile extension                                  #
@@ -50,7 +50,7 @@ OPTS="-DFFMPEG -DRESAMPLE" make -f Makefile
 
 #Copy squeezelite to correct place
 cd ..
-cp -f $PWD/$WRKDIR/squeezelite $TMPDIR/usr/local/squeezelite-armv6hf
+cp -f $PWD/$WRKDIR/squeezelite $TMPDIR/usr/local/sbin/squeezelite-armv6hf
 
 
 
@@ -111,23 +111,11 @@ Comments:       Binaries only
                 PPI compatible
 Change-log:     2015/1/3 First version" > $TMPDIR/squeezelite-armv6hf.tcz.info
 
-
-
-
-
-
-
-
-
-
-
 #################################################
 # Clean up tmp directory                        #
 #################################################
 rm -r -f $PWD/$WRKDIR
 rm -r -f $TMPDIR/usr
-
-
 
 exit
 
