@@ -14,19 +14,6 @@ pcp_running_string
 pcp_navigation
 
 #========================================================================================
-# Increase size of partition 2 - mmcblk0p2
-#----------------------------------------------------------------------------------------
-echo '<br />'
-echo '<p class="error">[ INFO ] Increase size of mmcblk0p2.</p>'
-
-echo '   <form name="increase" action="xtras_incr_mmcblk0p2.cgi" method="get" id="increase">'
-echo '     <input type="submit" value="Increase Size of mmcblk0p2" />'
-echo '   </form>'
-
-echo '<br />'
-echo '<br />'
-
-#========================================================================================
 # Backup config file - DOES NOT WORK
 #----------------------------------------------------------------------------------------
 echo '<script type="text/javascript">'
