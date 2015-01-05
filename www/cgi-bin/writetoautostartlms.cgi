@@ -22,6 +22,12 @@ sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
 echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
 
 pcp_backup
+
+if [ "$SUBMIT" == "Test" ]; then
+	echo '<p class="info">[ INFO ] Submit: '$SUBMIT'</p>'
+	pcp_auto_start_lms
+fi
+
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_go_back_button
 

@@ -34,7 +34,7 @@ pcp_fdisk() {
   echo ''
 
   LAST_PARTITION_NUM=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | cut -c14)
-  PARTITION_START=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2 )
+  PARTITION_START=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2)
   
   echo '$LAST_PARTITION_NUM: '$LAST_PARTITION_NUM
   echo '$PARTITION_START: '$PARTITION_START

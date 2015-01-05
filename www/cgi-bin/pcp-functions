@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.07 2015-01-04 GE
+#	Updated Autostart LMS.
+
 # Version: 0.23 2014-12-20 GE
 #	Minor updates to modprode section.
 #	HTML5 format.
@@ -274,7 +277,7 @@ pcp_footer() {
 
 pcp_controls() {
 	if [ $MODE -gt 4 ]; then
-		if [ X"" != X"$SERVER_IP" ]; then
+		if [ x"" != x"$SERVER_IP" ]; then
 			echo '<!-- Start of pcp_controls -->'
 			echo '<table class="bgblack">'
 			echo '  <tr>'
@@ -463,6 +466,25 @@ pcp_lms_get() {
 #	playlist play http://radioparadise.com/m3u/aac-128.m3u
 #-----------------------------------------------------------------------------------------
 pcp_auto_start_lms() {
+	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTLMS" ]; then
+		PLAYER_MAC=$(pcp_controls_mac_address)
+		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
+		# Decode variables using httpd, no quotes
+		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+		for i in 1 2 3 4 5
+		do
+			if [ $(pcp_lms_get "connected") = 1 ]; then
+				echo "$i. Connected..." >> /tmp/auto_start_lms.log
+				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_lms.log
+				break
+			fi
+			echo "$i. Not connected..." >> /tmp/auto_start_lms.log
+		done
+		
+	fi
+}
+
+ORIG_pcp_auto_start_lms() {
 	if [ X"" != X"$SERVER_IP" ] && [ X"" != X"$AUTOSTARTLMS" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`

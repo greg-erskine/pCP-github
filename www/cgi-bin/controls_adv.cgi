@@ -15,10 +15,26 @@ pcp_navigation
 pcp_running_script
 pcp_refresh_button
 
-if [ $DEBUG = 0 ]; then
+if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
 	echo '                 [ DEBUG ] MAC: '$(pcp_controls_mac_address)'</p>'
 fi
+
+pcp_lms_get_xxx() {
+	RESULT=`( echo "$(pcp_controls_mac_address) $1"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g' | sed 's/id/<br>id/g'`
+	echo `sudo /usr/local/sbin/httpd -d $RESULT`
+}
+
+
+PLAYERS=$(pcp_lms_get_xxx "playlists 0 200")
+echo '<div>'
+echo '<p>Players: '$PLAYERS'</p>'
+echo '</div>'
+
+CONNECTED=$(pcp_lms_get "connected")
+echo '<div>'
+echo '<p>Connected: '$CONNECTED'</p>'
+echo '</div>'
 
 ARTIST=$(pcp_lms_get "artist")
 echo '<div>'

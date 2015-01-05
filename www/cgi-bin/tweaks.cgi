@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2015-01-04 GE
+#	Updated Autostart LMS.
+
 # Version: 0.06 2014-12-14 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -246,13 +249,27 @@ if [ $MODE -gt 4 ]; then
 	echo '              <input class="large16" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
 	echo '            </td>'
 	echo '            <td>'
-	echo '              <p>Cut and paste your auto start LMS command.</p>'
+	echo '              <p>Cut and paste your auto start LMS command.&nbsp;&nbsp;'
+	echo '              <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
+	echo '              <div id="ID05" class="less">'
+	echo '                <p>Allows you to set an auto start LMS command that is run after'
+	echo '                   a "hard" power on. This field can contain any valid LMS CLI conmand.'
+	echo '                   This could be handy for people building pseudo radios.<p>'
+	echo '                <p>Example:</p>'
+	echo '                <ul>'
+	echo '                  <li>randomplay tracks</li>'
+	echo '                  <li>playlist play http://opml.radiotime.com/Tune.ashx?id=s99312&formats=aac,ogg,mp3&partnerId=16&serial=05edb36d50ac02d1d1eeaa23a487968a</li>'
+	echo '                  <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
+	echo '                  <li>playlist play http://radioparadise.com/m3u/aac-128.m3u</li>'
+	echo '                </ul>'
+	echo '              </div>'
 	echo '            </td>'
 	echo '          </tr>'
 
 	echo '          <tr>'
 	echo '            <td colspan="3">'
 	echo '              <input type="submit" name="SUBMIT" value="Save">'
+	echo '              <input type="submit" name="SUBMIT" value="Test">'
 	echo '            </td>'
 	echo '          </tr>'
 
@@ -477,6 +494,16 @@ echo '</table>'
 #========================================================================================
 # Function to check the CRON Job schedule according to config file
 #----------------------------------------------------------------------------------------
+
+#########################################################################################
+# Steen, the case statement is probably more appropriate
+#########################################################################################
+#if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
+#if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
+#if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
+#if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
+#########################################################################################
+
 case "$REBOOT" in
 	Enabled)
 		REBOOT_Y="checked"
@@ -489,15 +516,6 @@ case "$REBOOT" in
 		REBOOT_N=""
 		;;
 esac
-
-#########################################################################################
-# Steen, the case statement is probably more appropriate
-#########################################################################################
-#if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
-#if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
-#if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
-#if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
-#########################################################################################
 
 case "$RESTART" in
 	Enabled)
