@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.10 2015-01-06 SBP
+# Removed unneeded piCorePlayer.dep check
+
 # Version: 0.09 2014-12-09 SBP
 #	Added support for the HiFiBerry AMP card.
 #	Moved saving to config file from extern newconfig to pcp-functions.
@@ -42,14 +45,9 @@ echo "[ INFO ] Reading pcp-functions"
 . /home/tc/www/cgi-bin/pcp-functions
 pcp_variables
 . $CONFIGCFG
-
+ 
 echo "[ INFO ] Look at piCorePlayer.dep"
 # Add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.
-
-######################################################
-# Moved to do_update script, can be deleted if OK  
-######################################################
-fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 
 echo "[ INFO ] Checking for newconfig.cfg on sda1"
 # Mount USB stick if present
