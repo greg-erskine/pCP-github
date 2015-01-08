@@ -83,7 +83,6 @@ if [ $WIFI == "\"on\"" ]; then
 
 # add a reboot button if needed
 if [ $REBOOT = "yes" ]; then
-echo "har vist yes"
 echo '          <tr class="odd">'
 echo '            <td class="column150 center">'
 echo '              <form name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get" id="Reboot">'
