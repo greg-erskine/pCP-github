@@ -2,8 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.07 2015-01-04 GE
+# Version: 0.24 2015-01-09 GE
 #	Updated Autostart LMS.
+#	Added initial pcp_auto_start_fav.
+#	Removed MODE = 5 for controls.
 
 # Version: 0.23 2014-12-20 GE
 #	Minor updates to modprode section.
@@ -30,7 +32,7 @@
 #	Updated pcp_uptime_minutes routine.
 
 # Version: 0.17 2014-10-04 GE
-#	Updated pcp_disable_i2s().
+#	Updated pcp_disable_i2s.
 #	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
 #	Added pcp_backup_nohtml.
 
@@ -276,26 +278,24 @@ pcp_footer() {
 }
 
 pcp_controls() {
-	if [ $MODE -gt 4 ]; then
-		if [ x"" != x"$SERVER_IP" ]; then
-			echo '<!-- Start of pcp_controls -->'
-			echo '<table class="bgblack">'
-			echo '  <tr>'
-			echo '    <td>'
-			echo '      <p>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
-			echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
-			echo '      </p>'
-			echo '    </td>'
-			echo '  </tr>'
-			echo '</table>'
-			echo '<!-- End of pcp_controls -->'
-		fi
+	if [ x"" != x"$SERVER_IP" ]; then
+		echo '<!-- Start of pcp_controls -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_controls -->'
 	fi
 }
 
@@ -479,6 +479,25 @@ pcp_auto_start_lms() {
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_lms.log
+		done
+		
+	fi
+}
+
+pcp_auto_start_fav() {
+	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ]; then
+		PLAYER_MAC=$(pcp_controls_mac_address)
+		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
+		# Decode variables using httpd, no quotes
+		AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
+		for i in 1 2 3 4 5
+		do
+			if [ $(pcp_lms_get "connected") = 1 ]; then
+				echo "$i. Connected..." >> /tmp/auto_start_lms.log
+				(echo "$PLAYER_MAC favorites playlist play item_id:$AUTOSTARTFAV"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
+				break
+			fi
+			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
 		done
 		
 	fi

@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# Version: 0.08 2015-01-08 GE
+#	Updated Auto start favorite.
+
 # Version: 0.07 2015-01-04 GE
-#	Updated Autostart LMS.
+#	Updated Auto start LMS.
 
 # Version: 0.06 2014-12-14 GE
 #	Using pcp_html_head now.
@@ -237,35 +240,60 @@ echo '      <br />'
 
 #----------------------------------------------Autostart LMS-----------------------------
 # Decode variables using httpd, no quotes
+AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+
+echo '      <table class="bggrey percent100">'
+echo '        <form name="autostartlms" action="writetoautostartlms.cgi" method="get">'
+
+echo '          <tr class="even">'
+echo '            <td class="column150">Auto start LMS</td>'
+echo '            <td class="column210">'
+echo '              <input class="large16" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
+echo '            </td>'
+echo '            <td>'
+echo '              <p>Cut and paste your auto start LMS command.&nbsp;&nbsp;'
+echo '              <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
+echo '              <div id="ID05" class="less">'
+echo '                <p>Allows you to set an auto start LMS command that is run after'
+echo '                   a "hard" power on. This field can contain any valid LMS CLI conmand.'
+echo '                   This could be handy for people building pseudo radios.<p>'
+echo '                <p>Example:</p>'
+echo '                <ul>'
+echo '                  <li>randomplay tracks</li>'
+echo '                  <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
+echo '                  <li>playlist play http://radioparadise.com/m3u/aac-128.m3u</li>'
+echo '                </ul>'
+echo '              </div>'
+echo '            </td>'
+echo '          </tr>'
+
+echo '          <tr>'
+echo '            <td colspan="3">'
+echo '              <input type="submit" name="SUBMIT" value="Save">'
+echo '              <input type="submit" name="SUBMIT" value="Test">'
+echo '            </td>'
+echo '          </tr>'
+
+echo '        </form>'
+echo '      </table>'
+
+#----------------------------------------------Auto start favorite-----------------------------
+# Decode variables using httpd, no quotes
 if [ $MODE -gt 4 ]; then
-	AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+	AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
 
 	echo '      <table class="bggrey percent100">'
-	echo '        <form name="autostartlms" action="writetoautostartlms.cgi" method="get">'
+	echo '        <form name="autostartfav" action="writetoautostartfav.cgi" method="get">'
 
 	echo '          <tr class="even">'
-	echo '            <td class="column150">Auto start LMS</td>'
+	echo '            <td class="column150">Auto start favorite</td>'
 	echo '            <td class="column210">'
-	echo '              <input class="large16" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
+	echo '              <input class="large16" type="text" id="AUTOSTARTFAV" name="AUTOSTARTFAV" size="100" maxlength="254" value="'$AUTOSTARTFAV'">'
 	echo '            </td>'
 	echo '            <td>'
 	echo '              <p>Cut and paste your auto start LMS command.&nbsp;&nbsp;'
-	echo '              <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
-	echo '              <div id="ID05" class="less">'
-	echo '                <p>Allows you to set an auto start LMS command that is run after'
-	echo '                   a "hard" power on. This field can contain any valid LMS CLI conmand.'
-	echo '                   This could be handy for people building pseudo radios.<p>'
-	echo '                <p>Example:</p>'
-	echo '                <ul>'
-	echo '                  <li>randomplay tracks</li>'
-	echo '                  <li>playlist play http://opml.radiotime.com/Tune.ashx?id=s99312&formats=aac,ogg,mp3&partnerId=16&serial=05edb36d50ac02d1d1eeaa23a487968a</li>'
-	echo '                  <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
-	echo '                  <li>playlist play http://radioparadise.com/m3u/aac-128.m3u</li>'
-	echo '                </ul>'
-	echo '              </div>'
 	echo '            </td>'
 	echo '          </tr>'
-
 	echo '          <tr>'
 	echo '            <td colspan="3">'
 	echo '              <input type="submit" name="SUBMIT" value="Save">'
