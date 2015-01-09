@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version: 0.10 2015-01-06 SBP
-# Removed unneeded piCorePlayer.dep check
+#	Removed unneeded piCorePlayer.dep check
 
 # Version: 0.09 2014-12-09 SBP
 #	Added support for the HiFiBerry AMP card.
@@ -93,20 +93,22 @@ sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 sleep 1
 sudo umount /mnt/mmcblk0p1
 
-#Section to save the parameters to the wifi.db - this is a new version in order to saving space and backslash in SSID which is needed in wifi.db
+# Section to save the parameters to the wifi.db - this is a new version in order to saving space and backslash in SSID which is needed in wifi.db
 # so a name like "steens wifi" should be saved as  "steens\ wifi"
 echo "[ INFO ] Reading config.cfg"
 . /usr/local/sbin/config.cfg
 
-#sudo chmod 766 /home/tc/wifi.db
-#Only add backslash if not empty
+# sudo chmod 766 /home/tc/wifi.db
+# Only add backslash if not empty
 echo "[ INFO ] Updating wifi.db"
-if [ x"" = x"$SSID" ]; then break
-else SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-#Change SSSID back to SSID
-SSID=$SSSID
-sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
-pcp_backup_nohtml
+if [ x"" = x"$SSID" ]; then
+	break
+else
+	SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
+	# Change SSSID back to SSID
+	SSID=$SSSID
+	sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
+	pcp_backup_nohtml
 fi
 
 # We do have a problem with SSID's which don't have a name - should we use the next section for these SSIDs - I have not tested the code
@@ -127,7 +129,7 @@ sudo modprobe snd_soc_bcm2708_i2s
 sudo modprobe bcm2708_dmaengine
 sudo modprobe snd_soc_wm8804
 
-#Read from config file.
+# Read from config file.
 . $CONFIGCFG
 
 echo "[ INFO ] Checking wifi is ON?"
