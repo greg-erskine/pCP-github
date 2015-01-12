@@ -2,9 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.24 2015-01-12 GE
+# Version: 0.24 2015-01-13 GE
 #	Updated Autostart LMS.
-#	Added initial pcp_auto_start_fav, pcp_autofav_id.
+#	Added initial pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
 #	Removed MODE = 5 for controls.
 
 # Version: 0.23 2014-12-20 GE
@@ -299,6 +299,52 @@ pcp_controls() {
 	fi
 }
 
+pcp_favorites() {
+	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+
+	if [ x"" != x"$SERVER_IP" ]; then
+		echo '<!-- Start of pcp_favorites -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+
+		echo $FAVLIST | awk '
+		BEGIN {
+			RS="id:"
+			FS=":"
+			i = 0
+		}
+		#main
+		{
+			i++
+			split($1,a," ")
+			id[i]=a[1]
+			split(id[i],b,".")
+			num[i]=b[2]
+			name[i]=$2
+			gsub(" type","",name[i])
+			hasitems[i]=$5
+			gsub("count","",hasitems[i])
+			if ( hasitems[i] != "0 " ) {
+				i--
+			}
+		}
+		END {
+			for (j=1; j<=7; j++) {
+				printf "        <a class=\"nav2\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
+			}
+		} '
+
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_favorites -->'
+	fi
+}
+
 #=========================================================================================
 # Versions
 #-----------------------------------------------------------------------------------------
@@ -485,8 +531,10 @@ pcp_auto_start_lms() {
 }
 
 pcp_autofav_id() {
+	# Decode variable using httpd, no quotes
 	AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	# Decode variable using httpd, no quotes
 	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
 
 	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
@@ -520,12 +568,28 @@ pcp_auto_start_fav() {
 	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
-		# Decode variables using httpd, no quotes
 		for i in 1 2 3 4 5
 		do
 			if [ $(pcp_lms_get "connected") = 1 ]; then
-				echo "$i. Connected..." >> /tmp/auto_start_lms.log
+				echo "$i. Connected..." >> /tmp/auto_start_fav.log
 				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
+				break
+			fi
+			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
+		done
+		
+	fi
+}
+
+pcp_start_fav() {
+	if [ x"" != x"$SERVER_IP" ]; then
+		PLAYER_MAC=$(pcp_controls_mac_address)
+		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
+		for i in 1 2 3 4 5
+		do
+			if [ $(pcp_lms_get "connected") = 1 ]; then
+				echo "$i. Connected..." >> /tmp/auto_start_fav.log
+				(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_fav.log

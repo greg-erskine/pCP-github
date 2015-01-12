@@ -9,7 +9,8 @@ pcp_variables
 
 pcp_html_head "Controls Adv" "GE"
 
-pcp_controls
+pcp_favorites
+
 pcp_banner
 pcp_navigation
 pcp_running_script
@@ -22,7 +23,55 @@ fi
 
 
 #========================================================================================
+echo '<h1>Favorite toolbar experiment #0</h1>'
 
+FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+
+		echo '<!-- Start of pcp_favorites -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+
+echo $FAVLIST | awk '
+BEGIN {
+	RS="id:"
+	FS=":"
+	i = 0
+}
+#main
+{
+	i++
+	split($1,a," ")
+	id[i]=a[1]
+	split(id[i],b,".")
+	num[i]=b[2]
+	name[i]=$2
+	gsub(" type","",name[i])
+	hasitems[i]=$5
+	gsub("count","",hasitems[i])
+	if ( hasitems[i] != "0 " ) {
+		i--
+	}
+}
+END {
+	for (j=1; j<=7; j++) {
+#		printf "<option value=\"%s\" id=\"%10s\">%s - %s - :%s:</option>",id[j],id[j],num[j],name[j],hasitems[j]
+		printf "        <a class=\"nav2\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>",id[j],id[j],name[j]
+	}
+} '
+
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_favorites -->'
+echo '<br /><br />'
+
+#------------------------------------------------------------------------------
+
+#========================================================================================
 echo '<h1>Favorite experiment #1</h1>'
 
 FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
