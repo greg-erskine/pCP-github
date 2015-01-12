@@ -2,9 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.24 2015-01-09 GE
+# Version: 0.24 2015-01-12 GE
 #	Updated Autostart LMS.
-#	Added initial pcp_auto_start_fav.
+#	Added initial pcp_auto_start_fav, pcp_autofav_id.
 #	Removed MODE = 5 for controls.
 
 # Version: 0.23 2014-12-20 GE
@@ -484,32 +484,53 @@ pcp_auto_start_lms() {
 	fi
 }
 
+pcp_autofav_id() {
+	AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
+	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+
+	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
+	BEGIN {
+		RS="id:"
+		FS=":"
+		i = 0
+	}
+	# main
+	{
+		i++
+		split($1,a," ")
+		id[i]=a[1]
+		name[i]=$2
+		gsub(" type","",name[i])
+		if ( name[i] == autostartfav ) {
+			result=id[i]
+		}
+		hasitems[i]=$5
+		gsub("count","",hasitems[i])
+		if ( hasitems[i] != "0 " ) {
+			i--
+		}
+	}
+	END {
+		printf "%s",result
+	} '
+}
+
 pcp_auto_start_fav() {
 	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		# Decode variables using httpd, no quotes
-		AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
 		for i in 1 2 3 4 5
 		do
 			if [ $(pcp_lms_get "connected") = 1 ]; then
 				echo "$i. Connected..." >> /tmp/auto_start_lms.log
-				(echo "$PLAYER_MAC favorites playlist play item_id:$AUTOSTARTFAV"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
+				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
 		done
 		
-	fi
-}
-
-ORIG_pcp_auto_start_lms() {
-	if [ X"" != X"$SERVER_IP" ] && [ X"" != X"$AUTOSTARTLMS" ]; then
-		PLAYER_MAC=$(pcp_controls_mac_address)
-		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
-		# Decode variables using httpd, no quotes
-		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
-		echo "$PLAYER_MAC $AUTOSTARTLMS" | telnet $SERVER_IP_NO_PORT:9090
 	fi
 }
 
@@ -684,7 +705,6 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
 	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
 	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
 	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
@@ -693,6 +713,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
 	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
 }
 
 #=========================================================================================

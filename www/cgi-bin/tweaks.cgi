@@ -257,7 +257,7 @@ echo '              <div id="ID05" class="less">'
 echo '                <p>Allows you to set an auto start LMS command that is run after'
 echo '                   a "hard" power on. This field can contain any valid LMS CLI conmand.'
 echo '                   This could be handy for people building pseudo radios.<p>'
-echo '                <p>Example:</p>'
+echo '                <p><b>Example:</b></p>'
 echo '                <ul>'
 echo '                  <li>randomplay tracks</li>'
 echo '                  <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
@@ -271,33 +271,82 @@ echo '          <tr>'
 echo '            <td colspan="3">'
 echo '              <input type="submit" name="SUBMIT" value="Save">'
 echo '              <input type="submit" name="SUBMIT" value="Test">'
+echo '              <input type="submit" name="SUBMIT" value="Clear">'
 echo '            </td>'
 echo '          </tr>'
 
 echo '        </form>'
 echo '      </table>'
+echo '      <br />'
 
 #----------------------------------------------Auto start favorite-----------------------------
-# Decode variables using httpd, no quotes
 if [ $MODE -gt 4 ]; then
+	# Decode variables using httpd, no quotes
 	AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
 
 	echo '      <table class="bggrey percent100">'
 	echo '        <form name="autostartfav" action="writetoautostartfav.cgi" method="get">'
-
 	echo '          <tr class="even">'
 	echo '            <td class="column150">Auto start favorite</td>'
 	echo '            <td class="column210">'
-	echo '              <input class="large16" type="text" id="AUTOSTARTFAV" name="AUTOSTARTFAV" size="100" maxlength="254" value="'$AUTOSTARTFAV'">'
+	echo '              <select name="AUTOSTARTFAV">'
+
+	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
+	BEGIN {
+		RS="id:"
+		FS=":"
+		i = 0
+	}
+	# main
+	{
+		i++
+		split($1,a," ")
+		id[i]=a[1]
+		split(id[i],b,".")
+		num[i]=b[2]
+		name[i]=$2
+		gsub(" type","",name[i])
+		sel[i]=""
+		if ( name[i] == autostartfav ) {
+			sel[i]="selected"
+		}
+		hasitems[i]=$5
+		gsub("count","",hasitems[i])
+		if ( hasitems[i] != "0 " ) {
+			i--
+		}
+	}
+	END {
+		for (j=1; j<=i; j++) {
+			printf "                <option value=\"%s\" id=\"%10s\" %10s>%s - %s</option>\n",name[j],id[j],sel[j],num[j],name[j]
+		}
+	} ' 
+
+	echo '              </select>'
 	echo '            </td>'
 	echo '            <td>'
-	echo '              <p>Cut and paste your auto start LMS command.&nbsp;&nbsp;'
+	echo '              <p>&nbsp;&nbsp;Select your auto start favorite from list.&nbsp;&nbsp;'
+	echo '              <a class="moreless" id="ID06a" href=# onclick="return more('\''ID06'\'')">more></a></p>'
+	echo '              <div id="ID06" class="less">'
+	echo '                <p>Allows you to set an auto start favorite command that is run after'
+	echo '                   a "hard" power on. '
+	echo '                   This could be handy for people building pseudo radios.<p>'
+	echo '                <p><b>Note:</b></p>'
+	echo '                <ul>'
+	echo '                  <li>Favorites must exist in LMS.</li>'
+	echo '                  <li>Favorites must be at the top level.</li>'
+	echo '                  <li>Folders will not be navigated.</li>'
+	echo '                </ul>'
+	echo '              </div>'
 	echo '            </td>'
 	echo '          </tr>'
 	echo '          <tr>'
 	echo '            <td colspan="3">'
 	echo '              <input type="submit" name="SUBMIT" value="Save">'
 	echo '              <input type="submit" name="SUBMIT" value="Test">'
+	echo '              <input type="submit" name="SUBMIT" value="Clear">'
 	echo '            </td>'
 	echo '          </tr>'
 
@@ -404,8 +453,8 @@ echo '              <input class="small1" type="radio" name="CMD" id="Custom" va
 echo '            </td>'
 echo '            <td>'
 echo '              <p>Set "dwc_otg.speed=1".&nbsp;&nbsp;'
-echo '              <a class="moreless" id="ID06a" href=# onclick="return more('\''ID06'\'')">more></a></p>'
-echo '              <div id="ID06" class="less">'
+echo '              <a class="moreless" id="ID07a" href=# onclick="return more('\''ID07'\'')">more></a></p>'
+echo '              <div id="ID07" class="less">'
 echo '                <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
 echo '                <p>Often needed for C-Media based DACs if sound is crackling.</p>'
 echo '              </div>'
@@ -435,8 +484,8 @@ echo '              <input class="small1" type="radio" name="ALSAlevelout" id="C
 echo '            </td>'
 echo '            <td>'
 echo '              <p>Custom allows for ALSA output level to be restored after reboot.&nbsp;&nbsp;'
-echo '              <a class="moreless" id="ID07a" href=# onclick="return more('\''ID07'\'')">more></a></p>'
-echo '              <div id="ID07" class="less">'
+echo '              <a class="moreless" id="ID08a" href=# onclick="return more('\''ID08'\'')">more></a></p>'
+echo '              <div id="ID08" class="less">'
 echo '                <p class="error"><b>Note: </b>Use only if you have changed ALSA output level via alsamixer.</p>'
 echo '                <p>Use alsamixer via ssh and save your custom settings by typing "sudo amixer store".</p>'
 echo '              </div>'
@@ -477,8 +526,8 @@ echo '              <p>&nbsp;</p>'
 echo '            </td>'
 echo '            <td>'
 echo '              <p>Change FIQ_FSM USB settings.&nbsp;&nbsp;'
-echo '              <a class="moreless" id="ID08a" href=# onclick="return more('\''ID08'\'')">more></a></p>'
-echo '              <div id="ID08" class="less">'
+echo '              <a class="moreless" id="ID09a" href=# onclick="return more('\''ID09'\'')">more></a></p>'
+echo '              <div id="ID09" class="less">'
 echo '                <ul>'
 echo '                  <li>This might solve USB audio problems.</li>'
 echo '                  <li>Important for specific USB DACs - like the Naim DAC-V1 card, try option 1, 2, 3 or 8.</li>'

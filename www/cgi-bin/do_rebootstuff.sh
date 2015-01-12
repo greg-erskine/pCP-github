@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.11 2015-01-12 GE
+#	Added pcp_auto_start_fav.
+
 # Version: 0.10 2015-01-06 SBP
 #	Removed unneeded piCorePlayer.dep check
 
@@ -215,3 +218,6 @@ fi
 
 echo "[ INFO ] Doing auto start LMS"
 pcp_auto_start_lms
+
+echo "[ INFO ] Doing auto start FAV"
+pcp_auto_start_fav

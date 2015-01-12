@@ -1,17 +1,21 @@
 #!/bin/sh
 
-# Version: 0.01 2015-01-08 GE
+# Version: 0.01 2015-01-12 GE
 #	Original.
 
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-pcp_html_head "Write to Autostart favorite" "GE" "15" "tweaks.cgi"
+pcp_html_head "Write to Autostart favorite" "GE" "5" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
+
+if [ "$SUBMIT" == "Clear" ]; then
+	AUTOSTARTFAV=""
+fi
 
 # Save the encoded parameter to the config file, with quotes
 sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG

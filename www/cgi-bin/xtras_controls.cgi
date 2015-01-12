@@ -23,23 +23,30 @@ fi
 
 #========================================================================================
 
-FAVS=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+echo '<h1>Favorite experiment #1</h1>'
 
-echo '#1'
-echo $FAVS
+FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+
+echo '#1<br />'
+echo $FAVLIST
 echo '<br /><br />'
 
-FAVS=`sudo /usr/local/sbin/httpd -d $FAVS`
+FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
 
-echo '#2'
-echo $FAVS
+echo '#2<br />'
+echo $FAVLIST
 echo '<br /><br />'
 
-echo '#3'
+echo '#3<br />'
 echo '<br />'
 echo '<select name="FAVORITES">'
 
-FAVS=`echo $FAVS | awk '
+#b8:27:eb:c7:e0:61 favorites items 0 100 title:Favorites id:
+#00517dec.0 name:On mysqueezebox.com isaudio:0 hasitems:1 id:
+#00517dec.1 name:A Hundred Million Suns type:audio isaudio:1 hasitems:0 id:
+#00517dec.2 name:Affirmation type:audio isaudio:1 hasitems:0
+
+FAVLIST=`echo $FAVLIST | awk '
 BEGIN {
 	RS="id:"
 	FS=":"
@@ -47,45 +54,94 @@ BEGIN {
 }
 #main
 {
-	split($1,c," ")
-	id[i]=c[1]
+	i++
+	split($1,a," ")
+	id[i]=a[1]
+	split(id[i],b,".")
+	num[i]=b[2]
 	name[i]=$2
 	gsub(" type","",name[i])
-	i++
+	hasitems[i]=$5
+	gsub("count","",hasitems[i])
+	if ( hasitems[i] != "0 " ) {
+		i--
+	}
 }
 END {
-	for (j=2; j<NR; j++) {
-		printf "<option value=\"%s\" id=\"%10s\">%s - %s</option>",id[j],id[j],id[j],name[j]
+	for (j=1; j<=i; j++) {
+		printf "<option value=\"%s\" id=\"%10s\">%s - %s - :%s:</option>",id[j],id[j],num[j],name[j],hasitems[j]
 	}
 } ' `
 
-echo $FAVS
+echo $FAVLIST
 echo '</select>'
 
 echo '<br /><br />'
 
 #------------------------------------------------------------------------------
+echo '<h1>Favorite experiment #2</h1>'
 
+
+pcp_autofav_id() {
+
+AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
+
+FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+
+echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
+BEGIN {
+	RS="id:"
+	FS=":"
+	i = 0
+}
+# main
+{
+	i++
+	split($1,a," ")
+	id[i]=a[1]
+	name[i]=$2
+	gsub(" type","",name[i])
+	if ( name[i] == autostartfav ) {
+		result=id[i]
+	}
+	hasitems[i]=$5
+	gsub("count","",hasitems[i])
+	if ( hasitems[i] != "0 " ) {
+		i--
+	}
+}
+END {
+	printf "%s",result
+} '
+
+}
+
+echo '<p>'$(pcp_autofav_id)'</p>'
 
 #========================================================================================
+echo '<h1>Playlist experiment</h1>'
 
 PLAYLISTS=`( echo "$(pcp_controls_mac_address) playlists 0 5"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 
-echo '#1'
+echo '#1<br />'
 echo $PLAYLISTS
 echo '<br /><br />'
 
 PLAYLISTS=`sudo /usr/local/sbin/httpd -d $PLAYLISTS`
 
-echo '#2'
+echo '#2<br />'
 echo $PLAYLISTS
 echo '<br /><br />'
 
-echo '#3'
+echo '#3<br />'
 echo '<br />'
 echo '<select name="PLAYLISTS">'
 
-PLAYLISTS=`echo $PLAYLISTS | awk '
+
+SEARCH="Affirmation"
+
+PLAYLISTS=`echo $PLAYLISTS | awk -v search=$SEARCH '
 BEGIN {
 	RS="id:"
 	FS=":"
@@ -102,6 +158,7 @@ END {
 	for (j=1; j<NR; j++) {
 		printf "<option value=\"%s\" id=\"%10s\">%s - %s</option>",id[j],id[j],id[j],playlist[j]
 	}
+	printf "</select><p>Search: %s</p>", search
 } ' `
 
 echo $PLAYLISTS

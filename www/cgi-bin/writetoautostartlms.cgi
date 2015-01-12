@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-01-12 GE
+#	Added clear option..
+
 # Version: 0.02 2014-12-10 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -11,11 +14,15 @@
 pcp_variables
 . $CONFIGCFG
 
-pcp_html_head "Write to Autostart LMS" "SBP" "15" "tweaks.cgi"
+pcp_html_head "Write to Autostart LMS" "SBP" "5" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
+
+if [ "$SUBMIT" == "Clear" ]; then
+	AUTOSTARTLMS=""
+fi
 
 # Save the encoded parameter to the config file, with quotes
 sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
