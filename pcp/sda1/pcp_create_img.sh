@@ -178,7 +178,6 @@ if [ -f $CONFIGCFG ]; then
 	sudo sed -i "s/\(FIQ=\).*/\1\"0x7\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"Default\"/" $CONFIGCFG
 	sudo sed -i "s/\(TIMEZONE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
@@ -187,6 +186,8 @@ if [ -f $CONFIGCFG ]; then
 	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"\"/" $CONFIGCFG
 fi
 
 #=========================================================================================
