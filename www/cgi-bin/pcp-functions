@@ -494,10 +494,14 @@ pcp_uptime_minutes() {
 ##############################################
 # Note: Function pcp_lmsip still being tested
 ##############################################
-pcp_lmsip() {
+DELETE_pcp_lmsip() {
 	LMSDNS=`netstat -t 2>&1 | grep 3483 | awk '{ print $5 }' | awk -F: '{ print $1 }'`
 	LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{ print $3 }'`
 	echo $LMSIP
+}
+
+pcp_lmsip() {
+	netstat -nt 2>&1 | grep :3483 | awk '{ print $5 }' | awk -F: '{ print $1 }'
 }
 
 pcp_lms_get() {
