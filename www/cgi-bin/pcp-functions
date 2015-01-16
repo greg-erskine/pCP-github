@@ -2,9 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.24 2015-01-13 GE
+# Version: 0.24 2015-01-15 GE
 #	Updated Autostart LMS.
-#	Added initial pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
+#	Added pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
 #	Removed MODE = 5 for controls.
 
 # Version: 0.23 2014-12-20 GE
@@ -300,6 +300,9 @@ pcp_controls() {
 }
 
 pcp_favorites() {
+	##############################################
+	# Note: Function pcp_lmsip still being tested
+	##############################################
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
 
@@ -488,6 +491,9 @@ pcp_uptime_minutes() {
 #=========================================================================================
 # Determine the LMS server IP address
 #-----------------------------------------------------------------------------------------
+##############################################
+# Note: Function pcp_lmsip still being tested
+##############################################
 pcp_lmsip() {
 	LMSDNS=`netstat -t 2>&1 | grep 3483 | awk '{ print $5 }' | awk -F: '{ print $1 }'`
 	LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{ print $3 }'`
@@ -512,7 +518,7 @@ pcp_lms_get() {
 #	playlist play http://radioparadise.com/m3u/aac-128.m3u
 #-----------------------------------------------------------------------------------------
 pcp_auto_start_lms() {
-	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTLMS" ]; then
+	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		# Decode variables using httpd, no quotes
@@ -565,7 +571,7 @@ pcp_autofav_id() {
 }
 
 pcp_auto_start_fav() {
-	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ]; then
+	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		for i in 1 2 3 4 5
@@ -778,7 +784,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
 }
 
 #=========================================================================================

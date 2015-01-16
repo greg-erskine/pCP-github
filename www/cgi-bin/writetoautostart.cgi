@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version: 0.01 2015-01-15 GE
-#	Original.
+#	Original - combined writeautostartlms.cgi and writeautostartfav.cgi
 
 . pcp-functions
 pcp_variables
@@ -13,42 +13,67 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-DEBUG=1
-
+#========================================================================================
+# Set Auto start LMS variables in config.cfg routine
+#----------------------------------------------------------------------------------------
 pcp_set_austostart_lms() {
 	if [ "$SUBMIT" == "Clear" ]; then
 		AUTOSTARTLMS=""
+		A_S_LMS="Disabled"
+	fi
+
+	if [ "$A_S_LMS" == "Enabled" ]; then
+		A_S_FAV="Disabled"
 	fi
 
 	# Save the encoded parameter to the config file, with quotes
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
+
 	echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Autostart LMS is: '$A_S_LMS'</p>'
 
 	pcp_backup
 
 	if [ "$SUBMIT" == "Test" ]; then
-		echo '<p class="info">[ INFO ] Submit: '$SUBMIT'</p>'
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Submit: '$SUBMIT'</p>'
 		pcp_auto_start_lms
 	fi
 }
 
+#========================================================================================
+# Set Auto start FAV variables in config.cfg routine
+#----------------------------------------------------------------------------------------
 pcp_set_austostart_fav() {
 	if [ "$SUBMIT" == "Clear" ]; then
 		AUTOSTARTFAV=""
+		A_S_FAV="Disabled"
+	fi
+
+	if [ "$A_S_FAV" == "Enabled" ]; then
+		A_S_LMS="Disabled"
 	fi
 
 	# Save the encoded parameter to the config file, with quotes
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
-	echo '<p class="info">[ INFO ] Autostart favorite is set to: '$AUTOSTARTFAV'</p>'
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
+
+	echo '<p class="info">[ INFO ] Auto start FAV is set to: '$AUTOSTARTFAV'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Auto start FAV is: '$A_S_FAV'</p>'
 
 	pcp_backup
 
 	if [ "$SUBMIT" == "Test" ]; then
-		echo '<p class="info">[ INFO ] Submit: '$SUBMIT'</p>'
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Submit: '$SUBMIT'</p>'
 		pcp_auto_start_fav
 	fi
 }
 
+#========================================================================================
+# Main routine
+#----------------------------------------------------------------------------------------
 case "$AUTOSTART" in
 	LMS)
 		pcp_set_austostart_lms
@@ -57,6 +82,8 @@ case "$AUTOSTART" in
 		pcp_set_austostart_fav
 		;;
 esac
+
+#----------------------------------------------------------------------------------------
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_go_back_button

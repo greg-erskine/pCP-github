@@ -187,7 +187,9 @@ if [ -f $CONFIGCFG ]; then
 	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"Disabled\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"Disabled\"/" $CONFIGCFG
 fi
 
 #=========================================================================================

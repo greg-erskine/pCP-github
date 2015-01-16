@@ -95,8 +95,8 @@ case "$OVERCLOCK" in
 		OCmoderate=""
 		;;
 esac
-#----------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------
 echo '          <table class="bggrey percent100">'
 echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
             
@@ -247,65 +247,42 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
-# Auto start tweaks - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx
+# Auto start tweaks
 #----------------------------------------------------------------------------------------
+# Function to check the A_S_LMS radio button according to config file
+case "$A_S_LMS" in 
+	Enabled)
+		A_S_LMS_Y="checked"
+		;;
+	Disabled)
+		A_S_LMS_N="checked"
+		;;
+	*)
+		A_S_LMS_Y=""
+		A_S_LMS_N=""
+		;;
+esac
+
+# Function to check the A_S_FAV radio button according to config file
+case "$A_S_FAV" in 
+	Enabled)
+		A_S_FAV_Y="checked"
+		;;
+	Disabled)
+		A_S_FAV_N="checked"
+		;;
+	*)
+		A_S_FAV_Y=""
+		A_S_FAV_N=""
+		;;
+esac
+
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Auto start tweaks</legend>'
-
-#----------------------------------------------Autostart LMS-----------------------------
-# Decode variables using httpd, no quotes
-AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
-
-echo '          <table class="bggrey percent100">'
-echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
-            
-echo '              <tr class="even">'
-echo '                <td class="column150">Auto start LMS</td>'
-echo '                <td class="column420">'
-echo '                  <input class="large16" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>Enabled'
-echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_S_LMS" value="Disabled" 'A_S_LMS_N'>Disabled'
-echo '                </td>'
-echo '              </tr>'
- 
-echo '              <tr class="even">'
-echo '                <td class="column150">'
-echo '                </td>'
-echo '                <td colspan="2">'
-echo '                  <p>Cut and paste your auto start LMS command.&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
-echo '                  <div id="ID05" class="less">'
-echo '                    <p>Allows you to set an auto start LMS command that is run after'
-echo '                       a "hard" power on. This field can contain any valid LMS CLI conmand.'
-echo '                       This could be handy for people building pseudo radios.<p>'
-echo '                    <p><b>Example:</b></p>'
-echo '                    <ul>'
-echo '                      <li>randomplay tracks</li>'
-echo '                      <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
-echo '                      <li>playlist play http://radioparadise.com/m3u/aac-128.m3u</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
- 
-echo '              <tr>'
-echo '                <td colspan="3">'
-echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                  <input type="submit" name="SUBMIT" value="Test">'
-echo '                  <input type="submit" name="SUBMIT" value="Clear">'
-echo '                </td>'
-echo '              </tr>'
-            
-echo '            </form>'
-echo '          </table>'
-echo '          <br />'
 
 #----------------------------------------------Auto start favorite-----------------------------
 if [ $MODE -gt 4 ]; then
@@ -348,7 +325,7 @@ if [ $MODE -gt 4 ]; then
 	}
 	END {
 		for (j=1; j<=i; j++) {
-			printf "                    <option value=\"%s\" id=\"%10s\" %10s>%s - %s</option>\n",name[j],id[j],sel[j],num[j],name[j]
+			printf "                    <option value=\"%s\" id=\"%10s\" %s>%s - %s</option>\n",name[j],id[j],sel[j],num[j],name[j]
 		}
 	} ' 
 
@@ -356,7 +333,7 @@ if [ $MODE -gt 4 ]; then
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>Enabled'
-	echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Disabled" 'A_S_FAV_N'>Disabled'
+	echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
 
@@ -391,7 +368,58 @@ if [ $MODE -gt 4 ]; then
                 
 	echo '            </form>'
 	echo '          </table>'
+	echo '          <br />'
 fi
+
+#----------------------------------------------Autostart LMS-----------------------------
+# Decode variables using httpd, no quotes
+AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+
+echo '          <table class="bggrey percent100">'
+echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
+            
+echo '              <tr class="even">'
+echo '                <td class="column150">Auto start LMS</td>'
+echo '                <td class="column420">'
+echo '                  <input class="large30" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
+echo '                </td>'
+echo '                <td>'
+echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>Enabled'
+echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_S_LMS" value="Disabled" '$A_S_LMS_N'>Disabled'
+echo '                </td>'
+echo '              </tr>'
+ 
+echo '              <tr class="even">'
+echo '                <td class="column150">'
+echo '                </td>'
+echo '                <td colspan="2">'
+echo '                  <p>Cut and paste your auto start LMS command.&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
+echo '                  <div id="ID05" class="less">'
+echo '                    <p>Allows you to set an auto start LMS command that is run after'
+echo '                       a "hard" power on. This field can contain any valid LMS CLI conmand.'
+echo '                       This could be handy for people building pseudo radios.<p>'
+echo '                    <p><b>Example:</b></p>'
+echo '                    <ul>'
+echo '                      <li>randomplay tracks</li>'
+echo '                      <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
+echo '                      <li>playlist play http://radioparadise.com/m3u/aac-128.m3u</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+ 
+echo '              <tr>'
+echo '                <td colspan="3">'
+echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                  <input type="submit" name="SUBMIT" value="Test">'
+echo '                  <input type="submit" name="SUBMIT" value="Clear">'
+echo '                </td>'
+echo '              </tr>'
+            
+echo '            </form>'
+echo '          </table>'
 
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
@@ -399,6 +427,8 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+[ $DEBUG = 1 ] && pcp_favorites
 
 #----------------------------------------------Password----------------------------------
 # Determine state of check boxes.
@@ -646,6 +676,7 @@ case "$RESTART" in
 		;;
 esac
 
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -734,6 +765,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
+#----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
 pcp_footer
