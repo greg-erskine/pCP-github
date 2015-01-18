@@ -349,6 +349,7 @@ if [ $MODE -gt 4 ]; then
 	echo '                       This could be handy for people building pseudo radios.<p>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
+	echo '                      <li>LMS IP address must be provided on Squeezelite Setting page, or try to use auto-discovered address.</li>'
 	echo '                      <li>Favorites must exist in LMS.</li>'
 	echo '                      <li>Favorites must be at the top level.</li>'
 	echo '                      <li>Folders will not be navigated.</li>'
@@ -360,7 +361,16 @@ if [ $MODE -gt 4 ]; then
 	echo '              <tr>'
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
+
+#Greg there is a problem with my first attempt to use javascript. Even when pressing exit on the java promt the script is executed - I can't figure out how to avoid that
+if [[ X"" = X"$SERVER_IP" ]]; then 
+	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: $(pcp_lmsip)?'\'','\''writetoautostart.cgi'\'')">'
+		SERVER_IP="$(pcp_lmsip)"
+		sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
+		else
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+fi
+
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
@@ -370,6 +380,7 @@ if [ $MODE -gt 4 ]; then
 	echo '          </table>'
 	echo '          <br />'
 fi
+
 
 #----------------------------------------------Autostart LMS-----------------------------
 # Decode variables using httpd, no quotes
@@ -405,14 +416,27 @@ echo '                      <li>randomplay tracks</li>'
 echo '                      <li>playlist play http://stream-tx1.radioparadise.com/aac-32</li>'
 echo '                      <li>playlist play http://radioparadise.com/m3u/aac-128.m3u</li>'
 echo '                    </ul>'
+echo '                    <p><b>Note:</b></p>'
+echo '                    <ul>'
+echo '                      <li>LMS IP address must be provided on Squeezelite Setting page, or try to use auto-discovered address.</li>'
+echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
- 
 echo '              <tr>'
 echo '                <td colspan="3">'
 echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
+
+#Greg there is a problem with my first attempt to use javascript. Even when pressing exit on the java promt the script is executed - I can't figure out how to avoid that
+if [[ X"" = X"$SERVER_IP" ]]; then 
+	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: $(pcp_lmsip)?'\'','\''writetoautostart.cgi'\'')">'
+		SERVER_IP="$(pcp_lmsip)"
+		sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
+		else
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+fi
+
+
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
 echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 echo '                </td>'
@@ -420,6 +444,8 @@ echo '              </tr>'
             
 echo '            </form>'
 echo '          </table>'
+#<button onclick="displayDate()">The time is?</button>......action="javascript:pcp_confirm('\''Do a backup?'\'','\''backup.cgi'\'')" method="get" id="backup">'
+#<input type="button" value="Capacity Chart" onclick="CapacityChart();">
 
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'

@@ -97,14 +97,6 @@ fi
 pcp_show_config_cfg
 pcp_backup
 
-#########################################################################################
-# Steen, is this still vaild?
-# We needed a static link to squeezelite.cgi otherwise the go back button would go
-# in circles if coming from usboption.cgi
-# pcp_go_back_button
-# echo '<FORM METHOD="LINK" ACTION="squeezelite.cgi"><INPUT TYPE="submit" VALUE="Go back"></FORM>'
-#########################################################################################
-
 pcp_go_back_button
 
 echo '</body>'
