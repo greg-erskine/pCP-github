@@ -221,3 +221,10 @@ pcp_auto_start_lms
 
 echo "[ INFO ] Doing auto start FAV"
 pcp_auto_start_fav
+
+echo "[ INFO ] Doing user commands"
+pcp_user_commands
+
+echo "[ INFO ] Start/restart crond"
+/etc/init.d/services/crond stop
+/etc/init.d/services/crond start
