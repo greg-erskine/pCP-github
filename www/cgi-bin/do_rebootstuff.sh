@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 0.11 2015-01-12 GE
+# Version: 0.11 2015-01-18 GE
 #	Added pcp_auto_start_fav.
+#	Added stop/start crond.
+#	Added pcp_user_commands.
 
 # Version: 0.10 2015-01-06 SBP
 #	Removed unneeded piCorePlayer.dep check

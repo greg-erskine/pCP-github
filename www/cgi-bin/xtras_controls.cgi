@@ -21,6 +21,13 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] MAC: '$(pcp_controls_mac_address)'</p>'
 fi
 
+echo '<h1>User Commands experiment</h1>' 
+
+echo 	'<textarea>'
+echo $COMMAND_1
+pcp_user_commands
+echo 	'</textarea>'
+
 
 #========================================================================================
 echo '<h1>Favorite toolbar experiment #0</h1>'

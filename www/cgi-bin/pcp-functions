@@ -2,7 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
-# Version: 0.24 2015-01-15 GE
+# Version: 0.24 2015-01-18 GE
+#	Updated date display on pcp_footer.
 #	Updated Autostart LMS.
 #	Added pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
 #	Removed MODE = 5 for controls.
@@ -257,7 +258,12 @@ pcp_navigation() {
 }
 
 pcp_footer() {
-	[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
+	if [ -f /etc/sysconfig/timezone ]; then 
+		. /etc/sysconfig/timezone
+		TIMESTAMP=$(TZ=$TZ date)
+	else
+		TIMESTAMP="No Timezone"
+	fi
 
 	echo '<!-- Start of pcp_footer -->'
 	echo '<table class="bgblack">'
@@ -270,7 +276,7 @@ pcp_footer() {
 					linux '$(pcp_linux_release)' | 
 					piCore v'$(pcp_picore_version)' | 
 					Squeezelite v'$(pcp_squeezelite_version)' | 
-					'`TZ=$TZ date`'</p>'
+					'`echo $TIMESTAMP`'</p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -606,6 +612,10 @@ pcp_start_fav() {
 		done
 		
 	fi
+}
+
+pcp_user_commands() {
+	`echo "${COMMAND_1}"`
 }
 
 #=========================================================================================
