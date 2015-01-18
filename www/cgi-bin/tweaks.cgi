@@ -363,10 +363,8 @@ if [ $MODE -gt 4 ]; then
 	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
 
 #Greg there is a problem with my first attempt to use javascript. Even when pressing exit on the java promt the script is executed - I can't figure out how to avoid that
-if [[ X"" = X"$SERVER_IP" ]]; then 
-	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: $(pcp_lmsip)?'\'','\''writetoautostart.cgi'\'')">'
-		SERVER_IP="$(pcp_lmsip)"
-		sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
+if [[ X"" = X"$SERVER_IP" ]]; then
+	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: '"$(pcp_lmsip)?"'?'\'','\''writetoautostart.cgi'\'')">'
 		else
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 fi
@@ -429,9 +427,7 @@ echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
 
 #Greg there is a problem with my first attempt to use javascript. Even when pressing exit on the java promt the script is executed - I can't figure out how to avoid that
 if [[ X"" = X"$SERVER_IP" ]]; then 
-	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: $(pcp_lmsip)?'\'','\''writetoautostart.cgi'\'')">'
-		SERVER_IP="$(pcp_lmsip)"
-		sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
+	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: '"$(pcp_lmsip)?"''\'','\''writetoautostart.cgi'\'')">'
 		else
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 fi
@@ -790,6 +786,37 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+#testing javascript
+
+	echo '              <tr>'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
+
+
+
+
+
+#######################################################################
+# TESTENG HERE THE SAVE BUTTON WORKS AS I WANT. IF YOU CLICK ON THE EXIT BUTTON OIN THE POP_UP WINDOW IT EXITS. CLIKING OK - EXECUTES THE WRITETOAUTOSTART:CGI
+# Why doesn't this work in the Autostart FAV section above?
+########################################################################
+
+if [[ X"" = X"$SERVER_IP" ]]; then 
+
+	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: '"$(pcp_lmsip)"' ?'\'','\''writetoautostart.cgi'\'')">'
+		else
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+fi
+
+	echo '                  <input type="submit" name="SUBMIT" value="Test">'
+	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
+	echo '                </td>'
+	echo '              </tr>'
+
+
+
+
 
 #----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg
