@@ -361,19 +361,11 @@ if [ $MODE -gt 4 ]; then
 	echo '              <tr>'
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
-
-#Greg there is a problem with my first attempt to use javascript. Even when pressing exit on the java promt the script is executed - I can't figure out how to avoid that
-if [[ X"" = X"$SERVER_IP" ]]; then
-	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: '"$(pcp_lmsip)?"'?'\'','\''writetoautostart.cgi'\'')">'
-		else
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-fi
-
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
-                
 	echo '            </form>'
 	echo '          </table>'
 	echo '          <br />'
@@ -424,24 +416,14 @@ echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="3">'
 echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
-
-#Greg there is a problem with my first attempt to use javascript. Even when pressing exit on the java promt the script is executed - I can't figure out how to avoid that
-if [[ X"" = X"$SERVER_IP" ]]; then 
-	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: '"$(pcp_lmsip)?"''\'','\''writetoautostart.cgi'\'')">'
-		else
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-fi
-
-
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
 echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 echo '                </td>'
 echo '              </tr>'
-            
 echo '            </form>'
 echo '          </table>'
-#<button onclick="displayDate()">The time is?</button>......action="javascript:pcp_confirm('\''Do a backup?'\'','\''backup.cgi'\'')" method="get" id="backup">'
-#<input type="button" value="Capacity Chart" onclick="CapacityChart();">
+
 
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
@@ -469,16 +451,6 @@ case "$CMD" in
 		;;
 esac
 
-#########################################################################################
-# Steen, the case statement is probably more appropriate
-#########################################################################################
-#if [ $FIQ = 0x1 ]; then selected1="selected"; else selected1=""; fi
-#if [ $FIQ = 0x2 ]; then selected2="selected"; else selected2=""; fi
-#if [ $FIQ = 0x3 ]; then selected3="selected"; else selected3=""; fi
-#if [ $FIQ = 0x4 ]; then selected4="selected"; else selected4=""; fi
-#if [ $FIQ = 0x7 ]; then selected5="selected"; else selected5=""; fi
-#if [ $FIQ = 0x8 ]; then selected6="selected"; else selected6=""; fi
-#########################################################################################
 
 # Function to check the FIQ-split radio button according to config file
 case "$FIQ" in
@@ -663,15 +635,6 @@ echo '</table>'
 # Function to check the CRON Job schedule according to config file
 #----------------------------------------------------------------------------------------
 
-#########################################################################################
-# Steen, the case statement is probably more appropriate
-#########################################################################################
-#if [ $REBOOT = Enabled ]; then REBOOT_Y="checked"; else REBOOT_Y=""; fi
-#if [ $REBOOT = Disabled ]; then REBOOT_N="checked"; else REBOOT_N=""; fi
-#if [ $RESTART = Enabled ]; then RESTART_Y="checked"; else RESTART_Y=""; fi
-#if [ $RESTART = Disabled ]; then RESTART_N="checked"; else RESTART_N=""; fi
-#########################################################################################
-
 case "$REBOOT" in
 	Enabled)
 		REBOOT_Y="checked"
@@ -786,37 +749,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-#testing javascript
-
-	echo '              <tr>'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
-
-
-
-
-
-#######################################################################
-# TESTENG HERE THE SAVE BUTTON WORKS AS I WANT. IF YOU CLICK ON THE EXIT BUTTON OIN THE POP_UP WINDOW IT EXITS. CLIKING OK - EXECUTES THE WRITETOAUTOSTART:CGI
-# Why doesn't this work in the Autostart FAV section above?
-########################################################################
-
-if [[ X"" = X"$SERVER_IP" ]]; then 
-
-	echo '                  <input type="submit" name="SUBMIT" value="Save" onclick="javascript:pcp_confirm('\''No LMS is IP-address provided. Do you want to try the auto-discovered LMS address: '"$(pcp_lmsip)"' ?'\'','\''writetoautostart.cgi'\'')">'
-		else
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-fi
-
-	echo '                  <input type="submit" name="SUBMIT" value="Test">'
-	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
-	echo '                </td>'
-	echo '              </tr>'
-
-
-
-
 
 #----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg
