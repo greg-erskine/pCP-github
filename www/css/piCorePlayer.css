@@ -3,6 +3,10 @@
    This style sheet is a combination of about 3 different styles sheets.
    There are a lot of redundant styles that need to be removed.
 
+Version: 0.06 2015-01-20 GE
+	Removed .circle, .indicator.
+	Added .centre.
+   
 Version: 0.05 2014-12-20 GE
 	Severely pruned.
    
@@ -102,16 +106,8 @@ h2 {
 }
 
 /* Squeezelite running indicator */
-.circle {
-	border-radius:50%;
-	height:12px;
-	width:12px;
-}
-
-.indicator {
-	border-radius:50%;
-	height:8px;
-	width:8px;
+.centre {
+	text-align:center;
 }
 
 /* fieldset formatting */
