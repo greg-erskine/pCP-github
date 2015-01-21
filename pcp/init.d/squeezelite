@@ -32,6 +32,7 @@ PIDFILE=/var/run/squeezelite.pid
 [ X"" != X"$LOGLEVEL" ]    && LOGLEVEL="-d $LOGLEVEL"
 [ X"" != X"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
 [ X"" != X"$VISULIZER" ]   && VISULIZER="-V $VISULIZER"
+[ X"" != X"$CLOSEOUT" ]   && CLOSEOUT="-C $CLOSEOUT"
 [ X"" != X"$OTHER" ]       && OTHER="$OTHER"
 [ X"" != X"$LOGFILE" ]     && LOGFILE="-f /mnt/sda1/$LOGFILE"
 
@@ -42,7 +43,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISULIZER $OTHER $LOGFILE
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISULIZER $CLOSEOUT $OTHER $LOGFILE
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then

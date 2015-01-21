@@ -35,7 +35,9 @@ LOGLEVEL=`sudo /usr/local/sbin/httpd -d \"$LOGLEVEL\"`
 LOGFILE=`sudo /usr/local/sbin/httpd -d \"$LOGFILE\"`
 DSDOUT=`sudo /usr/local/sbin/httpd -d \"$DSDOUT\"`
 VISULIZER=`sudo /usr/local/sbin/httpd -d \"$VISULIZER\"`
+CLOSEOUT=`sudo /usr/local/sbin/httpd -d \"$CLOSEOUT\"`
 OTHER=`sudo /usr/local/sbin/httpd -d \"$OTHER\"`
+
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] Parameters after decoding + . added<br /><br />'
@@ -53,25 +55,28 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] LOGFILE=.'$LOGFILE'.<br />'
 	echo '                 [ DEBUG ] DSDOUT=.'$DSDOUT'.<br />'
 	echo '                 [ DEBUG ] VISULIZER=.'$VISULIZER'.<br />'
+	echo '                 [ DEBUG ] CLOSEOUT=.'$CLOSEOUT'.<br />'
 	echo '                 [ DEBUG ] OTHER=.'$OTHER'.</p>'
 fi
 
 # Save the parameters to the config file
-sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
-sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
-sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
-sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
-sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
-sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
-sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
-sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
-sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
-sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
-sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
-sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
-sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
-sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
-sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
+pcp_save_to_config
+#sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
+#sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
+#sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
+#sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
+#sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
+#sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
+#sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
+#sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
+#sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
+#sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
+#sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
+#sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
+#sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
+#sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
+#sudo sed -i "s/\(CLOSEOUT=\).*/\1$CLOSEOUT/" $CONFIGCFG
+#sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
 
 . $CONFIGCFG
 
@@ -91,6 +96,7 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] LOGFILE=.'$LOGFILE'.<br />'
 	echo '                 [ DEBUG ] DSDOUT=.'$DSDOUT'.<br />'
 	echo '                 [ DEBUG ] VISULIZER=.'$VISULIZER'.<br />'
+	echo '                 [ DEBUG ] CLOSEOUT=.'$CLOSEOUT'.<br />'
 	echo '                 [ DEBUG ] OTHER=.'$OTHER'.</p>'
 fi
 

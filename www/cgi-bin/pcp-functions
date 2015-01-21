@@ -788,6 +788,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
 	sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
 	sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1$CLOSEOUT/" $CONFIGCFG
 	sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1$AUDIO/" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1$HOST/" $CONFIGCFG
@@ -820,25 +821,6 @@ pcp_save_to_config() {
 #=========================================================================================
 # Read which output to use then add/remove modules
 #-----------------------------------------------------------------------------------------
-DELETE_pcp_read_chosen_audio() {
-	if [ $AUDIO = Analog ]; then pcp_disable_i2s; else break; fi
-	if [ $AUDIO = USB ]; then pcp_disable_i2s; else break; fi
-	if [ $AUDIO = I2SDAC ]; then pcp_enable_i2s_dac; else break; fi
-	if [ $AUDIO = I2SDIG ]; then pcp_enable_i2s_digi; else break; fi
-	if [ $AUDIO = I2SpDAC ]; then pcp_enable_hifiberry_dac_p; else break; fi
-	if [ $AUDIO = I2SpDIG ]; then pcp_enable_i2s_digi; else break; fi
-	if [ $AUDIO = I2SpIQaudIO ]; then pcp_enable_iqaudio_dac; else break; fi
-	if [ $AUDIO = IQaudio ]; then pcp_enable_iqaudio_dac; else break; fi
-	if [ $AUDIO = I2SAMP ]; then pcp_enable_i2s_AMP; else break; fi
-}
-
-#########################################################################################
-# Steen, this is a short hand method for programming the above procedure. I think it
-# looks cleaner and therefore less prone to errors or typos.
-# Also, by convention procedure (sub-routines, functions etc) names are lower case,
-# so I changed pcp_enable_i2s_AMP to pcp_enable_i2s_amp.
-#########################################################################################
-
 pcp_read_chosen_audio() {
 	[ $AUDIO = Analog ] &&      pcp_disable_i2s
 	[ $AUDIO = USB ] &&         pcp_disable_i2s
@@ -856,6 +838,10 @@ pcp_read_chosen_audio() {
 # At the moment everything will works but there will be additional modules loaded if the
 # user has changed from one i2s option to another option. Though these surplus modules
 # won't be loaded after a reboot though.
+#
+# Greg, I know that, but sometime the whole system would hang if I tried to remove one 
+# module before another had been removed. So I think we should keep it like this. Also 
+# because the new kernel 3.18 and the device tree overlay will change all this. 
 #########################################################################################
 
 #========================================================================================
@@ -924,10 +910,6 @@ pcp_enable_hifiberry_dac_p() {
 #========================================================================================
 # Load the correct modules for HiFiBerry AMP
 #----------------------------------------------------------------------------------------
-
-#########################################################################################
-# Steen, note "AMP" changed to "amp". Lower case is the convention.
-#########################################################################################
 
 pcp_enable_i2s_amp() {
 	pcp_disable_i2s
