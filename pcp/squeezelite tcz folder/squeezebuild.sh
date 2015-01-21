@@ -32,7 +32,7 @@ rm -r -f $TMPDIR-dev
 rm -r -f $TMPDIR-doc
 
 # Crete temporary directory
-mkdir -p $TMPDIR/usr/local/sbin
+mkdir -p $TMPDIR/usr/local/squeezelite
 
 ######################################################
 # Compile extension                                  #
@@ -50,7 +50,7 @@ OPTS="-DFFMPEG -DRESAMPLE" make -f Makefile
 
 #Copy squeezelite to correct place
 cd ..
-cp -f $PWD/$WRKDIR/squeezelite $TMPDIR/usr/local/sbin/squeezelite-armv6hf
+cp -f $PWD/$WRKDIR/squeezelite $TMPDIR/usr/local/squeezelite/squeezelite-armv6hf
 
 
 
@@ -97,7 +97,7 @@ Description:    Squeezelite is a small headless squeezebox emulator for linux us
                 It is aimed at supporting high quality audio including usb dac based output at multiple sample rates 
                 including 44.1/48/88.2/96/176.4/192k/352.8/384kHz. Squeezelite play pcm (wav/aiff) 
                 plus flac, mp3, ogg and aac via libFLAC, libmad/libmpg123, libvorbisfile, libfaad respectively if they are present on your machine
-Version:        1.7
+Version:        1.8
 Author:         Triode alias Adrian Smith
 Original-site:  https://code.google.com/p/squeezelite
 Copying-policy: Use (squeezelite-armv6hf -t) and see output or See LICENSE file in source
@@ -109,7 +109,7 @@ Comments:       Binaries only
                 Compiled for piCore 6.x with  -DFFMPEG and -DRESAMPLE build options
                 ----
                 PPI compatible
-Change-log:     2015/1/3 First version" > $TMPDIR/squeezelite-armv6hf.tcz.info
+Change-log:     2015/1/21 First version" > $TMPDIR/squeezelite-armv6hf.tcz.info
 
 #################################################
 # Clean up tmp directory                        #
