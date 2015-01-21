@@ -619,7 +619,13 @@ pcp_start_fav() {
 }
 
 pcp_user_commands() {
-	`echo "${COMMAND_1}"`
+	USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
+	USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
+	USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+
+	eval "$USER_COMMAND_1"
+	eval "$USER_COMMAND_2"
+	eval "$USER_COMMAND_3"
 }
 
 #=========================================================================================
@@ -805,6 +811,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
 }
 
 #=========================================================================================

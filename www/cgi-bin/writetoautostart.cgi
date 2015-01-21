@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.01 2015-01-15 GE
+# Version: 0.01 2015-01-21 GE
 #	Original - combined writeautostartlms.cgi and writeautostartfav.cgi
+#	Added pcp_user_commands.
 
 . pcp-functions
 pcp_variables
@@ -72,6 +73,22 @@ pcp_set_austostart_fav() {
 }
 
 #========================================================================================
+# Set USER_COMMAND_x variables in config.cfg routine
+#----------------------------------------------------------------------------------------
+pcp_set_user_commands() {
+	# Save the encoded parameter to the config file, with quotes
+	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_2\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_3\"/" $CONFIGCFG
+
+	echo '<p class="info">[ INFO ] User command #1 is set to: '$USER_COMMAND_1'<br />'
+	echo '                [ INFO ] User command #2 is set to: '$USER_COMMAND_2'<br />'
+	echo '                [ INFO ] User command #3 is set to: '$USER_COMMAND_3'</p>'
+
+	pcp_backup
+}
+
+#========================================================================================
 # Main routine
 #----------------------------------------------------------------------------------------
 case "$AUTOSTART" in
@@ -80,6 +97,9 @@ case "$AUTOSTART" in
 		;;
 	FAV)
 		pcp_set_austostart_fav
+		;;
+	CMD)
+		pcp_set_user_commands
 		;;
 esac
 

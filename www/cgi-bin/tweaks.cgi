@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 0.08 2015-01-15 GE
+# Version: 0.08 2015-01-21 GE
 #	Updated Auto start favorite.
+#	Added user commands.
+#	Minor updates through out.
 
 # Version: 0.07 2015-01-04 GE
 #	Updated Auto start LMS.
@@ -52,7 +54,7 @@ echo '            <form name="squeeze" action="writetohost.cgi" method="get">'
 echo '              <tr class="even">'
 echo '                <td class="column150">Host name</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="text" id="HOST" name="HOST" size="32" maxlength="26" value="'$HOST'">'
+echo '                  <input class="large16" type="text" id="HOST" name="HOST" maxlength="26" value="'$HOST'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Provide a host name, so the player is easier to identify on your LAN.&nbsp;&nbsp;'
@@ -172,7 +174,7 @@ echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
 echo '              <tr class="even">'
 echo '                <td class="column150">Timezone</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" size="32" maxlength="26" value="'$TZ'">'
+echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" maxlength="26" value="'$TZ'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Add your TIMEZONE.&nbsp;&nbsp;'
@@ -208,7 +210,7 @@ echo '            <form name="password" action="changepassword.cgi" method="get"
 echo '              <tr class="even">'
 echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="password" id="NEWPASSWORD" name="NEWPASSWORD" size="32" maxlength="26">'
+echo '                  <input class="large16" type="password" id="NEWPASSWORD" name="NEWPASSWORD" maxlength="26">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enter new password.&nbsp;&nbsp;'
@@ -223,7 +225,7 @@ echo '              </tr>'
 echo '              <tr class="even">'
 echo '                <td class="column150"></td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="password" id="CONFIRMPASSWORD" name="CONFIRMPASSWORD" size="32" maxlength="26">'
+echo '                  <input class="large16" type="password" id="CONFIRMPASSWORD" name="CONFIRMPASSWORD" maxlength="26">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Confirm new password.</p>'
@@ -285,92 +287,94 @@ echo '        <fieldset>'
 echo '          <legend>Auto start tweaks</legend>'
 
 #----------------------------------------------Auto start favorite-----------------------------
-if [ $MODE -gt 4 ]; then
-	# Decode variables using httpd, no quotes
-	AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
+# Decode variables using httpd, no quotes
+AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
-	echo '              <tr class="even">'
-	echo '                <td class="column150">Auto start favorite</td>'
-	echo '                <td class="column420">'
-	echo '                  <select name="AUTOSTARTFAV">'
+echo '          <table class="bggrey percent100">'
+echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 
-	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
-	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
-	BEGIN {
-		RS="id:"
-		FS=":"
-		i = 0
+echo '              <tr class="even">'
+echo '                <td class="column150">Auto start favorite</td>'
+echo '                <td class="column420">'
+echo '                  <select name="AUTOSTARTFAV">'
+
+# Generate a list of options
+
+FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
+BEGIN {
+	RS="id:"
+	FS=":"
+	i = 0
+}
+# main
+{
+	i++
+	split($1,a," ")
+	id[i]=a[1]
+	split(id[i],b,".")
+	num[i]=b[2]
+	name[i]=$2
+	gsub(" type","",name[i])
+	sel[i]=""
+	if ( name[i] == autostartfav ) {
+		sel[i]="selected"
 	}
-	# main
-	{
-		i++
-		split($1,a," ")
-		id[i]=a[1]
-		split(id[i],b,".")
-		num[i]=b[2]
-		name[i]=$2
-		gsub(" type","",name[i])
-		sel[i]=""
-		if ( name[i] == autostartfav ) {
-			sel[i]="selected"
-		}
-		hasitems[i]=$5
-		gsub("count","",hasitems[i])
-		if ( hasitems[i] != "0 " ) {
-			i--
-		}
+	hasitems[i]=$5
+	gsub("count","",hasitems[i])
+	if ( hasitems[i] != "0 " ) {
+		i--
 	}
-	END {
-		for (j=1; j<=i; j++) {
-			printf "                    <option value=\"%s\" id=\"%10s\" %s>%s - %s</option>\n",name[j],id[j],sel[j],num[j],name[j]
-		}
-	} ' 
+}
+END {
+	for (j=1; j<=i; j++) {
+		printf "                    <option value=\"%s\" id=\"%10s\" %s>%s - %s</option>\n",name[j],id[j],sel[j],num[j],name[j]
+	}
+} ' 
 
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>Enabled'
-	echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
-	echo '                </td>'
-	echo '              </tr>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>Enabled'
+echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '              <tr class="even">'
-	echo '                <td class="column150">'
-	echo '                </td>'
-	echo '                <td colspan="2">'
-	echo '                  <p>Select your auto start favorite from list.&nbsp;&nbsp;'
-	echo '                  <a class="moreless" id="ID06a" href=# onclick="return more('\''ID06'\'')">more></a></p>'
-	echo '                  <div id="ID06" class="less">'
-	echo '                    <p>Allows you to set an auto start favorite command that is run after'
-	echo '                       a "hard" power on. '
-	echo '                       This could be handy for people building pseudo radios.<p>'
-	echo '                    <p><b>Note:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>LMS IP address must be provided on Squeezelite Setting page, or try to use auto-discovered address.</li>'
-	echo '                      <li>Favorites must exist in LMS.</li>'
-	echo '                      <li>Favorites must be at the top level.</li>'
-	echo '                      <li>Folders will not be navigated.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+echo '              <tr class="even">'
+echo '                <td class="column150">'
+echo '                </td>'
+echo '                <td colspan="2">'
+echo '                  <p>Select your auto start favorite from list.&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="ID06a" href=# onclick="return more('\''ID06'\'')">more></a></p>'
+echo '                  <div id="ID06" class="less">'
+echo '                    <p>Allows you to set an auto start favorite command that is run after'
+echo '                       a "hard" power on. '
+echo '                       This could be handy for people building pseudo radios.<p>'
+echo '                    <p><b>Note:</b></p>'
+echo '                    <ul>'
+echo '                      <li>Squeezelite must be running.</li>'
+echo '                      <li>LMS IP address is auto-discovered.</li>'
+echo '                      <li>Favorites must exist in LMS.</li>'
+echo '                      <li>Favorites must be at the top level.</li>'
+echo '                      <li>Folders will not be navigated.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '              <tr>'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                  <input type="submit" name="SUBMIT" value="Test">'
-	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-	echo '          <br />'
-fi
+echo '              <tr>'
+echo '                <td colspan="3">'
+echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                  <input type="submit" name="SUBMIT" value="Test">'
+echo '                  <input type="submit" name="SUBMIT" value="Clear">'
+echo '                </td>'
+echo '              </tr>'
 
+echo '            </form>'
+echo '          </table>'
+echo '          <br />'
 
 #----------------------------------------------Autostart LMS-----------------------------
 # Decode variables using httpd, no quotes
@@ -382,7 +386,7 @@ echo '            <form name="autostartlms" action="writetoautostart.cgi" method
 echo '              <tr class="even">'
 echo '                <td class="column150">Auto start LMS</td>'
 echo '                <td class="column420">'
-echo '                  <input class="large30" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" size="100" maxlength="254" value="'$AUTOSTARTLMS'">'
+echo '                  <input class="large30" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>Enabled'
@@ -408,7 +412,8 @@ echo '                      <li>playlist play http://radioparadise.com/m3u/aac-1
 echo '                    </ul>'
 echo '                    <p><b>Note:</b></p>'
 echo '                    <ul>'
-echo '                      <li>LMS IP address must be provided on Squeezelite Setting page, or try to use auto-discovered address.</li>'
+echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
+echo '                      <li>Maximum number of characters 254.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -683,11 +688,11 @@ echo '                  <p>Schedule piCorePlayer reboot<p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RB_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RB_H" id="RB_H" maxlength="2" size="2" value='$RB_H' />'
+echo '                  <input class="small2" type="text" name="RB_H" id="RB_H" maxlength="2" value='$RB_H' />'
 echo '                  <label for="RB_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RB_WD" id="RB_WD" maxlength="1" size="1" value='$RB_WD' />'
+echo '                  <input class="small2" type="text" name="RB_WD" id="RB_WD" maxlength="1" value='$RB_WD' />'
 echo '                  <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RB_DMONTH" id="RB_DMONTH" maxlength="2" size="2" value='$RB_DMONTH' />'
+echo '                  <input class="small2" type="text" name="RB_DMONTH" id="RB_DMONTH" maxlength="2" value='$RB_DMONTH' />'
 echo '                </td>'
 echo '                <td>'
 echo '                  <input class="small1" type="radio" name="REBOOT" id="Scheduled" value="Enabled" '$REBOOT_Y'>Enabled'
@@ -701,11 +706,11 @@ echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RS_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RS_H" id="RS_H" maxlength="2" size="2" value='$RS_H' />'
+echo '                  <input class="small2" type="text" name="RS_H" id="RS_H" maxlength="2" value='$RS_H' />'
 echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RS_WD" id="RS_WD" maxlength="1" size="1" value='$RS_WD' />'
+echo '                  <input class="small2" type="text" name="RS_WD" id="RS_WD" maxlength="1" value='$RS_WD' />'
 echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RS_DMONTH" id="RS_DMONTH" maxlength="2" size="2" value='$RS_DMONTH' />'
+echo '                  <input class="small2" type="text" name="RS_DMONTH" id="RS_DMONTH" maxlength="2" value='$RS_DMONTH' />'
 echo '                </td>'
 echo '                <td>'
 echo '                  <input class="small1" type="radio" name="RESTART" id="Scheduled" value="Enabled" '$RESTART_Y'>Enabled'
@@ -749,6 +754,80 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+if [ $MODE -gt 4 ]; then
+#----------------------------------------------User Commands---------------------------------
+	# Decode variables using httpd, no quotes
+	USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
+	USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
+	USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>User Commands</legend>'
+	echo '            <table class="bggrey percent100">'
+
+	echo '                <tr class="even">'
+	echo '                  <td class="column150">User command #1</td>'
+	echo '                  <td>'
+	echo '                    <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" maxlength="254" value="'$USER_COMMAND_1'">'
+	echo '                  </td>'
+	echo '                </tr>'
+
+	echo '                <tr class="odd">'
+	echo '                  <td class="column150">User command #2</td>'
+	echo '                  <td>'
+	echo '                    <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" maxlength="254" value="'$USER_COMMAND_2'">'
+	echo '                  </td>'
+	echo '                </tr>'
+
+	echo '                <tr class="even">'
+	echo '                  <td class="column150">User command #3</td>'
+	echo '                  <td>'
+	echo '                    <input class="large36" type="text" id="USER_COMMAND_3" name="USER_COMMAND_3" maxlength="254" value="'$USER_COMMAND_3'">'
+	echo '                  </td>'
+	echo '                </tr>'
+
+	echo '                <tr class="even">'
+	echo '                  <td class="column150"></td>'
+	echo '                  <td>'
+	echo '                    <p>Adds user defined commands to the piCorePlayer startup procedure.&nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="ID11a" href=# onclick="return more('\''ID11'\'')">more></a></p>'
+	echo '                    <div id="ID11" class="less">'
+	echo '                      <p>This feature gives advanced users a couple of hooks into the startup procedure.'
+	echo '                         It will allow advanced users the ability to run extra instances of Squeezelite for example,'
+	echo '                         or maybe, run a Linux procedure that shuts down processes, like the web server to optimise performance.</p>'
+	echo '                      <p>User commands run after auto start LMS commands and auto start favorites.</p>'
+	echo '                      <p>User commands will run in order 1, 2, 3.</p>'
+	echo '                      <p><b>Example:</b></p>'
+	echo '                        <ul>'
+	echo '                          <li>ls /tmp >> /tmp/directory.log</li>'
+	echo '                        </ul>'
+	echo '                    </div>'
+	echo '                  </td>'
+	echo '                </tr>'
+
+	echo '                <tr class="odd">'
+	echo '                  <td colspan=2>'
+	echo '                    <input type="hidden" name="AUTOSTART" value="CMD"/>'
+	echo '                    <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  </td>'
+	echo '                </tr>'
+
+ 	echo '              </form>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+#----------------------------------------------------------------------------------------
+fi
 
 #----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg

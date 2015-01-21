@@ -10,6 +10,9 @@
 #	2. cp pcp_create_img.sh to /mnt/sda1/pcp
 #	3. sudo ./pcp_create_img.sh
 
+# Version: 0.05 2015-01-21 GE
+#	Updated default configuration.
+
 # Version: 0.04 2014-10-19 GE
 #	Updated default configuration.
 
@@ -190,6 +193,9 @@ if [ -f $CONFIGCFG ]; then
 	sudo sed -i "s/\(A_S_LMS=\).*/\1\"Disabled\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_FAV=\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"\"/" $CONFIGCFG
 fi
 
 #=========================================================================================

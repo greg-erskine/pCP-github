@@ -23,10 +23,23 @@ fi
 
 echo '<h1>User Commands experiment</h1>' 
 
-echo 	'<textarea>'
-echo $COMMAND_1
+echo 	'<textarea rows="20">'
+
 pcp_user_commands
+
 echo 	'</textarea>'
+
+exit
+
+for i in 1 2
+do
+
+USER_COMMAND_$i=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_$i`
+echo $USER_COMMAND_${i}
+eval "$USER_COMMAND_${i}"
+echo "<br />"
+
+done
 
 
 #========================================================================================

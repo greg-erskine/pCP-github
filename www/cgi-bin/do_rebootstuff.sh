@@ -228,5 +228,4 @@ echo "[ INFO ] Doing user commands"
 pcp_user_commands
 
 echo "[ INFO ] Start/restart crond"
-/etc/init.d/services/crond stop
 /etc/init.d/services/crond start

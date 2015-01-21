@@ -96,7 +96,6 @@ fi
 
 pcp_show_config_cfg
 pcp_backup
-
 pcp_go_back_button
 
 echo '</body>'
