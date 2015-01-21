@@ -402,6 +402,7 @@ pcp_textarea() {
 
 pcp_textarea_inform() {
 	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
+	[ "$TITLE" == "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea class="inform" style="height:'$3'px">'
 	$2
 	echo '</textarea>'

@@ -3,19 +3,19 @@
    This style sheet is a combination of about 3 different styles sheets.
    There are a lot of redundant styles that need to be removed.
 
-Version: 0.06 2015-01-20 GE
+Version: 0.06 2015-01-21 GE
 	Removed .circle, .indicator.
-	Added .centre.
-   
+	Added .centre, input.large36
+
 Version: 0.05 2014-12-20 GE
 	Severely pruned.
-   
+
 Version: 0.05 2014-12-07 SBP
 	Added .circle style.
-   
+
 Version: 0.04 2014-10-24 GE
 	Added textarea.white style.
-
+	
 Version: 0.03 2014-10-08 GE
 	Added input[type=submit] style.
 
