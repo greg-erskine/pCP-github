@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer
 
+# Version: 0.25 2015-01-22 SBP
+#	Added CLOSEOUT.
+
 # Version: 0.24 2015-01-20 GE
 #	Added colour coding to squeezelite in pcp_footer.
 #	Updated date display on pcp_footer.
@@ -119,6 +122,9 @@ pcp_variables() {
 	DEVICE=/dev/mmcblk0p1
 	UPD_PCP=/tmp/upd_picoreplayer
 	pCPHOME=/home/tc/www/cgi-bin
+	###########################################################
+	# Note: Variable names should be UPPERCASE by convention
+	###########################################################
 
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 
@@ -129,7 +135,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=5
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -505,11 +511,6 @@ pcp_uptime_minutes() {
 ##############################################
 # Note: Function pcp_lmsip still being tested
 ##############################################
-DELETE_pcp_lmsip() {
-	LMSDNS=`netstat -t 2>&1 | grep 3483 | awk '{ print $5 }' | awk -F: '{ print $1 }'`
-	LMSIP=`nslookup $LMSDNS | grep Address | tail -1 | awk '{ print $3 }'`
-	echo $LMSIP
-}
 
 pcp_lmsip() {
 	netstat -nt 2>&1 | grep :3483 | awk '{ print $5 }' | awk -F: '{ print $1 }'
@@ -619,6 +620,9 @@ pcp_start_fav() {
 	fi
 }
 
+##############################################
+# Note: Need to test if variable is set
+##############################################
 pcp_user_commands() {
 	USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
 	USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
@@ -833,17 +837,6 @@ pcp_read_chosen_audio() {
 	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
 }
 
-#########################################################################################
-# Steen, it looks like we need to remove more modules in pcp_disable_i2s.
-# At the moment everything will works but there will be additional modules loaded if the
-# user has changed from one i2s option to another option. Though these surplus modules
-# won't be loaded after a reboot though.
-#
-# Greg, I know that, but sometime the whole system would hang if I tried to remove one 
-# module before another had been removed. So I think we should keep it like this. Also 
-# because the new kernel 3.18 and the device tree overlay will change all this. 
-#########################################################################################
-
 #========================================================================================
 # Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
 #----------------------------------------------------------------------------------------
@@ -854,8 +847,6 @@ pcp_disable_i2s() {
 	sudo modprobe -qr snd_soc_hifiberry_dac
 	sudo modprobe -qr snd_soc_hifiberry_digi
 	sudo modprobe -qr snd_soc_iqaudio_dac
-	# more
-	# more
 }
 
 #========================================================================================
@@ -910,7 +901,6 @@ pcp_enable_hifiberry_dac_p() {
 #========================================================================================
 # Load the correct modules for HiFiBerry AMP
 #----------------------------------------------------------------------------------------
-
 pcp_enable_i2s_amp() {
 	pcp_disable_i2s
 	sudo modprobe -q snd_soc_bcm2708_i2s

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-01-22 SBP
+#	Added CLOSEOUT.
+
 # Version: 0.02 2014-10-07 GE
 #	Force now always kills squeezelite daemon.
 #	Added support for spaces in player name. (I don't understand why it works!)
@@ -7,8 +10,6 @@
 
 # Version: 0.01 2014-06-27 GE
 #	Original.
-
-#set -x
 
 PNAME=Squeezelite
 DESC="Squeezelite player"
@@ -19,22 +20,22 @@ PIDFILE=/var/run/squeezelite.pid
 . /usr/local/sbin/config.cfg
 
 # Check if variable is present then add the correct option in front
-[ X"" != X"$NAME" ]        && NAME="$NAME"							# <--- Moved "-n" to allow for spaces
-[ X"" != X"$OUTPUT" ]      && OUTPUT="-o $OUTPUT"
-[ X"" != X"$ALSA_PARAMS" ] && ALSA_PARAMS="-a "$ALSA_PARAMS""
-[ X"" != X"$BUFFER_SIZE" ] && BUFFER_SIZE="-b $BUFFER_SIZE"
-[ X"" != X"$_CODEC" ]      && _CODEC="-c $_CODEC"
-[ X"" != X"$PRIORITY" ]    && PRIORITY="-p $PRIORITY"
-[ X"" != X"$MAX_RATE" ]    && MAX_RATE="-r $MAX_RATE"
-[ X"" != X"$UPSAMPLE" ]    && UPSAMPLE="-R $UPSAMPLE"
-[ X"" != X"$MAC_ADDRESS" ] && MAC_ADDRESS="-m $MAC_ADDRESS"
-[ X"" != X"$SERVER_IP" ]   && SERVER_IP="-s $SERVER_IP"
-[ X"" != X"$LOGLEVEL" ]    && LOGLEVEL="-d $LOGLEVEL"
-[ X"" != X"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
-[ X"" != X"$VISULIZER" ]   && VISULIZER="-V $VISULIZER"
-[ X"" != X"$CLOSEOUT" ]   && CLOSEOUT="-C $CLOSEOUT"
-[ X"" != X"$OTHER" ]       && OTHER="$OTHER"
-[ X"" != X"$LOGFILE" ]     && LOGFILE="-f /mnt/sda1/$LOGFILE"
+[ x"" != x"$NAME" ]        && NAME="$NAME"							# <--- Moved "-n" to allow for spaces
+[ x"" != x"$OUTPUT" ]      && OUTPUT="-o $OUTPUT"
+[ x"" != x"$ALSA_PARAMS" ] && ALSA_PARAMS="-a "$ALSA_PARAMS""
+[ x"" != x"$BUFFER_SIZE" ] && BUFFER_SIZE="-b $BUFFER_SIZE"
+[ x"" != x"$_CODEC" ]      && _CODEC="-c $_CODEC"
+[ x"" != x"$PRIORITY" ]    && PRIORITY="-p $PRIORITY"
+[ x"" != x"$MAX_RATE" ]    && MAX_RATE="-r $MAX_RATE"
+[ x"" != x"$UPSAMPLE" ]    && UPSAMPLE="-R $UPSAMPLE"
+[ x"" != x"$MAC_ADDRESS" ] && MAC_ADDRESS="-m $MAC_ADDRESS"
+[ x"" != x"$SERVER_IP" ]   && SERVER_IP="-s $SERVER_IP"
+[ x"" != x"$LOGLEVEL" ]    && LOGLEVEL="-d $LOGLEVEL"
+[ x"" != x"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
+[ x"" != x"$VISULIZER" ]   && VISULIZER="-V $VISULIZER"
+[ x"" != x"$CLOSEOUT" ]    && CLOSEOUT="-C $CLOSEOUT"
+[ x"" != x"$OTHER" ]       && OTHER="$OTHER"
+[ x"" != x"$LOGFILE" ]     && LOGFILE="-f /mnt/sda1/$LOGFILE"
 
 case "$1" in
 	start)

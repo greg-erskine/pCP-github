@@ -169,6 +169,7 @@ if [ -f $CONFIGCFG ]; then
 	sudo sed -i "s/\(LOGFILE=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(DSDOUT=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(VISULIZER=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(OTHER=\).*/\1\"\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"\Analog\"/" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
