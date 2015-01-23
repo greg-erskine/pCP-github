@@ -82,5 +82,8 @@ pcp_footer
 pcp_refresh_button
 pcp_go_back_button
 
+pcp_reboot_button
+pcp_go_main_button
+
 echo '</body>'
 echo '</html>'

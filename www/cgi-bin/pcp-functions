@@ -1,9 +1,11 @@
 #!/bin/sh
 # pcp-functions
-# These are the common functions used by piCorePlayer
+# These are the common functions used by piCorePlayer.
 
-# Version: 0.25 2015-01-22 SBP
+# Version: 0.25 2015-01-23 SBP
 #	Added CLOSEOUT.
+#	Added pcp_reset_config_to_defaults.
+#	Added pcp_mount_device, pcp_umount_device.
 
 # Version: 0.24 2015-01-20 GE
 #	Added colour coding to squeezelite in pcp_footer.
@@ -135,7 +137,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=5
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -721,7 +723,7 @@ pcp_running_script() {
 }
 
 #=========================================================================================
-# Mounting/unmounting mmcblk0p1 - boot partition
+# Mounting/unmounting devices
 #-----------------------------------------------------------------------------------------
 pcp_mount_mmcblk0p1() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
@@ -731,7 +733,6 @@ pcp_mount_mmcblk0p1() {
 		echo '<p class="info">[ INFO ] Mounting '$VOLUME'...</p>'
 		echo '<p style="font-size:10px">'
 		sudo mount $DEVICE;
-	#	echo '</p>'
 	fi
 }
 
@@ -761,6 +762,28 @@ pcp_umount_mmcblk0p1_nohtml() {
 	sudo umount $DEVICE
 }
 
+	VOLUME=/mnt/mmcblk0p1
+	DEVICE=/dev/mmcblk0p1
+
+pcp_mount_device() {
+	# Check if device is mounted otherwise mount it
+	if mount | grep "/mnt/$1"; then
+		echo '<p class="error">[ ERROR ] /mnt/'$1' already mounted</p>'
+	else
+		echo '<p class="info">[ INFO ] Mounting /dev/'$1'...</p>'
+		echo '<p style="font-size:10px">'
+		sudo mount /dev/$1;
+	fi
+}
+
+pcp_umount_device() {
+	# Unmount device
+	sync
+	sync
+	echo '<p class="info">[ INFO ] Unmounting /dev/'$1'...</p>'
+	sudo umount /dev/$1
+}
+
 #=========================================================================================
 # Reboot/shutdown piCorePlayer
 #-----------------------------------------------------------------------------------------
@@ -775,44 +798,46 @@ pcp_shutdown() {
 }
 
 #=========================================================================================
-# Save parameters to the config file
+# Save parameters to the config file - add double quotes
+#
+# Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
 pcp_save_to_config() {
-	sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
-	sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
-	sudo sed -i "s/\(CLOSEOUT=\).*/\1$CLOSEOUT/" $CONFIGCFG
-	sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1$AUDIO/" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1$HOST/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1$SSID/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1$PASSWORD/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1$ENCRYPTION/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1$OVERCLOCK/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1$CMD/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1$WIFI/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1$FIQ/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1$ALSAlevelout/" $CONFIGCFG
-	sudo sed -i "s/\(TIMEZONE=\).*/\1$TIMEZONE/" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
+	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $CONFIGCFG
+	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/"$CONFIGCFG
+	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $CONFIGCFG
+	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $CONFIGCFG
+	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $CONFIGCFG
+	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $CONFIGCFG
+	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $CONFIGCFG
+	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"$MAC_ADDRESS\"/" $CONFIGCFG
+	sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
+	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $CONFIGCFG
+	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $CONFIGCFG
+	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(VISULIZER=\).*/\1\"$VISULIZER\"/" $CONFIGCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(OTHER=\).*/\1\"$OTHER\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
+	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
+	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
+	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
+	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
+	sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT *=*\).*/\1\"$REBOOT\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1\"$RB_H\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1\"$RB_WD\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"$RB_DMONTH\"/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1\"$RESTART\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1\"$RS_H\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1\"$RS_WD\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
@@ -820,6 +845,56 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
 	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
 	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
+}
+
+#=========================================================================================
+# Set variables to default values - add double quotes
+#
+# Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
+#-----------------------------------------------------------------------------------------
+pcp_reset_config_to_defaults() {
+	sudo sed -i "s/\(NAME=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
+	sudo sed -i "s/\(OUTPUT=\).*/\1\"sysdefault:CARD=ALSA\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"80:::0\"/" $CONFIGCFG
+	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(_CODEC=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(PRIORITY=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(MAX_RATE=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(SERVER_IP=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(LOGFILE=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(DSDOUT=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(VISULIZER=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(OTHER=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUDIO=\).*/\1\"\Analog\"/" $CONFIGCFG
+	sudo sed -i "s/\(HOST=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
+	sudo sed -i "s/\(SSID=\).*/\1\"wireless\"/" $CONFIGCFG
+	sudo sed -i "s/\(PASSWORD=\).*/\1\"password\"/" $CONFIGCFG
+	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"WPA\"/" $CONFIGCFG
+	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"NONE\"/" $CONFIGCFG
+	sudo sed -i "s/\(CMD=\).*/\1\"Default\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"off\"/" $CONFIGCFG
+	sudo sed -i "s/\(FIQ=\).*/\1\"0x7\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"Default\"/" $CONFIGCFG
+	sudo sed -i "s/\(TIMEZONE=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART *=*\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"Disabled\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"\"/" $CONFIGCFG
 }
 
 #=========================================================================================

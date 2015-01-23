@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.10 2015-01-22 SBP
+# Version: 0.10 2015-01-23 SBP
 #	Added CLOSEOUT.
 #	Minor cosmetic changes.
+#	Added Reset ALL and Restore ALL buttons (mode > 4).
 
 # Version: 0.09 2014-12-08 GE
 #	HTML5 formatting.
@@ -502,7 +503,11 @@ echo '              </tr>'
 #----------------------------------------------------------------------------------------
 echo '              <tr class="odd">'
 echo '                <td colspan="3">'
-echo '                  <input type="submit" value="Save">'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+if [ $MODE -gt 4 ]; then
+	echo '                  <input type="submit" name="SUBMIT" value="Reset ALL">'
+	echo '                  <input type="submit" name="SUBMIT" value="Restore ALL">'
+fi
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------

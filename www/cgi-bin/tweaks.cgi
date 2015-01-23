@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.08 2015-01-21 GE
+# Version: 0.08 2015-01-23 GE
 #	Updated Auto start favorite.
 #	Added user commands.
 #	Minor updates through out.
@@ -368,6 +368,7 @@ echo '                <td colspan="3">'
 echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
+[ $MODE -gt 4 ] &&
 echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 echo '                </td>'
 echo '              </tr>'
@@ -423,6 +424,7 @@ echo '                <td colspan="3">'
 echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
+[ $MODE -gt 4 ] &&
 echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 echo '                </td>'
 echo '              </tr>'

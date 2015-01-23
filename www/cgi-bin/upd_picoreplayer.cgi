@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 0.06 2014-12-11 GE
+# Version: 0.06 2015-01-23 GE
 #	HTML5 formatted.
+#	Increased width of update piCorePlayer button.
+#	Minor html updates.
 
 # Version: 0.05 2014-09-05 GE
 #	Added INSITU_DOWNLOAD variable.
@@ -60,12 +62,19 @@ if [ $result = 0 ]; then
 
 	awk '{ print "<option value=\""$1"\">" $1"</option>" }' $UPD_PCP/insitu.cfg
 
+	echo '        </select>'
 	echo '      </td>'
-	echo '      <td><p>Choose from Drop-Down list which version of piCorePlayer you would like to update/downgrade to.</p></td>'
+	echo '      <td>'
+	echo '        <p>Choose from Drop-Down list which version of piCorePlayer you would like to update/downgrade to.</p>'
+	echo '      </td>'
 	echo '    </tr>'
 	echo '    <tr class="even">'
-	echo '      <td class="column150"><input type="submit" value="Update piCorePlayer"></td>'
-	echo '      <td><p>Update may take a few minutes... please be patient. When the download has finished a new page will load.</p></td>'
+	echo '      <td class="column150">'
+	echo '        <input class="large12" type="submit" value="Update piCorePlayer">'
+	echo '      </td>'
+	echo '      <td>'
+	echo '        <p>Update may take a few minutes... please be patient. When the download has finished a new page will load.</p>'
+	echo '      </td>'
 	echo '    </tr>'
 	echo '  </form>'
 	echo '</table>'
