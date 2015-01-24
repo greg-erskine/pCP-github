@@ -2,10 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.25 2015-01-23 SBP
+# Version: 0.25 2015-01-25 SBP
 #	Added CLOSEOUT.
 #	Added pcp_reset_config_to_defaults.
 #	Added pcp_mount_device, pcp_umount_device.
+#	Added pcp_user_commands.
+#	Updated pcp_banner.
 
 # Version: 0.24 2015-01-20 GE
 #	Added colour coding to squeezelite in pcp_footer.
@@ -124,9 +126,9 @@ pcp_variables() {
 	DEVICE=/dev/mmcblk0p1
 	UPD_PCP=/tmp/upd_picoreplayer
 	pCPHOME=/home/tc/www/cgi-bin
-	###########################################################
-	# Note: Variable names should be UPPERCASE by convention
-	###########################################################
+	############################################################
+	# Steen, Variable names should be UPPERCASE by convention.
+	############################################################
 
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 
@@ -241,7 +243,7 @@ pcp_banner() {
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p class="banner"><img src="../images/banner.png" alt="piCorePlayer" width="100%" /></p>'
+	echo '      <p class="banner"><img src="../images/banner.png" alt="piCorePlayer" /></p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -622,23 +624,19 @@ pcp_start_fav() {
 	fi
 }
 
-##############################################
-# Note: Need to test if variable is set
-##############################################
 pcp_user_commands() {
 	if [ x"" != x"$USER_COMMAND_1" ]; then
 		USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
+		eval "$USER_COMMAND_1"
 	fi
 	if [ x"" != x"$USER_COMMAND_2" ]; then
 		USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
+		eval "$USER_COMMAND_2"
 	fi
 	if [ x"" != x"$USER_COMMAND_3" ]; then
 		USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+		eval "$USER_COMMAND_3"
 	fi
-
-	eval "$USER_COMMAND_1"
-	eval "$USER_COMMAND_2"
-	eval "$USER_COMMAND_3"
 }
 
 #=========================================================================================
