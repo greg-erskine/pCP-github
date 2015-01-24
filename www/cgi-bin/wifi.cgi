@@ -170,6 +170,19 @@ available_networks() {
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
+
+#Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
+if ifconfig wlan0 down 2>&1 | grep -q "ifconfig: SIOCGIFFLAGS: No such device"
+	then 
+		#echo "wifi adaptor not present"
+		WIFIREADY=no
+	else
+		#echo "wifi present"
+		WIFIREADY=yes
+fi
+
+
+if [ $WIFIREADY = yes ]; then
 	if [ $WIFI = on ]; then
 		unset WIFI && CNT=0
 		until [ -n "$WIFI" ]
@@ -267,6 +280,9 @@ available_networks() {
 	else
 		echo "Wifi is off."
 	fi
+else
+	echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong"
+fi
 }
 
 echo '<table class="bggrey">'
