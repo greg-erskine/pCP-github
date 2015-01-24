@@ -626,9 +626,15 @@ pcp_start_fav() {
 # Note: Need to test if variable is set
 ##############################################
 pcp_user_commands() {
-	USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
-	USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
-	USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+	if [ x"" != x"$USER_COMMAND_1" ]; then
+		USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
+	fi
+	if [ x"" != x"$USER_COMMAND_2" ]; then
+		USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
+	fi
+	if [ x"" != x"$USER_COMMAND_3" ]; then
+		USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+	fi
 
 	eval "$USER_COMMAND_1"
 	eval "$USER_COMMAND_2"
