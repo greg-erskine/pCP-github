@@ -241,7 +241,7 @@ pcp_banner() {
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p class="banner"><img src="../images/banner.jpg" alt="piCorePlayer" width="100%" /></p>'
+	echo '      <p class="banner"><img src="../images/banner.png" alt="piCorePlayer" width="100%" /></p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
