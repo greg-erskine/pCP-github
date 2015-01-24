@@ -172,13 +172,13 @@ available_networks() {
 	#-----------------------------------------------------------------------------------------
 
 #Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
-if ifconfig wlan0 down 2>&1 | grep -q "ifconfig: SIOCGIFFLAGS: No such device"
+if ifconfig 2>&1 | grep -q "wlan"
 	then 
+		#echo "wifi adaptor present"
+		WIFIREADY=yes
+	else
 		#echo "wifi adaptor not present"
 		WIFIREADY=no
-	else
-		#echo "wifi present"
-		WIFIREADY=yes
 fi
 
 
@@ -281,7 +281,7 @@ if [ $WIFIREADY = yes ]; then
 		echo "Wifi is off."
 	fi
 else
-	echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong"
+	echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
 fi
 }
 
