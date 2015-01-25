@@ -192,6 +192,26 @@ echo '                <p>Save your current configuration to USB stick for use af
 echo '              </td>'
 echo '            </tr>'
 
+#------------------------------------------Disable Web GUI-----------------------------------
+echo '            <tr class="odd">'
+echo '              <td class="column150 center">'
+echo '                <form name="disablegui" action="disablegui.sh" method="get" id="disablegui">'
+echo '                  <input type="submit" value="Disable GUI" />'
+echo '                </form>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>Disable web server (usefull in public areas).&nbsp;&nbsp;'
+echo '                <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a></p>'
+echo '                <div id="ID02" class="less">'
+echo '                  <p>It can be usefull to disable web access to the GUI is you dont want access to your settings.</p>'
+echo '                  <p>If you need access to web GUI later, you will need to re-enable the web server:</p>'
+echo '                  <ul>'
+echo '                    <li>Log in via SHH and the enable web server by at the command promt write: enablegui</li>'
+echo '                  </ul>'
+echo '                </div>'
+echo '              </td>'
+echo '            </tr>'
+
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
