@@ -115,7 +115,7 @@ echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI"
 echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
+echo '                  <p>&nbsp;&nbsp&nbsp;&nbspSet wifi on or off&nbsp;&nbsp;'
 echo '                    <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="ID01" class="less">'
@@ -201,18 +201,24 @@ echo '  </tr>'
 echo '</table>'
 
 available_networks() {
+if [ $WIFI = on ]; then
 	# Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
-	if ifconfig 2>&1 | grep -q "wlan"
-		then 
-			#echo "wifi adaptor present"
-			WIFIREADY=yes
-		else
-			#echo "wifi adaptor not present"
-			WIFIREADY=no
-	fi
+			unset NWIFI && CNT=0
+			until [ -n "$NWIFI" ]
+			do
+				[ $((CNT++)) -gt 1 ] && break || sleep 1
+				NWIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
+			done
+			if [ -z "$NWIFI" ]; then
+#				echo "No wifi device found!"
+				WIFIREADY=no
+			else
+#				echo "wifi device found"
+				WIFIREADY=yes
+			fi
+
 
 	if [ $WIFIREADY = yes ]; then
-
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
@@ -312,15 +318,20 @@ available_networks() {
 					if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
 				}
 				print "-------------------------------------------------------------------------------------------"
-			} '
-		else
-			echo "Wifi is off."
+			} '	
 		fi
 	#-----------------------------------------------------------------------------------------
 
 	else
 		echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
 	fi
+fi
+
+	# Needs to read wifi status again as WIFI variable name has been used in the above script
+		. $CONFIGCFG
+			if [ $WIFI = off ]; then
+				echo "Wifi is off."
+			fi
 }
 
 echo '<table class="bggrey">'
