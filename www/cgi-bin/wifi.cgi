@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.09 2015-01-25 SBP
+#	Added check for wifi adaptor present.
+#	Added descriptions and more/less help.
+
 # Version: 0.08 2014-12-20 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -100,47 +104,74 @@ echo '    <td>'
 echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Set Wireless configuration</legend>'
+echo '            <legend>Set Wifi configuration</legend>'
 echo '            <table class="bggrey percent100">'
 echo '              <tr class="even">'
 echo '                <td class="column150">'
-echo '                  <p>Wireless</p>'
+echo '                  <p>Wifi</p>'
 echo '                </td>'
-echo '                <td class="column420">'
+echo '                <td class="column380">'
 echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
 echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p></p>'
+echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
+echo '                    <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="ID01" class="less">'
+echo '                    <ul>'
+echo '                      <li>Selecting wifi on will enable the remaining fields.</li>'
+echo '                      <li>A reboot is required when wifi is turned on.</li>'
+echo '                      <li>Turn wifi on if you have compatible USB wifi adaptor installed.</li>'
+echo '                      <li>Setting wifi to off will improve boot times.</li>'
+echo '                    </ul>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="odd">'
 echo '                <td class="column150">'
 echo '                  <p>SSID</p>'
 echo '                </td>'
-echo '                <td class="column420">'
-echo '                  <input class="large15" type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='\"$SSID\"'>'
+echo '                <td class="column380">'
+echo '                  <input class="large15" type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" value='\"$SSID\"'>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p></p>'
+echo '                  <p>Enter your wifi network SSID&nbsp;&nbsp;'
+echo '                    <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="ID02" class="less">'
+echo '                    <ul>'
+echo '                      <li>Service Set Identifier (SSID).</li>'
+echo '                      <li>Use valid alphanumeric characters only.</li>'
+echo '                      <li>Maximum length of 32 characters.</li>'
+echo '                    </ul>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="even">'
 echo '                <td class="column150">'
 echo '                  <p>Password</p>'
 echo '                </td>'
-echo '                <td class="column420">'
-echo '                  <input class="large30" type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
+echo '                <td class="column380">'
+echo '                  <input class="large30" type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" value='$PASSWORD'>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p></p>'
+echo '                  <p>Enter your wifi network password&nbsp;&nbsp;'
+echo '                    <a class="moreless" id="ID03a" href=# onclick="return more('\''ID03'\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="ID03" class="less">'
+echo '                    <ul>'
+echo '                      <li>Use valid alphanumeric characters only.</li>'
+echo '                      <li>Maximum length of 64 characters.</li>'
+echo '                    </ul>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="odd">'
 echo '                <td class="column150">'
 echo '                  <p>Security Mode</p>'
 echo '                </td>'
-echo '                <td class="column420">'
+echo '                <td class="column380">'
 echo '                  <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
 echo '                    <option value="WPA">WPA or WPA2</option>'
 echo '                    <option value="WEP">WEP</option>'
@@ -148,7 +179,12 @@ echo '                    <option value="OPEN">Open (No Encyrption)</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p></p>'
+echo '                  <p>Set to your wifi network security level&nbsp;&nbsp;'
+echo '                    <a class="moreless" id="ID04a" href=# onclick="return more('\''ID04'\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="ID04" class="less">'
+echo '                    <p>Recommended: WPA or WPA2</p>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
@@ -165,124 +201,126 @@ echo '  </tr>'
 echo '</table>'
 
 available_networks() {
+	# Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
+	if ifconfig 2>&1 | grep -q "wlan"
+		then 
+			#echo "wifi adaptor present"
+			WIFIREADY=yes
+		else
+			#echo "wifi adaptor not present"
+			WIFIREADY=no
+	fi
+
+	if [ $WIFIREADY = yes ]; then
+
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
 
-#Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
-if ifconfig 2>&1 | grep -q "wlan"
-	then 
-		#echo "wifi adaptor present"
-		WIFIREADY=yes
-	else
-		#echo "wifi adaptor not present"
-		WIFIREADY=no
-fi
-
-
-if [ $WIFIREADY = yes ]; then
-	if [ $WIFI = on ]; then
-		unset WIFI && CNT=0
-		until [ -n "$WIFI" ]
-		do
-			[ $((CNT++)) -gt 10 ] && break || sleep 1
-			WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
-		done
-		if [ -z "$WIFI" ]; then
-			#################################
-			# FIX: Formatting required here #
-			#################################
-			echo "No wifi devices found!"
-			echo '</textarea>'
-			pcp_footer
-			pcp_refresh_button
-			echo '</body>'
-			echo '</html>'
-			exit 1
+		if [ $WIFI = on ]; then
+			unset WIFI && CNT=0
+			until [ -n "$WIFI" ]
+			do
+				[ $((CNT++)) -gt 10 ] && break || sleep 1
+				WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
+			done
+			if [ -z "$WIFI" ]; then
+				#################################
+				# FIX: Formatting required here #
+				#################################
+				echo "No wifi devices found!"
+#				echo '</textarea>'
+#				pcp_footer
+#				pcp_refresh_button
+#				echo '</body>'
+#				echo '</html>'
+#				exit 1
+			fi
+			ifconfig "$WIFI" up 2>/dev/null
+			(for i in `seq 5`
+			do
+				iwlist "$WIFI" scanning
+				[ "$?" == 0 ] && break
+				sleep 1
+			done ) | awk -v wifi=$WIFI '
+			BEGIN {
+				RS="\n"
+				FS=":"
+				i = 0
+			}
+			function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
+				for (i = 2; i <= n; i++)
+					for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
+						# swap qual[j] and qual[j-1]
+						t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
+						t = level[j]; level[j] = level[j-1]; level[j-1] = t
+						t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
+						t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
+						t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
+						t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
+						t = type[j]; type[j] = type[j-1]; type[j-1] = t
+						t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
+					}
+			}
+			# main ()
+			{
+				if ($1 ~ /Cell/) {
+					if ( i == 0  || sid[i] != "" ) i++
+					addr[i] = $2":"$3":"$4":"$5":"$6":"$7
+					gsub(" ","",addr[i])
+				}
+				if ($1 ~ /Frequency/) {
+					split($2,c," ")
+					chan[i] = c[4]
+					gsub("\)","",chan[i])
+					freq[i] = "("c[1]c[2]")"
+					gsub(" ","",freq[i])
+				}
+				if ($1 ~ /Quality/) {
+					q = $2
+					if (index($1,"=")) {
+						split($1,c,"=")
+						q = c[2]
+						level[i] = c[3]
+						gsub(" ","",level[i])
+					}
+					split(q,c," ")
+	#				qual[i] = c[1] * 10 / 7
+					qual[i] = c[1]
+				}
+				if ($1 ~ /Encr/){
+					enc[i] = $2
+				}
+				if ($1 ~ /ESSID/) {
+					sid[i] = $2
+					gsub("\"","",sid[i])
+				}
+				if (enc[i] ~ /off/) type[i]="NONE"
+				if ($2 ~ /WPA/) type[i]="WPA"
+				if ($2 ~ /WPA2 /) type[i]="WPA2"
+				if (type[i] == "" ) type[i]="WEP"
+			}
+			END {
+				rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
+				print "-------------------------------------------------------------------------------------------"
+				print "        SSID                 Quality  Level      Channel     Encryption       Address"
+				print "-------------------------------------------------------------------------------------------"
+				for (l=1; l<15; l++) {
+					++j
+					if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+				}
+				print "-------------------------------------------------------------------------------------------"
+			} '
+		else
+			echo "Wifi is off."
 		fi
-		ifconfig "$WIFI" up 2>/dev/null
-		(for i in `seq 5`
-		do
-			iwlist "$WIFI" scanning
-			[ "$?" == 0 ] && break
-			sleep 1
-		done ) | awk -v wifi=$WIFI '
-		BEGIN {
-			RS="\n"
-			FS=":"
-			i = 0
-		}
-		function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
-			for (i = 2; i <= n; i++)
-				for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
-					# swap qual[j] and qual[j-1]
-					t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
-					t = level[j]; level[j] = level[j-1]; level[j-1] = t
-					t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
-					t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
-					t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
-					t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
-					t = type[j]; type[j] = type[j-1]; type[j-1] = t
-					t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
-				}
-		}
-		# main ()
-		{
-			if ($1 ~ /Cell/) {
-				if ( i == 0  || sid[i] != "" ) i++
-				addr[i] = $2":"$3":"$4":"$5":"$6":"$7
-				gsub(" ","",addr[i])
-			}
-			if ($1 ~ /Frequency/) {
-				split($2,c," ")
-				chan[i] = c[4]
-				gsub("\)","",chan[i])
-				freq[i] = "("c[1]c[2]")"
-				gsub(" ","",freq[i])
-			}
-			if ($1 ~ /Quality/) {
-				q = $2
-				if (index($1,"=")) {
-					split($1,c,"=")
-					q = c[2]
-					level[i] = c[3]
-					gsub(" ","",level[i])
-				}
-				split(q,c," ")
-#				qual[i] = c[1] * 10 / 7
-				qual[i] = c[1]
-			}
-			if ($1 ~ /Encr/){
-				enc[i] = $2
-			}
-			if ($1 ~ /ESSID/) {
-				sid[i] = $2
-				gsub("\"","",sid[i])
-			}
-			if (enc[i] ~ /off/) type[i]="NONE"
-			if ($2 ~ /WPA/) type[i]="WPA"
-			if ($2 ~ /WPA2 /) type[i]="WPA2"
-			if (type[i] == "" ) type[i]="WEP"
-		}
-		END {
-			rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-			print "-------------------------------------------------------------------------------------------"
-			print "        SSID                 Quality  Level      Channel     Encryption       Address"
-			print "-------------------------------------------------------------------------------------------"
-			for (l=1; l<15; l++) {
-				++j
-				if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
-			}
-			print "-------------------------------------------------------------------------------------------"
-		} '
+	#-----------------------------------------------------------------------------------------
+
 	else
-		echo "Wifi is off."
+		echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
 	fi
-else
-	echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
-fi
 }
 
 echo '<table class="bggrey">'
