@@ -259,15 +259,18 @@ echo '                  <input type="submit" value="Save to USB" />'
 echo '                </form>'
 echo '              </td>'
 echo '              <td>'
-echo '                <p>Save your current configuration to USB stick for use after update or to be used in another piCorePlayer</p>'
-
-
-
-
-
-
-
-
+echo '                <p>Save your current configuration to USB stick&nbsp;&nbsp;'
+echo '                <a class="moreless" id="ID09a" href=# onclick="return more('\''ID09'\'')">more></a></p>'
+echo '                <div id="ID09" class="less">'
+echo '                  <p>This will copy the current configuration file to USB stick (defaults to sda1).</p>'
+echo '                  <p>Can be used:</p>'
+echo '                  <ul>'
+echo '                    <li>as a backup</li>'
+echo '                    <li>after an update</li>'
+echo '                    <li>in another piCorePlayer.</li>'
+echo '                  </ul>'
+echo '                  <p><b>Note: </b>USB stick must be plugged into USB port.</p>'
+echo '                </div>'
 echo '              </td>'
 echo '            </tr>'
 
