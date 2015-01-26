@@ -115,7 +115,7 @@ echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI"
 echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>&nbsp;&nbsp&nbsp;&nbspSet wifi on or off&nbsp;&nbsp;'
+echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
 echo '                    <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="ID01" class="less">'
@@ -201,6 +201,9 @@ echo '  </tr>'
 echo '</table>'
 
 available_networks() {
+#-------START of WIFI script------------------------------------------------------------------------------
+#-----section 1 start-------------------------------------------------------------
+# Greg this first section is ment to define WIFIREADY but it is only needed if wifi is on because if wifi is off then we dont care if a wifi adaptor is attacehd or not  
 if [ $WIFI = on ]; then
 	# Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
 			unset NWIFI && CNT=0
@@ -216,16 +219,20 @@ if [ $WIFI = on ]; then
 #				echo "wifi device found"
 				WIFIREADY=yes
 			fi
-
+fi
+#-----section 1 end-------------------------------------------------------------
 
 	if [ $WIFIREADY = yes ]; then
+
+#-----section 2 start-----------------------------------------------------------
+# Only start this if an wifi adaptor is attached that equal to WIFIREADY is yes
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
 
-		if [ $WIFI = on ]; then
+#		if [ $WIFI = on ]; then
 			unset WIFI && CNT=0
 			until [ -n "$WIFI" ]
 			do
@@ -320,19 +327,26 @@ if [ $WIFI = on ]; then
 				print "-------------------------------------------------------------------------------------------"
 			} '	
 		fi
-	#-----------------------------------------------------------------------------------------
+#---------Section 2 end--------------------------------------------------------------------------------
 
-	else
+#---------Section 3 start------------------------------------------------------------------------------
+# Only active if no wifi adaptor is found that is if WIFIREADY is no
+	if [ $WIFIREADY = no ]; then
 		echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
 	fi
-fi
+#---------Section 3 end------------------------------------------------------------------------------
 
-	# Needs to read wifi status again as WIFI variable name has been used in the above script
+#---------Section 4 start------------------------------------------------------------------------------
+# Only active if wifi is off
+# Needs to read wifi status again as WIFI variable name has been used in the above script
 		. $CONFIGCFG
 			if [ $WIFI = off ]; then
 				echo "Wifi is off."
 			fi
+#---------Section 3 start------------------------------------------------------------------------------
 }
+#-------END of WIFI script------------------------------------------------------------------------------
+
 
 echo '<table class="bggrey">'
 echo '  <tr>'
