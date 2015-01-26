@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.25 2015-01-25 SBP
+# Version: 0.25 2015-01-26 SBP
 #	Added CLOSEOUT.
 #	Added pcp_reset_config_to_defaults.
 #	Added pcp_mount_device, pcp_umount_device.
@@ -10,7 +10,7 @@
 #	Updated pcp_banner.
 
 # Version: 0.24 2015-01-20 GE
-#	Added colour coding to squeezelite in pcp_footer.
+#	Added colour coding to Squeezelite in pcp_footer.
 #	Updated date display on pcp_footer.
 #	Updated Autostart LMS.
 #	Added pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
@@ -242,7 +242,7 @@ pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td>'
+	echo '    <td height="148">'
 	echo '      <p class="banner"><img src="../images/banner.png" alt="piCorePlayer" /></p>'
 	echo '    </td>'
 	echo '  </tr>'
