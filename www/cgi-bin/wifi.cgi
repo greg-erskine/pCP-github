@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 0.10 2015-01-27 GE
+#	Only display "Available wifi networks" if $WIFI = on
+#	Added scanning message to give impression of reduced delay.
+#	Reduced "CNT -gt" from 10 to 5 to speed up display in WIFI2 loop.
+#	Fixed "Available wifi networks" format to work with 8192cu and rt2x00usb.
+
 # Version: 0.09 2015-01-25 SBP
 #	Added check for wifi adaptor present.
 #	Added descriptions and more/less help.
@@ -104,7 +110,7 @@ echo '    <td>'
 echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Set Wifi configuration</legend>'
+echo '            <legend>Set wifi configuration</legend>'
 echo '            <table class="bggrey percent100">'
 echo '              <tr class="even">'
 echo '                <td class="column150">'
@@ -201,190 +207,144 @@ echo '  </tr>'
 echo '</table>'
 
 available_networks() {
-#-------START of WIFI script------------------------------------------------------------------------------
-#-----section 1 start-------------------------------------------------------------
-# Greg this first section is ment to define WIFIREADY but it is only needed if wifi is on because if wifi is off then we dont care if a wifi adaptor is attacehd or not  
-if [ $WIFI = on ]; then
-	# Check for wifi adaptor present and skip scanning if wifi is not possible due to missing modules or missing adaptor
-			unset NWIFI && CNT=0
-			until [ -n "$NWIFI" ]
-			do
-				[ $((CNT++)) -gt 1 ] && break || sleep 1
-				NWIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
-			done
-			if [ -z "$NWIFI" ]; then
-#				echo "No wifi device found!"
-				WIFIREADY=no
-			else
-#				echo "wifi device found"
-				WIFIREADY=yes
-			fi
-fi
-#-----section 1 end-------------------------------------------------------------
-
-#---------Section 2 start------------------------------------------------------------------------------
-# Only active if no wifi adaptor is found that is if WIFIREADY is no
-	if [ $WIFIREADY = no ]; then
-		echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
-	fi
-#---------Section 2 end------------------------------------------------------------------------------
-
-#---------Section 3 start------------------------------------------------------------------------------
-# Only active if wifi is off
-	if [ $WIFI = off ]; then
-		echo "Wifi is off."
-	fi
-#---------Section 3 start------------------------------------------------------------------------------
-
-
-#-----section 4 start-----------------------------------------------------------
-# Only start this if an wifi is on and an adaptor is attached that is equal to WIFIREADY defined as yes
-if [ $WIFIREADY = yes ]; then
-
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
-
-#		if [ $WIFI = on ]; then
-			unset WIFI && CNT=0
-			until [ -n "$WIFI" ]
-			do
-				[ $((CNT++)) -gt 10 ] && break || sleep 1
-				WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
-			done
-			if [ -z "$WIFI" ]; then
-				#################################
-				# FIX: Formatting required here #
-				#################################
-				echo "No wifi devices found!"
-#				echo '</textarea>'
-#				pcp_footer
-#				pcp_refresh_button
-#				echo '</body>'
-#				echo '</html>'
-#				exit 1
-			fi
-			ifconfig "$WIFI" up 2>/dev/null
-			(for i in `seq 5`
-			do
-				iwlist "$WIFI" scanning
-				[ "$?" == 0 ] && break
-				sleep 1
-			done ) | awk -v wifi=$WIFI '
-			BEGIN {
-				RS="\n"
-				FS=":"
-				i = 0
+	unset WIFI2 && CNT=0
+	echo -en "Scanning"
+	until [ -n "$WIFI2" ]
+	do
+		[ $((CNT++)) -gt 5 ] && break || sleep 1
+		echo -en "."
+		WIFI2="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
+	done
+	if [ -z "$WIFI2" ]; then
+		echo -en "\n\nNo wifi devices found!\n\n"
+		echo -en "Possible error:\n\n"
+		echo -en "1. USB wifi adaptor missing - insert adaptor\n"
+		echo -en "2. wifi drivers and firmware missing - reboot required"
+		echo '</textarea>'
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </table>'
+		echo '          </fieldset>'
+		echo '        </div>'
+		echo '      </form>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		pcp_footer
+		pcp_refresh_button
+		echo '</body>'
+		echo '</html>'
+		exit
+	fi
+	ifconfig "$WIFI2" up 2>/dev/null
+	(for i in `seq 5`
+	do
+		iwlist "$WIFI2" scanning
+		[ "$?" == 0 ] && break
+		sleep 1
+	done ) | awk -v wifi=$WIFI2 '
+	BEGIN {
+		RS="\n"
+		FS=":"
+		i = 0
+	}
+	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
+###		for (i = 2; i <= n; i++)
+			for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
+				# swap qual[j] and qual[j-1]
+				t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
+				t = level[j]; level[j] = level[j-1]; level[j-1] = t
+				t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
+				t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
+				t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
+				t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
+				t = type[j]; type[j] = type[j-1]; type[j-1] = t
+				t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
 			}
-			function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
-				for (i = 2; i <= n; i++)
-					for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
-						# swap qual[j] and qual[j-1]
-						t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
-						t = level[j]; level[j] = level[j-1]; level[j-1] = t
-						t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
-						t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
-						t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
-						t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
-						t = type[j]; type[j] = type[j-1]; type[j-1] = t
-						t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
-					}
+	}
+	# main ()
+	{
+		if ($1 ~ /Cell/) {
+			if ( i == 0  || sid[i] != "" ) i++
+			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
+			gsub(" ","",addr[i])
+		}
+		if ($1 ~ /Frequency/) {
+			split($2,c," ")
+			chan[i] = c[4]
+			gsub("\)","",chan[i])
+			freq[i] = "("c[1]c[2]")"
+			gsub(" ","",freq[i])
+		}
+		if ($1 ~ /Quality/) {
+			q = $2
+			if (index($1,"=")) {
+				split($1,c,"=")
+				q = c[2]
+				level[i] = c[3]
+				gsub(" ","",level[i])
 			}
-			# main ()
-			{
-				if ($1 ~ /Cell/) {
-					if ( i == 0  || sid[i] != "" ) i++
-					addr[i] = $2":"$3":"$4":"$5":"$6":"$7
-					gsub(" ","",addr[i])
-				}
-				if ($1 ~ /Frequency/) {
-					split($2,c," ")
-					chan[i] = c[4]
-					gsub("\)","",chan[i])
-					freq[i] = "("c[1]c[2]")"
-					gsub(" ","",freq[i])
-				}
-				if ($1 ~ /Quality/) {
-					q = $2
-					if (index($1,"=")) {
-						split($1,c,"=")
-						q = c[2]
-						level[i] = c[3]
-						gsub(" ","",level[i])
-					}
-					split(q,c," ")
-	#				qual[i] = c[1] * 10 / 7
-					qual[i] = c[1]
-				}
-				if ($1 ~ /Encr/){
-					enc[i] = $2
-				}
-				if ($1 ~ /ESSID/) {
-					sid[i] = $2
-					gsub("\"","",sid[i])
-				}
-				if (enc[i] ~ /off/) type[i]="NONE"
-				if ($2 ~ /WPA/) type[i]="WPA"
-				if ($2 ~ /WPA2 /) type[i]="WPA2"
-				if (type[i] == "" ) type[i]="WEP"
-			}
-			END {
-				rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-				print "-------------------------------------------------------------------------------------------"
-				print "        SSID                 Quality  Level      Channel     Encryption       Address"
-				print "-------------------------------------------------------------------------------------------"
-				for (l=1; l<15; l++) {
-					++j
-					if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
-				}
-				print "-------------------------------------------------------------------------------------------"
-			} '	
-		fi
-#---------Section 4 end--------------------------------------------------------------------------------
+			split(q,c," ")
+###			qual[i] = c[1] * 10 / 7
+			qual[i] = c[1]
+		}
+		if ($1 ~ /Encr/){
+			enc[i] = $2
+		}
+		if ($1 ~ /ESSID/) {
+			sid[i] = $2
+			gsub("\"","",sid[i])
+		}
+		if (enc[i] ~ /off/) type[i]="NONE"
+		if ($2 ~ /WPA/) type[i]="WPA"
+		if ($2 ~ /WPA2 /) type[i]="WPA2"
+		if (type[i] == "" ) type[i]="WEP"
+	}
+	END {
+		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
+		print ""
+		print "-------------------------------------------------------------------------------------------"
+		print "        SSID                 Quality  Level      Channel     Encryption       Address"
+		print "-------------------------------------------------------------------------------------------"
+		for (l=1; l<15; l++) {
+			++j
+			if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], " ", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+		}
+		print "-------------------------------------------------------------------------------------------"
+	} '
 }
-#-------END of WIFI script------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------
 
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="wifi_networks" method="get">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Available Wifi Networks</legend>'
-echo '            <table class="bggrey percent100">'
-echo '              <tr class="odd">'
-echo '                <td>'
-
-pcp_textarea_inform "none" "available_networks" 110
-
-echo '                </td>'
-echo '              </tr>'
-
-if [ $DEBUG = 1 ]; then
-	echo '              <tr class="odd">'
-	echo '                <td>'
-	echo '                  <p class="debug">[ DEBUG ] Scanning networks</p>'
-	echo '                </td>'
-	echo '              </tr>'
+if [ $WIFI = on ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="wifi_networks" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Available wifi networks</legend>'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="odd">'
 	echo '                <td>'
 
-	pcp_textarea_inform "none" "iwlist wlan0 scanning" 200
+	pcp_textarea_inform "none" "available_networks" 110
 
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 fi
-
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
 pcp_footer
 pcp_refresh_button
