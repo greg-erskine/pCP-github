@@ -1,0 +1,66 @@
+#!/bin/sh
+
+pCPHOME=/home/tc/www/cgi-bin
+
+. $pCPHOME/pcp-functions
+pcp_variables
+
+#========================================================================================
+# Enable webgui
+#----------------------------------------------------------------------------------------
+pcp_webgui_enable() {
+	# Start web server
+	sudo /usr/local/etc/init.d/httpd start
+
+	# Remove #
+	sed -i '/httpd start/s/^#\+//' $pCPHOME/do_rebootstuff.sh
+
+	# Save changes
+	pcp_backup_nohtml
+}
+
+#========================================================================================
+# Disable webgui
+#----------------------------------------------------------------------------------------
+pcp_webgui_disable() {
+	# Stop web server
+	sudo /usr/local/etc/init.d/httpd stop
+
+	# Add #
+	sed -i '/httpd start/s/^/#/g' $pCPHOME/do_rebootstuff.sh
+
+	# Save changes
+	pcp_backup_nohtml
+}
+
+#========================================================================================
+# Status webgui
+#----------------------------------------------------------------------------------------
+pcp_webgui_status() {
+	echo
+	echo -n 'process: '
+	ps | grep -v grep | grep httpd
+	echo -n 'do_reboot.sh: '
+	cat /home/tc/www/cgi-bin/do_rebootstuff.sh | grep httpd
+	echo
+}
+
+#========================================================================================
+# Main
+#----------------------------------------------------------------------------------------
+
+case $1 in
+	enable)
+		pcp_webgui_enable
+		;;
+	disable)
+		pcp_webgui_disable
+		;;
+	status)
+		pcp_webgui_status
+		exit 0
+		;;
+	*)
+		echo "Usage: webgui [enable|disable|status]"
+		;;
+esac
