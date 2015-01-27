@@ -222,10 +222,25 @@ if [ $WIFI = on ]; then
 fi
 #-----section 1 end-------------------------------------------------------------
 
-	if [ $WIFIREADY = yes ]; then
+#---------Section 2 start------------------------------------------------------------------------------
+# Only active if no wifi adaptor is found that is if WIFIREADY is no
+	if [ $WIFIREADY = no ]; then
+		echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
+	fi
+#---------Section 2 end------------------------------------------------------------------------------
 
-#-----section 2 start-----------------------------------------------------------
-# Only start this if an wifi adaptor is attached that equal to WIFIREADY is yes
+#---------Section 3 start------------------------------------------------------------------------------
+# Only active if wifi is off
+	if [ $WIFI = off ]; then
+		echo "Wifi is off."
+	fi
+#---------Section 3 start------------------------------------------------------------------------------
+
+
+#-----section 4 start-----------------------------------------------------------
+# Only start this if an wifi is on and an adaptor is attached that is equal to WIFIREADY defined as yes
+if [ $WIFIREADY = yes ]; then
+
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
@@ -327,23 +342,7 @@ fi
 				print "-------------------------------------------------------------------------------------------"
 			} '	
 		fi
-#---------Section 2 end--------------------------------------------------------------------------------
-
-#---------Section 3 start------------------------------------------------------------------------------
-# Only active if no wifi adaptor is found that is if WIFIREADY is no
-	if [ $WIFIREADY = no ]; then
-		echo "piCorePlayer could not detect a working wifi adaptor or the modules were not loaded, please refresh page or reboot if this is wrong."
-	fi
-#---------Section 3 end------------------------------------------------------------------------------
-
-#---------Section 4 start------------------------------------------------------------------------------
-# Only active if wifi is off
-# Needs to read wifi status again as WIFI variable name has been used in the above script
-		. $CONFIGCFG
-			if [ $WIFI = off ]; then
-				echo "Wifi is off."
-			fi
-#---------Section 3 start------------------------------------------------------------------------------
+#---------Section 4 end--------------------------------------------------------------------------------
 }
 #-------END of WIFI script------------------------------------------------------------------------------
 
