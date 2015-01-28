@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.01 2015-01-28 SBP
+#	Original.
+
 pCPHOME=/home/tc/www/cgi-bin
 
 . $pCPHOME/pcp-functions
