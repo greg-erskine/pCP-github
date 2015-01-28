@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.12 2015-01-28 GE
+# Version: 0.12 2015-01-29 GE
 #	Moved Disable GUI, Stop Squeezelite, Backup and Shutdown to Developers section.
+#	Added Reset ALL and Restore ALL  to Developers section.
 
 # Version: 0.11 2015-01-26 SBP
 #	Added Disable GUI.
@@ -97,7 +98,7 @@ echo '            </tr>'
 #------------------------------------------Restart---------------------------------------
 echo '            <tr class="even">'
 echo '              <td class="column150 center">'
-echo '                <form name="Restart" action="restartsqlt.cgi" method="get" id="Restart">'
+echo '                <form id="Restart" name="Restart" action="restartsqlt.cgi" method="get">'
 echo '                  <input type="submit" value="Restart" />'
 echo '                </form>'
 echo '              </td>'
@@ -119,7 +120,7 @@ echo '            </tr>'
 #------------------------------------------Update Squeezelite - Triode-------------------
 echo '            <tr class="odd">'
 echo '              <td class="column150 center">'
-echo '                <form name="updateTriode" action="updatesqlt.cgi" method="get" id="updateTriode">'
+echo '                <form id="updateTriode" name="updateTriode" action="updatesqlt.cgi" method="get">'
 echo '                  <input type="hidden" name="VERSION" value="Triode"/>'
 echo '                  <input type="submit" value="Update" />'
 echo '                </form>'
@@ -142,7 +143,7 @@ echo '            </tr>'
 #------------------------------------------Update Squeezelite - Ralphy-------------------
 echo '            <tr class="even">'
 echo '              <td class="column150 center">'
-echo '                <form name="updateRalphy" action="updatesqlt.cgi" method="get" id="updateRalphy">'
+echo '                <form id="updateRalphy" name="updateRalphy" action="updatesqlt.cgi" method="get">'
 echo '                  <input type="hidden" name="VERSION" value="Ralphy"/>'
 echo '                  <input type="submit" value="Update" />'
 echo '                </form>'
@@ -168,7 +169,7 @@ echo '            </tr>'
 #------------------------------------------Reboot----------------------------------------
 echo '            <tr class="odd">'
 echo '              <td class="column150 center">'
-echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get" id="Reboot">'
+echo '                <form id="Reboot" name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get">'
 echo '                  <input type="submit" value="Reboot" />'
 echo '                </form>'
 echo '              </td>'
@@ -189,7 +190,7 @@ echo '            </tr>'
 #------------------------------------------Update pCP------------------------------------
 echo '            <tr class="even">'
 echo '              <td class="column150 center">'
-echo '                <form name="InSitu" action="upd_picoreplayer.cgi" method="get" id="InSitu">'
+echo '                <form id="InSitu" name="InSitu" action="upd_picoreplayer.cgi" method="get">'
 echo '                  <input type="submit" value="Update pCP" />'
 echo '                </form>'
 echo '              </td>'
@@ -212,7 +213,7 @@ echo '            </tr>'
 #------------------------------------------Save to USB-----------------------------------
 echo '            <tr class="odd">'
 echo '              <td class="column150 center">'
-echo '                <form name="Saveconfig" action="save2usb.cgi" method="get" id="Saveconfig">'
+echo '                <form id="Saveconfig" name="Saveconfig" action="save2usb.cgi" method="get">'
 echo '                  <input type="submit" value="Save to USB" />'
 echo '                </form>'
 echo '              </td>'
@@ -253,10 +254,10 @@ if [ $MODE = 99 ]; then
 			  
 	echo '          <table class="bggrey percent100">'
 
-	#------------------------------------------Stop------------------------------------------
+	#------------------------------------------Stop--------------------------------------
 	echo '            <tr class="even">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Stop" action="stop.cgi" method="get" id="Stop">'
+	echo '                <form id="Stop" name="Stop" action="stop.cgi" method="get">'
 	echo '                  <input type="submit" value="Stop" />'
 	echo '                </form>'
 	echo '              </td>'
@@ -275,10 +276,10 @@ if [ $MODE = 99 ]; then
 	echo '              </td>'
 	echo '            </tr>'
 
-	#------------------------------------------Backup----------------------------------------
+	#------------------------------------------Backup------------------------------------
 	echo '            <tr class="odd">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="backup" action="javascript:pcp_confirm('\''Do a backup?'\'','\''backup.cgi'\'')" method="get" id="backup">'
+	echo '                <form id="backup" name="backup" action="javascript:pcp_confirm('\''Do a backup?'\'','\''backup.cgi'\'')" method="get">'
 	echo '                  <input type="submit" value="Backup" />'
 	echo '                </form>'
 	echo '              </td>'
@@ -299,10 +300,10 @@ if [ $MODE = 99 ]; then
 	echo '              </td>'
 	echo '            </tr>'
 
-	#------------------------------------------Shutdown--------------------------------------
+	#------------------------------------------Shutdown----------------------------------
 	echo '            <tr class="even">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown piCorePlayer?'\'','\''shutdown.cgi'\'')" method="get" id="Shutdown">'
+	echo '                <form id="Shutdown" name="Shutdown" action="javascript:pcp_confirm('\''Shutdown piCorePlayer?'\'','\''shutdown.cgi'\'')" method="get">'
 	echo '                  <input type="submit" value="Shutdown" />'
 	echo '                </form>'
 	echo '              </td>'
@@ -317,7 +318,58 @@ if [ $MODE = 99 ]; then
 	echo '              </td>'
 	echo '            </tr>'
 
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------Reset ALL---------------------------------
+	echo '            <tr class="odd">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Reset ALL" name="Reset ALL" action="writetoconfig.cgi" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Reset ALL" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Reset All settings in configuration file&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="ID11a" href=# onclick="return more('\''ID11'\'')">more></a></p>'
+	echo '                <div id="ID11" class="less">'
+	echo '                  <p>This command will reset all settings in the configuration file to the defaults that'
+	echo '                     are defined in pcp-functions. </p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	#------------------------------------------Restore ALL-------------------------------
+	echo '            <tr class="even">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Restore ALL" name="Restore ALL" action="writetoconfig.cgi" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Restore ALL" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Restore all setting in configuration file&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a></p>'
+	echo '                <div id="ID12" class="less">'
+	echo '                  <p>This command will restore all settings in the configuration file to those found in'
+	echo '                     newconfig.cfg on USB flash memory.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	#------------------------------------------Resize FS-------------------------------
+	echo '            <tr class="odd">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Resize FS" name="Resize FS" action="xtras_resize.cgi" method="get">'
+	echo '                  <input type="submit" value="Resize FS" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Resize file system&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="ID13a" href=# onclick="return more('\''ID13'\'')">more></a></p>'
+	echo '                <div id="ID13" class="less">'
+	echo '                  <p>This command will resize the file system to fit the SD card.</p>'
+	echo '                  <p>Only required if you need to add extra extensions.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	#------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
