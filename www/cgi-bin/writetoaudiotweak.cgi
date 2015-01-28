@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-01-28 GE
+#	Included changefiq.sh.
+
 # Version: 0.02 2014-12-10 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -52,10 +55,38 @@ esac
 # Decode $FIQ using httpd, add quotes
 FIQ=`sudo /usr/local/sbin/httpd -d \"$FIQ\"`
 sudo sed -i "s/\(FIQ *=*\).*/\1$FIQ/" $CONFIGCFG
+
 pcp_backup
-# Call FIQ script
-sudo ./changeFIQ.sh
+
 . $CONFIGCFG
+
+pcp_mount_mmcblk0p1
+
+if mount | grep $VOLUME; then
+	# Remove fiq settings
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x1 //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x2 //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x3 //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x4 //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x7 //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x8 //g' /mnt/mmcblk0p1/cmdline.txt
+
+	sed -i 's/dwc_otg.fiq_fsm_mask="0x1" //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask="0x2" //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask="0x3" //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask="0x4" //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask="0x7" //g' /mnt/mmcblk0p1/cmdline.txt
+	sed -i 's/dwc_otg.fiq_fsm_mask="0x8" //g' /mnt/mmcblk0p1/cmdline.txt
+
+	# Add FIQ settings from config file
+	sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' /mnt/mmcblk0p1/cmdline.txt
+
+	[ $DEBUG = 1 ] && pcp_show_cmdline_txt
+	pcp_umount_mmcblk0p1
+else
+	echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
+fi
+
 echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
 
 #----------------------------------------------------------------------------------------

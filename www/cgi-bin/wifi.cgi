@@ -254,7 +254,7 @@ available_networks() {
 		i = 0
 	}
 	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
-###		for (i = 2; i <= n; i++)
+		for (i = 2; i <= n; i++)
 			for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
 				# swap qual[j] and qual[j-1]
 				t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t

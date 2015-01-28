@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.11 2015-01-18 GE
+# Version: 0.11 2015-01-28 GE
 #	Added pcp_auto_start_fav.
 #	Added stop/start crond.
 #	Added pcp_user_commands.
+#	Moved timezone before essential stuff.
 
 # Version: 0.10 2015-01-06 SBP
 #	Removed unneeded piCorePlayer.dep check
@@ -201,8 +202,13 @@ if [ $ALSAlevelout = Custom ]; then
 	alsactl restore
 fi
 
-# Start the essential stuff for piCorePlayer
+# Only call timezone function if timezone variable is set
+if [ x"" != x"$TIMEZONE" ]; then
+	echo "[ INFO ] Setting timezone"
+	pcp_set_timezone
+fi
 
+# Start the essential stuff for piCorePlayer
 echo "[ INFO ] Loading the main daemons"
 echo -n "[ INFO ] "
 /usr/local/etc/init.d/dropbear start
@@ -211,12 +217,6 @@ echo -n "[ INFO ] "
 sleep 1
 echo -n "[ INFO ] "
 /usr/local/etc/init.d/squeezelite start
-
-# Only call timezone function if timezone variable is set
-if [ x"" != x"$TIMEZONE" ]; then
-	echo "[ INFO ] Setting timezone"
-	pcp_set_timezone
-fi
 
 echo "[ INFO ] Doing auto start LMS"
 pcp_auto_start_lms
