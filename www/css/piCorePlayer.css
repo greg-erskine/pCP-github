@@ -223,6 +223,13 @@ textarea.inform {
 	width:898px;
 }
 
+textarea.width600 {
+	background:#eaeaea;
+	border:0px solid grey;
+	width:600px;
+	height:50px;
+}
+
 textarea.white {
 	background:white;
 	border:0px solid white;

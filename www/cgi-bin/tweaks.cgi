@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.08 2015-01-27 GE
+# Version: 0.08 2015-01-30 GE
 #	Updated Auto start favorite.
 #	Added User commands.
 #	Minor html updates through out.
+#	Added more/less help to Schedule CRON jobs.
 
 # Version: 0.07 2015-01-04 GE
 #	Updated Auto start LMS.
@@ -119,7 +120,7 @@ echo '                  <a class="moreless" id="ID02a" href=# onclick="return mo
 echo '                  <div id="ID02" class="less">'
 echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
 echo '                    <p>Reboot is needed.<p>'
-echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
+echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
 echo '                    <ul>'
 echo '                      <li>hold down the shift key during booting, or</li>'
 echo '                      <li>edit the config.txt file manually</li>'
@@ -668,7 +669,7 @@ case "$RESTART" in
 		;;
 esac
 
-#----------------------------------------------------------------------------------------
+#-------------------------------------------Schedule CRON jobs---------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -677,14 +678,8 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Schedule CRON jobs</legend>'
 echo '            <table class="bggrey percent100">'
-             
+
 echo '              <tr class="even">'
-echo '                <td colspan="3">'
-echo '                  <p>Please fill out the fields. If you use * it means every hour, every day etc.</p>'
-echo '                </td>'
-echo '              </tr>'
-             
-echo '              <tr class="odd">'
 echo '                <td class="column210">'
 echo '                  <p>Schedule piCorePlayer reboot<p>'
 echo '                </td>'
@@ -702,7 +697,7 @@ echo '                  <input class="small1" type="radio" name="REBOOT" id="Sch
 echo '                </td>'
 echo '              </tr>'
              
-echo '              <tr class="even">'
+echo '              <tr class="odd">'
 echo '                <td class="column210">'
 echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
@@ -719,7 +714,27 @@ echo '                  <input class="small1" type="radio" name="RESTART" id="Sc
 echo '                  <input class="small1" type="radio" name="RESTART" id="Scheduled" value="Disabled" '$RESTART_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
-             
+
+echo '              <tr class="even">'
+echo '                <td class="column210">'
+echo '                  <p></p>'
+echo '                </td>'
+echo '                <td colspan="2">'
+echo '                  <p>Fill out the crontab fields&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="ID11a" href=# onclick="return more('\''ID11'\'')">more></a></p>'
+echo '                  <div id="ID11" class="less">'
+echo '                    <p>"*" it means every hour, every day, ever month.</p>'
+echo '                    <p><b>Example:</b></p>'
+echo '                    <ul>'
+echo '                      <li>2 * * - run job at 02:00 everyday</li>'
+echo '                      <li>0 * * - run job at 00:00 everyday</li>'
+echo '                    </ul>'
+echo '                    <p><b>Root crontab:</b></p>'
+echo '                    <textarea class="width600">'"$(cat /var/spool/cron/crontabs/root)"'</textarea>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+
 echo '              <tr class="odd">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -798,8 +813,8 @@ if [ $MODE -gt 4 ]; then
 	echo '                <td class="column150"></td>'
 	echo '                <td>'
 	echo '                  <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
-	echo '                  <a class="moreless" id="ID11a" href=# onclick="return more('\''ID11'\'')">more></a></p>'
-	echo '                  <div id="ID11" class="less">'
+	echo '                  <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a></p>'
+	echo '                  <div id="ID12" class="less">'
 	echo '                    <p>This feature gives advanced users a couple of hooks into the startup procedure.'
 	echo '                       It will allow advanced users the ability to run extra instances of Squeezelite for example,'
 	echo '                       or maybe, run a Linux procedure that shuts down processes, like the web server to optimise performance.</p>'
