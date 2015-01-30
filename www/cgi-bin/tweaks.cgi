@@ -51,7 +51,7 @@ echo '          <legend>General tweaks</legend>'
 #----------------------------------------------Hostname---------------------------------
 echo '          <table class="bggrey percent100">'
 echo '            <form name="squeeze" action="writetohost.cgi" method="get">'
-             
+
 echo '              <tr class="even">'
 echo '                <td class="column150">Host name</td>'
 echo '                <td class="column210">'
@@ -74,11 +74,11 @@ echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-             
+
 echo '            </form>'
 echo '          </table>'
 echo '          <br />'
-             
+
 #---------------------------------------Overclock----------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-            
+
 echo '            </form>'
 echo '          </table>'
 echo '          <br />'
@@ -171,7 +171,7 @@ fi
 
 echo '          <table class="bggrey percent100">'
 echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
-           
+
 echo '              <tr class="even">'
 echo '                <td class="column150">Timezone</td>'
 echo '                <td class="column210">'
@@ -190,24 +190,24 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-           
+
 echo '              <tr>'
 echo '                <td colspan=2 >'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-           
+
 echo '            </form>'
 echo '          </table>'
 echo '          <br />'
-           
+
 #----------------------------------------------Password----------------------------------
 # Change password - STILL UNDER DEVELOPMENT
 # Note: changing passwords through a script over html is not very secure.
 #----------------------------------------------------------------------------------------
 echo '          <table class="bggrey percent100">'
 echo '            <form name="password" action="changepassword.cgi" method="get">'
-             
+
 echo '              <tr class="even">'
 echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
 echo '                <td class="column210">'
@@ -222,7 +222,7 @@ echo '                    <p class="error"><b>Warning: </b>Changing passwords th
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-             
+
 echo '              <tr class="even">'
 echo '                <td class="column150"></td>'
 echo '                <td class="column210">'
@@ -232,13 +232,13 @@ echo '                <td>'
 echo '                  <p>Confirm new password.</p>'
 echo '                </td>'
 echo '              </tr>'
-             
+
 echo '              <tr>'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-             
+
 echo '            </form>'
 echo '          </table>'
 
@@ -384,7 +384,7 @@ AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
 
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
-            
+
 echo '              <tr class="even">'
 echo '                <td class="column150">Auto start LMS</td>'
 echo '                <td class="column420">'
@@ -395,7 +395,7 @@ echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_
 echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_S_LMS" value="Disabled" '$A_S_LMS_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
- 
+
 echo '              <tr class="even">'
 echo '                <td class="column150">'
 echo '                </td>'
@@ -432,7 +432,6 @@ echo '              </tr>'
 echo '            </form>'
 echo '          </table>'
 
-
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
 echo '      </div>'
@@ -458,7 +457,6 @@ case "$CMD" in
 		CMDslow=""
 		;;
 esac
-
 
 # Function to check the FIQ-split radio button according to config file
 case "$FIQ" in
@@ -562,7 +560,7 @@ echo '                    <p>Use alsamixer via ssh and save your custom settings
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-               
+
 if [ $DEBUG = 1 ]; then 
 	echo '<!-- Start of debug info -->'
 	echo '<tr class="odd">'
@@ -642,7 +640,6 @@ echo '</table>'
 #========================================================================================
 # Function to check the CRON Job schedule according to config file
 #----------------------------------------------------------------------------------------
-
 case "$REBOOT" in
 	Enabled)
 		REBOOT_Y="checked"
@@ -696,7 +693,7 @@ echo '                  <input class="small1" type="radio" name="REBOOT" id="Sch
 echo '                  <input class="small1" type="radio" name="REBOOT" id="Scheduled" value="Disabled" '$REBOOT_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
-             
+
 echo '              <tr class="odd">'
 echo '                <td class="column210">'
 echo '                  <p>Schedule Squeezelite restart</p>'
@@ -740,6 +737,8 @@ echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 [ $MODE -gt 4 ] &&
 echo '              <input type="submit" name="SUBMIT" value="Reset">'
+[ $MODE -eq 99 ] &&
+echo '              <input type="submit" name="SUBMIT" value="Clear">'
 echo '            </td>'
 echo '          </tr>'
 
@@ -794,21 +793,21 @@ if [ $MODE -gt 4 ]; then
 	echo '                  <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" maxlength="254" value="'$USER_COMMAND_1'">'
 	echo '                </td>'
 	echo '              </tr>'
-                
+
 	echo '              <tr class="odd">'
 	echo '                <td class="column150">User command #2</td>'
 	echo '                <td>'
 	echo '                  <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" maxlength="254" value="'$USER_COMMAND_2'">'
 	echo '                </td>'
 	echo '              </tr>'
-                
+
 	echo '              <tr class="even">'
 	echo '                <td class="column150">User command #3</td>'
 	echo '                <td>'
 	echo '                  <input class="large36" type="text" id="USER_COMMAND_3" name="USER_COMMAND_3" maxlength="254" value="'$USER_COMMAND_3'">'
 	echo '                </td>'
 	echo '              </tr>'
-                
+
 	echo '              <tr class="even">'
 	echo '                <td class="column150"></td>'
 	echo '                <td>'
@@ -827,7 +826,7 @@ if [ $MODE -gt 4 ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-                
+
 	echo '              <tr class="odd">'
 	echo '                <td colspan=2>'
 	echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'

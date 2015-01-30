@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2015-01-30 GE
+#	Added Clear option.
+
 # Version: 0.04 2014-12-22 SBP
 #	Moved box showing "Contents of root crontab" from debug to always display.
 
@@ -31,8 +34,8 @@ SUBMIT=`sudo /usr/local/sbin/httpd -d $SUBMIT`
 #----------------------------------------------------------------------------------------
 # Reset section 
 #----------------------------------------------------------------------------------------
-if [ $SUBMIT = Reset ]; then
-	echo '<p class="info">[ INFO ] Reset mode</p>'
+if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
+	echo '<p class="info">[ INFO ] Reset/Clear mode</p>'
 
 	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
@@ -45,6 +48,7 @@ if [ $SUBMIT = Reset ]; then
 
 	( crontab -l | grep -v "reboot" ) | crontab -
 	( crontab -l | grep -v "restart" ) | crontab -
+	[ $SUBMIT = Clear ] && crontab -r -u root
 
 	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 	pcp_show_config_cfg
@@ -57,7 +61,7 @@ if [ $SUBMIT = Reset ]; then
 fi
 
 #----------------------------------------------------------------------------------------
-# Reboot section 
+# Reboot piCorePlayer section 
 #----------------------------------------------------------------------------------------
 # Decode Reboot variables using httpd, add quotes
 REBOOT=`sudo /usr/local/sbin/httpd -d \"$REBOOT\"`
