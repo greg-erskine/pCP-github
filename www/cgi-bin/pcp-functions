@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.27 2015-01-29 GE
+# Version: 0.26 2015-01-31 GE
 #	Modified pcp_lmsip.
+#	Improved pcp_reset_config_to_defaults.
 
 # Version: 0.25 2015-01-26 SBP
 #	Added CLOSEOUT.
@@ -853,53 +854,57 @@ pcp_save_to_config() {
 }
 
 #=========================================================================================
-# Set variables to default values - add double quotes
+# Create a new config.cfg with defaults values.
+#
+# This routine will add new variables if missing in current config.cfg. The new variables
+# will have the default values loaded.
 #
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
-	sudo sed -i "s/\(NAME=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1\"sysdefault:CARD=ALSA\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"80:::0\"/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(VISULIZER=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(OTHER=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1\"\Analog\"/" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1\"wireless\"/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1\"password\"/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"WPA\"/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"NONE\"/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1\"Default\"/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1\"off\"/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1\"0x7\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"Default\"/" $CONFIGCFG
-	sudo sed -i "s/\(TIMEZONE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_LMS=\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_FAV=\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"\"/" $CONFIGCFG
+cat <<EOF > $CONFIGCFG
+NAME="piCorePlayer"
+OUTPUT="sysdefault:CARD=ALSA"
+ALSA_PARAMS="80:::0"
+BUFFER_SIZE=""
+_CODEC=""
+PRIORITY=""
+MAX_RATE=""
+UPSAMPLE=""
+MAC_ADDRESS=""
+SERVER_IP=""
+LOGLEVEL=""
+LOGFILE=""
+DSDOUT=""
+VISULIZER=""
+OTHER=""
+AUDIO="Analog"
+HOST="piCorePlayer"
+SSID="wireless"
+PASSWORD="password"
+ENCRYPTION="WPA"
+TIMEZONE=""
+OVERCLOCK="NONE"
+CMD="Default"
+WIFI="off"
+FIQ="0x7"
+ALSAlevelout="Default"
+REBOOT="Disabled"
+RB_H="0"
+RB_WD="0"
+RB_DMONTH="0"
+RESTART="Disabled"
+RS_H="0"
+RS_WD="0"
+RS_DMONTH="0"
+AUTOSTARTLMS=""
+A_S_LMS="Disabled"
+AUTOSTARTFAV=""
+A_S_FAV="Disabled"
+USER_COMMAND_1=""
+USER_COMMAND_2=""
+USER_COMMAND_3=""
+EOF
 }
 
 #=========================================================================================
