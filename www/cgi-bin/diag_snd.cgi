@@ -21,9 +21,12 @@ if [ $MODE -lt 5 ]; then
 	exit 1
 fi
 
+pcp_footer
 pcp_banner
-pcp_navigation
+pcp_diagnostics
+pcp_running_script
 pcp_refresh_button
+pcp_go_main_button
 
 #=========================================================================================
 # Sound diagnostics

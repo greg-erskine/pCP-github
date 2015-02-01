@@ -28,10 +28,12 @@ pcp_variables
 
 pcp_html_head "Debug" "GE"
 
-pcp_controls
+pcp_footer
 pcp_banner
-pcp_navigation
+pcp_diagnostics
 pcp_running_script
+pcp_refresh_button
+pcp_go_main_button
 
 pcp_httpd_query_string
 

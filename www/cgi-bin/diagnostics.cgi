@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.07 2015-02-01 GE
+#	Added diagnostics toolbar. 
+
 # Version: 0.06 2014-12-11 GE
 #	Added logging to log file.
 
@@ -33,12 +36,12 @@ LOG="/tmp/diagnostics.log"
 
 pcp_html_head "Diagnostics" "GE"
 
+pcp_footer
 pcp_banner
-pcp_navigation
+pcp_diagnostics
 pcp_running_script
 pcp_refresh_button
 pcp_go_main_button
-pcp_footer
 
 if [ $MODE -lt 5 ]; then
 	echo '</body>'

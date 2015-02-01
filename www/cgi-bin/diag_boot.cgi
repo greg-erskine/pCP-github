@@ -21,9 +21,12 @@ if [ $MODE -lt 5 ]; then
 	exit 1
 fi
 
+pcp_footer
 pcp_banner
-pcp_navigation
+pcp_diagnostics
+pcp_running_script
 pcp_refresh_button
+pcp_go_main_button
 
 #=========================================================================================
 # Boot files in order of execution
@@ -49,8 +52,8 @@ echo '<p>Additional files that are run during the boot process that may be of in
 pcp_textarea "" "cat /etc/init.d/tc-functions" 600 log
 pcp_textarea "" "cat /proc/cmdline" 100 log
 
-pcp_refresh_button
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

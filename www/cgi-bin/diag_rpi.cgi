@@ -22,8 +22,12 @@ if [ $MODE -lt 5 ]; then
 	exit 1
 fi
 
+pcp_footer
 pcp_banner
-pcp_navigation
+pcp_diagnostics
+pcp_running_script
+pcp_refresh_button
+pcp_go_main_button
 
 echo '<p class="info">[ INFO ] Rev: '     $(pcp_rpi_revision)     '<br />'
 echo '                [ INFO ] Model: '   $(pcp_rpi_model)        '<br />'
@@ -50,8 +54,8 @@ echo '                [ INFO ] 256kB: No  <br />'
 echo '                [ INFO ] 512kB: Yes </p>' ||
 echo '                [ INFO ] 512kB: No  </p>'
 
-pcp_refresh_button
 pcp_footer
+pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

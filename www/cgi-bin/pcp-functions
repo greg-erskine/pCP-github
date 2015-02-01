@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.26 2015-01-31 GE
+# Version: 0.26 2015-02-01 GE
 #	Modified pcp_lmsip.
 #	Improved pcp_reset_config_to_defaults.
+#	Added pcp_dianostics toolbar.
 
 # Version: 0.25 2015-01-26 SBP
 #	Added CLOSEOUT.
@@ -370,6 +371,24 @@ pcp_favorites() {
 		echo '</table>'
 		echo '<!-- End of pcp_favorites -->'
 	fi
+}
+
+pcp_diagnostics() {
+	echo '<!-- Start of diagnostics -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="nav" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
+	echo '        <a class="nav" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
+	echo '        <a class="nav" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
+	echo '        <a class="nav" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '        <a class="nav" href="debug.cgi" title="pCP - Debug">Debug</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of diagnostics -->'
 }
 
 #=========================================================================================
