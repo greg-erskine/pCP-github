@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.11 2015-02-01 GE
+#	Added Squeezelite command string.
+
 # Version: 0.10 2015-01-23 SBP
 #	Added CLOSEOUT.
 #	Minor cosmetic changes.
@@ -45,6 +48,15 @@
 pcp_variables
 . $CONFIGCFG
 
+pcp_html_head "Squeezelite Settings" "SBP"
+
+pcp_controls
+pcp_banner
+pcp_navigation
+
+#========================================================================================
+# Set current Audio out to selected
+#----------------------------------------------------------------------------------------
 case "$AUDIO" in
 	Analog*)
 		ANCHECKED="selected"
@@ -81,12 +93,31 @@ case "$AUDIO" in
 		;;
 esac
 
-pcp_html_head "Squeezelite Settings" "SBP"
+#========================================================================================
+# Create Squeezelite command string
+#----------------------------------------------------------------------------------------
+STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
+[ x"" != x"$NAME" ]        && STRING="$STRING -n \"$NAME\""
+[ x"" != x"$OUTPUT" ]      && STRING="$STRING -o $OUTPUT"
+[ x"" != x"$ALSA_PARAMS" ] && STRING="$STRING -a "$ALSA_PARAMS""
+[ x"" != x"$BUFFER_SIZE" ] && STRING="$STRING -b $BUFFER_SIZE"
+[ x"" != x"$_CODEC" ]      && STRING="$STRING -c $_CODEC"
+[ x"" != x"$PRIORITY" ]    && STRING="$STRING -p $PRIORITY"
+[ x"" != x"$MAX_RATE" ]    && STRING="$STRING -r $MAX_RATE"
+[ x"" != x"$UPSAMPLE" ]    && STRING="$STRING -R $UPSAMPLE"
+[ x"" != x"$MAC_ADDRESS" ] && STRING="$STRING -m $MAC_ADDRESS"
+[ x"" != x"$SERVER_IP" ]   && STRING="$STRING -s $SERVER_IP"
+[ x"" != x"$LOGLEVEL" ]    && STRING="$STRING -d $LOGLEVEL"
+[ x"" != x"$DSDOUT" ]      && STRING="$STRING -D $DSDOUT"
+[ x"" != x"$VISULIZER" ]   && STRING="$STRING -V $VISULIZER"
+[ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
+[ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
+[ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /mnt/sda1/$LOGFILE"
+STRING="$STRING &"
 
-pcp_controls
-pcp_banner
-pcp_navigation
-
+#========================================================================================
+# Start table
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -380,6 +411,7 @@ echo '                    <p>Current LMS server'\''s IP is:</p>'
 echo '                    <ul>'
 echo '                      <li>'$(pcp_lmsip)'</li>'
 echo '                    </ul>'
+echo '                    <p><b>Hint: </b>Triple click on LMS IP then drag and drop into input field.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -401,11 +433,12 @@ echo '                    <ul>'
 echo '                      <li>log: all|slimproto|stream|decode|output</li>'
 echo '                      <li>level: info|debug|sdebug</li>'
 echo '                    </ul>'
-echo '                    <p>Example:</p>'
+echo '                    <p><b>Example:</b></p>'
 echo '                    <ul>'
 echo '                      <li>slimproto=info</li>'
 echo '                      <li>all=debug</li>'
 echo '                    </ul>'
+echo '                    <p><b>Hint: </b>Triple click on example then drag and drop into input field.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -501,8 +534,18 @@ echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
 echo '              <tr class="odd">'
-echo '                <td colspan="3">'
+echo '                <td  class="column150">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                </td>'
+echo '                <td colspan="2">'
+echo '                  <p>Squeezelite command string&nbsp;&nbsp;'
+echo '                    <a class="moreless" id="ID17a" href=# onclick="return more('\''ID17'\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="ID17" class="less">'
+echo '                    <p><b>Warning: </b>For advanced users only!</p>'
+echo '                    <p>'$STRING'</p>'
+echo '                    <p><b>Hint: </b>Triple click on command then press [Ctrl]+[c] to copy.</p>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
