@@ -1,0 +1,118 @@
+#!/bin/sh
+# pcp-lms-functions
+# These are the common functions used to interface with LMS.
+
+ Version: 0.01 2015-02-03 GE
+#	Original.
+
+. pcp-functions
+
+MAC=$(pcp_controls_mac_address)
+LMSIP=$(pcp_lmsip)
+
+#========================================================================================
+# LMS controls toolbar
+#----------------------------------------------------------------------------------------
+pcp_controls() {
+	if [ x"" != x"$SERVER_IP" ]; then
+		echo '<!-- Start of pcp_lms_controls -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
+		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_lms_controls -->'
+	fi
+}
+
+#========================================================================================
+# Get information from LMS
+#----------------------------------------------------------------------------------------
+pcp_lms_request() {
+	STRING=$1
+	set -- $1
+	NUM=$(($#+1))
+	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | awk '{ print $'$NUM' }'`
+	echo `sudo /usr/local/sbin/httpd -d $RESULT`
+}
+
+pcp_lms_get_player_count() {
+	pcp_lms_request "player count ?"
+}
+
+pcp_lms_is_connected() {
+	pcp_lms_request "connected ?"
+}
+
+pcp_lms_get_title() {
+	pcp_lms_request "title ?"
+}
+
+pcp_lms_get_artist() {
+	pcp_lms_request "artist ?"
+}
+
+pcp_lms_get_album() {
+	pcp_lms_request "album ?"
+}
+
+#========================================================================================
+# Send commands to LMS
+#----------------------------------------------------------------------------------------
+pcp_lms_send() {
+	STRING=$1
+	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 > /dev/null
+}
+
+pcp_lms_play() {
+	pcp_lms_send "play"
+}
+
+pcp_lms_stop() {
+	pcp_lms_send "stop"
+}
+
+pcp_lms_pause() {
+	pcp_lms_send "pause 1"
+}
+
+pcp_lms_unpause() {
+	pcp_lms_send "pause 0"
+}
+
+pcp_lms_toggle() {
+	pcp_lms_send "pause"
+}
+
+pcp_lms_next() {
+	pcp_lms_send "playlist jump +1"
+}
+
+pcp_lms_prev() {
+	pcp_lms_send "playlist jump -1"
+}
+
+pcp_lms_volume_up() {
+	AMOUNT=5
+	pcp_lms_send "mixer volume +$AMOUNT"
+}
+
+pcp_lms_volume_down() {
+	AMOUNT=5
+	pcp_lms_send "mixer volume -$AMOUNT"
+}
+
+pcp_lms_randomplay() {
+	MODE=tracks
+	pcp_lms_send "randomplay $MODE"
+}

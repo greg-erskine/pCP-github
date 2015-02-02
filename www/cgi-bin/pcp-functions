@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.26 2015-02-01 GE
+# Version: 0.26 2015-02-03 GE
 #	Modified pcp_lmsip.
 #	Improved pcp_reset_config_to_defaults.
 #	Added pcp_dianostics toolbar.
+#	Moved controls and LMS related items to pcp-lms-functions.
 
 # Version: 0.25 2015-01-26 SBP
 #	Added CLOSEOUT.
@@ -144,7 +145,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=99
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -300,28 +301,6 @@ pcp_footer() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_footer -->'
-}
-
-pcp_controls() {
-	if [ x"" != x"$SERVER_IP" ]; then
-		echo '<!-- Start of pcp_controls -->'
-		echo '<table class="bgblack">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
-		echo '      </p>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-		echo '<!-- End of pcp_controls -->'
-	fi
 }
 
 pcp_favorites() {
@@ -538,14 +517,8 @@ pcp_uptime_minutes() {
 ##############################################
 # Note: Function pcp_lmsip still being tested
 ##############################################
-
 pcp_lmsip() {
 	netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | awk '{ print $5 }' | awk -F: '{ print $1 }'
-}
-
-pcp_lms_get() {
-	RESULT=`( echo "$(pcp_controls_mac_address) $1 ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
-	echo `sudo /usr/local/sbin/httpd -d $RESULT`
 }
 
 #=========================================================================================

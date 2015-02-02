@@ -15,6 +15,8 @@
 # Version: 0.01 2014-06-27 GE
 #	Original.
 
+. pcp-lms-functions
+
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -62,25 +64,25 @@ fi
 
 case $COMMAND in
 	random_tracks)
-		echo "$PLAYER_MAC randomplay tracks" | telnet $SERVER_IP_NO_PORT:9090
+		pcp_lms_randomplay
 		;;
 	volume_up)
-		echo "$PLAYER_MAC mixer volume +5" | telnet $SERVER_IP_NO_PORT:9090
+		pcp_lms_volume_up
 		;;
 	volume_down)
-		echo "$PLAYER_MAC mixer volume -5" | telnet $SERVER_IP_NO_PORT:9090
+		pcp_lms_volume_down
 		;;
 	track_next)
-		echo "$PLAYER_MAC playlist index +1" | telnet $SERVER_IP_NO_PORT:9090
+		pcp_lms_next
 		;;
 	track_prev)
-		echo "$PLAYER_MAC playlist index -1" | telnet $SERVER_IP_NO_PORT:9090
+		pcp_lms_prev
 		;;
 	play)
-		echo "$PLAYER_MAC play" | telnet $SERVER_IP_NO_PORT:9090
+		pcp_lms_play
 		;;
 	stop)
-	    echo "$PLAYER_MAC stop" | telnet $SERVER_IP_NO_PORT:9090
+	    pcp_lms_stop
 		;;
 esac
 

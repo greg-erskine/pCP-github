@@ -13,6 +13,7 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 

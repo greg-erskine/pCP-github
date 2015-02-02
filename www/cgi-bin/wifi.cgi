@@ -44,6 +44,7 @@
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
