@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.01 2015-01-21 GE
+# Version: 0.01 2015-02-04 GE
 #	Original - combined writeautostartlms.cgi and writeautostartfav.cgi
 #	Added pcp_user_commands.
 
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG

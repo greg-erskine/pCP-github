@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 0.10 2015-01-27 GE
+# Version: 0.10 2015-02-04 GE
 #	Only display "Available wifi networks" if $WIFI = on
 #	Added scanning message to give impression of reduced delay.
 #	Reduced "CNT -gt" from 10 to 5 to speed up display in WIFI2 loop.
 #	Fixed "Available wifi networks" format to work with 8192cu and rt2x00usb.
+#	Added copyright.
 
 # Version: 0.09 2015-01-25 SBP
 #	Added check for wifi adaptor present.
@@ -348,7 +349,7 @@ if [ $WIFI = on ]; then
 fi
 
 pcp_footer
-pcp_refresh_button
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

@@ -27,53 +27,63 @@ echo '<h1>pcp-lms-functions experiment</h1>'
 
 echo '<div>'
 
-echo '<p>Connected: '$(pcp_lms_is_connected)'</p>'
+echo '<p>Mode: '$(pcp_lms_mode)'</p>'
+echo '<p>Time: '$(pcp_lms_time)'</p>'
+echo '<p>Genre: '$(pcp_lms_genre)'</p>'
+echo '<p>Artist: '$(pcp_lms_artist)'</p>'
+echo '<p>Album: '$(pcp_lms_album)'</p>'
+echo '<p>Title: '$(pcp_lms_title)'</p>'
+echo '<p>Duration: '$(pcp_lms_duration)'</p>'
+echo '<p>Remote: '$(pcp_lms_remote)'</p>'
+echo '<p>Current_title: '$(pcp_lms_current_title)'</p>'
+echo '<p>Path: '$(pcp_lms_path)'</p>'
+echo '<p>Player count: '$(pcp_lms_player_count)'</p>'
+echo '<p>Player id: '$(pcp_lms_player_id)'</p>'
+echo '<p>Player uuid: '$(pcp_lms_player_uuid)'</p>'
+echo '<p>Player name: '$(pcp_lms_player_name)'</p>'
+echo '<p>Player ip: '$(pcp_lms_player_ip)'</p>'
+echo '<p>Player model: '$(pcp_lms_player_model)'</p>'
+echo '<p>Player isplayer: '$(pcp_lms_player_isplayer)'</p>'
+echo '<p>Player displaytype: '$(pcp_lms_player_displaytype)'</p>'
+echo '<p>Player canpoweroff: '$(pcp_lms_player_canpoweroff)'</p>'
+echo '<p>Signalstrength: '$(pcp_lms_signalstrength)'</p>'
+echo '<p>Name: '$(pcp_lms_name)'</p>'
+echo '<p>Connected: '$(pcp_lms_connected)'</p>'
 
-echo '<p>Player count: '$(pcp_lms_get_player_count)'</p>'
-echo '<p>Artist: '$(pcp_lms_get_artist)'</p>'
-echo '<p>Title: '$(pcp_lms_get_title)'</p>'
-echo '<p>Album: '$(pcp_lms_get_album)'</p>'
+
+
+
+echo '<p>info_total_genres: '$(pcp_lms_info_total_genres)'</p>'
+echo '<p>info_total_artists: '$(pcp_lms_info_total_artists)'</p>'
+echo '<p>info_total_albums: '$(pcp_lms_info_total_albums)'</p>'
+echo '<p>info_total_songs: '$(pcp_lms_info_total_songs)'</p>'
+
+
+
+echo '<p>Artists: '$(pcp_lms_artists)'</p>'
+
+
+
+
+
+
+
+
+
+
 
 echo '<p>Show: '$(pcp_lms_show)'</p>'
-
-
-#pcp_lms_next
-
 
 echo '</div>'
 
 #===============================================================
 echo '<h1>Old functions</h1>'
 
-CONNECTED=$(pcp_lms_get "connected")
-echo '<div>'
-echo '<p>Connected: '$CONNECTED'</p>'
-echo '</div>'
 
-ARTIST=$(pcp_lms_get "artist")
-echo '<div>'
-echo '<p>Artist: '$ARTIST'</p>'
-echo '</div>'
-
-TITLE=$(pcp_lms_get "title")
-echo '<div>'
-echo '<p>Song: '$TITLE'</p>'
-echo '</div>'
-
-ALBUM=$(pcp_lms_get "album")
-echo '<div>'
-echo '<p>Album: '$ALBUM'</p>'
-echo '</div>'
-
-INFORMATION="$ARTIST - $TITLE - $ALBUM"
-echo '<br />'
-echo '<div style="width: 400px; border:1px solid black; ">'
-echo '<marquee behavior="scroll" direction="left">'$INFORMATION'</marquee>'
-echo '</div>'
 echo '<br />'
 
 echo '<div>'
-echo '<img src="http://'$(pcp_lmsip)':9000/music/current/cover.jpg" alt="Currently playing" style="height: 250px; width: 250px; border:1px solid black;"/>'
+echo '<img src="http://'$(pcp_lmsip)':9000/music/current/cover.jpg" alt="Currently playing" style="height:250px; width:250px; border:1px solid black;"/>'
 echo '</div>'
 
 echo '<br />'

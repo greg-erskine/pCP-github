@@ -45,15 +45,16 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
+#set -x
+
 echo "[ INFO ] Running do_rebootstuff.sh..."
-echo "[ INFO ] Reading pcp-functions"
+echo "[ INFO ] Loading pcp-functions"
 # Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
 pcp_variables
 . $CONFIGCFG
- 
-echo "[ INFO ] Look at piCorePlayer.dep"
-# Add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.
+echo "[ INFO ] Loading pcp-lms-functions"
+. /home/tc/www/cgi-bin/pcp-lms-functions
 
 echo "[ INFO ] Checking for newconfig.cfg on sda1"
 # Mount USB stick if present
@@ -219,13 +220,13 @@ echo -n "[ INFO ] "
 /usr/local/etc/init.d/squeezelite start
 
 echo "[ INFO ] Doing auto start LMS"
-pcp_auto_start_lms
+#pcp_auto_start_lms
 
 echo "[ INFO ] Doing auto start FAV"
-pcp_auto_start_fav
+#pcp_auto_start_fav
 
 echo "[ INFO ] Doing user commands"
-pcp_user_commands
+#pcp_user_commands
 
 echo "[ INFO ] Start/restart crond"
 /etc/init.d/services/crond start

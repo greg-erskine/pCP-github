@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.04 2015-01-21 GE
+# Version: 0.04 2015-02-04 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
+#	Added copyright.
 
 # Version: 0.03 2014-09-04 GE
 #	Adjusted size of textareas.
@@ -114,6 +115,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.11 2015-02-01 GE
+# Version: 0.11 2015-02-04 GE
 #	Added Squeezelite command string.
+#	Added copyright.
 
 # Version: 0.10 2015-01-23 SBP
 #	Added CLOSEOUT.
@@ -560,7 +561,7 @@ echo '</table>'
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_footer
-pcp_refresh_button
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

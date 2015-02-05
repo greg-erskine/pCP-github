@@ -2,10 +2,10 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
- Version: 0.01 2015-02-03 GE
+# Version: 0.01 2015-02-03 GE
 #	Original.
 
-. pcp-functions
+. /home/tc/www/cgi-bin/pcp-functions
 
 MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
@@ -46,61 +46,118 @@ pcp_lms_request() {
 	echo `sudo /usr/local/sbin/httpd -d $RESULT`
 }
 
-pcp_lms_get_player_count() {
-	pcp_lms_request "player count ?"
+pcp_lms_request_list() {
+	STRING=$1
+	set -- $1
+	NUM=$(($#+2))
+	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | sed 's/ /\+/g' `
+	echo `sudo /usr/local/sbin/httpd -d $RESULT`
 }
 
-pcp_lms_is_connected() {
-	pcp_lms_request "connected ?"
+pcp_lms_request_debug() {
+	STRING=$1
+	set -- $1
+	NUM=$(($#+1))
+	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090
 }
 
-pcp_lms_get_title() {
-	pcp_lms_request "title ?"
-}
-
-pcp_lms_get_artist() {
-	pcp_lms_request "artist ?"
-}
-
-pcp_lms_get_album() {
-	pcp_lms_request "album ?"
-}
-
-#========================================================================================
-# Send commands to LMS
-#----------------------------------------------------------------------------------------
 pcp_lms_send() {
 	STRING=$1
 	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 > /dev/null
 }
 
-pcp_lms_play() {
-	pcp_lms_send "play"
+#========================================================================================
+# Player commands and queries
+#----------------------------------------------------------------------------------------
+#	player count ?				Implemented
+#	player id ?					Implemented
+#	player uuid ?				Implemented
+#	player name ?				Implemented
+#	player ip ?					Implemented
+#	player model ?				Implemented
+#	player isplayer ?			Implemented
+#	player displaytype ?		Implemented
+#	player canpoweroff ?		Implemented
+#	signalstrength ?			implemented
+#	name						Implemented
+#	connected ?					Implemented
+#	sleep
+#	sync
+#	syncgroups
+#	power
+#	mixer volume				Implemented
+#	mixer muting
+#	mixer bass
+#	mixer treble
+#	mixer pitch
+#	show
+#	display
+#	linesperscreen
+#	display ? ?
+#	displaynow ? ?
+#	playerpref
+#	button
+#	ir
+#	irenable
+#	connect
+#	client forget
+#	disconnect
+#	players
+
+pcp_lms_player_count() {
+	pcp_lms_request "player count ?"
 }
 
-pcp_lms_stop() {
-	pcp_lms_send "stop"
+pcp_lms_player_id() {
+	pcp_lms_request "player id 0 ?"
 }
 
-pcp_lms_pause() {
-	pcp_lms_send "pause 1"
+pcp_lms_player_uuid() {
+	pcp_lms_request "player uuid 0 ?"
 }
 
-pcp_lms_unpause() {
-	pcp_lms_send "pause 0"
+pcp_lms_player_name() {
+	pcp_lms_request "player name 0 ?"
 }
 
-pcp_lms_toggle() {
-	pcp_lms_send "pause"
+pcp_lms_player_ip() {
+	pcp_lms_request "player ip 0 ?"
 }
 
-pcp_lms_next() {
-	pcp_lms_send "playlist jump +1"
+pcp_lms_player_model() {
+	pcp_lms_request "player model 0 ?"
 }
 
-pcp_lms_prev() {
-	pcp_lms_send "playlist jump -1"
+pcp_lms_player_isplayer() {
+	pcp_lms_request "player isplayer 0 ?"
 }
+
+pcp_lms_player_displaytype() {
+	pcp_lms_request "player displaytype 0 ?"
+}
+
+pcp_lms_player_canpoweroff() {
+	pcp_lms_request "player canpoweroff 0 ?"
+}
+
+pcp_lms_signalstrength() {
+	pcp_lms_request "signalstrength 0 ?"
+}
+
+pcp_lms_name() {
+	pcp_lms_request "name 0 ?"
+}
+
+pcp_lms_connected() {
+	pcp_lms_request "connected ?"
+}
+
+
+
+
+
+
+
 
 pcp_lms_volume_up() {
 	AMOUNT=5
@@ -111,6 +168,187 @@ pcp_lms_volume_down() {
 	AMOUNT=5
 	pcp_lms_send "mixer volume -$AMOUNT"
 }
+
+
+
+
+
+#========================================================================================
+# Database commands and queries
+#----------------------------------------------------------------------------------------
+#	rescan
+#	rescanprogress
+#	abortscan
+#	wipecache
+#	info total genres ?				Implemented
+#	info total artists ?			Implemented
+#	info total albums ?				Implemented
+#	info total songs ?				Implemented
+#	genres
+#	artists
+#	albums
+#	years
+#	mediafolder
+#	musicfolder
+#	playlists
+#	playlists tracks
+#	playlists new
+#	playlists rename
+#	playlists delete
+#	playlists edit
+#	songinfo
+#	titles
+#	search
+#	pragma
+
+pcp_lms_info_total_genres() {
+	pcp_lms_request "info total genres ?"
+}
+
+pcp_lms_info_total_artists() {
+	pcp_lms_request "info total artists ?"
+}
+
+pcp_lms_info_total_albums() {
+	pcp_lms_request "info total albums ?"
+}
+
+pcp_lms_info_total_songs() {
+	pcp_lms_request "info total songs ?"
+}
+
+
+
+
+pcp_lms_artists() {
+	pcp_lms_request_list "artists 0 100"
+}
+
+
+
+
+#========================================================================================
+# Playlist commands and queries
+#----------------------------------------------------------------------------------------
+#	play						Implemented
+#	stop						Implemented
+#	pause						Implemented
+#	mode ?						Implemented
+#	time						Implemented
+#	genre ?						Implemented
+#	artist ?					Implemented
+#	album ?						Implemented
+#	title ?						Implemented
+#	duration ?					Implemented
+#	remote ?					Implemented
+#	current_title ?				Implemented
+#	path ?						Implemented
+#	playlist play
+#	playlist add
+#	playlist insert
+#	playlist deleteitem
+#	playlist move
+#	playlist delete
+#	playlist preview
+#	playlist resume
+#	playlist save
+#	playlist loadalbum
+#	playlist addalbum
+#	playlist loadtracks
+#	playlist addtracks
+#	playlist insertalbum
+#	playlist deletealbum
+#	playlist clear
+#	playlist zap
+#	playlist name ?
+#	playlist url ?
+#	playlist modified ?
+#	playlist playlistsinfo
+#	playlist index
+#	playlist genre ?
+#	playlist artist ?
+#	playlist album ?
+#	playlist title ?
+#	playlist path ?
+#	playlist remote ?
+#	playlist duration ?
+#	playlist tracks ?
+#	playlist shuffle
+#	playlist repeat
+#	playlistcontrol
+
+pcp_lms_play() {
+	pcp_lms_send "play"
+}
+
+pcp_lms_stop() {
+	pcp_lms_send "stop"
+}
+
+# Todo: pause, unpause, toggle
+pcp_lms_pause() {
+	pcp_lms_send "pause"
+}
+
+pcp_lms_mode() {
+	pcp_lms_request "mode ?"
+}
+
+# Todo: jump forward, jump back
+pcp_lms_time() {
+	pcp_lms_request "time ?"
+}
+
+pcp_lms_genre() {
+	pcp_lms_request "genre ?"
+}
+
+pcp_lms_artist() {
+	pcp_lms_request "artist ?"
+}
+
+pcp_lms_album() {
+	pcp_lms_request "album ?"
+}
+
+pcp_lms_title() {
+	pcp_lms_request "title ?"
+}
+
+pcp_lms_duration() {
+	pcp_lms_request "duration ?"
+}
+
+pcp_lms_remote() {
+	pcp_lms_request "remote ?"
+}
+
+pcp_lms_current_title() {
+	pcp_lms_request "current_title ?"
+}
+
+pcp_lms_path() {
+	pcp_lms_request "path ?"
+}
+
+
+
+
+
+
+#========================================================================================
+# Send commands to LMS
+#----------------------------------------------------------------------------------------
+
+
+pcp_lms_next() {
+	pcp_lms_send "playlist jump +1"
+}
+
+pcp_lms_prev() {
+	pcp_lms_send "playlist jump -1"
+}
+
 
 pcp_lms_randomplay() {
 	MODE=tracks

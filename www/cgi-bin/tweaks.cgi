@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 0.08 2015-01-30 GE
+# Version: 0.08 2015-02-04 GE
 #	Updated Auto start favorite.
 #	Added User commands.
 #	Minor html updates through out.
 #	Added more/less help to Schedule CRON jobs.
+#	Added copyright.
 
 # Version: 0.07 2015-01-04 GE
 #	Updated Auto start LMS.
@@ -849,7 +850,7 @@ fi
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
 pcp_footer
-pcp_refresh_button
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

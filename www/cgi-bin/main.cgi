@@ -380,6 +380,7 @@ if [ $MODE = 99 ]; then
 fi
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
