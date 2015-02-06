@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.04 2015-02-05 GE
+#	Added support for Raspberry Pi 2 Model B.
+
 # Version: 0.03 2014-12-08 SBP
 #	Added support for Raspberry Pi Model A+.
 
@@ -18,6 +21,23 @@
 # http://elinux.org/RPi_HardwareHistory#Board_Revision_History
 # http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733&p=301930&hilit=revision+identification&sid=e70960c27964330d9677de2eff077b80#p301930
 # http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
+
+# for Pi v2:
+#    [USER:8] [NEW:1] [MEMSIZE:3] [MANUFACTURER:4] [PROCESSOR:4] [TYPE:8] [REV:4]
+#    NEW          23: will be 1 for the new scheme, 0 for the old scheme
+#    MEMSIZE      20: 0=256M   1=512M   2=1G
+#    MANUFACTURER 16: 0=SONY   1=EGOMAN 2=EMBEST
+#    PROCESSOR    12: 0=2835   1=2836
+#    TYPE         04: 0=MODELA 1=MODELB 2=MODELA+ 3=MODELB+ 4=Pi2 MODEL B 5=ALPHA 6=CM
+#    REV          00: 0=REV0   1=REV1   2=REV2
+
+#    a21041
+#    |||||1=REV1
+#    ||||4=Pi2 MODEL B
+#    |||0=2835
+#    ||1=EGOMAN
+#    |2=1G
+#    USER
 #-----------------------------------------------------------------------------------------
 pcp_rpi_revision() {
 	awk -F: '/^Revision/ { print $2 }' /proc/cpuinfo | sed 's/ //g'
@@ -25,34 +45,35 @@ pcp_rpi_revision() {
 
 pcp_rpi_details() {
 	case $(pcp_rpi_revision) in
-		*Beta) MODEL=B;  PCBREV=Beta; MEMORY=256;;
-		*0002) MODEL=B;  PCBREV=1;    MEMORY=256;;
-		*0003) MODEL=B;  PCBREV=1+;   MEMORY=256;;
-		*0004) MODEL=B;  PCBREV=2;    MEMORY=256;;
-		*0005) MODEL=B;  PCBREV=2;    MEMORY=256;;
-		*0006) MODEL=B;  PCBREV=2;    MEMORY=256;;
-		*0007) MODEL=A;  PCBREV=2;    MEMORY=256;;
-		*0008) MODEL=A;  PCBREV=2;    MEMORY=256;;
-		*0009) MODEL=A;  PCBREV=2;    MEMORY=256;;
-		*0010) MODEL=B+; PCBREV=1.2;  MEMORY=512;;
-		*0011) MODEL=CM; PCBREV=1.0;  MEMORY=512;;
-		*000d) MODEL=B;  PCBREV=2;    MEMORY=512;;
-		*000e) MODEL=B;  PCBREV=2;    MEMORY=512;;
-		*000f) MODEL=B;  PCBREV=2;    MEMORY=512;;
-		*0012) MODEL=A+; PCBREV=1;    MEMORY=256;;
-		*)     MODEL=?;  PCBREV=?;    MEMORY=?;;
+		*Beta)  MODEL=B;  PCBREV=Beta; MEMORY=256;;
+		*0002)  MODEL=B;  PCBREV=1;    MEMORY=256;;
+		*0003)  MODEL=B;  PCBREV=1+;   MEMORY=256;;
+		*0004)  MODEL=B;  PCBREV=2;    MEMORY=256;;
+		*0005)  MODEL=B;  PCBREV=2;    MEMORY=256;;
+		*0006)  MODEL=B;  PCBREV=2;    MEMORY=256;;
+		*0007)  MODEL=A;  PCBREV=2;    MEMORY=256;;
+		*0008)  MODEL=A;  PCBREV=2;    MEMORY=256;;
+		*0009)  MODEL=A;  PCBREV=2;    MEMORY=256;;
+		*0010)  MODEL=B+; PCBREV=1.2;  MEMORY=512;;
+		*0011)  MODEL=CM; PCBREV=1.0;  MEMORY=512;;
+		*000d)  MODEL=B;  PCBREV=2;    MEMORY=512;;
+		*000e)  MODEL=B;  PCBREV=2;    MEMORY=512;;
+		*000f)  MODEL=B;  PCBREV=2;    MEMORY=512;;
+		*0012)  MODEL=A+; PCBREV=1;    MEMORY=256;;
+		*21041) MODEL=2B; PCBREV=1;    MEMORY=1024;;
+		*)      MODEL=?;  PCBREV=?;    MEMORY=?;;
 	esac
 
 	case $MODEL$PCBREV in
-		*B1)   ETHER=1; USB=2; LED=5; P2PINS=1; HOLES=0; PIN3=0; PIN5=1; PIN13=21; I2C=0; P5=0; P6=0;;
-		*B1+)  ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=0; PIN3=0; PIN5=1; PIN13=21; I2C=0; P5=0; P6=0;;
-		*B2)   ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
-		*A)    ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
-		*B+*)  ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
-		*CM*)  ETHER=0; USB=0; LED=X; P2PINS=0; HOLES=0; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
-		*A+)   ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
-		*)     ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
-		
+		*B1)   HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=1; HOLES=0; PIN3=0; PIN5=1; PIN13=21; I2C=0; P5=0; P6=0;;
+		*B1+)  HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=0; PIN3=0; PIN5=1; PIN13=21; I2C=0; P5=0; P6=0;;
+		*B2)   HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
+		*A)    HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
+		*B+*)  HARDWARE=BCM2708; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*CM*)  HARDWARE=BCM2708; ETHER=0; USB=0; LED=X; P2PINS=0; HOLES=0; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*A+)   HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*2B*)  HARDWARE=BCM2709; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*)     HARDWARE=X;       ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 	esac
 }
 
@@ -99,12 +120,22 @@ pcp_rpi_is_model_Aplus() {
 	[ $MODEL = A+ ] && echo 0 || echo 1
 }
 
+pcp_rpi_is_model_2B() {
+	pcp_rpi_details
+	[ $MODEL = 2B ] && echo 0 || echo 1
+}
+
 #=========================================================================================
 # Revision
 #-----------------------------------------------------------------------------------------
 pcp_rpi_pcb_revision() {
 	pcp_rpi_details
 	echo $PCBREV
+}
+
+pcp_rpi_is_hat() {
+	pcp_rpi_details
+	[ $HOLES = 4 ] && echo 0 || echo 1
 }
 
 #=========================================================================================
@@ -123,6 +154,11 @@ pcp_rpi_is_memory_256() {
 pcp_rpi_is_memory_512() {
 	pcp_rpi_details
 	[ $MEMORY = 512 ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_memory_1024() {
+	pcp_rpi_details
+	[ $MEMORY = 1024 ] && echo 0 || echo 1
 }
 
 #=========================================================================================

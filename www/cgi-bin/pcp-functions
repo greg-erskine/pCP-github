@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.26 2015-02-04 GE
+# Version: 0.26 2015-02-05 GE
 #	Modified pcp_lmsip.
 #	Improved pcp_reset_config_to_defaults.
 #	Added pcp_dianostics toolbar.
 #	Moved controls and LMS related items to pcp-lms-functions.
+#	Added pcp_which_squeezelite, pcp_eth0_ip, pcp_wlan0_ip.
 
 # Version: 0.25 2015-01-26 SBP
 #	Added CLOSEOUT.
@@ -404,6 +405,11 @@ pcp_squeezelite_version() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
 }
 
+pcp_which_squeezelite() {
+	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep FFMPEG > /dev/null
+	[ $? = 0 ] && echo "Ralphy" || echo "Triode"
+}
+
 pcp_linux_release() {
 	uname -r
 }
@@ -530,13 +536,21 @@ pcp_uptime_minutes() {
 }
 
 #=========================================================================================
-# Determine the LMS server IP address
+# Determine the IP addresses
 #-----------------------------------------------------------------------------------------
 ##############################################
 # Note: Function pcp_lmsip still being tested
 ##############################################
 pcp_lmsip() {
 	netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | awk -F: '{ print $1 }'
+}
+
+pcp_eth0_ip() {
+	ifconfig eth0 | grep inet | awk '{ print $2 }' | awk -F: ' { print $2 }'
+}
+
+pcp_wlan0_ip() {
+	ifconfig wlan0 | grep inet | awk '{ print $2 }' | awk -F: ' { print $2 }'
 }
 
 #=========================================================================================
