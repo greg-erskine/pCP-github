@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.27 2015-02-08 SBP
+#	Modified pcp_html_head so no refresh if in debug mode
+
 # Version: 0.26 2015-02-05 GE
 #	Modified pcp_lmsip.
 #	Improved pcp_reset_config_to_defaults.
@@ -231,8 +234,10 @@ pcp_html_head() {
 	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
 	echo '  <meta http-equiv="Pragma" content="no-cache">'
 	echo '  <meta http-equiv="Expires" content="0">'
-	if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
-		echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
+	if [ $DEBUG = 0 ]; then
+			if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
+			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
+			fi
 	fi
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
