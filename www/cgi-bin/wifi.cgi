@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.10 2015-02-04 GE
+# Version: 0.10 2015-02-08 GE
 #	Only display "Available wifi networks" if $WIFI = on
 #	Added scanning message to give impression of reduced delay.
 #	Reduced "CNT -gt" from 10 to 5 to speed up display in WIFI2 loop.
@@ -237,7 +237,7 @@ available_networks() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		pcp_refresh_button		
+		pcp_refresh_button
 		pcp_footer
 		pcp_copyright
 		echo '</body>'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.08 2015-02-04 GE
+# Version: 0.08 2015-02-08 GE
 #	Updated Auto start favorite.
 #	Added User commands.
 #	Minor html updates through out.
@@ -554,11 +554,16 @@ echo '                  <input class="small1" type="radio" name="ALSAlevelout" i
 echo '                  <input class="small1" type="radio" name="ALSAlevelout" id="Custom" value="Custom" '$ALSAcustom'>Custom'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Custom allows for ALSA output level to be restored after reboot&nbsp;&nbsp;'
+echo '                  <p>Custom option allows the ALSA output level to be restored after reboot&nbsp;&nbsp;'
 echo '                  <a class="moreless" id="ID08a" href=# onclick="return more('\''ID08'\'')">more></a></p>'
 echo '                  <div id="ID08" class="less">'
-echo '                    <p class="error"><b>Note: </b>Use only if you have changed ALSA output level via alsamixer.</p>'
-echo '                    <p>Use alsamixer via ssh and save your custom settings by typing "sudo alsactl store".</p>'
+echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA output level.</p>'
+echo '                    <p><b>Step:</b></p>'
+echo '                    <ol>'
+echo '                      <li>Login via ssh.</li>'
+echo '                      <li>Use "alsamixer" to set the ALSA output level.</li>'
+echo '                      <li>Save ALSA settings by typing "sudo alsactl store".</li>'
+echo '                    <ol>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
