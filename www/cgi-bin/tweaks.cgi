@@ -558,7 +558,7 @@ echo '                  <p>Custom allows for ALSA output level to be restored af
 echo '                  <a class="moreless" id="ID08a" href=# onclick="return more('\''ID08'\'')">more></a></p>'
 echo '                  <div id="ID08" class="less">'
 echo '                    <p class="error"><b>Note: </b>Use only if you have changed ALSA output level via alsamixer.</p>'
-echo '                    <p>Use alsamixer via ssh and save your custom settings by typing "sudo amixer store".</p>'
+echo '                    <p>Use alsamixer via ssh and save your custom settings by typing "sudo alsactl store".</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'

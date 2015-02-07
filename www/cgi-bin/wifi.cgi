@@ -237,8 +237,9 @@ available_networks() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
+		pcp_refresh_button		
 		pcp_footer
-		pcp_refresh_button
+		pcp_copyright
 		echo '</body>'
 		echo '</html>'
 		exit
