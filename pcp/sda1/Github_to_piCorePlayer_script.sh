@@ -22,16 +22,6 @@ INITD=/usr/local/etc/init.d     # Not used yet
 STORAGE=/mnt/mmcblk0p1/tce
 
 
-PCP_HOME=/home/tc/www/cgi-bin
-CSS_HOME=/home/tc/www/css
-IMG_HOME=/home/tc/www/css
-JS_HOME=/home/tc/www/css
-SBIN=/usr/local/sbin
-OPT=/opt
-INITD=/usr/local/etc/init.d
-BOOT=/mnt/mmcblk0p1
-STORAGE=/mnt/mmcblk0p1/tce
-
 #=========================================================================================
 # Get file routine
 #   Will probably try to use scp eventually.
