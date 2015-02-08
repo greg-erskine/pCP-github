@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.11 2015-02-06 GE
+# Version: 0.11 2015-02-09 GE
 #	Added Squeezelite command string.
 #	Added copyright.
 #	Updated descriptions and more/less help.
+#	Removed maxsize=26 for player name.
 
 # Version: 0.10 2015-01-23 SBP
 #	Added CLOSEOUT.
@@ -179,7 +180,7 @@ echo '                <td class="column150">'
 echo '                  <p>Name of your player</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="NAME" name="NAME" maxlength="26" value="'$NAME'">'
+echo '                  <input class="large15" type="text" id="NAME" name="NAME" value="'$NAME'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify the piCorePlayer name (-n)&nbsp;&nbsp;'
