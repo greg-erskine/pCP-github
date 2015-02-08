@@ -14,11 +14,22 @@ TMP=/tmp/          # this is where you copy the files to
 
 PCP_HOME=/home/tc/www/cgi-bin   # Not used yet
 CSS_HOME=/home/tc/www/css       # Not used yet
-IMG_HOME=/home/tc/www/css       # Not used yet
-JS_HOME=/home/tc/www/css        # Not used yet
+IMG_HOME=/home/tc/www/images    # Not used yet
+JS_HOME=/home/tc/www/js         # Not used yet
 SBIN=/usr/local/sbin
 OPT=/opt                        # Not used yet
 INITD=/usr/local/etc/init.d     # Not used yet
+STORAGE=/mnt/mmcblk0p1/tce
+
+
+PCP_HOME=/home/tc/www/cgi-bin
+CSS_HOME=/home/tc/www/css
+IMG_HOME=/home/tc/www/css
+JS_HOME=/home/tc/www/css
+SBIN=/usr/local/sbin
+OPT=/opt
+INITD=/usr/local/etc/init.d
+BOOT=/mnt/mmcblk0p1
 STORAGE=/mnt/mmcblk0p1/tce
 
 #=========================================================================================
@@ -29,7 +40,7 @@ STORAGE=/mnt/mmcblk0p1/tce
 #	  $1        $2      $3
 #-----------------------------------------------------------------------------------------
 getfile() {
-	cp -p -v $1/$2 $3
+	cp -v $1/$2 $3
 }
 
 #-----------------------------------------------------------------------------------------
@@ -39,7 +50,7 @@ getfile $TMP/pcp/conf          wifi.db              /home/tc
 getfile $TMP/pcp/conf          timezone             /etc/sysconfig
 getfile $TMP/pcp/conf          config.cfg           $SBIN
 getfile $TMP/pcp/conf          piversion.cfg        $SBIN
-#getfile $TMP/pcp/conf          wpa_supplicant.conf  /etc
+#getfile $TMP/pcp/conf          wpa_supplicant.conf /etc
 getfile $TMP/pcp/conf          asound.conf          /etc
 getfile $TMP/pcp/conf          modprobe.conf        /etc
 getfile $TMP/pcp/conf          piCorePlayer.dep     /mnt/mmcblk0p2/tce
@@ -51,7 +62,7 @@ getfile $TMP/pcp/opt           .filetool.lst        /opt
 getfile $TMP/pcp/opt           bootlocal.sh         /opt
 getfile $TMP/pcp/opt           bootsync.sh          /opt
 
-getfile $TMP/pcp/sbin          webgui               /usr/local/sbin
+getfile $TMP/pcp/sbin          webgui               $SBIN
 
 
 
@@ -63,7 +74,7 @@ else
 	sudo mount /dev/mmcblk0p1
 fi
 
-
+sleep 2
 getfile $TMP/pcp/mmcblk0p1     cmdline.txt           /mnt/mmcblk0p1
 getfile $TMP/pcp/mmcblk0p1     config.txt            /mnt/mmcblk0p1
 getfile $TMP/pcp/mmcblk0p1     LICENCE.piCorePlayer  /mnt/mmcblk0p1
