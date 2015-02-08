@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-02-08 SBP
+#	Changed how we check the status of squeezelite.
+
 # Version: 0.03 2015-01-22 SBP
 #	Added CLOSEOUT.
 
@@ -73,14 +76,8 @@ case "$1" in
 		$0 start
 		;;
 	status)
-		# Possibly should check for squeezelite daemon as well?
-		if [ -f  $PIDFILE ]; then
-			echo "$PNAME is running."
-			exit 0
-		else
-			echo "$PNAME not running."
-			exit 1
-		fi
+		# Now checking for squeezelite daemon is running?
+		pidof squeezelite-armv6hf && echo "$PNAME is running." && exit 0 || echo "$PNAME not running." && exit 1
 		;;
 	*)
 		echo
