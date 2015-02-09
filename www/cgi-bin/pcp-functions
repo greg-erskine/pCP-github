@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.28 2015-02-09 GE
+#	Fixed pcp_auto_start_lms and pcp_auto_start_fav.
+
 # Version: 0.27 2015-02-08 SBP
 #	Modified pcp_html_head so no refresh if in debug mode.
 
@@ -578,14 +581,15 @@ pcp_auto_start_lms() {
 		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
 		for i in 1 2 3 4 5
 		do
-			if [ $(pcp_lms_connected) = 1 ]; then
+			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $SERVER_IP_NO_PORT 9090 | awk '{ print $3 }'`
+			if [ $RESULT = 1 ]; then
 				echo "$i. Connected..." >> /tmp/auto_start_lms.log
 				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_lms.log
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_lms.log
+			sleep 1
 		done
-		
 	fi
 }
 
@@ -629,12 +633,14 @@ pcp_auto_start_fav() {
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		for i in 1 2 3 4 5
 		do
-			if [ $(pcp_lms_connected) = 1 ]; then
+			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $SERVER_IP_NO_PORT 9090 | awk '{ print $3 }'`
+			if [ $RESULT = 1 ]; then
 				echo "$i. Connected..." >> /tmp/auto_start_fav.log
 				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
+			sleep 1
 		done
 	fi
 }

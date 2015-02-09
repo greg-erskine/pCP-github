@@ -331,15 +331,31 @@ pcp_lms_path() {
 	pcp_lms_request "path ?"
 }
 
-
-
+#========================================================================================
+# Plugins commands and queries 
+#---------------------------------------------------------------------------------------
+# The following command and queries are proposed by server plugins. The plugin must be
+# enabled in the server configuration for the commands and queries to be available to
+# the CLI client. Please use query "can" to determine if the given command or query
+# is available. Query "radios" can alternatively be used to get a list of available
+# radio station plugin CLI queries. 
+#	radios 
+#	apps 
+#	Live Music Archive, Live365, MP3tunes, Pandora, Podcasts, RadioIO, RadioTime, Rhapsody, Shoutcast, SIRIUS, Staff Picks, RSS 
+#	Favorites 
+#	RandomPlay 
+#	MusicIP 
+#---------------------------------------------------------------------------------------
+pcp_lms_randomplay() {
+	MODE=tracks
+	pcp_lms_send "randomplay $MODE"
+}
 
 
 
 #========================================================================================
-# Send commands to LMS
-#----------------------------------------------------------------------------------------
-
+# Other commands to LMS
+#---------------------------------------------------------------------------------------
 
 pcp_lms_next() {
 	pcp_lms_send "playlist jump +1"
@@ -347,10 +363,4 @@ pcp_lms_next() {
 
 pcp_lms_prev() {
 	pcp_lms_send "playlist jump -1"
-}
-
-
-pcp_lms_randomplay() {
-	MODE=tracks
-	pcp_lms_send "randomplay $MODE"
 }

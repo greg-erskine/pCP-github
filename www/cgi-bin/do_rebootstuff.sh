@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.11 2015-01-28 GE
+# Version: 0.11 2015-02-09 GE
 #	Added pcp_auto_start_fav.
 #	Added stop/start crond.
 #	Added pcp_user_commands.
@@ -63,7 +63,7 @@ echo "[ INFO ] Checking for newconfig.cfg on sda1"
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
 	echo "mounted"
-	else
+else
 	echo "now trying to mount USB"
 	sudo mount /dev/sda1
 fi
@@ -90,7 +90,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	. /mnt/mmcblk0p1/newconfig.cfg
 	echo "[ INFO ] Updating configuration"
 	# Save the parameters to the config file
-	pcp_save_to_config	
+	pcp_save_to_config
 fi
 
 # Save changes caused by the presence of a newconfig.cfg file
@@ -220,13 +220,13 @@ echo -n "[ INFO ] "
 /usr/local/etc/init.d/squeezelite start
 
 echo "[ INFO ] Doing auto start LMS"
-#pcp_auto_start_lms
+pcp_auto_start_lms
 
 echo "[ INFO ] Doing auto start FAV"
-#pcp_auto_start_fav
+pcp_auto_start_fav
 
 echo "[ INFO ] Doing user commands"
-#pcp_user_commands
+pcp_user_commands
 
 echo "[ INFO ] Start/restart crond"
 /etc/init.d/services/crond start
