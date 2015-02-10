@@ -17,9 +17,9 @@ URL1="http://192.168.1.8/cgi-bin/diag_rpi.cgi"
 URL2="http://192.168.1.103/cgi-bin/diag_rpi.cgi"
 URL3="http://192.168.1.14/cgi-bin/diag_rpi.cgi"
 
-echo '<iframe src="'$URL1'" width="900" height="600" frameborder="0"></iframe>'
-echo '<iframe src="'$URL2'" width="900" height="600" frameborder="0"></iframe>'
-echo '<iframe src="'$URL3'" width="900" height="600" frameborder="0"></iframe>'
+echo '<iframe src="'$URL1'" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
+echo '<iframe src="'$URL2'" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
+echo '<iframe src="'$URL3'" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
 
 pcp_refresh_button
 pcp_go_main_button

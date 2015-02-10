@@ -27,6 +27,10 @@ echo '<h1>pcp-lms-functions experiment</h1>'
 
 echo '<div>'
 
+echo '<p>'$(pcp_lms_players)'</p>'
+
+echo '<p>Artists: '$(pcp_lms_artists)'</p>'
+
 echo '<p>Mode: '$(pcp_lms_mode)'</p>'
 echo '<p>Time: '$(pcp_lms_time)'</p>'
 echo '<p>Genre: '$(pcp_lms_genre)'</p>'
@@ -50,9 +54,6 @@ echo '<p>Signalstrength: '$(pcp_lms_signalstrength)'</p>'
 echo '<p>Name: '$(pcp_lms_name)'</p>'
 echo '<p>Connected: '$(pcp_lms_connected)'</p>'
 
-
-
-
 echo '<p>info_total_genres: '$(pcp_lms_info_total_genres)'</p>'
 echo '<p>info_total_artists: '$(pcp_lms_info_total_artists)'</p>'
 echo '<p>info_total_albums: '$(pcp_lms_info_total_albums)'</p>'
@@ -60,7 +61,6 @@ echo '<p>info_total_songs: '$(pcp_lms_info_total_songs)'</p>'
 
 
 
-echo '<p>Artists: '$(pcp_lms_artists)'</p>'
 
 
 

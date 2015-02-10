@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.28 2015-02-09 GE
+# Version: 0.28 2015-02-11 GE
 #	Fixed pcp_auto_start_lms and pcp_auto_start_fav.
 
 # Version: 0.27 2015-02-08 SBP

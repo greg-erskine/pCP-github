@@ -152,12 +152,51 @@ pcp_lms_connected() {
 	pcp_lms_request "connected ?"
 }
 
+pcp_lms_players() {
+	NO_OF_PLAYER=$(pcp_lms_player_count)
+	RESULT=$(pcp_lms_request_list "players 0 100")
+	echo $RESULT | awk '
+	BEGIN {
+		RS="playerindex:"
+		i = 0
+	}
+	#main
+	{
+		#0 playerid:b8:27:eb:c7:e0:61 uuid: ip:192.168.1.103:48826 name:123456789 model:squeezelite isplayer:1 displaytype:none canpoweroff:1 connected:1 
+		x++
+		line[x]=$0
 
+		a[x]=index($0, "playerid:")
+		b[x]=index($0, "uuid:")
+		c[x]=index($0, "ip:")
+		d[x]=index($0, "name:")
+		e[x]=index($0, "model:")
+		f[x]=index($0, "isplayer:")
+		g[x]=index($0, "displaytype:")
+		h[x]=index($0, "canpoweroff:")
+		i[x]=index($0, "connected:")
 
-
-
-
-
+		idx[x]=substr($0, 1, a[x]-2)
+		playerid[x]=substr($0, a[x]+9, b[x]-a[x]-10)
+		uuid[x]=substr($0, b[x]+5, c[x]-b[x]-6)
+		ip[x]=substr($0, c[x]+3, d[x]-c[x]-4)
+			split(ip[x],j,":")
+			ipaddr[x]=j[1]
+			ipport[x]=j[2]
+		name[x]=substr($0, d[x]+5, e[x]-d[x]-6)
+		model[x]=substr($0, e[x]+6, f[x]-e[x]-7)
+		isplayer[x]=substr($0, f[x]+9, g[x]-f[x]-10)
+		displaytype[x]=substr($0, g[x]+12, h[x]-g[x]-13)
+		canpoweroff[x]=substr($0, h[x]+12, i[x]-h[x]-13)
+		connected[x]=substr($0, i[x]+10, 1)
+	}
+	END {
+		for (y=2; y<=7; y++) {
+			printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
+				,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
+		}
+	} '
+}
 
 pcp_lms_volume_up() {
 	AMOUNT=5
@@ -221,7 +260,32 @@ pcp_lms_info_total_songs() {
 
 
 pcp_lms_artists() {
-	pcp_lms_request_list "artists 0 100"
+	RESULT=$(pcp_lms_request_list "artists 0 100")
+	echo $RESULT | awk '
+	BEGIN {
+		RS="id:"
+		i = 0
+	}
+	#main
+	{
+		#8107 artist:Various Artists
+		#8106 artist:10cc
+
+		x++
+		line[x]=$0
+
+		a[x]=index($0, "artist:")
+		b[x]=length($0)
+
+		id[x]=substr($0, 1, a[x]-1)
+		artist[x]=substr($0, a[x]+7, b[x]-a[x]-7)
+
+	}
+	END {
+		for (y=2; y<=20; y++) {
+			printf "<p>id(%s) artist(%s) - %s</p>\n",id[y],artist[y],line[y]
+		}
+	} '
 }
 
 
