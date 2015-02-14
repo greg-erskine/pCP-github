@@ -2,8 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.29 2015-02-15 SBP
+#	Redirected errors for pcp_wlan0_mac_address, pcp_eth0_mac_address, pcp_controls_mac_address.
+#	Commented out sudo modprobe -q bcm2708_dmaengine.
+
 # Version: 0.28 2015-02-11 GE
 #	Fixed pcp_auto_start_lms and pcp_auto_start_fav.
+#	Added ANSI colours from tc-functions.
 
 # Version: 0.27 2015-02-08 SBP
 #	Modified pcp_html_head so no refresh if in debug mode.
@@ -162,6 +167,19 @@ pcp_variables
 . $CONFIGCFG
 
 #=========================================================================================
+# ANSI colours
+#-----------------------------------------------------------------------------------------
+CRE="$(echo -e '\r\033[K')"
+RED="$(echo -e '\033[1;31m')"
+GREEN="$(echo -e '\033[1;32m')"
+YELLOW="$(echo -e '\033[1;33m')"
+BLUE="$(echo -e '\033[1;34m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+CYAN="$(echo -e '\033[1;36m')"
+WHITE="$(echo -e '\033[1;37m')"
+NORMAL="$(echo -e '\033[0;39m')"
+
+#=========================================================================================
 # Update the Timezone routine
 #
 # Called from:
@@ -190,24 +208,20 @@ pcp_config_mac_address() {
 }
 
 pcp_wlan0_mac_address() {
-if [ WIFI = on ]; then
 	# The wireless MAC address (if installed)
-	ifconfig wlan0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
-fi
+	ifconfig wlan0 2>&1 |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
 }
 
 pcp_eth0_mac_address() {
 	# The physical MAC address of Raspberry Pi Model B
-	ifconfig eth0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+	ifconfig eth0 2>&1 |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
 }
 
 pcp_controls_mac_address() {
-	ifconfig eth0 | grep inet &> /dev/null
+	ifconfig eth0 2>&1 | grep inet &> /dev/null
 	eth0_IP=$?
-if [ WIFI = on ]; then
-	ifconfig wlan0 | grep inet &> /dev/null
+	ifconfig wlan0 2>&1 | grep inet &> /dev/null
 	wlan0_IP=$?
-fi
 	PLAYER_MAC=$(pcp_eth0_mac_address)
 	if [ $WIFI = "on" ]; then
 		if [ $wlan0_IP = 0 ]; then

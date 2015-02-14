@@ -1,10 +1,14 @@
 #!/bin/sh
 
+# Version: 012 2015-02-15 SBP
+#	Updated order.
+
 # Version: 0.11 2015-02-09 GE
 #	Added pcp_auto_start_fav.
 #	Added stop/start crond.
 #	Added pcp_user_commands.
 #	Moved timezone before essential stuff.
+#	Added ANSI colours to messages.
 
 # Version: 0.10 2015-01-06 SBP
 #	Removed unneeded piCorePlayer.dep check
@@ -47,61 +51,75 @@
 
 #set -x
 
-echo "[ INFO ] Running do_rebootstuff.sh..."
-echo "[ INFO ] Loading pcp-functions"
-# Read from pcp-functions file
 . /home/tc/www/cgi-bin/pcp-functions
+#. /etc/init.d/tc-functions
+
+echo ""
+# Read from pcp-functions file
+echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
+echo -n "${BLUE}Loading pcp-functions... "
 pcp_variables
+echo "${GREEN}Done.${NORMAL}"
+
+# Read from config file.
+echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Checking for newconfig.cfg on sda1"
 # Mount USB stick if present
-# Check if sda1 is mounted otherwise mount it
+echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
+# Check if sda1 is mounted otherwise mount it
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
-	echo "mounted"
+	echo "${YELLOW}- sda1 mounted${NORMAL}"
 else
-	echo "now trying to mount USB"
+	# FIX: check if sda1 is inserted before trying to mount it.
+	echo "${YELLOW}- Trying to mount sda1${RED}"
 	sudo mount /dev/sda1
 fi
 
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
+	echo "${YELLOW}- newconfig.cfg found on sda1${NORMAL}"
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
-	echo "[ INFO ] Updating configuration"
+	echo -n "${BLUE}Updating configuration... ${NORMAL}"
 	#Save to config file
-#	pcp_save_to_config
+	pcp_save_to_config
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Rename the newconfig file on USB
 if [ -f /mnt/sda1/newconfig.cfg ]; then sudo mv /mnt/sda1/newconfig.cfg /mnt/sda1/usedconfig.cfg; fi
 
-echo "[ INFO ] Checking for newconfig.cfg on mmcblk0p1"
+echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1...  ${NORMAL}"
 # Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
 sudo mount /dev/mmcblk0p1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
+	echo "${YELLOW}- newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
-	echo "[ INFO ] Updating configuration"
+
 fi
 
+# FIX: The following should be included in above??? I think.
 # Save changes caused by the presence of a newconfig.cfg file and then delete newconfig file
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then sudo filetool.sh -b; fi
+# Delete the newconfig file
 sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 sleep 1
 sudo umount /mnt/mmcblk0p1
 
-# Section to save the parameters to the wifi.db - this is a new version in order to saving space and backslash in SSID which is needed in wifi.db
-# so a name like "steens wifi" should be saved as  "steens\ wifi"
-echo "[ INFO ] Reading config.cfg"
+# Save the parameters to the wifi.db
+echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
 . /usr/local/sbin/config.cfg
+echo "${GREEN}Done.${NORMAL}"
 
 # Only add backslash if not empty
-echo "[ INFO ] Updating wifi.db"
+echo "${BLUE}Updating wifi.db... ${NORMAL}"
 if [ x"" = x"$SSID" ]; then
 	break
 else
@@ -110,28 +128,25 @@ else
 	SSID=$SSSID
 	sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
 fi
+echo "${GREEN}Done.${NORMAL}"
 
-# We do have a problem with SSID's which don't have a name - should we use the next section for these SSIDs - I have not tested the code
-# Saves SSID if empty
-# if [ x"" = x"$SSID" ]; then sudo chmod 766 /home/tc/wifi.db; sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db; else fi
-# NEW Section ends here
+echo -n "${BLUE}Loading configuration file... ${NORMAL}"
+# Read from config file.
+. $CONFIGCFG
+echo "${GREEN}Done.${NORMAL}"
 
-# Save changes caused by the presence of a newconfig.cfg file and wifi copy from config.cfg to wifi.db fie
-# Is already save - I think - sudo filetool.sh -b
-
-echo "[ INFO ] Loading snd modules" 
+echo -n "${BLUE}Loading snd modules... ${NORMAL}" 
 sudo modprobe snd-bcm2835
 #sudo modprobe -r snd_soc_wm8731
 sudo modprobe snd_soc_bcm2708_i2s
 #sudo modprobe bcm2708_dmaengine
 sudo modprobe snd_soc_wm8804
+echo "${GREEN}Done.${NORMAL}"
 
-# Read from config file.
-. $CONFIGCFG
-
-echo "[ INFO ] Checking wifi is ON?"
+echo "${BLUE}Checking wifi... ${NORMAL}"
 # Logic that will skip the wifi connection if wifi is disabled
-if [ $WIFI = on ]; then 
+if [ $WIFI = on ]; then
+	echo "${YELLOW}wifi is on${NORMAL}"
 	sudo ifconfig wlan0 down
 	sleep 1
 	sudo ifconfig wlan0 up
@@ -145,9 +160,9 @@ if [ $WIFI = on ]; then
 	# Logic that will try to reconnect to wifi if failed - will try two times before continuing booting
 	for i in 1 2; do
 		if ifconfig wlan0 | grep -q "inet addr:" ; then
-			echo "connected"      
+			echo "${YELLOW}connected${NORMAL}"      
 		else
-			echo "Network connection down! Attempting reconnection two times before continuing."
+			echo "${RED}Network connection down! Attempting reconnection two times before continuing.${NORMAL}"
 			sudo ifconfig wlan0 down
 			sleep 1
 			sudo ifconfig wlan0 up
@@ -160,20 +175,22 @@ if [ $WIFI = on ]; then
 	done
 fi
 
-echo "[ INFO ] Loading pcp-lms-functions"
+echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Loading I2S modules"
+echo "${BLUE}Loading I2S modules... ${NORMAL}"
 if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 sleep 1
-
 # Loads the correct output audio modules
 pcp_read_chosen_audio
+echo "${GREEN}Done.${NORMAL}"
 
 # Sleep for 1 sec otherwise aplay can not see the card
 sleep 1
+
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
-echo "[ INFO ] Doing ALSA configuration"
+echo "${BLUE}Starting ALSA configuration... ${NORMAL}"
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 	sudo amixer cset numid=3 1				#set the analog output via audio jack
@@ -192,35 +209,48 @@ fi
 if [ $ALSAlevelout = Custom ]; then
 	alsactl restore
 fi
+echo "${GREEN}Done.${NORMAL}"
 
 # Only call timezone function if timezone variable is set
 if [ x"" != x"$TIMEZONE" ]; then
-	echo "[ INFO ] Setting timezone"
+	echo -n "${BLUE}Setting timezone... ${NORMAL}"
 	pcp_set_timezone
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Start the essential stuff for piCorePlayer
-echo "[ INFO ] Loading the main daemons"
-echo -n "[ INFO ] "
+echo "${BLUE}Loading the main daemons..."
+echo -n "${BLUE}"
 /usr/local/etc/init.d/dropbear start
-echo -n "[ INFO ] "
+echo "${GREEN}Done.${NORMAL}"
+
+echo -n "${BLUE}"
 /usr/local/etc/init.d/httpd start
 sleep 1
-echo -n "[ INFO ] "
+echo "${GREEN}Done.${NORMAL}"
+
+echo -n "${BLUE}"
 /usr/local/etc/init.d/squeezelite start
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Doing auto start LMS"
+echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
 pcp_auto_start_lms
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Doing auto start FAV"
+echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
 pcp_auto_start_fav
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Doing user commands"
+echo -n "${BLUE}Starting user commands... ${NORMAL}"
 pcp_user_commands
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Start/restart crond"
-/etc/init.d/services/crond start
+echo -n "${BLUE}Starting crond... ${NORMAL}"
+/etc/init.d/services/crond start 2>&1
+echo "${GREEN}Done.${NORMAL}"
 
-echo "[ INFO ] Saving all settings"
+echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Placed here in order to only backup once during do_rebootstuff
+# Save the parameters to the config file
 pcp_save_to_config
+echo "${GREEN}Done.${NORMAL}"
