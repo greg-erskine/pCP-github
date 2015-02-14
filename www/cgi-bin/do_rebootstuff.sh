@@ -53,8 +53,6 @@ echo "[ INFO ] Loading pcp-functions"
 . /home/tc/www/cgi-bin/pcp-functions
 pcp_variables
 . $CONFIGCFG
-echo "[ INFO ] Loading pcp-lms-functions"
-. /home/tc/www/cgi-bin/pcp-lms-functions
 
 echo "[ INFO ] Checking for newconfig.cfg on sda1"
 # Mount USB stick if present
@@ -75,7 +73,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	. $MNTUSB/newconfig.cfg
 	echo "[ INFO ] Updating configuration"
 	#Save to config file
-	pcp_save_to_config
+#	pcp_save_to_config
 fi
 
 # Rename the newconfig file on USB
@@ -89,13 +87,10 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	echo "[ INFO ] Updating configuration"
-	# Save the parameters to the config file
-	pcp_save_to_config
 fi
 
-# Save changes caused by the presence of a newconfig.cfg file
+# Save changes caused by the presence of a newconfig.cfg file and then delete newconfig file
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then sudo filetool.sh -b; fi
-# Delete the newconfig file
 sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 sleep 1
 sudo umount /mnt/mmcblk0p1
@@ -105,7 +100,6 @@ sudo umount /mnt/mmcblk0p1
 echo "[ INFO ] Reading config.cfg"
 . /usr/local/sbin/config.cfg
 
-# sudo chmod 766 /home/tc/wifi.db
 # Only add backslash if not empty
 echo "[ INFO ] Updating wifi.db"
 if [ x"" = x"$SSID" ]; then
@@ -115,7 +109,6 @@ else
 	# Change SSSID back to SSID
 	SSID=$SSSID
 	sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
-	pcp_backup_nohtml
 fi
 
 # We do have a problem with SSID's which don't have a name - should we use the next section for these SSIDs - I have not tested the code
@@ -126,14 +119,11 @@ fi
 # Save changes caused by the presence of a newconfig.cfg file and wifi copy from config.cfg to wifi.db fie
 # Is already save - I think - sudo filetool.sh -b
 
-# Stuff previously handled by bootlocal.sh - but sits better here allowing for in situ update of as bootlocal then can be kept free from piCorePlayer stuff
-# allowing any custom changes to bootlocal.sh to be maintained as it is not overwritten by in situ update.
-
 echo "[ INFO ] Loading snd modules" 
 sudo modprobe snd-bcm2835
 #sudo modprobe -r snd_soc_wm8731
 sudo modprobe snd_soc_bcm2708_i2s
-sudo modprobe bcm2708_dmaengine
+#sudo modprobe bcm2708_dmaengine
 sudo modprobe snd_soc_wm8804
 
 # Read from config file.
@@ -170,13 +160,13 @@ if [ $WIFI = on ]; then
 	done
 fi
 
-# New section using Gregs functions, Remove all I2S stuff and load the correct modules
+echo "[ INFO ] Loading pcp-lms-functions"
+. /home/tc/www/cgi-bin/pcp-lms-functions
 
 echo "[ INFO ] Loading I2S modules"
-
 if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-
 sleep 1
+
 # Loads the correct output audio modules
 pcp_read_chosen_audio
 
@@ -230,3 +220,7 @@ pcp_user_commands
 
 echo "[ INFO ] Start/restart crond"
 /etc/init.d/services/crond start
+
+echo "[ INFO ] Saving all settings"
+# Placed here in order to only backup once during do_rebootstuff
+pcp_save_to_config

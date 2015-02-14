@@ -190,8 +190,10 @@ pcp_config_mac_address() {
 }
 
 pcp_wlan0_mac_address() {
+if [ WIFI = on ]; then
 	# The wireless MAC address (if installed)
 	ifconfig wlan0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+fi
 }
 
 pcp_eth0_mac_address() {
@@ -202,8 +204,10 @@ pcp_eth0_mac_address() {
 pcp_controls_mac_address() {
 	ifconfig eth0 | grep inet &> /dev/null
 	eth0_IP=$?
+if [ WIFI = on ]; then
 	ifconfig wlan0 | grep inet &> /dev/null
 	wlan0_IP=$?
+fi
 	PLAYER_MAC=$(pcp_eth0_mac_address)
 	if [ $WIFI = "on" ]; then
 		if [ $wlan0_IP = 0 ]; then
@@ -975,7 +979,7 @@ pcp_disable_i2s() {
 pcp_enable_i2s_dac() {
 	pcp_disable_i2s
 	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
+#	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm5102a
 	sudo modprobe -q snd_soc_hifiberry_dac
 }
@@ -986,7 +990,7 @@ pcp_enable_i2s_dac() {
 pcp_enable_i2s_digi() {
 	pcp_disable_i2s
 	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
+#	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_wm8804
 	sleep 1
 	sudo modprobe -q snd_soc_hifiberry_digi
@@ -998,7 +1002,7 @@ pcp_enable_i2s_digi() {
 pcp_enable_iqaudio_dac() {
 	pcp_disable_i2s
 	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
+#	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_pcm512x
 	sleep 1
 	sudo modprobe -q snd_soc_iqaudio_dac
@@ -1013,7 +1017,7 @@ pcp_enable_hifiberry_dac_p() {
 	sudo modprobe -q snd_soc_pcm512x_i2c 
 	sudo modprobe -q snd_soc_pcm512x
 	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
+#	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_pcm_dmaengine
 	sudo modprobe -q snd_soc_hifiberry_dacplus
 }
@@ -1024,7 +1028,7 @@ pcp_enable_hifiberry_dac_p() {
 pcp_enable_i2s_amp() {
 	pcp_disable_i2s
 	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
+#	sudo modprobe -q bcm2708_dmaengine
 	sudo modprobe -q snd_soc_wm8804
 	sleep 1
 	sudo modprobe -q snd_soc_hifiberry_amp
