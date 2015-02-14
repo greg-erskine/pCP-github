@@ -23,6 +23,22 @@ if [ -d $SRC ]; then
 	rm -rf $SRC >> $LOG
 fi
 
+echo $PWD/${TCZ}.tcz
+echo $PWD/${TCZ}.info
+rm -rf /tmp/audio-ffmpeg.info
+echo $PWD/${TCZ}.tcz.md5.txt
+echo $PWD/${TCZ}.tcz.lst
+
+rm -rf $PWD/${TCZ}
+rm -rf $PWD/${TCZ}.info
+rm -rf $PWD/${TCZ}.md5.txt
+rm -rf $PWD/${TCZ}.lst
+
+
+
+#make build directory
+mkdir -p $OUTPUT/usr/local
+
 ## Build
 #echo "Untarring..."
 #sudo wget -O $SRC.tar.bz2 http://www.ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
@@ -30,7 +46,8 @@ fi
 
 #Better method
 echo "get source"
-git clone --depth 1 git://git.videolan.org/ffmpeg
+#git clone --depth 1 git://git.videolan.org/ffmpeg
+git clone --depth 1 git://source.ffmpeg.org/ffmpeg.git
 
 
 
@@ -73,10 +90,11 @@ cd $SRC >> $LOG
     --enable-version3 \
     --disable-x11grab \
     --disable-zlib \
+    --disable-sdl \
     --enable-ffmpeg \
-    --enable-ffplay \
-    --enable-ffprobe \
-    --enable-ffserver \
+    --disable-ffplay \
+    --disable-ffprobe \
+    --disable-ffserver \
     --extra-ldflags=-Wl,-rpath,/usr/local/lib >> $LOG
 
 echo "Running make"
@@ -117,7 +135,7 @@ mksquashfs $OUTPUT $TCZ -all-root >> $LOG
 md5sum $TCZ > ${TCZ}.md5.txt
 
 echo "$TCZ contains"
-unsquashfs -ll $TCZ > $TCZ.tcz.lst
+unsquashfs -ll $TCZ > $TCZ.lst
 
 
 #Find file size to be used below
@@ -145,7 +163,7 @@ Comments:       Binaries only
                 Compiled for piCore 6.x with
                 ----
                 PPI compatible
-Change-log:     2015/2/1 First version, 2.5" > /tmp/audio-ffmpeg.info
+Change-log:     2015/2/1 First version, 2.5" > $TCZ.info
 
 
 

@@ -1,1 +1,1 @@
-1d4adb397f3949a3b1158c91e0228cd1  squeezelite-armv6hf.tcz
+445ca2c808ed719e6a0e78f0e3063f5e  squeezelite-armv6hf.tcz
