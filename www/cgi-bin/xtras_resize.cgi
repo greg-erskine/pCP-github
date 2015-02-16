@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2014-12-26 GE
+# Version: 0.01 2015-02-17 GE
 #   Original version.
 
 . pcp-functions
@@ -12,6 +12,14 @@ pcp_html_head "xtras_resize" "GE"
 pcp_controls
 pcp_banner
 pcp_navigation
+
+if [ $MODE -lt 99 ]; then
+	echo '<p class="error">[ ERROR ] Wrong mode.</p>'
+	echo '</body>'
+	echo '</html>'
+	exit 1
+fi
+
 pcp_running_script
 pcp_httpd_query_string
 
@@ -88,9 +96,9 @@ echo '                    <li>Step 2 - resize2fs, then reboot</li>'
 echo '                  </ol>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="odd">'
+echo '              <tr class="warning">'
 echo '                <td>'
-echo '                  <input type="submit" name="SUBMIT" value="fdisk" />&nbsp;&nbsp;fdisk to resize partition'
+echo '                  <p style="color:white"><input type="submit" name="SUBMIT" value="fdisk" />&nbsp;&nbsp;fdisk to resize partition</p>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="even">'
@@ -100,9 +108,9 @@ echo '                <td>'
 
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="odd">'
+echo '              <tr class="warning">'
 echo '                <td>'
-echo '                  <input type="submit" name="SUBMIT" value="resize2fs" />&nbsp;&nbsp;resize2fs to expand partition to fit file system'
+echo '                  <p style="color:white"><input type="submit" name="SUBMIT" value="resize2fs" />&nbsp;&nbsp;resize2fs to expand partition to fit file system</p>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="even">'
