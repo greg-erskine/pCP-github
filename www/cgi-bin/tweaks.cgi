@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.08 2015-02-08 GE
+# Version: 0.08 2015-02-19 GE
 #	Updated Auto start favorite.
 #	Added User commands.
 #	Minor html updates through out.
@@ -353,7 +353,7 @@ echo '                  <a class="moreless" id="ID06a" href=# onclick="return mo
 echo '                  <div id="ID06" class="less">'
 echo '                    <p>Allows you to set an auto start favorite command that is run after'
 echo '                       a "hard" power on. '
-echo '                       This could be handy for people building pseudo radios.<p>'
+echo '                       This could be handy for people building Internet radios.<p>'
 echo '                    <p><b>Note:</b></p>'
 echo '                    <ul>'
 echo '                      <li>Squeezelite must be running.</li>'
@@ -406,8 +406,8 @@ echo '                  <p>Cut and paste your auto start LMS command&nbsp;&nbsp;
 echo '                  <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
 echo '                  <div id="ID05" class="less">'
 echo '                    <p>Allows you to set an auto start LMS command that is run after'
-echo '                       a "hard" power on. This field can contain any valid LMS CLI conmand.'
-echo '                       This could be handy for people building pseudo radios.<p>'
+echo '                       a "hard" power on. This field can contain any valid LMS CLI command.'
+echo '                       This could be handy for people building Internet radios.<p>'
 echo '                    <p><b>Example:</b></p>'
 echo '                    <ul>'
 echo '                      <li>randomplay tracks</li>'
@@ -417,6 +417,7 @@ echo '                    </ul>'
 echo '                    <p><b>Note:</b></p>'
 echo '                    <ul>'
 echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
+echo '                      <li>Do not include MAC address in CLI command.</li>'
 echo '                      <li>Maximum number of characters 254.</li>'
 echo '                    </ul>'
 echo '                  </div>'
