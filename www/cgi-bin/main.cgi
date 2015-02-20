@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.12 2015-01-29 GE
+# Version: 0.12 2015-02-20 GE
 #	Moved Disable GUI, Stop Squeezelite, Backup and Shutdown to Developers section.
 #	Added Reset ALL and Restore ALL  to Developers section.
 
@@ -327,7 +327,7 @@ if [ $MODE = 99 ]; then
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Reset All settings in configuration file&nbsp;&nbsp;'
+	echo '                <p>Reset all settings in configuration file&nbsp;&nbsp;'
 	echo '                <a class="moreless" id="ID11a" href=# onclick="return more('\''ID11'\'')">more></a></p>'
 	echo '                <div id="ID11" class="less">'
 	echo '                  <p>This command will reset all settings in the configuration file to the defaults that'
@@ -344,7 +344,7 @@ if [ $MODE = 99 ]; then
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Restore all setting in configuration file&nbsp;&nbsp;'
+	echo '                <p>Restore all settings in configuration file&nbsp;&nbsp;'
 	echo '                <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a></p>'
 	echo '                <div id="ID12" class="less">'
 	echo '                  <p>This command will restore all settings in the configuration file to those found in'
