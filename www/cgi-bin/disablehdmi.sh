@@ -27,6 +27,5 @@ sed -i '/hdmi_force_edid_audio=1/d' /mnt/mmcblk0p1/config.txt
 sed -i '/hdmi_ignore_edid=0xa5000080/d' /mnt/mmcblk0p1/config.txt
 
 pcp_umount_mmcblk0p1_nohtml
-pcp_backup_nohtml
 
 echo "[ INFO ] End $0"

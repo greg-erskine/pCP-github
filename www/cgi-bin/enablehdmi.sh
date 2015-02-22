@@ -34,7 +34,6 @@ if mount | grep $VOLUME; then
 	sudo echo hdmi_ignore_edid=0xa5000080 >> /mnt/mmcblk0p1/config.txt
 
 	pcp_umount_mmcblk0p1_nohtml
-	pcp_backup_nohtml
 fi
 
  echo "[ INFO ] End $0"
