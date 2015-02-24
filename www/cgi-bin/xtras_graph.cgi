@@ -1,7 +1,20 @@
 #!/bin/sh
 
-# Version: 0.01 2015-02-21 GE
+# Version: 0.01 2015-02-25 GE
 #   Original version.
+
+#========================================================================================
+# This is an experiment to work out how to generate graphs using only:
+# - shell
+# - html5
+# - svg
+#
+# Requires cputemp.sh to gather cpu temperature data
+# Add to user command 1 to start the data gathering process:
+#    sleep 60; /home/tc/cputemp.sh >/home/tc/data.txt &
+#
+# The sleep allows time for the time to be set correctly.
+#----------------------------------------------------------------------------------------
 
 . pcp-functions
 pcp_variables
@@ -28,7 +41,7 @@ echo '  stroke-dasharray: 1 2;'
 echo '  stroke-width: 1;'
 echo '}'
 echo '.dots {'
-echo '  stroke: black;'
+echo '  stroke: red;'
 echo '  fill: red;'
 echo '  stroke-width: 1;'
 echo '}'
@@ -50,9 +63,16 @@ echo '.tics {'
 echo '  stroke: black;'
 echo '  stroke-width: 1;'
 echo '}'
+echo '.line {'
+echo '  fill: none;'
+echo '  stroke: red;'
+echo '  stroke-width: 2;'
+echo '}'
 echo '</style>'
-#----------------------------------------------------------------------------------------
 
+#========================================================================================
+# Set some graph parameters
+#----------------------------------------------------------------------------------------
 TITLE="CPU Temperature"
 MARGIN=20
 LMARGIN=25
@@ -73,6 +93,17 @@ XMAJOR=1
 X=$((($XMAX - $XMIN) / $XMAJOR))
 XTIC=5
 
+#========================================================================================
+# Display graph within table
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>CPU Temperature Graph</legend>'
+echo '          <table class="bggrey percent100">'
+
 echo '<svg version="1.1" class="graph"'
 echo '  baseProfile="full"'
 echo '  width="'$(($X * $XGAP + (2 * $MARGIN) + $LMARGIN))'" height="'$(($Y * $YGAP + $MARGIN + $MARGIN + $BMARGIN))'">'
@@ -80,6 +111,20 @@ echo '  xmlns="http://www.w3.org/2000/svg">'
 echo ''
 echo '  <rect width="100%" height="100%" fill="#eaeaea" />'
 echo ''
+
+#========================================================================================
+# Get data from data.txt
+#----------------------------------------------------------------------------------------
+# Test data if data.txt doesn't exist
+
+DATA1="06:25 06:26 06:27 06:28 06:29 06:30 06:31 06:32 06:33 06:34 06:35 06:36 06:37 06:38 06:39 06:40 06:41 06:42 06:43 06:44 06:45"
+DATA2="100 90 80 70 60 50 40 30 20 10 0 10 20 30 40 55 60 70 80 90 100"
+
+if [ -f /home/tc/data.txt ]; then
+	DATA=$(cat /home/tc/data.txt)
+	DATA1=$(echo "$DATA" | tail -21 | awk '{print $1}')
+	DATA2=$(echo "$DATA" | tail -21 | awk '{print $2}')
+fi
 
 #========================================================================================
 # Vertical lines - X axis
@@ -112,10 +157,12 @@ echo '</g>'
 #----------------------------------------------------------------------------------------
 echo '<g class="labels xlabels" id="xLabels">'
 
-for i in `seq 0 1 $X`
+k=0
+for i in $DATA1
 do
-	GAP=$(($i * $XGAP))
+	GAP=$(($k * $XGAP))
 	echo '  <text x="'$(($GAP + $MARGIN + $LMARGIN))'" y="'$(($Y * $YGAP + $MARGIN + $YTIC + 15))'" >'$i'</text>'
+	k=$(($k + 1))
 done
 
 echo '</g>'
@@ -156,33 +203,33 @@ do
 	LABEL=$(($YMAX - ($YMAJOR * $i)))
 	GAP=$(($i * $YGAP))
 	echo '  <text x="'$(($MARGIN - $XTIC + $LMARGIN - 5))'" y="'$(($GAP + $MARGIN + 5))'">'$LABEL'</text>'
-#	echo '  < x="'$(($GAP + $MARGIN))'" y="'$(($Y * $YGAP + $MARGIN + $YTIC + 15))'" >
 done
 
 echo '</g>'
 
-
 #========================================================================================
 # Place data dots
 #----------------------------------------------------------------------------------------
-echo '<g class="dots" data-setname="data" >'
-
-DATA="100 90 80 70 60 50 40 30 20 10 0 10 20 30 40 55 60 70 80 90 100"
-
-[ -f /home/tc/data.txt ] && DATA=$(cat /home/tc/data.txt | awk '{print $2}')
-
 k=0
-
-#for j in 0 20 50 75 48 49 48 100 100 
-
-for j in $DATA
-
+echo '<g class="dots" data-setname="data-dots" >'
+for j in $DATA2
 do
 	GAP=$(($k * $XGAP))
-	echo '  <circle cx="'$(($GAP + $MARGIN + $LMARGIN))'" cy="'$(((($YMAX - $j) * $YSCALE) + $MARGIN))'" data-value="'$j'" r="4" />'
+	echo '  <circle cx="'$(($GAP + $MARGIN + $LMARGIN))'" cy="'$(((($YMAX - $j) * $YSCALE) + $MARGIN))'" data-value="'$j'" r="3" />'
 	k=$(($k + 1))
 done
+echo '</g>'
 
+k=0
+echo '<g>'
+echo -n '<polyline class="line" points="'
+for j in $DATA2
+do
+	GAP=$(($k * $XGAP))
+	echo -n ' '$(($GAP + $MARGIN + $LMARGIN))','$(((($YMAX - $j) * $YSCALE) + $MARGIN))''
+	k=$(($k + 1))
+done
+echo ' " />'
 echo '</g>'
 
 #========================================================================================
@@ -195,6 +242,13 @@ echo '<text class="title" x="'$((((($X * $XGAP) + (2 * $MARGIN)) / 2) + $LMARGIN
 echo ''
 echo '</svg>'
 
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 
 #----------------------------------------------------------------------------------------
 pcp_footer
