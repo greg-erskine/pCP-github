@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.09 2015-02-19 SBP
+#	Remove overclock options for RPi2 boards.
+
 # Version: 0.08 2015-02-19 GE
 #	Updated Auto start favorite.
 #	Added User commands.
@@ -33,6 +36,7 @@
 
 . pcp-lms-functions
 . pcp-functions
+. pcp-rpi-functions
 pcp_variables
 . $CONFIGCFG
 
@@ -84,6 +88,9 @@ echo '          <br />'
 #---------------------------------------Overclock----------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
+
+if [ $(pcp_rpi_is_model_2B) = 1 ]; then
+
 case "$OVERCLOCK" in 
 	NONE)
 		OCnone="selected"
@@ -167,7 +174,8 @@ if [ $DEBUG = 1 ]; then
 			;;
 	esac
 fi
-
+fi   # fi from the first if statement that disable overclock in RPi2 boards
+ 
 #----------------------------------------------Timezone----------------------------------
 [ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
