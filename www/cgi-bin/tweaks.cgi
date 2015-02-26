@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.09 2015-02-19 SBP
-#	Remove overclock options for RPi2 boards.
+# Version: 0.09 2015-02-27 SBP
+#	Removed overclock option for RPi2 boards.
+#	Removed mode = 4 for User command feature.
 
 # Version: 0.08 2015-02-19 GE
 #	Updated Auto start favorite.
@@ -88,93 +89,91 @@ echo '          <br />'
 #---------------------------------------Overclock----------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
-
 if [ $(pcp_rpi_is_model_2B) = 1 ]; then
-
-case "$OVERCLOCK" in 
-	NONE)
-		OCnone="selected"
-		;;
-	MILD)
-		OCmild="selected"
-		;;
-	MODERATE)
-		OCmoderate="selected"
-		;;
-	*)
-		OCnone=""
-		OCmild=""
-		OCmoderate=""
-		;;
-esac
-
-#----------------------------------------------------------------------------------------
-echo '          <table class="bggrey percent100">'
-echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
-            
-echo '              <tr class="even">'
-echo '                <td class="column150">'
-echo '                  <p>Overclock</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <select name="OVERCLOCK">'
-echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
-echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
-echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a></p>'
-echo '                  <div id="ID02" class="less">'
-echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
-echo '                    <p>Reboot is needed.<p>'
-echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
-echo '                    <ul>'
-echo '                      <li>hold down the shift key during booting, or</li>'
-echo '                      <li>edit the config.txt file manually</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr>'
-echo '                <td colspan="3">'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                </td>'
-echo '              </tr>'
-
-echo '            </form>'
-echo '          </table>'
-echo '          <br />'
-
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
-	echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
-	echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
-	echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
-
-	case $OVERCLOCK in
+	case "$OVERCLOCK" in 
 		NONE)
-			echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
-			echo '                 [ DEBUG ] core_freq=250<br />'
-			echo '                 [ DEBUG ] sdram_freq=400<br />'
-			echo '                 [ DEBUG ] force_turbo=1</p>'
+			OCnone="selected"
 			;;
 		MILD)
-			echo '<p class="debug">[ DEBUG ] arm_freq=800<br />' 
-			echo '                 [ DEBUG ] core_freq=250<br />'
-			echo '                 [ DEBUG ] sdram_freq=400<br />'
-			echo '                 [ DEBUG ] force_turbo=1</p>'
+			OCmild="selected"
 			;;
 		MODERATE)
-			echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
-			echo '                 [ DEBUG ] core_freq=333<br />'
-			echo '                 [ DEBUG ] sdram_freq=450<br />'
-			echo '                 [ DEBUG ] force_turbo=0</p>'
+			OCmoderate="selected"
+			;;
+		*)
+			OCnone=""
+			OCmild=""
+			OCmoderate=""
 			;;
 	esac
+
+	#----------------------------------------------------------------------------------------
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+
+	echo '              <tr class="even">'
+	echo '                <td class="column150">'
+	echo '                  <p>Overclock</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select name="OVERCLOCK">'
+	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
+	echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
+	echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
+	echo '                  <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a></p>'
+	echo '                  <div id="ID02" class="less">'
+	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
+	echo '                    <p>Reboot is needed.<p>'
+	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
+	echo '                    <ul>'
+	echo '                      <li>hold down the shift key during booting, or</li>'
+	echo '                      <li>edit the config.txt file manually</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr>'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+
+	echo '            </form>'
+	echo '          </table>'
+	echo '          <br />'
+
+	if [ $DEBUG = 1 ]; then 
+		echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
+		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
+		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
+		echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
+
+		case $OVERCLOCK in
+			NONE)
+				echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
+				echo '                 [ DEBUG ] core_freq=250<br />'
+				echo '                 [ DEBUG ] sdram_freq=400<br />'
+				echo '                 [ DEBUG ] force_turbo=1</p>'
+				;;
+			MILD)
+				echo '<p class="debug">[ DEBUG ] arm_freq=800<br />' 
+				echo '                 [ DEBUG ] core_freq=250<br />'
+				echo '                 [ DEBUG ] sdram_freq=400<br />'
+				echo '                 [ DEBUG ] force_turbo=1</p>'
+				;;
+			MODERATE)
+				echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
+				echo '                 [ DEBUG ] core_freq=333<br />'
+				echo '                 [ DEBUG ] sdram_freq=450<br />'
+				echo '                 [ DEBUG ] force_turbo=0</p>'
+				;;
+		esac
+	fi
 fi
-fi   # fi from the first if statement that disable overclock in RPi2 boards
  
 #----------------------------------------------Timezone----------------------------------
 [ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
@@ -751,7 +750,6 @@ echo '              </tr>'
 echo '              <tr class="odd">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
-[ $MODE -gt 4 ] &&
 echo '              <input type="submit" name="SUBMIT" value="Reset">'
 [ $MODE -eq 99 ] &&
 echo '              <input type="submit" name="SUBMIT" value="Clear">'
@@ -787,78 +785,77 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-if [ $MODE -gt 4 ]; then
+
 #----------------------------------------------User Commands---------------------------------
-	# Decode variables using httpd, no quotes
-	USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
-	USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
-	USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+# Decode variables using httpd, no quotes
+USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
+USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
+USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
 
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>User commands</legend>'
-	echo '            <table class="bggrey percent100">'
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>User commands</legend>'
+echo '            <table class="bggrey percent100">'
 
-	echo '              <tr class="even">'
-	echo '                <td class="column150">User command #1</td>'
-	echo '                <td>'
-	echo '                  <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" maxlength="254" value="'$USER_COMMAND_1'">'
-	echo '                </td>'
-	echo '              </tr>'
+echo '              <tr class="even">'
+echo '                <td class="column150">User command #1</td>'
+echo '                <td>'
+echo '                  <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" maxlength="254" value="'$USER_COMMAND_1'">'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '              <tr class="odd">'
-	echo '                <td class="column150">User command #2</td>'
-	echo '                <td>'
-	echo '                  <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" maxlength="254" value="'$USER_COMMAND_2'">'
-	echo '                </td>'
-	echo '              </tr>'
+echo '              <tr class="odd">'
+echo '                <td class="column150">User command #2</td>'
+echo '                <td>'
+echo '                  <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" maxlength="254" value="'$USER_COMMAND_2'">'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '              <tr class="even">'
-	echo '                <td class="column150">User command #3</td>'
-	echo '                <td>'
-	echo '                  <input class="large36" type="text" id="USER_COMMAND_3" name="USER_COMMAND_3" maxlength="254" value="'$USER_COMMAND_3'">'
-	echo '                </td>'
-	echo '              </tr>'
+echo '              <tr class="even">'
+echo '                <td class="column150">User command #3</td>'
+echo '                <td>'
+echo '                  <input class="large36" type="text" id="USER_COMMAND_3" name="USER_COMMAND_3" maxlength="254" value="'$USER_COMMAND_3'">'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '              <tr class="even">'
-	echo '                <td class="column150"></td>'
-	echo '                <td>'
-	echo '                  <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
-	echo '                  <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a></p>'
-	echo '                  <div id="ID12" class="less">'
-	echo '                    <p>This feature gives advanced users a couple of hooks into the startup procedure.'
-	echo '                       It will allow advanced users the ability to run extra instances of Squeezelite for example,'
-	echo '                       or maybe, run a Linux procedure that shuts down processes, like the web server to optimise performance.</p>'
-	echo '                    <p>User commands run after auto start LMS commands and auto start favorites.</p>'
-	echo '                    <p>User commands will run in order 1, 2, 3.</p>'
-	echo '                    <p><b>Example:</b></p>'
-	echo '                      <ul>'
-	echo '                        <li>ls /tmp >> /tmp/directory.log</li>'
-	echo '                      </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+echo '              <tr class="even">'
+echo '                <td class="column150"></td>'
+echo '                <td>'
+echo '                  <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a></p>'
+echo '                  <div id="ID12" class="less">'
+echo '                    <p>This feature gives advanced users a couple of hooks into the startup procedure.'
+echo '                       It will allow advanced users the ability to run extra instances of Squeezelite for example,'
+echo '                       or maybe, run a Linux procedure that shuts down processes, like the web server to optimise performance.</p>'
+echo '                    <p>User commands run after auto start LMS commands and auto start favorites.</p>'
+echo '                    <p>User commands will run in order 1, 2, 3.</p>'
+echo '                    <p><b>Example:</b></p>'
+echo '                      <ul>'
+echo '                        <li>ls /tmp >> /tmp/directory.log</li>'
+echo '                      </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '              <tr class="odd">'
-	echo '                <td colspan=2>'
-	echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
+echo '              <tr class="odd">'
+echo '                <td colspan=2>'
+echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                </td>'
+echo '              </tr>'
 
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 #----------------------------------------------------------------------------------------
-fi
 
 #----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg

@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
-# Version: 0.05 2015-02-25 SBP
+# Version: 0.05 2015-02-27 SBP
 #	Fixed support for Raspberry Pi 2 Model B.
 
 # Version: 0.04 2015-02-05 GE
@@ -63,7 +63,7 @@ pcp_rpi_details() {
 		*000e)  MODEL=B;  PCBREV=2;    MEMORY=512;;
 		*000f)  MODEL=B;  PCBREV=2;    MEMORY=512;;
 		*0012)  MODEL=A+; PCBREV=1;    MEMORY=256;;
-		*1041) MODEL=2B; PCBREV=1;    MEMORY=1024;;
+		*041)   MODEL=2B; PCBREV=1;    MEMORY=1024;;
 		*)      MODEL=?;  PCBREV=?;    MEMORY=?;;
 	esac
 
