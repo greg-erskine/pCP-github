@@ -102,14 +102,10 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
-
-fi
-
-# FIX: The following should be included in above??? I think.
-# Save changes caused by the presence of a newconfig.cfg file and then delete newconfig file
-if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then sudo filetool.sh -b; fi
+	pcp_save_to_config
 # Delete the newconfig file
 sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
+fi
 sleep 1
 sudo umount /mnt/mmcblk0p1
 

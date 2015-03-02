@@ -148,7 +148,11 @@ pcp_variables() {
 	# Steen, Variable names should be UPPERCASE by convention.
 	############################################################
 
+. pcp-rpi-functions
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
+if [ $(pcp_rpi_is_model_2B) = 0 ]; then
+	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
+fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
@@ -157,7 +161,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=99
+	MODE=1
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
