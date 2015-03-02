@@ -130,6 +130,8 @@
 #=========================================================================================
 # System wide variables
 #-----------------------------------------------------------------------------------------
+
+
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
 	CONFIGCFG=/usr/local/sbin/config.cfg
@@ -148,7 +150,7 @@ pcp_variables() {
 	# Steen, Variable names should be UPPERCASE by convention.
 	############################################################
 
-. pcp-rpi-functions
+. $pCPHOME/pcp-rpi-functions
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 if [ $(pcp_rpi_is_model_2B) = 0 ]; then
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"

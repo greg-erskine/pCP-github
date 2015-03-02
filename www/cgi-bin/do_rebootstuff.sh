@@ -96,7 +96,7 @@ if [ -f /mnt/sda1/newconfig.cfg ]; then sudo mv /mnt/sda1/newconfig.cfg /mnt/sda
 
 echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1...  ${NORMAL}"
 # Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
-sudo mount /dev/mmcblk0p1
+pcp_mount_mmcblk0p1_nohtml
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${YELLOW}- newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
@@ -106,8 +106,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 # Delete the newconfig file
 sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 fi
-sleep 1
-sudo umount /mnt/mmcblk0p1
+pcp_umount_mmcblk0p1_nohtml
 
 # Save the parameters to the wifi.db
 echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
