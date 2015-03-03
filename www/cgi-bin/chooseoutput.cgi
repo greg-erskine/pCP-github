@@ -105,7 +105,7 @@ case "$AUDIO" in
 	\"I2SAMP*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
 		echo '<textarea class="white" style="height: 130px;" >'
-			pcp_enable_i2s_AMP
+			pcp_enable_i2s_amp
 			sudo ./disablehdmi.sh
 		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
@@ -127,9 +127,9 @@ case "$AUDIO" in
 	\"I2SpDAC*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
 		echo '<textarea class="white" style="height: 130px;" >'
-			pcp_enable_hifiberry_dac_p
 			sudo ./disablehdmi.sh
-		echo '</textarea>'
+			pcp_enable_hifiberry_dac_p
+					echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
