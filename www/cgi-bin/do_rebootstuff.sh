@@ -248,4 +248,5 @@ echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Placed here in order to only backup once during do_rebootstuff
 # Save the parameters to the config file
 pcp_save_to_config
+pcp_backup_nohtml
 echo "${GREEN}Done.${NORMAL}"
