@@ -4,7 +4,7 @@
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp-functions
 # from your web browser.
 #
-# During testing, it is a pain to turn debugging on and off by editting pcp-functions
+# During testing, it is a pain to turn debugging on and off by editing pcp-functions
 # in a text editor. Problem solved!
 #
 # Options:
@@ -67,6 +67,7 @@ echo '                [ INFO ] TEST: '$TEST'<br />'
 echo '                [ INFO ] MODE: '$MODE'</p>'
 
 pcp_footer
+pcp_copyright
 pcp_refresh_button
 
 echo '</body>'

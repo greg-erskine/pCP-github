@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.03 2015-03-07 GE
+#	Added internet and sourceforge accessible.
+
 # Version: 0.02 2015-02-06 GE
 #	Reformatted.
 
@@ -19,16 +22,17 @@ LOG="/tmp/diagrpi.log"
 
 pcp_html_head "RasPi Diagnostics" "GE"
 
-if [ $MODE -lt 5 ]; then
-	echo '</body>'
-	echo '</html>'
-	exit 1
-fi
-
 pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
+
+if [ $MODE -lt 5 ]; then
+	echo '<p class="error">[ ERROR ] Wrong mode.</p>'
+	echo '</body>'
+	echo '</html>'
+	exit 1
+fi
 
 #========================================================================================
 # Raspberry Pi
@@ -275,6 +279,64 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+#========================================================================================
+# internet
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Internet</legend>'
+echo '          <table class="bggrey percent100">'
+echo '            <tr class="even">'
+
+					if [ $(pcp_internet_accessible) = 0 ]; then
+						IMAGE="green.png"
+						STATUS="Internet found..."
+					else
+						IMAGE="red.png"
+						STATUS="Internet not found!!"
+					fi
+
+echo '              <td class="column150">'
+echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+echo '              </td>'
+echo '              <td class="column150">'
+echo '                <p>'$STATUS'</p>'
+echo '              </td>'
+
+					if [ $(pcp_sourceforge_accessible) = 0 ]; then
+						IMAGE="green.png"
+						STATUS="Sourceforge accessible..."
+					else
+						IMAGE="red.png"
+						STATUS="Sourceforge not accessible!!"
+					fi
+
+echo '              <td class="column150">'
+echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+echo '              </td>'
+echo '              <td class="column150">'
+echo '                <p>'$STATUS'</p>'
+echo '              </td>'
+
+echo '              <td class="column150">'
+echo '                <p></p>'
+echo '              </td>'
+echo '              <td class="column150">'
+echo '                <p></p>'
+echo '              </td>'
+echo '            </tr>'
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
 pcp_footer
 pcp_copyright
 pcp_go_main_button

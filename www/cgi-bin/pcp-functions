@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.30 2015-03-06 GE
+#	Added pcp_internet_accessible.
+#	Added pcp_sourceforge_accessible.
+
 # Version: 0.29 2015-02-15 SBP
 #	Redirected errors for pcp_wlan0_mac_address, pcp_eth0_mac_address, pcp_controls_mac_address.
 #	Commented out sudo modprobe -q bcm2708_dmaengine.
@@ -130,8 +134,6 @@
 #=========================================================================================
 # System wide variables
 #-----------------------------------------------------------------------------------------
-
-
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
 	CONFIGCFG=/usr/local/sbin/config.cfg
@@ -150,11 +152,11 @@ pcp_variables() {
 	# Steen, Variable names should be UPPERCASE by convention.
 	############################################################
 
-. $pCPHOME/pcp-rpi-functions
+	. $pCPHOME/pcp-rpi-functions
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
-if [ $(pcp_rpi_is_model_2B) = 0 ]; then
-	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
-fi
+	if [ $(pcp_rpi_is_model_2B) = 0 ]; then
+		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
+	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
@@ -163,7 +165,7 @@ fi
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=1
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -184,6 +186,19 @@ MAGENTA="$(echo -e '\033[1;35m')"
 CYAN="$(echo -e '\033[1;36m')"
 WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
+
+#=========================================================================================
+# Test if the internet is accessible.
+#-----------------------------------------------------------------------------------------
+pcp_internet_accessible() {
+	ping -w5 -c3 8.8.8.8 >/dev/null 2>&1
+	echo $?
+}
+
+pcp_sourceforge_accessible() {
+	wget -s http://sourceforge.net/projects/picoreplayer/files/ >/dev/null 2>&1
+	echo $?
+}
 
 #=========================================================================================
 # Update the Timezone routine
@@ -215,12 +230,12 @@ pcp_config_mac_address() {
 
 pcp_wlan0_mac_address() {
 	# The wireless MAC address (if installed)
-	ifconfig wlan0 2>&1 |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+	ifconfig wlan0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
 }
 
 pcp_eth0_mac_address() {
 	# The physical MAC address of Raspberry Pi Model B
-	ifconfig eth0 2>&1 |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+	ifconfig eth0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
 }
 
 pcp_controls_mac_address() {

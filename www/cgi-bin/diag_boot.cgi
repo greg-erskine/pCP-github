@@ -1,6 +1,9 @@
 #!/bin/sh
 # Boot diagnostics script
 
+# Version: 0.02 2015-03-07 GE
+#	Minor updates.
+
 # version: 0.01 2014-10-22 GE
 #	Orignal.
 
@@ -15,18 +18,18 @@ LOG="/tmp/diagboot.log"
 
 pcp_html_head "Boot Diagnostics" "GE"
 
-if [ $MODE -lt 5 ]; then
-	echo '</body>'
-	echo '</html>'
-	exit 1
-fi
-
 pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
 pcp_refresh_button
 pcp_go_main_button
+
+if [ $MODE -lt 5 ]; then
+	echo '</body>'
+	echo '</html>'
+	exit 1
+fi
 
 #=========================================================================================
 # Boot files in order of execution
@@ -52,7 +55,11 @@ echo '<p>Additional files that are run during the boot process that may be of in
 pcp_textarea "" "cat /etc/init.d/tc-functions" 600 log
 pcp_textarea "" "cat /proc/cmdline" 100 log
 
+echo '<br />'
+echo '<br />'
+
 pcp_footer
+pcp_copyright
 pcp_refresh_button
 
 echo '</body>'
