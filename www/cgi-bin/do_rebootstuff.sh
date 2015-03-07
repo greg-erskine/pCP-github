@@ -103,10 +103,29 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
+
 # Delete the newconfig file
 sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 fi
 pcp_umount_mmcblk0p1_nohtml
+
+
+	# If using a RPi-A+ card with wifi on we need to load the wireless firmware if not already loaded and then reboot
+	if [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $WIFI == "\"on\"" ]; then
+		if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
+			then
+			echo "${BLUE}wifi firmware already loaded${NORMAL}"
+			else
+			# Add wifi related modules back
+			sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+			echo "${BLUE}Will reboot now and then wifi firmware will be loaded${NORMAL}"
+			pcp_save_to_config
+			pcp_backup_nohtml
+			sleep 4
+			sudo reboot 
+		fi
+	fi
+
 
 # Save the parameters to the wifi.db
 echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
@@ -247,6 +266,6 @@ echo "${GREEN}Done.${NORMAL}"
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Placed here in order to only backup once during do_rebootstuff
 # Save the parameters to the config file
-pcp_save_to_config
+# pcp_save_to_config
 pcp_backup_nohtml
 echo "${GREEN}Done.${NORMAL}"
