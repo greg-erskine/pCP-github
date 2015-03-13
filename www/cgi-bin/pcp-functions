@@ -3,7 +3,8 @@
 # These are the common functions used by piCorePlayer.
 
 # Version: 0.31 2015-03-12 GE
-#	Updated and fixed spelling of the Visualiser option. 
+#	Updated and fixed spelling of the Visualiser option.
+#	Fixed User commands typo.
 
 # Version: 0.30 2015-03-10 GE
 #	Added pcp_internet_accessible.
@@ -930,9 +931,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
 	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
 	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
 	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
 	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
 	sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
@@ -949,8 +950,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
 	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_2\"/" $CONFIGCFG
+	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_3\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -983,10 +984,10 @@ HOST="piCorePlayer"
 SSID="wireless"
 PASSWORD="password"
 ENCRYPTION="WPA"
+WIFI="off"
 TIMEZONE=""
 OVERCLOCK="NONE"
 CMD="Default"
-WIFI="off"
 FIQ="0x7"
 ALSAlevelout="Default"
 REBOOT="Disabled"

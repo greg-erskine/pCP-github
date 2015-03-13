@@ -69,7 +69,7 @@ pcp_banner
 pcp_navigation
 
 #========================================================================================
-# Set current Audio out to selected
+# Set Audio out selected value
 #----------------------------------------------------------------------------------------
 case "$AUDIO" in
 	Analog*)
@@ -108,6 +108,18 @@ case "$AUDIO" in
 esac
 
 #========================================================================================
+# Set Visualiser selected value
+#----------------------------------------------------------------------------------------
+case "$VISUALISER" in
+	yes)
+		VISUALISERYES="checked"
+		;;
+	*)
+		VISUALISERNO="checked"
+		;;
+esac
+
+#========================================================================================
 # Create Squeezelite command string
 #----------------------------------------------------------------------------------------
 STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
@@ -123,7 +135,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$SERVER_IP" ]   && STRING="$STRING -s $SERVER_IP"
 [ x"" != x"$LOGLEVEL" ]    && STRING="$STRING -d $LOGLEVEL"
 [ x"" != x"$DSDOUT" ]      && STRING="$STRING -D $DSDOUT"
-[ x"" != x"$VISULISER" ]   && STRING="$STRING -v"
+[ x"" != x"$VISUALISER" ]  && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
 [ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /mnt/sda1/$LOGFILE"
@@ -517,7 +529,9 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Visualiser support</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="VISUALISER" name="VISUALISER" value="'$VISUALISER'">'
+echo '                  <input class="small1" type="radio" id="VISUALISER" name="VISUALISER" value="yes" '$VISUALISERYES'>Yes&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" id="VISUALISER" name="VISUALISER" value="" '$VISUALISERNO'>No'
+echo '                </td>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Visualiser support (-v)&nbsp;&nbsp;'
