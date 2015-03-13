@@ -2,9 +2,14 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2015-03-06 GE
+# Version: 0.31 2015-03-12 GE
+#	Updated and fixed spelling of the Visualiser option. 
+
+# Version: 0.30 2015-03-10 GE
 #	Added pcp_internet_accessible.
 #	Added pcp_sourceforge_accessible.
+#	Added variable ASOUNDCONF.
+#	Added pcp_mode_lt_99 and pcp_mode_lt_5
 
 # Version: 0.29 2015-02-15 SBP
 #	Redirected errors for pcp_wlan0_mac_address, pcp_eth0_mac_address, pcp_controls_mac_address.
@@ -143,6 +148,7 @@ pcp_variables() {
 	BOOTSYNC=/opt/bootsync.sh
 	SHUTDOWN=/opt/shutdown.sh
 	HTTPDCONF=/home/tc/httpd.conf
+	ASOUNDCONF=/etc/asound.conf
 	WIFIDB=/home/tc/wifi.db
 	VOLUME=/mnt/mmcblk0p1
 	DEVICE=/dev/mmcblk0p1
@@ -165,7 +171,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=99
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -200,6 +206,26 @@ pcp_sourceforge_accessible() {
 	echo $?
 }
 
+#=========================================================================================
+# Test mode level.
+#-----------------------------------------------------------------------------------------
+pcp_mode_lt_99() {
+	if [ $MODE -lt 99 ]; then
+		echo '<p class="error">[ ERROR ] Wrong mode.</p>'
+		echo '</body>'
+		echo '</html>'
+		exit 1
+	fi
+}
+
+pcp_mode_lt_5() {
+	if [ $MODE -lt 5 ]; then
+		echo '<p class="error">[ ERROR ] Wrong mode.</p>'
+		echo '</body>'
+		echo '</html>'
+		exit 1
+	fi
+}
 #=========================================================================================
 # Update the Timezone routine
 #
@@ -896,7 +922,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $CONFIGCFG
 	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $CONFIGCFG
 	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(VISULIZER=\).*/\1\"$VISULIZER\"/" $CONFIGCFG
+	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $CONFIGCFG
 	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
 	sudo sed -i "s/\(OTHER=\).*/\1\"$OTHER\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
@@ -950,7 +976,7 @@ SERVER_IP=""
 LOGLEVEL=""
 LOGFILE=""
 DSDOUT=""
-VISULIZER=""
+VISUALISER=""
 OTHER=""
 AUDIO="Analog"
 HOST="piCorePlayer"

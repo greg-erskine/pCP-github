@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2015-03-13 SBP
+#	Fixed VISUALISER -v option.
+
 # Version: 0.03 2015-02-08 SBP
 #	Changed how we check the status of squeezelite.
 
@@ -35,7 +38,7 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$SERVER_IP" ]   && SERVER_IP="-s $SERVER_IP"
 [ x"" != x"$LOGLEVEL" ]    && LOGLEVEL="-d $LOGLEVEL"
 [ x"" != x"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
-[ x"" != x"$VISULIZER" ]   && VISULIZER="-V $VISULIZER"
+[ x"" != x"$VISUALISER" ]  && VISUALISER="-v"
 [ x"" != x"$CLOSEOUT" ]    && CLOSEOUT="-C $CLOSEOUT"
 [ x"" != x"$OTHER" ]       && OTHER="$OTHER"
 [ x"" != x"$LOGFILE" ]     && LOGFILE="-f /mnt/sda1/$LOGFILE"
@@ -47,7 +50,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISULIZER $CLOSEOUT $OTHER $LOGFILE
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $OTHER $LOGFILE
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then

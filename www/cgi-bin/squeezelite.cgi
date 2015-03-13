@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.14 2015-03-13 GE
+#	Updated and fixed spelling of the Visualiser option.
+#	Added pcp_rpi_model_unknown checks.
+
 # Version: 0.13 2015-03-06 GE
 #	Updated help.
 
@@ -119,7 +123,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$SERVER_IP" ]   && STRING="$STRING -s $SERVER_IP"
 [ x"" != x"$LOGLEVEL" ]    && STRING="$STRING -d $LOGLEVEL"
 [ x"" != x"$DSDOUT" ]      && STRING="$STRING -D $DSDOUT"
-[ x"" != x"$VISULIZER" ]   && STRING="$STRING -V $VISULIZER"
+[ x"" != x"$VISULISER" ]   && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
 [ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /mnt/sda1/$LOGFILE"
@@ -146,14 +150,14 @@ echo '                    <option value="Analog" id="ANALOG" '$ANCHECKED'>Analog
 echo '                    <option value="HDMI" id="HDMI" '$HDMICHECKED'>HDMI audio</option>'
 echo '                    <option value="USB" id="USB" '$USBCHECKED'>USB audio</option>'
 
-if [ $(pcp_rpi_is_model_B_rev_2) = 0 ]; then
+if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'>I2S-audio HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
 	echo '                    <option value="I2SDIG" id="I2SDIG" '$I2DIGCHECKED'>I2S-audio HiFiBerry Digi</option>'
 	echo '                    <option value="IQaudio" id="IQaudio" '$IQaudioCHECKED'>I2S-audio IQaudIO Pi-DAC</option>'
 	echo '                    <option value="I2SAMP" id="I2SAMP" '$I2AMPCHECKED'>I2S-audio HiFiBerry AMP</option>'
 fi
 
-if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ]; then
+if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'>I2S-audio generic</option>'
 	echo '                    <option value="I2SpDAC" id="I2SpDAC" '$I2SDACpCHECKED'>I2S-audio+ HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" id="I2SpDIG" '$I2SDIGpCHECKED'>I2S-audio+ HiFiBerry Digi+</option>'
@@ -513,7 +517,7 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Visualiser support</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="VISULIZER" name="VISULIZER" value="'$VISULIZER'">'
+echo '                  <input class="large15" type="text" id="VISUALISER" name="VISUALISER" value="'$VISUALISER'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Visualiser support (-v)&nbsp;&nbsp;'
