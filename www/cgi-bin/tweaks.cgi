@@ -86,6 +86,75 @@ echo '            </form>'
 echo '          </table>'
 echo '          <br />'
 
+
+#--------------------------------------Jivelite-----------------------------------------
+
+#---------------------------------------Jivelite----------------------------------------
+# Function to check the radio button according to config.cfg file
+#----------------------------------------------------------------------------------------
+	case "$JIVELITE" in 
+		YES)
+			JIVEyes="selected"
+			;;
+		NO)
+			JIVEno="selected"
+			;;
+		*)
+			JIVEyes=""
+			JIVEno=""
+			;;
+	esac
+
+	#----------------------------------------------------------------------------------------
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
+
+	echo '              <tr class="even">'
+	echo '                <td class="column150">'
+	echo '                  <p>Jivelite</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select name="JIVELITE">'
+	echo '                    <option value="YES" '$JIVEyes'>Use Jivelite (download and install)</option>'
+	echo '                    <option value="NO" '$JIVEno'>Do not use Jivelite (remove all traces)</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enable/disable Jivelite&nbsp;&nbsp;'
+	echo '                  <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a></p>'
+	echo '                  <div id="ID02" class="less">'
+	echo '                    <p>&lt;Allows to view control and piCorePlayer via Jivelite on an attached screen&gt;</p>'
+	echo '                    <p>Reboot is needed.<p>'
+	echo '                    <p><b>Note:</b> For the first configuration of Jivelite a keyboard is needed</p>'
+	echo '                    <ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr>'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+
+	echo '            </form>'
+	echo '          </table>'
+	echo '          <br />'
+
+	if [ $DEBUG = 1 ]; then 
+		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
+		echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
+		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'<br />'
+
+	fi
+
+
+ 
+
+
+
+#--End Jivelite--------------------------
+
+
 #---------------------------------------Overclock----------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------

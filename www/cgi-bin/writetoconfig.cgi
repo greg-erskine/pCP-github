@@ -29,30 +29,20 @@ pcp_httpd_query_string
 #========================================================================================
 # Save configuration
 #----------------------------------------------------------------------------------------
+
 pcp_save() {
 	# Decode Squeezelite variables using httpd
 	# ----------------------------------------
-	NAME=`sudo /usr/local/sbin/httpd -d $NAME`
-	OUTPUT=`sudo /usr/local/sbin/httpd -d $OUTPUT`
-	ALSA_PARAMS=`sudo /usr/local/sbin/httpd -d $ALSA_PARAMS`
-	BUFFER_SIZE=`sudo /usr/local/sbin/httpd -d $BUFFER_SIZE`
-	_CODEC=`sudo /usr/local/sbin/httpd -d $_CODEC`
-	PRIORITY=`sudo /usr/local/sbin/httpd -d $PRIORITY`
-	MAX_RATE=`sudo /usr/local/sbin/httpd -d $MAX_RATE`
-	UPSAMPLE=`sudo /usr/local/sbin/httpd -d $UPSAMPLE`
-	MAC_ADDRESS=`sudo /usr/local/sbin/httpd -d $MAC_ADDRESS`
-	SERVER_IP=`sudo /usr/local/sbin/httpd -d $SERVER_IP`
-	LOGLEVEL=`sudo /usr/local/sbin/httpd -d $LOGLEVEL`
-	LOGFILE=`sudo /usr/local/sbin/httpd -d $LOGFILE`
-	DSDOUT=`sudo /usr/local/sbin/httpd -d $DSDOUT`
-	VISULIZER=`sudo /usr/local/sbin/httpd -d $VISULIZER`
-	CLOSEOUT=`sudo /usr/local/sbin/httpd -d $CLOSEOUT`
-	OTHER=`sudo /usr/local/sbin/httpd -d $OTHER`
+	pcp_httpd_query_string
 
 	# Save the variables to the config file
 	# -------------------------------------
 	pcp_save_to_config
 }
+
+
+
+
 
 #========================================================================================
 # Reset configuration
