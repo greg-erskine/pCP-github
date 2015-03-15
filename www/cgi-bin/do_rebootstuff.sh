@@ -263,7 +263,7 @@ echo -n "${BLUE}Starting crond... ${NORMAL}"
 /etc/init.d/services/crond start 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
-if [ $JIVELITE == "\"YES\"" ]; then
+if [ $JIVELITE = "YES" ]; then
 echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
 /opt/jivelite/bin/jivelite-sp 2>&1
 echo "${GREEN}Done.${NORMAL}"
