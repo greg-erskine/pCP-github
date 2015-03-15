@@ -263,6 +263,12 @@ echo -n "${BLUE}Starting crond... ${NORMAL}"
 /etc/init.d/services/crond start 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
+if [ $JIVELITE == "\"YES\"" ]; then
+echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+/opt/jivelite/bin/jivelite-sp 2>&1
+echo "${GREEN}Done.${NORMAL}"
+fi
+
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Placed here in order to only backup once during do_rebootstuff
 # Save the parameters to the config file

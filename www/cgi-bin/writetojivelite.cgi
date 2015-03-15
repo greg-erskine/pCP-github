@@ -28,9 +28,8 @@ sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'</p>'
 
-
+if [ $JIVELITE == "\"YES\"" ]; then
 echo '<h1>[ INFO ] Downloading Jivelite from Github</h1>'
-
 
 downloadtcz="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz"
 downloadmd5="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz.md5.txt"
@@ -57,15 +56,39 @@ else
 	sudo chmod u+x /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 fi
 
+else
+#that is if Jivelite is "NO"
+echo '<h1>[ INFO ] Removing Jivelite from piCorePlayer</h1>'
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+fi
 
-# Next we need to make a script that will do the following:
-#  1. add/remove jivelite.tcz from /mnt/mmcblk0p2/tce/onboot.lst depending on JIVELITE=YES or NO in config.cfg
-#  2. add/remove /opt/jivelite/bin/jivelite-sp from "user command" depending on JIVELITE=YES or NO in config.cfg  
-#  3. add/remove opt/jivelite/bin/jivelite-sp to /opt/.xfiletool.lst depending on JIVELITE=YES or NO in config.cfg
-#
 
+if [ $JIVELITE == "\"YES\"" ]; then
+	if grep -Fxq "jivelite.tcz" /mnt/mmcblk0p2/tce/onboot.lst
+	then
+		echo "Jivelite already present in onboot.lst"
+	else
+		echo "Jivelite is added to onboot.lst"
+		sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+		sudo echo 'jivelite.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 
+	fi
+else
+		echo "Jivelite is removed from onboot.lst"
+		sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+fi
 
+if [ $JIVELITE == "\"YES\"" ]; then
+	echo "Jivelite is added to xfiletool.lst"
+		sed -i '/^opt\/jivelite\/bin\/jivelite-sp/d' /opt/.xfiletool.lst
+		sudo echo 'opt/jivelite/bin/jivelite-sp' >> /opt/.xfiletool.lst
+	else
+	echo "Jivelite is removed from xfiletool.lst"
+ 		sed -i '/^opt\/jivelite\/bin\/jivelite-sp/d' /opt/.xfiletool.lst
+fi
+
+#------------END Jivelite------------------------
 
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
