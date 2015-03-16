@@ -1,13 +1,6 @@
 #!/bin/sh
 
-# Version: 0.03 2015-01-28 GE
-#	Included changefiq.sh.
-
-# Version: 0.02 2014-12-10 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
-# Version: 0.01 2014-08-06 SBP
+# Version: 0.01 2015-15-03 SBP
 #   Original version.
 
 . pcp-functions
@@ -20,15 +13,21 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-#----------Jivelite download-----------------
-# Decode $JIVELITE using httpd, add quotes
+pcp_squeezelite_stop
+
+#----------Jivelite download and adding -v to squeezelite string-----------------
 JIVELITE=`sudo /usr/local/sbin/httpd -d \"$JIVELITE\"`
 sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
+. $CONFIGCFG
 
+if [ $JIVELITE = YES ]; then
+VISUALISER="yes"
+fi
+pcp_save_to_config
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'</p>'
 
-if [ $JIVELITE == "\"YES\"" ]; then
+if [ $JIVELITE = YES ]; then
 echo '<h1>[ INFO ] Downloading Jivelite from Github</h1>'
 
 downloadtcz="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz"
@@ -64,7 +63,7 @@ echo '<h1>[ INFO ] Removing Jivelite from piCorePlayer</h1>'
 fi
 
 
-if [ $JIVELITE == "\"YES\"" ]; then
+if [ $JIVELITE = YES ]; then
 	if grep -Fxq "jivelite.tcz" /mnt/mmcblk0p2/tce/onboot.lst
 	then
 		echo "Jivelite already present in onboot.lst"
@@ -79,7 +78,7 @@ else
 		sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 fi
 
-if [ $JIVELITE == "\"YES\"" ]; then
+if [ $JIVELITE = YES ]; then
 	echo "Jivelite is added to xfiletool.lst"
 		sed -i '/^opt\/jivelite\/bin\/jivelite-sp/d' /opt/.xfiletool.lst
 		sudo echo 'opt/jivelite/bin/jivelite-sp' >> /opt/.xfiletool.lst
@@ -89,9 +88,12 @@ if [ $JIVELITE == "\"YES\"" ]; then
 fi
 
 #------------END Jivelite------------------------
+pcp_squeezelite_start
+
 
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
+
 pcp_go_back_button
 
 echo '</body>'
