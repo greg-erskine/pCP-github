@@ -20,7 +20,7 @@
 pcp_variables
 . $CONFIGCFG
 
-pcp_html_head "Write Write to config.cfg" "SBP" "15" "squeezelite.cgi"
+pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
 pcp_banner
 pcp_running_script
@@ -33,7 +33,23 @@ pcp_httpd_query_string
 pcp_save() {
 	# Decode Squeezelite variables using httpd
 	# ----------------------------------------
-	pcp_httpd_query_string
+	JIVELITE=`sudo /usr/local/sbin/httpd -d \"$JIVELITE\"`
+	NAME=`sudo /usr/local/sbin/httpd -d $NAME`
+	OUTPUT=`sudo /usr/local/sbin/httpd -d $OUTPUT`
+	ALSA_PARAMS=`sudo /usr/local/sbin/httpd -d $ALSA_PARAMS`
+	BUFFER_SIZE=`sudo /usr/local/sbin/httpd -d $BUFFER_SIZE`
+	_CODEC=`sudo /usr/local/sbin/httpd -d $_CODEC`
+	PRIORITY=`sudo /usr/local/sbin/httpd -d $PRIORITY`
+	MAX_RATE=`sudo /usr/local/sbin/httpd -d $MAX_RATE`
+	UPSAMPLE=`sudo /usr/local/sbin/httpd -d $UPSAMPLE`
+	MAC_ADDRESS=`sudo /usr/local/sbin/httpd -d $MAC_ADDRESS`
+	SERVER_IP=`sudo /usr/local/sbin/httpd -d $SERVER_IP`
+	LOGLEVEL=`sudo /usr/local/sbin/httpd -d $LOGLEVEL`
+	LOGFILE=`sudo /usr/local/sbin/httpd -d $LOGFILE`
+	DSDOUT=`sudo /usr/local/sbin/httpd -d $DSDOUT`
+	VISUALISER=`sudo /usr/local/sbin/httpd -d $VISUALISER`
+	CLOSEOUT=`sudo /usr/local/sbin/httpd -d $CLOSEOUT`
+	OTHER=`sudo /usr/local/sbin/httpd -d $OTHER`
 
 	# Save the variables to the config file
 	# -------------------------------------
