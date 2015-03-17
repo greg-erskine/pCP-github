@@ -82,11 +82,11 @@ fi
 
 if [ $JIVELITE = YES ]; then
 	echo "Jivelite is added to xfiletool.lst"
-		sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+		sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 		sudo echo 'opt/jivelite' >> /opt/.xfiletool.lst
 	else
 	echo "Jivelite is removed from xfiletool.lst"
- 		sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+ 		sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 fi
 
 #-------------Cleanup---------------------------
