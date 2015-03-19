@@ -43,7 +43,7 @@ pcp_lms_request() {
 	set -- $1
 	NUM=$(($#+1))
 	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | awk '{ print $'$NUM' }'`
-	echo `sudo /usr/local/sbin/httpd -d $RESULT`
+	echo `sudo $HTPPD -d $RESULT`
 }
 
 pcp_lms_request_list() {
@@ -51,7 +51,7 @@ pcp_lms_request_list() {
 	set -- $1
 	NUM=$(($#+2))
 	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | sed 's/ /\+/g' `
-	echo `sudo /usr/local/sbin/httpd -d $RESULT`
+	echo `sudo $HTPPD -d $RESULT`
 }
 
 pcp_lms_request_debug() {

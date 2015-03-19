@@ -142,6 +142,11 @@
 #-----------------------------------------------------------------------------------------
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
+
+### Greg we should probably change this but for now we need to add/remove the ## in order to use the correct path to the httpd binary:
+
+#	HTPPD=/usr/local/sbin/httpd    # here the previous version is
+ 	HTPPD=/usr/local/sbin/busybox-httpd  # after updating bussy-box it is located here
 	CONFIGCFG=/usr/local/sbin/config.cfg
 	CONFIGTXT=/mnt/mmcblk0p1/config.txt
 	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
@@ -236,7 +241,7 @@ pcp_mode_lt_5() {
 #-----------------------------------------------------------------------------------------
 pcp_set_timezone() {
 	[ -f /etc/sysconfig/timezone ] && sudo rm -f /etc/sysconfig/timezone
-	TIMEZONE=`sudo /usr/local/sbin/httpd -d $TIMEZONE`
+	TIMEZONE=`sudo $HTPPD -d $TIMEZONE`
 	echo "TZ="$TIMEZONE > /etc/sysconfig/timezone
 	sudo chown root:root /etc/sysconfig/timezone
 	sudo chmod 644 /etc/sysconfig/timezone
@@ -402,7 +407,7 @@ pcp_favorites() {
 		# Note: Function pcp_lmsip still being tested
 		##############################################
 		FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-		FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+		FAVLIST=`sudo $HTPPD -d $FAVLIST`
 
 		echo '<!-- Start of pcp_favorites -->'
 		echo '<table class="bgblack">'
@@ -644,7 +649,7 @@ pcp_auto_start_lms() {
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		# Decode variables using httpd, no quotes
-		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+		AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 		for i in 1 2 3 4 5
 		do
 			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $SERVER_IP_NO_PORT 9090 | awk '{ print $3 }'`
@@ -661,10 +666,10 @@ pcp_auto_start_lms() {
 
 pcp_autofav_id() {
 	# Decode variable using httpd, no quotes
-	AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
+	AUTOSTARTFAV=`sudo $HTPPD -d $AUTOSTARTFAV`
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	# Decode variable using httpd, no quotes
-	FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+	FAVLIST=`sudo $HTPPD -d $FAVLIST`
 
 	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
 	BEGIN {
@@ -729,15 +734,15 @@ pcp_start_fav() {
 
 pcp_user_commands() {
 	if [ x"" != x"$USER_COMMAND_1" ]; then
-		USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
+		USER_COMMAND_1=`sudo $HTPPD -d $USER_COMMAND_1`
 		eval "$USER_COMMAND_1"
 	fi
 	if [ x"" != x"$USER_COMMAND_2" ]; then
-		USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
+		USER_COMMAND_2=`sudo $HTPPD -d $USER_COMMAND_2`
 		eval "$USER_COMMAND_2"
 	fi
 	if [ x"" != x"$USER_COMMAND_3" ]; then
-		USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+		USER_COMMAND_3=`sudo $HTPPD -d $USER_COMMAND_3`
 		eval "$USER_COMMAND_3"
 	fi
 }

@@ -367,7 +367,7 @@ echo '          <legend>Auto start tweaks</legend>'
 
 #----------------------------------------------Auto start favorite-----------------------------
 # Decode variables using httpd, no quotes
-AUTOSTARTFAV=`sudo /usr/local/sbin/httpd -d $AUTOSTARTFAV`
+AUTOSTARTFAV=`sudo $HTPPD -d $AUTOSTARTFAV`
 
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
@@ -380,7 +380,7 @@ echo '                  <select name="AUTOSTARTFAV">'
 # Generate a list of options
 
 FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-FAVLIST=`sudo /usr/local/sbin/httpd -d $FAVLIST`
+FAVLIST=`sudo $HTPPD -d $FAVLIST`
 echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
 BEGIN {
 	RS="id:"
@@ -458,7 +458,7 @@ echo '          <br />'
 
 #----------------------------------------------Autostart LMS-----------------------------
 # Decode variables using httpd, no quotes
-AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
+AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
@@ -857,9 +857,9 @@ echo '</table>'
 
 #----------------------------------------------User Commands---------------------------------
 # Decode variables using httpd, no quotes
-USER_COMMAND_1=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_1`
-USER_COMMAND_2=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_2`
-USER_COMMAND_3=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_3`
+USER_COMMAND_1=`sudo $HTPPD -d $USER_COMMAND_1`
+USER_COMMAND_2=`sudo $HTPPD -d $USER_COMMAND_2`
+USER_COMMAND_3=`sudo $HTPPD -d $USER_COMMAND_3`
 
 echo '<table class="bggrey">'
 echo '  <tr>'

@@ -17,7 +17,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Decode Host name using httpd
-HOST=`sudo /usr/local/sbin/httpd -d \"$HOST\"`
+HOST=`sudo $HTPPD -d \"$HOST\"`
 
 # Update host name in config.cfg file
 sudo sed -i "s/\(HOST *=*\).*/\1$HOST/" $CONFIGCFG

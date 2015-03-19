@@ -28,7 +28,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Decode SUBMIT variable using httpd
-SUBMIT=`sudo /usr/local/sbin/httpd -d $SUBMIT`
+SUBMIT=`sudo $HTPPD -d $SUBMIT`
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT
 
 #----------------------------------------------------------------------------------------
@@ -64,12 +64,12 @@ fi
 # Reboot piCorePlayer section 
 #----------------------------------------------------------------------------------------
 # Decode Reboot variables using httpd, add quotes
-REBOOT=`sudo /usr/local/sbin/httpd -d \"$REBOOT\"`
-RB_H=`sudo /usr/local/sbin/httpd -d \"$RB_H\"`
+REBOOT=`sudo $HTPPD -d \"$REBOOT\"`
+RB_H=`sudo $HTPPD -d \"$RB_H\"`
 if [[ x'""' = x"$RB_H" ]]; then  RB_H='"0"'; else break; fi
-RB_WD=`sudo /usr/local/sbin/httpd -d \"$RB_WD\"`
+RB_WD=`sudo $HTPPD -d \"$RB_WD\"`
 if [[ x'""' = x"$RB_WD" ]]; then  RB_WD='"0"'; else break; fi
-RB_DMONTH=`sudo /usr/local/sbin/httpd -d \"$RB_DMONTH\"`
+RB_DMONTH=`sudo $HTPPD -d \"$RB_DMONTH\"`
 if [[ x'""' = x"$RB_DMONTH" ]]; then  RB_DMONTH='"1"'; else break; fi
 
 sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
@@ -81,12 +81,12 @@ sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
 # Restart Squeezelite section
 #----------------------------------------------------------------------------------------
 # Decode Reboot variables using httpd, add quotes
-RESTART=`sudo /usr/local/sbin/httpd -d \"$RESTART\"`
-RS_H=`sudo /usr/local/sbin/httpd -d \"$RS_H\"`
+RESTART=`sudo $HTPPD -d \"$RESTART\"`
+RS_H=`sudo $HTPPD -d \"$RS_H\"`
 if [[ x'""' = x"$RS_H" ]]; then  RS_H='"0"'; else break; fi
-RS_WD=`sudo /usr/local/sbin/httpd -d \"$RS_WD\"`
+RS_WD=`sudo $HTPPD -d \"$RS_WD\"`
 if [[ x'""' = x"$RS_WD" ]]; then  RS_WD='"0"'; else break; fi
-RS_DMONTH=`sudo /usr/local/sbin/httpd -d \"$RS_DMONTH\"`
+RS_DMONTH=`sudo $HTPPD -d \"$RS_DMONTH\"`
 if [[ x'""' = x"$RS_DMONTH" ]]; then  RS_DMONTH='"1"'; else break; fi
 
 sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG

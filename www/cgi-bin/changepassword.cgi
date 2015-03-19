@@ -17,8 +17,8 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Decode variables using httpd
-NEWPASSWORD=`sudo /usr/local/sbin/httpd -d $NEWPASSWORD`
-CONFIRMPASSWORD=`sudo /usr/local/sbin/httpd -d $CONFIRMPASSWORD`
+NEWPASSWORD=`sudo $HTPPD -d $NEWPASSWORD`
+CONFIRMPASSWORD=`sudo $HTPPD -d $CONFIRMPASSWORD`
 
 if [ $NEWPASSWORD = $CONFIRMPASSWORD ]; then
 	[ $DEBUG = 1 ] && echo '<p class="info">[ INFO ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'

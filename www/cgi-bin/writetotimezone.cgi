@@ -23,7 +23,7 @@ pcp_httpd_query_string
 sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
 
 # Decode variables using httpd, no quotes
-TIMEZONE=`sudo /usr/local/sbin/httpd -d $TIMEZONE`
+TIMEZONE=`sudo $HTPPD -d $TIMEZONE`
 
 echo '<p class="info">[ INFO ] Timezone: '$TIMEZONE'</p>'
 

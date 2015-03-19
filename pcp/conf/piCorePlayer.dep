@@ -1,9 +1,14 @@
 dropbear.tcz
 busybox-httpd.tcz
+ncurses.tcz
+alsa.tcz
+alsa-config.tcz
 libffmpeg.tcz
+libvorbis.tcz
 libfaad.tcz
 libsoxr.tcz
 libmad.tcz
+flac.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
 firmware-atheros.tcz

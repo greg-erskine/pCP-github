@@ -32,7 +32,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Decode variables using httpd, add quotes
-AUDIO=`sudo /usr/local/sbin/httpd -d \"$AUDIO\"`
+AUDIO=`sudo $HTPPD -d \"$AUDIO\"`
 
 # Save variable $AUDIO to the config file
 sudo sed -i "s/\(AUDIO *=*\).*/\1$AUDIO/" $CONFIGCFG

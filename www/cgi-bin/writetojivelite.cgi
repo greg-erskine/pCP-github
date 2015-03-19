@@ -17,7 +17,7 @@ pcp_squeezelite_stop
 
 #----------Jivelite download and adding -v to squeezelite string-----------------
 #-----decode string via httpd and save to config----- 
-JIVELITE=`sudo /usr/local/sbin/httpd -d $JIVELITE`
+JIVELITE=`sudo $HTPPD -d $JIVELITE`
 sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
 . $CONFIGCFG
 

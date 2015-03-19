@@ -24,7 +24,7 @@ pcp_httpd_query_string
 # ALSA OUTPUT LEVEL SECTION
 #----------------------------------------------------------------------------------------
 # Decode $ALSAlevelout using httpd, add quotes
-ALSAlevelout=`sudo /usr/local/sbin/httpd -d \"$ALSAlevelout\"`
+ALSAlevelout=`sudo $HTPPD -d \"$ALSAlevelout\"`
 sudo sed -i "s/\(ALSAlevelout *=*\).*/\1$ALSAlevelout/" $CONFIGCFG
 echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 
@@ -32,7 +32,7 @@ echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 # CMD SECTION
 #----------------------------------------------------------------------------------------
 # Decode $CMD using httpd, add quotes
-CMD=`sudo /usr/local/sbin/httpd -d \"$CMD\"`
+CMD=`sudo $HTPPD -d \"$CMD\"`
 sudo sed -i "s/\(CMD *=*\).*/\1$CMD/" $CONFIGCFG
 
 case "$CMD" in 
@@ -53,7 +53,7 @@ esac
 # FIQ-SPILT SECTION
 #----------------------------------------------------------------------------------------
 # Decode $FIQ using httpd, add quotes
-FIQ=`sudo /usr/local/sbin/httpd -d \"$FIQ\"`
+FIQ=`sudo $HTPPD -d \"$FIQ\"`
 sudo sed -i "s/\(FIQ *=*\).*/\1$FIQ/" $CONFIGCFG
 
 pcp_backup
@@ -93,7 +93,7 @@ echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
 # ALSA OUTPUT LEVEL SECTION
 #----------------------------------------------------------------------------------------
 # Decode $ALSAlevelout using httpd, add quotes
-ALSAlevelout=`sudo /usr/local/sbin/httpd -d \"$ALSAlevelout\"`
+ALSAlevelout=`sudo $HTPPD -d \"$ALSAlevelout\"`
 sudo sed -i "s/\(ALSAlevelout *=*\).*/\1$ALSAlevelout/" $CONFIGCFG
 echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 

@@ -33,23 +33,23 @@ pcp_httpd_query_string
 pcp_save() {
 	# Decode Squeezelite variables using httpd
 	# ----------------------------------------
-	JIVELITE=`sudo /usr/local/sbin/httpd -d \"$JIVELITE\"`
-	NAME=`sudo /usr/local/sbin/httpd -d $NAME`
-	OUTPUT=`sudo /usr/local/sbin/httpd -d $OUTPUT`
-	ALSA_PARAMS=`sudo /usr/local/sbin/httpd -d $ALSA_PARAMS`
-	BUFFER_SIZE=`sudo /usr/local/sbin/httpd -d $BUFFER_SIZE`
-	_CODEC=`sudo /usr/local/sbin/httpd -d $_CODEC`
-	PRIORITY=`sudo /usr/local/sbin/httpd -d $PRIORITY`
-	MAX_RATE=`sudo /usr/local/sbin/httpd -d $MAX_RATE`
-	UPSAMPLE=`sudo /usr/local/sbin/httpd -d $UPSAMPLE`
-	MAC_ADDRESS=`sudo /usr/local/sbin/httpd -d $MAC_ADDRESS`
-	SERVER_IP=`sudo /usr/local/sbin/httpd -d $SERVER_IP`
-	LOGLEVEL=`sudo /usr/local/sbin/httpd -d $LOGLEVEL`
-	LOGFILE=`sudo /usr/local/sbin/httpd -d $LOGFILE`
-	DSDOUT=`sudo /usr/local/sbin/httpd -d $DSDOUT`
-	VISUALISER=`sudo /usr/local/sbin/httpd -d $VISUALISER`
-	CLOSEOUT=`sudo /usr/local/sbin/httpd -d $CLOSEOUT`
-	OTHER=`sudo /usr/local/sbin/httpd -d $OTHER`
+	NAME=`sudo $HTPPD -d $NAME`
+	OUTPUT=`sudo $HTPPD -d $OUTPUT`
+	ALSA_PARAMS=`sudo $HTPPD -d $ALSA_PARAMS`
+	BUFFER_SIZE=`sudo $HTPPD -d $BUFFER_SIZE`
+	_CODEC=`sudo $HTPPD -d $_CODEC`
+	PRIORITY=`sudo $HTPPD -d $PRIORITY`
+	MAX_RATE=`sudo $HTPPD -d $MAX_RATE`
+	UPSAMPLE=`sudo $HTPPD -d $UPSAMPLE`
+	MAC_ADDRESS=`sudo $HTPPD -d $MAC_ADDRESS`
+	SERVER_IP=`sudo $HTPPD -d $SERVER_IP`
+	LOGLEVEL=`sudo $HTPPD -d $LOGLEVEL`
+	LOGFILE=`sudo $HTPPD -d $LOGFILE`
+	DSDOUT=`sudo $HTPPD -d $DSDOUT`
+	VISUALISER=`sudo $HTPPD -d $VISUALISER`
+	CLOSEOUT=`sudo $HTPPD -d $CLOSEOUT`
+	OTHER=`sudo $HTPPD -d $OTHER`
+	JIVELITE=`sudo $HTPPD -d $JIVELITE`
 
 	# Save the variables to the config file
 	# -------------------------------------

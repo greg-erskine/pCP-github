@@ -1,10 +1,11 @@
 dropbear.tcz
 busybox-httpd.tcz
-libffmpeg.tcz
 libfaad.tcz
-libsoxr.tcz
+flac.tcz
 libmad.tcz
-firmware-ralinkwifi.tcz
-firmware-rtlwifi.tcz
-firmware-atheros.tcz
-wifi.tcz
+libvorbis.tcz
+libffmpeg.tcz
+ncurses.tcz
+alsa.tcz
+alsa-config.tcz
+

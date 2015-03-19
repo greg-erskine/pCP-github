@@ -107,7 +107,7 @@ echo 	'</textarea>'
 for i in 1 2
 do
 set -x
-USER_COMMAND_$i=`sudo /usr/local/sbin/httpd -d $USER_COMMAND_$i`
+USER_COMMAND_$i=`sudo $HTPPD -d $USER_COMMAND_$i`
 echo $USER_COMMAND_${i}
 eval "$USER_COMMAND_${i}"
 echo "<br />"
@@ -125,7 +125,7 @@ echo '#1<br />'
 echo $PLAYLISTS
 echo '<br /><br />'
 
-PLAYLISTS=`sudo /usr/local/sbin/httpd -d $PLAYLISTS`
+PLAYLISTS=`sudo $HTPPD -d $PLAYLISTS`
 
 echo '#2<br />'
 echo $PLAYLISTS

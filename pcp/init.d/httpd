@@ -1,7 +1,7 @@
 #!/bin/sh
 NAME="httpd"
 DESC="Web server"
-DAEMON=/usr/local/sbin/httpd
+DAEMON=/usr/local/sbin/busybox-httpd
 OPTIONS="-h /home/tc/www"
 
 case "$1" in

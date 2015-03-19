@@ -40,7 +40,7 @@ getfile $TMP/pcp/conf          wifi.db              /home/tc
 getfile $TMP/pcp/conf          timezone             /etc/sysconfig
 getfile $TMP/pcp/conf          config.cfg           $SBIN
 getfile $TMP/pcp/conf          piversion.cfg        $SBIN
-#getfile $TMP/pcp/conf          wpa_supplicant.conf /etc
+#getfile $TMP/pcp/conf         wpa_supplicant.conf /etc
 getfile $TMP/pcp/conf          asound.conf          /etc
 getfile $TMP/pcp/conf          modprobe.conf        /etc
 getfile $TMP/pcp/conf          piCorePlayer.dep     /mnt/mmcblk0p2/tce
@@ -65,8 +65,8 @@ else
 fi
 
 sleep 2
-getfile $TMP/pcp/mmcblk0p1     cmdline.txt           /mnt/mmcblk0p1
-getfile $TMP/pcp/mmcblk0p1     config.txt            /mnt/mmcblk0p1
+#getfile $TMP/pcp/mmcblk0p1     cmdline.txt           /mnt/mmcblk0p1
+#getfile $TMP/pcp/mmcblk0p1     config.txt            /mnt/mmcblk0p1
 getfile $TMP/pcp/mmcblk0p1     LICENCE.piCorePlayer  /mnt/mmcblk0p1
 
 # Unmount mmcblk0p1

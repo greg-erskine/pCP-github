@@ -18,7 +18,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Decode $OVERCLOCK using httpd, add quotes
-OVERCLOCK=`sudo /usr/local/sbin/httpd -d \"$OVERCLOCK\"`
+OVERCLOCK=`sudo $HTPPD -d \"$OVERCLOCK\"`
 sudo sed -i "s/\(OVERCLOCK *=*\).*/\1$OVERCLOCK/" $CONFIGCFG
 
 pcp_backup

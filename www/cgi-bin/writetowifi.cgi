@@ -22,10 +22,10 @@ pcp_running_string
 pcp_httpd_query_string
 
 # Decode variables using httpd
-SSID=`sudo /usr/local/sbin/httpd -d $SSID`
-PASSWORD=`sudo /usr/local/sbin/httpd -d $PASSWORD`
-ENCRYPTION=`sudo /usr/local/sbin/httpd -d $ENCRYPTION`
-WIFI=`sudo /usr/local/sbin/httpd -d $WIFI`
+SSID=`sudo $HTPPD -d $SSID`
+PASSWORD=`sudo $HTPPD -d $PASSWORD`
+ENCRYPTION=`sudo $HTPPD -d $ENCRYPTION`
+WIFI=`sudo $HTPPD -d $WIFI`
 
 echo '<h1>[ INFO ] You provided the following information</h1>'
 echo '<p class="info">[ INFO ] WIFI is: '$WIFI'<br />'
