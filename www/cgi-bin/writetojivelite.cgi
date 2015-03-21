@@ -25,15 +25,21 @@ sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
 		VISUALISER="yes"
 	fi
 pcp_save_to_config
+. $CONFIGCFG
+echo "come to here"
+echo "come next"
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'</p>'
 
 if [ $JIVELITE = YES ]; then
-		sudo tce-load -i wget.tcz     # needed to load wget in order to download from https
-			echo '<h1>[ INFO ] Downloading Jivelite from Github</h1>'
-			downloadtcz="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz"
-			downloadmd5="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz.md5.txt"
+#		sudo tce-load -i wget.tcz     # needed to load wget in order to download from https
+			echo '<h1>[ INFO ] Downloading Jivelite from Ralphy</h1>'
+#			downloadtcz="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz"
+#			downloadmd5="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz.md5.txt"
+			downloadtcz="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz"
+			downloadmd5="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz.md5.txt"
 			# Remove old version of Jivelite from /tmp
+
 		if [ -e /tmp/jivelite.tcz ]; then
 			[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloaded versions from tmp directory...</p>'
 			sudo rm -f /tmp/jivelite.tcz
@@ -54,8 +60,12 @@ if [ $JIVELITE = YES ]; then
 		sudo cp /tmp/jivelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 		sudo chmod u+x /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	fi
+echo "First section"
+fi
 
-else
+echo "come to 1"
+
+if [ $JIVELITE = NO ]; then
 #----that is if Jivelite is "NO"
 	echo '<h1>[ INFO ] Removing Jivelite from piCorePlayer</h1>'
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
@@ -99,6 +109,7 @@ pcp_squeezelite_start
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
+			echo '<h1>[ INFO ] A reboot is needed in order to finalize...</h1>'
 pcp_reboot_button
 pcp_go_back_button
 
