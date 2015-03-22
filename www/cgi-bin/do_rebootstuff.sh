@@ -89,6 +89,8 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	#Save to config file
 	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
+if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+#sleep 1
 fi
 
 # Rename the newconfig file on USB
@@ -103,7 +105,8 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
-
+if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+#sleep 1
 # Delete the newconfig file
 sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 fi
@@ -194,8 +197,8 @@ echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 echo "${GREEN}Done.${NORMAL}"
 
 echo "${BLUE}Loading I2S modules... ${NORMAL}"
-if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-sleep 1
+#if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+#sleep 1
 # Loads the correct output audio modules
 pcp_read_chosen_audio
 echo "${GREEN}Done.${NORMAL}"
