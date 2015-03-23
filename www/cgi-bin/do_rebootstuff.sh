@@ -114,14 +114,14 @@ pcp_umount_mmcblk0p1_nohtml
 
 
 	# If using a RPi-A+ card with wifi on we need to load the wireless firmware if not already loaded and then reboot
-	if [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $WIFI == "\"on\"" ]; then
+	if [ $(pcp_rpi_is_model_Aplus) = 0 ] && [ $WIFI = "on" ]; then
 		if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
 			then
-			echo "${BLUE}wifi firmware already loaded${NORMAL}"
+			echo "$${GREEN}Wifi firmware already loaded${NORMAL}"
 			else
 			# Add wifi related modules back
 			sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
-			echo "${BLUE}Will reboot now and then wifi firmware will be loaded${NORMAL}"
+			echo "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
 			pcp_save_to_config
 			pcp_backup_nohtml
 			sleep 4
@@ -164,15 +164,12 @@ echo "${BLUE}Checking wifi... ${NORMAL}"
 # Logic that will skip the wifi connection if wifi is disabled
 if [ $WIFI = on ]; then
 	echo "${YELLOW}wifi is on${NORMAL}"
+	sleep 1
 	sudo ifconfig wlan0 down
-	sleep 1
 	sudo ifconfig wlan0 up
-	sleep 1
 	sudo iwconfig wlan0 power off &>/dev/null
-	sleep 1
 	#usr/local/bin/wifi.sh -a 2>&1 > /tmp/wifi.log
 	/usr/local/bin/wifi.sh -a
-	sleep 1
 
 	# Logic that will try to reconnect to wifi if failed - will try two times before continuing booting
 	for i in 1 2; do
@@ -238,16 +235,16 @@ fi
 # Start the essential stuff for piCorePlayer
 echo "${BLUE}Loading the main daemons..."
 echo -n "${BLUE}"
+/usr/local/etc/init.d/squeezelite start
+echo "${GREEN}Done.${NORMAL}"
+
+echo -n "${BLUE}"
 /usr/local/etc/init.d/dropbear start
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}"
 /usr/local/etc/init.d/httpd start
 sleep 1
-echo "${GREEN}Done.${NORMAL}"
-
-echo -n "${BLUE}"
-/usr/local/etc/init.d/squeezelite start
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
