@@ -1,6 +1,10 @@
 #!/bin/sh
 
-# Version: 012 2015-02-15 SBP
+# Version: 0.13 2015-03-24 SBP
+#	Added section to load wifi for Model A+.
+#	Revised program startup order.
+
+# Version: 0.12 2015-02-15 SBP
 #	Updated order.
 
 # Version: 0.11 2015-02-09 GE
@@ -89,8 +93,8 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	#Save to config file
 	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
-if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-#sleep 1
+	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+	#sleep 1
 fi
 
 # Rename the newconfig file on USB
@@ -105,30 +109,28 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
-if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-#sleep 1
-# Delete the newconfig file
-sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
+	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+	#sleep 1
+	# Delete the newconfig file
+	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 fi
 pcp_umount_mmcblk0p1_nohtml
 
-
-	# If using a RPi-A+ card with wifi on we need to load the wireless firmware if not already loaded and then reboot
-	if [ $(pcp_rpi_is_model_Aplus) = 0 ] && [ $WIFI = "on" ]; then
-		if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
-			then
-			echo "$${GREEN}Wifi firmware already loaded${NORMAL}"
-			else
-			# Add wifi related modules back
-			sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
-			echo "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
-			pcp_save_to_config
-			pcp_backup_nohtml
-			sleep 4
-			sudo reboot 
-		fi
+# If using a RPi-A+ card with wifi on we need to load the wireless firmware if not already loaded and then reboot
+if [ $(pcp_rpi_is_model_Aplus) = 0 ] && [ $WIFI = "on" ]; then
+	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
+		then
+		echo "$${GREEN}Wifi firmware already loaded${NORMAL}"
+	else
+		# Add wifi related modules back
+		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
+		pcp_save_to_config
+		pcp_backup_nohtml
+		sleep 4
+		sudo reboot 
 	fi
-
+fi
 
 # Save the parameters to the wifi.db
 echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
@@ -270,8 +272,6 @@ echo "${GREEN}Done.${NORMAL}"
 fi
 
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
-# Placed here in order to only backup once during do_rebootstuff
 # Save the parameters to the config file
-# pcp_save_to_config
 pcp_backup_nohtml
 echo "${GREEN}Done.${NORMAL}"

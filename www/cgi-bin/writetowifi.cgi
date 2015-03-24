@@ -1,8 +1,10 @@
 #!/bin/sh
 
+# Version: 0.04 2015-03-24 GE
+#	Removed comments to Steen.
+
 # Version: 0.03 2015-01-06 SBP
-#	Added function to remove wifi modules from loading during boot
-#	if wifi is not chosen.
+#	Added function to remove wifi modules from loading during boot if wifi is not chosen.
 
 # Version: 0.02 2014-12-13 GE
 #	Using pcp_html_head now.
@@ -92,31 +94,12 @@ if [ $WIFI == "\"on\"" ]; then
 	fi
 fi
 
-#########################################################################################
-# Steen, you can't have <tr> and <td> tags if you are not using a table.
-# REMOVE CODE BELOW.
-#########################################################################################
-#	# Add a reboot button if needed
-#	if [ $REBOOT = "yes" ]; then
-#		echo '          <tr class="odd">'
-#		echo '            <td class="column150 center">'
-#		echo '              <form name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get" id="Reboot">'
-#		echo '                <input type="submit" value="Reboot" />'
-#		echo '              </form>'
-#		echo '            </td>'
-#		echo '            <td>'
-#		echo '              <p><h1>[ INFO ] Reboot is needed before you can use wifi.</h1></p>'
-#		echo '            </td>'
-#		echo '          </tr>'
-#	fi
-#########################################################################################
-
 if [ $WIFI == "\"off\"" ]; then
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst			#########################################
-	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst						# STEEN, IS THIS RIGHT, missing .tcz????
-	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst						#########################################
+	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 fi
 
 pcp_show_config_cfg
