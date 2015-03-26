@@ -813,11 +813,11 @@ echo '              </tr>'
 echo '              <tr class="odd">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '              <input type="submit" name="SUBMIT" value="Reset">'
+echo '                  <input type="submit" name="SUBMIT" value="Reset">'
 [ $MODE -eq 99 ] &&
-echo '              <input type="submit" name="SUBMIT" value="Clear">'
-echo '            </td>'
-echo '          </tr>'
+echo '                  <input type="submit" name="SUBMIT" value="Clear">'
+echo '                </td>'
+echo '              </tr>'
 
 if [ $DEBUG = 1 ]; then
 	echo '<!-- Start of debug info -->'
@@ -847,7 +847,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
 
 #----------------------------------------------User Commands---------------------------------
 # Decode variables using httpd, no quotes
@@ -897,9 +896,9 @@ echo '                       or maybe, run a Linux procedure that shuts down pro
 echo '                    <p>User commands run after auto start LMS commands and auto start favorites.</p>'
 echo '                    <p>User commands will run in order 1, 2, 3.</p>'
 echo '                    <p><b>Example:</b></p>'
-echo '                      <ul>'
-echo '                        <li>ls /tmp >> /tmp/directory.log</li>'
-echo '                      </ul>'
+echo '                    <ul>'
+echo '                      <li>ls /tmp >> /tmp/directory.log</li>'
+echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -918,7 +917,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-#----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg
