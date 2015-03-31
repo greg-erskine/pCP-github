@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version: 0.13 2015-03-24 SBP
-#	Added section to load wifi for Model A+.
+#	Added section to load wifi for wifi only based systems (like RPi-A+).
 #	Revised program startup order.
 
 # Version: 0.12 2015-02-15 SBP
@@ -116,11 +116,11 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 fi
 pcp_umount_mmcblk0p1_nohtml
 
-# If using a RPi-A+ card with wifi on we need to load the wireless firmware if not already loaded and then reboot
-if [ $(pcp_rpi_is_model_Aplus) = 0 ] && [ $WIFI = "on" ]; then
+# If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded and then reboot
+if [ $WIFI = "on" ]; then
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
 		then
-		echo "$${GREEN}Wifi firmware already loaded${NORMAL}"
+		echo "${GREEN}Wifi firmware already loaded${NORMAL}"
 	else
 		# Add wifi related modules back
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
