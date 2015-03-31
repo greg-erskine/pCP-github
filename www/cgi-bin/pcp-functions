@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.32 2015-03-29 GE
+#	Added pcp_start_row_shade and pcp_toggle_row_shade.
+
 # Version: 0.31 2015-03-12 GE
 #	Updated and fixed spelling of the Visualiser option.
 #	Fixed User commands typo.
@@ -198,6 +201,27 @@ MAGENTA="$(echo -e '\033[1;35m')"
 CYAN="$(echo -e '\033[1;36m')"
 WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
+
+#=========================================================================================
+# Row shading
+#-----------------------------------------------------------------------------------------
+pcp_start_row_shade() {
+	ROWSHADE=even
+}
+
+pcp_toggle_row_shade() {
+	if [ $SHADE == 1 ]; then
+		SHADE=0
+		ROWSHADE=even
+	else
+		SHADE=1
+		ROWSHADE=odd
+	fi
+}
+
+pcp_incr_id() {
+	ID=$(($ID + 1))
+}
 
 #=========================================================================================
 # Test if the internet is accessible.

@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.11 2015-03-29 GE
+#	Added shairport (mode = 99).
+#	Added $ROWSHADE variable. Thought it would be easier.
+#	Added pcp_incr_id and pcp_start_row_shade.
+
 # Version: 0.10 2015-03-24 SBP
 #	Added jivelite support.
 
@@ -59,18 +64,19 @@ echo '        <fieldset>'
 echo '          <legend>General tweaks</legend>'
 
 #----------------------------------------------Hostname---------------------------------
+pcp_incr_id
+pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="squeeze" action="writetohost.cgi" method="get">'
-
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">Host name</td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="text" id="HOST" name="HOST" maxlength="26" value="'$HOST'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Provide a host name, so the player is easier to identify on your LAN&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a></p>'
-echo '                  <div id="ID01" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p><b>Note: </b>This is the linux hostname, not the piCorePlayer name used by LMS.</p>'
 echo '                    <p>The Internet standards for protocols mandate that component hostname labels may '
 echo '                       contain only the ASCII letters "a" through "z" (in a case-insensitive manner), '
@@ -80,11 +86,10 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
-echo '                <td colspan=3>'
+echo '                <td class="'$ROWSHADE'" colspan=3>'; pcp_toggle_row_shade
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-
 echo '            </form>'
 echo '          </table>'
 echo '          <br />'
@@ -106,10 +111,11 @@ case "$JIVELITE" in
 esac
 
 #----------------------------------------------------------------------------------------
+pcp_incr_id
+pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
-
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">'
 echo '                  <p>Jivelite</p>'
 echo '                </td>'
@@ -121,8 +127,8 @@ echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enable/disable Jivelite&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID020a" href=# onclick="return more('\''ID020'\'')">more></a></p>'
-echo '                  <div id="ID020" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
 echo '                    <p>Reboot is needed.<p>'
 echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard is needed.</p>'
@@ -134,11 +140,10 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
-echo '                <td colspan="3">'
+echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-
 echo '            </form>'
 echo '          </table>'
 echo '          <br />'
@@ -146,7 +151,63 @@ echo '          <br />'
 if [ $DEBUG = 1 ]; then 
 	echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
 	echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
-	echo '                 [ DEBUG ] $JIVEno: '$JIVEno'<br />'
+	echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
+fi
+
+if [ $MODE -eq 99 ]; then
+#---------------------------------------Shairport----------------------------------------
+# Function to check the radio button according to config.cfg file
+#----------------------------------------------------------------------------------------
+case "$SHAIRPORT" in 
+	YES)
+		SHAIRPORTyes="selected"
+		;;
+	NO)
+		SHAIRPORTno="selected"
+		;;
+	*)
+		SHAIRPORTyes=""
+		SHAIRPORTno=""
+		;;
+esac
+
+#----------------------------------------------------------------------------------------
+pcp_incr_id
+pcp_start_row_shade
+echo '          <table class="bggrey percent100">'
+echo '            <form name="shairport" action= "writetoshairport.cgi" method="get">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '                <td class="column150">'
+echo '                  <p>Shairport</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <select name="SHAIRPORT">'
+echo '                    <option value="YES" '$SHAIRPORTyes'>Enable Shairport</option>'
+echo '                    <option value="NO" '$SHAIRPORTno'>Disable Shairport</option>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Enable/disable Shairport&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Shairport enables piCorePlayer to act as Airport device.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+echo '              <tr>'
+echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </form>'
+echo '          </table>'
+echo '          <br />'
+
+if [ $DEBUG = 1 ]; then 
+	echo '<p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
+	echo '                 [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
+	echo '                 [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
+fi
 fi
 
 #---------------------------------------Overclock----------------------------------------
@@ -171,10 +232,11 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	esac
 
 	#----------------------------------------------------------------------------------------
+	pcp_incr_id
+	pcp_start_row_shade
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
-
-	echo '              <tr class="even">'
+	echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 	echo '                <td class="column150">'
 	echo '                  <p>Overclock</p>'
 	echo '                </td>'
@@ -187,8 +249,8 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-	echo '                  <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a></p>'
-	echo '                  <div id="ID02" class="less">'
+	echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
 	echo '                    <p>Reboot is needed.<p>'
 	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
@@ -200,7 +262,7 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	echo '                </td>'
 	echo '              </tr>'
 	echo '              <tr>'
-	echo '                <td colspan="3">'
+	echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -241,18 +303,20 @@ fi
 #----------------------------------------------Timezone----------------------------------
 [ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
+pcp_incr_id
+pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">Timezone</td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" maxlength="26" value="'$TZ'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Add your TIMEZONE&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID03a" href=# onclick="return more('\''ID03'\'')">more></a></p>'
-echo '                  <div id="ID03" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Format: EST-10EST,M10.1.0,M4.1.0/3</p>'
 echo '                    <p>Cut and paste your TIMEZONE from your favourite timezone location</p>'
 echo '                    <p>Example:</p>'
@@ -264,7 +328,7 @@ echo '                </td>'
 echo '              </tr>'
 
 echo '              <tr>'
-echo '                <td colspan=2 >'
+echo '                <td class="'$ROWSHADE'" colspan="2">'; pcp_toggle_row_shade
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
@@ -277,25 +341,27 @@ echo '          <br />'
 # Change password - STILL UNDER DEVELOPMENT
 # Note: changing passwords through a script over html is not very secure.
 #----------------------------------------------------------------------------------------
+pcp_incr_id
+pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="password" action="changepassword.cgi" method="get">'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="password" id="NEWPASSWORD" name="NEWPASSWORD" maxlength="26">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enter new password&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID04a" href=# onclick="return more('\''ID04'\'')">more></a></p>'
-echo '                  <div id="ID04" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Default: nosoup4u</p>'
 echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150"></td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="password" id="CONFIRMPASSWORD" name="CONFIRMPASSWORD" maxlength="26">'
@@ -306,7 +372,7 @@ echo '                </td>'
 echo '              </tr>'
 
 echo '              <tr>'
-echo '                <td colspan=3>'
+echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
@@ -363,10 +429,12 @@ echo '          <legend>Auto start tweaks</legend>'
 # Decode variables using httpd, no quotes
 AUTOSTARTFAV=`sudo $HTPPD -d $AUTOSTARTFAV`
 
+pcp_incr_id
+pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Auto start favorite</td>'
 echo '                <td class="column420">'
 echo '                  <select name="AUTOSTARTFAV">'
@@ -414,13 +482,13 @@ echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Select your auto start favorite from list&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID06a" href=# onclick="return more('\''ID06'\'')">more></a></p>'
-echo '                  <div id="ID06" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Allows you to set an auto start favorite command that is run after'
 echo '                       a "hard" power on. '
 echo '                       This could be handy for people building Internet radios.<p>'
@@ -437,7 +505,7 @@ echo '                </td>'
 echo '              </tr>'
 
 echo '              <tr>'
-echo '                <td colspan="3">'
+echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
 echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
@@ -454,10 +522,12 @@ echo '          <br />'
 # Decode variables using httpd, no quotes
 AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 
+pcp_incr_id
+pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Auto start LMS</td>'
 echo '                <td class="column420">'
 echo '                  <input class="large30" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
@@ -468,13 +538,13 @@ echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Cut and paste your auto start LMS command&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID05a" href=# onclick="return more('\''ID05'\'')">more></a></p>'
-echo '                  <div id="ID05" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Allows you to set an auto start LMS command that is run after'
 echo '                       a "hard" power on. This field can contain any valid LMS CLI command.'
 echo '                       This could be handy for people building Internet radios.<p>'
@@ -494,7 +564,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
-echo '                <td colspan="3">'
+echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
 echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
@@ -585,7 +655,9 @@ echo '            <legend>Audio tweaks</legend>'
 echo '            <table class="bggrey percent100">'
 
 #-------------------------------------------dwc_otg.speed--------------------------------
-echo '              <tr class="even">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">'
 echo '                  <p>OTG-Speed</p>'
 echo '                </td>'
@@ -595,8 +667,8 @@ echo '                  <input class="small1" type="radio" name="CMD" id="Custom
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set "dwc_otg.speed=1"&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID07a" href=# onclick="return more('\''ID07'\'')">more></a></p>'
-echo '                  <div id="ID07" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
 echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
 echo '                  </div>'
@@ -616,7 +688,8 @@ if [ $DEBUG = 1 ]; then
 fi
 
 #-------------------------------------------ALSAlevelout---------------------------------
-echo '              <tr class="odd">'
+pcp_incr_id
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">'
 echo '                  <p>ALSA output level</p>'
 echo '                </td>'
@@ -626,8 +699,8 @@ echo '                  <input class="small1" type="radio" name="ALSAlevelout" i
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Custom option allows the ALSA output level to be restored after reboot&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID08a" href=# onclick="return more('\''ID08'\'')">more></a></p>'
-echo '                  <div id="ID08" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA output level.</p>'
 echo '                    <p><b>Step:</b></p>'
 echo '                    <ol>'
@@ -652,7 +725,8 @@ if [ $DEBUG = 1 ]; then
 fi
 
 #-------------------------------------FIQ-Split acceleration-----------------------------
-echo '              <tr class="even">'
+pcp_incr_id
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>FIQ-Split acceleration</p>'
 echo '                </td>'
@@ -667,14 +741,14 @@ echo '                    <option value="0x8" '$selected6'>0x8 Enable Interrupt/
 echo '                  </select>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">'
 echo '                  <p>&nbsp;</p>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Change FIQ_FSM USB settings&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID09a" href=# onclick="return more('\''ID09'\'')">more></a></p>'
-echo '                  <div id="ID09" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
 echo '                      <li>This might solve USB audio problems.</li>'
 echo '                      <li>Important for specific USB DACs - like the Naim DAC-V1 card, try option 1, 2, 3 or 8.</li>'
@@ -700,8 +774,8 @@ if [ $DEBUG = 1 ]; then
 	echo '<!-- End of debug info -->'
 fi
 
-echo '              <tr class="odd">'
-echo '                <td colspan=3>'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
@@ -745,6 +819,8 @@ case "$RESTART" in
 esac
 
 #-------------------------------------------Schedule CRON jobs---------------------------
+pcp_incr_id
+pcp_start_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -754,7 +830,7 @@ echo '          <fieldset>'
 echo '            <legend>Schedule CRON jobs</legend>'
 echo '            <table class="bggrey percent100">'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column210">'
 echo '                  <p>Schedule piCorePlayer reboot<p>'
 echo '                </td>'
@@ -772,7 +848,7 @@ echo '                  <input class="small1" type="radio" name="REBOOT" id="Sch
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="odd">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column210">'
 echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
@@ -790,14 +866,14 @@ echo '                  <input class="small1" type="radio" name="RESTART" id="Sc
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column210">'
 echo '                  <p></p>'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Fill out the crontab fields&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID11a" href=# onclick="return more('\''ID11'\'')">more></a></p>'
-echo '                  <div id="ID11" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>"*" it means every hour, every day, ever month.</p>'
 echo '                    <p><b>Example:</b></p>'
 echo '                    <ul>'
@@ -810,7 +886,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="odd">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Reset">'
@@ -854,6 +930,8 @@ USER_COMMAND_1=`sudo $HTPPD -d $USER_COMMAND_1`
 USER_COMMAND_2=`sudo $HTPPD -d $USER_COMMAND_2`
 USER_COMMAND_3=`sudo $HTPPD -d $USER_COMMAND_3`
 
+pcp_incr_id
+pcp_start_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -863,33 +941,33 @@ echo '          <fieldset>'
 echo '            <legend>User commands</legend>'
 echo '            <table class="bggrey percent100">'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">User command #1</td>'
 echo '                <td>'
 echo '                  <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" maxlength="254" value="'$USER_COMMAND_1'">'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="odd">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">User command #2</td>'
 echo '                <td>'
 echo '                  <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" maxlength="254" value="'$USER_COMMAND_2'">'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #3</td>'
 echo '                <td>'
 echo '                  <input class="large36" type="text" id="USER_COMMAND_3" name="USER_COMMAND_3" maxlength="254" value="'$USER_COMMAND_3'">'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="even">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150"></td>'
 echo '                <td>'
 echo '                  <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a></p>'
-echo '                  <div id="ID12" class="less">'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>This feature gives advanced users a couple of hooks into the startup procedure.'
 echo '                       It will allow advanced users the ability to run extra instances of Squeezelite for example,'
 echo '                       or maybe, run a Linux procedure that shuts down processes, like the web server to optimise performance.</p>'
@@ -903,7 +981,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="odd">'
+echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td colspan=2>'
 echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
