@@ -138,7 +138,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$VISUALISER" ]  && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
-[ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /mnt/sda1/$LOGFILE"
+[ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /tmp/$LOGFILE"
 STRING="$STRING &"
 
 #========================================================================================
@@ -492,14 +492,13 @@ echo '                <td class="column210">'
 echo '                  <input class="large15" type="text" id="LOGFILE" name="LOGFILE" value="'$LOGFILE'">'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Write debug logfile to attached USB flash drive (-f)&nbsp;&nbsp;'
+echo '                  <p>Write debug logfile to /tmp directory (-f)&nbsp;&nbsp;'
 echo '                    <a class="moreless" id="ID12a" href=# onclick="return more('\''ID12'\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="ID12" class="less">'
 echo '                    <p>&lt;logfile&gt;</p>'
 echo '                    <ul>'
 echo '                      <li>Log level settings needs to be set.</li>'
-echo '                      <li>USB flash drive should be inserted before booting.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'

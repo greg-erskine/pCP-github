@@ -50,8 +50,10 @@ pcp_textarea "Play" "aplay -v -D hw:0,0 -f S16_LE -r 96000 -c 2 -t raw -d 1" 150
 pcp_textarea "Current /etc/group" "cat /etc/group" 100 log
 pcp_textarea "Current /etc/asound.conf" "cat /etc/asound.conf" 150 log
 pcp_textarea "Current /var/lib/alsa/asound.state" "cat /var/lib/alsa/asound.state" 180 log
+pcp_textarea "Squeezelite log" "cat /tmp/$LOGFILE" 250 log
 pcp_textarea "Left speaker test" "speaker-test -t sine -f 480 -c 2 -s 1" 240 log
 pcp_textarea "Right speaker test" "speaker-test -t sine -f 480 -c 2 -s 2" 240 log
+
 
 echo '<br />'
 echo '<br />'

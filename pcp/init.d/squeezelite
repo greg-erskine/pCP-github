@@ -41,7 +41,7 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$VISUALISER" ]  && VISUALISER="-v"
 [ x"" != x"$CLOSEOUT" ]    && CLOSEOUT="-C $CLOSEOUT"
 [ x"" != x"$OTHER" ]       && OTHER="$OTHER"
-[ x"" != x"$LOGFILE" ]     && LOGFILE="-f /mnt/sda1/$LOGFILE"
+[ x"" != x"$LOGFILE" ]     && LOGFILE="-f /tmp/$LOGFILE"
 
 case "$1" in
 	start)
