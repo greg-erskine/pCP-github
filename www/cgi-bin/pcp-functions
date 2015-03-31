@@ -146,10 +146,12 @@
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
 
-### Greg we should probably change this but for now we need to add/remove the ## in order to use the correct path to the httpd binary:
-
-#	HTPPD=/usr/local/sbin/httpd    # here the previous version is
- 	HTPPD=/usr/local/sbin/busybox-httpd  # after updating bussy-box it is located here
+#Script to set the correct path to HTTPD
+if [ -f /usr/local/sbin/httpd ]; then
+	HTPPD=/usr/local/sbin/httpd
+	else
+ 	HTPPD=/usr/local/sbin/busybox-httpd
+fi
 	CONFIGCFG=/usr/local/sbin/config.cfg
 	CONFIGTXT=/mnt/mmcblk0p1/config.txt
 	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
@@ -994,6 +996,15 @@ pcp_save_to_config() {
 #-----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
 cat <<EOF > $CONFIGCFG
+#########################
+# Edit the variables below to setup a wifi based system without LAN access
+# Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN" 
+WIFI="off"
+SSID="wireless"
+PASSWORD="password"
+ENCRYPTION="WPA"
+# End Wifi setup
+##########################
 NAME="piCorePlayer"
 OUTPUT="sysdefault:CARD=ALSA"
 ALSA_PARAMS="80:::0"
@@ -1008,13 +1019,10 @@ LOGLEVEL=""
 LOGFILE=""
 DSDOUT=""
 VISUALISER=""
+CLOSEOUT=""
 OTHER=""
 AUDIO="Analog"
 HOST="piCorePlayer"
-SSID="wireless"
-PASSWORD="password"
-ENCRYPTION="WPA"
-WIFI="off"
 TIMEZONE=""
 OVERCLOCK="NONE"
 CMD="Default"
