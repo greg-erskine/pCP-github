@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.14 2015-04-05 SBP
+#	Added logic to wait for soundcards adn restart squeezelite if not properly started.
+
 # Version: 0.13 2015-03-24 SBP
 #	Added section to load wifi for wifi only based systems (like RPi-A+).
 #	Revised program startup order.
@@ -110,8 +113,6 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-	#sleep 1
-	# Delete the newconfig file
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 fi
 pcp_umount_mmcblk0p1_nohtml
@@ -156,9 +157,7 @@ echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Loading snd modules... ${NORMAL}" 
 sudo modprobe snd-bcm2835
-#sudo modprobe -r snd_soc_wm8731
 sudo modprobe snd_soc_bcm2708_i2s
-#sudo modprobe bcm2708_dmaengine
 sudo modprobe snd_soc_wm8804
 echo "${GREEN}Done.${NORMAL}"
 
@@ -170,8 +169,7 @@ if [ $WIFI = on ]; then
 	sudo ifconfig wlan0 down
 	sudo ifconfig wlan0 up
 	sudo iwconfig wlan0 power off &>/dev/null
-	#usr/local/bin/wifi.sh -a 2>&1 > /tmp/wifi.log
-	/usr/local/bin/wifi.sh -a
+	sudo /usr/local/bin/wifi.sh -a
 
 	# Logic that will try to reconnect to wifi if failed - will try two times before continuing booting
 	for i in 1 2; do
@@ -186,7 +184,7 @@ if [ $WIFI = on ]; then
 			sudo iwconfig wlan0 power off &>/dev/null
 			sleep 1
 			sudo /usr/local/bin/wifi.sh -a
-			sleep 10
+			sleep 5
 	   fi
 	done
 fi
@@ -196,14 +194,20 @@ echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 echo "${GREEN}Done.${NORMAL}"
 
 echo "${BLUE}Loading I2S modules... ${NORMAL}"
-#if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-#sleep 1
 # Loads the correct output audio modules
 pcp_read_chosen_audio
 echo "${GREEN}Done.${NORMAL}"
 
-# Sleep for 1 sec otherwise aplay can not see the card
-sleep 1
+echo "${YELLOW}Waiting for soundcards to populate${NORMAL}"
+for i in 1 2 3 4 5 6; do
+	aplay -l | grep "PLAYBACK" &> /dev/null 
+	if [ $? = 0 ]; then
+	break
+	else
+	sleep 1
+	fi
+done
+
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 echo "${BLUE}Starting ALSA configuration... ${NORMAL}"
@@ -219,6 +223,9 @@ fi
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
 	sudo amixer cset numid=3 2				#set the analog output via HDMI out
+	if [ $ALSAlevelout = Default ]; then
+		sudo amixer set PCM 400 unmute
+	fi
 fi 
 
 # If Custom ALSA settings are used, then restore the settings
@@ -238,6 +245,17 @@ fi
 echo "${BLUE}Loading the main daemons..."
 echo -n "${BLUE}"
 /usr/local/etc/init.d/squeezelite start
+for i in 1 2 3 4 5; do
+              sleep 1
+		if [ $(pcp_squeezelite_status) = 0 ]; then
+		break
+		else
+		sleep 1
+			echo "${YELLOW}Squeezelite is not running - restarting${NORMAL}"			
+			/usr/local/etc/init.d/squeezelite stop
+			/usr/local/etc/init.d/squeezelite start
+		fi
+		done
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}"
@@ -275,3 +293,4 @@ echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
 pcp_backup_nohtml
 echo "${GREEN}Done.${NORMAL}"
+
