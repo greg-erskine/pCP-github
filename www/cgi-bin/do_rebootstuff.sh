@@ -242,20 +242,9 @@ if [ x"" != x"$TIMEZONE" ]; then
 fi
 
 # Start the essential stuff for piCorePlayer
-echo "${BLUE}Loading the main daemons..."
-echo -n "${BLUE}"
+echo "${BLUE}Loading the main daemons...${NORMAL}"
+# echo -n "${BLUE}"
 /usr/local/etc/init.d/squeezelite start
-for i in 1 2 3 4 5; do
-              sleep 1
-		if [ $(pcp_squeezelite_status) = 0 ]; then
-		break
-		else
-		sleep 1
-			echo "${YELLOW}Squeezelite is not running - restarting${NORMAL}"			
-			/usr/local/etc/init.d/squeezelite stop
-			/usr/local/etc/init.d/squeezelite start
-		fi
-		done
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}"
