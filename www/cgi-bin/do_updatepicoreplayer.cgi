@@ -110,6 +110,16 @@ fi
 # Add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.
 fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 
+#Remove wifi firmware from onboot.lst if wifi is off so that pCP will boot faster
+if [ $WIFI = off ]; then
+sleep 1
+	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+fi
+
 pcp_go_main_button
 
 echo '</body>'
