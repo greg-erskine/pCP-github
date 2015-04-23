@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.33 2015-04-20 GE
+#	Added pcp_picore_accessible.
+
 # Version: 0.32 2015-03-29 GE
 #	Added pcp_start_row_shade and pcp_toggle_row_shade.
 
@@ -235,6 +238,11 @@ pcp_internet_accessible() {
 
 pcp_sourceforge_accessible() {
 	wget -s http://sourceforge.net/projects/picoreplayer/files/ >/dev/null 2>&1
+	echo $?
+}
+
+pcp_picore_accessible() {
+	wget -s $MIRROR >/dev/null 2>&1
 	echo $?
 }
 
