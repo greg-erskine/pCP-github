@@ -494,7 +494,7 @@ pcp_diagnostics() {
 	echo '        <a class="nav" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
 	echo '        <a class="nav" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
 	echo '        <a class="nav" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-	echo '        <a class="nav" href="debug.cgi" title="pCP - Debug">Debug</a>'
+#	echo '        <a class="nav" href="debug.cgi" title="pCP - Debug">Debug</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
