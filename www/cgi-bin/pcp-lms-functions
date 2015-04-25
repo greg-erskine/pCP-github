@@ -153,9 +153,10 @@ pcp_lms_connected() {
 }
 
 pcp_lms_players() {
-	NO_OF_PLAYER=$(pcp_lms_player_count)
-	RESULT=$(pcp_lms_request_list "players 0 100")
-	echo $RESULT | awk '
+	SEARCH=$1
+	NO_OF_PLAYERS=$(pcp_lms_player_count)
+	RESULT=$(pcp_lms_request_list "players 0 $NO_OF_PLAYERS")
+	echo $RESULT | awk -v no_of_players="$NO_OF_PLAYERS" -v search="$SEARCH" '
 	BEGIN {
 		RS="playerindex:"
 		i = 0
@@ -191,9 +192,14 @@ pcp_lms_players() {
 		connected[x]=substr($0, i[x]+10, 1)
 	}
 	END {
-		for (y=2; y<=7; y++) {
-			printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
-				,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
+		for (y=2; y<2+no_of_players; y++) {
+			if ( model[y] == search ) {
+				#printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
+				#,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
+				
+				printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]
+				
+			}
 		}
 	} '
 }

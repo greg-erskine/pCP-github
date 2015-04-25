@@ -2,8 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.33 2015-04-20 GE
-#	Added pcp_picore_accessible.
+# Version: 0.33 2015-04-26 GE
+#	Added pcp_picore_accessible and pcp_xtras toolbar.
 
 # Version: 0.32 2015-03-29 GE
 #	Added pcp_start_row_shade and pcp_toggle_row_shade.
@@ -500,6 +500,25 @@ pcp_diagnostics() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of diagnostics -->'
+}
+
+pcp_xtras() {
+	echo '<!-- Start of xtras -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="nav2" href="xtras_test.cgi" title="pCP - Diagnostics">Test</a>'
+	echo '        <a class="nav2" href="xtras_asoundrc.cgi" title="pCP - Diagnostics">Asound</a>'
+	echo '        <a class="nav2" href="xtras_bootcodes.cgi" title="pCP - Diagnostics">Bootcodes</a>'
+	echo '        <a class="nav2" href="xtras_controls.cgi" title="pCP - Diagnostics">Controls</a>'
+	echo '        <a class="nav2" href="xtras_graph.cgi" title="pCP - Diagnostics">Graph</a>'
+	echo '        <a class="nav2" href="xtras_lmsclis.cgi" title="pCP - Diagnostics">LMS CLI</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of xtras -->'
 }
 
 #=========================================================================================

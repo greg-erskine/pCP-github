@@ -420,6 +420,44 @@ if [ $MODE = 99 ]; then
 	echo '              </td>'
 	echo '            </tr>'
 
+	#------------------------------------------Dosfsck-----------------------------------
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="DOS fsck" name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
+	echo '                  <input type="submit" value="DOS fsck" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>DOS file system check&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command will .</p>'
+	echo '                  <p>Only required .</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	#------------------------------------------Static IP---------------------------------
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Static IP" name="Static IP" action="xtras_staticip.cgi" method="get">'
+	echo '                  <input type="submit" value="Static IP" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Static IP&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command .</p>'
+	echo '                  <p>Only required.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+
 	#------------------------------------------Diagnostics-------------------------------
 	pcp_toggle_row_shade
 	pcp_incr_id

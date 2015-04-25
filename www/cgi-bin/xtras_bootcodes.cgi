@@ -11,7 +11,7 @@ pcp_html_head "xtras_bootcodes" "GE"
 
 pcp_controls
 pcp_banner
-pcp_navigation
+pcp_xtras
 pcp_running_script
 
 echo '<p><b>Note: </b>At the moment this page simply displays the contents of cmdline.txt and cmdline.'

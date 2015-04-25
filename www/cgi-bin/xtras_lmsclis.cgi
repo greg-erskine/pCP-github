@@ -13,7 +13,7 @@ pcp_html_head "Controls Adv" "GE"
 #pcp_favorites
 pcp_controls
 pcp_banner
-pcp_navigation
+pcp_xtras
 pcp_running_script
 pcp_refresh_button
 
@@ -23,13 +23,19 @@ if [ $DEBUG = 1 ]; then
 fi
 
 #========================================================================================
-echo '<h1>pcp-lms-functions experiment</h1>'
+echo '<h1>pcp-lms-functions tests</h1>'
 
 echo '<div>'
 
-echo '<p>'$(pcp_lms_players)'</p>'
+echo '<h2>Select list of squeezelite player</h2>'
+echo '<select name="pCPplayers">'
+echo '<p>'$(pcp_lms_players squeezelite)'</p>'
+echo '</select>'
 
+echo '<h2>Artists:</h2>'
 echo '<p>Artists: '$(pcp_lms_artists)'</p>'
+
+echo '<br />'
 
 echo '<p>Mode: '$(pcp_lms_mode)'</p>'
 echo '<p>Time: '$(pcp_lms_time)'</p>'
@@ -60,18 +66,6 @@ echo '<p>info_total_albums: '$(pcp_lms_info_total_albums)'</p>'
 echo '<p>info_total_songs: '$(pcp_lms_info_total_songs)'</p>'
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 echo '<p>Show: '$(pcp_lms_show)'</p>'
 
 echo '</div>'
@@ -79,40 +73,16 @@ echo '</div>'
 #===============================================================
 echo '<h1>Old functions</h1>'
 
-
 echo '<br />'
-
 echo '<div>'
 echo '<img src="http://'$(pcp_lmsip)':9000/music/current/cover.jpg" alt="Currently playing" style="height:250px; width:250px; border:1px solid black;"/>'
 echo '</div>'
-
 echo '<br />'
 
 pcp_footer
 
 echo '</body>'
 echo '</html>'
-
-exit
-
-#========================================================================================
-echo '<h1>User Commands experiment</h1>' 
-
-echo 	'<textarea rows="20">'
-
-pcp_user_commands
-
-echo 	'</textarea>'
-
-for i in 1 2
-do
-set -x
-USER_COMMAND_$i=`sudo $HTPPD -d $USER_COMMAND_$i`
-echo $USER_COMMAND_${i}
-eval "$USER_COMMAND_${i}"
-echo "<br />"
-
-done
 
 exit
 
@@ -165,7 +135,6 @@ echo '</select>'
 echo '<br /><br />'
 
 #------------------------------------------------------------------------------
-
 
 echo '<br />'
 echo '<br />'

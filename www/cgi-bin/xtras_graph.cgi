@@ -24,7 +24,7 @@ pcp_html_head "xtras_graph" "GE"
 
 pcp_controls
 pcp_banner
-pcp_navigation
+pcp_xtras
 pcp_running_script
 
 #========================================================================================
