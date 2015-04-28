@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 0.01 2015-15-03 SBP
+# Version: 0.02 2015-04-28 GE
+#   Revised.
+
+# Version: 0.01 2015-03-15 SBP
 #   Original version.
 
 . pcp-functions
@@ -9,107 +12,99 @@ pcp_variables
 
 pcp_html_head "Write to Jivelite Tweak" "SBP" "15" "tweaks.cgi"
 
+DEBUG=1
+
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-pcp_squeezelite_stop
-
-#----------Jivelite download and adding -v to squeezelite string-----------------
-#-----decode string via httpd and save to config----- 
-JIVELITE=`sudo $HTPPD -d $JIVELITE`
 sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
-. $CONFIGCFG
-
-	if [ $JIVELITE = YES ]; then
-		VISUALISER="yes"
-	fi
+[ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
-. $CONFIGCFG
-echo "come to here"
-echo "come next"
+pcp_backup
 
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'</p>'
+downloadtcz="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz"
+downloadmd5="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz.md5.txt"
 
-if [ $JIVELITE = YES ]; then
-#		sudo tce-load -i wget.tcz     # needed to load wget in order to download from https
-			echo '<h1>[ INFO ] Downloading Jivelite from Ralphy</h1>'
-#			downloadtcz="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz"
-#			downloadmd5="https://github.com/ralph-irving/tcz-jivelite/raw/master/jivelite.tcz.md5.txt"
-			downloadtcz="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz"
-			downloadmd5="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz.md5.txt"
-			# Remove old version of Jivelite from /tmp
+if [ $DEBUG = 1 ]; then
+	echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
+	echo '                 [ DEBUG ] VISUALISER: '$VISUALISER'</p>'
+fi
 
-		if [ -e /tmp/jivelite.tcz ]; then
-			[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloaded versions from tmp directory...</p>'
-			sudo rm -f /tmp/jivelite.tcz
-			sudo rm -f /tmp/jivelite.tcz.md5.txt
-		fi
-
-	#----Download Jivelite
+#========================================================================================
+# Routines
+#----------------------------------------------------------------------------------------
+pcp_load_jivelite() {
+	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy</p>'
 	wget -P /tmp $downloadmd5
 	wget -P /tmp $downloadtcz
 	result=$?
+	# MD5 CHECK  - look at tce-load for code
 	if [ $result -ne "0" ]; then
 		echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
-		else
+	else
 		echo '<p class="ok">[ OK ] Download successful'
 		sudo cp /tmp/jivelite.tcz /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-		sudo chmod u+x /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-
+		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 		sudo cp /tmp/jivelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
-		sudo chmod u+x /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	fi
-echo "First section"
-fi
+}
 
-echo "come to 1"
+pcp_install_jivelite() {
+	#tce-load -i jivelite.tcz
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to onboot.lst</p>'
+	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo 'jivelite.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 
-if [ $JIVELITE = NO ]; then
-#----that is if Jivelite is "NO"
-	echo '<h1>[ INFO ] Removing Jivelite from piCorePlayer</h1>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to .xfiletool.lst</p>'
+	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+	sudo echo 'opt/jivelite' >> /opt/.xfiletool.lst
+}
+
+pcp_delete_jivelite() {
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing Jivelite from piCorePlayer...</p>'
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	sudo rm -rf /home/tc/.jivelite
-	sudo rm -rf /opt/jivelite	
-fi
+	sudo rm -rf /opt/jivelite
 
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from onboot.lst</p>'
+	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 
-if [ $JIVELITE = YES ]; then
-	if grep -Fxq "jivelite.tcz" /mnt/mmcblk0p2/tce/onboot.lst
-	then
-		echo "Jivelite already present in onboot.lst"
-	else
-		echo "Jivelite is added to onboot.lst"
-		sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo echo 'jivelite.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from .xfiletool.lst</p>'
+	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+}
 
+pcp_remove_temp() {
+	if [ -e /tmp/jivelite.tcz ]; then
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloads from tmp directory...</p>'
+		sudo rm -f /tmp/jivelite.tcz
+		sudo rm -f /tmp/jivelite.tcz.md5.txt
 	fi
-else
-		echo "Jivelite is removed from onboot.lst"
-		sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-fi
+}
 
-if [ $JIVELITE = YES ]; then
-	echo "Jivelite is added to xfiletool.lst"
-		sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
-		sudo echo 'opt/jivelite' >> /opt/.xfiletool.lst
-	else
-	echo "Jivelite is removed from xfiletool.lst"
- 		sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
-fi
+#========================================================================================
+# Main
+#----------------------------------------------------------------------------------------
+case $JIVELITE in
+	YES)
+		pcp_load_jivelite
+		pcp_install_jivelite
+		pcp_remove_temp
+		;;
+	NO)
+		pcp_delete_jivelite
+		pcp_remove_temp
+		;;
+	*)
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
+		;;
+esac
 
-#-------------Cleanup---------------------------
-	sudo rm -f /tmp/jivelite.tcz
-	sudo rm -f /tmp/jivelite.tcz.md5.txt
-#------------END Jivelite------------------------
-
-pcp_squeezelite_start
-
-pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
-			echo '<h1>[ INFO ] A reboot is needed in order to finalize...</h1>'
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] A reboot is needed in order to finalize...</p>'
 pcp_reboot_button
 pcp_go_back_button
 
