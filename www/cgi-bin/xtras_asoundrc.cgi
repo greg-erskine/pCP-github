@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2015-04-25 GE
+# Version: 0.02 2015-04-28 GE
 #   Continued development.
 
 # Version: 0.01 2015-03-10 GE
@@ -18,8 +18,6 @@ pcp_xtras
 pcp_mode_lt_99
 pcp_running_script
 
-DEBUG=0                 # <--- LOOK
-MODE=0                  # <--- LOOK
 VOLUMERIGHT=100
 VOLUMELEFT=100
 
@@ -31,42 +29,48 @@ pcp_write_asound_conf() {
 	echo 'pcm.!default {'                         >>$ASOUNDCONF
 	echo '	type route'                           >>$ASOUNDCONF
 	echo '	slave.pcm hw'                         >>$ASOUNDCONF
-                                                 
-	case $OPTION in                              
-		stereo)                                  
+
+	case $OPTION in
+		default)
+			echo '	}'                            >>$ASOUNDCONF
+			;;
+		stereo)
 			echo '	ttable {'                     >>$ASOUNDCONF
 			echo '		0.0 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.1 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;                                   
-		mono)                                    
+			;;
+		mono)
 			echo '	ttable {'                     >>$ASOUNDCONF
 			echo '		0.1 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		0.0 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.0 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '		1.1 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;                                   
-		swap)                                    
+			;;
+		swap)
 			echo '	ttable {'                     >>$ASOUNDCONF
 			echo '		0.1 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.0 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;                                   
-		left)                                    
+			;;
+		left)
 			echo '	ttable {'                     >>$ASOUNDCONF
 			echo '		0.0 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.1 0'                    >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;                                   
-		right)                                   
+			;;
+		right)
 			echo '	ttable {'                     >>$ASOUNDCONF
 			echo '		0.0 0'                    >>$ASOUNDCONF
 			echo '		1.1 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;                                   
-	esac                                         
+			;;
+	esac
+
 	echo '}'                                      >>$ASOUNDCONF
+
+pcp_backup >/dev/null
 }
 
 pcp_httpd_query_string
@@ -102,12 +106,13 @@ esac
 TYPE=$(cat $ASOUNDCONF)
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Type '${TYPE:2:3}'</p>'
 case ${TYPE:2:3} in
+	def) DEF="checked" ;;
 	ste) STE="checked" ;;
 	mon) MON="checked" ;;
 	swa) SWA="checked" ;;
 	lef) LEF="checked" ;;
 	rig) RIG="checked" ;;
-	*)   STE="checked" ;;
+	*)   DEF="checked" ;;
 esac
 
 #========================================================================================
@@ -127,14 +132,12 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Stereo/Mono/Swap/L/R</p>'
 echo '                </td>'
 echo '                <td class="column410">'
+echo '                  <input class="small1" type="radio" name="OPTION" id="ASOUND" value="default" '$DEF'>Default&nbsp;'
 echo '                  <input class="small1" type="radio" name="OPTION" id="ASOUND" value="stereo" '$STE'>Stereo&nbsp;'
 echo '                  <input class="small1" type="radio" name="OPTION" id="ASOUND" value="mono" '$MON'>Mono&nbsp;'
 echo '                  <input class="small1" type="radio" name="OPTION" id="ASOUND" value="swap" '$SWA'>Swap channels&nbsp;'
 echo '                  <input class="small1" type="radio" name="OPTION" id="ASOUND" value="left" '$LEF'>Left channel&nbsp;'
 echo '                  <input class="small1" type="radio" name="OPTION" id="ASOUND" value="right" '$RIG'>Right channel'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row"></p>'
 echo '                </td>'
 echo '              </tr>'
 
@@ -145,7 +148,7 @@ echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <input class="small2" type="text" id="VOLUMELEFT" name="VOLUMELEFT" value="'$VOLUMELEFT'">&nbsp;Volume (1-100)'
 echo '                </td>'
-echo '                <td class="column150">'
+echo '                <td colspan="2">'
 echo '                  <p class="row"></p>'
 echo '                </td>'
 echo '              </tr>'

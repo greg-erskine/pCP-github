@@ -1,0 +1,36 @@
+#!/bin/sh
+
+NAME="shairport"
+DESC="Shairport"
+DAEMON=/usr/local/bin/shairport
+ON_START="echo power 0 | nc 192.168.1.101 9090"
+ON_STOP="echo power 1 | nc 192.168.1.101 9090"
+ANAME="pi Core Player 103"
+
+case "$1" in
+	start)
+		echo "Starting $DESC..."
+		start-stop-daemon --start --background --exec $DAEMON -- -a "$ANAME" -B "$ON_START" -E "$ON_STOP"
+		;;
+	stop)
+		echo "Stopping $DESC..."
+		start-stop-daemon --stop --quiet --exec $DAEMON
+		;;
+	restart)
+		echo "Restarting $DESC..."
+		start-stop-daemon --stop --quiet --exec $DAEMON
+		sleep 3
+		start-stop-daemon --start --quiet -b --exec $DAEMON -- -a "$ANAME" -B "$ON_START" -E "$ON_STOP"
+		;;
+	status)
+		ps -ef | grep $DAEMON | grep -v grep | awk '{ print $0 }'
+		;;
+	*)
+		echo
+		echo -e "Usage: /usr/local/etc/init.d/`basename $0` [start|stop|restart|status]"
+		echo
+		exit 1
+		;;
+esac
+
+exit 0

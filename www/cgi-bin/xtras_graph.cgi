@@ -28,6 +28,30 @@ pcp_xtras
 pcp_running_script
 
 #========================================================================================
+# This routine writes /etc/cpu.tmp
+#----------------------------------------------------------------------------------------
+pcp_write_cputemp_sh() {
+cat <<EOF > /tmp/cputemp.sh
+#!/bin/sh
+
+. /home/tc/www/cgi-bin/pcp-rpi-functions
+
+while true
+do
+	TEMP=\$(pcp_rpi_thermal_temp)
+	TIME=\$(date | awk '{print \$4}' | awk -F: '{print \$1, \$2}' | sed 's/ /:/g')
+	echo "\$TIME \$TEMP" | awk '{print \$1,\$3}'
+	sleep 60
+done
+EOF
+
+sudo chmod 755 /tmp/cputemp.sh
+#/tmp/cputemp.sh >/tmp/data.txt &
+}
+
+pcp_write_cputemp_sh
+
+#========================================================================================
 # Style sheet - move to piCorePlayer.css in the future
 #----------------------------------------------------------------------------------------
 echo '<style type="text/css">'
@@ -120,8 +144,8 @@ echo ''
 DATA1="06:25 06:26 06:27 06:28 06:29 06:30 06:31 06:32 06:33 06:34 06:35 06:36 06:37 06:38 06:39 06:40 06:41 06:42 06:43 06:44 06:45"
 DATA2="100 90 80 70 60 50 40 30 20 10 0 10 20 30 40 55 60 70 80 90 100"
 
-if [ -f /home/tc/data.txt ]; then
-	DATA=$(cat /home/tc/data.txt)
+if [ -f /tmp/data.txt ]; then
+	DATA=$(cat /tmp/data.txt)
 	DATA1=$(echo "$DATA" | tail -21 | awk '{print $1}')
 	DATA2=$(echo "$DATA" | tail -21 | awk '{print $2}')
 fi

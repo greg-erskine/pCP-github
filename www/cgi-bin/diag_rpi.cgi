@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.04 2015-04-28 GE
+#	More minor updates.
+
 # Version: 0.03 2015-03-07 GE
 #	Added internet and sourceforge accessible.
 
@@ -26,13 +29,7 @@ pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-
-if [ $MODE -lt 5 ]; then
-	echo '<p class="error">[ ERROR ] Wrong mode.</p>'
-	echo '</body>'
-	echo '</html>'
-	exit 1
-fi
+pcp_mode_lt_5
 
 #========================================================================================
 # Raspberry Pi
@@ -44,6 +41,7 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Raspberry Pi</legend>'
 echo '          <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
 echo '            <tr class="even">'
 echo '              <td class="column150">'
 echo '                <p>Model:</p>'
@@ -64,7 +62,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_eth0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-
+#----------------------------------------------------------------------------------------
 echo '            <tr class="odd">'
 echo '              <td class="column150">'
 echo '                <p>Revison:</p>'
@@ -85,7 +83,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_wlan0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-
+#----------------------------------------------------------------------------------------
 echo '            <tr class="even">'
 echo '              <td class="column150">'
 echo '                <p>PCB Revison:</p>'
@@ -106,7 +104,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_config_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-
+#----------------------------------------------------------------------------------------
 echo '            <tr class="odd">'
 echo '              <td class="column150">'
 echo '                <p>Memory:</p>'
@@ -127,7 +125,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_controls_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-
+#----------------------------------------------------------------------------------------
 echo '            <tr class="even">'
 echo '              <td class="column150">'
 echo '                <p>Uptime (secs):</p>'
@@ -148,7 +146,6 @@ echo '              <td class="column150">'
 echo '                <p></p>'
 echo '              </td>'
 echo '            </tr>'
-
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
@@ -156,7 +153,6 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
 
 #========================================================================================
 # Squeezelite
@@ -196,8 +192,6 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_which_squeezelite)'</p>'
 echo '              </td>'
 echo '            </tr>'
-
-#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -235,8 +229,6 @@ echo '              <td class="column150">'
 echo '                <p>'$HOST'</p>'
 echo '              </td>'
 echo '            </tr>'
-
-#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -271,8 +263,6 @@ echo '              <td>'
 echo '                <p></p>'
 echo '              </td>'
 echo '            </tr>'
-
-#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -292,13 +282,13 @@ echo '          <legend>Internet</legend>'
 echo '          <table class="bggrey percent100">'
 echo '            <tr class="even">'
 
-					if [ $(pcp_internet_accessible) = 0 ]; then
-						IMAGE="green.png"
-						STATUS="Internet found..."
-					else
-						IMAGE="red.png"
-						STATUS="Internet not found!!"
-					fi
+                    if [ $(pcp_internet_accessible) = 0 ]; then
+                      IMAGE="green.png"
+                      STATUS="Internet found..."
+                    else
+                      IMAGE="red.png"
+                      STATUS="Internet not found!!"
+                    fi
 
 echo '              <td class="column150">'
 echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
@@ -307,13 +297,13 @@ echo '              <td class="column150">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
-					if [ $(pcp_sourceforge_accessible) = 0 ]; then
-						IMAGE="green.png"
-						STATUS="Sourceforge accessible..."
-					else
-						IMAGE="red.png"
-						STATUS="Sourceforge not accessible!!"
-					fi
+                    if [ $(pcp_sourceforge_accessible) = 0 ]; then
+                      IMAGE="green.png"
+                      STATUS="Sourceforge accessible..."
+                    else
+                      IMAGE="red.png"
+                      STATUS="Sourceforge not accessible!!"
+                    fi
 
 echo '              <td class="column150">'
 echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
@@ -328,8 +318,8 @@ echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p></p>'
 echo '              </td>'
+
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -339,7 +329,6 @@ echo '</table>'
 
 pcp_footer
 pcp_copyright
-pcp_go_main_button
 
 echo '</body>'
 echo '</html>'

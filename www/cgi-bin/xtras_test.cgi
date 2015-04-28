@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.01 2015-04-25 GE
+# Version: 0.01 2015-04-28 GE
 #   Original version.
 
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -13,16 +14,14 @@ pcp_banner
 pcp_running_string
 pcp_xtras
 
-URL1="http://192.168.1.155/cgi-bin/diag_rpi.cgi"
-URL2="http://192.168.1.103/cgi-bin/diag_rpi.cgi"
-URL3="http://192.168.1.6/cgi-bin/diag_rpi.cgi"
+echo '<p>This page displays the Raspberry Pi diagnostics page for all Squeezelite players found on LMS.</p>'
 
-echo '<iframe src="'$URL1'" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
-echo '<iframe src="'$URL2'" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
-echo '<iframe src="'$URL3'" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
-
-pcp_refresh_button
-pcp_go_main_button
+TMP=$(mktemp)
+pcp_lms_players squeezelite >$TMP
+for i in $(cat $TMP | awk -F, '{ print $2 }')
+do
+	echo '<iframe src="http://'$i'/cgi-bin/diag_rpi.cgi" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
+done
 
 echo '</body>'
 echo '</html>'

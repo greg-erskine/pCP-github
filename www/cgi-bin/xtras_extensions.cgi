@@ -13,7 +13,7 @@
 #   5. Load/delete extension
 #
 # Complications:
-#   1. Sufficient space, expanding file system
+#   1. Sufficient space, need to expand file system
 #
 # Future enhancements:
 #   1. Search all 3.x, 4.x, 5.x, 6.x, arm6 and arm7 extension repositories
@@ -278,13 +278,13 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '          <legend>Internet</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
-						if [ $(pcp_internet_accessible) = 0 ]; then
-							IMAGE="green.png"
-							STATUS="Internet accessible..."
-						else
-							IMAGE="red.png"
-							STATUS="Internet not accessible!!"
-						fi
+	                  if [ $(pcp_internet_accessible) = 0 ]; then
+	                    IMAGE="green.png"
+	                    STATUS="Internet accessible..."
+	                  else
+	                    IMAGE="red.png"
+	                    STATUS="Internet not accessible!!"
+	                  fi
 	echo '              <td class="column150">'
 	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
 	echo '              </td>'
@@ -297,13 +297,13 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '              <td>'
 	echo '                <p></p>'
 	echo '              </td>'
-						if [ $(pcp_picore_accessible) = 0 ]; then
-							IMAGE="green.png"
-							STATUS="piCore repository accessible..."
-						else
-							IMAGE="red.png"
-							STATUS="piCore repository not accessible!!"
-						fi
+	                    if [ $(pcp_picore_accessible) = 0 ]; then
+	                      IMAGE="green.png"
+	                      STATUS="piCore repository accessible..."
+	                    else
+	                      IMAGE="red.png"
+	                      STATUS="piCore repository not accessible!!"
+	                    fi
 	echo '              <td class="column150">'
 	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
 	echo '              </td>'
@@ -311,7 +311,6 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '                <p>'$STATUS'</p>'
 	echo '              </td>'
 	echo '            </tr>'
-	#----------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -394,21 +393,18 @@ if [ $MODE = 99 ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 	echo '          <fieldset>'
 	echo '            <legend>Extension: '$EXTN'</legend>'
 	echo '            <table class="bggrey percent100">'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p><b>Information:</b></p>'
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        pcp_textarea_inform "none" "displayInfo" 200
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -421,7 +417,6 @@ if [ $MODE = 99 ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 	                        pcp_textarea_inform "none" "displayDepends" 100
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -434,35 +429,30 @@ if [ $MODE = 99 ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 	                        pcp_textarea_inform "none" "displayTree" 100
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p><b>Size:</b></p>'
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        pcp_textarea_inform "none" "displaySize" 100
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p><b>Files:</b></p>'
 	echo '                </td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        pcp_textarea_inform "none" "displayFiles" 100
 	echo '                </td>'
 	echo '              </tr>'
-	
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'

@@ -2,8 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.33 2015-04-26 GE
-#	Added pcp_picore_accessible and pcp_xtras toolbar.
+# Version: 0.33 2015-04-28 GE
+#	Added pcp_picore_accessible and pcp_xtras tool bar.
 
 # Version: 0.32 2015-03-29 GE
 #	Added pcp_start_row_shade and pcp_toggle_row_shade.
@@ -211,6 +211,7 @@ NORMAL="$(echo -e '\033[0;39m')"
 # Row shading
 #-----------------------------------------------------------------------------------------
 pcp_start_row_shade() {
+	SHADE=0
 	ROWSHADE=even
 }
 
@@ -443,7 +444,7 @@ pcp_favorites() {
 		FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 		FAVLIST=`sudo $HTPPD -d $FAVLIST`
 
-		echo '<!-- Start of pcp_favorites -->'
+		echo '<!-- Start of favorites -->'
 		echo '<table class="bgblack">'
 		echo '  <tr>'
 		echo '    <td>'
@@ -480,7 +481,7 @@ pcp_favorites() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		echo '<!-- End of pcp_favorites -->'
+		echo '<!-- End of favorites -->'
 	fi
 }
 
@@ -490,11 +491,11 @@ pcp_diagnostics() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
+	echo '        <a class="nav" href="main.cgi" title="pCP - Main Page">Main Page</a>'
 	echo '        <a class="nav" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
 	echo '        <a class="nav" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
 	echo '        <a class="nav" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
 	echo '        <a class="nav" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-#	echo '        <a class="nav" href="debug.cgi" title="pCP - Debug">Debug</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -508,6 +509,7 @@ pcp_xtras() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
+	echo '        <a class="nav2" href="main.cgi" title="pCP - Main Page">Main Page</a>'
 	echo '        <a class="nav2" href="xtras_test.cgi" title="pCP - Diagnostics">Test</a>'
 	echo '        <a class="nav2" href="xtras_asoundrc.cgi" title="pCP - Diagnostics">Asound</a>'
 	echo '        <a class="nav2" href="xtras_bootcodes.cgi" title="pCP - Diagnostics">Bootcodes</a>'

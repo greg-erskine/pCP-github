@@ -1,6 +1,9 @@
 #!/bin/sh
 # Boot diagnostics script
 
+# Version: 0.04 2015-04-28 GE
+#	Minor updates.
+
 # Version: 0.03 2015-03-31 GE
 #	Added /usr/local/bin/wifi.sh
 #	Added navigation links at top of page.
@@ -27,8 +30,6 @@ pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_refresh_button
-pcp_go_main_button
 pcp_mode_lt_5
 
 #=========================================================================================
@@ -88,7 +89,6 @@ echo '<br />'
 
 pcp_footer
 pcp_copyright
-pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

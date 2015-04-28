@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.13 2015-04-23 GE
+# Version: 0.13 2015-04-28 GE
 #	Now uses pcp_start_row_shade, pcp_start_row_shade and pcp_incr_id
 #	Added Extensions, Extras, Debug and Diagnostics buttons.
 
@@ -148,7 +148,7 @@ echo '                  <p><b>Note:</b></p>'
 echo '                  <ul>'
 echo '                    <li>Internet access is required.</li>'
 echo '                    <li>Triode is the author of Squeezelite.</li>'
-echo '                    <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelit Google code</a>.</li>'
+echo '                    <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
 echo '                  </ul>'
 echo '                </div>'
 echo '              </td>'
@@ -251,24 +251,6 @@ echo '                    <li>after an update</li>'
 echo '                    <li>in another piCorePlayer.</li>'
 echo '                  </ul>'
 echo '                  <p><b>Note: </b>USB flash drive must be plugged into USB port.</p>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
-
-#------------------------------------------Extensions------------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="Extensions" name="Stop" action="xtras_extensions.cgi" method="get">'
-echo '                  <input type="submit" value="Extensions" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Search, load or delete piCore extension&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This page will give you the options to search, load or delete piCore extensions.</p>'
 echo '                </div>'
 echo '              </td>'
 echo '            </tr>'
@@ -420,6 +402,24 @@ if [ $MODE = 99 ]; then
 	echo '              </td>'
 	echo '            </tr>'
 
+#------------------------------------------Extensions------------------------------------
+pcp_toggle_row_shade
+pcp_incr_id
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column150 center">'
+echo '                <form id="Extensions" name="Stop" action="xtras_extensions.cgi" method="get">'
+echo '                  <input type="submit" value="Extensions" />'
+echo '                </form>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>Search, load or delete piCore extensions&nbsp;&nbsp;'
+echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                <div id="'$ID'" class="less">'
+echo '                  <p>This page gives you the option to search, load or delete piCore extensions.</p>'
+echo '                </div>'
+echo '              </td>'
+echo '            </tr>'
+
 	#------------------------------------------Dosfsck-----------------------------------
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -433,8 +433,7 @@ if [ $MODE = 99 ]; then
 	echo '                <p>DOS file system check&nbsp;&nbsp;'
 	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command will .</p>'
-	echo '                  <p>Only required .</p>'
+	echo '                  <p>This option allows you to run dosfsck on the SD card.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -449,11 +448,10 @@ if [ $MODE = 99 ]; then
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Static IP&nbsp;&nbsp;'
+	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
 	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command .</p>'
-	echo '                  <p>Only required.</p>'
+	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'

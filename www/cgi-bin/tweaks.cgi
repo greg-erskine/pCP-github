@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.12 2015-04-28 GE
+#	Removed shairport option.
+
 # Version: 0.11 2015-03-29 GE
 #	Added shairport (mode = 99).
 #	Added $ROWSHADE variable. Thought it would be easier.
@@ -152,62 +155,6 @@ if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
 	echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
 	echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
-fi
-
-if [ $MODE -eq 99 ]; then
-#---------------------------------------Shairport----------------------------------------
-# Function to check the radio button according to config.cfg file
-#----------------------------------------------------------------------------------------
-case "$SHAIRPORT" in 
-	YES)
-		SHAIRPORTyes="selected"
-		;;
-	NO)
-		SHAIRPORTno="selected"
-		;;
-	*)
-		SHAIRPORTyes=""
-		SHAIRPORTno=""
-		;;
-esac
-
-#----------------------------------------------------------------------------------------
-pcp_incr_id
-pcp_start_row_shade
-echo '          <table class="bggrey percent100">'
-echo '            <form name="shairport" action= "writetoshairport.cgi" method="get">'
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
-echo '                <td class="column150">'
-echo '                  <p>Shairport</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <select name="SHAIRPORT">'
-echo '                    <option value="YES" '$SHAIRPORTyes'>Enable Shairport</option>'
-echo '                    <option value="NO" '$SHAIRPORTno'>Disable Shairport</option>'
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Enable/disable Shairport&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Shairport enables piCorePlayer to act as Airport device.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </form>'
-echo '          </table>'
-echo '          <br />'
-
-if [ $DEBUG = 1 ]; then 
-	echo '<p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
-	echo '                 [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
-	echo '                 [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
-fi
 fi
 
 #---------------------------------------Overclock----------------------------------------

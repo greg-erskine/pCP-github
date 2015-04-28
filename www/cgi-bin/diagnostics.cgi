@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.09 2015-04-28 GE
+#	More minor updates.
+
 # Version: 0.08 2015-03-07 GE
 #	Minor updates.
 
@@ -43,15 +46,7 @@ pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_refresh_button
-pcp_go_main_button
-
-if [ $MODE -lt 5 ]; then
-	echo '<p class="error">[ ERROR ] Wrong mode.</p>'
-	echo '</body>'
-	echo '</html>'
-	exit 1
-fi
+pcp_mode_lt_5
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
@@ -105,7 +100,6 @@ echo '<br />'
 
 pcp_footer
 pcp_copyright
-pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

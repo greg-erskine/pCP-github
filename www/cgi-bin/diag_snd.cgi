@@ -1,6 +1,9 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 0.03 2015-04-28 GE
+#	Minor updates.
+
 # Version: 0.02 2015-03-07 GE
 #	Minor updates.
 
@@ -22,15 +25,7 @@ pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_refresh_button
-pcp_go_main_button
-
-if [ $MODE -lt 5 ]; then
-	echo '<p class="error">[ ERROR ] Wrong mode.</p>'
-	echo '</body>'
-	echo '</html>'
-	exit 1
-fi
+pcp_mode_lt_5
 
 #=========================================================================================
 # Sound diagnostics
@@ -54,13 +49,11 @@ pcp_textarea "Squeezelite log" "cat /tmp/$LOGFILE" 250 log
 pcp_textarea "Left speaker test" "speaker-test -t sine -f 480 -c 2 -s 1" 240 log
 pcp_textarea "Right speaker test" "speaker-test -t sine -f 480 -c 2 -s 2" 240 log
 
-
 echo '<br />'
 echo '<br />'
 
 pcp_footer
 pcp_copyright
-pcp_refresh_button
 
 echo '</body>'
 echo '</html>'

@@ -196,9 +196,8 @@ pcp_lms_players() {
 			if ( model[y] == search ) {
 				#printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
 				#,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
-				
-				printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]
-				
+				#printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]
+				printf "%s,%s\n",name[y],ipaddr[y]
 			}
 		}
 	} '
@@ -274,8 +273,9 @@ pcp_lms_artists() {
 	}
 	#main
 	{
-		#8107 artist:Various Artists
-		#8106 artist:10cc
+		 #8107 artist:Various Artists
+		 #8106 artist:10cc
+		#0123456789012345678901234567890
 
 		x++
 		line[x]=$0
