@@ -96,12 +96,9 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	#Save to config file
 	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
+	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
-	#sleep 1
 fi
-
-# Rename the newconfig file on USB
-if [ -f /mnt/sda1/newconfig.cfg ]; then sudo mv /mnt/sda1/newconfig.cfg /mnt/sda1/usedconfig.cfg; fi
 
 echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1...  ${NORMAL}"
 # Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
@@ -112,8 +109,8 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
-	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
+	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 fi
 pcp_umount_mmcblk0p1_nohtml
 
