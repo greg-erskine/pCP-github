@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2015-04-28 GE
+# Version: 0.02 2015-04-30 GE
 #   Revised.
 
 # Version: 0.01 2015-03-15 SBP
@@ -21,7 +21,6 @@ pcp_httpd_query_string
 sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
-pcp_backup
 
 downloadtcz="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz"
 downloadmd5="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz.md5.txt"
@@ -33,6 +32,16 @@ fi
 
 #========================================================================================
 # Routines
+
+#        echo "Downloading: $1"
+#        wget -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
+#        wget -c "$MIRROR"/"$1"
+#        md5sum -c "$1".md5.txt
+#        if [ "$?" != 0 ]; then
+#                echo "Error on $1"
+#                abort_to_saved_dir
+#        fi
+
 #----------------------------------------------------------------------------------------
 pcp_load_jivelite() {
 	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy</p>'
@@ -102,6 +111,7 @@ case $JIVELITE in
 		;;
 esac
 
+pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] A reboot is needed in order to finalize...</p>'

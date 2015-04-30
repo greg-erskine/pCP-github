@@ -2,8 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.33 2015-04-28 GE
+# Version: 0.33 2015-04-30 GE
 #	Added pcp_picore_accessible and pcp_xtras tool bar.
+#	Added pcp_uptime_days.
+#	Added pcp_picoreplayers toolbar.
 
 # Version: 0.32 2015-03-29 GE
 #	Added pcp_start_row_shade and pcp_toggle_row_shade.
@@ -510,17 +512,41 @@ pcp_xtras() {
 	echo '    <td>'
 	echo '      <p>'
 	echo '        <a class="nav2" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav2" href="xtras_test.cgi" title="pCP - Diagnostics">Test</a>'
-	echo '        <a class="nav2" href="xtras_asoundrc.cgi" title="pCP - Diagnostics">Asound</a>'
-	echo '        <a class="nav2" href="xtras_bootcodes.cgi" title="pCP - Diagnostics">Bootcodes</a>'
-	echo '        <a class="nav2" href="xtras_controls.cgi" title="pCP - Diagnostics">Controls</a>'
-	echo '        <a class="nav2" href="xtras_graph.cgi" title="pCP - Diagnostics">Graph</a>'
-	echo '        <a class="nav2" href="xtras_lmsclis.cgi" title="pCP - Diagnostics">LMS CLI</a>'
+	echo '        <a class="nav2" href="xtras_test.cgi" title="pCP - Diag Test">Test</a>'
+	echo '        <a class="nav2" href="xtras_asoundrc.cgi" title="pCP - Diag Asound">Asound</a>'
+	echo '        <a class="nav2" href="xtras_bootcodes.cgi" title="pCP - Diag Bootcodes">Bootcodes</a>'
+	echo '        <a class="nav2" href="xtras_controls.cgi" title="pCP - Diag Controls">Controls</a>'
+	echo '        <a class="nav2" href="xtras_graph.cgi" title="pCP - Diag Graph">Graph</a>'
+	echo '        <a class="nav2" href="xtras_lmsclis.cgi" title="pCP - Diag LMS CLI">LMS CLI</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of xtras -->'
+}
+
+pcp_picoreplayers() {
+	echo '<!-- Start of picoreplayer -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+
+	TMP=$(mktemp)
+	pcp_lms_players squeezelite >$TMP
+	while read line
+	do
+		NAME=$(echo $line | awk -F, '{ print $1 }')
+		URL=$(echo $line | awk -F, '{ print $2 }')
+		echo '        <a class="nav2" href="http://'$URL'/" title="pCP - Main Page">'$NAME'</a>'
+	done <$TMP
+	rm -r $TMP
+
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of picoreplayer -->'
 }
 
 #=========================================================================================
@@ -667,6 +693,20 @@ pcp_uptime_seconds() {
 
 pcp_uptime_minutes() {
 	printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1/60 }')
+}
+
+pcp_uptime_days() {
+	SECONDS=`printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1 }')`
+	D=$((${SECONDS} / 86400))
+	H=$(((${SECONDS} % 86400) / 3600))
+	M=$(((${SECONDS} % 3600) / 60))
+	S=$((${SECONDS} % 60))
+	[ $D -eq 1 ] && DS="day" || DS="days"
+	[ $H -eq 1 ] && HS="hour" || HS="hours"
+	[ $M -eq 1 ] && MS="minute" || MS="minutes"
+	[ $S -eq 1 ] && SS="second" || SS="seconds"
+	printf "%2d %s %2d %s %2d %s %2d %s" $D $DS $H $HS $M $MS $S $SS	# 2 days 8 hours 10 minutes 35 seconds
+#	printf "%02d:%02d:%02d:%02d" $D $H $M $S							# 02:08:11:15
 }
 
 #=========================================================================================
