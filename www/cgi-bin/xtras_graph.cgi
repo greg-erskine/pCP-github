@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2015-05-02 GE
+#   Added option buttons.
+
 # Version: 0.01 2015-02-25 GE
 #   Original version.
 
@@ -26,6 +29,7 @@ pcp_controls
 pcp_banner
 pcp_xtras
 pcp_running_script
+pcp_httpd_query_string
 
 #========================================================================================
 # This routine writes /etc/cpu.tmp
@@ -45,11 +49,26 @@ do
 done
 EOF
 
-sudo chmod 755 /tmp/cputemp.sh
-#/tmp/cputemp.sh >/tmp/data.txt &
+	sudo chmod 755 /tmp/cputemp.sh
 }
 
-pcp_write_cputemp_sh
+case $OPTION in
+	Start)
+		pcp_write_cputemp_sh
+		killall cputemp.sh
+		/tmp/cputemp.sh >/tmp/data.txt &
+		;;
+	Stop)
+		killall cputemp.sh
+		;;
+	Clean)
+		killall cputemp.sh
+		rm -f /tmp/data.txt
+		rm -f /tmp/cputemp.sh
+		;;
+	Refresh)
+		;;
+esac
 
 #========================================================================================
 # Style sheet - move to piCorePlayer.css in the future
@@ -106,7 +125,7 @@ YGAP=40
 
 YMAX=100
 YMIN=0
-YMAJOR=20
+YMAJOR=10
 Y=$((($YMAX - $YMIN) / $YMAJOR))
 YTIC=5
 YSCALE=$(($YGAP / $YMAJOR))
@@ -268,6 +287,41 @@ echo '</svg>'
 
 #----------------------------------------------------------------------------------------
 echo '          </table>'
+
+echo '          <table class="bggrey percent100">'
+echo '            <form name="actions" action="xtras_graph.cgi" method="get">'
+echo '              <tr>'
+echo '                <td colspan=3>'
+echo '                  <input type="submit" name="OPTION" value="Refresh">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </form>'
+echo '          </table>'
+
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#=========================================================================================
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Logging options</legend>'
+echo '          <table class="bggrey percent100">'
+echo '            <form name="actions" action="xtras_graph.cgi" method="get">'
+echo '              <tr>'
+echo '                <td colspan=3>'
+echo '                  <input type="submit" name="OPTION" value="Start">'
+echo '                  <input type="submit" name="OPTION" value="Stop">'
+echo '                  <input type="submit" name="OPTION" value="Clean">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </form>'
+echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -276,7 +330,7 @@ echo '</table>'
 
 #----------------------------------------------------------------------------------------
 pcp_footer
-pcp_refresh_button
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
