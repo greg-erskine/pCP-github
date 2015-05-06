@@ -12,7 +12,7 @@ pcp_variables
 
 pcp_html_head "Write to Jivelite Tweak" "SBP" "15" "tweaks.cgi"
 
-DEBUG=1
+#DEBUG=1
 
 pcp_banner
 pcp_running_script
@@ -61,6 +61,7 @@ pcp_load_jivelite() {
 }
 
 pcp_install_jivelite() {
+	echo '<p class="info">[ INFO ] Jivelite is installed in piCorePlayer</p>'
 	#tce-load -i jivelite.tcz
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to onboot.lst</p>'
 	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
@@ -72,6 +73,7 @@ pcp_install_jivelite() {
 }
 
 pcp_delete_jivelite() {
+	echo '<p class="info">[ INFO ] Jivelite is removed from piCorePlayer</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing Jivelite from piCorePlayer...</p>'
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
@@ -114,7 +116,8 @@ esac
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] A reboot is needed in order to finalize...</p>'
+echo '<p class="info">[ INFO ] A reboot is needed in order to finalize...</p>'
+#[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] A reboot is needed in order to finalize...</p>'
 pcp_reboot_button
 pcp_go_back_button
 

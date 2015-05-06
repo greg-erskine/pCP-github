@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.15 2015-05-06 SBP
+#	Added logic to skip not needed options.
+
 # Version: 0.14 2015-04-05 SBP
 #	Added logic to wait for soundcards adn restart squeezelite if not properly started.
 
@@ -185,6 +188,7 @@ if [ $WIFI = on ]; then
 	   fi
 	done
 fi
+echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
@@ -253,17 +257,24 @@ echo -n "${BLUE}"
 sleep 1
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
-pcp_auto_start_lms
-echo "${GREEN}Done.${NORMAL}"
+if [ $A_S_LMS = "ENABLED" ]; then
+	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
+	pcp_auto_start_lms
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
-echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
-pcp_auto_start_fav
-echo "${GREEN}Done.${NORMAL}"
+if [ $A_S_FAV = "ENABLED" ]; then
+	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
+	pcp_auto_start_fav
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
+
+if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ] ; then
 echo -n "${BLUE}Starting user commands... ${NORMAL}"
 pcp_user_commands
 echo "${GREEN}Done.${NORMAL}"
+fi
 
 echo -n "${BLUE}Starting crond... ${NORMAL}"
 /etc/init.d/services/crond start 2>&1
