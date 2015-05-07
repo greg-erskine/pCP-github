@@ -248,7 +248,7 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 fi
  
 #----------------------------------------------Timezone----------------------------------
-[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
+#[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
 pcp_incr_id
 pcp_start_row_shade
@@ -258,7 +258,7 @@ echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
 echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
 echo '                <td class="column150">Timezone</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" maxlength="26" value="'$TZ'">'
+echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" maxlength="26" value="'$TIMEZONE'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Add your TIMEZONE&nbsp;&nbsp;'
@@ -442,7 +442,8 @@ echo '                       This could be handy for people building Internet ra
 echo '                    <p><b>Note:</b></p>'
 echo '                    <ul>'
 echo '                      <li>Squeezelite must be running.</li>'
-echo '                      <li>LMS IP address is auto-discovered.</li>'
+echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
+#echo '                      <li>LMS IP address is auto-discovered.</li>'
 echo '                      <li>Favorites must exist in LMS.</li>'
 echo '                      <li>Favorites must be at the top level.</li>'
 echo '                      <li>Folders will not be navigated.</li>'

@@ -236,11 +236,11 @@ fi
 echo "${GREEN}Done.${NORMAL}"
 
 # Only call timezone function if timezone variable is set
-if [ x"" != x"$TIMEZONE" ]; then
-	echo -n "${BLUE}Setting timezone... ${NORMAL}"
-	pcp_set_timezone
-	echo "${GREEN}Done.${NORMAL}"
-fi
+#if [ x"" != x"$TIMEZONE" ]; then
+#	echo -n "${BLUE}Setting timezone... ${NORMAL}"
+#	pcp_set_timezone
+#	echo "${GREEN}Done.${NORMAL}"
+#fi
 
 # Start the essential stuff for piCorePlayer
 echo "${BLUE}Loading the main daemons...${NORMAL}"
@@ -278,9 +278,9 @@ pcp_user_commands
 echo "${GREEN}Done.${NORMAL}"
 fi
 
-echo -n "${BLUE}Starting crond... ${NORMAL}"
-/etc/init.d/services/crond start 2>&1
-echo "${GREEN}Done.${NORMAL}"
+#echo -n "${BLUE}Starting crond... ${NORMAL}"
+#/etc/init.d/services/crond start 2>&1
+#echo "${GREEN}Done.${NORMAL}"
 
 if [ $JIVELITE = "YES" ]; then
 echo -n "${BLUE}Starting Jivelite... ${NORMAL}"

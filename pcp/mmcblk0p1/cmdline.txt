@@ -1,1 +1,1 @@
-dwc_otg.fiq_fsm_mask=0x7 bcm2708.vc_i2c_override=1 smsc95xx.turbo_mode=N dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 console=tty1 initrd=0xa00000,3787852 root=/dev/ram0 elevator=deadline rootwait nortc loglevel=3 waitusb=5 cron
+dwc_otg.fiq_fsm_mask=0x7 smsc95xx.turbo_mode=N dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/ram0 elevator=deadline rootwait nortc loglevel=3 noembed noswap showapps tz=CET-1CEST%252CM3.5.0%252CM10.5

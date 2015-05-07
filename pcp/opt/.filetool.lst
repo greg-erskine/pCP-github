@@ -6,12 +6,13 @@ usr/local/etc/dropbear/dropbear_dss_host_key
 usr/local/etc/dropbear/dropbear_rsa_host_key
 usr/local/sbin/config.cfg
 usr/local/sbin/piversion.cfg
-usr/local/sbin/webgui
+usr/local/sbin/picoreplayer
 etc/group
 etc/modprobe.conf
 etc/asound.conf
 var/lib/alsa/asound.state
 usr/local/etc/init.d/squeezelite
 usr/local/etc/init.d/httpd
-etc/sysconfig/timezone
+usr/local/sbin/webgui
 var/spool/cron/crontabs
+var/lib/alsa/asound.state
