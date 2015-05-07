@@ -160,6 +160,74 @@ displayFiles() {
 }
 
 #========================================================================================
+# Loaded extensions on /mnt/mmcblk0p2/tce/optional/
+#----------------------------------------------------------------------------------------
+if [ $MODE = 99 ]; then
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Loaded Extensions</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p>Loaded extensions</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <select name="X">'
+	                        EXTNLST=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+	                        for i in $EXTNLST
+	                        do
+	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
+	                        done
+	echo '                </select>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+#========================================================================================
+# Available extensions from tags.db
+#----------------------------------------------------------------------------------------
+if [ $MODE = 99 ]; then
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Available Extensions</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p>Available extensions</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <select name="X">'
+	                        EXTNLST=$(cat /tmp/tags.db | awk '{print $1}')
+	                        for i in $EXTNLST
+	                        do
+	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
+	                        done
+	echo '                </select>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+#========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
