@@ -259,12 +259,14 @@ echo "${GREEN}Done.${NORMAL}"
 
 if [ $A_S_LMS = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
+	sleep 1
 	pcp_auto_start_lms
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ $A_S_FAV = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
+	sleep 1
 	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
