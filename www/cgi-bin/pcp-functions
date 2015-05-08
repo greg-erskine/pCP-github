@@ -1078,6 +1078,9 @@ pcp_save_to_config() {
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
+pcp_mount_mmcblk0p1_nohtml
+sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
+pcp_umount_mmcblk0p1_nohtml
 cat <<EOF > $CONFIGCFG
 #########################
 # Edit the variables below to setup a wifi based system without LAN access
