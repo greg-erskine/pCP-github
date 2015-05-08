@@ -1,6 +1,9 @@
 #!/bin/sh
 # Boot diagnostics script
 
+# Version: 0.05 2015-05-08 GE
+#	Added  /etc/init.d/dhcp.sh, /etc/init.d/settime.sh and /usr/bin/getTime.sh
+
 # Version: 0.04 2015-04-28 GE
 #	Minor updates.
 
@@ -43,14 +46,17 @@ echo '	<li><a href="#01">/init</a></li>'
 echo '	<li><a href="#02">/sbin/init</a></li>'
 echo '	<li><a href="#03">/etc/init.d/rcS</a></li>'
 echo '	<li><a href="#04">/etc/init.d/tc-config</a></li>'
-echo '	<li><a href="#05">/opt/bootsync.sh</a></li>'
-echo '	<li><a href="#06">/opt/bootlocal.sh</a></li>'
-echo '	<li><a href="#07">/home/tc/www/cgi-bin/do_rebootstuff.sh</a></li>'
-echo '	<li><a href="#08">/home/tc/.profile</a></li>'
-echo '	<li><a href="#09">/home/tc/.ashrc</a></li>'
-echo '	<li><a href="#10">/etc/init.d/tc-functions</a></li>'
-echo '	<li><a href="#11">/proc/cmdline</a></li>'
-echo '	<li><a href="#12">/usr/local/bin/wifi.sh</a></li>'
+echo '	<li><a href="#05">/etc/init.d/dhcp.sh</a></li>'
+echo '	<li><a href="#06">/etc/init.d/settime.sh</a></li>'
+echo '	<li><a href="#07">/usr/bin/getTime.sh</a></li>'
+echo '	<li><a href="#08">/opt/bootsync.sh</a></li>'
+echo '	<li><a href="#09">/opt/bootlocal.sh</a></li>'
+echo '	<li><a href="#10">/home/tc/www/cgi-bin/do_rebootstuff.sh</a></li>'
+echo '	<li><a href="#11">/home/tc/.profile</a></li>'
+echo '	<li><a href="#12">/home/tc/.ashrc</a></li>'
+echo '	<li><a href="#13">/etc/init.d/tc-functions</a></li>'
+echo '	<li><a href="#14">/proc/cmdline</a></li>'
+echo '	<li><a href="#15">/usr/local/bin/wifi.sh</a></li>'
 echo '</ol>'
 
 echo '<p id="01"></p>'
@@ -62,14 +68,20 @@ pcp_textarea "" "cat /etc/init.d/rcS" 240 log
 echo '<p id="04"></p>'
 pcp_textarea "" "cat /etc/init.d/tc-config" 600 log
 echo '<p id="05"></p>'
-pcp_textarea "" "cat /opt/bootsync.sh" 120 log
+pcp_textarea "" "cat /etc/init.d/dhcp.sh" 120 log
 echo '<p id="06"></p>'
-pcp_textarea "" "cat /opt/bootlocal.sh" 110 log
+pcp_textarea "" "cat /etc/init.d/settime.sh" 120 log
 echo '<p id="07"></p>'
-pcp_textarea "" "cat /home/tc/www/cgi-bin/do_rebootstuff.sh" 600 log
+pcp_textarea "" "cat /usr/bin/getTime.sh" 120 log
 echo '<p id="08"></p>'
-pcp_textarea "" "cat /home/tc/.profile" 530 log
+pcp_textarea "" "cat /opt/bootsync.sh" 120 log
 echo '<p id="09"></p>'
+pcp_textarea "" "cat /opt/bootlocal.sh" 110 log
+echo '<p id="10"></p>'
+pcp_textarea "" "cat /home/tc/www/cgi-bin/do_rebootstuff.sh" 600 log
+echo '<p id="11"></p>'
+pcp_textarea "" "cat /home/tc/.profile" 530 log
+echo '<p id="12"></p>'
 pcp_textarea "" "cat /home/tc/.ashrc" 410 log
 
 #=========================================================================================
@@ -77,11 +89,11 @@ pcp_textarea "" "cat /home/tc/.ashrc" 410 log
 #-----------------------------------------------------------------------------------------
 echo '<p>Additional files that are run during the boot process that may be of interest</p>'
 
-echo '<p id="10"></p>'
+echo '<p id="13"></p>'
 pcp_textarea "" "cat /etc/init.d/tc-functions" 600 log
-echo '<p id="11"></p>'
+echo '<p id="14"></p>'
 pcp_textarea "" "cat /proc/cmdline" 100 log
-echo '<p id="12"></p>'
+echo '<p id="15"></p>'
 pcp_textarea "" "cat /usr/local/bin/wifi.sh" 500 log
 
 echo '<br />'

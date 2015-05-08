@@ -338,6 +338,9 @@ echo '</table>'
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 # Function to check the A_S_LMS radio button according to config file
+
+
+
 case "$A_S_LMS" in 
 	Enabled)
 		A_S_LMS_Y="checked"
@@ -451,6 +454,20 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+
+DEBUG=1
+if [ $DEBUG = 1 ]; then
+	echo '<!-- Start of debug info -->'
+	echo '<tr class="even">'
+	echo '  <td  colspan="3">'
+	echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
+	echo '                     [ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
+	echo '                     [ DEBUG ] $FAVLIST: '$FAVLIST'</p>'
+	echo '  </td>'
+	echo '</tr>'
+	echo '<!-- End of debug info -->'
+fi
+DEBUG=0
 
 echo '              <tr>'
 echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade

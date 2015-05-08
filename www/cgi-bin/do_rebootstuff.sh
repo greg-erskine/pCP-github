@@ -203,12 +203,11 @@ echo "${YELLOW}Waiting for soundcards to populate${NORMAL}"
 for i in 1 2 3 4 5 6; do
 	aplay -l | grep "PLAYBACK" &> /dev/null 
 	if [ $? = 0 ]; then
-	break
+		break
 	else
-	sleep 1
+		sleep 1
 	fi
 done
-
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 echo "${BLUE}Starting ALSA configuration... ${NORMAL}"
@@ -244,7 +243,8 @@ echo "${GREEN}Done.${NORMAL}"
 
 # Start the essential stuff for piCorePlayer
 echo "${BLUE}Loading the main daemons...${NORMAL}"
-# echo -n "${BLUE}"
+
+echo -n "${BLUE}"
 /usr/local/etc/init.d/squeezelite start
 echo "${GREEN}Done.${NORMAL}"
 
@@ -271,11 +271,10 @@ if [ $A_S_FAV = "Enabled" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-
 if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ] ; then
-echo -n "${BLUE}Starting user commands... ${NORMAL}"
-pcp_user_commands
-echo "${GREEN}Done.${NORMAL}"
+	echo -n "${BLUE}Starting user commands... ${NORMAL}"
+	pcp_user_commands
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 #echo -n "${BLUE}Starting crond... ${NORMAL}"
@@ -283,13 +282,12 @@ fi
 #echo "${GREEN}Done.${NORMAL}"
 
 if [ $JIVELITE = "YES" ]; then
-echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-/opt/jivelite/bin/jivelite-sp 2>&1
-echo "${GREEN}Done.${NORMAL}"
+	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+	/opt/jivelite/bin/jivelite-sp 2>&1
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
 pcp_backup_nohtml
 echo "${GREEN}Done.${NORMAL}"
-

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2015-04-30 GE
+# Version: 0.02 2015-05-08 GE
 #   Revised.
 
 # Version: 0.01 2015-03-15 SBP
@@ -11,8 +11,6 @@ pcp_variables
 . $CONFIGCFG
 
 pcp_html_head "Write to Jivelite Tweak" "SBP" "15" "tweaks.cgi"
-
-#DEBUG=1
 
 pcp_banner
 pcp_running_script
@@ -25,14 +23,14 @@ pcp_save_to_config
 downloadtcz="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz"
 downloadmd5="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz.md5.txt"
 
-if [ $DEBUG = 1 ]; then
-	echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
-	echo '                 [ DEBUG ] VISUALISER: '$VISUALISER'</p>'
-fi
-
-#========================================================================================
-# Routines
-
+#########################################################################################
+# Steen, this md5 file is WRONG. It has no use in its current form. Also, this script
+# currently doesn't even try to use the the md5 file. The standard Tinycore md5 check
+# routines will also fail. Ralphy needs to fix it!
+#
+# You are supposed to use the md5sum to verify the file was downloaded correctly. See
+# sample script below.
+#########################################################################################
 #        echo "Downloading: $1"
 #        wget -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
 #        wget -c "$MIRROR"/"$1"
@@ -41,14 +39,22 @@ fi
 #                echo "Error on $1"
 #                abort_to_saved_dir
 #        fi
+#########################################################################################
 
+if [ $DEBUG = 1 ]; then
+	echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
+	echo '                 [ DEBUG ] VISUALISER: '$VISUALISER'</p>'
+fi
+
+#========================================================================================
+# Routines
 #----------------------------------------------------------------------------------------
 pcp_load_jivelite() {
-	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy</p>'
+	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy'\''s repository...</p>'
 	wget -P /tmp $downloadmd5
 	wget -P /tmp $downloadtcz
+	# The next few lines need to be changed to check md5 when it is FIXED.
 	result=$?
-	# MD5 CHECK  - look at tce-load for code
 	if [ $result -ne "0" ]; then
 		echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
 	else
@@ -61,7 +67,7 @@ pcp_load_jivelite() {
 }
 
 pcp_install_jivelite() {
-	echo '<p class="info">[ INFO ] Jivelite is installed in piCorePlayer</p>'
+	echo '<p class="info">[ INFO ] Jivelite is installed in piCorePlayer.</p>'
 	#tce-load -i jivelite.tcz
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to onboot.lst</p>'
 	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
@@ -73,8 +79,7 @@ pcp_install_jivelite() {
 }
 
 pcp_delete_jivelite() {
-	echo '<p class="info">[ INFO ] Jivelite is removed from piCorePlayer</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing Jivelite from piCorePlayer...</p>'
+	echo '<p class="info">[ INFO ] Jivelite is removed from piCorePlayer.</p>'
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	sudo rm -rf /home/tc/.jivelite
@@ -89,7 +94,7 @@ pcp_delete_jivelite() {
 
 pcp_remove_temp() {
 	if [ -e /tmp/jivelite.tcz ]; then
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloads from tmp directory...</p>'
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloads from tmp directory.</p>'
 		sudo rm -f /tmp/jivelite.tcz
 		sudo rm -f /tmp/jivelite.tcz.md5.txt
 	fi
@@ -116,8 +121,7 @@ esac
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
-echo '<p class="info">[ INFO ] A reboot is needed in order to finalize...</p>'
-#[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] A reboot is needed in order to finalize...</p>'
+echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
 pcp_reboot_button
 pcp_go_back_button
 

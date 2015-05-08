@@ -1,6 +1,9 @@
 #!/bin/sh
 # Turn HDMI output ON in config.txt
 
+# Version: 0.05 2015-05-08 SBP
+#	Removed hdmi_ignore_edid.
+
 # Version: 0.04 2014-10-07 SBP
 #	Moved the output routing to do_rebootstuff.cgi
 
