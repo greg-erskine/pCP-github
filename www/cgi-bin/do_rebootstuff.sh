@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.16 2015-05-10 GE
+#	Added wait for network before starting squeezelite.
+
 # Version: 0.15 2015-05-06 SBP
 #	Added logic to skip not needed options.
 
@@ -59,10 +62,7 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
-#set -x
-
 . /home/tc/www/cgi-bin/pcp-functions
-#. /etc/init.d/tc-functions
 
 echo ""
 # Read from pcp-functions file
@@ -82,40 +82,43 @@ echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 # Check if sda1 is mounted otherwise mount it
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
-	echo "${YELLOW}- sda1 mounted${NORMAL}"
+	echo "${YELLOW} sda1 mounted${NORMAL}"
 else
 	# FIX: check if sda1 is inserted before trying to mount it.
-	echo "${YELLOW}- Trying to mount sda1${RED}"
+	echo "${YELLOW} Trying to mount sda1${RED}"
 	sudo mount /dev/sda1
 fi
 
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
-	echo "${YELLOW}- newconfig.cfg found on sda1${NORMAL}"
+	echo -n "${YELLOW} newconfig.cfg found on sda1${NORMAL}"
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
-	echo -n "${BLUE}Updating configuration... ${NORMAL}"
-	#Save to config file
 	pcp_save_to_config
-	echo "${GREEN}Done.${NORMAL}"
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+else
+	echo -n "${YELLOW} newconfig.cfg not found on sda1${NORMAL}"
 fi
+echo "${GREEN} Done.${NORMAL}"
 
-echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1...  ${NORMAL}"
+echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 # Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
-pcp_mount_mmcblk0p1_nohtml
+pcp_mount_mmcblk0p1_nohtml 2>&1 >/dev/null
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
-	echo "${YELLOW}- newconfig.cfg found on mmcblk0p1${NORMAL}"
+	echo -n "${YELLOW} newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+else
+	echo -n "${YELLOW} newconfig.cfg not found on mmcblk0p1${NORMAL}"
 fi
-pcp_umount_mmcblk0p1_nohtml
+pcp_umount_mmcblk0p1_nohtml 2>&1 >/dev/null
+echo "${GREEN} Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded and then reboot
 if [ $WIFI = "on" ]; then
@@ -139,7 +142,7 @@ echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
 echo "${GREEN}Done.${NORMAL}"
 
 # Only add backslash if not empty
-echo "${BLUE}Updating wifi.db... ${NORMAL}"
+echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
 if [ x"" = x"$SSID" ]; then
 	break
 else
@@ -161,7 +164,7 @@ sudo modprobe snd_soc_bcm2708_i2s
 sudo modprobe snd_soc_wm8804
 echo "${GREEN}Done.${NORMAL}"
 
-echo "${BLUE}Checking wifi... ${NORMAL}"
+echo -n "${BLUE}Checking wifi... ${NORMAL}"
 # Logic that will skip the wifi connection if wifi is disabled
 if [ $WIFI = on ]; then
 	echo "${YELLOW}wifi is on${NORMAL}"
@@ -194,37 +197,39 @@ echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
 echo "${GREEN}Done.${NORMAL}"
 
-echo "${BLUE}Loading I2S modules... ${NORMAL}"
+echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 # Loads the correct output audio modules
-pcp_read_chosen_audio
+pcp_read_chosen_audio 2>&1 >/dev/null
 echo "${GREEN}Done.${NORMAL}"
 
-echo "${YELLOW}Waiting for soundcards to populate${NORMAL}"
+echo -n "${YELLOW}Waiting for soundcards to populate"
 for i in 1 2 3 4 5 6; do
 	aplay -l | grep "PLAYBACK" &> /dev/null 
 	if [ $? = 0 ]; then
 		break
 	else
+		echo -n "."
 		sleep 1
 	fi
 done
+echo "${GREEN} Done.${NORMAL}"
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
-echo "${BLUE}Starting ALSA configuration... ${NORMAL}"
+echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	sudo amixer cset numid=3 1				#set the analog output via audio jack
+	sudo amixer cset numid=3 1 2>&1 >/dev/null				# set the analog output via audio jack
 	if [ $ALSAlevelout = Default ]; then
-		sudo amixer set PCM 400 unmute
+		sudo amixer set PCM 400 unmute 2>&1 >/dev/null
 	fi
 fi
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2				#set the analog output via HDMI out
+	sudo amixer cset numid=3 2 2>&1 >/dev/null				# set the analog output via HDMI out
 	if [ $ALSAlevelout = Default ]; then
-		sudo amixer set PCM 400 unmute
+		sudo amixer set PCM 400 unmute 2>&1 >/dev/null
 	fi
 fi 
 
@@ -242,31 +247,39 @@ echo "${GREEN}Done.${NORMAL}"
 #fi
 
 # Start the essential stuff for piCorePlayer
-echo "${BLUE}Loading the main daemons...${NORMAL}"
+echo -n "${YELLOW}Waiting for network"
+CNT=0
+until ifconfig | grep -q Bcast
+do
+	if [ $((CNT++)) -gt 20 ]; then
+		break
+	else
+		echo -n "."
+		sleep 1
+	fi
+done
+echo "${GREEN} Done.${NORMAL}"
 
-echo -n "${BLUE}"
-/usr/local/etc/init.d/squeezelite start
+echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+/usr/local/etc/init.d/squeezelite start 2>&1 >/dev/null
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}"
-/usr/local/etc/init.d/dropbear start
+echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
+/usr/local/etc/init.d/dropbear start 2>&1 >/dev/null
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}"
-/usr/local/etc/init.d/httpd start
-sleep 1
+echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
+/usr/local/etc/init.d/httpd start 2>&1 >/dev/null
 echo "${GREEN}Done.${NORMAL}"
 
 if [ $A_S_LMS = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
-	sleep 1
 	pcp_auto_start_lms
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ $A_S_FAV = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
-	sleep 1
 	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
@@ -283,11 +296,13 @@ fi
 
 if [ $JIVELITE = "YES" ]; then
 	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-	/opt/jivelite/bin/jivelite-sp 2>&1
+	/opt/jivelite/bin/jivelite-sp 2>&1 >/dev/null
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
-pcp_backup_nohtml
+pcp_backup_nohtml 2>&1 >/dev/null
 echo "${GREEN}Done.${NORMAL}"
+
+echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"

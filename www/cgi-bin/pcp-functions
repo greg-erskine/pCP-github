@@ -2,10 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.33 2015-04-30 GE
+# Version: 0.33 2015-05-10 GE
 #	Added pcp_picore_accessible and pcp_xtras tool bar.
 #	Added pcp_uptime_days.
 #	Added pcp_picoreplayers toolbar.
+#	Updated pcp_favorites toolbar.
+#	Tidyup - removed/added some comments.
 
 # Version: 0.32 2015-03-29 GE
 #	Added pcp_start_row_shade and pcp_toggle_row_shade.
@@ -187,7 +189,7 @@ fi
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=99
+	MODE=0
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -298,7 +300,6 @@ pcp_set_timezone() {
 	fi
 	pcp_umount_mmcblk0p1
 }
-
 
 #=========================================================================================
 # The MAC addresses used by this piCorePlayer can be:
@@ -453,52 +454,47 @@ pcp_copyright() {
 }
 
 pcp_favorites() {
-	if [ x"" != x"$SERVER_IP" ] && [ $MODE = 99 ]; then
-		##############################################
-		# Note: Function pcp_lmsip still being tested
-		##############################################
-		FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-		FAVLIST=`sudo $HTPPD -d $FAVLIST`
+	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	FAVLIST=`sudo $HTPPD -d $FAVLIST`
 
-		echo '<!-- Start of favorites -->'
-		echo '<table class="bgblack">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p>'
-
-		echo $FAVLIST | awk '
-		BEGIN {
-			RS="id:"
-			FS=":"
-			i = 0
+	echo '<!-- Start of favorites -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+#------------------------------------------awk-------------------------------------------
+	echo $FAVLIST | awk '
+	BEGIN {
+		RS="id:"
+		FS=":"
+		i = 0
+	}
+	#main
+	{
+		i++
+		split($1,a," ")
+		id[i]=a[1]
+		split(id[i],b,".")
+		num[i]=b[2]
+		name[i]=$2
+		gsub(" type","",name[i])
+		hasitems[i]=$5
+		gsub("count","",hasitems[i])
+		if ( hasitems[i] != "0 " ) {
+			i--
 		}
-		#main
-		{
-			i++
-			split($1,a," ")
-			id[i]=a[1]
-			split(id[i],b,".")
-			num[i]=b[2]
-			name[i]=$2
-			gsub(" type","",name[i])
-			hasitems[i]=$5
-			gsub("count","",hasitems[i])
-			if ( hasitems[i] != "0 " ) {
-				i--
-			}
+	}
+	END {
+		for (j=1; j<=7; j++) {
+			printf "        <a class=\"nav2\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
 		}
-		END {
-			for (j=1; j<=7; j++) {
-				printf "        <a class=\"nav2\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
-			}
-		} '
-
+	} '
+#----------------------------------------------------------------------------------------
 		echo '      </p>'
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
 		echo '<!-- End of favorites -->'
-	fi
 }
 
 pcp_diagnostics() {
@@ -726,9 +722,6 @@ pcp_uptime_days() {
 #=========================================================================================
 # Determine the IP addresses
 #-----------------------------------------------------------------------------------------
-##############################################
-# Note: Function pcp_lmsip still being tested
-##############################################
 pcp_lmsip() {
 	netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | awk -F: '{ print $1 }'
 }
@@ -753,6 +746,9 @@ pcp_wlan0_ip() {
 #	playlist play http://stream-tx1.radioparadise.com/aac-32
 #	playlist play http://radioparadise.com/m3u/aac-128.m3u
 #-----------------------------------------------------------------------------------------
+#########################################################################################
+# TODO: Change to use pcp_lmsip
+#########################################################################################
 pcp_auto_start_lms() {
 	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
@@ -779,7 +775,7 @@ pcp_autofav_id() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	# Decode variable using httpd, no quotes
 	FAVLIST=`sudo $HTPPD -d $FAVLIST`
-
+	#------------------------------------------awk---------------------------------------
 	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
 	BEGIN {
 		RS="id:"
@@ -805,8 +801,12 @@ pcp_autofav_id() {
 	END {
 		printf "%s",result
 	} '
+	#------------------------------------------------------------------------------------
 }
 
+#########################################################################################
+# TODO: Change to use pcp_lmsip
+#########################################################################################
 pcp_auto_start_fav() {
 	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
@@ -825,6 +825,9 @@ pcp_auto_start_fav() {
 	fi
 }
 
+#########################################################################################
+# TODO: Change to use pcp_lmsip
+#########################################################################################
 pcp_start_fav() {
 	if [ x"" != x"$SERVER_IP" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)

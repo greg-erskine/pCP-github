@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.12 2015-04-28 GE
+# Version: 0.12 2015-05-10 GE
 #	Removed shairport option.
+#	Added debug code for auto start favorite.
 
 # Version: 0.11 2015-03-29 GE
 #	Added shairport (mode = 99).
@@ -68,10 +69,10 @@ echo '          <legend>General tweaks</legend>'
 
 #----------------------------------------------Hostname---------------------------------
 pcp_incr_id
-pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="squeeze" action="writetohost.cgi" method="get">'
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Host name</td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="text" id="HOST" name="HOST" maxlength="26" value="'$HOST'">'
@@ -88,8 +89,9 @@ echo '                       characters, or white space are permitted.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan=3>'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'" >'
+echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
@@ -115,10 +117,10 @@ esac
 
 #----------------------------------------------------------------------------------------
 pcp_incr_id
-pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>Jivelite</p>'
 echo '                </td>'
@@ -142,8 +144,9 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
@@ -180,10 +183,10 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 
 	#----------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
-	echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Overclock</p>'
 	echo '                </td>'
@@ -208,12 +211,12 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '              <tr>'
-	echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-
 	echo '            </form>'
 	echo '          </table>'
 	echo '          <br />'
@@ -251,11 +254,10 @@ fi
 #[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
 
 pcp_incr_id
-pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Timezone</td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" maxlength="26" value="'$TIMEZONE'">'
@@ -273,13 +275,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan="2">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="2">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-
 echo '            </form>'
 echo '          </table>'
 echo '          <br />'
@@ -289,10 +290,9 @@ echo '          <br />'
 # Note: changing passwords through a script over html is not very secure.
 #----------------------------------------------------------------------------------------
 pcp_incr_id
-pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="password" action="changepassword.cgi" method="get">'
-
+pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
 echo '                <td class="column210">'
@@ -307,8 +307,7 @@ echo '                    <p class="error"><b>Warning: </b>Changing passwords th
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150"></td>'
 echo '                <td class="column210">'
 echo '                  <input class="large16" type="password" id="CONFIRMPASSWORD" name="CONFIRMPASSWORD" maxlength="26">'
@@ -317,13 +316,12 @@ echo '                <td>'
 echo '                  <p>Confirm new password.</p>'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'" >'
+echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-
 echo '            </form>'
 echo '          </table>'
 
@@ -338,9 +336,6 @@ echo '</table>'
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 # Function to check the A_S_LMS radio button according to config file
-
-
-
 case "$A_S_LMS" in 
 	Enabled)
 		A_S_LMS_Y="checked"
@@ -380,17 +375,15 @@ echo '          <legend>Auto start tweaks</legend>'
 AUTOSTARTFAV=`sudo $HTPPD -d $AUTOSTARTFAV`
 
 pcp_incr_id
-pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
-
+pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Auto start favorite</td>'
 echo '                <td class="column420">'
 echo '                  <select name="AUTOSTARTFAV">'
 
 # Generate a list of options
-
 FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 FAVLIST=`sudo $HTPPD -d $FAVLIST`
 echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
@@ -431,8 +424,7 @@ echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_
 echo '                  <input class="small1" type="radio" name="A_S_FAV" id="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                </td>'
 echo '                <td colspan="2">'
@@ -455,7 +447,6 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 
-DEBUG=1
 if [ $DEBUG = 1 ]; then
 	echo '<!-- Start of debug info -->'
 	echo '<tr class="even">'
@@ -463,14 +454,17 @@ if [ $DEBUG = 1 ]; then
 	echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
 	echo '                     [ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
 	echo '                     [ DEBUG ] $FAVLIST: '$FAVLIST'</p>'
+	echo '    <textarea class="inform">'
+	            ifconfig
+	echo '    </textarea>'
 	echo '  </td>'
 	echo '</tr>'
 	echo '<!-- End of debug info -->'
 fi
-DEBUG=0
 
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
 echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
@@ -488,10 +482,9 @@ echo '          <br />'
 AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 
 pcp_incr_id
-pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
 echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
-
+pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Auto start LMS</td>'
 echo '                <td class="column420">'
@@ -503,7 +496,7 @@ echo '                  <input class="small1" type="radio" name="A_S_LMS" id="A_
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                </td>'
 echo '                <td colspan="2">'
@@ -528,8 +521,9 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr>'
-echo '                <td class="'$ROWSHADE'" colspan="3">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
 echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Test">'
@@ -610,6 +604,7 @@ case "$ALSAlevelout" in
 		;;
 esac
 
+pcp_incr_id
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -620,9 +615,8 @@ echo '            <legend>Audio tweaks</legend>'
 echo '            <table class="bggrey percent100">'
 
 #-------------------------------------------dwc_otg.speed--------------------------------
-pcp_incr_id
 pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>OTG-Speed</p>'
 echo '                </td>'
@@ -654,7 +648,8 @@ fi
 
 #-------------------------------------------ALSAlevelout---------------------------------
 pcp_incr_id
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>ALSA output level</p>'
 echo '                </td>'
@@ -691,6 +686,7 @@ fi
 
 #-------------------------------------FIQ-Split acceleration-----------------------------
 pcp_incr_id
+pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>FIQ-Split acceleration</p>'
@@ -706,7 +702,7 @@ echo '                    <option value="0x8" '$selected6'>0x8 Enable Interrupt/
 echo '                  </select>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>&nbsp;</p>'
 echo '                </td>'
@@ -739,7 +735,8 @@ if [ $DEBUG = 1 ]; then
 	echo '<!-- End of debug info -->'
 fi
 
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
@@ -785,7 +782,6 @@ esac
 
 #-------------------------------------------Schedule CRON jobs---------------------------
 pcp_incr_id
-pcp_start_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -794,8 +790,8 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Schedule CRON jobs</legend>'
 echo '            <table class="bggrey percent100">'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column210">'
 echo '                  <p>Schedule piCorePlayer reboot<p>'
 echo '                </td>'
@@ -812,8 +808,8 @@ echo '                  <input class="small1" type="radio" name="REBOOT" id="Sch
 echo '                  <input class="small1" type="radio" name="REBOOT" id="Scheduled" value="Disabled" '$REBOOT_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column210">'
 echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
@@ -831,7 +827,7 @@ echo '                  <input class="small1" type="radio" name="RESTART" id="Sc
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column210">'
 echo '                  <p></p>'
 echo '                </td>'
@@ -851,7 +847,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                  <input type="submit" name="SUBMIT" value="Reset">'
@@ -896,7 +892,6 @@ USER_COMMAND_2=`sudo $HTPPD -d $USER_COMMAND_2`
 USER_COMMAND_3=`sudo $HTPPD -d $USER_COMMAND_3`
 
 pcp_incr_id
-pcp_start_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -905,21 +900,21 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>User commands</legend>'
 echo '            <table class="bggrey percent100">'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #1</td>'
 echo '                <td>'
 echo '                  <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" maxlength="254" value="'$USER_COMMAND_1'">'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #2</td>'
 echo '                <td>'
 echo '                  <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" maxlength="254" value="'$USER_COMMAND_2'">'
 echo '                </td>'
 echo '              </tr>'
-
+pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #3</td>'
 echo '                <td>'
@@ -927,7 +922,7 @@ echo '                  <input class="large36" type="text" id="USER_COMMAND_3" n
 echo '                </td>'
 echo '              </tr>'
 
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150"></td>'
 echo '                <td>'
 echo '                  <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
@@ -945,8 +940,8 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
-echo '              <tr class="'$ROWSHADE'">'; pcp_toggle_row_shade
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=2>'
 echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
