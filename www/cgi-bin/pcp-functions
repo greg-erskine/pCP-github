@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.33 2015-05-10 SBP
+#	Changed the timezone settings to cmdline.txt file.
+
 # Version: 0.33 2015-05-10 GE
 #	Added pcp_picore_accessible and pcp_xtras tool bar.
 #	Added pcp_uptime_days.
@@ -189,7 +192,7 @@ fi
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=99
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -295,7 +298,7 @@ pcp_set_timezone() {
 	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
 	# Next add new TIMEZONE settings if used 
 	if [ x"" != x"$TIMEZONE" ]; then
-	sed -i "s|$|tz=$TIMEZONE|" /mnt/mmcblk0p1/cmdline.txt
+	sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt 
 	export TZ=$TIMEZONE
 	fi
 	pcp_umount_mmcblk0p1

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2014-12-10 SBP
+#	Fixed the saving command so that slashes are saved as well.
+
 # Version: 0.03 2014-12-10 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -20,10 +23,9 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Save the encoded parameter to the config file, with quotes
-sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
-
 # Decode variables using httpd, no quotes
 TIMEZONE=`sudo $HTPPD -d $TIMEZONE`
+sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
 
 echo '<p class="info">[ INFO ] Timezone: '$TIMEZONE'</p>'
 
