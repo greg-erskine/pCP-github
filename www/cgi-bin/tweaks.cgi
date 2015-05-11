@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.12 2015-05-10 GE
+# Version: 0.12 2015-05-11 GE
 #	Removed shairport option.
 #	Added debug code for auto start favorite.
 
@@ -835,7 +835,7 @@ echo '                <td colspan="2">'
 echo '                  <p>Fill out the crontab fields&nbsp;&nbsp;'
 echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>"*" it means every hour, every day, ever month.</p>'
+echo '                    <p>"*" it means every hour, every day, every month.</p>'
 echo '                    <p><b>Example:</b></p>'
 echo '                    <ul>'
 echo '                      <li>2 * * - run job at 02:00 everyday</li>'

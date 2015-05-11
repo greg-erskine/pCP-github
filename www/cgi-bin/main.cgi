@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 0.13 2015-04-28 GE
+# Version: 0.13 2015-05-11 GE
 #	Now uses pcp_start_row_shade, pcp_start_row_shade and pcp_incr_id
 #	Added Extensions, Extras, Debug and Diagnostics buttons.
+#	Added Static IP to Main piCorePlayer operations.
 
 # Version: 0.12 2015-02-20 GE
-#	Moved Disable GUI, Stop Squeezelite, Backup and Shutdown to Developers section.
-#	Added Reset ALL and Restore ALL  to Developers section.
+#	Moved Disable GUI, Stop Squeezelite, Backup and Shutdown to Developers operations.
+#	Added Reset ALL and Restore ALL to Developers operations.
 
 # Version: 0.11 2015-01-26 SBP
 #	Added Disable GUI.
@@ -255,6 +256,24 @@ echo '                </div>'
 echo '              </td>'
 echo '            </tr>'
 
+#------------------------------------------Static IP---------------------------------
+pcp_toggle_row_shade
+pcp_incr_id
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column150 center">'
+echo '                <form id="Static IP" name="Static IP" action="xtras_staticip.cgi" method="get">'
+echo '                  <input type="submit" value="Static IP" />'
+echo '                </form>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
+echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                <div id="'$ID'" class="less">'
+echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
+echo '                </div>'
+echo '              </td>'
+echo '            </tr>'
+
 #--------------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
@@ -434,24 +453,6 @@ echo '            </tr>'
 	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 	echo '                <div id="'$ID'" class="less">'
 	echo '                  <p>This option allows you to run dosfsck on the SD card.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-
-	#------------------------------------------Static IP---------------------------------
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form id="Static IP" name="Static IP" action="xtras_staticip.cgi" method="get">'
-	echo '                  <input type="submit" value="Static IP" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
-	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
