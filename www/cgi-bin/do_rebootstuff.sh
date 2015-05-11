@@ -203,8 +203,9 @@ pcp_read_chosen_audio 2>&1 >/dev/null
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${YELLOW}Waiting for soundcards to populate"
-for i in 1 2 3 4 5 6; do
-	aplay -l | grep "PLAYBACK" &> /dev/null 
+for i in 1 2 3 4 5 6 7 8 9 10; do
+	sudo aplay -l > /tmp/soundcards.log 2>&1
+	grep -sq "PLAYBACK" /tmp/soundcards.log
 	if [ $? = 0 ]; then
 		break
 	else
@@ -238,13 +239,6 @@ if [ $ALSAlevelout = Custom ]; then
 	alsactl restore
 fi
 echo "${GREEN}Done.${NORMAL}"
-
-# Only call timezone function if timezone variable is set
-#if [ x"" != x"$TIMEZONE" ]; then
-#	echo -n "${BLUE}Setting timezone... ${NORMAL}"
-#	pcp_set_timezone
-#	echo "${GREEN}Done.${NORMAL}"
-#fi
 
 # Start the essential stuff for piCorePlayer
 echo -n "${YELLOW}Waiting for network"
@@ -289,10 +283,6 @@ if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"
 	pcp_user_commands
 	echo "${GREEN}Done.${NORMAL}"
 fi
-
-#echo -n "${BLUE}Starting crond... ${NORMAL}"
-#/etc/init.d/services/crond start 2>&1
-#echo "${GREEN}Done.${NORMAL}"
 
 if [ $JIVELITE = "YES" ]; then
 	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
