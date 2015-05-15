@@ -1056,7 +1056,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
-	sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
+	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
+#	sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
 	sudo sed -i "s/\(REBOOT *=*\).*/\1\"$REBOOT\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_H *=*\).*/\1\"$RB_H\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_WD *=*\).*/\1\"$RB_WD\"/" $CONFIGCFG

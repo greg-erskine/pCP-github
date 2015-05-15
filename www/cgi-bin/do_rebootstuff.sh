@@ -96,6 +96,9 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
 	pcp_save_to_config
+		if [ x"" != x"$TIMEZONE" ]; then
+		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
+		fi
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 else
@@ -112,6 +115,9 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_save_to_config
+		if [ x"" != x"$TIMEZONE" ]; then
+		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
+		fi
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 else
