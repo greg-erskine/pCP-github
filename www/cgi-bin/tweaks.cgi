@@ -251,8 +251,6 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 fi
  
 #----------------------------------------------Timezone----------------------------------
-#[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
-
 pcp_incr_id
 echo '          <table class="bggrey percent100">'
 echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'

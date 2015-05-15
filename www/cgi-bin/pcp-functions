@@ -1134,9 +1134,26 @@ USER_COMMAND_2=""
 USER_COMMAND_3=""
 JIVELITE="NO"
 EOF
+
+#Remove timezone stuff
 pcp_mount_mmcblk0p1_nohtml
 sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
 pcp_umount_mmcblk0p1_nohtml
+
+#Remove Jivelite stuff
+sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
+sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+sudo rm -rf /home/tc/.jivelite
+sudo rm -rf /opt/jivelite
+sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+
+#Remove wifi stuff
+sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
+sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 #=========================================================================================
