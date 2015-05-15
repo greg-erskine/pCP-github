@@ -1,22 +1,26 @@
 #!/bin/sh
 
+# Version: 0.02 2015-05-13 GE
+#    Added pcp_copyright.
+
 # Version: 0.01 2015-04-24 GE
-#   Original version.
+#    Original version.
 
 #========================================================================================
-# This script sets a static IP. Initially only supports ethernet not wireless.
+# This script sets a static IP. Initially only supports wired ethernet not wireless.
 # The steps below follow the de-facto tiny core method of setting static IP address
 # that is recommended in a few forum threads.
 #
-#   1. Set "nodhcp" bootcode
-#   2. Create eth0.sh
+#   1. Insert "nodhcp" bootcode in cmdline.txt
+#   2. Create script eth0.sh
 #   3. Add /opt/eth0.sh to bootlocal.sh
+#   4. Backup
 #
 # Complications:
 #   1. wireless?  wifi.sh
-#   2. eth0, what about eth1 or wlan0
-#   3. /proc/cmdline only updated from /mnt/mmcblk0p1/cmdline.txt at boot time
-#   4. /etc/init.d/settime.sh doesn't run with nodhcp bootcode.
+#   2. eth0 only, what about eth1 or wlan0
+#   3. /proc/cmdline is only updated from /mnt/mmcblk0p1/cmdline.txt at boot time
+#   4. /etc/init.d/settime.sh doesn't run if nodhcp bootcode is set.
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
@@ -24,9 +28,6 @@ pcp_variables
 . $CONFIGCFG
 
 pcp_html_head "xtras - Static IP" "GE"
-
-#DEBUG=1
-#MODE=99
 
 pcp_controls
 pcp_banner
@@ -50,7 +51,7 @@ pcp_edit_localboot() {
 }
 
 #========================================================================================
-# Delete/add nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt
+# Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...</p>'
@@ -173,6 +174,7 @@ fi
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
 #========================================================================================
 # Start table
 #----------------------------------------------------------------------------------------
@@ -289,7 +291,6 @@ echo '                </td>'
 echo '              </tr>'
 pcp_incr_id
 pcp_toggle_row_shade
-echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -413,6 +414,7 @@ if [ $MODE = 99 ]; then
 fi
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
