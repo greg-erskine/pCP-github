@@ -112,9 +112,9 @@ pcp_mount_mmcblk0p1_nohtml 2>&1 >/dev/null
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo -n "${YELLOW} newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
+	REBOOTN=yes
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
-	pcp_save_to_config
 		if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
 		fi
@@ -122,11 +122,13 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 else
 	echo -n "${YELLOW} newconfig.cfg not found on mmcblk0p1${NORMAL}"
+	REBOOTN=no
 fi
 pcp_umount_mmcblk0p1_nohtml 2>&1 >/dev/null
 echo "${GREEN} Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded and then reboot
+REBOOTW=no
 if [ $WIFI = "on" ]; then
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
 		then
@@ -134,30 +136,41 @@ if [ $WIFI = "on" ]; then
 	else
 		# Add wifi related modules back
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
-		echo "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
-		pcp_save_to_config
-		pcp_backup_nohtml
-		sleep 4
-		sudo reboot 
+		REBOOTW=yes
 	fi
 fi
 
-# Save the parameters to the wifi.db
-echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
-. /usr/local/sbin/config.cfg
-echo "${GREEN}Done.${NORMAL}"
-
-# Only add backslash if not empty
-echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
-if [ x"" = x"$SSID" ]; then
-	break
-else
-	SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-	# Change SSSID back to SSID
-	SSID=$SSSID
-	sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
+#Reboot if requested for timezone or wifi firmware loading
+if [ $REBOOTW = yes ]; then echo "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
 fi
-echo "${GREEN}Done.${NORMAL}"
+if [ $REBOOTN = yes ]; then echo "${RED}Will reboot now and then your Timezone settings will be used${NORMAL}"
+fi
+if [ $REBOOTN = yes ] || [ $REBOOTW = yes ]; then 
+		pcp_save_to_config
+		pcp_backup_nohtml 2>&1 >/dev/null
+		sleep 4
+		sudo reboot
+fi
+
+
+if [ $WIFI = "on" ]; then
+	# Save the parameters to the wifi.db
+	echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
+	. /usr/local/sbin/config.cfg
+	echo "${GREEN}Done.${NORMAL}"
+
+	# Only add backslash if not empty
+	echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
+	if [ x"" = x"$SSID" ]; then
+		break
+	else
+		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
+		# Change SSSID back to SSID
+		SSID=$SSSID
+		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
+	fi
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 # Read from config file.
