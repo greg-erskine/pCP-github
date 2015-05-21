@@ -125,10 +125,10 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 #=========================================================================================
 # Copy ALSA settings back so they are restore after an update
 #-----------------------------------------------------------------------------------------
-sudo cp /mnt/mmcblk0p1/tce/asound.conf /etc/
-sudo rm -f /mnt/mmcblk0p1/tce/asound.conf
-#sudo cp /mnt/mmcblk0p1/tce/asound.state /var/lib/
-#sudo rm /mnt/mmcblk0p1/tce/asound.state
+sudo cp /mnt/mmcblk0p1/asound.conf /etc/
+sudo rm -f /mnt/mmcblk0p1/asound.conf
+sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/
+sudo rm /mnt/mmcblk0p1/asound.state
 #-----------------------------------------------------------------------------------------
 
 

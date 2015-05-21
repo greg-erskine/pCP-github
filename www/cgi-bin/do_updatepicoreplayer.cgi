@@ -75,8 +75,8 @@ sudo rm -rf /mnt/mmcblk0p1/*
 # Copy ALSA settings so they are avaiable after an update
 #-----------------------------------------------------------------------------------------
 if [ ALSAlevelout="Custom" ]; then
-sudo cp /etc/asound.conf /mnt/mmcblk0p1/tce
-sudo cp /var/lib/alsa/asound.state /mnt/mmcblk0p1/tce
+sudo cp /etc/asound.conf /mnt/mmcblk0p1/
+sudo cp /var/lib/alsa/asound.state /mnt/mmcblk0p1/
 fi
 #-----------------------------------------------------------------------------------------
 
