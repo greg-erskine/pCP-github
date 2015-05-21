@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.34 2015-05-22 SBP
+#	Add beta download page at SourceForge if "test = 3 ".
+
 # Version: 0.33 2015-05-10 SBP
 #	Changed the timezone settings to cmdline.txt file.
 
@@ -185,14 +188,20 @@ fi
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
 	fi
 
+	if [ $TEST = 3 ]; then
+		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
+	fi
+
+
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	TEST=0
+	# set to 3 in order to use beta download page from sourceforge when testing beta versions 
+	TEST=3
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=99
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"

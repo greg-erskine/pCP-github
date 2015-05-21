@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.16 2015-05-21 SBP
+#	Use saved custom ALSA settings after pCP updating.
+
 # Version: 0.16 2015-05-10 GE
 #	Added wait for network before starting squeezelite.
 
@@ -118,6 +121,17 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 		if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
 		fi
+
+#=========================================================================================
+# Copy ALSA settings back so they are restore after an update
+#-----------------------------------------------------------------------------------------
+sudo cp /mnt/mmcblk0p1/tce/asound.conf /etc/
+sudo rm -f /mnt/mmcblk0p1/tce/asound.conf
+#sudo cp /mnt/mmcblk0p1/tce/asound.state /var/lib/
+#sudo rm /mnt/mmcblk0p1/tce/asound.state
+#-----------------------------------------------------------------------------------------
+
+
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
 else

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.09 2015-05-21 SBP
+#	Save custom ALSA settings.
+
 # Version: 0.08 2014-12-11 GE
 #	HTML5 formatting.
 
@@ -67,6 +70,16 @@ pcp_mount_mmcblk0p1
 
 # Delete all files from the boot partition
 sudo rm -rf /mnt/mmcblk0p1/* 
+
+#=========================================================================================
+# Copy ALSA settings so they are avaiable after an update
+#-----------------------------------------------------------------------------------------
+if [ ALSAlevelout="Custom" ]; then
+sudo cp /etc/asound.conf /mnt/mmcblk0p1/tce
+sudo cp /var/lib/alsa/asound.state /mnt/mmcblk0p1/tce
+fi
+#-----------------------------------------------------------------------------------------
+
 
 # Copy the config file to boot partition
 sudo cp -f /usr/local/sbin/config.cfg /mnt/mmcblk0p1/newconfig.cfg 

@@ -13,4 +13,5 @@ var/lib/alsa/asound.state
 usr/local/etc/init.d/squeezelite
 usr/local/etc/init.d/httpd
 usr/local/sbin/webgui
+usr/local/sbin/setup
 var/spool/cron/crontabs
