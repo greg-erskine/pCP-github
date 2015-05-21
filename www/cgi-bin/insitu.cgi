@@ -53,7 +53,20 @@ sudo mkdir $UPD_PCP/tce
 
 # Download the boot files and the tce files and Break if errors in downloading boot files
 echo '<p class="info">[ INFO ] Downloading '$INSITU'_boot.tar.gz...</p>'
-sudo wget -P "$UPD_PCP"/boot "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_boot.tar.gz
+sudo -P "$UPD_PCP"/boot "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_boot.tar.gz &
+
+echo -n "Downloading"
+CNT=0
+until -f "$UPD_PCP"/boot/"$INSITU"_boot.tar.gz
+do
+	if [ $((CNT++)) -gt 20 ]; then
+		break
+	else
+		echo -n "."
+		sleep 1
+	fi
+done
+
 result_boot=$?
 if [ $result_boot = 0 ]; then
 	echo '<p class="ok">[ OK ] Success downloading boot files</p>'
@@ -65,7 +78,20 @@ fi
 if [ $result_boot = 0 ]; then
 	# Break if error in downloading tce files
 	echo '<p class="info">[ INFO ] Downloading '$INSITU'_tce.tar.gz...</p>'
-	sudo wget -P "$UPD_PCP"/tce "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_tce.tar.gz
+	sudo wget -P "$UPD_PCP"/tce "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_tce.tar.gz &
+
+echo -n "Downloading"
+CNT=0
+until -f "$UPD_PCP"/tce/"$INSITU"_tce.tar.gz
+do
+	if [ $((CNT++)) -gt 20 ]; then
+		break
+	else
+		echo -n "."
+		sleep 1
+	fi
+done
+
 	result_tce=$?
 	if [ $result_tce = 0 ]; then
 		echo '<p class="ok">[ OK ] Success downloading tce files</p>'
