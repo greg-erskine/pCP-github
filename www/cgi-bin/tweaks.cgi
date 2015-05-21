@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.13 2015-05-21 GE
+#	Added UNDER, HIGH, TURBO overclock (mode = 99)
+#	Added RPI2 overclock.
+
 # Version: 0.12 2015-05-11 GE
 #	Removed shairport option.
 #	Added debug code for auto start favorite.
@@ -163,91 +167,100 @@ fi
 #---------------------------------------Overclock----------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
-if [ $(pcp_rpi_is_model_2B) = 1 ]; then
-	case "$OVERCLOCK" in 
-		NONE)
-			OCnone="selected"
-			;;
-		MILD)
-			OCmild="selected"
-			;;
-		MODERATE)
-			OCmoderate="selected"
-			;;
-		*)
-			OCnone=""
-			OCmild=""
-			OCmoderate=""
-			;;
-	esac
+case "$OVERCLOCK" in
+	UNDER)
+		OCunder="selected"
+		;;
+	NONE)
+		OCnone="selected"
+		;;
+	MILD)
+		OCmild="selected"
+		;;
+	MODERATE)
+		OCmoderate="selected"
+		;;
+	HIGH)
+		OChigh="selected"
+		;;
+	TURBO)
+		OCturbo="selected"
+		;;
+	RPI2)
+		OCrpi2="selected"
+		;;
+	*)
+		OCunder=""
+		OCnone=""
+		OCmild=""
+		OCmoderate=""
+		OChigh=""
+		OCturbo=""
+		OCrpi2=""
+		;;
+esac
 
-	#----------------------------------------------------------------------------------------
-	pcp_incr_id
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Overclock</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select name="OVERCLOCK">'
+#----------------------------------------------------------------------------------------
+pcp_incr_id
+echo '          <table class="bggrey percent100">'
+echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Overclock</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <select name="OVERCLOCK">'
+if [ $(pcp_rpi_is_model_2B) = 1 ]; then
+	[ $MODE = 99 ] &&
+	echo '                    <option value="UNDER" '$OCunder'>Under overclocking</option>'
 	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
 	echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
 	echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-	echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
-	echo '                    <p>Reboot is needed.<p>'
-	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
-	echo '                    <ul>'
-	echo '                      <li>hold down the shift key during booting, or</li>'
-	echo '                      <li>edit the config.txt file manually</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-	echo '          <br />'
-
-	if [ $DEBUG = 1 ]; then 
-		echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
-		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
-		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
-		echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
-
-		case $OVERCLOCK in
-			NONE)
-				echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
-				echo '                 [ DEBUG ] core_freq=250<br />'
-				echo '                 [ DEBUG ] sdram_freq=400<br />'
-				echo '                 [ DEBUG ] force_turbo=1</p>'
-				;;
-			MILD)
-				echo '<p class="debug">[ DEBUG ] arm_freq=800<br />' 
-				echo '                 [ DEBUG ] core_freq=250<br />'
-				echo '                 [ DEBUG ] sdram_freq=400<br />'
-				echo '                 [ DEBUG ] force_turbo=1</p>'
-				;;
-			MODERATE)
-				echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
-				echo '                 [ DEBUG ] core_freq=333<br />'
-				echo '                 [ DEBUG ] sdram_freq=450<br />'
-				echo '                 [ DEBUG ] force_turbo=0</p>'
-				;;
-		esac
+	if [ $MODE = 99 ]; then
+		echo '                    <option value="HIGH" '$OChigh'>High overclocking</option>'
+		echo '                    <option value="TURBO" '$OCturbo'>Turbo overclocking</option>'
 	fi
+fi
+if [ $(pcp_rpi_is_model_2B) = 0 ]; then
+	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
+	echo '                    <option value="RPI2" '$OCrpi2'>RPi2 overclocking</option>'
+fi
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
+echo '                    <p>Reboot is needed.<p>'
+echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
+echo '                    <ul>'
+echo '                      <li>hold down the shift key during booting, or</li>'
+echo '                      <li>edit the config.txt file manually</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </form>'
+echo '          </table>'
+echo '          <br />'
+
+if [ $DEBUG = 1 ]; then 
+	echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
+	echo '                 [ DEBUG ] $OCunder: '$OCunder'<br />'
+	echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
+	echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
+	echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'<br />'
+	echo '                 [ DEBUG ] $OChigh: '$OChigh'<br />'
+	echo '                 [ DEBUG ] $OCturbo: '$OCturbo'<br />'
+	echo '                 [ DEBUG ] $OCrpi2: '$OCrpi2'</p>'
 fi
  
 #----------------------------------------------Timezone----------------------------------
