@@ -40,10 +40,11 @@ initramfs piCore3187mm.gz followkernel
 # uncomment for composite PAL
 #sdtv_mode=2
 
-#uncomment to overclock the arm. 700 MHz is the default.
+# uncomment to overclock the arm. 700 MHz is the default.
 arm_freq=700
 core_freq=250
 sdram_freq=400
+over_voltage=0
 force_turbo=1
 
 #Force max current to USB
