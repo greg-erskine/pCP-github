@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-05-25 GE
+# Version: 0.01 2015-05-27 GE
 #   Original version.
 
 #========================================================================================
@@ -10,7 +10,7 @@
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Overclocking data from raspi-config 2015-05-05
+# Overclocking data from raspi-config (Rasbian 2015-05-05)
 #----------------------------------------------------------------------------------------
 # "None"   "700MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
 # "Modest" "800MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
@@ -45,7 +45,7 @@ pcp_httpd_query_string
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_set_overclock() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>' 
+	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
 	sudo sed -i "/arm_freq=/c\arm_freq=$2" $CONFIGTXT
 	sudo sed -i "/core_freq=/c\core_freq=$3" $CONFIGTXT
 	sudo sed -i "/sdram_freq=/c\sdram_freq=$4" $CONFIGTXT
@@ -73,6 +73,16 @@ pcp_set_force_turbo_default() {
 	sudo sed -i 's/^force_turbo=/#force_turbo=/g' $CONFIGTXT
 }
 
+pcp_set_gpu_memory() {
+	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting GPU memory to '$1'</p>'
+	sudo sed -i "/gpu_mem=/c\gpu_mem=$1" $CONFIGTXT
+}
+
+pcp_set_gpu_memory_default() {
+	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting GPU memory to DEFAULT</p>'
+	sudo sed -i 's/^gpu_mem=/#gpu_mem=/g' $CONFIGTXT
+}
+
 pcp_display_current() {
 	echo -n '<p class="info">'
 	for FILE in $(ls /sys/devices/system/cpu/cpu0/cpufreq/); do
@@ -86,7 +96,7 @@ pcp_display_current() {
 pcp_display_config_txt() {
 	pcp_mount_mmcblk0p1 2>&1 >/dev/null
 	echo '<textarea class="inform" style="height:80px">'
-	sed -n '/uncomment to overclock/{n;p;n;p;n;p;n;p;n;p}' $CONFIGTXT
+	sed -n '/uncomment to overclock/{n;p;n;p;n;p;n;p;n;p;n;p}' $CONFIGTXT
 	echo '</textarea>'
 	pcp_umount_mmcblk0p1 2>&1 >/dev/null
 }
@@ -154,8 +164,28 @@ pcp_start_save() {
 			;;
 	esac
 
+	case $GPUMEMORY in
+		DEFAULT)
+			pcp_set_gpu_memory_default
+			;;
+		16)
+			pcp_set_gpu_memory 16
+			;;
+		32)
+			pcp_set_gpu_memory 32
+			;;
+		64)
+			pcp_set_gpu_memory 64
+			;;
+		*)
+			[ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>'
+			;;
+	esac
+
 	pcp_umount_mmcblk0p1 2>&1 >/dev/null
-}
+
+	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
+	}
 
 #========================================================================================
 # Main
@@ -215,7 +245,6 @@ esac
 #----------------------------------------------------------------------------------------
 pcp_mount_mmcblk0p1 2>&1 >/dev/null
 FORCETURBO=$(cat $CONFIGTXT | grep force_turbo)
-pcp_umount_mmcblk0p1 2>&1 >/dev/null
 
 case $FORCETURBO in
 	\#force_turbo=0)
@@ -228,6 +257,25 @@ case $FORCETURBO in
 		FT1="selected"
 		;;
 esac
+
+GPUMEMORY=$(cat $CONFIGTXT | grep gpu_mem)
+
+case $GPUMEMORY in
+	\#gpu_mem=)
+		GMdefault="selected"
+		;;
+	gpu_mem=16)
+		GM16="selected"
+		;;
+	gpu_mem=32)
+		GM32="selected"
+		;;
+	gpu_mem=64)
+		GM64="selected"
+		;;
+esac
+
+pcp_umount_mmcblk0p1 2>&1 >/dev/null
 
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -272,8 +320,8 @@ echo '                <td>'
 echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
 echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Deafult|None|Modest|Medium|High|Turbo|Pi2&gt;</p>'
-echo '                    <p>Reboot is needed.<p>'
+echo '                    <p>&lt;Default|None|Under|Modest|Medium|High|Turbo|Pi2&gt;</p>'
+echo '                    <p>Reboot is required.<p>'
 echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
 echo '                    <ul>'
 echo '                      <li>hold down the shift key during booting, or</li>'
@@ -300,8 +348,8 @@ echo '                <td>'
 echo '                  <p>Change Raspberry Pi force turbo setting&nbsp;&nbsp;'
 echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Deafult|0|1&gt;</p>'
-echo '                    <p>Reboot is needed.<p>'
+echo '                    <p>&lt;Default|0|1&gt;</p>'
+echo '                    <p>Reboot is required.<p>'
 echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
 echo '                    <ul>'
 echo '                      <li>hold down the shift key during booting, or</li>'
@@ -319,20 +367,19 @@ echo '                  <p>Overclock governor</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select name="OCGOVERNOR">'
-echo '                    <option value="DEFAULT" '$OCGdefault'>Default</option>'
-
-for G in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-echo '                    <option value="'$G'" '$GM${G}'>'$G'</option>'
-done
-
+                          for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
+                              SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+                              [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
+                              echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
+                          done
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>(NOT WORKING) Change overclocking governor &nbsp;&nbsp;'
+echo '                  <p>Change overclocking governor &nbsp;&nbsp;'
 echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Deafult|16|32|64&gt;</p>'
-echo '                    <p>Reboot is needed.<p>'
+echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)'&gt;</p>'
+echo '                    <p>Dynamically set, no reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -348,15 +395,15 @@ echo '                  <select name="GPUMEMORY">'
 echo '                    <option value="DEFAULT" '$GMdefault'>Default</option>'
 echo '                    <option value="16" '$GM16'>16</option>'
 echo '                    <option value="32" '$GM32'>32</option>'
-echo '                    <option value="64" '$GM32'>64</option>'
+echo '                    <option value="64" '$GM64'>64</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>(NOT WORKING) Change GPU memory setting&nbsp;&nbsp;'
+echo '                  <p>Change GPU memory setting&nbsp;&nbsp;'
 echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Deafult|16|32|64&gt;</p>'
-echo '                    <p>Reboot is needed.<p>'
+echo '                    <p>&lt;Default|16|32|64&gt;</p>'
+echo '                    <p>Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -388,7 +435,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-if [ $DEBUG = 1 ]; then 
+if [ $DEBUG = 1 ]; then
 	#========================================================================================
 	# Display debug information
 	#----------------------------------------------------------------------------------------
@@ -411,8 +458,17 @@ if [ $DEBUG = 1 ]; then
 	echo '                                   [ DEBUG ] $OCmedium: '$OCmedium'<br />'
 	echo '                                   [ DEBUG ] $OChigh: '$OChigh'<br />'
 	echo '                                   [ DEBUG ] $OCturbo: '$OCturbo'<br />'
-	echo '                                   [ DEBUG ] $OCpi2: '$OCpi2'<br />'
-	echo '                                   [ DEBUG ] $FORCETURBO: '$FORCETURBO'</p>'                        
+	echo '                                   [ DEBUG ] $OCpi2: '$OCpi2'</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="debug">[ DEBUG ] $FORCETURBO: '$FORCETURBO'<br />'
+	echo '                                   [ DEBUG ] $FT0: '$FT0'<br />'
+	echo '                                   [ DEBUG ] $FT1: '$FT1'</p>'
+	echo '                  <p class="debug">[ DEBUG ] $GPUMEMORY: '$GPUMEMORY'<br />'
+	echo '                                   [ DEBUG ] $GMdefault: '$GMdefault'<br />'
+	echo '                                   [ DEBUG ] $GM16: '$GM16'<br />'
+	echo '                                   [ DEBUG ] $GM32: '$GM32'<br />'
+	echo '                                   [ DEBUG ] $GM64: '$GM64'</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
