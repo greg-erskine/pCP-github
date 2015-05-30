@@ -37,14 +37,17 @@ echo '</style>'
 #<a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
 
 
-OFFSETX=600
-OFFSETY=-175
+OFFSETX=100
+OFFSETY=100
 BUTTONWIDTH=25
 
 echo '<svg version="1.1" class="button"'
 echo '  baseProfile="full"'
 echo '  width="100" height="0">'
 echo '  xmlns="http://www.w3.org/2000/svg">'
+
+echo '    <rect x="'$OFFSETX'" y="'$OFFSETY'" width="600" height="250" style="fill:grey" />'
+
 
 BUTTON=2
 echo '  <a xlink:href="controls.cgi?COMMAND=track_next" >'

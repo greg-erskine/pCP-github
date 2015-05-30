@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-05-27 GE
+# Version: 0.01 2015-05-28 GE
 #   Original version.
 
 #========================================================================================
@@ -182,10 +182,56 @@ pcp_start_save() {
 			;;
 	esac
 
-	pcp_umount_mmcblk0p1 2>&1 >/dev/null
+	[ $DEBUG = 1 ] && pcp_check_config_txt
+	[ $(pcp_check_force_turbo) = 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>' 
+	[ $(pcp_check_over_voltage) = 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
+	[ $(pcp_check_force_turbo) = 0 ] && [ $(pcp_check_over_voltage) = 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
+
+	echo '<p class="info">Revision: '$(pcp_rpi_revision)'</p>'
+	[ $(pcp_rpi_warranty) = 0 ] && echo '<p class="error">[ ERROR ] Warranty bit is already set</p>' || echo '<p class="info">[ INFO ] Warranty bit is NOT set</p>'
 
 	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
-	}
+	pcp_umount_mmcblk0p1 2>&1 >/dev/null
+}
+
+pcp_check_config_txt() {
+	for I in arm_freq= core_freq= sdram_freq= over_voltage= force_turbo= gpu_mem=; do
+		if cat $CONFIGTXT | grep $I 2>&1 >/dev/null; then
+			echo '<p class="info">[ INFO ] "'$I'" found in '$CONFIGTXT'</p>'
+		else
+			echo '<p class="error">[ ERROR ] "'$I'" NOT found in '$CONFIGTXT'</p>'
+		fi
+	done
+}
+
+pcp_check_force_turbo() {
+	FTSET=$(cat $CONFIGTXT | grep force_turbo=)
+
+	case $FTSET in
+		force_turbo=1)
+			echo 0
+			;;
+		*)
+			echo 1
+			;;
+	esac
+}
+
+pcp_check_over_voltage() {
+#	( cat $CONFIGTXT | grep #over_voltage= ) || ( echo 1; break )
+	OVSET=$( cat $CONFIGTXT | grep over_voltage= )
+
+	case $OVSET in
+		over_voltage=0 | \#over_voltage=*)
+			#echo '<p class="error">[ ERROR ] "'$OVSET'" NOT set, returns: </p>'
+			echo 1
+			;;
+		over_voltage=*)
+			#echo '<p class="info">[ INFO ] "'$OVSET'" set, returns: </p>'
+			echo 0
+			;;
+	esac
+}
 
 #========================================================================================
 # Main

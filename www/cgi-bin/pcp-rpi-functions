@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.06 2015-05-30 GE
+#	Added pcp_rpi_warranty.
+
 # Version: 0.05 2015-03-13 GE
 #	Added pcp_rpi_model_unknown, *0013 B+ and *0014 CM.
 
@@ -29,22 +32,28 @@
 #   http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
 #   git://git.drogon.net/wiringPi
 
-# for Pi v2:
-#    [USER:8] [NEW:1] [MEMSIZE:3] [MANUFACTURER:4] [PROCESSOR:4] [TYPE:8] [REV:4]
-#    NEW          23: will be 1 for the new scheme, 0 for the old scheme
-#    MEMSIZE      20: 0=256M   1=512M   2=1G
-#    MANUFACTURER 16: 0=SONY   1=EGOMAN 2=EMBEST
-#    PROCESSOR    12: 0=2835   1=2836
-#    TYPE         04: 0=MODELA 1=MODELB 2=MODELA+ 3=MODELB+ 4=Pi2 MODEL B 5=ALPHA 6=CM
-#    REV          00: 0=REV0   1=REV1   2=REV2
+# For RPi1:
+#    100000e
+#    |  ---- Revision
+#    Warranty bit
 
-#    a21041
-#    |||||1=REV1
-#    ||||4=Pi2 MODEL B
-#    |||0=2835
-#    ||1=EGOMAN
-#    |2=1G
-#    USER
+# For RPi2:
+#    [USER:8] [NEW:1] [MEMSIZE:3] [MANUFACTURER:4] [PROCESSOR:4] [TYPE:8] [REV:4]
+#    NEW            23: will be 1 for the new scheme, 0 for the old scheme
+#    MEMSIZE        20: 0=256M    1=512M    2=1G
+#    MANUFACTURER   16: 0=SONY    1=EGOMAN  2=EMBEST
+#    PROCESSOR      12: 0=2835    1=2836    
+#    TYPE           04: 0=MODELA  1=MODELB  2=MODELA+  3=MODELB+  4=Pi2 MODEL B  5=ALPHA  6=CM
+#    REV            00: 0=REV0    1=REV1    2=REV2
+
+#    *a21041
+#    ||||||1=REV1
+#    |||||4=Pi2 MODEL B
+#    ||||0=2835
+#    |||1=EGOMAN
+#    ||2=1G
+#    |USER
+#    Warranty bit
 #-----------------------------------------------------------------------------------------
 pcp_rpi_revision() {
 	awk -F: '/^Revision/ { print $2 }' /proc/cpuinfo | sed 's/ //g'
@@ -151,6 +160,17 @@ pcp_rpi_pcb_revision() {
 pcp_rpi_is_hat() {
 	pcp_rpi_details
 	[ $HOLES = 4 ] && echo 0 || echo 1
+}
+
+pcp_rpi_warranty() {
+	case $(pcp_rpi_revision) in
+		100* | 2*)
+			echo 0
+			;;
+		*)
+			echo 1
+			;;
+	esac
 }
 
 #=========================================================================================
