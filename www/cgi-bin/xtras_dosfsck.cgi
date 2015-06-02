@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2015-06-02 GE
+#	Minor updates.
+
 # Version: 0.01 2015-02-17 GE
 #   Original version.
 
@@ -12,14 +15,7 @@ pcp_html_head "xtras_dosfsck" "GE"
 pcp_controls
 pcp_banner
 pcp_navigation
-
-if [ $MODE -lt 99 ]; then
-	echo '<p class="error">[ ERROR ] Wrong mode.</p>'
-	echo '</body>'
-	echo '</html>'
-	exit 1
-fi
-
+pcp_mode_lt_99
 pcp_running_script
 pcp_httpd_query_string
 
@@ -70,13 +66,13 @@ fi
 # dosfsck routine
 #----------------------------------------------------------------------------------------
 pcp_dosfsck() {
-  echo '<textarea class="inform" rows="10">'
-  dosfsck -a /dev/mmcblk0p1
-  echo '</textarea>'
+	echo '<textarea class="inform" rows="10">'
+	dosfsck -a /dev/mmcblk0p1
+	echo '</textarea>'
 }
 
 #========================================================================================
-# 
+# Main
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -88,22 +84,20 @@ echo '          <table class="bggrey percent100">'
 echo '            <form name="increase" action="xtras_dosfsck.cgi" method="get" id="increase">'
 echo '              <tr class="even">'
 echo '                <td>'
-
                         pcp_check_dosfsck
-
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="warning">'
 echo '                <td>'
-echo '                  <p style="color:white"><input type="submit" name="SUBMIT" value="dosfsck" />&nbsp;&nbsp;Auto fix boot partition&nbsp;&nbsp;'
-echo '                                         <input type="submit" name="SUBMIT" value="delete" />&nbsp;&nbsp;Delete dosfstools.tcz</p>'
+echo '                  <p style="color:white">'
+echo '                    <input type="submit" name="SUBMIT" value="dosfsck" />&nbsp;&nbsp;Auto fix boot partition&nbsp;&nbsp;'
+echo '                    <input type="submit" name="SUBMIT" value="delete" />&nbsp;&nbsp;Delete dosfstools.tcz'
+echo '                  </p>'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="even">'
 echo '                <td>'
-
                         [ $OPT == 1 ] && pcp_dosfsck
-
 echo '                </td>'
 echo '              </tr>'
 echo '            </form>'
@@ -127,16 +121,12 @@ echo '            <legend>Boot partition information</legend>'
 echo '            <table class="bggrey percent100">'
 echo '              <tr class="odd">'
 echo '                <td>'
-
                         pcp_textarea_inform "none" "dosfsck -vrf  /dev/mmcblk0p1" 300
-
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="odd">'
 echo '                <td>'
-
                         pcp_textarea_inform "none" "fsck -h" 25
-
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'
@@ -149,6 +139,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

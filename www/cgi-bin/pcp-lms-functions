@@ -2,6 +2,10 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 0.02 2015-06-02 GE
+#	Modified pcp_controls.
+#	Renamed styles nav to nav5 and nav2 to nav7.
+
 # Version: 0.01 2015-02-03 GE
 #	Original.
 
@@ -14,25 +18,23 @@ LMSIP=$(pcp_lmsip)
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
 pcp_controls() {
-	if [ x"" != x"$SERVER_IP" ]; then
-		echo '<!-- Start of pcp_lms_controls -->'
-		echo '<table class="bgblack">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
-		echo '      </p>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-		echo '<!-- End of pcp_lms_controls -->'
-	fi
+	echo '<!-- Start of pcp_lms_controls toolbar -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of pcp_lms_controls toolbar -->'
 }
 
 #========================================================================================
@@ -212,10 +214,6 @@ pcp_lms_volume_down() {
 	AMOUNT=5
 	pcp_lms_send "mixer volume -$AMOUNT"
 }
-
-
-
-
 
 #========================================================================================
 # Database commands and queries

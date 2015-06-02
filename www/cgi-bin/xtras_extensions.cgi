@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-04-23 GE
+# Version: 0.01 2015-06-02 GE
 #   Original version.
 
 #========================================================================================
@@ -23,6 +23,8 @@
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
+getMirror
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -37,7 +39,6 @@ pcp_mode_lt_99
 # Set variables
 SUBMIT=Initial
 EXTNFOUND=0
-getMirror
 
 #========================================================================================
 # Search, load and delete extension routines
@@ -175,7 +176,44 @@ if [ $MODE = 99 ]; then
 	echo '              <td class="column150">'
 	echo '                <p>Loaded extensions</p>'
 	echo '              </td>'
+	echo '              <td class="column300">'
+	echo '                <select name="X">'
+	                        EXTNLST=$(ls /usr/local/tce.installed/ | sed 's/\/usr\/local\/tce.installed\///g')
+	                        for i in $EXTNLST
+	                        do
+	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
+	                        done
+	echo '                </select>'
+	echo '              </td>'
 	echo '              <td>'
+	echo '                <p>List of loaded extensions in /usr/local/tce.installed/</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+#========================================================================================
+# Downloaded extensions on /mnt/mmcblk0p2/tce/optional/
+#----------------------------------------------------------------------------------------
+if [ $MODE = 99 ]; then
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Downloaded Extensions</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p>Downloaded extensions</p>'
+	echo '              </td>'
+	echo '              <td class="column300">'
 	echo '                <select name="X">'
 	                        EXTNLST=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
 	                        for i in $EXTNLST
@@ -183,6 +221,9 @@ if [ $MODE = 99 ]; then
 	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
 	                        done
 	echo '                </select>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>List of downloaded extensions in /mnt/mmcblk0p2/tce/optional/</p>'
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -209,14 +250,18 @@ if [ $MODE = 99 ]; then
 	echo '              <td class="column150">'
 	echo '                <p>Available extensions</p>'
 	echo '              </td>'
-	echo '              <td>'
+	echo '              <td class="column300">'
 	echo '                <select name="X">'
+	                        [ -f /tmp/tags.db ] || pcp_init_search
 	                        EXTNLST=$(cat /tmp/tags.db | awk '{print $1}')
 	                        for i in $EXTNLST
 	                        do
 	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
 	                        done
 	echo '                </select>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>List of extensions available for download from the piCore repository.</p>'
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -283,7 +328,7 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p class="row">Extension name</p>'
 echo '                </td>'
-echo '                <td class="column210">'
+echo '                <td class="column300">'
 echo '                  <input class="large16" type="text" id="EXTN" name="EXTN" maxlength="26" value="'$EXTN'">'
 echo '                </td>'
 echo '                <td>'
@@ -532,6 +577,7 @@ if [ $MODE = 99 ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 fi
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

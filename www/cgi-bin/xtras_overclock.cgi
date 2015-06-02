@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-05-28 GE
+# Version: 0.01 2015-06-02 GE
 #   Original version.
 
 #========================================================================================
@@ -30,12 +30,14 @@
 # cpuinfo_transition_latency     scaling_driver
 #----------------------------------------------------------------------------------------
 
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
 pcp_html_head "xtras overclocking" "GE"
 
+pcp_controls
 pcp_banner
 pcp_running_string
 pcp_xtras
@@ -94,11 +96,11 @@ pcp_display_current() {
 }
 
 pcp_display_config_txt() {
-	pcp_mount_mmcblk0p1 2>&1 >/dev/null
+	pcp_mount_mmcblk0p1 >/dev/null 2>&1
 	echo '<textarea class="inform" style="height:80px">'
 	sed -n '/uncomment to overclock/{n;p;n;p;n;p;n;p;n;p;n;p}' $CONFIGTXT
 	echo '</textarea>'
-	pcp_umount_mmcblk0p1 2>&1 >/dev/null
+	pcp_umount_mmcblk0p1 >/dev/null 2>&1
 }
 
 pcp_start_save() {
@@ -106,11 +108,11 @@ pcp_start_save() {
 	OVERCLOCK=`sudo $HTPPD -d \"$OVERCLOCK\"`
 	sudo sed -i "s/\(OVERCLOCK *=*\).*/\1$OVERCLOCK/" $CONFIGCFG
 
-	pcp_backup 2>&1 >/dev/null
+	pcp_backup >/dev/null 2>&1
 
-	pcp_mount_mmcblk0p1_nohtml 2>&1 >/dev/null
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 
-	if mount | grep $VOLUME 2>&1 >/dev/null; then
+	if mount | grep $VOLUME >/dev/null 2>&1; then
 		[ $DEBUG = 1] && echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
 	else
 		pcp_go_back_button
@@ -187,16 +189,17 @@ pcp_start_save() {
 	[ $(pcp_check_over_voltage) = 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
 	[ $(pcp_check_force_turbo) = 0 ] && [ $(pcp_check_over_voltage) = 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
 
-	echo '<p class="info">Revision: '$(pcp_rpi_revision)'</p>'
-	[ $(pcp_rpi_warranty) = 0 ] && echo '<p class="error">[ ERROR ] Warranty bit is already set</p>' || echo '<p class="info">[ INFO ] Warranty bit is NOT set</p>'
+	#echo '<p class="info">Revision: '$(pcp_rpi_revision)'</p>'
+	[ $(pcp_rpi_warranty) = 0 ] &&
+	echo '<p class="error">[ ERROR ] Warranty bit is already set: '$(pcp_rpi_revision)'</p>' || echo '<p class="info">[ INFO ] Warranty bit is NOT set: '$(pcp_rpi_revision)'</p>'
 
 	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
-	pcp_umount_mmcblk0p1 2>&1 >/dev/null
+	pcp_umount_mmcblk0p1 >/dev/null 2>&1
 }
 
 pcp_check_config_txt() {
 	for I in arm_freq= core_freq= sdram_freq= over_voltage= force_turbo= gpu_mem=; do
-		if cat $CONFIGTXT | grep $I 2>&1 >/dev/null; then
+		if cat $CONFIGTXT | grep $I >/dev/null 2>&1; then
 			echo '<p class="info">[ INFO ] "'$I'" found in '$CONFIGTXT'</p>'
 		else
 			echo '<p class="error">[ ERROR ] "'$I'" NOT found in '$CONFIGTXT'</p>'
@@ -206,7 +209,6 @@ pcp_check_config_txt() {
 
 pcp_check_force_turbo() {
 	FTSET=$(cat $CONFIGTXT | grep force_turbo=)
-
 	case $FTSET in
 		force_turbo=1)
 			echo 0
@@ -218,16 +220,12 @@ pcp_check_force_turbo() {
 }
 
 pcp_check_over_voltage() {
-#	( cat $CONFIGTXT | grep #over_voltage= ) || ( echo 1; break )
 	OVSET=$( cat $CONFIGTXT | grep over_voltage= )
-
 	case $OVSET in
 		over_voltage=0 | \#over_voltage=*)
-			#echo '<p class="error">[ ERROR ] "'$OVSET'" NOT set, returns: </p>'
 			echo 1
 			;;
 		over_voltage=*)
-			#echo '<p class="info">[ INFO ] "'$OVSET'" set, returns: </p>'
 			echo 0
 			;;
 	esac
@@ -289,7 +287,7 @@ esac
 #----------------------------------------------------------------------------------------
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
-pcp_mount_mmcblk0p1 2>&1 >/dev/null
+pcp_mount_mmcblk0p1 >/dev/null 2>&1
 FORCETURBO=$(cat $CONFIGTXT | grep force_turbo)
 
 case $FORCETURBO in
@@ -321,7 +319,7 @@ case $GPUMEMORY in
 		;;
 esac
 
-pcp_umount_mmcblk0p1 2>&1 >/dev/null
+pcp_umount_mmcblk0p1 >/dev/null 2>&1
 
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -379,9 +377,9 @@ echo '              </tr>'
 
 pcp_incr_id
 pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
+echo '              <tr class="warning">'
 echo '                <td class="column150">'
-echo '                  <p>Force turbo</p>'
+echo '                  <p style="color:white">Force turbo</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select name="FORCETURBO">'
@@ -391,16 +389,12 @@ echo '                    <option value="1" '$FT1'>1</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Change Raspberry Pi force turbo setting&nbsp;&nbsp;'
+echo '                  <p style="color:white">Change Raspberry Pi force turbo setting&nbsp;&nbsp;'
 echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Default|0|1&gt;</p>'
-echo '                    <p>Reboot is required.<p>'
-echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
-echo '                    <ul>'
-echo '                      <li>hold down the shift key during booting, or</li>'
-echo '                      <li>edit the config.txt file manually</li>'
-echo '                    </ul>'
+echo '                    <p style="color:white">&lt;Default|0|1&gt;</p>'
+echo '                    <p style="color:white"><b>Warning: </b>Setting force turbo may set warranty bit.<p>'
+echo '                    <p style="color:white">Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -579,6 +573,7 @@ if [ $MODE = 99 ]; then
 fi
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

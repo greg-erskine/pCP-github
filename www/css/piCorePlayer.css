@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.07 2015-06-02 GE
+	Renamed styles nav to nav5 and nav2 to nav7.
+
 Version: 0.06 2015-02-04 GE
 	Removed .circle, .indicator.
 	Added .centre, input.large36, .column380.
@@ -250,7 +253,7 @@ textarea.white {
 }
 
 /* Horizontal navigation and controls bar */
-a.nav, a.nav:link, a.nav:visited, a.nav2, a.nav2:link, a.nav2:visited  {
+a.nav5, a.nav5:link, a.nav5:visited, a.nav7, a.nav7:link, a.nav7:visited  {
 	background:black;
 	border:1px solid black;
 	color:white;
@@ -263,16 +266,16 @@ a.nav, a.nav:link, a.nav:visited, a.nav2, a.nav2:link, a.nav2:visited  {
 	width:187.5px;
 }
 
-a.nav2, a.nav2:link, a.nav2:visited  {
+a.nav7, a.nav7:link, a.nav7:visited  {
 	width:133px;
 }
 
-a.nav:hover, a.nav2:hover {
+a.nav5:hover, a.nav7:hover {
 	background:white;
 	color:black;
 }
 
-a.nav:active, a.nav2:active {
+a.nav5:active, a.nav7:active {
 	background:black;
 	color:white;
 }

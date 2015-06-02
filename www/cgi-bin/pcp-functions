@@ -2,8 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.35 2015-06-02 GE
+#	Updated pcp_auto_start_lms, pcp_auto_start_fav to use pcp_lmsip.
+#	Added link to About page from pCP image.
+#	Renamed styles nav to nav5 and nav2 to nav7.
+
 # Version: 0.34 2015-05-22 SBP
-#	Add beta download page at SourceForge if "test = 3 ".
+#	Add beta download page at SourceForge if "test = 3".
 
 # Version: 0.33 2015-05-10 SBP
 #	Changed the timezone settings to cmdline.txt file.
@@ -159,12 +164,12 @@
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
 
-#Script to set the correct path to HTTPD
-if [ -f /usr/local/sbin/httpd ]; then
-	HTPPD=/usr/local/sbin/httpd
+# Set the correct path to HTTPD
+	if [ -f /usr/local/sbin/httpd ]; then
+		HTPPD=/usr/local/sbin/httpd
 	else
- 	HTPPD=/usr/local/sbin/busybox-httpd
-fi
+		HTPPD=/usr/local/sbin/busybox-httpd
+	fi
 	CONFIGCFG=/usr/local/sbin/config.cfg
 	CONFIGTXT=/mnt/mmcblk0p1/config.txt
 	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
@@ -183,25 +188,25 @@ fi
 	############################################################
 
 	. $pCPHOME/pcp-rpi-functions
+
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 	if [ $(pcp_rpi_is_model_2B) = 0 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
 	fi
 
-	if [ $TEST = 3 ]; then
-		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
-	fi
-
-
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
 	# set to 3 in order to use beta download page from sourceforge when testing beta versions 
-	TEST=3
+	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
 	MODE=99
+
+	if [ $TEST = 3 ]; then
+		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
+	fi
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
@@ -283,6 +288,7 @@ pcp_mode_lt_5() {
 		exit 1
 	fi
 }
+
 #=========================================================================================
 # Update the Timezone routine
 #
@@ -290,25 +296,15 @@ pcp_mode_lt_5() {
 #			timezone.cgi
 #			do_rebootstuff.sh
 #-----------------------------------------------------------------------------------------
-old_pcp_set_timezone() {
-	[ -f /etc/sysconfig/timezone ] && sudo rm -f /etc/sysconfig/timezone
-	TIMEZONE=`sudo $HTPPD -d $TIMEZONE`
-	echo "TZ="$TIMEZONE > /etc/sysconfig/timezone
-	sudo chown root:root /etc/sysconfig/timezone
-	sudo chmod 644 /etc/sysconfig/timezone
-	unset TZ
-	export TZ=$TIMEZONE
-}
-
 pcp_set_timezone() {
 	. $CONFIGCFG
 	pcp_mount_mmcblk0p1
-	# First remove old timezone settings
+	# Remove old timezone settings
 	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
-	# Next add new TIMEZONE settings if used 
+	# Add new TIMEZONE settings if used 
 	if [ x"" != x"$TIMEZONE" ]; then
-	sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt 
-	export TZ=$TIMEZONE
+		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt 
+		export TZ=$TIMEZONE
 	fi
 	pcp_umount_mmcblk0p1
 }
@@ -335,9 +331,9 @@ pcp_eth0_mac_address() {
 }
 
 pcp_controls_mac_address() {
-	ifconfig eth0 2>&1 | grep inet &> /dev/null
+	ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1
 	eth0_IP=$?
-	ifconfig wlan0 2>&1 | grep inet &> /dev/null
+	ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1
 	wlan0_IP=$?
 	PLAYER_MAC=$(pcp_eth0_mac_address)
 	if [ $WIFI = "on" ]; then
@@ -393,7 +389,9 @@ pcp_banner() {
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td height="148">'
-	echo '      <p class="banner"><img src="../images/banner.png" alt="piCorePlayer" /></p>'
+	echo '      <p class="banner">'
+	echo '        <a href="about.cgi" title="pCP Logo"><img src="../images/banner.png" alt="piCorePlayer" /></a>'
+	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -401,21 +399,21 @@ pcp_banner() {
 }
 
 pcp_navigation() {
-	echo '<!-- Start of pcp_navigation -->'
+	echo '<!-- Start of pcp_navigation toolbar -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="nav" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
-	echo '        <a class="nav" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="nav" href="about.cgi" title="pCP - About">About</a>'
+	echo '        <a class="nav5" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav5" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="nav5" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
+	echo '        <a class="nav5" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="nav5" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	echo '<!-- End of pcp_navigation -->'
+	echo '<!-- End of pcp_navigation toolbar -->'
 }
 
 pcp_footer() {
@@ -469,7 +467,7 @@ pcp_favorites() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	FAVLIST=`sudo $HTPPD -d $FAVLIST`
 
-	echo '<!-- Start of favorites -->'
+	echo '<!-- Start of favorites toolbar -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -498,7 +496,7 @@ pcp_favorites() {
 	}
 	END {
 		for (j=1; j<=7; j++) {
-			printf "        <a class=\"nav2\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
+			printf "        <a class=\"nav7\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
 		}
 	} '
 #----------------------------------------------------------------------------------------
@@ -506,49 +504,49 @@ pcp_favorites() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		echo '<!-- End of favorites -->'
+		echo '<!-- End of favorites toolbar -->'
 }
 
 pcp_diagnostics() {
-	echo '<!-- Start of diagnostics -->'
+	echo '<!-- Start of diagnostics toolbar -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
-	echo '        <a class="nav" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
-	echo '        <a class="nav" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
-	echo '        <a class="nav" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '        <a class="nav5" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav5" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
+	echo '        <a class="nav5" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
+	echo '        <a class="nav5" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
+	echo '        <a class="nav5" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	echo '<!-- End of diagnostics -->'
+	echo '<!-- End of diagnostics toolbar -->'
 }
 
 pcp_xtras() {
-	echo '<!-- Start of xtras -->'
+	echo '<!-- Start of xtras toolbar -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav2" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav2" href="xtras_test.cgi" title="pCP - Diag Test">Test</a>'
-	echo '        <a class="nav2" href="xtras_asoundrc.cgi" title="pCP - Diag Asound">Asound</a>'
-	echo '        <a class="nav2" href="xtras_bootcodes.cgi" title="pCP - Diag Bootcodes">Bootcodes</a>'
-	echo '        <a class="nav2" href="xtras_controls.cgi" title="pCP - Diag Controls">Controls</a>'
-	echo '        <a class="nav2" href="xtras_graph.cgi" title="pCP - Diag Graph">Graph</a>'
-	echo '        <a class="nav2" href="xtras_lmsclis.cgi" title="pCP - Diag LMS CLI">LMS CLI</a>'
+	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Diag Test">Test</a>'
+	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Diag Asound">Asound</a>'
+	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Diag Bootcodes">Bootcodes</a>'
+	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Diag Controls">Controls</a>'
+	echo '        <a class="nav7" href="xtras_graph.cgi" title="pCP - Diag Graph">Graph</a>'
+	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Diag LMS CLI">LMS CLI</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	echo '<!-- End of xtras -->'
+	echo '<!-- End of xtras toolbar -->'
 }
 
 pcp_picoreplayers() {
-	echo '<!-- Start of picoreplayer -->'
+	echo '<!-- Start of picoreplayers toolbar -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -560,7 +558,7 @@ pcp_picoreplayers() {
 	do
 		NAME=$(echo $line | awk -F, '{ print $1 }')
 		URL=$(echo $line | awk -F, '{ print $2 }')
-		echo '        <a class="nav2" href="http://'$URL'/" title="pCP - Main Page">'$NAME'</a>'
+		echo '        <a class="nav7" href="http://'$URL'/" title="pCP - Main Page">'$NAME'</a>'
 	done <$TMP
 	rm -r $TMP
 
@@ -568,7 +566,7 @@ pcp_picoreplayers() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	echo '<!-- End of picoreplayer -->'
+	echo '<!-- End of picoreplayers toolbar -->'
 }
 
 #=========================================================================================
@@ -636,6 +634,9 @@ pcp_write_to_log() {
 	echo >> $LOG
 }
 
+##################################################
+# NOTE: Below routines will eventually be obsolete
+##################################################
 pcp_show_config_cfg() {
 	echo '<h1>[ INFO ] Current config.cfg</h1>'
 	echo '<textarea name="TextBox" rows="26">'
@@ -728,7 +729,6 @@ pcp_uptime_days() {
 	[ $M -eq 1 ] && MS="minute" || MS="minutes"
 	[ $S -eq 1 ] && SS="second" || SS="seconds"
 	printf "%2d %s %2d %s %2d %s %2d %s" $D $DS $H $HS $M $MS $S $SS	# 2 days 8 hours 10 minutes 35 seconds
-#	printf "%02d:%02d:%02d:%02d" $D $H $M $S							# 02:08:11:15
 }
 
 #=========================================================================================
@@ -758,21 +758,17 @@ pcp_wlan0_ip() {
 #	playlist play http://stream-tx1.radioparadise.com/aac-32
 #	playlist play http://radioparadise.com/m3u/aac-128.m3u
 #-----------------------------------------------------------------------------------------
-#########################################################################################
-# TODO: Change to use pcp_lmsip
-#########################################################################################
 pcp_auto_start_lms() {
-	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
+	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
-		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		# Decode variables using httpd, no quotes
 		AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 		for i in 1 2 3 4 5
 		do
-			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $SERVER_IP_NO_PORT 9090 | awk '{ print $3 }'`
+			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
 			if [ $RESULT = 1 ]; then
 				echo "$i. Connected..." >> /tmp/auto_start_lms.log
-				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_lms.log
+				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $(pcp_lmsip) 9090 >> /tmp/auto_start_lms.log
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_lms.log
@@ -816,19 +812,15 @@ pcp_autofav_id() {
 	#------------------------------------------------------------------------------------
 }
 
-#########################################################################################
-# TODO: Change to use pcp_lmsip
-#########################################################################################
 pcp_auto_start_fav() {
-	if [ x"" != x"$SERVER_IP" ] && [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" == "Enabled" ]; then
+	if [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
-		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
 		for i in 1 2 3 4 5
 		do
-			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $SERVER_IP_NO_PORT 9090 | awk '{ print $3 }'`
+			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
 			if [ $RESULT = 1 ]; then
 				echo "$i. Connected..." >> /tmp/auto_start_fav.log
-				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
+				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $(pcp_lmsip) 9090 >> /tmp/auto_start_fav.log
 				break
 			fi
 			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
@@ -837,23 +829,17 @@ pcp_auto_start_fav() {
 	fi
 }
 
-#########################################################################################
-# TODO: Change to use pcp_lmsip
-#########################################################################################
 pcp_start_fav() {
-	if [ x"" != x"$SERVER_IP" ]; then
-		PLAYER_MAC=$(pcp_controls_mac_address)
-		SERVER_IP_NO_PORT=`echo $SERVER_IP | awk -F: '{ print $1 }'`
-		for i in 1 2 3 4 5
-		do
-			if [ $(pcp_lms_connected) = 1 ]; then
-				echo "$i. Connected..." >> /tmp/auto_start_fav.log
-				(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $SERVER_IP_NO_PORT 9090 >> /tmp/auto_start_fav.log
-				break
-			fi
-			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
-		done
-	fi
+	PLAYER_MAC=$(pcp_controls_mac_address)
+	for i in 1 2 3 4 5
+	do
+		if [ $(pcp_lms_connected) = 1 ]; then
+			echo "$i. Connected..." >> /tmp/auto_start_fav.log
+			(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $(pcp_lmsip) 9090 >> /tmp/auto_start_fav.log
+			break
+		fi
+		echo "$i. Not connected..." >> /tmp/auto_start_fav.log
+	done
 }
 
 pcp_user_commands() {
@@ -998,6 +984,7 @@ pcp_umount_mmcblk0p1_nohtml() {
 	sudo umount $DEVICE
 }
 
+# CHECK:
 	VOLUME=/mnt/mmcblk0p1
 	DEVICE=/dev/mmcblk0p1
 
@@ -1145,25 +1132,25 @@ USER_COMMAND_3=""
 JIVELITE="NO"
 EOF
 
-#Remove timezone stuff
-pcp_mount_mmcblk0p1_nohtml
-sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
-pcp_umount_mmcblk0p1_nohtml
+	# Remove timezone stuff
+	pcp_mount_mmcblk0p1_nohtml
+	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
+	pcp_umount_mmcblk0p1_nohtml
 
-#Remove Jivelite stuff
-sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
-sudo rm -rf /home/tc/.jivelite
-sudo rm -rf /opt/jivelite
-sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+	# Remove Jivelite stuff
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+	sudo rm -rf /home/tc/.jivelite
+	sudo rm -rf /opt/jivelite
+	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 
-#Remove wifi stuff
-sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
-sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	# Remove wifi stuff
+	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 #=========================================================================================
