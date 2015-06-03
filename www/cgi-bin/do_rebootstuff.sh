@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.17 2015-06-04 GE
+#	Renamed $pCPHOME to $PCPHOME.
+#	Minor updates.
+
 # Version: 0.16 2015-05-21 SBP
 #	Use saved custom ALSA settings after pCP updating.
 
@@ -99,11 +103,11 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
 	pcp_save_to_config
-		if [ x"" != x"$TIMEZONE" ]; then
+	if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
-		fi
+	fi
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
-	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
 	echo -n "${YELLOW} newconfig.cfg not found on sda1${NORMAL}"
 fi
@@ -111,41 +115,38 @@ echo "${GREEN} Done.${NORMAL}"
 
 echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 # Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
-pcp_mount_mmcblk0p1_nohtml 2>&1 >/dev/null
+pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo -n "${YELLOW} newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	REBOOTN=yes
 	# Read variables from newconfig and save to config.
 	. /mnt/mmcblk0p1/newconfig.cfg
-		if [ x"" != x"$TIMEZONE" ]; then
+	if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
-		fi
-
-#=========================================================================================
-# Copy ALSA settings back so they are restore after an update
-#-----------------------------------------------------------------------------------------
-sudo cp /mnt/mmcblk0p1/asound.conf /etc/
-sudo rm -f /mnt/mmcblk0p1/asound.conf
-sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/
-sudo rm /mnt/mmcblk0p1/asound.state
-#-----------------------------------------------------------------------------------------
-
-
+	fi
+	#=========================================================================================
+	# Copy ALSA settings back so they are restore after an update
+	#-----------------------------------------------------------------------------------------
+	sudo cp /mnt/mmcblk0p1/asound.conf /etc/
+	sudo rm -f /mnt/mmcblk0p1/asound.conf
+	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/
+	sudo rm /mnt/mmcblk0p1/asound.state
+	#-----------------------------------------------------------------------------------------
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
-	if [ $AUDIO = HDMI ]; then sudo $pCPHOME/enablehdmi.sh; else sudo $pCPHOME/disablehdmi.sh; fi
+	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
 	echo -n "${YELLOW} newconfig.cfg not found on mmcblk0p1${NORMAL}"
 	REBOOTN=no
 fi
-pcp_umount_mmcblk0p1_nohtml 2>&1 >/dev/null
+pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded and then reboot
 REBOOTW=no
 if [ $WIFI = "on" ]; then
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
-		then
+	then
 		echo "${GREEN}Wifi firmware already loaded${NORMAL}"
 	else
 		# Add wifi related modules back
@@ -154,18 +155,15 @@ if [ $WIFI = "on" ]; then
 	fi
 fi
 
-#Reboot if requested for timezone or wifi firmware loading
-if [ $REBOOTW = yes ]; then echo "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
-fi
-if [ $REBOOTN = yes ]; then echo "${RED}Will reboot now and then your Timezone settings will be used${NORMAL}"
-fi
+# Reboot if requested for timezone or wifi firmware loading
+[ $REBOOTW = yes ] && "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
+[ $REBOOTN = yes ] && "${RED}Will reboot now and then your Timezone settings will be used${NORMAL}"
 if [ $REBOOTN = yes ] || [ $REBOOTW = yes ]; then 
-		pcp_save_to_config
-		pcp_backup_nohtml 2>&1 >/dev/null
-		sleep 4
-		sudo reboot
+	pcp_save_to_config
+	pcp_backup_nohtml >/dev/null 2>&1
+	sleep 4
+	sudo reboot
 fi
-
 
 if [ $WIFI = "on" ]; then
 	# Save the parameters to the wifi.db
@@ -204,7 +202,7 @@ if [ $WIFI = on ]; then
 	sleep 1
 	sudo ifconfig wlan0 down
 	sudo ifconfig wlan0 up
-	sudo iwconfig wlan0 power off &>/dev/null
+	sudo iwconfig wlan0 power off >/dev/null 2>&1
 	sudo /usr/local/bin/wifi.sh -a
 
 	# Logic that will try to reconnect to wifi if failed - will try two times before continuing booting
@@ -217,7 +215,7 @@ if [ $WIFI = on ]; then
 			sleep 1
 			sudo ifconfig wlan0 up
 			sleep 1
-			sudo iwconfig wlan0 power off &>/dev/null
+			sudo iwconfig wlan0 power off >/dev/null 2>&1
 			sleep 1
 			sudo /usr/local/bin/wifi.sh -a
 			sleep 5
@@ -232,7 +230,7 @@ echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 # Loads the correct output audio modules
-pcp_read_chosen_audio 2>&1 >/dev/null
+pcp_read_chosen_audio >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${YELLOW}Waiting for soundcards to populate"
@@ -252,18 +250,18 @@ echo "${GREEN} Done.${NORMAL}"
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	sudo amixer cset numid=3 1 2>&1 >/dev/null				# set the analog output via audio jack
+	sudo amixer cset numid=3 1 >/dev/null 2>&1				# set the analog output via audio jack
 	if [ $ALSAlevelout = Default ]; then
-		sudo amixer set PCM 400 unmute 2>&1 >/dev/null
+		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
 aplay -l | grep 'card 0: ALSA' &> /dev/null
 if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2 2>&1 >/dev/null				# set the analog output via HDMI out
+	sudo amixer cset numid=3 2 >/dev/null 2>&1				# set the analog output via HDMI out
 	if [ $ALSAlevelout = Default ]; then
-		sudo amixer set PCM 400 unmute 2>&1 >/dev/null
+		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi 
 
@@ -288,15 +286,15 @@ done
 echo "${GREEN} Done.${NORMAL}"
 
 echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
-/usr/local/etc/init.d/squeezelite start 2>&1 >/dev/null
+/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
-/usr/local/etc/init.d/dropbear start 2>&1 >/dev/null
+/usr/local/etc/init.d/dropbear start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
-/usr/local/etc/init.d/httpd start 2>&1 >/dev/null
+/usr/local/etc/init.d/httpd start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
 if [ $A_S_LMS = "Enabled" ]; then
@@ -319,13 +317,13 @@ fi
 
 if [ $JIVELITE = "YES" ]; then
 	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-	/opt/jivelite/bin/jivelite-sp 2>&1 >/dev/null
+	/opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
-pcp_backup_nohtml 2>&1 >/dev/null
+pcp_backup_nohtml >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"

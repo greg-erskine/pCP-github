@@ -21,8 +21,9 @@
 #	Use the interactive mode.
 #-----------------------------------------------------------------------------------------
 
-# Version: 0.02 2015-06-03 GE
+# Version: 0.02 2015-06-04 GE
 #	Added interaction mode.
+#	Renamed $pCPHOME to $PCPHOME.
 
 # Version: 0.01 2014-10-24 GE
 #	Original.
@@ -45,21 +46,21 @@ pcp_httpd_query_string
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_debug_save() {
-	sed -i "s/\(DEBUG=\).*/\1$d/" $pCPHOME/pcp-functions
-	sed -i "s/\(TEST=\).*/\1$t/" $pCPHOME/pcp-functions
-	sed -i "s/\(MODE=\).*/\1$m/" $pCPHOME/pcp-functions
+	sed -i "s/\(DEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
+	sed -i "s/\(TEST=\).*/\1$t/" $PCPHOME/pcp-functions
+	sed -i "s/\(MODE=\).*/\1$m/" $PCPHOME/pcp-functions
 } 
 
 pcp_debug_reset() {
-	sed -i "s/\(DEBUG=\).*/\10/" $pCPHOME/pcp-functions
-	sed -i "s/\(TEST=\).*/\10/" $pCPHOME/pcp-functions
-	sed -i "s/\(MODE=\).*/\10/" $pCPHOME/pcp-functions
+	sed -i "s/\(DEBUG=\).*/\10/" $PCPHOME/pcp-functions
+	sed -i "s/\(TEST=\).*/\10/" $PCPHOME/pcp-functions
+	sed -i "s/\(MODE=\).*/\10/" $PCPHOME/pcp-functions
 }
 
 pcp_debug_set() {
-	sed -i "s/\(DEBUG=\).*/\11/" $pCPHOME/pcp-functions
-	sed -i "s/\(TEST=\).*/\11/" $pCPHOME/pcp-functions
-	sed -i "s/\(MODE=\).*/\11/" $pCPHOME/pcp-functions
+	sed -i "s/\(DEBUG=\).*/\11/" $PCPHOME/pcp-functions
+	sed -i "s/\(TEST=\).*/\11/" $PCPHOME/pcp-functions
+	sed -i "s/\(MODE=\).*/\11/" $PCPHOME/pcp-functions
 }
 
 #========================================================================================
@@ -68,18 +69,18 @@ pcp_debug_set() {
 if [ x"" != x"$QUERY_STRING" ]; then
 	case $QUERY_STRING in
 		d=[01])
-			sed -i "s/\(DEBUG=\).*/\1$d/" $pCPHOME/pcp-functions
+			sed -i "s/\(DEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
 			;;
 		t=[0-9])
-			sed -i "s/\(TEST=\).*/\1$t/" $pCPHOME/pcp-functions
+			sed -i "s/\(TEST=\).*/\1$t/" $PCPHOME/pcp-functions
 			;;
 		m=[0-9]*) 
-			sed -i "s/\(MODE=\).*/\1$m/" $pCPHOME/pcp-functions
+			sed -i "s/\(MODE=\).*/\1$m/" $PCPHOME/pcp-functions
 			;;
 		a=[01])
-			sed -i "s/\(DEBUG=\).*/\1$a/" $pCPHOME/pcp-functions
-			sed -i "s/\(TEST=\).*/\1$a/" $pCPHOME/pcp-functions
-			sed -i "s/\(MODE=\).*/\1$a/" $pCPHOME/pcp-functions
+			sed -i "s/\(DEBUG=\).*/\1$a/" $PCPHOME/pcp-functions
+			sed -i "s/\(TEST=\).*/\1$a/" $PCPHOME/pcp-functions
+			sed -i "s/\(MODE=\).*/\1$a/" $PCPHOME/pcp-functions
 			;;
 		*)
 			[ $DEBUG = 1 ] && echo '<p class="error">[ ERROR ] Invalid option: '$QUERY_STRING'</p>'

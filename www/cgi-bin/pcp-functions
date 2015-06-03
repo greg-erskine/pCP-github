@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.35 2015-06-02 GE
+# Version: 0.35 2015-06-04 GE
 #	Updated pcp_auto_start_lms, pcp_auto_start_fav to use pcp_lmsip.
 #	Added link to About page from pCP image.
 #	Renamed styles nav to nav5 and nav2 to nav7.
+#	Renamed $pCPHOME to $PCPHOME.
 
 # Version: 0.34 2015-05-22 SBP
 #	Add beta download page at SourceForge if "test = 3".
@@ -182,12 +183,9 @@ pcp_variables() {
 	VOLUME=/mnt/mmcblk0p1
 	DEVICE=/dev/mmcblk0p1
 	UPD_PCP=/tmp/upd_picoreplayer
-	pCPHOME=/home/tc/www/cgi-bin
-	############################################################
-	# Steen, Variable names should be UPPERCASE by convention.
-	############################################################
+	PCPHOME=/home/tc/www/cgi-bin
 
-	. $pCPHOME/pcp-rpi-functions
+	. $PCPHOME/pcp-rpi-functions
 
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 	if [ $(pcp_rpi_is_model_2B) = 0 ]; then
