@@ -2,6 +2,7 @@
 
 # Version: 0.13 2015-06-04 GE
 #	Started adding HTML5 input field validation.
+#	Removed some unnecessary code.
 
 # Version: 0.12 2015-05-11 GE
 #	Removed shairport option.
@@ -78,11 +79,11 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Host name</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="text" id="HOST" name="HOST" value="'$HOST'" maxlength="26" pattern="^[a-zA-Z0-9-]*$">'
+echo '                  <input class="large16" type="text" name="HOST" value="'$HOST'" maxlength="26" pattern="^[a-zA-Z0-9-]*$">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Provide a host name, so the player is easier to identify on your LAN&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p><b>Note: </b>This is the linux hostname, not the piCorePlayer name used by LMS.</p>'
@@ -106,16 +107,8 @@ echo '          </table>'
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
 case "$JIVELITE" in
-	YES)
-		JIVEyes="selected"
-		;;
-	NO)
-		JIVEno="selected"
-		;;
-	*)
-		JIVEyes=""
-		JIVEno=""
-		;;
+	YES) JIVEyes="selected" ;;
+	NO) JIVEno="selected" ;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -128,14 +121,14 @@ echo '                <td class="column150">'
 echo '                  <p>Jivelite</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select name="JIVELITE">'
+echo '                  <select class="large16" name="JIVELITE">'
 echo '                    <option value="YES" '$JIVEyes'>Jivelite enabled</option>'
 echo '                    <option value="NO" '$JIVEno'>Jivelite disabled</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enable/disable Jivelite&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
@@ -168,20 +161,9 @@ fi
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	case "$OVERCLOCK" in
-		NONE)
-			OCnone="selected"
-			;;
-		MILD)
-			OCmild="selected"
-			;;
-		MODERATE)
-			OCmoderate="selected"
-			;;
-		*)
-			OCnone=""
-			OCmild=""
-			OCmoderate=""
-			;;
+		NONE) OCnone="selected" ;;
+		MILD) OCmild="selected" ;;
+		MODERATE) OCmoderate="selected" ;;
 	esac
 
 	#----------------------------------------------------------------------------------------
@@ -194,7 +176,7 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	echo '                  <p>Overclock</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <select name="OVERCLOCK">'
+	echo '                  <select class="large16" name="OVERCLOCK">'
 	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
 	echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
 	echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
@@ -202,7 +184,7 @@ if [ $(pcp_rpi_is_model_2B) = 1 ]; then
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
@@ -261,11 +243,11 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Timezone</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="text" id="TIMEZONE" name="TIMEZONE" value="'$TIMEZONE'" maxlength="28" pattern="^[a-zA-Z0-9-,./]*$">'
+echo '                  <input class="large16" type="text" name="TIMEZONE" value="'$TIMEZONE'" maxlength="28" pattern="^[a-zA-Z0-9-,./]*$">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Add your TIMEZONE&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Format: EST-10EST,M10.1.0,M4.1.0/3</p>'
@@ -297,11 +279,11 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="password" id="NEWPASSWORD" name="NEWPASSWORD" maxlength="26">'
+echo '                  <input class="large16" type="password" name="NEWPASSWORD" maxlength="26">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enter new password&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Default: piCore</p>'
@@ -312,7 +294,7 @@ echo '              </tr>'
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150"></td>'
 echo '                <td class="column210">'
-echo '                  <input class="large16" type="password" id="CONFIRMPASSWORD" name="CONFIRMPASSWORD" maxlength="26">'
+echo '                  <input class="large16" type="password" name="CONFIRMPASSWORD" maxlength="26">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Confirm new password.</p>'
@@ -339,30 +321,14 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 # Function to check the A_S_LMS radio button according to config file
 case "$A_S_LMS" in
-	Enabled)
-		A_S_LMS_Y="checked"
-		;;
-	Disabled)
-		A_S_LMS_N="checked"
-		;;
-	*)
-		A_S_LMS_Y=""
-		A_S_LMS_N=""
-		;;
+	Enabled) A_S_LMS_Y="checked" ;;
+	Disabled) A_S_LMS_N="checked" ;;
 esac
 
 # Function to check the A_S_FAV radio button according to config file
 case "$A_S_FAV" in
-	Enabled)
-		A_S_FAV_Y="checked"
-		;;
-	Disabled)
-		A_S_FAV_N="checked"
-		;;
-	*)
-		A_S_FAV_Y=""
-		A_S_FAV_N=""
-		;;
+	Enabled) A_S_FAV_Y="checked" ;;
+	Disabled) A_S_FAV_N="checked" ;;
 esac
 
 echo '<table class="bggrey">'
@@ -383,7 +349,7 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Auto start favorite</td>'
 echo '                <td class="column420">'
-echo '                  <select name="AUTOSTARTFAV">'
+echo '                  <select class="large30" name="AUTOSTARTFAV">'
 
 # Generate a list of options
 FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
@@ -422,8 +388,8 @@ END {
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <input class="small1" type="radio" id="A_S_FAV" name="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>Enabled'
-echo '                  <input class="small1" type="radio" id="A_S_FAV" name="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
+echo '                  <input class="small1" type="radio" name="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>Enabled'
+echo '                  <input class="small1" type="radio" name="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="'$ROWSHADE'">'
@@ -431,7 +397,7 @@ echo '                <td class="column150">'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Select your auto start favorite from list&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Allows you to set an auto start favorite command that is run after'
@@ -490,11 +456,11 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">Auto start LMS</td>'
 echo '                <td class="column420">'
-echo '                  <input class="large30" type="text" id="AUTOSTARTLMS" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
+echo '                  <input class="large30" type="text" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
 echo '                </td>'
 echo '                <td>'
-echo '                  <input class="small1" type="radio" id="A_S_LMS" name="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>Enabled'
-echo '                  <input class="small1" type="radio" id="A_S_LMS" name="A_S_LMS" value="Disabled" '$A_S_LMS_N'>Disabled'
+echo '                  <input class="small1" type="radio" name="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>Enabled'
+echo '                  <input class="small1" type="radio" name="A_S_LMS" value="Disabled" '$A_S_LMS_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
 
@@ -503,7 +469,7 @@ echo '                <td class="column150">'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Cut and paste your auto start LMS command&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Allows you to set an auto start LMS command that is run after'
@@ -546,65 +512,29 @@ echo '</table>'
 
 [ $DEBUG = 1 ] && pcp_favorites
 
-#----------------------------------------------Password----------------------------------
+#----------------------------------------------------------------------------------------
 # Determine state of check boxes.
 #----------------------------------------------------------------------------------------
 # Function to check the CMD-radio button according to config file
 case "$CMD" in
-	Default)
-		CMDdefault="checked"
-		;;
-	Slow)
-		CMDslow="checked"
-		;;
-	*)
-		CMDdefault=""
-		CMDslow=""
-		;;
+	Default) CMDdefault="checked" ;;
+	Slow) CMDslow="checked" ;;
 esac
 
 # Function to check the FIQ-split radio button according to config file
 case "$FIQ" in
-	0x1)
-		selected1="selected"
-		;;
-	0x2)
-		selected2="selected"
-		;;
-	0x3)
-		selected3="selected"
-		;;
-	0x4)
-		selected4="selected"
-		;;
-	0x7)
-		selected5="selected"
-		;;
-	0x8)
-		selected6="selected"
-		;;
-	*)
-		selected1=""
-		selected2=""
-		selected3=""
-		selected4=""
-		selected5=""
-		selected6=""
-		;;
+	0x1) selected1="selected" ;;
+	0x2) selected2="selected" ;;
+	0x3) selected3="selected" ;;
+	0x4) selected4="selected" ;;
+	0x7) selected5="selected" ;;
+	0x8) selected6="selected" ;;
 esac
 
 # Function to check the ALSA-radio button according to config file
 case "$ALSAlevelout" in
-	Default)
-		ALSAdefault="checked"
-		;;
-	Custom)
-		ALSAcustom="checked"
-		;;
-	*)
-		ALSAdefault=""
-		ALSAcustom=""
-		;;
+	Default) ALSAdefault="checked" ;;
+	Custom) ALSAcustom="checked" ;;
 esac
 
 pcp_incr_id
@@ -624,12 +554,12 @@ echo '                <td class="column150">'
 echo '                  <p>OTG-Speed</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="small1" type="radio" id="not enabled" name="CMD" value="Default" '$CMDdefault'>Default'
-echo '                  <input class="small1" type="radio" id="Custom" name="CMD" value="Slow" '$CMDslow'>dwc_otg.speed=1'
+echo '                  <input class="small1" type="radio" name="CMD" value="Default" '$CMDdefault'>Default'
+echo '                  <input class="small1" type="radio" name="CMD" value="Slow" '$CMDslow'>dwc_otg.speed=1'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set "dwc_otg.speed=1"&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
@@ -658,12 +588,12 @@ echo '                <td class="column150">'
 echo '                  <p>ALSA output level</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="small1" type="radio" id="Default" name="ALSAlevelout" value="Default" '$ALSAdefault'>Default'
-echo '                  <input class="small1" type="radio" id="Custom" name="ALSAlevelout" value="Custom" '$ALSAcustom'>Custom'
+echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Default" '$ALSAdefault'>Default'
+echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Custom" '$ALSAcustom'>Custom'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Custom option allows the ALSA output level to be restored after reboot&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA output level.</p>'
@@ -697,7 +627,7 @@ echo '                <td class="column150">'
 echo '                  <p>FIQ-Split acceleration</p>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <select name="FIQ">'
+echo '                  <select class="large30" name="FIQ">'
 echo '                    <option value="0x1" '$selected1'>0x1 Accelerate non-periodic split transactions</option>'
 echo '                    <option value="0x2" '$selected2'>0x2 Accelerate periodic split transactions</option>'
 echo '                    <option value="0x3" '$selected3'>0x3 Accelerate all except high-speed isochronous transactions</option>'
@@ -713,7 +643,7 @@ echo '                  <p>&nbsp;</p>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Change FIQ_FSM USB settings&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
@@ -761,29 +691,13 @@ echo '</table>'
 # Function to check the CRON Job schedule according to config file
 #----------------------------------------------------------------------------------------
 case "$REBOOT" in
-	Enabled)
-		REBOOT_Y="checked"
-		;;
-	Disabled)
-		REBOOT_N="checked"
-		;;
-	*)
-		REBOOT_Y=""
-		REBOOT_N=""
-		;;
+	Enabled) REBOOT_Y="checked" ;;
+	Disabled) REBOOT_N="checked" ;;
 esac
 
 case "$RESTART" in
-	Enabled)
-		RESTART_Y="checked"
-		;;
-	Disabled)
-		RESTART_N="checked"
-		;;
-	*)
-		RESTART_Y=""
-		RESTART_N=""
-		;;
+	Enabled) RESTART_Y="checked" ;;
+	Disabled) RESTART_N="checked" ;;
 esac
 
 #-------------------------------------------Schedule CRON jobs---------------------------
@@ -803,15 +717,15 @@ echo '                  <p>Schedule piCorePlayer reboot<p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RB_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RB_H" id="RB_H" maxlength="2" value='$RB_H' />'
+echo '                  <input class="small2" type="text" name="RB_H" value='$RB_H' maxlength="2" />'
 echo '                  <label for="RB_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RB_WD" id="RB_WD" maxlength="1" value='$RB_WD' />'
+echo '                  <input class="small2" type="text" name="RB_WD" value='$RB_WD' maxlength="1" />'
 echo '                  <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RB_DMONTH" id="RB_DMONTH" maxlength="2" value='$RB_DMONTH' />'
+echo '                  <input class="small2" type="text" name="RB_DMONTH" value='$RB_DMONTH' maxlength="2" />'
 echo '                </td>'
 echo '                <td>'
-echo '                  <input class="small1" type="radio" id="Scheduled" name="REBOOT" value="Enabled" '$REBOOT_Y'>Enabled'
-echo '                  <input class="small1" type="radio" id="Scheduled" name="REBOOT" value="Disabled" '$REBOOT_N'>Disabled'
+echo '                  <input class="small1" type="radio" name="REBOOT" value="Enabled" '$REBOOT_Y'>Enabled'
+echo '                  <input class="small1" type="radio" name="REBOOT" value="Disabled" '$REBOOT_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
@@ -821,15 +735,15 @@ echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RS_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RS_H" id="RS_H" maxlength="2" value='$RS_H' />'
+echo '                  <input class="small2" type="text" name="RS_H" value='$RS_H' maxlength="2" />'
 echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RS_WD" id="RS_WD" maxlength="1" value='$RS_WD' />'
+echo '                  <input class="small2" type="text" name="RS_WD" value='$RS_WD' maxlength="1" />'
 echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RS_DMONTH" id="RS_DMONTH" maxlength="2" value='$RS_DMONTH' />'
+echo '                  <input class="small2" type="text" name="RS_DMONTH" value='$RS_DMONTH' maxlength="2" />'
 echo '                </td>'
 echo '                <td>'
-echo '                  <input class="small1" type="radio" id="Scheduled" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
-echo '                  <input class="small1" type="radio" id="Scheduled" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
+echo '                  <input class="small1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
+echo '                  <input class="small1" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
 
@@ -839,7 +753,7 @@ echo '                  <p></p>'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Fill out the crontab fields&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>"*" it means every hour, every day, every month.</p>'
@@ -911,21 +825,21 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #1</td>'
 echo '                <td>'
-echo '                  <input class="large36" type="text" id="USER_COMMAND_1" name="USER_COMMAND_1" value="'$USER_COMMAND_1'" maxlength="254">'
+echo '                  <input class="large36" type="text" name="USER_COMMAND_1" value="'$USER_COMMAND_1'" maxlength="254">'
 echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #2</td>'
 echo '                <td>'
-echo '                  <input class="large36" type="text" id="USER_COMMAND_2" name="USER_COMMAND_2" value="'$USER_COMMAND_2'" maxlength="254">'
+echo '                  <input class="large36" type="text" name="USER_COMMAND_2" value="'$USER_COMMAND_2'" maxlength="254">'
 echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">User command #3</td>'
 echo '                <td>'
-echo '                  <input class="large36" type="text" id="USER_COMMAND_3" name="USER_COMMAND_3" value="'$USER_COMMAND_3'" maxlength="254">'
+echo '                  <input class="large36" type="text" name="USER_COMMAND_3" value="'$USER_COMMAND_3'" maxlength="254">'
 echo '                </td>'
 echo '              </tr>'
 
@@ -933,7 +847,7 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150"></td>'
 echo '                <td>'
 echo '                  <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>This feature gives advanced users a couple of hooks into the startup procedure.'

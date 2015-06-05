@@ -1,7 +1,8 @@
 /* piCorePlayer style sheet
 
-Version: 0.07 2015-06-02 GE
+Version: 0.07 2015-06-05 GE
 	Renamed styles nav to nav5 and nav2 to nav7.
+	Simplified input styles.
 
 Version: 0.06 2015-02-04 GE
 	Removed .circle, .indicator.
@@ -142,35 +143,35 @@ input {
 	width:9em;
 }
 
-input.small1 {
+.small1 {
 	width:1em; 
 }
 
-input.small2 {
+.small2 {
 	width:2em; 
 }
 
-input.large12 {
+.large12 {
 	width:12em; 
 }
 
-input.large15 {
+.large15 {
 	width:15em; 
 }
 
-input.large16 {
+.large16 {
 	width:16em; 
 }
 
-input.large18 {
+.large18 {
 	width:18em; 
 }
 
-input.large30 {
+.large30 {
 	width:30em;
 }
 
-input.large36 {
+.large36 {
 	width:36em;
 }
 

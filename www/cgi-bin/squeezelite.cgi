@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# Version: 0.15 2015-06-04 GE
+# Version: 0.15 2015-06-05 GE
 #	Started adding HTML5 input field validation.
 #	Added pcp_incr_id and pcp_start_row_shade.
+#	Improved debug level setting.
+#	Removed some unnecessary code.
 
 # Version: 0.14 2015-03-13 GE
 #	Updated and fixed spelling of the Visualiser option.
@@ -73,57 +75,6 @@ pcp_banner
 pcp_navigation
 
 #========================================================================================
-# Set Audio out selected value
-#----------------------------------------------------------------------------------------
-case "$AUDIO" in
-	Analog*)
-		ANCHECKED="selected"
-		;;
-	HDMI*)
-		HDMICHECKED="selected"
-		;;
-	USB*)
-		USBCHECKED="selected"
-		;;
-	I2SDAC*)
-		I2DACCHECKED="selected"
-		;;
-	I2SDIG*)
-		I2DIGCHECKED="selected"
-		;;
-	I2SAMP*)
-		I2AMPCHECKED="selected"
-		;;
-	IQaudio*)
-		IQaudioCHECKED="selected"
-		;;
-	I2SpDAC*)
-		I2SDACpCHECKED="selected"
-		;;
-	I2SpDIG*)
-		I2SDIGpCHECKED="selected"
-		;;
-	I2SpIQaudIO*)
-		IQaudIOpCHECKED="selected"
-		;;
-	*)
-		CHECKED="Not set"
-		;;
-esac
-
-#========================================================================================
-# Set Visualiser selected value
-#----------------------------------------------------------------------------------------
-case "$VISUALISER" in
-	yes)
-		VISUALISERYES="checked"
-		;;
-	*)
-		VISUALISERNO="checked"
-		;;
-esac
-
-#========================================================================================
 # Create Squeezelite command string
 #----------------------------------------------------------------------------------------
 STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
@@ -157,6 +108,21 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Choose audio output</legend>'
 echo '            <table class="bggrey percent100">'
+#--------------------------------------Audio output-------------------------------
+case "$AUDIO" in
+	Analog*) ANCHECKED="selected" ;;
+	HDMI*) HDMICHECKED="selected" ;;
+	USB*) USBCHECKED="selected" ;;
+	I2SDAC*) I2DACCHECKED="selected";;
+	I2SDIG*) I2DIGCHECKED="selected" ;;
+	I2SAMP*) I2AMPCHECKED="selected" ;;
+	IQaudio*) IQaudioCHECKED="selected" ;;
+	I2SpDAC*) I2SDACpCHECKED="selected" ;;
+	I2SpDIG*) I2SDIGpCHECKED="selected" ;;
+	I2SpIQaudIO*) IQaudIOpCHECKED="selected" ;;
+	*) CHECKED="Not set" ;;
+esac
+
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
@@ -164,23 +130,23 @@ echo '                  <p>Audio output</p>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <select name="AUDIO">'
-echo '                    <option value="Analog" id="ANALOG" '$ANCHECKED'>Analog audio</option>'
-echo '                    <option value="HDMI" id="HDMI" '$HDMICHECKED'>HDMI audio</option>'
-echo '                    <option value="USB" id="USB" '$USBCHECKED'>USB audio</option>'
+echo '                    <option value="Analog" '$ANCHECKED'>Analog audio:</option>'
+echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</option>'
+echo '                    <option value="USB" '$USBCHECKED'>USB audio:</option>'
 
 if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
-	echo '                    <option value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'>I2S-audio HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
-	echo '                    <option value="I2SDIG" id="I2SDIG" '$I2DIGCHECKED'>I2S-audio HiFiBerry Digi</option>'
-	echo '                    <option value="IQaudio" id="IQaudio" '$IQaudioCHECKED'>I2S-audio IQaudIO Pi-DAC</option>'
-	echo '                    <option value="I2SAMP" id="I2SAMP" '$I2AMPCHECKED'>I2S-audio HiFiBerry AMP</option>'
+	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
+	echo '                    <option value="I2SDIG" '$I2DIGCHECKED'>I2S audio: HiFiBerry Digi</option>'
+	echo '                    <option value="IQaudio" '$IQaudioCHECKED'>I2S audio: IQaudIO Pi-DAC</option>'
+	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP</option>'
 fi
 
 if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
-	echo '                    <option value="I2SDAC" id="I2SDAC" '$I2DACCHECKED'>I2S-audio generic</option>'
-	echo '                    <option value="I2SpDAC" id="I2SpDAC" '$I2SDACpCHECKED'>I2S-audio+ HiFiBerry DAC+</option>'
-	echo '                    <option value="I2SpDIG" id="I2SpDIG" '$I2SDIGpCHECKED'>I2S-audio+ HiFiBerry Digi+</option>'
-	echo '                    <option value="I2SpIQaudIO" id="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S-audio+ IQaudIO Pi-DAC+</option>'
-	echo '                    <option value="I2SAMP" id="I2SAMP" '$I2AMPCHECKED'>I2S-audio+ HiFiBerry AMP+</option>'
+	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: generic</option>'
+	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio+: HiFiBerry DAC+</option>'
+	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio+: HiFiBerry Digi+</option>'
+	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio+: IQaudIO Pi-DAC+</option>'
+	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio+: HiFiBerry AMP+</option>'
 fi
 
 echo '                  </select>'
@@ -191,6 +157,7 @@ echo '                <td colspan="2">'
 echo '                  <input type="submit" value="Save">'
 echo '                </td>'
 echo '              </tr>'
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
@@ -212,11 +179,11 @@ echo '                <td class="column150">'
 echo '                  <p>Name of your player</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="NAME" name="NAME" value="'$NAME'" required pattern="^[^$&`/]*$">'
+echo '                  <input class="large15" type="text" name="NAME" value="'$NAME'" required pattern="^[^$&`/]*$">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify the piCorePlayer name (-n)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;name&gt;</p>'
@@ -246,11 +213,11 @@ echo '                <td class="column150">'
 echo '                  <p>Output settings</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="OUTPUT" name="OUTPUT" value="'$OUTPUT'" pattern="^[a-zA-Z0-9:=]*$">'
+echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" pattern="^[a-zA-Z0-9:=]*$">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;output device&gt;</p>'
@@ -274,11 +241,11 @@ echo '                <td class="column150">'
 echo '                  <p>ALSA settings</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="ALSA_PARAMS" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
+echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;b&gt;:&lt;p&gt;:&lt;f&gt;:&lt;m&gt;:&lt;d&gt;</p>'
@@ -310,11 +277,11 @@ echo '                <td class="column150">'
 echo '                  <p>Buffer size settings</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="BUFFER_SIZE" name="BUFFER_SIZE" value="'$BUFFER_SIZE'">'
+echo '                  <input class="large15" type="text" name="BUFFER_SIZE" value="'$BUFFER_SIZE'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify internal Stream and Output buffer sizes in Kb (-b)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;stream&gt;:&lt;output&gt;</p>'
@@ -329,11 +296,11 @@ echo '                <td class="column150">'
 echo '                  <p>Codec settings</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="_CODEC" name="_CODEC" value="'$_CODEC'">'
+echo '                  <input class="large15" type="text" name="_CODEC" value="'$_CODEC'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Restrict codecs to those specified, otherwise load all available codecs (-c)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;codec1,codec2&gt;</p>'
@@ -359,11 +326,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Priority settings</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="number" id="PRIORITY" name="PRIORITY" value="'$PRIORITY'" min="1" max="99">'
+echo '                  <input class="large15" type="number" name="PRIORITY" value="'$PRIORITY'" min="1" max="99">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set real time priority of output thread (-p)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;priority&gt;</p>'
@@ -380,11 +347,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Max sample rate</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="MAX_RATE" name="MAX_RATE" value="'$MAX_RATE'">'
+echo '                  <input class="large15" type="text" name="MAX_RATE" value="'$MAX_RATE'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Sample rates supported, allows output to be off when Squeezelite is started (-r)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;rates&gt;[:&lt;delay&gt;]</p>'
@@ -403,11 +370,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Upsample settings</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="UPSAMPLE" name="UPSAMPLE" value="'$UPSAMPLE'">'
+echo '                  <input class="large15" type="text" name="UPSAMPLE" value="'$UPSAMPLE'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Resampling parameters (-R)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;recipe&gt;:&lt;flags&gt;:&lt;attenuation&gt;:&lt;precision&gt;:<br />'
@@ -436,11 +403,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">MAC address</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="MAC_ADDRESS" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
+echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set MAC address (-m)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;mac addr&gt;</p>'
@@ -464,11 +431,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Squeezelite server IP</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="SERVER_IP" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
+echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Connect to the specified LMS, otherwise autodiscovery will find the server (-s)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
@@ -483,6 +450,25 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------Log level setting---------------------------------
+case "$LOGLEVEL" in
+	all=info) LOGLEVEL1="selected" ;;
+	all=debug) LOGLEVEL2="selected" ;;
+	all=sdebug) LOGLEVEL3="selected" ;;
+	slimproto=info) LOGLEVEL4="selected" ;;
+	slimproto=debug) LOGLEVEL5="selected" ;;
+	slimproto=sdebug) LOGLEVEL6="selected" ;;
+	stream=info) LOGLEVEL7="selected" ;;
+	stream=debug) LOGLEVEL8="selected" ;;
+	stream=sdebug) LOGLEVEL9="selected" ;;
+	decode=info) LOGLEVEL10="selected" ;;
+	decode=debug) LOGLEVEL11="selected" ;;
+	decode=sdebug) LOGLEVEL12="selected" ;;
+	output=info) LOGLEVEL13="selected" ;;
+	output=debug) LOGLEVEL14="selected" ;;
+	output=sdebug) LOGLEVEL15="selected" ;;
+	*) LOGLEVEL0="selected" ;;
+esac
+
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -490,12 +476,29 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Log level setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="LOGLEVEL" name="LOGLEVEL" value="'$LOGLEVEL'">'
+echo '                  <select class="large15" name="LOGLEVEL">'
+echo '                    <option value="" '$LOGLEVEL0'>none</option>'
+echo '                    <option value="all=info" '$LOGLEVEL1'>all=info</option>'
+echo '                    <option value="all=debug" '$LOGLEVEL2'>all=debug</option>'
+echo '                    <option value="all=sdebug" '$LOGLEVEL3'>all=sdebug</option>'
+echo '                    <option value="slimproto=info" '$LOGLEVEL4'>slimproto=info</option>'
+echo '                    <option value="slimproto=debug" '$LOGLEVEL5'>slimproto=debug</option>'
+echo '                    <option value="slimproto=sdebug" '$LOGLEVEL6'>slimproto=sdebug</option>'
+echo '                    <option value="stream=info" '$LOGLEVEL7'>stream=info</option>'
+echo '                    <option value="stream=debug" '$LOGLEVEL8'>stream=debug</option>'
+echo '                    <option value="stream=sdebug" '$LOGLEVEL9'>stream=sdebug</option>'
+echo '                    <option value="decode=info" '$LOGLEVEL10'>decode=info</option>'
+echo '                    <option value="decode=debug" '$LOGLEVEL11'>decode=debug</option>'
+echo '                    <option value="decode=sdebug" '$LOGLEVEL12'>decode=sdebug</option>'
+echo '                    <option value="output=info" '$LOGLEVEL13'>output=info</option>'
+echo '                    <option value="output=debug" '$LOGLEVEL14'>output=debug</option>'
+echo '                    <option value="output=sdebug" '$LOGLEVEL15'>output=sdebug</option>'
+echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set logging level (-d)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-eco '                   </p>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;log&gt;=&lt;level&gt;</p>'
 echo '                    <ul>'
@@ -507,7 +510,6 @@ echo '                    <ul>'
 echo '                      <li>slimproto=info</li>'
 echo '                      <li>all=debug</li>'
 echo '                    </ul>'
-echo '                    <p><b>Hint: </b>Triple click on example then drag and drop into input field.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -519,11 +521,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Log file name</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="LOGFILE" name="LOGFILE" value="'$LOGFILE'">'
+echo '                  <input class="large15" type="text" name="LOGFILE" value="'$LOGFILE'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Write debug logfile to /tmp directory (-f)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;logfile&gt;</p>'
@@ -541,11 +543,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Device supports DoP</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="DSDOUT" name="DSDOUT" value="'$DSDOUT'">'
+echo '                  <input class="large15" type="text" name="DSDOUT" value="'$DSDOUT'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Output device supports DSD over PCM (DoP) (-D)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>[delay]</p>'
@@ -555,6 +557,11 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------Visualiser support--------------------------------
+case "$VISUALISER" in
+	yes) VISUALISERYES="checked" ;;
+	*) VISUALISERNO="checked" ;;
+esac
+
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -562,13 +569,13 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Visualiser support</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="small1" type="radio" id="VISUALISER" name="VISUALISER" value="yes" '$VISUALISERYES'>Yes&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" id="VISUALISER" name="VISUALISER" value="" '$VISUALISERNO'>No'
+echo '                  <input class="small1" type="radio" name="VISUALISER" value="yes" '$VISUALISERYES'>Yes&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" name="VISUALISER" value="" '$VISUALISERNO'>No'
 echo '                </td>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Visualiser support (-v)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p><b>Note: </b>An option for jivelite if it gets ported to piCorePlayer. For now, not of any use.</p>'
@@ -583,11 +590,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Close output setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="number" id="CLOSEOUT" name="CLOSEOUT" value="'$CLOSEOUT'" min="1" max="1000">'
+echo '                  <input class="large15" type="number" name="CLOSEOUT" value="'$CLOSEOUT'" min="1" max="1000">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set idle time before Squeezelite closes output (-C)&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;timeout&gt;</p>'
@@ -605,11 +612,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Various input</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" id="OTHER" name="OTHER" value="'$OTHER'">'
+echo '                  <input class="large15" type="text" name="OTHER" value="'$OTHER'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Add another option&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Use this field to add options that are supported by Squeezelite but unavailable in the piCorePlayer web interface.</p>'
@@ -627,7 +634,7 @@ echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '                <td colspan="2">'
 echo '                  <p>Squeezelite command string&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p><b>Warning: </b>For advanced users only!</p>'
