@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.04 2015-06-06 GE
+#	Remove multiple spaces from CONFIGCFG.
+#	Removed duplicate ALSA output level section.
+
 # Version: 0.03 2015-01-28 GE
 #	Included changefiq.sh.
 
@@ -20,16 +24,16 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-#----------------------------------------------------------------------------------------
-# ALSA OUTPUT LEVEL SECTION
+#========================================================================================
+# ALSA output level section
 #----------------------------------------------------------------------------------------
 # Decode $ALSAlevelout using httpd, add quotes
 ALSAlevelout=`sudo $HTPPD -d \"$ALSAlevelout\"`
 sudo sed -i "s/\(ALSAlevelout *=*\).*/\1$ALSAlevelout/" $CONFIGCFG
 echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 
-#----------------------------------------------------------------------------------------
-# CMD SECTION
+#========================================================================================
+# CMD section
 #----------------------------------------------------------------------------------------
 # Decode $CMD using httpd, add quotes
 CMD=`sudo $HTPPD -d \"$CMD\"`
@@ -49,8 +53,8 @@ case "$CMD" in
 		;;
 esac
 
-#----------------------------------------------------------------------------------------
-# FIQ-SPILT SECTION
+#========================================================================================
+# FIQ spilt section
 #----------------------------------------------------------------------------------------
 # Decode $FIQ using httpd, add quotes
 FIQ=`sudo $HTPPD -d \"$FIQ\"`
@@ -64,20 +68,7 @@ pcp_mount_mmcblk0p1
 
 if mount | grep $VOLUME; then
 	# Remove fiq settings
-	sed -i 's/dwc_otg.fiq_fsm_mask=0x1 //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask=0x2 //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask=0x3 //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask=0x4 //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask=0x7 //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask=0x8 //g' /mnt/mmcblk0p1/cmdline.txt
-
-	sed -i 's/dwc_otg.fiq_fsm_mask="0x1" //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask="0x2" //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask="0x3" //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask="0x4" //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask="0x7" //g' /mnt/mmcblk0p1/cmdline.txt
-	sed -i 's/dwc_otg.fiq_fsm_mask="0x8" //g' /mnt/mmcblk0p1/cmdline.txt
-
+	sed -i 's/dwc_otg.fiq_fsm_mask=0x[1-8] \+//g' /mnt/mmcblk0p1/cmdline.txt
 	# Add FIQ settings from config file
 	sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' /mnt/mmcblk0p1/cmdline.txt
 
@@ -88,14 +79,7 @@ else
 fi
 
 echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
-
 #----------------------------------------------------------------------------------------
-# ALSA OUTPUT LEVEL SECTION
-#----------------------------------------------------------------------------------------
-# Decode $ALSAlevelout using httpd, add quotes
-ALSAlevelout=`sudo $HTPPD -d \"$ALSAlevelout\"`
-sudo sed -i "s/\(ALSAlevelout *=*\).*/\1$ALSAlevelout/" $CONFIGCFG
-echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg

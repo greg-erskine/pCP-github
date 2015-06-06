@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.35 2015-06-04 GE
+# Version: 0.35 2015-06-06 GE
 #	Updated pcp_auto_start_lms, pcp_auto_start_fav to use pcp_lmsip.
 #	Added link to About page from pCP image.
 #	Renamed styles nav to nav5 and nav2 to nav7.
 #	Renamed $pCPHOME to $PCPHOME.
+#	Modified pcp_set_timezone to remove multiple spaces.
 
 # Version: 0.34 2015-05-22 SBP
 #	Add beta download page at SourceForge if "test = 3".
@@ -200,7 +201,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=99
+	MODE=0
 
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
@@ -298,7 +299,7 @@ pcp_set_timezone() {
 	. $CONFIGCFG
 	pcp_mount_mmcblk0p1
 	# Remove old timezone settings
-	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
+	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' /mnt/mmcblk0p1/cmdline.txt
 	# Add new TIMEZONE settings if used 
 	if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt 
