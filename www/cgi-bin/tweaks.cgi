@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.13 2015-06-04 GE
+# Version: 0.13 2015-06-08 GE
 #	Started adding HTML5 input field validation.
 #	Removed some unnecessary code.
+#	Added more help to custom ALSA.
 
 # Version: 0.12 2015-05-11 GE
 #	Removed shairport option.
@@ -360,7 +361,7 @@ BEGIN {
 	FS=":"
 	i = 0
 }
-# main
+# Main
 {
 	i++
 	split($1,a," ")
@@ -406,8 +407,8 @@ echo '                       This could be handy for people building Internet ra
 echo '                    <p><b>Note:</b></p>'
 echo '                    <ul>'
 echo '                      <li>Squeezelite must be running.</li>'
-echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
-#echo '                      <li>LMS IP address is auto-discovered.</li>'
+#echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
+echo '                      <li>LMS IP address is auto-discovered.</li>'
 echo '                      <li>Favorites must exist in LMS.</li>'
 echo '                      <li>Favorites must be at the top level.</li>'
 echo '                      <li>Folders will not be navigated.</li>'
@@ -483,7 +484,9 @@ echo '                      <li>playlist play http://radioparadise.com/m3u/aac-1
 echo '                    </ul>'
 echo '                    <p><b>Note:</b></p>'
 echo '                    <ul>'
-echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
+echo '                      <li>Squeezelite must be running.</li>'
+#echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
+echo '                      <li>LMS IP address is auto-discovered.</li>'
 echo '                      <li>Do not include MAC address in CLI command.</li>'
 echo '                      <li>Maximum number of characters 254.</li>'
 echo '                    </ul>'
@@ -603,7 +606,7 @@ echo '                      <li>Login via ssh.</li>'
 echo '                      <li>Use "alsamixer" to set the ALSA output level.</li>'
 echo '                      <li>Save ALSA settings by typing "sudo alsactl store".</li>'
 echo '                      <li>Backup ALSA settings by typing "sudo filetool.sh -b".</li>'
-echo '                      <li>Select Custom option on this Tweak page".</li>'
+echo '                      <li>Select Custom option on this Tweak page.</li>'
 echo '                    <ol>'
 echo '                  </div>'
 echo '                </td>'
@@ -748,7 +751,6 @@ echo '                  <input class="small1" type="radio" name="RESTART" value=
 echo '                  <input class="small1" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
-
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column210">'
 echo '                  <p></p>'
@@ -769,7 +771,6 @@ echo '                    <textarea class="width600">'"$(cat /var/spool/cron/cro
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
