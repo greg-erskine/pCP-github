@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.11 2015-06-10 GE
+#	0nly display "Available wifi networks" if Scan button pressed.
+#	Added wireless MAC and wireless IP.
+#	Tidy up of code.
+
 # Version: 0.10 2015-02-08 GE
 #	Only display "Available wifi networks" if $WIFI = on
 #	Added scanning message to give impression of reduced delay.
@@ -52,8 +57,13 @@ pcp_variables
 
 pcp_html_head "WIFI Settings" "SBP"
 
-echo '<script type="text/javascript">'
+echo ''
+echo '<body onload=frmLoad()>'
 
+#========================================================================================
+# Javascript to disable form fields when wifi is off
+#----------------------------------------------------------------------------------------
+echo '<script type="text/javascript">'
 echo 'var enbl = "'$WIFI'";'
 echo ''
 echo 'function frmLoad() {'
@@ -86,127 +96,12 @@ echo ''
 echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
-
-#####################
-# Fix required here #
-#####################
 echo '</script>'
-echo '</head>'
-echo ''
-echo '<body onload=frmLoad()>'
 
 pcp_controls
 pcp_banner
 pcp_navigation
-
-if [ $DEBUG = 1 ]; then
-	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
-	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
-	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
-	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'</p>'
-fi
-
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Set wifi configuration</legend>'
-echo '            <table class="bggrey percent100">'
-echo '              <tr class="even">'
-echo '                <td class="column150">'
-echo '                  <p>Wifi</p>'
-echo '                </td>'
-echo '                <td class="column380">'
-echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
-echo '                  <input class="small1" type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="ID01a" href=# onclick="return more('\''ID01'\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="ID01" class="less">'
-echo '                    <ul>'
-echo '                      <li>Selecting wifi on will enable the remaining fields.</li>'
-echo '                      <li>A reboot is required when wifi is turned on.</li>'
-echo '                      <li>Turn wifi on if you have compatible USB wifi adaptor installed.</li>'
-echo '                      <li>Setting wifi to off will improve boot times.</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr class="odd">'
-echo '                <td class="column150">'
-echo '                  <p>SSID</p>'
-echo '                </td>'
-echo '                <td class="column380">'
-echo '                  <input class="large15" type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" value='\"$SSID\"'>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Enter your wifi network SSID&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="ID02a" href=# onclick="return more('\''ID02'\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="ID02" class="less">'
-echo '                    <ul>'
-echo '                      <li>Service Set Identifier (SSID).</li>'
-echo '                      <li>Use valid alphanumeric characters only.</li>'
-echo '                      <li>Maximum length of 32 characters.</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr class="even">'
-echo '                <td class="column150">'
-echo '                  <p>Password</p>'
-echo '                </td>'
-echo '                <td class="column380">'
-echo '                  <input class="large30" type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" value='$PASSWORD'>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Enter your wifi network password&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="ID03a" href=# onclick="return more('\''ID03'\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="ID03" class="less">'
-echo '                    <ul>'
-echo '                      <li>Use valid alphanumeric characters only.</li>'
-echo '                      <li>Maximum length of 64 characters.</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr class="odd">'
-echo '                <td class="column150">'
-echo '                  <p>Security Mode</p>'
-echo '                </td>'
-echo '                <td class="column380">'
-echo '                  <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
-echo '                    <option value="WPA">WPA or WPA2</option>'
-echo '                    <option value="WEP">WEP</option>'
-echo '                    <option value="OPEN">Open (No Encyrption)</option>'
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set to your wifi network security level&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="ID04a" href=# onclick="return more('\''ID04'\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="ID04" class="less">'
-echo '                    <p>Recommended: WPA or WPA2</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr>'
-echo '                <td colspan=3>'
-echo '                  <input type="submit" name="SAVE" value="Save">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_httpd_query_string
 
 available_networks() {
 	#=========================================================================================
@@ -225,8 +120,8 @@ available_networks() {
 	if [ -z "$WIFI2" ]; then
 		echo -en "\n\nNo wifi devices found!\n\n"
 		echo -en "Possible error:\n\n"
-		echo -en "1. USB wifi adaptor missing - insert adaptor\n"
-		echo -en "2. wifi drivers and firmware missing - reboot required"
+		echo -en "1. USB wifi adapter missing - insert adapter.\n"
+		echo -en "2. wifi drivers and firmware missing - reboot required."
 		echo '</textarea>'
 		echo '                </td>'
 		echo '              </tr>'
@@ -321,33 +216,174 @@ available_networks() {
 		print "-------------------------------------------------------------------------------------------"
 	} '
 }
-
 #----------------------------------------------------------------------------------------
 
+if [ $DEBUG = 1 ]; then
+	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
+	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
+	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
+	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'</p>'
+fi
+
+#========================================================================================
+# Main
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Set wifi configuration</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Wifi</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <input class="small1" type="radio" onclick=enableWL() name="WIFI" value="on">On&nbsp;'
+echo '                  <input class="small1" type="radio" onclick=disableWL() name="WIFI" value="off">Off'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Selecting wifi on will enable the remaining fields.</li>'
+echo '                      <li>A reboot is required when wifi is turned on.</li>'
+echo '                      <li>Turn wifi on if you have compatible USB wifi adaptor installed.</li>'
+echo '                      <li>Setting wifi to off will improve boot times.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>SSID</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <input class="large15" type="text" name="SSID" value="'$SSID'" onChange="enableSAVE();" maxlength="32" >'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Enter your wifi network SSID&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Service Set Identifier (SSID).</li>'
+echo '                      <li>Use valid alphanumeric characters only.</li>'
+echo '                      <li>Maximum length of 32 characters.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Password</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <input class="large30" type="password" name="PASSWORD" value='$PASSWORD' onChange="enableSAVE();" maxlength="64">'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Enter your wifi network password&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Use valid alphanumeric characters only.</li>'
+echo '                      <li>Maximum length of 64 characters.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Security Mode</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <select class="large15" name="ENCRYPTION" onChange="enableSAVE();">'
+echo '                    <option value="WPA">WPA or WPA2</option>'
+echo '                    <option value="WEP">WEP</option>'
+echo '                    <option value="OPEN">Open (No Encyrption)</option>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set to your wifi network security level&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>&lt;WPA|WEP|Open&gt;</p>'
+echo '                    <p>Recommended: WPA or WPA2</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+echo '              <tr>'
+echo '                <td colspan=3>'
+echo '                  <input type="submit" name="SAVE" value="Save">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+
 if [ $WIFI = on ]; then
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="wifi_networks" method="get">'
+	[ x"" == x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot required." || WLANMAC=$(pcp_wlan0_mac_address)
+	[ x"" == x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot required." || WLANIP=$(pcp_wlan0_ip)
+
+	echo '      <form name="scan" action="wifi.cgi" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
-	echo '            <legend>Available wifi networks</legend>'
+	echo '            <legend>Wifi information</legend>'
 	echo '            <table class="bggrey percent100">'
-	echo '              <tr class="odd">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <input type="submit" name="SUBMIT" value="Scan">'
+	echo '                </td>'
+	echo '                <td class="column380">'
+	echo '                  <p>Wifi MAC: '$WLANMAC'</p>'
+	echo '                </td>'
 	echo '                <td>'
-
-	pcp_textarea_inform "none" "available_networks" 110
-
+	echo '                  <p>Wifi IP: '$WLANIP'</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
 fi
+
+if [ $SUBMIT = Scan ] && [ $WIFI = on ]; then
+	echo '      <form name="wifi_networks" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Available wifi networks</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	                        pcp_textarea_inform "none" "available_networks" 110
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+fi
+
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 
 pcp_footer
 pcp_copyright
