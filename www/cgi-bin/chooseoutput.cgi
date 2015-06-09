@@ -55,8 +55,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="80:::0"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"HDMI*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -66,8 +64,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="::32:0"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"USB*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -77,8 +73,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT=" "
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"I2SDAC*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -88,8 +82,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"I2SDIG*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -99,8 +91,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"I2SAMP*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -110,8 +100,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"IQaudio*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -121,8 +109,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"I2SpDAC*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -132,8 +118,6 @@ case "$AUDIO" in
 					echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;	
 	\"I2SpDIG*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -143,8 +127,6 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	\"I2SpIQaudIO*)
 		echo '<p class="info">[ INFO ] Setting '$AUDIO'</p>'
@@ -154,13 +136,12 @@ case "$AUDIO" in
 		echo '</textarea>'
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
-		sudo sed -i "s/\(OUTPUT *=*\).*/\1$OUTPUT/" $CONFIGCFG
-		sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1$ALSA_PARAMS/" $CONFIGCFG
 		;;
 	*)
 		echo '<p class="error">[ ERROR ] Error setting '$AUDIO'</p>'
 		;;
 esac
+pcp_save_to_config
 
 pcp_squeezelite_start
 
