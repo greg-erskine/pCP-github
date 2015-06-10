@@ -194,14 +194,14 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
 	# set to 3 in order to use beta download page from sourceforge when testing beta versions 
-	TEST=0
+	TEST=9
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	MODE=99
 
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
@@ -1052,7 +1052,6 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
 	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
-#	sudo sed -i "s/\(TIMEZONE=\).*/\1\"$TIMEZONE\"/" $CONFIGCFG
 	sudo sed -i "s/\(REBOOT *=*\).*/\1\"$REBOOT\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_H *=*\).*/\1\"$RB_H\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_WD *=*\).*/\1\"$RB_WD\"/" $CONFIGCFG
@@ -1061,6 +1060,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(RS_H *=*\).*/\1\"$RS_H\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_WD *=*\).*/\1\"$RS_WD\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
+	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $CONFIGCFG
+#	sudo sed -i "s/\(CRON_COMMAND *=*\).*/\1\"$CRON_COMMAND\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
@@ -1080,7 +1081,7 @@ pcp_save_to_config() {
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
-cat <<EOF > $CONFIGCFG
+sudo cat <<EOF > $CONFIGCFG
 #########################
 # Edit the variables below to setup a wifi based system without LAN access
 # Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN" 
@@ -1121,6 +1122,7 @@ RESTART="Disabled"
 RS_H="0"
 RS_WD="0"
 RS_DMONTH="0"
+CRON_COMMAND=""
 AUTOSTARTLMS=""
 A_S_LMS="Disabled"
 AUTOSTARTFAV=""
@@ -1150,6 +1152,11 @@ EOF
 	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+
+	# Remove cron stuff
+	( crontab -l | grep -v "reboot" ) | crontab -
+	( crontab -l | grep -v "restart" ) | crontab -
+	( crontab -l | grep -v "Custom" ) | crontab -
 }
 
 #=========================================================================================
