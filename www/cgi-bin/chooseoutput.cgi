@@ -123,9 +123,10 @@ if [ $DEBUG = 1 ]; then
 fi
 
 # Save variable to the config file, add quotes
-sudo sed -i "s/\(AUDIO *=*\).*/\1\"$AUDIO\"/" $CONFIGCFG
-sudo sed -i "s/\(OUTPUT *=*\).*/\1\"$OUTPUT\"/" $CONFIGCFG
-sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
+pcp_save_to_config
+#sudo sed -i "s/\(AUDIO *=*\).*/\1\"$AUDIO\"/" $CONFIGCFG
+#sudo sed -i "s/\(OUTPUT *=*\).*/\1\"$OUTPUT\"/" $CONFIGCFG
+#sudo sed -i "s/\(ALSA_PARAMS *=*\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
 
 pcp_textarea "" "cat $CONFIGCFG" 380
 
