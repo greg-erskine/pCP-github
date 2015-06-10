@@ -45,9 +45,11 @@ if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
 	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
+	sudo sed -i "s/\(CRON_COMMAND *=*\).*/\1\"\"/" $CONFIGCFG
 
 	( crontab -l | grep -v "reboot" ) | crontab -
 	( crontab -l | grep -v "restart" ) | crontab -
+	( crontab -l | grep -v "Custom" ) | crontab -
 	[ $SUBMIT = Clear ] && crontab -r -u root
 
 	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
@@ -63,36 +65,45 @@ fi
 #----------------------------------------------------------------------------------------
 # Reboot piCorePlayer section 
 #----------------------------------------------------------------------------------------
-# Decode Reboot variables using httpd, add quotes
-REBOOT=`sudo $HTPPD -d \"$REBOOT\"`
-RB_H=`sudo $HTPPD -d \"$RB_H\"`
-if [[ x'""' = x"$RB_H" ]]; then  RB_H='"0"'; else break; fi
-RB_WD=`sudo $HTPPD -d \"$RB_WD\"`
-if [[ x'""' = x"$RB_WD" ]]; then  RB_WD='"0"'; else break; fi
-RB_DMONTH=`sudo $HTPPD -d \"$RB_DMONTH\"`
-if [[ x'""' = x"$RB_DMONTH" ]]; then  RB_DMONTH='"1"'; else break; fi
+# Decode Reboot variables using httpd
+REBOOT=`sudo $HTPPD -d $REBOOT`
+RB_H=`sudo $HTPPD -d $RB_H`
+if [[ x"" = x"$RB_H" ]]; then  RB_H=0; else break; fi
+RB_WD=`sudo $HTPPD -d $RB_WD`
+if [[ x"" = x"$RB_WD" ]]; then  RB_WD=0; else break; fi
+RB_DMONTH=`sudo $HTPPD -d $RB_DMONTH`
+if [[ x"" = x"$RB_DMONTH" ]]; then  RB_DMONTH=1; else break; fi
 
-sudo sed -i "s/\(REBOOT *=*\).*/\1$REBOOT/" $CONFIGCFG
-sudo sed -i "s/\(RB_H *=*\).*/\1$RB_H/" $CONFIGCFG
-sudo sed -i "s/\(RB_WD *=*\).*/\1$RB_WD/" $CONFIGCFG
-sudo sed -i "s/\(RB_DMONTH *=*\).*/\1$RB_DMONTH/" $CONFIGCFG
 
 #----------------------------------------------------------------------------------------
 # Restart Squeezelite section
 #----------------------------------------------------------------------------------------
-# Decode Reboot variables using httpd, add quotes
-RESTART=`sudo $HTPPD -d \"$RESTART\"`
-RS_H=`sudo $HTPPD -d \"$RS_H\"`
-if [[ x'""' = x"$RS_H" ]]; then  RS_H='"0"'; else break; fi
-RS_WD=`sudo $HTPPD -d \"$RS_WD\"`
-if [[ x'""' = x"$RS_WD" ]]; then  RS_WD='"0"'; else break; fi
-RS_DMONTH=`sudo $HTPPD -d \"$RS_DMONTH\"`
-if [[ x'""' = x"$RS_DMONTH" ]]; then  RS_DMONTH='"1"'; else break; fi
+# Decode Reboot variables using httpd
+RESTART=`sudo $HTPPD -d $RESTART`
+RS_H=`sudo $HTPPD -d $RS_H`
+if [[ x"" = x"$RS_H" ]]; then  RS_H=0; else break; fi
+RS_WD=`sudo $HTPPD -d $RS_WD`
+if [[ x"" = x"$RS_WD" ]]; then  RS_WD=0; else break; fi
+RS_DMONTH=`sudo $HTPPD -d $RS_DMONTH`
+if [[ x"" = x"$RS_DMONTH" ]]; then  RS_DMONTH=1; else break; fi
 
-sudo sed -i "s/\(RESTART *=*\).*/\1$RESTART/" $CONFIGCFG
-sudo sed -i "s/\(RS_H *=*\).*/\1$RS_H/" $CONFIGCFG
-sudo sed -i "s/\(RS_WD *=*\).*/\1$RS_WD/" $CONFIGCFG
-sudo sed -i "s/\(RS_DMONTH *=*\).*/\1$RS_DMONTH/" $CONFIGCFG
+
+#----------------------------------------------------------------------------------------
+# Custom cron  section
+#----------------------------------------------------------------------------------------
+# Decode Custom cron variables using httpd
+CRON_COMMAND=`sudo $HTPPD -d $CRON_COMMAND`
+if [[ x"" = x"$CRON_COMMAND" ]]; then break; fi
+
+
+
+
+#---------------------------------------------------------------------------------------
+#Save cron variables to config
+#---------------------------------------------------------------------------------------
+pcp_save_to_config
+
+
 
 #----------------------------------------------------------------------------------------
 # Setup cron jobs 
@@ -116,6 +127,15 @@ else
 	( crontab -l | grep -v "restart" ) | crontab -
 fi 
 
+
+# Add or remove Custom Cron Commands dependent upon selection:
+if [ x"" = x"$CRON_COMMAND" ]; then
+	( crontab -l | grep -v "Custom" ) | crontab -
+else
+	( crontab -l | grep -v "Custom" ; echo "$CRON_COMMAND #Custom" ) | crontab -
+fi 
+
+
 if [ $DEBUG = 1 ]; then 
 	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
@@ -128,7 +148,9 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $RS_WD: '$RS_WD'<br />'
 	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
 	echo '                 [ DEBUG ] $RB_CRON: 'echo "$RB_CRON"'<br />'
-	echo '                 [ DEBUG ] $RS_CRON: 'echo "$RS_CRON"'</p>'
+	echo '                 [ DEBUG ] $RS_CRON: 'echo "$RS_CRON"'<br />'
+	echo '                 [ DEBUG ] $CRON_COMMAND: 'echo "$CRON_COMMAND"'</p>'
+
 fi
 
 pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60

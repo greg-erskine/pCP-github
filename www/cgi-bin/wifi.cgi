@@ -328,7 +328,7 @@ echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan=3>'
-echo '                  <input type="submit" name="SAVE" value="Save">'
+echo '                  <input type="submit" name="SAVE" value="Save/Connect">'
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'
@@ -337,8 +337,8 @@ echo '        </div>'
 echo '      </form>'
 
 if [ $WIFI = on ]; then
-	[ x"" == x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot required." || WLANMAC=$(pcp_wlan0_mac_address)
-	[ x"" == x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot required." || WLANIP=$(pcp_wlan0_ip)
+	[ x"" == x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
+	[ x"" == x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
 
 	echo '      <form name="scan" action="wifi.cgi" method="get">'
 	echo '        <div class="row">'

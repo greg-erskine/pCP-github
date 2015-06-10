@@ -771,6 +771,39 @@ echo '                    <textarea class="width600">'"$(cat /var/spool/cron/cro
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#nyt herfra
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">Custom Cron command</td>'
+echo '                <td>'
+echo '                  <input class="large36" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
+echo '                </td>'
+echo '              </tr>'
+
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150"></td>'
+echo '                <td>'
+echo '                  <p>Add user defined commands to the cron scheduler&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>This feature gives advanced users the possibility to manipulate the cron scheduler.'
+echo '                       It will allow users to add a single command to the cron job or,'
+echo '                       to schedule a script that performs multible actions.</p>'
+echo '                    <p>Use ordinary cron syntax.</p>'
+echo '                    <p><b>Example:</b></p>'
+echo '                    <ul>'
+echo '                      <li>1 1 * * * /path/to/your/script.sh</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+
+#nyt hertil
+
+
+
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -795,7 +828,8 @@ if [ $DEBUG = 1 ]; then
 	echo '                     [ DEBUG ] $RB_DMONTH: '$RB_DMONTH'<br />'
 	echo '                     [ DEBUG ] $RS_H: '$RS_H'<br />'
 	echo '                     [ DEBUG ] $RS_WD: '$RS_WD'<br />'
-	echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'</p>'
+	echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
+	echo '                     [ DEBUG ] $CRON_COMMAND: '$CRON_COMMAND'</p>'
 	echo '  </td>'
 	echo '</tr>'
 	echo '<!-- End of debug info -->'
