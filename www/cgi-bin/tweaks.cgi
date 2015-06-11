@@ -52,6 +52,7 @@
 # Version: 0.01 2014-08-06 GE
 #	Original version.
 
+set -f
 . pcp-lms-functions
 . pcp-functions
 . pcp-rpi-functions
@@ -771,7 +772,7 @@ echo '                    <textarea class="width600">'"$(cat /var/spool/cron/cro
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-#nyt herfra
+
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -799,9 +800,6 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
-#nyt hertil
-
 
 
 echo '              <tr class="'$ROWSHADE'">'
@@ -920,6 +918,6 @@ echo '</table>'
 
 pcp_footer
 pcp_copyright
-
+set +f
 echo '</body>'
 echo '</html>'

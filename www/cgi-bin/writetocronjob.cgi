@@ -37,15 +37,17 @@ SUBMIT=`sudo $HTPPD -d $SUBMIT`
 if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	echo '<p class="info">[ INFO ] Reset/Clear mode</p>'
 
-	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(CRON_COMMAND *=*\).*/\1\"\"/" $CONFIGCFG
+REBOOT="Disabled"
+RB_H="0"
+RB_WD="0"
+RB_DMONTH="0"
+RESTART="Disabled"
+RS_H="0"
+RS_WD="0"
+RS_DMONTH="0"
+CRON_COMMAND=""
+
+pcp_save_to_config
 
 	( crontab -l | grep -v "reboot" ) | crontab -
 	( crontab -l | grep -v "restart" ) | crontab -
