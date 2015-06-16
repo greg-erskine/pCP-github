@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.08 2015-06-17 GE
+	Added .large22.
+
 Version: 0.07 2015-06-05 GE
 	Renamed styles nav to nav5 and nav2 to nav7.
 	Simplified input styles.
@@ -165,6 +168,10 @@ input {
 
 .large18 {
 	width:18em; 
+}
+
+.large22 {
+	width:22em; 
 }
 
 .large30 {

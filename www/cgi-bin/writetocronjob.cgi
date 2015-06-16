@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2015-06-12 SBP
+#	Added Custom cron command.
+
 # Version: 0.05 2015-01-30 GE
 #	Added Clear option.
 
@@ -27,27 +30,29 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
+set -f
+
 # Decode SUBMIT variable using httpd
 SUBMIT=`sudo $HTPPD -d $SUBMIT`
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT
 
 #----------------------------------------------------------------------------------------
-# Reset section 
+# Reset section
 #----------------------------------------------------------------------------------------
 if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	echo '<p class="info">[ INFO ] Reset/Clear mode</p>'
 
-REBOOT="Disabled"
-RB_H="0"
-RB_WD="0"
-RB_DMONTH="0"
-RESTART="Disabled"
-RS_H="0"
-RS_WD="0"
-RS_DMONTH="0"
-CRON_COMMAND=""
+	REBOOT="Disabled"
+	RB_H="0"
+	RB_WD="0"
+	RB_DMONTH="0"
+	RESTART="Disabled"
+	RS_H="0"
+	RS_WD="0"
+	RS_DMONTH="0"
+	CRON_COMMAND=""
 
-pcp_save_to_config
+	pcp_save_to_config
 
 	( crontab -l | grep -v "reboot" ) | crontab -
 	( crontab -l | grep -v "restart" ) | crontab -
@@ -65,80 +70,73 @@ pcp_save_to_config
 fi
 
 #----------------------------------------------------------------------------------------
-# Reboot piCorePlayer section 
+# Reboot piCorePlayer section
 #----------------------------------------------------------------------------------------
 # Decode Reboot variables using httpd
 REBOOT=`sudo $HTPPD -d $REBOOT`
 RB_H=`sudo $HTPPD -d $RB_H`
-if [[ x"" = x"$RB_H" ]]; then  RB_H=0; else break; fi
 RB_WD=`sudo $HTPPD -d $RB_WD`
-if [[ x"" = x"$RB_WD" ]]; then  RB_WD=0; else break; fi
 RB_DMONTH=`sudo $HTPPD -d $RB_DMONTH`
-if [[ x"" = x"$RB_DMONTH" ]]; then  RB_DMONTH=1; else break; fi
 
+# Default values if not set. STEEN, ARE THESE RIGHT
+[ x"" = x"$RB_H" ] && RB_H="0"
+[ x"" = x"$RB_WD" ] && RB_WD="0"
+[ x"" = x"$RB_DMONTH" ] && RB_DMONTH="1"
 
 #----------------------------------------------------------------------------------------
 # Restart Squeezelite section
 #----------------------------------------------------------------------------------------
-# Decode Reboot variables using httpd
+# Decode Restart variables using httpd
 RESTART=`sudo $HTPPD -d $RESTART`
 RS_H=`sudo $HTPPD -d $RS_H`
-if [[ x"" = x"$RS_H" ]]; then  RS_H=0; else break; fi
 RS_WD=`sudo $HTPPD -d $RS_WD`
-if [[ x"" = x"$RS_WD" ]]; then  RS_WD=0; else break; fi
 RS_DMONTH=`sudo $HTPPD -d $RS_DMONTH`
-if [[ x"" = x"$RS_DMONTH" ]]; then  RS_DMONTH=1; else break; fi
 
+# Default values if not set. STEEN, ARE THESE RIGHT
+[ x"" = x"$RS_H" ] && RS_H="0"
+[ x"" = x"$RS_WD" ] && RS_WD="0"
+[ x"" = x"$RS_DMONTH" ] && RS_DMONTH="1"
 
 #----------------------------------------------------------------------------------------
-# Custom cron  section
+# Custom cron section
 #----------------------------------------------------------------------------------------
 # Decode Custom cron variables using httpd
 CRON_COMMAND=`sudo $HTPPD -d $CRON_COMMAND`
-if [[ x"" = x"$CRON_COMMAND" ]]; then break; fi
-
-
-
 
 #---------------------------------------------------------------------------------------
-#Save cron variables to config
+# Save cron variables to config
 #---------------------------------------------------------------------------------------
 pcp_save_to_config
 
-
-
 #----------------------------------------------------------------------------------------
-# Setup cron jobs 
+# Setup cron jobs
 #----------------------------------------------------------------------------------------
-# Setup reboot cron job
 . /$CONFIGCFG
 RB_CRON="0 $RB_H $RB_DMONTH * $RB_WD /sbin/reboot"
 RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD /usr/local/etc/init.d/squeezelite restart"
 
-# Add or remove reboot job dependent upon selection:
+# Add or remove reboot job
 if [ $REBOOT = Enabled ]; then
 	( crontab -l | grep -v "reboot" ; echo "$RB_CRON" ) | crontab -
 else
 	( crontab -l | grep -v "reboot" ) | crontab -
-fi 
+fi
 
-# Add or remove restart job dependent upon selection:
+# Add or remove restart job
 if [ $RESTART = Enabled ]; then
 	( crontab -l | grep -v "restart" ; echo "$RS_CRON" ) | crontab -
 else
 	( crontab -l | grep -v "restart" ) | crontab -
-fi 
+fi
 
-
-# Add or remove Custom Cron Commands dependent upon selection:
+# Add or remove Custom cron command
 if [ x"" = x"$CRON_COMMAND" ]; then
 	( crontab -l | grep -v "Custom" ) | crontab -
 else
-	( crontab -l | grep -v "Custom" ; echo "$CRON_COMMAND #Custom" ) | crontab -
-fi 
+	( crontab -l | grep -v "Custom" ; echo "$CRON_COMMAND # Custom" ) | crontab -
+fi
 
-
-if [ $DEBUG = 1 ]; then 
+if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
 	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'
@@ -149,16 +147,17 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $RS_H: '$RS_H'<br />'
 	echo '                 [ DEBUG ] $RS_WD: '$RS_WD'<br />'
 	echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
-	echo '                 [ DEBUG ] $RB_CRON: 'echo "$RB_CRON"'<br />'
-	echo '                 [ DEBUG ] $RS_CRON: 'echo "$RS_CRON"'<br />'
-	echo '                 [ DEBUG ] $CRON_COMMAND: 'echo "$CRON_COMMAND"'</p>'
-
+	echo '                 [ DEBUG ] $RB_CRON: '$RB_CRON'<br />'
+	echo '                 [ DEBUG ] $RS_CRON: '$RS_CRON'<br />'
+	echo '                 [ DEBUG ] $CRON_COMMAND: '$CRON_COMMAND'</p>'
 fi
 
 pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 pcp_show_config_cfg
 pcp_backup
 pcp_go_back_button
+
+set +f
 
 echo '</body>'
 echo '</html>'

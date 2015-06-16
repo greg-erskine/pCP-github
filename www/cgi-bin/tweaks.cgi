@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.14 2015-06-12 SBP
+#	Added Custom cron command.
+
 # Version: 0.13 2015-06-08 GE
 #	Started adding HTML5 input field validation.
 #	Removed some unnecessary code.
@@ -723,11 +726,11 @@ echo '                  <p>Schedule piCorePlayer reboot<p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RB_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RB_H" value='$RB_H' maxlength="2" />'
+echo '                  <input class="small2" type="text" name="RB_H" value="'$RB_H'" maxlength="2" />'
 echo '                  <label for="RB_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RB_WD" value='$RB_WD' maxlength="1" />'
+echo '                  <input class="small2" type="text" name="RB_WD" value="'$RB_WD'" maxlength="1" />'
 echo '                  <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RB_DMONTH" value='$RB_DMONTH' maxlength="2" />'
+echo '                  <input class="small2" type="text" name="RB_DMONTH" value="'$RB_DMONTH'" maxlength="2" />'
 echo '                </td>'
 echo '                <td>'
 echo '                  <input class="small1" type="radio" name="REBOOT" value="Enabled" '$REBOOT_Y'>Enabled'
@@ -741,17 +744,18 @@ echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RS_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RS_H" value='$RS_H' maxlength="2" />'
+echo '                  <input class="small2" type="text" name="RS_H" value="'$RS_H'" maxlength="2" />'
 echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RS_WD" value='$RS_WD' maxlength="1" />'
+echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" />'
 echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RS_DMONTH" value='$RS_DMONTH' maxlength="2" />'
+echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" />'
 echo '                </td>'
 echo '                <td>'
 echo '                  <input class="small1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
 echo '                  <input class="small1" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
 echo '                </td>'
 echo '              </tr>'
+
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column210">'
 echo '                  <p></p>'
@@ -772,7 +776,6 @@ echo '                    <textarea class="width600">'"$(cat /var/spool/cron/cro
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -800,8 +803,7 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
-
+pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'

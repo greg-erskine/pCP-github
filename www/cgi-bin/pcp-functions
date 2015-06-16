@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.36 2015-06-11 SBP
+#	Added variable CRON_COMMAND to config.cfg
+
 # Version: 0.35 2015-06-06 GE
 #	Updated pcp_auto_start_lms, pcp_auto_start_fav to use pcp_lmsip.
 #	Added link to About page from pCP image.
@@ -194,11 +197,11 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
 	# set to 3 in order to use beta download page from sourceforge when testing beta versions 
-	TEST=9
+	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
 	MODE=99
@@ -1025,6 +1028,10 @@ pcp_shutdown() {
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
 pcp_save_to_config() {
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
+	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
+	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
 	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $CONFIGCFG
 	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
@@ -1043,10 +1050,6 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(OTHER=\).*/\1\"$OTHER\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
 	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
 	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG

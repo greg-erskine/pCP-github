@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-06-02 GE
+# Version: 0.01 2015-06-16 GE
 #   Original version.
 
 #========================================================================================
@@ -47,7 +47,7 @@ pcp_search_extn() {
 	echo $EXTN | grep .tcz$ >/dev/null
 	[ $? != 0  ] && EXTN=$EXTN.tcz
 	pcp_init_search
-	cat /tmp/tags.db | grep $EXTN >/dev/null
+	grep "$EXTN" /tmp/tags.db >/dev/null
 	[ $? = 0 ] && EXTNFOUND=1
 }
 
@@ -177,11 +177,11 @@ if [ $MODE = 99 ]; then
 	echo '                <p>Loaded extensions</p>'
 	echo '              </td>'
 	echo '              <td class="column300">'
-	echo '                <select name="X">'
+	echo '                <select class="large22" name="XXXX">'
 	                        EXTNLST=$(ls /usr/local/tce.installed/ | sed 's/\/usr\/local\/tce.installed\///g')
 	                        for i in $EXTNLST
 	                        do
-	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
+	                          echo '<option value="'$i'">'$i'</option>'
 	                        done
 	echo '                </select>'
 	echo '              </td>'
@@ -214,11 +214,11 @@ if [ $MODE = 99 ]; then
 	echo '                <p>Downloaded extensions</p>'
 	echo '              </td>'
 	echo '              <td class="column300">'
-	echo '                <select name="X">'
+	echo '                <select class="large22" name="XXXXX">'
 	                        EXTNLST=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
 	                        for i in $EXTNLST
 	                        do
-	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
+	                          echo '<option value="'$i'">'$i'</option>'
 	                        done
 	echo '                </select>'
 	echo '              </td>'
@@ -251,12 +251,12 @@ if [ $MODE = 99 ]; then
 	echo '                <p>Available extensions</p>'
 	echo '              </td>'
 	echo '              <td class="column300">'
-	echo '                <select name="X">'
+	echo '                <select class="large22" name="XXXXXX">'
 	                        [ -f /tmp/tags.db ] || pcp_init_search
 	                        EXTNLST=$(cat /tmp/tags.db | awk '{print $1}')
 	                        for i in $EXTNLST
 	                        do
-	                          echo '<option value="'$i'" id="'$i'">'$i'</option>'
+	                          echo '<option value="'$i'">'$i'</option>'
 	                        done
 	echo '                </select>'
 	echo '              </td>'
@@ -282,6 +282,8 @@ echo '    <td>'
 pcp_running_script
 pcp_httpd_query_string
 pcp_debug_info
+
+EXTN=`sudo $HTPPD -d $EXTN`
 
 case "$SUBMIT" in
 	Initial)
@@ -317,7 +319,7 @@ pcp_toggle_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
-echo '      <form name="extension" action="xtras_extensions.cgi" method="get" id="extension">'
+echo '      <form name="extension" action="xtras_extensions.cgi" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Extension '$EXTN'</legend>'
@@ -329,11 +331,11 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Extension name</p>'
 echo '                </td>'
 echo '                <td class="column300">'
-echo '                  <input class="large16" type="text" id="EXTN" name="EXTN" maxlength="26" value="'$EXTN'">'
+echo '                  <input class="large22" type="text" name="EXTN" value="'$EXTN'">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Search, load or delete piCore extension&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>This option will load or delete a piCore extension and dependencies.</p>'
