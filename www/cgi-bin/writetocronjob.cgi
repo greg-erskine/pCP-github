@@ -43,13 +43,13 @@ if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	echo '<p class="info">[ INFO ] Reset/Clear mode</p>'
 
 	REBOOT="Disabled"
-	RB_H="0"
-	RB_WD="0"
-	RB_DMONTH="0"
+	RB_H=""
+	RB_WD=""
+	RB_DMONTH=""
 	RESTART="Disabled"
-	RS_H="0"
-	RS_WD="0"
-	RS_DMONTH="0"
+	RS_H=""
+	RS_WD=""
+	RS_DMONTH=""
 	CRON_COMMAND=""
 
 	pcp_save_to_config
@@ -78,10 +78,10 @@ RB_H=`sudo $HTPPD -d $RB_H`
 RB_WD=`sudo $HTPPD -d $RB_WD`
 RB_DMONTH=`sudo $HTPPD -d $RB_DMONTH`
 
-# Default values if not set. STEEN, ARE THESE RIGHT
-[ x"" = x"$RB_H" ] && RB_H="0"
-[ x"" = x"$RB_WD" ] && RB_WD="0"
-[ x"" = x"$RB_DMONTH" ] && RB_DMONTH="1"
+# Default values if not set. STEEN, ARE THESE RIGHT - GREG I DON'T THINK WE NEED THEM HERE?
+#[ x"" = x"$RB_H" ] && RB_H="0"
+#[ x"" = x"$RB_WD" ] && RB_WD="0"
+#[ x"" = x"$RB_DMONTH" ] && RB_DMONTH="1"
 
 #----------------------------------------------------------------------------------------
 # Restart Squeezelite section
@@ -92,10 +92,10 @@ RS_H=`sudo $HTPPD -d $RS_H`
 RS_WD=`sudo $HTPPD -d $RS_WD`
 RS_DMONTH=`sudo $HTPPD -d $RS_DMONTH`
 
-# Default values if not set. STEEN, ARE THESE RIGHT
-[ x"" = x"$RS_H" ] && RS_H="0"
-[ x"" = x"$RS_WD" ] && RS_WD="0"
-[ x"" = x"$RS_DMONTH" ] && RS_DMONTH="1"
+# Default values if not set. STEEN, ARE THESE RIGHT - GREG I DON'T THINK WE NEED THEM HERE?
+#[ x"" = x"$RS_H" ] && RS_H="0"
+#[ x"" = x"$RS_WD" ] && RS_WD="0"
+#[ x"" = x"$RS_DMONTH" ] && RS_DMONTH="1"
 
 #----------------------------------------------------------------------------------------
 # Custom cron section
