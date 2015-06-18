@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.14 2015-06-12 SBP
+# Version: 0.14 2015-06-18 SBP
 #	Added Custom cron command.
 
 # Version: 0.13 2015-06-08 GE
@@ -710,6 +710,18 @@ case "$RESTART" in
 esac
 
 #-------------------------------------------Schedule CRON jobs---------------------------
+#
+#        *    *    *    *    *        command to be executed
+#        -    -    -    -    -
+#        |    |    |    |    |
+#        |    |    |    |    +--- day of week (0 - 6) (Sunday=0)
+#        |    |    |    +-------- month (1 - 12)
+#        |    |    +------------- day of month (1 - 31)
+#        |    +------------------ hour (0 - 23)
+#        +----------------------- min (0 - 59)
+#
+# 0 12 31 * * /usr/local/etc/init.d/squeezelite restart
+#-------------------------------------------Schedule CRON jobs---------------------------
 pcp_incr_id
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -744,11 +756,11 @@ echo '                  <p>Schedule Squeezelite restart</p>'
 echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RS_H">Hour:</label>'
-echo '                  <input class="small2" type="text" name="RS_H" value="'$RS_H'" maxlength="2" pattern="^[1-2*]|[0-4]*$" />'
+echo '                  <input class="small2" type="text" name="RS_H" value="'$RS_H'" maxlength="2" pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$" />'
 echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" pattern="^[0-7*]*$" />'
+echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" pattern="^([0-7]|\*)$" />'
 echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" pattern="^[1-12*]*$"  />'
+echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"  />'
 echo '                </td>'
 echo '                <td>'
 echo '                  <input class="small1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
@@ -770,7 +782,7 @@ echo '                    <p><b>Example:</b></p>'
 echo '                    <ul>'
 echo '                      <li>2 * * - run job at 02:00 everyday</li>'
 echo '                      <li>0 1 * - run job at 00:00 every monday</li>'
-echo '                      <li>0 * 1 - run job at 00.00 the first every month</li>'
+echo '                      <li>0 * 1 - run job at 00:00 the first every month</li>'
 echo '                    </ul>'
 echo '                    <p><b>Root crontab:</b></p>'
 echo '                    <textarea class="width600">'"$(cat /var/spool/cron/crontabs/root)"'</textarea>'
