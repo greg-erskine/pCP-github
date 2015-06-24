@@ -307,7 +307,7 @@ pcp_set_timezone() {
 	pcp_mount_mmcblk0p1
 	# Remove old timezone settings
 	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' /mnt/mmcblk0p1/cmdline.txt
-	sudo rm /etc/sysconfig/timezone
+	sudo rm -f /etc/sysconfig/timezone
 	# Add new TIMEZONE settings if used 
 	if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
@@ -1146,7 +1146,7 @@ EOF
 	pcp_mount_mmcblk0p1_nohtml
 	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
 	pcp_umount_mmcblk0p1_nohtml
-	sudo rm /etc/sysconfig/timezone
+	sudo rm -f /etc/sysconfig/timezone
 
 	# Remove Jivelite stuff
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz

@@ -332,19 +332,17 @@ fi
 	fi
 
 	if [ x"" = x"$TIMEZONE" ] && [ "$INTERNET" = yes ] ; then
-	echo -n "${BLUE}Auto set of timezone settings... if wrong they can be changed on tweaks page ${NORMAL}"
+	echo "${BLUE}Auto set of timezone settings, if wrong they can be changed on tweaks page... ${NORMAL}"
 	# Fetch timezone from Ubuntu's geoip server
 	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
 	# Translate country/city to timezone string
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"'`
-	echo -n "${Yellow}Timezone settngs for $TZ1 are used ${NORMAL}"
-	sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone
+	echo " ${YELLOW}Timezone settngs for $TZ1 are used ${NORMAL}"
 	pcp_save_to_config
 	pcp_set_timezone
 	TZ=$TIMEZONE
 	echo "${GREEN}Done.${NORMAL}"
 	fi 
-
 
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
