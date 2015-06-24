@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.37 2015-06-24 SBP
+#	Changed timezone logic, so changes are immediately present (reboot not needed)
+#	Modified timezone resent, so that /etc/sysconfig/timezone file is also removed  
+
 # Version: 0.36 2015-06-11 SBP
 #	Added variable CRON_COMMAND to config.cfg
 
@@ -303,9 +307,11 @@ pcp_set_timezone() {
 	pcp_mount_mmcblk0p1
 	# Remove old timezone settings
 	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' /mnt/mmcblk0p1/cmdline.txt
+	sudo rm /etc/sysconfig/timezone
 	# Add new TIMEZONE settings if used 
 	if [ x"" != x"$TIMEZONE" ]; then
-		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt 
+		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
+		sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone 
 		export TZ=$TIMEZONE
 	fi
 	pcp_umount_mmcblk0p1
@@ -1140,6 +1146,7 @@ EOF
 	pcp_mount_mmcblk0p1_nohtml
 	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
 	pcp_umount_mmcblk0p1_nohtml
+	sudo rm /etc/sysconfig/timezone
 
 	# Remove Jivelite stuff
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz

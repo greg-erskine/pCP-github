@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2015-06-24 SBP
+#	Removed reboot button - not needed anymore.
+
 # Version: 0.03 2015-05-10 SBP
 #	Fixed the saving command so that slashes are saved as well.
 
@@ -34,8 +37,8 @@ pcp_set_timezone
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
 
 pcp_backup
-echo '<p class="info">[ INFO ] Reboot is required to set timezone.</p>'
-pcp_reboot_button
+#echo '<p class="info">[ INFO ] Reboot is required to set timezone.</p>'
+#pcp_reboot_button
 pcp_go_back_button
 
 echo '</body>'

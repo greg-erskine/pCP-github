@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.18 2015-06-24 SBP
+#	Added script that automatically set correct timezone
+
 # Version: 0.17 2015-06-04 GE
 #	Renamed $pCPHOME to $PCPHOME.
 #	Minor updates.
@@ -126,7 +129,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
 	fi
 	#=========================================================================================
-	# Copy ALSA settings back so they are restore after an update
+	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
 	sudo cp /mnt/mmcblk0p1/asound.conf /etc/
 	sudo rm -f /mnt/mmcblk0p1/asound.conf
@@ -320,6 +323,28 @@ if [ $JIVELITE = "YES" ]; then
 	/opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
 fi
+
+#Check for internet
+	INTERNET=yes
+	x=`ping -c1 google.com 2>&1 | grep unknown`
+	if [ ! "$x" = "" ]; then
+       INTERNET=no
+	fi
+
+	if [ x"" = x"$TIMEZONE" ] && [ "$INTERNET" = yes ] ; then
+	echo -n "${BLUE}Auto set of timezone settings... if wrong they can be changed on tweaks page ${NORMAL}"
+	# Fetch timezone from Ubuntu's geoip server
+	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
+	# Translate country/city to timezone string
+	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"'`
+	echo -n "${Yellow}Timezone settngs for $TZ1 are used ${NORMAL}"
+	sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone
+	pcp_save_to_config
+	pcp_set_timezone
+	TZ=$TIMEZONE
+	echo "${GREEN}Done.${NORMAL}"
+	fi 
+
 
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
