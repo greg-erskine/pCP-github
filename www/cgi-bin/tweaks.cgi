@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.14 2015-06-18 SBP
+# Version: 0.14 2015-06-24 SBP
 #	Added Custom cron command.
 
 # Version: 0.13 2015-06-08 GE
@@ -739,8 +739,8 @@ echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RB_H">Hour:</label>'
 echo '                  <input class="small2" type="text" name="RB_H" value="'$RB_H'" maxlength="2" pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$" />'
-echo '                  <label for="RB_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RB_WD" value="'$RB_WD'" maxlength="1" pattern="^([0-7]|\*)$" />'
+echo '                  <label for="RB_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
+echo '                  <input class="small2" type="text" name="RB_WD" value="'$RB_WD'" maxlength="1" pattern="^([0-6]|\*)$" />'
 echo '                  <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
 echo '                  <input class="small2" type="text" name="RB_DMONTH" value="'$RB_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$" />'
 echo '                </td>'
@@ -757,8 +757,8 @@ echo '                </td>'
 echo '                <td class="column420">'
 echo '                  <label for="RS_H">Hour:</label>'
 echo '                  <input class="small2" type="text" name="RS_H" value="'$RS_H'" maxlength="2" pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$" />'
-echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-7):</label>'
-echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" pattern="^([0-7]|\*)$" />'
+echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
+echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" pattern="^([0-6]|\*)$" />'
 echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
 echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"  />'
 echo '                </td>'
@@ -806,8 +806,8 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>This feature gives advanced users the possibility to manipulate the cron scheduler.'
-echo '                       It will allow users to add a single command to the cron job or,'
-echo '                       to schedule a script that performs multible actions.</p>'
+echo '                       It will allow users to add a single command to the cron job or'
+echo '                       to schedule a script that performs multiple actions.</p>'
 echo '                    <p>Use ordinary cron syntax.</p>'
 echo '                    <p><b>Example:</b></p>'
 echo '                    <ul>'

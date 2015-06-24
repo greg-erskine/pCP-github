@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.06 2015-06-12 SBP
+# Version: 0.06 2015-06-24 SBP
 #	Added Custom cron command.
 
 # Version: 0.05 2015-01-30 GE
@@ -20,6 +20,7 @@
 # Version: 0.01 2014-09-09 SBP
 #	Original.
 
+set -f
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -29,8 +30,6 @@ pcp_html_head "Write to crontab" "SBP" "15" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-
-set -f
 
 # Decode SUBMIT variable using httpd
 SUBMIT=`sudo $HTPPD -d $SUBMIT`
@@ -43,13 +42,13 @@ if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	echo '<p class="info">[ INFO ] Reset/Clear mode</p>'
 
 	REBOOT="Disabled"
-	RB_H=""
-	RB_WD=""
-	RB_DMONTH=""
+	RB_H="0"
+	RB_WD="*"
+	RB_DMONTH="*"
 	RESTART="Disabled"
-	RS_H=""
-	RS_WD=""
-	RS_DMONTH=""
+	RS_H="0"
+	RS_WD="*"
+	RS_DMONTH="*"
 	CRON_COMMAND=""
 
 	pcp_save_to_config
@@ -60,7 +59,7 @@ if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	[ $SUBMIT = Clear ] && crontab -r -u root
 
 	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
-	pcp_show_config_cfg
+	pcp_textarea "Current config.cfg" "grep -C 4 RESTART= /usr/local/sbin/config.cfg" 150
 	pcp_backup
 	pcp_go_back_button
 
@@ -78,10 +77,10 @@ RB_H=`sudo $HTPPD -d $RB_H`
 RB_WD=`sudo $HTPPD -d $RB_WD`
 RB_DMONTH=`sudo $HTPPD -d $RB_DMONTH`
 
-# Default values if not set. STEEN, ARE THESE RIGHT - GREG I DON'T THINK WE NEED THEM HERE?
-#[ x"" = x"$RB_H" ] && RB_H="0"
-#[ x"" = x"$RB_WD" ] && RB_WD="0"
-#[ x"" = x"$RB_DMONTH" ] && RB_DMONTH="1"
+# Use these default values if empty.
+[ x"" = x"$RB_H" ] && RB_H="0"
+[ x"" = x"$RB_WD" ] && RB_WD="*"
+[ x"" = x"$RB_DMONTH" ] && RB_DMONTH="*"
 
 #----------------------------------------------------------------------------------------
 # Restart Squeezelite section
@@ -92,10 +91,10 @@ RS_H=`sudo $HTPPD -d $RS_H`
 RS_WD=`sudo $HTPPD -d $RS_WD`
 RS_DMONTH=`sudo $HTPPD -d $RS_DMONTH`
 
-# Default values if not set. STEEN, ARE THESE RIGHT - GREG I DON'T THINK WE NEED THEM HERE?
-#[ x"" = x"$RS_H" ] && RS_H="0"
-#[ x"" = x"$RS_WD" ] && RS_WD="0"
-#[ x"" = x"$RS_DMONTH" ] && RS_DMONTH="1"
+# Use these default values if empty.
+[ x"" = x"$RS_H" ] && RS_H="0"
+[ x"" = x"$RS_WD" ] && RS_WD="*"
+[ x"" = x"$RS_DMONTH" ] && RS_DMONTH="*"
 
 #----------------------------------------------------------------------------------------
 # Custom cron section
@@ -153,11 +152,9 @@ if [ $DEBUG = 1 ]; then
 fi
 
 pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
-pcp_show_config_cfg
+pcp_textarea "Current config.cfg" "grep -C 4 RESTART= /usr/local/sbin/config.cfg" 150
 pcp_backup
 pcp_go_back_button
-
 set +f
-
 echo '</body>'
 echo '</html>'
