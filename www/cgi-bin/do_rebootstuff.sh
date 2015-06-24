@@ -238,6 +238,7 @@ echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${YELLOW}Waiting for soundcards to populate"
 for i in 1 2 3 4 5 6 7 8 9 10; do
+	sudo rm -f /tmp/soundcards.log
 	sudo aplay -l > /tmp/soundcards.log 2>&1
 	grep -sq "PLAYBACK" /tmp/soundcards.log
 	if [ $? = 0 ]; then
@@ -337,7 +338,7 @@ fi
 	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
 	# Translate country/city to timezone string
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"'`
-	echo " ${YELLOW}Timezone settngs for $TZ1 are used ${NORMAL}"
+	echo " ${YELLOW}Timezone settings for $TZ1 are used ${NORMAL}"
 	pcp_save_to_config
 	pcp_set_timezone
 	TZ=$TIMEZONE
