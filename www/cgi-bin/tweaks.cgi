@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.14 2015-06-24 SBP
+# Version: 0.14 2015-06-25 SBP
 #	Added Custom cron command.
 
 # Version: 0.13 2015-06-08 GE
@@ -528,7 +528,7 @@ case "$CMD" in
 	Slow) CMDslow="checked" ;;
 esac
 
-# Function to check the FIQ-split radio button according to config file
+# Function to select the FIQ-split radio button according to config file
 case "$FIQ" in
 	0x1) selected1="selected" ;;
 	0x2) selected2="selected" ;;

@@ -2,9 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.37 2015-06-24 SBP
-#	Changed timezone logic, so changes are immediately present (reboot not needed)
-#	Modified timezone resent, so that /etc/sysconfig/timezone file is also removed  
+# Version: 0.37 2015-06-25 SBP
+#	Changed timezone logic, so changes are immediately present (reboot not needed).
+#	Modified timezone resent, so that /etc/sysconfig/timezone file is also removed.
 
 # Version: 0.36 2015-06-11 SBP
 #	Added variable CRON_COMMAND to config.cfg
@@ -204,7 +204,7 @@ pcp_variables() {
 	DEBUG=0
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	# set to 3 in order to use beta download page from sourceforge when testing beta versions 
+	# set to 3 in order to use beta download page from sourceforge when testing beta versions
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
@@ -304,17 +304,17 @@ pcp_mode_lt_5() {
 #-----------------------------------------------------------------------------------------
 pcp_set_timezone() {
 	. $CONFIGCFG
-	pcp_mount_mmcblk0p1
+	pcp_mount_mmcblk0p1_nohtml
 	# Remove old timezone settings
 	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' /mnt/mmcblk0p1/cmdline.txt
 	sudo rm -f /etc/sysconfig/timezone
-	# Add new TIMEZONE settings if used 
+	# Add new TIMEZONE settings if used
 	if [ x"" != x"$TIMEZONE" ]; then
 		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
-		sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone 
+		sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone
 		export TZ=$TIMEZONE
 	fi
-	pcp_umount_mmcblk0p1
+	pcp_umount_mmcblk0p1_nohtml
 }
 
 #=========================================================================================
@@ -425,7 +425,7 @@ pcp_navigation() {
 }
 
 pcp_footer() {
-	if [ -f /etc/sysconfig/timezone ]; then 
+	if [ -f /etc/sysconfig/timezone ]; then
 		. /etc/sysconfig/timezone
 		TIMESTAMP=$(TZ=$TZ date)
 	else
@@ -441,11 +441,11 @@ pcp_footer() {
 	echo '    <td>'
 	echo '      <p class="footer">
 					'$NAME' |
-					'$(pcp_controls_mac_address)' | 
-					piCorePlayer v'$(pcp_picoreplayer_version)' | 
-					linux '$(pcp_linux_release)' | 
-					piCore v'$(pcp_picore_version)' | 
-					'`echo $SQUEEZELITE`' | 
+					'$(pcp_controls_mac_address)' |
+					piCorePlayer v'$(pcp_picoreplayer_version)' |
+					linux '$(pcp_linux_release)' |
+					piCore v'$(pcp_picore_version)' |
+					'`echo $SQUEEZELITE`' |
 					'`echo $TIMESTAMP`'</p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -657,7 +657,7 @@ pcp_show_config_txt() {
 	echo '<textarea name="TextBox" rows="15">'
 	cat $CONFIGTXT
 	echo '</textarea>'
-}	
+}
 
 pcp_show_cmdline_txt() {
 	echo '<h1>[ INFO ] Current cmdline.txt</h1>'
@@ -682,7 +682,7 @@ pcp_show_bootsync_sh() {
 
 #=========================================================================================
 # Busybox httpd
-#-----------------------------------------------------------------------------------------	
+#-----------------------------------------------------------------------------------------
 pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { print $i} }')
@@ -759,7 +759,7 @@ pcp_wlan0_ip() {
 #	This routine will allow you to set a LMS command to auto start a LMS command after
 #	a "hard power on". This will be handy for people building pseudo radios. This routine
 #	is called from do_rebootstuff.sh.
-# 
+#
 # Example $AUTOSTARTLMS:
 #	randomplay tracks
 #	playlist play http://opml.radiotime.com/Tune.ashx?id=s99312&formats=aac,ogg,mp3&partnerId=16&serial=05edb36d50ac02d1d1eeaa23a487968a
@@ -1093,7 +1093,7 @@ pcp_reset_config_to_defaults() {
 sudo cat <<EOF > $CONFIGCFG
 #########################
 # Edit the variables below to setup a wifi based system without LAN access
-# Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN" 
+# Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN"
 WIFI="off"
 SSID="wireless"
 PASSWORD="password"
@@ -1237,7 +1237,7 @@ pcp_enable_iqaudio_dac() {
 #----------------------------------------------------------------------------------------
 pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
-	sudo modprobe -q snd_soc_pcm512x_i2c 
+	sudo modprobe -q snd_soc_pcm512x_i2c
 	sudo modprobe -q snd_soc_pcm512x
 	sudo modprobe -q snd_soc_bcm2708_i2s
 #	sudo modprobe -q bcm2708_dmaengine

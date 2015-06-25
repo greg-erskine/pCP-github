@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 0.18 2015-06-24 SBP
-#	Added script that automatically set correct timezone
+# Version: 0.18 2015-06-25 SBP
+#	Added script that automatically set correct timezone.
 
 # Version: 0.17 2015-06-04 GE
 #	Renamed $pCPHOME to $PCPHOME.
@@ -17,7 +17,7 @@
 #	Added logic to skip not needed options.
 
 # Version: 0.14 2015-04-05 SBP
-#	Added logic to wait for soundcards adn restart squeezelite if not properly started.
+#	Added logic to wait for soundcards and restart squeezelite if not properly started.
 
 # Version: 0.13 2015-03-24 SBP
 #	Added section to load wifi for wifi only based systems (like RPi-A+).
@@ -74,7 +74,6 @@
 
 . /home/tc/www/cgi-bin/pcp-functions
 
-echo ""
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
 echo -n "${BLUE}Loading pcp-functions... "
@@ -89,19 +88,19 @@ echo "${GREEN}Done.${NORMAL}"
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
-# Check if sda1 is mounted otherwise mount it
+# Check if sda1 is mounted, otherwise mount it
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
-	echo "${YELLOW} sda1 mounted${NORMAL}"
+	echo "${YELLOW}  sda1 mounted${NORMAL}"
 else
 	# FIX: check if sda1 is inserted before trying to mount it.
-	echo "${YELLOW} Trying to mount sda1${RED}"
-	sudo mount /dev/sda1
+	echo "${YELLOW}  Trying to mount sda1${RED}"
+	sudo mount /dev/sda1 >/dev/null 2>&1
 fi
 
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
-	echo -n "${YELLOW} newconfig.cfg found on sda1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg found on sda1${NORMAL}"
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
@@ -112,15 +111,15 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
-	echo -n "${YELLOW} newconfig.cfg not found on sda1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg not found on sda1${NORMAL}"
 fi
 echo "${GREEN} Done.${NORMAL}"
 
-echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 # Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
+echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
-	echo -n "${YELLOW} newconfig.cfg found on mmcblk0p1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	REBOOTN=yes
 	# Read variables from newconfig and save to config.
@@ -139,7 +138,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
-	echo -n "${YELLOW} newconfig.cfg not found on mmcblk0p1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1${NORMAL}"
 	REBOOTN=no
 fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
@@ -148,8 +147,7 @@ echo "${GREEN} Done.${NORMAL}"
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded and then reboot
 REBOOTW=no
 if [ $WIFI = "on" ]; then
-	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst
-	then
+	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
 		echo "${GREEN}Wifi firmware already loaded${NORMAL}"
 	else
 		# Add wifi related modules back
@@ -158,8 +156,12 @@ if [ $WIFI = "on" ]; then
 	fi
 fi
 
-# Reboot if requested for timezone or wifi firmware loading
+# Reboot if requested for ##### timezone ##### or wifi firmware loading
 [ $REBOOTW = yes ] && "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
+
+#################################################
+# STEEN, IS THIS STILL NEEDED????
+#################################################
 [ $REBOOTN = yes ] && "${RED}Will reboot now and then your Timezone settings will be used${NORMAL}"
 if [ $REBOOTN = yes ] || [ $REBOOTW = yes ]; then 
 	pcp_save_to_config
@@ -187,8 +189,8 @@ if [ $WIFI = "on" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+# Loading configuration file config.cfg
 echo -n "${BLUE}Loading configuration file... ${NORMAL}"
-# Read from config file.
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
 
@@ -198,22 +200,22 @@ sudo modprobe snd_soc_bcm2708_i2s
 sudo modprobe snd_soc_wm8804
 echo "${GREEN}Done.${NORMAL}"
 
+# Connect wifi if WIFI is on
 echo -n "${BLUE}Checking wifi... ${NORMAL}"
-# Logic that will skip the wifi connection if wifi is disabled
 if [ $WIFI = on ]; then
-	echo "${YELLOW}wifi is on${NORMAL}"
+	echo "${YELLOW}  wifi is on${NORMAL}"
 	sleep 1
 	sudo ifconfig wlan0 down
 	sudo ifconfig wlan0 up
 	sudo iwconfig wlan0 power off >/dev/null 2>&1
 	sudo /usr/local/bin/wifi.sh -a
 
-	# Logic that will try to reconnect to wifi if failed - will try two times before continuing booting
+	# Try to reconnect to wifi if failed - will try two times before continuing booting
 	for i in 1 2; do
-		if ifconfig wlan0 | grep -q "inet addr:" ; then
-			echo "${YELLOW}connected${NORMAL}"      
+		if ifconfig wlan0 | grep -q "inet addr:"; then
+			echo "${YELLOW}  wifi is connected ($i)${NORMAL}"      
 		else
-			echo "${RED}Network connection down! Attempting reconnection two times before continuing.${NORMAL}"
+			echo "${RED}  Network connection down! Attempting reconnection two times before continuing.${NORMAL}"
 			sudo ifconfig wlan0 down
 			sleep 1
 			sudo ifconfig wlan0 up
@@ -231,39 +233,43 @@ echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
 echo "${GREEN}Done.${NORMAL}"
 
+# Load the correct output audio modules
 echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
-# Loads the correct output audio modules
 pcp_read_chosen_audio >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
+###############################################################
+# STEEN, DOES THIS DO ANYTHING. I HAVE NEVER SEE THE . . . .
+# IT ALWAYS GOES STRAIGHT THROUGH FOR ME???
+###############################################################
 echo -n "${YELLOW}Waiting for soundcards to populate"
 for i in 1 2 3 4 5 6 7 8 9 10; do
-	sudo rm -f /tmp/soundcards.log
-	sudo aplay -l > /tmp/soundcards.log 2>&1
-	grep -sq "PLAYBACK" /tmp/soundcards.log
-	if [ $? = 0 ]; then
-		break
-	else
-		echo -n "."
-		sleep 1
-	fi
+#	sudo rm -f /tmp/soundcards.log
+#	sudo aplay -l > /tmp/soundcards.log 2>&1
+#	grep -sq "PLAYBACK" /tmp/soundcards.log
+
+	echo -n "."
+	aplay -l | grep PLAYBACK >/dev/null 2>&1
+	[ $? = 0 ] && break || sleep 1
 done
-echo "${GREEN} Done.${NORMAL}"
+[ $i -lt 10 ] && echo "${GREEN} Done ($i).${NORMAL}" || echo "${RED} Failed ($i).${NORMAL}"
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
-aplay -l | grep 'card 0: ALSA' &> /dev/null
+aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	sudo amixer cset numid=3 1 >/dev/null 2>&1				# set the analog output via audio jack
+	# set the analog output via audio jack
+	sudo amixer cset numid=3 1 >/dev/null 2>&1
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
-aplay -l | grep 'card 0: ALSA' &> /dev/null
+aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2 >/dev/null 2>&1				# set the analog output via HDMI out
+	# set the analog output via HDMI out
+	sudo amixer cset numid=3 2 >/dev/null 2>&1
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
@@ -276,8 +282,8 @@ fi
 echo "${GREEN}Done.${NORMAL}"
 
 # Start the essential stuff for piCorePlayer
-echo -n "${YELLOW}Waiting for network"
-CNT=0
+echo -n "${YELLOW}Waiting for network."
+CNT=1
 until ifconfig | grep -q Bcast
 do
 	if [ $((CNT++)) -gt 20 ]; then
@@ -287,7 +293,7 @@ do
 		sleep 1
 	fi
 done
-echo "${GREEN} Done.${NORMAL}"
+echo "${GREEN} Done ($CNT).${NORMAL}"
 
 echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
 /usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
@@ -313,7 +319,7 @@ if [ $A_S_FAV = "Enabled" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ] ; then
+if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
 	echo -n "${BLUE}Starting user commands... ${NORMAL}"
 	pcp_user_commands
 	echo "${GREEN}Done.${NORMAL}"
@@ -325,29 +331,37 @@ if [ $JIVELITE = "YES" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-#Check for internet
-	INTERNET=yes
-	x=`ping -c1 google.com 2>&1 | grep unknown`
-	if [ ! "$x" = "" ]; then
-       INTERNET=no
-	fi
+# Check for internet
+#INTERNET=yes
+#x=`ping -c1 google.com 2>&1 | grep unknown`
+#if [ ! "$x" = "" ]; then
+#	INTERNET=no
+#fi
 
-	if [ x"" = x"$TIMEZONE" ] && [ "$INTERNET" = yes ] ; then
+#if [ x"" = x"$TIMEZONE" ] && [ "$INTERNET" = yes ] ; then
+
+# Automatically set the timezone
+if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${BLUE}Auto set of timezone settings, if wrong they can be changed on tweaks page... ${NORMAL}"
 	# Fetch timezone from Ubuntu's geoip server
 	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
 	# Translate country/city to timezone string
-	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"'`
-	echo " ${YELLOW}Timezone settings for $TZ1 are used ${NORMAL}"
+#	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"'`
+	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
+	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
 	pcp_save_to_config
-	pcp_set_timezone
+	pcp_set_timezone >/dev/null 2>&1
 	TZ=$TIMEZONE
 	echo "${GREEN}Done.${NORMAL}"
-	fi 
+fi 
 
-echo -n "${BLUE}Updating configuration... ${NORMAL}"
 # Save the parameters to the config file
+echo -n "${BLUE}Updating configuration... ${NORMAL}"
 pcp_backup_nohtml >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
+
+# Display the IP address
+ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_eth0_ip)${NORMAL}"
+ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_wlan0_ip)${NORMAL}"
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
