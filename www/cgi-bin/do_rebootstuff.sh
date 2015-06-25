@@ -105,9 +105,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
 	pcp_save_to_config
-	if [ x"" != x"$TIMEZONE" ]; then
-		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
-	fi
+	pcp_set_timezone >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
@@ -121,25 +119,24 @@ pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
-	REBOOTN=yes
-	# Read variables from newconfig and save to config.
+
+	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
 	. /mnt/mmcblk0p1/newconfig.cfg
-	if [ x"" != x"$TIMEZONE" ]; then
-		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
-	fi
+	pcp_timezone
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
-	sudo cp /mnt/mmcblk0p1/asound.conf /etc/
-	sudo rm -f /mnt/mmcblk0p1/asound.conf
-	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/
-	sudo rm /mnt/mmcblk0p1/asound.state
+	sudo cp /mnt/mmcblk0p1/asound.conf /etc/ 2>>/dev/null
+	sudo rm -f /mnt/mmcblk0p1/asound.conf 2>>/dev/null
+	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ 2>>/dev/null
+	sudo rm /mnt/mmcblk0p1/asound.state 2>>/dev/null
 	#-----------------------------------------------------------------------------------------
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
+	pcp_save_to_config
+	pcp_backup_nohtml >/dev/null 2>&1
 else
 	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1${NORMAL}"
-	REBOOTN=no
 fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
@@ -156,14 +153,10 @@ if [ $WIFI = "on" ]; then
 	fi
 fi
 
-# Reboot if requested for ##### timezone ##### or wifi firmware loading
+# Reboot if requested for wifi firmware loading
 [ $REBOOTW = yes ] && "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
 
-#################################################
-# STEEN, IS THIS STILL NEEDED????
-#################################################
-[ $REBOOTN = yes ] && "${RED}Will reboot now and then your Timezone settings will be used${NORMAL}"
-if [ $REBOOTN = yes ] || [ $REBOOTW = yes ]; then 
+if [ $REBOOTW = yes ]; then 
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	sleep 4
@@ -238,16 +231,8 @@ echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 pcp_read_chosen_audio >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
-###############################################################
-# STEEN, DOES THIS DO ANYTHING. I HAVE NEVER SEE THE . . . .
-# IT ALWAYS GOES STRAIGHT THROUGH FOR ME???
-###############################################################
 echo -n "${YELLOW}Waiting for soundcards to populate"
 for i in 1 2 3 4 5 6 7 8 9 10; do
-#	sudo rm -f /tmp/soundcards.log
-#	sudo aplay -l > /tmp/soundcards.log 2>&1
-#	grep -sq "PLAYBACK" /tmp/soundcards.log
-
 	echo -n "."
 	aplay -l | grep PLAYBACK >/dev/null 2>&1
 	[ $? = 0 ] && break || sleep 1
