@@ -126,10 +126,10 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
-	sudo cp /mnt/mmcblk0p1/asound.conf /etc/ 2>>/dev/null
-	sudo rm -f /mnt/mmcblk0p1/asound.conf 2>>/dev/null
-	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ 2>>/dev/null
-	sudo rm /mnt/mmcblk0p1/asound.state 2>>/dev/null
+	sudo cp /mnt/mmcblk0p1/asound.conf /etc/ >/dev/null 2>&1
+	sudo rm -f /mnt/mmcblk0p1/asound.conf >/dev/null 2>&1
+	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
+	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
 	#-----------------------------------------------------------------------------------------
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
@@ -316,22 +316,12 @@ if [ $JIVELITE = "YES" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# Check for internet
-#INTERNET=yes
-#x=`ping -c1 google.com 2>&1 | grep unknown`
-#if [ ! "$x" = "" ]; then
-#	INTERNET=no
-#fi
-
-#if [ x"" = x"$TIMEZONE" ] && [ "$INTERNET" = yes ] ; then
-
 # Automatically set the timezone
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${BLUE}Auto set of timezone settings, if wrong they can be changed on tweaks page... ${NORMAL}"
 	# Fetch timezone from Ubuntu's geoip server
 	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
 	# Translate country/city to timezone string
-#	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"'`
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
 	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
 	pcp_save_to_config
