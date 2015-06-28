@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2015-06-28 GE
+#	Added pcp_picoreplayers tab.
+
 # Version: 0.04 2015-02-04 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -20,6 +23,7 @@ pcp_variables
 
 pcp_html_head "About" "SBP"
 
+pcp_picoreplayers
 pcp_controls
 pcp_banner
 pcp_navigation

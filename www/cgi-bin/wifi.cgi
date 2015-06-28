@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.12 2015-06-28 GE
+#	Added pcp_picoreplayers tab.
+
 # Version: 0.11 2015-06-10 GE
 #	0nly display "Available wifi networks" if Scan button pressed.
 #	Added wireless MAC and wireless IP.
@@ -98,6 +101,7 @@ echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 echo '</script>'
 
+pcp_picoreplayers
 pcp_controls
 pcp_banner
 pcp_navigation

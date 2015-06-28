@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.16 2015-06-28 GE
+#	Added pcp_picoreplayers tab.
+
 # Version: 0.15 2015-06-05 GE
 #	Started adding HTML5 input field validation.
 #	Added pcp_incr_id and pcp_start_row_shade.
@@ -70,6 +73,7 @@ pcp_variables
 
 pcp_html_head "Squeezelite Settings" "SBP"
 
+pcp_picoreplayers
 pcp_controls
 pcp_banner
 pcp_navigation

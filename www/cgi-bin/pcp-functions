@@ -208,7 +208,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=99
+	MODE=0
 
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
@@ -559,25 +559,28 @@ pcp_xtras() {
 
 pcp_picoreplayers() {
 	echo '<!-- Start of picoreplayers toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
+#	echo '<table class="bgtab">'
+#	echo '  <tr>'
+#	echo '    <td>'
+#	echo '    <div>'
 	echo '      <p>'
 
 	TMP=$(mktemp)
 	pcp_lms_players squeezelite >$TMP
 	while read line
 	do
-		NAME=$(echo $line | awk -F, '{ print $1 }')
+		TITLE=$(echo $line | awk -F, '{ print $1 }')
 		URL=$(echo $line | awk -F, '{ print $2 }')
-		echo '        <a class="nav7" href="http://'$URL'/" title="pCP - Main Page">'$NAME'</a>'
+		[ $NAME == $TITLE ] && TAB=tab7a || TAB=tab7
+		echo '        <a class="'$TAB'" href="http://'$URL'/" title="'$URL'">'$TITLE'</a>'
 	done <$TMP
 	rm -r $TMP
-
+	echo '        <p class="tab7end">pCP</p>'
 	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
+#	echo '    </td>'
+#	echo '  </tr>'
+#	echo '</table>'
 	echo '<!-- End of picoreplayers toolbar -->'
 }
 

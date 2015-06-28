@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.14 2015-06-28 GE
+#	Added pcp_picoreplayers tab.
+
 # Version: 0.13 2015-05-11 GE
 #	Now uses pcp_start_row_shade, pcp_start_row_shade and pcp_incr_id
 #	Added Extensions, Extras, Debug and Diagnostics buttons.
@@ -50,6 +53,7 @@ pcp_variables
 
 pcp_html_head "Main Page" "SBP"
 
+pcp_picoreplayers
 pcp_controls
 pcp_banner
 pcp_navigation

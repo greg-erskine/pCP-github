@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.09 2015-06-28 GE
+	Added a.tab7.
+
 Version: 0.08 2015-06-17 GE
 	Added .large22.
 
@@ -260,6 +263,12 @@ textarea.white {
 	font-size:12px;
 }
 
+.tab7end {
+	color:white;
+	font-size:5px;
+	margin-bottom:-10px;
+}
+
 /* Horizontal navigation and controls bar */
 a.nav5, a.nav5:link, a.nav5:visited, a.nav7, a.nav7:link, a.nav7:visited  {
 	background:black;
@@ -286,4 +295,37 @@ a.nav5:hover, a.nav7:hover {
 a.nav5:active, a.nav7:active {
 	background:black;
 	color:white;
+}
+
+a.tab7, a.tab7a, a.tab7:link  {
+	font-size:10px;
+	background:#eaeaea;
+	border-radius: 8px 8px 0px 0px;
+	color:black;
+	display:block;
+	float:left;
+	line-height:20px;
+	margin-top:-12px;
+	overflow:hidden;
+	text-align:center;
+	width:133px;
+}
+
+a.tab7a {
+	background:black;
+	color:white;
+	font-size:11px;
+}
+
+a.tab7:visited {
+	background:#eaeaea;
+}
+
+a.tab7:hover {
+	background:#d8d8d8;
+	font-size:11px;
+}
+
+a.tab7:active {
+	background:black;
 }

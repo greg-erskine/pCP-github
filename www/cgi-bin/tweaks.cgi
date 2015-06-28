@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.15 2015-06-28 GE
+#	Added pcp_picoreplayers tab.
+
 # Version: 0.14 2015-06-25 SBP
 #	Added Custom cron command.
 
@@ -64,6 +67,7 @@ pcp_variables
 
 pcp_html_head "Tweaks" "SBP"
 
+pcp_picoreplayers
 pcp_controls
 pcp_banner
 pcp_navigation
