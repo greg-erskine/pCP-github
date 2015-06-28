@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.19 2015-06-29 GE
+#	Added dropbear fix to allow scp to work between piCorePlayers.
+
 # Version: 0.18 2015-06-25 SBP
 #	Added script that automatically set correct timezone.
 
@@ -286,6 +289,12 @@ echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 /usr/local/etc/init.d/dropbear start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
+
+# dropbear fix to allow scp to work
+echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
+sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/dbclient
+sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/scp
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
