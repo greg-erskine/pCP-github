@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2015-06-29 GE
+#	Increased size of submit button.
+
 # Version: 0.06 2014-12-11 GE
 #	HTML5 formatted.
 
@@ -96,7 +99,7 @@ done
 	if [ $result_tce = 0 ]; then
 		echo '<p class="ok">[ OK ] Success downloading tce files</p>'
 		echo '<form name="do_update" action= "do_updatepicoreplayer.cgi" method="get">'
-		echo '<p><input type="submit" value="Update piCorePlayer" />&nbsp;&nbsp;When you press the button, you will make the actual update with the downloaded files.</p></form>'
+		echo '<p><input class="large12" type="submit" value="Update piCorePlayer" />&nbsp;&nbsp;When you press the button, you will make the actual update with the downloaded files.</p></form>'
 	else
 		echo '<p class="error">[ ERROR: '$result_tce' ] Error downloading tce files.</p>'
 	fi

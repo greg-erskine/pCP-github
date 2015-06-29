@@ -94,7 +94,7 @@ h2 {
 /* This is for odd and even striped tables */
 .odd, .even, .warning{
 	background:#d8d8d8;
-	border:0px;
+	border:0;
 	display:block;
 }
 
@@ -270,9 +270,10 @@ textarea.white {
 }
 
 /* Horizontal navigation and controls bar */
-a.nav5, a.nav5:link, a.nav5:visited, a.nav7, a.nav7:link, a.nav7:visited  {
+a.nav5, a.nav7 {
 	background:black;
 	border:1px solid black;
+	border-radius:8px 8px 8px 8px;
 	color:white;
 	display:block;
 	float:left;
@@ -283,7 +284,7 @@ a.nav5, a.nav5:link, a.nav5:visited, a.nav7, a.nav7:link, a.nav7:visited  {
 	width:187.5px;
 }
 
-a.nav7, a.nav7:link, a.nav7:visited  {
+a.nav7 {
 	width:133px;
 }
 
@@ -292,15 +293,10 @@ a.nav5:hover, a.nav7:hover {
 	color:black;
 }
 
-a.nav5:active, a.nav7:active {
-	background:black;
-	color:white;
-}
-
-a.tab7, a.tab7a, a.tab7:link  {
+a.tab7, a.tab7a, a.tab14, a.tab14a {
 	font-size:10px;
 	background:#eaeaea;
-	border-radius: 8px 8px 0px 0px;
+	border-radius:8px 8px 0 0;
 	color:black;
 	display:block;
 	float:left;
@@ -311,21 +307,22 @@ a.tab7, a.tab7a, a.tab7:link  {
 	width:133px;
 }
 
-a.tab7a {
+a.tab14, a.tab14a {
+	border-radius:0 0 8px 8px;
+	width:72px;
+}
+
+a.tab7a, a.tab14a {
 	background:black;
 	color:white;
 	font-size:11px;
 }
 
-a.tab7:visited {
+a.tab7:visited, a.tab14:visited {
 	background:#eaeaea;
 }
 
-a.tab7:hover {
+a.tab7:hover, a.tab14:hover {
 	background:#d8d8d8;
 	font-size:11px;
-}
-
-a.tab7:active {
-	background:black;
 }

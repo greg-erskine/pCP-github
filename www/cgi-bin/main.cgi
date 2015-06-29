@@ -525,6 +525,7 @@ echo '            </tr>'
 fi
 
 pcp_footer
+pcp_mode
 pcp_copyright
 
 echo '</body>'

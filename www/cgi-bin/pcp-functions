@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.38 2015-06-29 SBP
+#	Updated pcp_picoreplayers.
+#	Added pcp_mode (beta - not functioning).
+
 # Version: 0.37 2015-06-25 SBP
 #	Changed timezone logic, so changes are immediately present (reboot not needed).
 #	Modified timezone resent, so that /etc/sysconfig/timezone file is also removed.
@@ -207,8 +211,13 @@ pcp_variables() {
 	# set to 3 in order to use beta download page from sourceforge when testing beta versions
 	TEST=0
 
-	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (99=greg only)
-	MODE=0
+	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (100=developers)
+	MODE=20
+	MODE_INITIAL=0
+	MODE_BASIC=10
+	MODE_ADVANCED=20
+	MODE_BETA=50
+	MODE_DEVELOPER=100
 
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
@@ -571,7 +580,7 @@ pcp_picoreplayers() {
 	do
 		TITLE=$(echo $line | awk -F, '{ print $1 }')
 		URL=$(echo $line | awk -F, '{ print $2 }')
-		[ $NAME == $TITLE ] && TAB=tab7a || TAB=tab7
+		[ "$NAME" == "$TITLE" ] && TAB=tab7a || TAB=tab7
 		echo '        <a class="'$TAB'" href="http://'$URL'/" title="'$URL'">'$TITLE'</a>'
 	done <$TMP
 	rm -r $TMP
@@ -582,6 +591,33 @@ pcp_picoreplayers() {
 #	echo '  </tr>'
 #	echo '</table>'
 	echo '<!-- End of picoreplayers toolbar -->'
+}
+
+pcp_mode() {
+	echo '<!-- Start of mode toolbar -->'
+	TAB_MODE_INITIAL=tab14
+	TAB_MODE_BASIC=tab14
+	TAB_MODE_ADVANCED=tab14
+	TAB_MODE_BETA=tab14
+	TAB_MODE_DEVELOPER=tab14
+
+	case $MODE in
+		$MODE_INITIAL)   TAB_MODE_INITIAL=tab14a ;;
+		$MODE_BASIC)     TAB_MODE_BASIC=tab14a ;;
+		$MODE_ADVANCED)  TAB_MODE_ADVANCED=tab14a ;;
+		$MODE_BETA)      TAB_MODE_BETA=tab14a ;;
+		$MODE_DEVELOPER) TAB_MODE_DEVELOPER=tab14a ;;
+	esac
+
+	echo '<p>'
+	echo '  <a class="'$TAB_MODE_INITIAL'"   href="debug.cgi?m='$MODE_INITIAL'"   title="Initial mode">Initial</a>'
+	echo '  <a class="'$TAB_MODE_BASIC'"     href="debug.cgi?m='$MODE_BASIC'"     title="Basic mode">Basic</a>'
+	echo '  <a class="'$TAB_MODE_ADVANCED'"  href="debug.cgi?m='$MODE_ADVANCED'"  title="Advanced mode">Advanced</a>'
+	echo '  <a class="'$TAB_MODE_BETA'"      href="debug.cgi?m='$MODE_BETA'"      title="Beta mode">Beta</a>'
+	echo '  <a class="'$TAB_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developers</a>'
+	echo '  <p class="tab7end">pCP</p>'
+	echo '</p>'
+	echo '<!-- End of mode toolbar -->'
 }
 
 #=========================================================================================
