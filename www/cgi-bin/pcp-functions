@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.38 2015-06-29 SBP
+# Version: 0.38 2015-06-30 GE
 #	Updated pcp_picoreplayers.
 #	Added pcp_mode (beta - not functioning).
 
@@ -212,7 +212,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (100=developers)
-	MODE=20
+	MODE=0
 	MODE_INITIAL=0
 	MODE_BASIC=10
 	MODE_ADVANCED=20
