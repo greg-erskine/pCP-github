@@ -53,8 +53,8 @@ pcp_variables
 
 pcp_html_head "Main Page" "SBP"
 
-pcp_picoreplayers
-pcp_controls
+[ $MODE -ge $MODE_ADVANCED ] && pcp_picoreplayers
+[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
 
@@ -70,236 +70,256 @@ echo '          <legend>Main piCorePlayer operations</legend>'
 echo '          <table class="bggrey percent100">'
 
 #------------------------------------------Squeezelite Indication------------------------
-pcp_start_row_shade
-pcp_incr_id
+pcp_main_squeezelite_indication() {
+	pcp_start_row_shade
+	pcp_incr_id
 
-if [ $(pcp_squeezelite_status) = 0 ]; then
-	IMAGE="green.png"
-	STATUS="running"
-else
-	IMAGE="red.png"
-	STATUS="not running"
-fi
+	if [ $(pcp_squeezelite_status) = 0 ]; then
+		IMAGE="green.png"
+		STATUS="running"
+	else
+		IMAGE="red.png"
+		STATUS="not running"
+	fi
 
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
-echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <ul>'
-echo '                    <li>GREEN = Squeezelite running.</li>'
-echo '                    <li>RED = Squeezelite not running.</li>'
-echo '                  </ul>'
-echo '                  <p><b>Note:</b></p>'
-echo '                  <ul>'
-echo '                    <li>Squeezelite must be running for music to play.</li>'
-echo '                    <li>Squeezelite must be running for connection to LMS.</li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li>GREEN = Squeezelite running.</li>'
+	echo '                    <li>RED = Squeezelite not running.</li>'
+	echo '                  </ul>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Squeezelite must be running for music to play.</li>'
+	echo '                    <li>Squeezelite must be running for connection to LMS.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+pcp_main_squeezelite_indication
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Padding---------------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="padding">'
-echo '              <td></td>'
-echo '              <td></td>'
-echo '            </tr>'
+pcp_main_padding() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="padding '$ROWSHADE'">'
+	echo '              <td></td>'
+	echo '              <td></td>'
+	echo '            </tr>'
+}
+pcp_main_padding
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Restart---------------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="Restart" name="Restart" action="restartsqlt.cgi" method="get">'
-echo '                  <input type="submit" value="Restart" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Restart Squeezelite with new settings&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This will kill the Squeezelite process then restart it.</p>'
-echo '                  <p><b>Note:</b></p>'
-echo '                  <ul>'
-echo '                    <li>A restart of Squeezelite is required after you change any of the Squeezelite settings.</li>'
-echo '                    <li>Squeezelite running indicator will turn green.</li>'
-echo '                    <li>Squeezelite in the footer will turn green.</li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_main_restart() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Restart" name="Restart" action="restartsqlt.cgi" method="get">'
+	echo '                  <input type="submit" value="Restart" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Restart Squeezelite with new settings&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will kill the Squeezelite process then restart it.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>A restart of Squeezelite is required after you change any of the Squeezelite settings.</li>'
+	echo '                    <li>Squeezelite running indicator will turn green.</li>'
+	echo '                    <li>Squeezelite in the footer will turn green.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+pcp_main_restart
+#----------------------------------------------------------------------------------------
+
+[ $MODE -le $MODE_BASIC ] && pcp_main_padding
 
 #------------------------------------------Update Squeezelite - Triode-------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="updateTriode" name="updateTriode" action="updatesqlt.cgi" method="get">'
-echo '                  <input type="hidden" name="VERSION" value="Triode"/>'
-echo '                  <input type="submit" value="Update" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Download and install Triode'\''s latest version of Squeezelite&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This will download and install the latest version of Squeezelite from Triode'\''s repository.</p>'
-echo '                  <p><b>Note:</b></p>'
-echo '                  <ul>'
-echo '                    <li>Internet access is required.</li>'
-echo '                    <li>Triode is the author of Squeezelite.</li>'
-echo '                    <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_main_update_triode() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="updateTriode" name="updateTriode" action="updatesqlt.cgi" method="get">'
+	echo '                  <input type="hidden" name="VERSION" value="Triode"/>'
+	echo '                  <input type="submit" value="Update" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Download and install Triode'\''s latest version of Squeezelite&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will download and install the latest version of Squeezelite from Triode'\''s repository.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Internet access is required.</li>'
+	echo '                    <li>Triode is the author of Squeezelite.</li>'
+	echo '                    <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_triode
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite - Ralphy-------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="updateRalphy" name="updateRalphy" action="updatesqlt.cgi" method="get">'
-echo '                  <input type="hidden" name="VERSION" value="Ralphy"/>'
-echo '                  <input type="submit" value="Update" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Download and install Ralphy'\''s latest version of Squeezelite&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This will download and install the latest version of Squeezelite from Ralphy'\''s repository.</p>'
-echo '                  <p><b>Note: </b></p>'
-echo '                  <ul>'
-echo '                    <li>Internet access is required.</li>'
-echo '                    <li>Ralphy version of Squeezelite is compiled this with the following options enabled:</li>'
-echo '                    <ul>'
-echo '                      <li>Upsampling using SOX.</li>'
-echo '                      <li>Playing wma and alac via ffmpeg.</li>'
-echo '                    </ul>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_main_update_ralphy() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="updateRalphy" name="updateRalphy" action="updatesqlt.cgi" method="get">'
+	echo '                  <input type="hidden" name="VERSION" value="Ralphy"/>'
+	echo '                  <input type="submit" value="Update" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Download and install Ralphy'\''s latest version of Squeezelite&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will download and install the latest version of Squeezelite from Ralphy'\''s repository.</p>'
+	echo '                  <p><b>Note: </b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Internet access is required.</li>'
+	echo '                    <li>Ralphy version of Squeezelite is compiled this with the following options enabled:</li>'
+	echo '                    <ul>'
+	echo '                      <li>Upsampling using SOX.</li>'
+	echo '                      <li>Playing wma and alac via ffmpeg.</li>'
+	echo '                    </ul>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_ralphy
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="Reboot" name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get">'
-echo '                  <input type="submit" value="Reboot" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Reboot piCorePlayer after enabling or disabling HDMI output&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This will reboot piCorePlayer.</p>'
-echo '                  <p><b>Note: </b>This will do the following:</p>'
-echo '                  <ul>'
-echo '                    <li>Shutdown piCore gracefully.</li>'
-echo '                    <li>Boot piCorePlayer from scratch using the latest settings.</li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_main_reboot() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Reboot" name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get">'
+	echo '                  <input type="submit" value="Reboot" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Reboot piCorePlayer after enabling or disabling HDMI output&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will reboot piCorePlayer.</p>'
+	echo '                  <p><b>Note: </b>This will do the following:</p>'
+	echo '                  <ul>'
+	echo '                    <li>Shutdown piCore gracefully.</li>'
+	echo '                    <li>Boot piCorePlayer from scratch using the latest settings.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+pcp_main_reboot
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Update pCP------------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="InSitu" name="InSitu" action="upd_picoreplayer.cgi" method="get">'
-echo '                  <input type="submit" value="Update pCP" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This will do an insitu update of piCorePlayer.</p>'
-echo '                  <p>This can be used when the SD card is not accessible.</p>'
-echo '                  <p><b>Note:</b></p>'
-echo '                  <ul>'
-echo '                    <li>Internet access is required.</li>'
-echo '                    <li>Existing version of piCorePlayer will be overwritten.</li>'
-echo '                  </ul>'
-
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_main_update_pcp() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="InSitu" name="InSitu" action="upd_picoreplayer.cgi" method="get">'
+	echo '                  <input type="submit" value="Update pCP" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will do an insitu update of piCorePlayer.</p>'
+	echo '                  <p>This can be used when the SD card is not accessible.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Internet access is required.</li>'
+	echo '                    <li>Existing version of piCorePlayer will be overwritten.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_pcp
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Save to USB-----------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="Saveconfig" name="Saveconfig" action="save2usb.cgi" method="get">'
-echo '                  <input type="submit" value="Save to USB" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This will copy the current configuration file to the USB flash drive.</p>'
-echo '                  <p>This configuration file can be used:</p>'
-echo '                  <ul>'
-echo '                    <li>as a backup</li>'
-echo '                    <li>after an update</li>'
-echo '                    <li>in another piCorePlayer.</li>'
-echo '                  </ul>'
-echo '                  <p><b>Note: </b>USB flash drive must be plugged into USB port.</p>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
-
-#------------------------------------------Static IP---------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="Static IP" name="Static IP" action="xtras_staticip.cgi" method="get">'
-echo '                  <input type="submit" value="Static IP" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
-
-#--------------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-
-#========================================================================================
-# Developers operations
+pcp_main_save_usb() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Saveconfig" name="Saveconfig" action="save2usb.cgi" method="get">'
+	echo '                  <input type="submit" value="Save to USB" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will copy the current configuration file to the USB flash drive.</p>'
+	echo '                  <p>This configuration file can be used:</p>'
+	echo '                  <ul>'
+	echo '                    <li>as a backup</li>'
+	echo '                    <li>after an update</li>'
+	echo '                    <li>in another piCorePlayer.</li>'
+	echo '                  </ul>'
+	echo '                  <p><b>Note: </b>USB flash drive must be plugged into USB port.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
-if [ $MODE = 99 ]; then
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Developers operations</legend>'
-	echo '          <table class="bggrey percent100">'
 
-	#------------------------------------------Stop--------------------------------------
-	pcp_start_row_shade
+[ $MODE -ge $MODE_BASIC ] && pcp_main_padding
+
+#------------------------------------------Static IP-------------------------------------
+pcp_main_static_ip(){
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Static IP" name="Static IP" action="xtras_staticip.cgi" method="get">'
+	echo '                  <input type="submit" value="Static IP" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Stop------------------------------------------
+pcp_main_stop() {
+	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
@@ -321,8 +341,12 @@ if [ $MODE = 99 ]; then
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_stop
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Backup------------------------------------
+#------------------------------------------Backup----------------------------------------
+pcp_main_backup() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -347,8 +371,12 @@ if [ $MODE = 99 ]; then
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_backup
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Shutdown----------------------------------
+#------------------------------------------Shutdown--------------------------------------
+pcp_main_shutdown() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -367,8 +395,12 @@ if [ $MODE = 99 ]; then
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_shutdown
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Reset ALL---------------------------------
+#------------------------------------------Reset ALL-------------------------------------
+pcp_main_reset_all() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -386,8 +418,12 @@ if [ $MODE = 99 ]; then
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_reset_all
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Restore ALL-------------------------------
+#------------------------------------------Restore ALL-----------------------------------
+pcp_main_restore_all() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -405,8 +441,12 @@ if [ $MODE = 99 ]; then
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_restore_all
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Resize FS-------------------------------
+#------------------------------------------Resize FS-------------------------------------
+pcp_main_resize_fs() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -424,26 +464,34 @@ if [ $MODE = 99 ]; then
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_resize_fs
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Extensions------------------------------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <form id="Extensions" name="Stop" action="xtras_extensions.cgi" method="get">'
-echo '                  <input type="submit" value="Extensions" />'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Search, load or delete piCore extensions&nbsp;&nbsp;'
-echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <p>This page gives you the option to search, load or delete piCore extensions.</p>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_main_extensions() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form id="Extensions" name="Stop" action="xtras_extensions.cgi" method="get">'
+	echo '                  <input type="submit" value="Extensions" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Search, load or delete piCore extensions&nbsp;&nbsp;'
+	echo '                <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This page gives you the option to search, load or delete piCore extensions.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_extensions
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Dosfsck-----------------------------------
+#------------------------------------------Dosfsck---------------------------------------
+pcp_main_dosfsck() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -460,8 +508,12 @@ echo '            </tr>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Diagnostics-------------------------------
+#------------------------------------------Diagnostics-----------------------------------
+pcp_main_diagnostics() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -478,8 +530,12 @@ echo '            </tr>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_diagnostics
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Extras------------------------------------
+#------------------------------------------Extras----------------------------------------
+pcp_main_extras() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -496,8 +552,12 @@ echo '            </tr>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_extras
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------Debug-------------------------------------
+#------------------------------------------Debug-----------------------------------------
+pcp_main_debug() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -514,15 +574,18 @@ echo '            </tr>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_debug
+#----------------------------------------------------------------------------------------
 
-	#------------------------------------------------------------------------------------
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
 
 pcp_footer
 pcp_mode

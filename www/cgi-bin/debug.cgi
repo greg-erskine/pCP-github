@@ -21,6 +21,9 @@
 #	Use the interactive mode.
 #-----------------------------------------------------------------------------------------
 
+# Version: 0.03 2015-07-01 GE
+#	Made to work in non-interactive mode,
+
 # Version: 0.02 2015-06-04 GE
 #	Added interaction mode.
 #	Renamed $pCPHOME to $PCPHOME.
@@ -32,13 +35,6 @@
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
-
-pcp_html_head "Debug" "GE"
-
-pcp_controls
-pcp_banner
-pcp_navigation
-pcp_running_script
 
 pcp_httpd_query_string
 
@@ -66,27 +62,29 @@ pcp_debug_set() {
 #========================================================================================
 # Command line mode
 #----------------------------------------------------------------------------------------
-if [ x"" != x"$QUERY_STRING" ]; then
-	case $QUERY_STRING in
-		d=[01])
-			sed -i "s/\(DEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
-			;;
-		t=[0-9])
-			sed -i "s/\(TEST=\).*/\1$t/" $PCPHOME/pcp-functions
-			;;
-		m=[0-9]*) 
-			sed -i "s/\(MODE=\).*/\1$m/" $PCPHOME/pcp-functions
-			;;
-		a=[01])
-			sed -i "s/\(DEBUG=\).*/\1$a/" $PCPHOME/pcp-functions
-			sed -i "s/\(TEST=\).*/\1$a/" $PCPHOME/pcp-functions
-			sed -i "s/\(MODE=\).*/\1$a/" $PCPHOME/pcp-functions
-			;;
-		*)
-			[ $DEBUG = 1 ] && echo '<p class="error">[ ERROR ] Invalid option: '$QUERY_STRING'</p>'
-			;;
-	esac
-fi
+pcp_debug_cli() {
+	if [ x"" != x"$QUERY_STRING" ]; then
+		case $QUERY_STRING in
+			d=[01])
+				sed -i "s/\(DEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
+				;;
+			t=[0-9])
+				sed -i "s/\(TEST=\).*/\1$t/" $PCPHOME/pcp-functions
+				;;
+			m=100|m=[0-9][0-9]|m=[0-9]) 
+				sed -i "s/\(MODE=\).*/\1$m/" $PCPHOME/pcp-functions
+				;;
+			a=[01])
+				sed -i "s/\(DEBUG=\).*/\1$a/" $PCPHOME/pcp-functions
+				sed -i "s/\(TEST=\).*/\1$a/" $PCPHOME/pcp-functions
+				sed -i "s/\(MODE=\).*/\1$a/" $PCPHOME/pcp-functions
+				;;
+			*)
+				[ $DEBUG = 1 ] && echo '<p class="error">[ ERROR ] XX Invalid option: '$QUERY_STRING'</p>'
+				;;
+		esac
+	fi
+}
 
 #========================================================================================
 # Respond to interactive Save, Set all and Reset all buttons
@@ -105,13 +103,28 @@ case $DEBUG in
 	1) D1SELECTED=checked ;;
 esac
 
+pcp_html_head "Debug" "GE"
+
+
+if [ x"" != x"$QUERY_STRING" ] && [ x"" == x"$SUBMIT" ] ; then
+	echo '<body onload="javascript:location.href=document.referrer;">'
+	pcp_debug_cli
+	exit 0
+fi
+
+pcp_controls
+pcp_banner
+pcp_navigation
+pcp_running_script
+
 #========================================================================================
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] DEBUG: '$DEBUG' d: '$d'<br />'
 	echo '                 [ DEBUG ] TEST: '$TEST' t: '$t'<br />'
-	echo '                 [ DEBUG ] MODE: '$MODE' m: '$m'</p>'
+	echo '                 [ DEBUG ] MODE: '$MODE' m: '$m'<br />'
+	echo '                 [ DEBUG ] SUBMIT: '$SUBMIT'</p>'
 fi
 
 #========================================================================================
@@ -156,10 +169,10 @@ echo '                <td class="column150">'
 echo '                  <p>MODE</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input type="number" name="m" value='$MODE' min="0" max="99">'
+echo '                  <input type="number" name="m" value='$MODE' min="0" max="100">'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Set MODE level [1-99].</p>'
+echo '                  <p>Set MODE level [0-100].</p>'
 echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
