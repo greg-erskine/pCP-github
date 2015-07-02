@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.16 2015-06-28 GE
-#	Added pcp_picoreplayers tab.
+# Version: 0.16 2015-07-01 GE
+#	Added pcp_mode tabs.
+#	Added pcp_picoreplayers tabs.
 
 # Version: 0.15 2015-06-05 GE
 #	Started adding HTML5 input field validation.
@@ -73,8 +74,8 @@ pcp_variables
 
 pcp_html_head "Squeezelite Settings" "SBP"
 
-pcp_picoreplayers
-pcp_controls
+[ $MODE -ge $MODE_ADVANCED ] && pcp_picoreplayers
+[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
 
@@ -274,25 +275,31 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------Buffer size settings------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Buffer size settings</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="BUFFER_SIZE" value="'$BUFFER_SIZE'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Specify internal Stream and Output buffer sizes in Kb (-b)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;stream&gt;:&lt;output&gt;</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+pcp_squeezelite_buffer() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Buffer size settings</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="BUFFER_SIZE" value="'$BUFFER_SIZE'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Specify internal Stream and Output buffer sizes in Kb (-b)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;stream&gt;:&lt;output&gt;</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_buffer
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Codec settings------------------------------------
+pcp_squeezelite_codec() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -322,7 +329,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_codec
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Priority settings---------------------------------
+pcp_squeezelite_priority() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -343,7 +355,12 @@ echo '                    <p>Default: 45</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_priority
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Max sample rate-----------------------------------
+pcp_squeezelite_max_sample() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -366,7 +383,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_max_sample
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Upsample settings---------------------------------
+pcp_squeezelite_upsample_settings() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -399,7 +421,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_upsample_settings
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------MAC address---------------------------------------
+pcp_squeezelite_mac_address() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -427,7 +454,12 @@ echo '                    <p><b>Note: </b>Squeezelite will ignore MAC addresses 
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_mac_address
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Squeezelite server IP-----------------------------
+pcp_squeezelite_server_ip() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -453,7 +485,12 @@ echo '                    <p><b>Hint: </b>Triple click on LMS IP then drag and d
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_server_ip
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Log level setting---------------------------------
+pcp_squeezelite_log_level() {
 case "$LOGLEVEL" in
 	all=info) LOGLEVEL1="selected" ;;
 	all=debug) LOGLEVEL2="selected" ;;
@@ -517,7 +554,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_log_level
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Log file name-------------------------------------
+pcp_squeezelite_log_file() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -539,7 +581,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_log_file
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Device supports DoP-------------------------------
+pcp_squeezelite_dop() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -560,7 +607,12 @@ echo '                    <p><b>Note: </b>LMS requires the DoP patch applied.</p
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_dop
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Visualiser support--------------------------------
+pcp_squeezelite_visualiser() {
 case "$VISUALISER" in
 	yes) VISUALISERYES="checked" ;;
 	*) VISUALISERNO="checked" ;;
@@ -586,7 +638,12 @@ echo '                    <p><b>Note: </b>An option for jivelite if it gets port
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_visualiser
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Close output setting------------------------------
+pcp_squeezelite_close_output() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -608,7 +665,12 @@ echo '                    <p><b>Note: </b>Available in Squeezelite v1.8</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_close_output
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Various input-------------------------------------
+pcp_squeezelite_various_input() {
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -629,6 +691,10 @@ echo '                    <p><b>Example: </b>-e dsd</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_various_input
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Submit button-------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
@@ -649,6 +715,8 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
@@ -659,6 +727,7 @@ echo '</table>'
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_footer
+[ $MODE -ge $MODE_ADVANCED ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

@@ -163,7 +163,7 @@ displayFiles() {
 #========================================================================================
 # Loaded extensions on /mnt/mmcblk0p2/tce/optional/
 #----------------------------------------------------------------------------------------
-if [ $MODE = 99 ]; then
+if [ $MODE = $MODE_DEVELOPER ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -200,7 +200,7 @@ fi
 #========================================================================================
 # Downloaded extensions on /mnt/mmcblk0p2/tce/optional/
 #----------------------------------------------------------------------------------------
-if [ $MODE = 99 ]; then
+if [ $MODE = $MODE_DEVELOPER ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -237,7 +237,7 @@ fi
 #========================================================================================
 # Available extensions from tags.db
 #----------------------------------------------------------------------------------------
-if [ $MODE = 99 ]; then
+if [ $MODE = $MODE_DEVELOPER ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -434,7 +434,7 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '</table>'
 fi
 
-if [ $MODE = 99 ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
+if [ $MODE = $MODE_DEVELOPER ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 	#========================================================================================
 	# Display disk space using df
 	#----------------------------------------------------------------------------------------

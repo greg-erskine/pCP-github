@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.05 2015-06-28 GE
-#	Added pcp_picoreplayers tab.
+# Version: 0.05 2015-07-01 GE
+#	Added pcp_mode tabs.
+#	Added pcp_picoreplayers tabs.
 
 # Version: 0.04 2015-02-04 GE
 #	Using pcp_html_head now.
@@ -23,8 +24,8 @@ pcp_variables
 
 pcp_html_head "About" "SBP"
 
-pcp_picoreplayers
-pcp_controls
+[ $MODE -ge $MODE_ADVANCED ] && pcp_picoreplayers
+[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
 
@@ -33,17 +34,17 @@ echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
-echo '        <fieldset>'       
+echo '        <fieldset>'
 echo '          <table class="bggrey percent100">'
 echo '            <tr>'
 echo '              <td>'
-echo '                <h1>Thank you for using piCorePlayer</h1>'               
+echo '                <h1>Thank you for using piCorePlayer</h1>'
 echo '                <p>piCorePlayer is built on a very small linux distro which is only about 12 MB,'
 echo '                   known as <a href="http://tinycorelinux.net/">Tiny Core Linux</a>. '
 echo '                   A special thanks to bmarkus from the <a href="http://forum.tinycorelinux.net/">microcore forum</a> '
 echo '                   for help building the piCore (a special version for the Raspberry Pi) and support. '
 echo '                   It boots very fast (often within 15 sec), and it is running entirely in RAM, therefore, '
-echo '                   you can simply pull the power without any risk of corruption of your SD-card.</p>'      
+echo '                   you can simply pull the power without any risk of corruption of your SD-card.</p>'
 echo '                <p>In addition, piCorePlayer is using the fine Squeezelite player developed by Triode, which can be '
 echo '                   found <a href="https://code.google.com/p/squeezelite/">here</a>. Thanks to Ralphy for building '
 echo '                   a version of Squeezelite with wma and alac support and for providing the jivelite package.</p>'
@@ -98,27 +99,30 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Current configuration</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <tr>'
-echo '              <td>'
-                      pcp_textarea_inform "$CONFIGCFG" "cat $CONFIGCFG" 560
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+if [ $MODE -ge $MODE_ADVANCED ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Current configuration</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	                      pcp_textarea_inform "$CONFIGCFG" "cat $CONFIGCFG" 560
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 
 pcp_footer
+[ $MODE -ge $MODE_ADVANCED ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

@@ -21,7 +21,14 @@
 #   2. eth0 only, what about eth1 or wlan0
 #   3. /proc/cmdline is only updated from /mnt/mmcblk0p1/cmdline.txt at boot time
 #   4. /etc/init.d/settime.sh doesn't run if nodhcp bootcode is set.
-#----------------------------------------------------------------------------------------
+#
+#------------------------------------+-------------+-----------------+------------------+
+# IANA reserved private IPv4 ranges  | Start       | End             | No. of addresses |
+#------------------------------------+-------------+-----------------+------------------+
+# 24-bit block (/8 prefix, 1 × A)    | 10.0.0.0    | 10.255.255.255  | 16777216         |
+# 20-bit block (/12 prefix, 16 × B)  | 172.16.0.0  | 172.31.255.255  | 1048576          |
+# 16-bit block (/16 prefix, 256 × C) | 192.168.0.0 | 192.168.255.255 | 65536            |
+#------------------------------------+-------------+-----------------+------------------+
 
 . pcp-functions
 pcp_variables
@@ -294,7 +301,7 @@ pcp_toggle_row_shade
 echo '              <tr>'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
-[ $MODE = 99 ] &&
+[ $MODE = $MODE_DEVELOPER ] &&
 echo '                  <input type="submit" name="SUBMIT" value="Read">'
 echo '                </td>'
 echo '              </tr>'
@@ -306,7 +313,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-if [ $MODE = 99 ]; then
+if [ $MODE = $MODE_DEVELOPER ]; then
 	#========================================================================================
 	# Display current $STATICIP
 	#----------------------------------------------------------------------------------------

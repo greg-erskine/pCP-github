@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.12 2015-06-28 GE
-#	Added pcp_picoreplayers tab.
+# Version: 0.12 2015-07-01 GE
+#	Added pcp_mode tabs.
+#	Added pcp_picoreplayers tabs.
 
 # Version: 0.11 2015-06-10 GE
 #	0nly display "Available wifi networks" if Scan button pressed.
@@ -101,8 +102,8 @@ echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 echo '</script>'
 
-pcp_picoreplayers
-pcp_controls
+[ $MODE -ge $MODE_ADVANCED ] && pcp_picoreplayers
+[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
 pcp_httpd_query_string
@@ -390,6 +391,7 @@ echo '  </tr>'
 echo '</table>'
 
 pcp_footer
+[ $MODE -ge $MODE_ADVANCED ] && pcp_mode
 pcp_copyright
 
 echo '</body>'
