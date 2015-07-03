@@ -292,9 +292,11 @@ echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 echo "${GREEN}Done.${NORMAL}"
 
 # dropbear fix to allow scp to work
+if [ ! -e /usr/bin/dbclient ]; then
 echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
 sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/dbclient
 sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/scp
+fi
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
