@@ -601,6 +601,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
 	echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -853,7 +854,7 @@ pcp_tweaks_cron() {
 	echo '                <td colspan=3>'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-	[ $MODE -eq 99 ] &&
+	[ $MODE -eq $MODE_DEVELOPER ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'

@@ -1,15 +1,18 @@
 #!/bin/sh
 
+# Version: 0.03 2015-07-02 GE
+#	Added pcp_set_defaults.
+
 # Version: 0.02 2015-05-13 GE
-#    Added pcp_copyright.
+#	Added pcp_copyright.
 
 # Version: 0.01 2015-04-24 GE
-#    Original version.
+#	Original version.
 
 #========================================================================================
 # This script sets a static IP. Initially only supports wired ethernet not wireless.
-# The steps below follow the de-facto tiny core method of setting static IP address
-# that is recommended in a few forum threads.
+# The steps below follow the de-facto Tiny Core method of setting static IP address
+# that is recommended in a few Tiny Core forum threads.
 #
 #   1. Insert "nodhcp" bootcode in cmdline.txt
 #   2. Create script eth0.sh
@@ -22,6 +25,7 @@
 #   3. /proc/cmdline is only updated from /mnt/mmcblk0p1/cmdline.txt at boot time
 #   4. /etc/init.d/settime.sh doesn't run if nodhcp bootcode is set.
 #
+# link-local addressing for IPv4 networks 169.254.0.0/16
 #------------------------------------+-------------+-----------------+------------------+
 # IANA reserved private IPv4 ranges  | Start       | End             | No. of addresses |
 #------------------------------------+-------------+-----------------+------------------+
@@ -42,6 +46,8 @@ pcp_navigation
 pcp_running_script
 
 STATICIP=/opt/eth0.sh
+FIRST=$(echo $(pcp_lmsip) | awk -F. '{ print $1 }')
+THIRD=$(echo $(pcp_lmsip) | awk -F. '{ print $3 }')
 
 #========================================================================================
 # Add/remove $STATICIP to line 3 of /opt/bootlocal.sh script
@@ -52,9 +58,10 @@ STATICIP=/opt/eth0.sh
 pcp_edit_localboot() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Writing /opt/bootlocal.sh...</p>'
 	grep -v eth0.sh /opt/bootlocal.sh >/opt/bootlocal.sh~
-	sudo chmod 755 /opt/bootlocal.sh~
+	sudo chmod u=rwx,go=rx /opt/bootlocal.sh~
 	sudo mv /opt/bootlocal.sh~ /opt/bootlocal.sh
 	[ $1 = "add" ] && sed -i "4i /opt/eth0.sh" /opt/bootlocal.sh
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] '$(ls -al /opt/bootlocal.sh)'</p>'
 }
 
 #========================================================================================
@@ -114,6 +121,38 @@ pcp_read_script() {
 }
 
 #========================================================================================
+# Work out default values
+#----------------------------------------------------------------------------------------
+pcp_set_defaults() {
+	case $FIRST in
+		10)  CLASS=A ;;
+		172) CLASS=B ;;
+		192) CLASS=C ;;
+	esac
+
+	case $CLASS in
+		A)
+			[ "x" == $IP"x" ] && IP=10.0.0.123
+			[ "x" == $NETMASK"x" ] && NETMASK=255.0.0.0
+			[ "x" == $BROADCAST"x" ] && BROADCAST=10.0.0.255
+			[ "x" == $GATEWAY"x" ] && GATEWAY=10.0.0.1
+			;;
+		B)
+			[ "x" == $IP"x" ] && IP=172.16.0.123
+			[ "x" == $NETMASK"x" ] && NETMASK=255.255.0.0
+			[ "x" == $BROADCAST"x" ] && BROADCAST=172.16.0.255
+			[ "x" == $GATEWAY"x" ] && GATEWAY=172.16.0.1
+			;;
+		C)
+			[ "x" == $IP"x" ] && IP=192.168.$THIRD.123
+			[ "x" == $NETMASK"x" ] && NETMASK=255.255.255.0
+			[ "x" == $BROADCAST"x" ] && BROADCAST=192.168.$THIRD.255
+			[ "x" == $GATEWAY"x" ] && GATEWAY=192.168.$THIRD.1
+			;;
+	esac
+}
+
+#========================================================================================
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
@@ -137,6 +176,7 @@ pcp_httpd_query_string
 case "$SUBMIT" in
 	Save)
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Writing '$STATICIP'...</p>'
+		[ $DHCP = "off" ] && pcp_set_defaults
 		pcp_write_script
 		if [ $DHCP = "off" ]; then
 			pcp_nodhcp_bootcode add
@@ -146,6 +186,12 @@ case "$SUBMIT" in
 			pcp_edit_localboot delete
 		fi
 		pcp_backup >/dev/null
+		;;
+	Delete)
+		rm -f $STATICIP
+		;;
+	Defaults)
+		pcp_set_defaults
 		;;
 	*)
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Reading '$STATICIP'...</p>'
@@ -301,8 +347,10 @@ pcp_toggle_row_shade
 echo '              <tr>'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
-[ $MODE = $MODE_DEVELOPER ] &&
-echo '                  <input type="submit" name="SUBMIT" value="Read">'
+echo '                  <input type="submit" name="SUBMIT" value="Defaults">'
+if [ $MODE = $MODE_DEVELOPER ]; then
+	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+fi
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'

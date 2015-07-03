@@ -1,7 +1,11 @@
 #!/bin/sh
 
+# Version: 0.02 2015-07-02 GE
+#	Mode mods.
+#	Tidy up of code.
+
 # Version: 0.01 2015-06-02 GE
-#   Original version.
+#	Original version.
 
 #========================================================================================
 # References:
@@ -122,66 +126,30 @@ pcp_start_save() {
 
 	. $CONFIGCFG
 	case $OVERCLOCK in
-		DEFAULT)
-			pcp_set_overclock_default
-			;;
-		UNDER)
-			pcp_set_overclock UNDER 600 250 400 0
-			;;
-		NONE)
-			pcp_set_overclock NONE 700 250 400 0
-			;;
-		MODEST)
-			pcp_set_overclock MODEST 800 250 400 0
-			;;
-		MEDIUM)
-			pcp_set_overclock MEDIUM 900 250 450 2
-			;;
-		HIGH)
-			pcp_set_overclock HIGH 950 250 450 6
-			;;
-		TURBO)
-			pcp_set_overclock TURBO 1000 500 600 6
-			;;
-		PI2)
-			pcp_set_overclock PI2 1000 500 500 2
-			;;
-		*)
-			[ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid overclock option: '$OVERCLOCK'</p>'
-			;;
+		DEFAULT) pcp_set_overclock_default ;;
+		UNDER) pcp_set_overclock UNDER 600 250 400 0 ;;
+		NONE) pcp_set_overclock NONE 700 250 400 0 ;;
+		MODEST)pcp_set_overclock MODEST 800 250 400 0 ;;
+		MEDIUM) pcp_set_overclock MEDIUM 900 250 450 2 ;;
+		HIGH) pcp_set_overclock HIGH 950 250 450 6 ;;
+		TURBO) pcp_set_overclock TURBO 1000 500 600 6 ;;
+		PI2) pcp_set_overclock PI2 1000 500 500 2 ;;
+		*) [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid overclock option: '$OVERCLOCK'</p>' ;;
 	esac
 
 	case $FORCETURBO in
-		DEFAULT)
-			pcp_set_force_turbo_default
-			;;
-		0)
-			pcp_set_force_turbo 0
-			;;
-		1)
-			pcp_set_force_turbo 1
-			;;
-		*)
-			[ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>'
-			;;
+		DEFAULT) pcp_set_force_turbo_default ;;
+		0) pcp_set_force_turbo 0 ;;
+		1) pcp_set_force_turbo 1 ;;
+		*) [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
 	esac
 
 	case $GPUMEMORY in
-		DEFAULT)
-			pcp_set_gpu_memory_default
-			;;
-		16)
-			pcp_set_gpu_memory 16
-			;;
-		32)
-			pcp_set_gpu_memory 32
-			;;
-		64)
-			pcp_set_gpu_memory 64
-			;;
-		*)
-			[ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>'
-			;;
+		DEFAULT) pcp_set_gpu_memory_default ;;
+		16) pcp_set_gpu_memory 16 ;;
+		32) pcp_set_gpu_memory 32 ;;
+		64) pcp_set_gpu_memory 64 ;;
+		*) [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
 	esac
 
 	[ $DEBUG = 1 ] && pcp_check_config_txt
@@ -210,24 +178,16 @@ pcp_check_config_txt() {
 pcp_check_force_turbo() {
 	FTSET=$(cat $CONFIGTXT | grep force_turbo=)
 	case $FTSET in
-		force_turbo=1)
-			echo 0
-			;;
-		*)
-			echo 1
-			;;
+		force_turbo=1) echo 0 ;;
+		*) echo 1 ;;
 	esac
 }
 
 pcp_check_over_voltage() {
 	OVSET=$( cat $CONFIGTXT | grep over_voltage= )
 	case $OVSET in
-		over_voltage=0 | \#over_voltage=*)
-			echo 1
-			;;
-		over_voltage=*)
-			echo 0
-			;;
+		over_voltage=0 | \#over_voltage=*) echo 1 ;;
+		over_voltage=*) echo 0 ;;
 	esac
 }
 
@@ -248,40 +208,14 @@ esac
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
 case $OVERCLOCK in
-	DEFAULT)
-		OCdefault="selected"
-		;;
-	UNDER)
-		OCunder="selected"
-		;;
-	NONE)
-		OCnone="selected"
-		;;
-	MODEST)
-		OCmodest="selected"
-		;;
-	MEDIUM)
-		OCmedium="selected"
-		;;
-	HIGH)
-		OChigh="selected"
-		;;
-	TURBO)
-		OCturbo="selected"
-		;;
-	PI2)
-		OCpi2="selected"
-		;;
-	*)
-		OCdefault=""
-		OCunder=""
-		OCnone=""
-		OCmodest=""
-		OCmedium=""
-		OChigh=""
-		OCturbo=""
-		OCpi2=""
-		;;
+	DEFAULT) OCdefault="selected" ;;
+	UNDER) OCunder="selected" ;;
+	NONE) OCnone="selected" ;;
+	MODEST) OCmodest="selected" ;;
+	MEDIUM) OCmedium="selected" ;;
+	HIGH) OChigh="selected" ;;
+	TURBO) OCturbo="selected" ;;
+	PI2) OCpi2="selected" ;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -291,32 +225,18 @@ pcp_mount_mmcblk0p1 >/dev/null 2>&1
 FORCETURBO=$(cat $CONFIGTXT | grep force_turbo)
 
 case $FORCETURBO in
-	\#force_turbo=0)
-		FTdefault="selected"
-		;;
-	force_turbo=0)
-		FT0="selected"
-		;;
-	force_turbo=1)
-		FT1="selected"
-		;;
+	\#force_turbo=0) FTdefault="selected" ;;
+	force_turbo=0) FT0="selected" ;;
+	force_turbo=1) FT1="selected" ;;
 esac
 
 GPUMEMORY=$(cat $CONFIGTXT | grep gpu_mem)
 
 case $GPUMEMORY in
-	\#gpu_mem=)
-		GMdefault="selected"
-		;;
-	gpu_mem=16)
-		GM16="selected"
-		;;
-	gpu_mem=32)
-		GM32="selected"
-		;;
-	gpu_mem=64)
-		GM64="selected"
-		;;
+	\#gpu_mem=) GMdefault="selected" ;;
+	gpu_mem=16) GM16="selected" ;;
+	gpu_mem=32) GM32="selected" ;;
+	gpu_mem=64) GM64="selected" ;;
 esac
 
 pcp_umount_mmcblk0p1 >/dev/null 2>&1
@@ -341,15 +261,15 @@ echo '                <td class="column150">'
 echo '                  <p>Overclock</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select name="OVERCLOCK">'
+echo '                  <select class="large16" name="OVERCLOCK">'
 if [ $(pcp_rpi_is_model_2B) = 1 ]; then
-	[ $MODE = 99 ] &&
+	[ $MODE = $MODE_DEVELOPER ] &&
 	echo '                    <option value="DEFAULT" '$OCdefault'>Default</option>'
 	echo '                    <option value="UNDER" '$OCunder'>Under</option>'
 	echo '                    <option value="NONE" '$OCnone'>None</option>'
 	echo '                    <option value="MODEST" '$OCmodest'>Modest</option>'
 	echo '                    <option value="MEDIUM" '$OCmedium'>Moderate</option>'
-	if [ $MODE = 99 ]; then
+	if [ $MODE = $MODE_DEVELOPER ]; then
 		echo '                    <option value="HIGH" '$OChigh'>High</option>'
 		echo '                    <option value="TURBO" '$OCturbo'>Turbo</option>'
 	fi
@@ -362,7 +282,8 @@ echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;Default|None|Under|Modest|Medium|High|Turbo|Pi2&gt;</p>'
 echo '                    <p>Reboot is required.<p>'
@@ -374,7 +295,6 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="warning">'
@@ -382,7 +302,7 @@ echo '                <td class="column150">'
 echo '                  <p style="color:white">Force turbo</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select name="FORCETURBO">'
+echo '                  <select class="large16" name="FORCETURBO">'
 echo '                    <option value="DEFAULT" '$FTdefault'>Default</option>'
 echo '                    <option value="0" '$FT0'>0</option>'
 echo '                    <option value="1" '$FT1'>1</option>'
@@ -390,7 +310,8 @@ echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p style="color:white">Change Raspberry Pi force turbo setting&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p style="color:white">&lt;Default|0|1&gt;</p>'
 echo '                    <p style="color:white"><b>Warning: </b>Setting force turbo may set warranty bit.<p>'
@@ -398,7 +319,6 @@ echo '                    <p style="color:white">Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -406,7 +326,7 @@ echo '                <td class="column150">'
 echo '                  <p>Overclock governor</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select name="OCGOVERNOR">'
+echo '                  <select class="large16" name="OCGOVERNOR">'
                           for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
                               SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
                               [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
@@ -416,14 +336,14 @@ echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Change overclocking governor &nbsp;&nbsp;'
-echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)'&gt;</p>'
 echo '                    <p>Dynamically set, no reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -431,7 +351,7 @@ echo '                <td class="column150">'
 echo '                  <p>GPU memory</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select name="GPUMEMORY">'
+echo '                  <select class="large16" name="GPUMEMORY">'
 echo '                    <option value="DEFAULT" '$GMdefault'>Default</option>'
 echo '                    <option value="16" '$GM16'>16</option>'
 echo '                    <option value="32" '$GM32'>32</option>'
@@ -440,27 +360,25 @@ echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Change GPU memory setting&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;Default|16|32|64&gt;</p>'
 echo '                    <p>Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                </td>'
 echo '              </tr>'
-
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
@@ -479,7 +397,6 @@ if [ $DEBUG = 1 ]; then
 	#========================================================================================
 	# Display debug information
 	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -488,6 +405,7 @@ if [ $DEBUG = 1 ]; then
 	echo '          <fieldset>'
 	echo '            <legend>Debug information</legend>'
 	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
@@ -520,11 +438,10 @@ if [ $DEBUG = 1 ]; then
 	echo '</table>'
 fi
 
-if [ $MODE = 99 ]; then
+if [ $MODE = $MODE_DEVELOPER ]; then
 	#========================================================================================
 	# Display current overclock settings
 	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -533,6 +450,7 @@ if [ $MODE = 99 ]; then
 	echo '          <fieldset>'
 	echo '            <legend>Current overclock settings</legend>'
 	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        pcp_display_current
@@ -549,7 +467,6 @@ if [ $MODE = 99 ]; then
 	#========================================================================================
 	# Display current config.cfg
 	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -558,9 +475,10 @@ if [ $MODE = 99 ]; then
 	echo '          <fieldset>'
 	echo '            <legend>Current config.cfg</legend>'
 	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "cat $CONFIGCFG" 400
+	                        pcp_textarea_inform "none" "grep -C2 OVERCLOCK $CONFIGCFG" 50
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'

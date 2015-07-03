@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.19 2015-06-29 GE
+# Version: 0.19 2015-07-04 GE
 #	Added dropbear fix to allow scp to work between piCorePlayers.
 
 # Version: 0.18 2015-06-25 SBP
@@ -293,11 +293,11 @@ echo "${GREEN}Done.${NORMAL}"
 
 # dropbear fix to allow scp to work
 if [ ! -e /usr/bin/dbclient ]; then
-echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
-sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/dbclient
-sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/scp
+	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
+	sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/dbclient
+	sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/scp
+	echo "${GREEN}Done.${NORMAL}"
 fi
-echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1

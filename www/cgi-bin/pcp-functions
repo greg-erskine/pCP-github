@@ -212,7 +212,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (100=developers)
-	MODE=0
+	MODE=100
 	MODE_INITIAL=0
 	MODE_BASIC=10
 	MODE_ADVANCED=20
@@ -568,11 +568,7 @@ pcp_xtras() {
 
 pcp_picoreplayers() {
 	echo '<!-- Start of picoreplayers toolbar -->'
-#	echo '<table class="bgtab">'
-#	echo '  <tr>'
-#	echo '    <td>'
-#	echo '    <div>'
-	echo '      <p>'
+	echo '<p>'
 
 	TMP=$(mktemp)
 	pcp_lms_players squeezelite >$TMP
@@ -581,15 +577,12 @@ pcp_picoreplayers() {
 		TITLE=$(echo $line | awk -F, '{ print $1 }')
 		URL=$(echo $line | awk -F, '{ print $2 }')
 		[ "$NAME" == "$TITLE" ] && TAB=tab7a || TAB=tab7
-		echo '        <a class="'$TAB'" href="http://'$URL'/" title="'$URL'">'$TITLE'</a>'
+		echo '  <a class="'$TAB'" href="http://'$URL'/" title="'$URL'">'$TITLE'</a>'
 	done <$TMP
 	rm -r $TMP
-	echo '        <p class="tab7end">pCP</p>'
-	echo '      </p>'
 
-#	echo '    </td>'
-#	echo '  </tr>'
-#	echo '</table>'
+	echo '  <div class="tab7end">pCP</div>'
+	echo '</p>'
 	echo '<!-- End of picoreplayers toolbar -->'
 }
 
@@ -610,12 +603,12 @@ pcp_mode() {
 	esac
 
 	echo '<p>'
-	echo '  <a class="'$TAB_MODE_INITIAL'"   href="debug.cgi?m='$MODE_INITIAL'"   title="Initial mode">Initial</a>'
-	echo '  <a class="'$TAB_MODE_BASIC'"     href="debug.cgi?m='$MODE_BASIC'"     title="Basic mode">Basic</a>'
-	echo '  <a class="'$TAB_MODE_ADVANCED'"  href="debug.cgi?m='$MODE_ADVANCED'"  title="Advanced mode">Advanced</a>'
-	echo '  <a class="'$TAB_MODE_BETA'"      href="debug.cgi?m='$MODE_BETA'"      title="Beta mode">Beta</a>'
+	echo '  <a class="'$TAB_MODE_INITIAL'" href="debug.cgi?m='$MODE_INITIAL'" title="Initial mode">Initial</a>'
+	echo '  <a class="'$TAB_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
+	echo '  <a class="'$TAB_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
+	echo '  <a class="'$TAB_MODE_BETA'" href="debug.cgi?m='$MODE_BETA'" title="Beta mode">Beta</a>'
 	echo '  <a class="'$TAB_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developers</a>'
-	echo '  <p class="tab7end">pCP</p>'
+	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
 	echo '<!-- End of mode toolbar -->'
 }
@@ -779,7 +772,8 @@ pcp_uptime_days() {
 	[ $H -eq 1 ] && HS="hour" || HS="hours"
 	[ $M -eq 1 ] && MS="minute" || MS="minutes"
 	[ $S -eq 1 ] && SS="second" || SS="seconds"
-	printf "%2d %s %2d %s %2d %s %2d %s" $D $DS $H $HS $M $MS $S $SS	# 2 days 8 hours 10 minutes 35 seconds
+	# 2 days 8 hours 10 minutes 35 seconds
+	printf "%2d %s %2d %s %2d %s %2d %s" $D $DS $H $HS $M $MS $S $SS
 }
 
 #=========================================================================================
