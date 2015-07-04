@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.05 2015-07-04 GE
+#	More updates.
+
 # Version: 0.04 2015-04-28 GE
 #	More minor updates.
 
@@ -20,16 +23,15 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="/tmp/diagrpi.log"
+LOG="/tmp/pcp_diagrpi.log"
 (echo $0; date) > $LOG
+cat /etc/motd >> $LOG
 
 pcp_html_head "RasPi Diagnostics" "GE"
 
-pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_mode_lt_5
 
 #========================================================================================
 # Raspberry Pi
@@ -42,7 +44,8 @@ echo '        <fieldset>'
 echo '          <legend>Raspberry Pi</legend>'
 echo '          <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
-echo '            <tr class="even">'
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>Model:</p>'
 echo '              </td>'
@@ -50,7 +53,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_rpi_model)'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>Temperature:</p>'
+echo '                <p>CPU Temperature:</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>'$(pcp_rpi_thermal_temp)'</p>'
@@ -63,7 +66,8 @@ echo '                <p>'$(pcp_eth0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
-echo '            <tr class="odd">'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>Revison:</p>'
 echo '              </td>'
@@ -84,7 +88,8 @@ echo '                <p>'$(pcp_wlan0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
-echo '            <tr class="even">'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>PCB Revison:</p>'
 echo '              </td>'
@@ -105,7 +110,8 @@ echo '                <p>'$(pcp_config_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
-echo '            <tr class="odd">'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>Memory:</p>'
 echo '              </td>'
@@ -126,24 +132,13 @@ echo '                <p>'$(pcp_controls_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
-echo '            <tr class="even">'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
-echo '                <p>Uptime (secs):</p>'
+echo '                <p>Uptime:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p>'$(pcp_uptime_seconds)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p>Uptime (mins):</p>'
-echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p>'$(pcp_uptime_minutes)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p></p>'
+echo '              <td colspan="4">'
+echo '                <p>'$(pcp_uptime_days)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
@@ -172,7 +167,8 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Squeezelite</legend>'
 echo '          <table class="bggrey percent100">'
-echo '            <tr class="even">'
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
 echo '              </td>'
@@ -209,7 +205,8 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>piCorePlayer</legend>'
 echo '          <table class="bggrey percent100">'
-echo '            <tr class="even">'
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>Version:</p>'
 echo '              </td>'
@@ -246,7 +243,8 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>piCore</legend>'
 echo '          <table class="bggrey percent100">'
-echo '            <tr class="even">'
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>Version:</p>'
 echo '              </td>'
@@ -280,7 +278,8 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Internet</legend>'
 echo '          <table class="bggrey percent100">'
-echo '            <tr class="even">'
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
 
                     if [ $(pcp_internet_accessible) = 0 ]; then
                       IMAGE="green.png"

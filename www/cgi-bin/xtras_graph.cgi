@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Version: 0.03 2015-07-05 GE
+#	Added previous and next buttons.
+
 # Version: 0.02 2015-05-02 GE
-#   Added option buttons.
+#	Added option buttons.
 
 # Version: 0.01 2015-02-25 GE
-#   Original version.
+#	Original version.
 
 #========================================================================================
 # This is an experiment to work out how to generate graphs using only:
@@ -32,7 +35,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
-# This routine writes /etc/cpu.tmp
+# This routine writes /etc/cputemp.sh
 #----------------------------------------------------------------------------------------
 pcp_write_cputemp_sh() {
 cat <<EOF > /tmp/cputemp.sh
@@ -49,7 +52,7 @@ do
 done
 EOF
 
-	sudo chmod 755 /tmp/cputemp.sh
+	sudo chmod u=rwx,og=rx /tmp/cputemp.sh
 }
 
 case $OPTION in
@@ -67,6 +70,14 @@ case $OPTION in
 		rm -f /tmp/cputemp.sh
 		;;
 	Refresh)
+		COUNTER=0
+		;;
+	Previous)
+		COUNTER=$(($COUNTER - 10))
+		;;
+	Next)
+		COUNTER=$(($COUNTER + 10))
+		[ $COUNTER -ge 0 ] && COUNTER=0
 		;;
 esac
 
@@ -160,13 +171,19 @@ echo ''
 #----------------------------------------------------------------------------------------
 # Test data if data.txt doesn't exist
 
+[ "x" == "x"$COUNTER ] && COUNTER=0
+
 DATA1="06:25 06:26 06:27 06:28 06:29 06:30 06:31 06:32 06:33 06:34 06:35 06:36 06:37 06:38 06:39 06:40 06:41 06:42 06:43 06:44 06:45"
 DATA2="100 90 80 70 60 50 40 30 20 10 0 10 20 30 40 55 60 70 80 90 100"
 
 if [ -f /tmp/data.txt ]; then
+	LINES=$(wc -l < /tmp/data.txt)
+	BEGINRANGE=$(($LINES - $XMAX + $COUNTER))
+	[ $BEGINRANGE -le 0 ] && BEGINRANGE=1
+	ENDRANGE=$(($BEGINRANGE + $XMAX))
 	DATA=$(cat /tmp/data.txt)
-	DATA1=$(echo "$DATA" | tail -21 | awk '{print $1}')
-	DATA2=$(echo "$DATA" | tail -21 | awk '{print $2}')
+	DATA1=$(echo "$DATA" | sed -n ${BEGINRANGE},${ENDRANGE}p | awk '{print $1}')
+	DATA2=$(echo "$DATA" | sed -n ${BEGINRANGE},${ENDRANGE}p | awk '{print $2}')
 fi
 
 #========================================================================================
@@ -291,8 +308,14 @@ echo '          </table>'
 echo '          <table class="bggrey percent100">'
 echo '            <form name="actions" action="xtras_graph.cgi" method="get">'
 echo '              <tr>'
-echo '                <td colspan=3>'
+echo '                <td colspan=2>'
+echo '                  <input type="submit" name="OPTION" value="Previous">'
 echo '                  <input type="submit" name="OPTION" value="Refresh">'
+echo '                  <input type="submit" name="OPTION" value="Next">'
+echo '                  <input type="hidden" name="COUNTER" value="'$COUNTER'">'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
 echo '                </td>'
 echo '              </tr>'
 echo '            </form>'
@@ -304,7 +327,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-#=========================================================================================
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'

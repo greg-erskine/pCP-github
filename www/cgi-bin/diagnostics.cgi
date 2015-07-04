@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.10 2015-07-04 GE
+#	Minor updates.
+
 # Version: 0.09 2015-04-28 GE
 #	More minor updates.
 
@@ -37,24 +40,15 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="/tmp/diagnostics.log"
+LOG="/tmp/pcp_diagnostics.log"
 (echo $0; date) > $LOG
+cat /etc/motd >>$LOG
 
 pcp_html_head "Diagnostics" "GE"
 
-pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_mode_lt_5
-
-if [ $DEBUG = 1 ]; then
-	echo '<p class="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
-	echo '                 [ DEBUG ] eth0: '$(pcp_eth0_mac_address)'<br />'
-	echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
-	echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'<br />'
-	echo '                 [ DEBUG ] LMSIP: '$(pcp_lmsip)'</p>'
-fi
 
 pcp_textarea "piCore version: $(pcp_picore_version)" "version" 60 log
 pcp_textarea "piCorePlayer version: $(pcp_picoreplayer_version)" "cat /usr/local/sbin/piversion.cfg" 60 log
@@ -62,26 +56,13 @@ pcp_textarea "Squeezelite version and license: $(pcp_squeezelite_version)" "/mnt
 pcp_textarea "Squeezelite help" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -h" 300 log
 pcp_textarea "Squeezelite Output devices" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l" 150 log
 pcp_textarea "Squeezelite Volume controls" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -L" 150 log
+pcp_textarea "Squeezelite process" 'ps -o args | grep -v grep | grep squeezelite' 60 log
 
-#================================Problem=================================================
-pcp_textarea "Squeezelite process - TESTING!!" "'ps -o args | grep -v grep | grep squeezelite'" 60 log
-
-echo '<h1>[ INFO ] Squeezelite process</h1>'
-echo '<textarea name="TextBox" style="height:24px;">'
-ps -o args | grep -v grep | grep squeezelite
-echo '</textarea>'
-#================================Problem=================================================
-
-pcp_mount_mmcblk0p1
-dmesg | tail -1
-
-if mount | grep $VOLUME; then
+pcp_mount_mmcblk0p1 >/dev/null 2>&1
+if mount >/dev/null 2>&1 | grep $VOLUME; then
 	pcp_textarea "Current config.txt" "cat $CONFIGTXT" 150 log
 	pcp_textarea "Current cmdline.txt" "cat $CMDLINETXT" 150 log
-	pcp_umount_mmcblk0p1
-	sleep 2
-	#=========Fix============
-	dmesg | tail -1
+	pcp_umount_mmcblk0p1 >/dev/null 2>&1
 fi
 
 pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 150 log

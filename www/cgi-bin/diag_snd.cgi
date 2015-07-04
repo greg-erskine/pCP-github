@@ -1,6 +1,9 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 0.05 2015-07-04 GE
+#	Minor updates.
+
 # Version: 0.04 2015-05-13 GE
 #	Added /usr/local/tce.installed/alsa,
 #		  /usr/local/etc/udev/rules.d/90-alsa-restore.rules.
@@ -21,16 +24,15 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="/tmp/diagsnd.log"
+LOG="/tmp/pcp_diagsnd.log"
 (echo $0; date) > $LOG
+cat /etc/motd >> $LOG
 
 pcp_html_head "Sound Diagnostics" "GE"
 
-pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_mode_lt_5
 
 #=========================================================================================
 # Sound diagnostics

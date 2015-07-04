@@ -2,9 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.38 2015-07-01 GE
+# Version: 0.38 2015-07-05 GE
 #	Updated pcp_picoreplayers.
-#	Added pcp_mode (beta - not functioning).
+#	Added pcp_mode.
 
 # Version: 0.37 2015-06-25 SBP
 #	Changed timezone logic, so changes are immediately present (reboot not needed).
@@ -212,7 +212,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (100=developers)
-	MODE=100
+	MODE=0
 	MODE_INITIAL=0
 	MODE_BASIC=10
 	MODE_ADVANCED=20
@@ -286,6 +286,9 @@ pcp_picore_accessible() {
 #=========================================================================================
 # Test mode level.
 #-----------------------------------------------------------------------------------------
+##########################################################################################
+# These need FIXING !!!
+##########################################################################################
 pcp_mode_lt_99() {
 	if [ $MODE -lt 99 ]; then
 		echo '<p class="error">[ ERROR ] Wrong mode.</p>'
@@ -654,7 +657,10 @@ pcp_textarea() {
 	[ "$TITLE" == "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea style="height:'$3'px">'
 	echo $START
-	$2
+	if [ $DEBUG = 1 ]; then
+		echo '$1: '$1' $2: '$2' $3: '$3' $4: '$4
+	fi
+	eval $2
 	echo $END
 	echo '</textarea>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
@@ -673,7 +679,7 @@ pcp_write_to_log() {
 	echo ====================================================================================== >> $LOG
 	echo "$TITLE" >> $LOG
 	echo -------------------------------------------------------------------------------------- >> $LOG
-	$2 >> $LOG
+	eval $2 >> $LOG
 	echo ====================================================================================== >> $LOG
 	echo >> $LOG
 }

@@ -1,8 +1,11 @@
 #!/bin/sh
 # Boot diagnostics script
 
+# Version: 0.06 2015-07-02 GE
+#	Added /opt/eth0.sh
+
 # Version: 0.05 2015-05-08 GE
-#	Added  /etc/init.d/dhcp.sh, /etc/init.d/settime.sh and /usr/bin/getTime.sh
+#	Added /etc/init.d/dhcp.sh, /etc/init.d/settime.sh and /usr/bin/getTime.sh
 
 # Version: 0.04 2015-04-28 GE
 #	Minor updates.
@@ -23,17 +26,16 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="/tmp/diagboot.log"
+LOG="/tmp/pcp_diagboot.log"
 (echo $0; date) > $LOG
+cat /etc/motd >> $LOG
 echo "This shows the boot process, starting with the initial init and going through to the the tc profile and ashrc files." >> $LOG
 
 pcp_html_head "Boot Diagnostics" "GE"
 
-pcp_footer
 pcp_banner
 pcp_diagnostics
 pcp_running_script
-pcp_mode_lt_5
 
 #=========================================================================================
 # Boot files in order of execution
@@ -57,6 +59,7 @@ echo '	<li><a href="#12">/home/tc/.ashrc</a></li>'
 echo '	<li><a href="#13">/etc/init.d/tc-functions</a></li>'
 echo '	<li><a href="#14">/proc/cmdline</a></li>'
 echo '	<li><a href="#15">/usr/local/bin/wifi.sh</a></li>'
+echo '	<li><a href="#16">/opt/eth0.sh</a></li>'
 echo '</ol>'
 
 echo '<p id="01"></p>'
@@ -95,6 +98,8 @@ echo '<p id="14"></p>'
 pcp_textarea "" "cat /proc/cmdline" 100 log
 echo '<p id="15"></p>'
 pcp_textarea "" "cat /usr/local/bin/wifi.sh" 500 log
+echo '<p id="16"></p>'
+pcp_textarea "" "cat /opt/eth0.sh" 150 log
 
 echo '<br />'
 echo '<br />'
