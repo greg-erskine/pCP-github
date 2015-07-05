@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2015-07-07 SBP
+#	Added the other files as well.
+
 # Version: 0.01 2014-04-23 GE
 #	Added to git.
 
@@ -63,11 +66,9 @@ cp -rp /var/spool/cron/crontabs /tmp/pcpextension/var/spool/cron
 
 # Check for squashfs-tools.tcz and download and install
 if [ ! -f /mnt/mmcblk0p2/tce/optional/squashfs-tools.tcz ]; then
-#    sudo -u tc 'tce-load -w squashfs-tools.tcz'  #GREG I Couldn't get the sudu -u command to work here..
-tce-load -w squashfs-tools.tcz
+sudo -u tc tce-load -w squashfs-tools.tcz
 fi
-#sudo -u tc 'tce-load -i squashfs-tools.tcz' #GREG I Couldn't get the sudu -u command to work here..
-tce-load -i squashfs-tools.tcz
+sudo -u tc tce-load -i squashfs-tools.tcz
 
 cd /tmp
 mksquashfs pcpextension pcp.tcz
