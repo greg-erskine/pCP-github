@@ -3,6 +3,7 @@
 echo "Running pcp.tcz autoload script..."
 
 for i in /etc/asound.conf /etc/group /etc/motd /etc/modprobe.conf /etc/passwd /etc/shadow
+#do we also need to add a default config.txt here?  
 do
 	if [ -f ${i}.sample ]; then 
 		echo "${i}.sample exists. Replacing ${i}..."
@@ -14,3 +15,14 @@ do
 		echo "${i}.sample does not exist."
 	fi
 done
+
+echo "adding pCP start logic script and config file"
+# Heere I am using the abscence of do_rebootstuff.sh in bootlocal as an indicator of first run
+# is that a valid hypothesis?
+	if grep -Fxq "do_rebootstuff.sh" /opt/bootlocal.sh; then
+		break
+	else
+		echo "do_rebootstuff.sh" >> /opt/bootlocal.sh           #this will allow pCP to start via do_rebootstuff
+		echo "usr/local/sbin/config.cfg" >> /opt/.filetool.lst  #this will allow pCP to save the current config.cfg
+ 	fi
+	
