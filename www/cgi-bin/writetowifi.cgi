@@ -54,13 +54,12 @@ fi
 sudo chmod 766 /home/tc/wifi.db
 sudo echo ${SSSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION} > /home/tc/wifi.db
 
-pcp_textarea "" "cat $WIFIDB" 30 log
+
+pcp_textarea "" "cat $WIFIDB" 40
 
 # Save the parameters to the config file, add double quotes
-sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
-sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
-sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
-sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
+pcp_save_to_config
+
 
 #========================================================================================
 # Toggle whether wifi and wireless firmware tcz are loaded during boot
@@ -68,14 +67,20 @@ sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
 if [ $WIFI = on ]; then
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] wifi is on. Updating onboot.lst...</p>'
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Reboot NOT required.</p>'
-		REBOOT=no
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Wifi modules already loaded.</p>'
 	else
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Reboot required.</p>'
-		REBOOT=yes
-	fi
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Loading wifi firmware and modules.</p>'
 	# Add wifi related modules back
 	sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+	sudo -u tc tce-load -i firmware-ralinkwifi.tcz
+	[ $? = 0 ] && echo -n 'Ralink firmware loaded.' || echo 'Ralink firmware error.'
+	sudo -u tc tce-load -i firmware-rtlwifi.tcz
+	[ $? = 0 ] && echo -n 'Realtek firmware loaded.' || echo 'Realtek firmware error.'
+	sudo -u tc tce-load -i firmware-atheros.tcz
+	[ $? = 0 ] && echo 'Atheros firmware loaded.' || echo 'Atheros firmware error.'
+	sudo -u tc tce-load -i wifi.tcz
+	[ $? = 0 ] && echo -n 'Wifi modules loaded.' || echo 'Wifi modules error.'	
+	fi
 fi
 
 if [ $WIFI = off ]; then
@@ -87,9 +92,9 @@ if [ $WIFI = off ]; then
 	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 fi
 
-pcp_textarea "" "cat $CONFIGCFG" 150 log
-pcp_textarea "" "cat /mnt/mmcblk0p2/tce/onboot.lst" 150 log
-pcp_textarea "" "cat /mnt/mmcblk0p2/tce/piCorePlayer.dep" 150 log
+pcp_textarea "" "cat $CONFIGCFG" 150
+pcp_textarea "" "cat /mnt/mmcblk0p2/tce/onboot.lst" 150
+pcp_textarea "" "cat /mnt/mmcblk0p2/tce/piCorePlayer.dep" 150
 
 pcp_backup
 
@@ -115,15 +120,6 @@ echo '<br />'
 echo '<form name="go_back" action="wifi.cgi" method="get">'
 echo '  <input type="submit" value="Go back" />'
 echo '</form>'
-
-# Add a reboot button if needed
-if [ $REBOOT = yes ]; then
-	echo '<br />'
-	echo '<br />'
-	echo '<form name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get">'
-	echo '  <span class="error"><input type="submit" value="Reboot" />&nbsp;&nbsp;Reboot required before you can use wifi.</span>'
-	echo '</form>'
-fi
 
 echo '</body>'
 echo '</html>'
