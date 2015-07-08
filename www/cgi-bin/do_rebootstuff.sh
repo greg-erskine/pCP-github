@@ -144,26 +144,24 @@ fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 
-# If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded and then reboot
-REBOOTW=no
+# If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
 if [ $WIFI = "on" ]; then
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
 		echo "${GREEN}Wifi firmware already loaded${NORMAL}"
 	else
 		# Add wifi related modules back
+		echo "${GREEN}Loading wifi firmware and modules${NORMAL}"
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
-		REBOOTW=yes
+		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW} Ralink firmware loaded.${NORMAL}" || echo "${RED} Ralink firmware load error.${NORMAL}"
+		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW} Realtek firmware loaded.${NORMAL}" || echo "${RED} Realtek firmware load error.${NORMAL}"
+		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW} Atheros firmware loaded.${NORMAL}" || echo "${RED} Atheros firmware load error.${NORMAL}"
+		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW} Wifi modules loaded.${NORMAL}" || echo "${RED} Wifi modules load error.${NORMAL}"
+		echo "${GREEN} Done.${NORMAL}"
 	fi
-fi
-
-# Reboot if requested for wifi firmware loading
-[ $REBOOTW = yes ] && "${RED}Will reboot now and then wifi firmware will be loaded${NORMAL}"
-
-if [ $REBOOTW = yes ]; then 
-	pcp_save_to_config
-	pcp_backup_nohtml >/dev/null 2>&1
-	sleep 4
-	sudo reboot
 fi
 
 if [ $WIFI = "on" ]; then
