@@ -1,7 +1,7 @@
 #!/bin/sh -x
 # Script to create pcp.tcz
 
-# Version: 0.02 2015-07-06 SBP
+# Version: 0.02 2015-07-08 SBP
 #	Added the other files as well.
 
 # Version: 0.01 2014-04-23 GE
@@ -68,41 +68,51 @@ cp -rp www/* /tmp/pcpextension/home/tc/www
 echo "${GREEN}Done.${NORMAL}"
 
 #========================================================================================
+# Create pcp extension autorun script
+#----------------------------------------------------------------------------------------
+echo -n "${BLUE}Copying autorun script... ${NORMAL}"
+mkdir -p /tmp/pcpextension/usr/local/tce.installed
+cp ~/pcp /tmp/pcpextension/usr/local/tce.installed
+sudo chown -R root:staff /tmp/package/usr/local/tce.installed
+sudo chmod -R u=rwx,g=rwx,o=rx /tmp/package/usr/local/tce.installed
+echo "${GREEN}Done.${NORMAL}"
+
+#========================================================================================
 # Copy pCP files from /etc directory
 #----------------------------------------------------------------------------------------
 echo -n "${BLUE}Copying /etc files... ${NORMAL}"
 mkdir -p /tmp/pcpextension/etc
 
-# -rw-r--r-- 1 root root /etc/motd
-chown root:root /etc/motd
-chmod u=rw,g=r,o=r /etc/motd
-cp -rp /etc/motd /tmp/pcpextension/etc
-
 # -rwxr-xr-x 1 root root /etc/asound.conf
 chown root:root /etc/asound.conf
 chmod u=rwx,g=rx,o=rx /etc/asound.conf
-cp -rp /etc/asound.conf /tmp/pcpextension/etc
+cp -rp /etc/asound.conf /tmp/pcpextension/etc/asound.conf.sample
+
+# -rw-r--r-- 1 root root /etc/group
+chown root:root /etc/group
+chmod u=rw,g=r,o=r /etc/group
+cp -rp /etc/group /tmp/pcpextension/etc/group.sample
+
+# -rwxr-xr-x 1 root root /etc/modprobe.conf
+chown root:root /etc/modprobe.conf
+chmod u=rwx,g=rx,o=rx /etc/modprobe.conf
+cp -rp /etc/modprobe.conf /tmp/pcpextension/etc/modprobe.conf.sample
+
+# -rw-r--r-- 1 root root /etc/motd
+chown root:root /etc/motd
+chmod u=rw,g=r,o=r /etc/motd
+cp -rp /etc/motd /tmp/pcpextension/etc/motd.sample
 
 # -rw-r--r-- 1 root root /etc/passwd
 chown root:root /etc/passwd
 chmod u=rw,g=r,o=r /etc/passwd
-cp -rp /etc/passwd /tmp/pcpextension/etc
+cp -rp /etc/passwd /tmp/pcpextension/etc/passwd.sample
 
 # -rw-r----- 1 root root /etc/shadow - piCore
 # -rw-r----- 1 root shadow /etc/shadow - Rasbian
 chown root:root /etc/shadow
 chmod u=rw,g=r,o= /etc/shadow
-cp -rp /etc/shadow /tmp/pcpextension/etc
-
-# -rw-r--r-- 1 root root /etc/group
-chown root:root /etc/group
-chmod u=rw,g=r,o=r /etc/group
-cp -rp /etc/group /tmp/pcpextension/etc
-
-# -rwxr-xr-x 1 root root /etc/modprobe.conf
-chown root:root /etc/modprobe.conf
-chmod u=rwx,g=rx,o=rx /etc/modprobe.conf
-cp -rp /etc/modprobe.conf /tmp/pcpextension/etc
+cp -rp /etc/shadow /tmp/pcpextension/etc/shadow.sample
 echo "${GREEN}Done.${NORMAL}"
 
 #========================================================================================
@@ -134,9 +144,9 @@ cp -rp /usr/local/sbin/piversion.cfg /tmp/pcpextension/usr/local/sbin
 #########################################################################################
 # STEEN, SHOULD THESE BE INCLUDED??? SHOULD BE GENERATED THE FIRST TIME YOU ACCESS SSH.
 #########################################################################################
-mkdir -p /tmp/pcpextension/usr/local/etc
-cp -rp /usr/local/etc/dropbear/dropbear_dss_host_key /tmp/pcpextension/usr/local/etc
-cp -rp /usr/local/etc/dropbear/dropbear_rsa_host_key /tmp/pcpextension/usr/local/etc
+#mkdir -p /tmp/pcpextension/usr/local/etc
+#cp -rp /usr/local/etc/dropbear/dropbear_dss_host_key /tmp/pcpextension/usr/local/etc
+#cp -rp /usr/local/etc/dropbear/dropbear_rsa_host_key /tmp/pcpextension/usr/local/etc
 #########################################################################################
 
 mkdir -p /tmp/pcpextension/usr/local/etc/init.d
@@ -197,8 +207,8 @@ cp -rp /var/lib/alsa/asound.state /tmp/pcpextension/var/lib/alsa
 #########################################################################################
 # STEEN, SHOULD THESE BE INCLUDED??? CRONTAB SHOULD BE EMPTY.
 #########################################################################################
-mkdir -p /tmp/pcpextension/var/spool/cron/crontabs
-cp -rp /var/spool/cron/crontabs /tmp/pcpextension/var/spool/cron
+#mkdir -p /tmp/pcpextension/var/spool/cron/crontabs
+#cp -rp /var/spool/cron/crontabs /tmp/pcpextension/var/spool/cron
 
 echo "${GREEN}Done.${NORMAL}"
 

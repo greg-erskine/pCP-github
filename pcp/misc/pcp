@@ -1,0 +1,16 @@
+#/bin/sh
+
+echo "Running pcp.tcz autoload script..."
+
+for i in /etc/asound.conf /etc/group /etc/motd /etc/modprobe.conf /etc/passwd /etc/shadow
+do
+	if [ -f ${i}.sample ]; then 
+		echo "${i}.sample exists. Replacing ${i}..."
+		#sudo mv ${i} ${i}~
+		sudo cp ${i}.sample ${i}
+		sudo rm -f ${i}.sample
+		# sudo rm -f ${i}~
+	else
+		echo "${i}.sample does not exist."
+	fi
+done
