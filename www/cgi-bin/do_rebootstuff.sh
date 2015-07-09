@@ -91,6 +91,27 @@ echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
 
+# Remove all traces of pCP if pCP.tcz is deleted
+# for now we need to check if pCP is installed via pCP.tcz or via the old piCorePlayer
+# in the future this check is not needed
+
+# Check for pCP installed via pCP.tcz and pCP.tcz not present any more
+if [ PCP_SOURCE = tcz ]; then 
+	if [ ! -f /mnt/mmcblk0p2/tce/optional/pCP.tcz ]; then
+			echo "${YELLOW} Removing all traces of piCorePlayer... ${NORMAL}"
+			sudo sed -i "/do_rebootstuff.sh/d" /opt/bootlocal.sh
+			sudo sed -i "/usr\/local\/sbin\/config.cfg/d" /opt/.filetool.lst
+#			sudo filetool.sh -b						# should be enabled later but not while testing
+			echo "${GREEN} Done. will reboot in 5 sec. ${NORMAL}"
+			wait 5
+#			sudo reboot							# should be enabled later but not while testing
+		else
+			break
+	fi
+else
+	break
+fi
+
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
