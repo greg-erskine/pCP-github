@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2015-07-09 SBP
+#	Revised method of loading wifi firmware.
+
 # Version: 0.05 2015-06-10 GE
 #	Tidy up of code.
 
@@ -54,12 +57,10 @@ fi
 sudo chmod 766 /home/tc/wifi.db
 sudo echo ${SSSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION} > /home/tc/wifi.db
 
-
 pcp_textarea "" "cat $WIFIDB" 40
 
-# Save the parameters to the config file, add double quotes
+# Save the parameters to the config file
 pcp_save_to_config
-
 
 #========================================================================================
 # Toggle whether wifi and wireless firmware tcz are loaded during boot
@@ -70,17 +71,17 @@ if [ $WIFI = on ]; then
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Wifi modules already loaded.</p>'
 	else
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Loading wifi firmware and modules.</p>'
-	# Add wifi related modules back
-	sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
-	sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
-	[ $? = 0 ] && echo '<p class="info">[ INFO ] Ralink firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Ralink firmware load error.</p>'
-	sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
-	[ $? = 0 ] && echo '<p class="info">[ INFO ] Realtek firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Realtek firmware load error.</p>'
-	sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
-	[ $? = 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
+		# Add wifi related modules back
+		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo '<p class="info">[ INFO ] Ralink firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Ralink firmware load error.</p>'
+		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo '<p class="info">[ INFO ] Realtek firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Realtek firmware load error.</p>'
+		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
 
-	sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
-	[ $? = 0 ] && echo '<p class="info">[ INFO ] Wifi modules loaded.</p>' || echo '<p class="error">[ ERROR ] Wifi modules load error.</p>'
+		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo '<p class="info">[ INFO ] Wifi modules loaded.</p>' || echo '<p class="error">[ ERROR ] Wifi modules load error.</p>'
 	fi
 fi
 

@@ -15,7 +15,6 @@ pcp_html_head "xtras_asound_conf" "GE"
 pcp_controls
 pcp_banner
 pcp_xtras
-pcp_mode_lt_99
 pcp_running_script
 
 VOLUMELEFT=100
@@ -266,7 +265,7 @@ echo '</table>'
 # Current asound.conf
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
-if [ $MODE = 99 ]; then
+if [ $MODE = $MODE_DEVELOPER ]; then
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <form name="asound_conf" method="get">'

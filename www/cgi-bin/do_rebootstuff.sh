@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.20 2015-07-09 SBP
+#	Revised method of loading wifi firmware.
+
 # Version: 0.19 2015-07-04 GE
 #	Added dropbear fix to allow scp to work between piCorePlayers.
 
@@ -79,7 +82,7 @@
 
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
-echo -n "${BLUE}Loading pcp-functions... "
+echo -n "${BLUE}Loading pcp-functions... ${NORMAL}"
 pcp_variables
 echo "${GREEN}Done.${NORMAL}"
 
@@ -94,16 +97,16 @@ echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 # Check if sda1 is mounted, otherwise mount it
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
-	echo "${YELLOW}  sda1 mounted${NORMAL}"
+	echo "${YELLOW}  sda1 mounted.${NORMAL}"
 else
 	# FIX: check if sda1 is inserted before trying to mount it.
-	echo "${YELLOW}  Trying to mount sda1${RED}"
+	echo "${YELLOW}  Trying to mount sda1.${RED}"
 	sudo mount /dev/sda1 >/dev/null 2>&1
 fi
 
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
-	echo -n "${YELLOW}  newconfig.cfg found on sda1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
@@ -112,7 +115,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
-	echo -n "${YELLOW}  newconfig.cfg not found on sda1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg not found on sda1.${NORMAL}"
 fi
 echo "${GREEN} Done.${NORMAL}"
 
@@ -120,7 +123,7 @@ echo "${GREEN} Done.${NORMAL}"
 echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
-	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
@@ -139,7 +142,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 else
-	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
 fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
@@ -147,19 +150,19 @@ echo "${GREEN} Done.${NORMAL}"
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
 if [ $WIFI = "on" ]; then
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
-		echo "${GREEN}Wifi firmware already loaded${NORMAL}"
+		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
 	else
 		# Add wifi related modules back
-		echo "${GREEN}Loading wifi firmware and modules${NORMAL}"
+		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW} Ralink firmware loaded.${NORMAL}" || echo "${RED} Ralink firmware load error.${NORMAL}"
+		[ $? = 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW} Realtek firmware loaded.${NORMAL}" || echo "${RED} Realtek firmware load error.${NORMAL}"
+		[ $? = 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW} Atheros firmware loaded.${NORMAL}" || echo "${RED} Atheros firmware load error.${NORMAL}"
+		[ $? = 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW} Wifi modules loaded.${NORMAL}" || echo "${RED} Wifi modules load error.${NORMAL}"
+		[ $? = 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"
 	fi
 fi
@@ -188,7 +191,7 @@ echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}Loading snd modules... ${NORMAL}" 
+echo -n "${BLUE}Loading sound modules... ${NORMAL}"
 sudo modprobe snd-bcm2835
 sudo modprobe snd_soc_bcm2708_i2s
 sudo modprobe snd_soc_wm8804
@@ -197,7 +200,7 @@ echo "${GREEN}Done.${NORMAL}"
 # Connect wifi if WIFI is on
 echo -n "${BLUE}Checking wifi... ${NORMAL}"
 if [ $WIFI = on ]; then
-	echo "${YELLOW}  wifi is on${NORMAL}"
+	echo "${YELLOW}  wifi is on.${NORMAL}"
 	sleep 1
 	sudo ifconfig wlan0 down
 	sudo ifconfig wlan0 up
@@ -207,7 +210,7 @@ if [ $WIFI = on ]; then
 	# Try to reconnect to wifi if failed - will try two times before continuing booting
 	for i in 1 2; do
 		if ifconfig wlan0 | grep -q "inet addr:"; then
-			echo "${YELLOW}  wifi is connected ($i)${NORMAL}"      
+			echo "${YELLOW}  wifi is connected ($i).${NORMAL}"
 		else
 			echo "${RED}  Network connection down! Attempting reconnection two times before continuing.${NORMAL}"
 			sudo ifconfig wlan0 down
@@ -244,7 +247,7 @@ done
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	# set the analog output via audio jack
+	# Set the analog output via audio jack
 	sudo amixer cset numid=3 1 >/dev/null 2>&1
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
@@ -254,12 +257,12 @@ fi
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	# set the analog output via HDMI out
+	# Set the analog output via HDMI out
 	sudo amixer cset numid=3 2 >/dev/null 2>&1
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
-fi 
+fi
 
 # If Custom ALSA settings are used, then restore the settings
 if [ $ALSAlevelout = Custom ]; then
@@ -289,7 +292,7 @@ echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 /usr/local/etc/init.d/dropbear start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
-# dropbear fix to allow scp to work
+# Dropbear fix to allow scp to work
 if [ ! -e /usr/bin/dbclient ]; then
 	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
 	sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/dbclient
@@ -337,7 +340,7 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	pcp_set_timezone >/dev/null 2>&1
 	TZ=$TIMEZONE
 	echo "${GREEN}Done.${NORMAL}"
-fi 
+fi
 
 # Save the parameters to the config file
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
