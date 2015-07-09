@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.38 2015-07-05 GE
+# Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
 #	Added pcp_mode.
+#	Modified pcp_textarea and pcp_textarea_inform.
 
 # Version: 0.37 2015-06-25 SBP
 #	Changed timezone logic, so changes are immediately present (reboot not needed).
@@ -670,7 +671,7 @@ pcp_textarea_inform() {
 	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
 	[ "$TITLE" == "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea class="inform" style="height:'$3'px">'
-	$2
+	eval $2
 	echo '</textarea>'
 }
 

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2015-07-10 GE
+#	Hide password.
+
 # Version: 0.05 2015-07-01 GE
 #	Added pcp_mode tabs.
 #	Added pcp_picoreplayers tabs.
@@ -109,7 +112,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr>'
 	echo '              <td>'
-	                      pcp_textarea_inform "$CONFIGCFG" "cat $CONFIGCFG" 560
+	                      pcp_textarea_inform "$CONFIGCFG" 'cat $CONFIGCFG | sed s/^PASSWORD=.*/PASSWORD=\"******\"/' 560
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
