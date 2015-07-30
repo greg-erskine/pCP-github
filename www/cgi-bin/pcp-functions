@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.39 2015-07-30 SBP
+#	Added support for device tree
+
 # Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
 #	Added pcp_mode.

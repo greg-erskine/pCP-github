@@ -2,6 +2,7 @@ opt
 home
 etc/passwd
 etc/shadow
+etc/gshadow
 etc/motd
 usr/local/etc/dropbear/dropbear_dss_host_key
 usr/local/etc/dropbear/dropbear_rsa_host_key
