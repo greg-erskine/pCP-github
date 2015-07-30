@@ -104,7 +104,7 @@ case "$AUDIO" in
 		ALSA_PARAMS="80:4::"
 		;;
 	I2SpIQaudIO*)
-		pcp_enable_iqaudio_dac
+		pcp_enable_iqaudio_dac_p
 		sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
@@ -119,7 +119,8 @@ echo '</textarea>'
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
 	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'</p>'
+	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
+	echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
 fi
 
 # Save variable to the config file, add quotes
@@ -134,6 +135,7 @@ pcp_squeezelite_start
 
 pcp_backup
 pcp_go_back_button
+pcp_reboot_button
 
 echo '</body>'
 echo '</html>'
