@@ -12,6 +12,31 @@ fi
 
 #To do:
 # Expand mmcblk0p2 to something like 50MB before continuing
+DEVELOPMENT=1
+
+if [ $DEVELOPMENT = 0 ]; then 
+START=$(fdisk -ul /dev/mmcblk0 | awk ' /'mmcblk0p2'/ {print $2}')
+
+echo "Start sector for mmcblk0p2 is:" $START
+fdisk -u /dev/mmcblk0 <<EOF
+p
+d
+2
+n
+p
+2
+$START
++42M
+w
+EOF
+
+# need a reboot?? or.
+sudo rebuildfstab
+wait 4
+sudo resize2fs /dev/mmcblk0p2
+wait 8
+sudo rebuildfstab
+fi
 
 TMP=/tmp          # this is where you copy the files to
 
@@ -22,7 +47,7 @@ JS_HOME=/home/tc/www/js         # Not used yet
 SBIN=/usr/local/sbin
 OPT=/opt                        # Not used yet
 INITD=/usr/local/etc/init.d     # Not used yet
-STORAGE=/mnt/mmcblk0p1/tce
+STORAGE=/mnt/mmcblk0p2/tce
 
 
 #Remove any dos-to-unix end of line problems from the files before using them:
@@ -74,7 +99,7 @@ getfile $TMP/pcp/conf          modprobe.conf        /etc
 chown root:root /etc/modprobe.conf
 chmod u=rwx,g=rx,o=rx /etc/modprobe.conf
 
-getfile $TMP/pcp/conf          piCorePlayer.dep     /mnt/mmcblk0p2/tce
+getfile $TMP/pcp/conf          piCorePlayer.dep     $STORAGE
 chown root:root /mnt/mmcblk0p2/tce/piCorePlayer.dep
 chmod u=rw,g=r,o=r /mnt/mmcblk0p2/tce/piCorePlayer.dep
 
@@ -82,11 +107,11 @@ getfile $TMP/pcp/etc           motd                 /etc
 chown root:root /etc/motd
 chmod u=rw,g=r,o=r /etc/motd
 
-getfile $TMP/pcp/init.d        squeezelite          /usr/local/etc/init.d
+getfile $TMP/pcp/init.d        squeezelite          $INITD
 chown root:root /usr/local/etc/init.d/squeezelite
 chmod u=rwx,g=rx,o=rx /usr/local/etc/init.d/squeezelite
 
-getfile $TMP/pcp/init.d        httpd                /usr/local/etc/init.d
+getfile $TMP/pcp/init.d        httpd                $INITD
 chown root:root /usr/local/etc/init.d/httpd
 chmod u=rwx,g=rx,o=rx /usr/local/etc/init.d/httpd
 
@@ -110,6 +135,10 @@ getfile $TMP/pcp/sbin          setup                $SBIN
 chown root:root /usr/local/sbin/setup
 chmod u=rwx,g=rx,o=rx /usr/local/sbin/setup
 
+getfile $TMP/pcp/mmcblk0p2     onboot.lst            $STORAGE
+chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
+chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
+
 # Check if mmcblk0p1 is mounted otherwise mount it
 if mount | grep /mnt/mmcblk0p1; then
 	echo '[ ERROR ] '/mnt/mmcblk0p1' already mounted.'
@@ -130,9 +159,6 @@ echo '[ INFO ] Unmounting /mnt/mmcblk0p1...'
 sudo umount /dev/mmcblk0p1
 
 
-getfile $TMP/pcp/mmcblk0p2     onboot.lst            $STORAGE
-chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
-chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
 
 
 #Copy www directory and set permissions
@@ -154,13 +180,14 @@ chmod u=r,g=r,o= /home/tc/www/index.html
 
 getpackage() {
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/$1 ]; then
-	sudo -u tc tce-load -w $1 >> /tmp/pcp.tcz.txt 2>&1
-	fi
-	sudo -u tc tce-load -i $1 >> /tmp/pcp.tcz.txt 2>&1
+	sudo -u tc tce-load -wi $1 >> /tmp/pcp.tcz.txt 2>&1
 }
 
-getpackage alsa-config.tcz
+wait 2
+getpackage busybox-httpd.tcz
+getpackage dropbear.tcz
 getpackage alsa.tcz
+getpackage alsa-config.tcz
 getpackage flac.tcz
 getpackage libvorbis.tcz
 getpackage libmad.tcz
@@ -171,6 +198,11 @@ getpackage firmware-rtlwifi.tcz
 getpackage faad2.tcz
 #getpackage libsoxr.tcz
 #getpackage libffmpeg.tcz
+
+
+#Download Ralphys files
+sudo wget -P /mnt/mmcblk0p2/tce/ http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf
+sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 
 
 # Make a backup
