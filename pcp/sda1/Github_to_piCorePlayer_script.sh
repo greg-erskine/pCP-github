@@ -48,16 +48,18 @@ SBIN=/usr/local/sbin
 OPT=/opt                        # Not used yet
 INITD=/usr/local/etc/init.d     # Not used yet
 STORAGE=/mnt/mmcblk0p2/tce
+TCZ_PLACE=/mnt/mmcblk0p2/tce/optional
 
 
 #Remove any dos-to-unix end of line problems from the files before using them:
-find . -type f -print0 | xargs -0 dos2unix
-find $TMP/pcp -type f -print0 | xargs -0 dos2unix
-find $TMP/www/cgi-bin -type f -print0 | xargs -0 dos2unix
-find $TMP/www/css -type f -print0 | xargs -0 dos2unix
-find $TMP/www/js -type f -print0 | xargs -0 dos2unix
-find $TMP/www/index.html -type f -print0 | xargs -0 dos2unix
+sudo find /tmp/www -type f ! -name "*.tcz" ! -name "*.png" ! -name "*.gif" -print0 | xargs -0 dos2unix
+sudo find /tmp/pcp -type f ! -name "*.tcz" ! -name "*.png" ! -name "*.gif" -print0 | xargs -0 dos2unix
 
+
+# Remove any tcz package from piCore first
+rm -f $TCZ_PLACE/*.*
+rm -f /usr/local/tce.installed/*
+tce-audit builddb
 
 #=========================================================================================
 # Get file routine
@@ -82,12 +84,12 @@ chown root:root /etc/sysconfig/timezone
 chmod u=rw,g=rw,o=r /etc/sysconfig/timezone
 
 getfile $TMP/pcp/conf          config.cfg           $SBIN
-chown root:root /usr/local/sbin/config.cfg
-chmod u=rwx,g=rx,o=rx /usr/local/sbin/config.cfg
+chown root:root $SBIN/config.cfg
+chmod u=rwx,g=rx,o=rx $SBIN/config.cfg
 
 getfile $TMP/pcp/conf          piversion.cfg        $SBIN
-chown root:root /usr/local/sbin/piversion.cfg
-chmod u=rw,g=r,o=r /usr/local/sbin/piversion.cfg
+chown root:root $SBIN/piversion.cfg
+chmod u=rw,g=r,o=r $SBIN/piversion.cfg
 
 #getfile $TMP/pcp/conf         wpa_supplicant.conf /etc
 
@@ -100,20 +102,20 @@ chown root:root /etc/modprobe.conf
 chmod u=rwx,g=rx,o=rx /etc/modprobe.conf
 
 getfile $TMP/pcp/conf          piCorePlayer.dep     $STORAGE
-chown root:root /mnt/mmcblk0p2/tce/piCorePlayer.dep
-chmod u=rw,g=r,o=r /mnt/mmcblk0p2/tce/piCorePlayer.dep
+chown root:root $STORAGE/piCorePlayer.dep
+chmod u=rw,g=r,o=r $STORAGE/piCorePlayer.dep
 
 getfile $TMP/pcp/etc           motd                 /etc
 chown root:root /etc/motd
 chmod u=rw,g=r,o=r /etc/motd
 
 getfile $TMP/pcp/init.d        squeezelite          $INITD
-chown root:root /usr/local/etc/init.d/squeezelite
-chmod u=rwx,g=rx,o=rx /usr/local/etc/init.d/squeezelite
+chown root:root $INITD/squeezelite
+chmod u=rwx,g=rx,o=rx $INITD/squeezelite
 
 getfile $TMP/pcp/init.d        httpd                $INITD
-chown root:root /usr/local/etc/init.d/httpd
-chmod u=rwx,g=rx,o=rx /usr/local/etc/init.d/httpd
+chown root:root $INITD/httpd
+chmod u=rwx,g=rx,o=rx $INITD/httpd
 
 getfile $TMP/pcp/opt           .filetool.lst        /opt
 chown root:staff /opt/.filetool.lst
@@ -128,16 +130,16 @@ chown root:staff /opt/bootsync.sh
 chmod u=rwx,g=rwx,o= /opt/bootsync.sh
 
 getfile $TMP/pcp/sbin          webgui               $SBIN
-chown root:root /usr/local/sbin/webgui
-chmod u=rwx,g=rx,o=rx /usr/local/sbin/webgui
+chown root:root $SBIN/webgui
+chmod u=rwx,g=rx,o=rx $SBIN/webgui
 
 getfile $TMP/pcp/sbin          setup                $SBIN
-chown root:root /usr/local/sbin/setup
-chmod u=rwx,g=rx,o=rx /usr/local/sbin/setup
+chown root:root $SBIN/setup
+chmod u=rwx,g=rx,o=rx $SBIN/setup
 
 getfile $TMP/pcp/mmcblk0p2     onboot.lst            $STORAGE
-chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
-chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
+chown tc:staff $STORAGE/onboot.lst
+chmod u=rwx,g=rwx,o=rx $STORAGE/onboot.lst
 
 # Check if mmcblk0p1 is mounted otherwise mount it
 if mount | grep /mnt/mmcblk0p1; then
@@ -181,6 +183,7 @@ chmod u=r,g=r,o= /home/tc/www/index.html
 getpackage() {
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/$1 ]; then
 	sudo -u tc tce-load -wi $1 >> /tmp/pcp.tcz.txt 2>&1
+	fi
 }
 
 wait 2
@@ -201,8 +204,22 @@ getpackage faad2.tcz
 
 
 #Download Ralphys files
+rm -f /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 sudo wget -P /mnt/mmcblk0p2/tce/ http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf
 sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
+
+getfile $TMP/pcp/Ralphys_files          libffmpeg.tcz     $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/libffmpeg.tcz
+chmod u=rw,g=rw,o=r $TCZ_PLACE/libffmpeg.tcz
+
+getfile $TMP/pcp/Ralphys_files          libsoxr.tcz     $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/libsoxr.tcz
+chmod u=rw,g=rw,o=r $TCZ_PLACE/libsoxr.tcz
+
+#For now we use the official faad2.tcz package
+#getfile $TMP/pcp/Ralphys_files          libfaad.tcz     $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libfaad.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
 
 
 # Make a backup
