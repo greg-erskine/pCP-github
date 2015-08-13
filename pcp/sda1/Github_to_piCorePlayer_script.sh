@@ -17,8 +17,8 @@ DEVELOPMENT=1
 if [ $DEVELOPMENT = 0 ]; then 
 START=$(fdisk -ul /dev/mmcblk0 | awk ' /'mmcblk0p2'/ {print $2}')
 
-echo "Start sector for mmcblk0p2 is:" $START
-fdisk -u /dev/mmcblk0 <<EOF
+echo "Start sector for mmcblk0p2 is:"fdisk -u /dev/mmcblk0 $START
+ <<EOF
 p
 d
 2
@@ -154,6 +154,18 @@ sleep 2
 #getfile $TMP/pcp/mmcblk0p1     config.txt            /mnt/mmcblk0p1
 getfile $TMP/pcp/mmcblk0p1      LICENCE.piCorePlayer  /mnt/mmcblk0p1
 
+echo smsc95xx.turbo_mode=N noswap showapps cron >> /mnt/mmcblk0p1/cmdline.txt
+sed -i '/current/d' /mnt/mmcblk0p1/config.txt
+echo '#Force max current to USB' >> /mnt/mmcblk0p1/config.txt
+echo max_usb_current=1 >> /mnt/mmcblk0p1/config.txt
+
+sed -i '/hiss/d' /mnt/mmcblk0p1/config.txt
+echo '#remove audio hiss' >> /mnt/mmcblk0p1/config.txt
+sed -i '/disable_audio_dither=1/d' /mnt/mmcblk0p1/config.txt
+echo disable_audio_dither=1 >> /mnt/mmcblk0p1/config.txt
+
+
+
 # Unmount mmcblk0p1
 sync
 sync
@@ -198,7 +210,7 @@ getpackage wifi.tcz
 getpackage firmware-atheros.tcz
 getpackage firmware-ralinkwifi.tcz
 getpackage firmware-rtlwifi.tcz
-getpackage faad2.tcz
+#getpackage faad2.tcz
 #getpackage libsoxr.tcz
 #getpackage libffmpeg.tcz
 
@@ -216,10 +228,10 @@ getfile $TMP/pcp/Ralphys_files          libsoxr.tcz     $TCZ_PLACE
 chown tc:staff $TCZ_PLACE/libsoxr.tcz
 chmod u=rw,g=rw,o=r $TCZ_PLACE/libsoxr.tcz
 
-#For now we use the official faad2.tcz package
-#getfile $TMP/pcp/Ralphys_files          libfaad.tcz     $TCZ_PLACE
-#chown tc:staff $TCZ_PLACE/libfaad.tcz
-#chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
+#For now we use Ralphys instead of the official faad2.tcz package
+getfile $TMP/pcp/Ralphys_files          libfaad.tcz     $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/libfaad.tcz
+chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
 
 
 # Make a backup
