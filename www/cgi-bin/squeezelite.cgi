@@ -612,34 +612,34 @@ echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Visualiser support--------------------------------
-pcp_squeezelite_visualiser() {
-case "$VISUALISER" in
-	yes) VISUALISERYES="checked" ;;
-	*) VISUALISERNO="checked" ;;
-esac
+#pcp_squeezelite_visualiser() {
+#case "$VISUALISER" in
+#	yes) VISUALISERYES="checked" ;;
+#	*) VISUALISERNO="checked" ;;
+#esac
 
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Visualiser support</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="small1" type="radio" name="VISUALISER" value="yes" '$VISUALISERYES'>Yes&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" name="VISUALISER" value="" '$VISUALISERNO'>No'
-echo '                </td>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Visualiser support (-v)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p><b>Note: </b>An option for jivelite if it gets ported to piCorePlayer. For now, not of any use.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-}
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_visualiser
+#pcp_incr_id
+#pcp_toggle_row_shade
+#echo '              <tr class="'$ROWSHADE'">'
+#echo '                <td class="column150">'
+#echo '                  <p class="row">Visualiser support</p>'
+#echo '                </td>'
+#echo '                <td class="column210">'
+#echo '                  <input class="small1" type="radio" name="VISUALISER" value="yes" '$VISUALISERYES'>Yes&nbsp;&nbsp;'
+#echo '                  <input class="small1" type="radio" name="VISUALISER" value="" '$VISUALISERNO'>No'
+#echo '                </td>'
+#echo '                </td>'
+#echo '                <td>'
+#echo '                  <p>Visualiser support (-v)&nbsp;&nbsp;'
+#echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+#echo '                  </p>'
+#echo '                  <div id="'$ID'" class="less">'
+#echo '                    <p><b>Note: </b>An option for jivelite if it gets ported to piCorePlayer. For now, not of any use.</p>'
+#echo '                  </div>'
+#echo '                </td>'
+#echo '              </tr>'
+#}
+#[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_visualiser
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Close output setting------------------------------
