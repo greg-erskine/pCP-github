@@ -274,6 +274,15 @@ if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi
+# If we also have a USB-DAC attached the analog board is card 1 - but this logic needs improving so that it will detect and use the analog card number
+aplay -l | grep 'card 1: ALSA'  >/dev/null 2>&1
+if [ $? == 0 ] && [ $AUDIO = Analog ]; then
+	# Set the analog output via audio jack
+	sudo amixer cset numid=3 1 >/dev/null 2>&1
+	if [ $ALSAlevelout = Default ]; then
+		sudo amixer -c 1 set 'PCM',0 100% >/dev/null 2>&1
+	fi
+fi
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
