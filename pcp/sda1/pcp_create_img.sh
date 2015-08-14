@@ -10,6 +10,9 @@
 #	2. cp pcp_create_img.sh to /mnt/sda1/pcp
 #	3. sudo ./pcp_create_img.sh
 
+# Version: 0.06 2015-08-14 SBP
+#	Reused pcp-function for making default configuration.
+
 # Version: 0.05 2015-01-21 GE
 #	Updated default configuration.
 
@@ -34,6 +37,8 @@ if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root."
    exit 1
 fi
+
+. /home/tc/www/cgi-bin/pcp-functions
 
 DEBUG=0
 PIVERSION_CFG=/usr/local/sbin/piversion.cfg
@@ -153,50 +158,7 @@ fi
 
 if [ -f $CONFIGCFG ]; then
 	echo "Setting configuration defaults values..."
-
-	# Set variables to default values
-	sudo sed -i "s/\(NAME=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1\"sysdefault:CARD=ALSA\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"80:::0\"/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(VISULIZER=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(OTHER=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1\"\Analog\"/" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1\"piCorePlayer\"/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1\"wireless\"/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1\"password\"/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"WPA\"/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"NONE\"/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1\"Default\"/" $CONFIGCFG
-	sudo sed -i "s/\(WIFI=\).*/\1\"off\"/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1\"0x7\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"Default\"/" $CONFIGCFG
-	sudo sed -i "s/\(TIMEZONE=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"0\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_LMS=\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_FAV=\).*/\1\"Disabled\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"\"/" $CONFIGCFG
+pcp_reset_config_to_defaults
 fi
 
 #=========================================================================================
@@ -218,7 +180,7 @@ mount /dev/mmcblk0p1
 mkdir /mnt/sda1/"$NAME"
 tar -zcvf /mnt/sda1/"$NAME"/"$NAME"_boot.tar.gz /mnt/mmcblk0p1
 tar -zcvf /mnt/sda1/"$NAME"/"$NAME"_tce.tar.gz /mnt/mmcblk0p2/tce
-dd if=/dev/mmcblk0 of=/mnt/sda1/"$NAME"/"$NAME".img bs=1M count=65
+dd if=/dev/mmcblk0 of=/mnt/sda1/"$NAME"/"$NAME".img bs=1M count=75
 sync;sync
 
 echo Created these files:
