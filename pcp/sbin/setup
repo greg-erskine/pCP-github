@@ -3,7 +3,7 @@
 # Version: 0.01 2015-05-19 GE
 #	Original.
 
-BACKTITLE="piCorePlayer 1.19m Basic Setup"
+BACKTITLE="piCorePlayer Basic Setup"
 
 pCPHOME=/home/tc/www/cgi-bin
 STATICIP=/opt/eth0.sh
