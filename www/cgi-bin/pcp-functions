@@ -209,14 +209,14 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
 	# set to 3 in order to use beta download page from sourceforge when testing beta versions
 	TEST=0
 
 	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (100=developers)
-	MODE=20
+	MODE=100
 	MODE_INITIAL=0
 	MODE_BASIC=10
 	MODE_ADVANCED=20
@@ -231,7 +231,7 @@ pcp_variables() {
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
 
 	# Set to DT_MODE to 0 in order to use old way of loading soundcards or 1 to use the new Device Tree mode (while in testing) it needs a reboot after changing soundcards
-	# when Device tree is working fine we could delete the DT_MODE=0 section
+	# when Device tree is working fine we could delete the DT_MODE=1
 	DT_MODE=1
 }
 

@@ -212,11 +212,11 @@ echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}Loading sound modules... ${NORMAL}"
-sudo modprobe snd-bcm2835
-sudo modprobe snd_soc_bcm2708_i2s
-sudo modprobe snd_soc_wm8804
-echo "${GREEN}Done.${NORMAL}"
+#echo -n "${BLUE}Loading sound modules... ${NORMAL}"
+#sudo modprobe snd-bcm2835
+#sudo modprobe snd_soc_bcm2708_i2s
+#sudo modprobe snd_soc_wm8804
+#echo "${GREEN}Done.${NORMAL}"
 
 # Connect wifi if WIFI is on
 echo -n "${BLUE}Checking wifi... ${NORMAL}"

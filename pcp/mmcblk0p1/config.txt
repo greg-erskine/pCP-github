@@ -2,7 +2,7 @@
 # http://www.raspberrypi.org/documentation/configuration/config-txt.md
 # Some settings may impact device functionality. See link above for details
 
-initramfs piCore3187mm.gz followkernel
+initramfs 7.0alpha1v7.gz followkernel
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
@@ -28,24 +28,22 @@ initramfs piCore3187mm.gz followkernel
 # uncomment to force a specific HDMI mode (this will force VGA)
 #hdmi_group=1
 #hdmi_mode=1
-#hdmi_force_mode=1
 
 # uncomment to force a HDMI mode rather than DVI. This can make audio work in
 # DMT (computer monitor) modes
 
 # uncomment to increase signal to HDMI, if you have interference, blanking, or
 # no display
-# config_hdmi_boost=4
+#config_hdmi_boost=4
 
 # uncomment for composite PAL
 #sdtv_mode=2
 
-# uncomment to overclock the arm. 700 MHz is the default.
-arm_freq=700
-core_freq=250
-sdram_freq=400
-over_voltage=0
-force_turbo=1
+#uncomment to overclock the arm. 700 MHz is the default.
+#arm_freq=800
+
+#----------------------------------------------------
+dtparam=i2c_arm=on,spi=on,audio=on
 
 #Force max current to USB
 max_usb_current=1
@@ -53,11 +51,4 @@ max_usb_current=1
 #remove audio hiss
 disable_audio_dither=1
 
-device_tree=
-#dtoverlay=hifiberry-dac
-#dtoverlay=hifiberry-amp
-#dtoverlay=hifiberry-dacplus
-#dtoverlay=hifiberry-digi
-#dtoverlay=iqaudio-dac
-#dtoverlay=iqaudio-dacplus
-
+dtoverlay=hifiberry-dac
