@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.39 2015-07-30 SBP
-#	Added support for device tree
+# Version: 0.39 2015-08-16 SBP
+#	Added support for device tree.
+#	Revised modes.
 
 # Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
@@ -211,17 +212,20 @@ pcp_variables() {
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
 
-	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
-	# set to 3 in order to use beta download page from sourceforge when testing beta versions
+	# Set to 1 to get features that are under test.
+	# Set to 2 to show old features that might be on its way out.
+	# Set to 3 in order to use beta download page from sourceforge when testing beta versions.
+	# Default is 0.
 	TEST=0
 
-	# Set $MODE to the desired level (1-5) 1=basic -> 5=advanced (default=1) (100=developers)
-	MODE=100
-	MODE_INITIAL=0
-	MODE_BASIC=10
-	MODE_ADVANCED=20
-	MODE_BETA=50
-	MODE_DEVELOPER=100
+	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
+	MODE=40
+	MODE_INITIAL=0				# Not used at the moment
+	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
+	MODE_NORMAL=20				# This is the typical setting for normal users
+	MODE_ADVANCED=30			# Add more options for advanced users
+	MODE_BETA=40				# Beta options that can be shared with beta testers
+	MODE_DEVELOPER=100			# Beta and experiential options for developers only
 
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
@@ -231,7 +235,7 @@ pcp_variables() {
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
 
 	# Set to DT_MODE to 0 in order to use old way of loading soundcards or 1 to use the new Device Tree mode (while in testing) it needs a reboot after changing soundcards
-	# when Device tree is working fine we could delete the DT_MODE=1
+	# When Device tree is working fine we could delete the DT_MODE=0 section.
 	DT_MODE=1
 }
 
@@ -294,21 +298,18 @@ pcp_picore_accessible() {
 #=========================================================================================
 # Test mode level.
 #-----------------------------------------------------------------------------------------
-##########################################################################################
-# These need FIXING !!!
-##########################################################################################
-pcp_mode_lt_99() {
-	if [ $MODE -lt 99 ]; then
-		echo '<p class="error">[ ERROR ] Wrong mode.</p>'
+pcp_mode_lt_beta() {
+	if [ $MODE -lt $MODE_BETA ]; then
+		echo '<p class="error">[ ERROR ] Wrong mode. Min: Beta</p>'
 		echo '</body>'
 		echo '</html>'
 		exit 1
 	fi
 }
 
-pcp_mode_lt_5() {
-	if [ $MODE -lt 5 ]; then
-		echo '<p class="error">[ ERROR ] Wrong mode.</p>'
+pcp_mode_lt_developer() {
+	if [ $MODE -lt $MODE_DEVELOPER ]; then
+		echo '<p class="error">[ ERROR ] Wrong mode. Min: Developer</p>'
 		echo '</body>'
 		echo '</html>'
 		exit 1
@@ -601,6 +602,7 @@ pcp_mode() {
 	echo '<!-- Start of mode toolbar -->'
 	TAB_MODE_INITIAL=tab14
 	TAB_MODE_BASIC=tab14
+	TAB_MODE_NORMAL=tab14
 	TAB_MODE_ADVANCED=tab14
 	TAB_MODE_BETA=tab14
 	TAB_MODE_DEVELOPER=tab14
@@ -608,17 +610,21 @@ pcp_mode() {
 	case $MODE in
 		$MODE_INITIAL)   TAB_MODE_INITIAL=tab14a ;;
 		$MODE_BASIC)     TAB_MODE_BASIC=tab14a ;;
+		$MODE_NORMAL)    TAB_MODE_NORMAL=tab14a ;;
 		$MODE_ADVANCED)  TAB_MODE_ADVANCED=tab14a ;;
 		$MODE_BETA)      TAB_MODE_BETA=tab14a ;;
 		$MODE_DEVELOPER) TAB_MODE_DEVELOPER=tab14a ;;
 	esac
 
 	echo '<p>'
+	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '  <a class="'$TAB_MODE_INITIAL'" href="debug.cgi?m='$MODE_INITIAL'" title="Initial mode">Initial</a>'
 	echo '  <a class="'$TAB_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
+	echo '  <a class="'$TAB_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
 	echo '  <a class="'$TAB_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
 	echo '  <a class="'$TAB_MODE_BETA'" href="debug.cgi?m='$MODE_BETA'" title="Beta mode">Beta</a>'
-	echo '  <a class="'$TAB_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developers</a>'
+	[ $MODE -ge $MODE_DEVELOPER ] &&
+	echo '  <a class="'$TAB_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
 	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
 	echo '<!-- End of mode toolbar -->'
@@ -1220,188 +1226,185 @@ EOF
 	( crontab -l | grep -v "Custom" ) | crontab -
 }
 
-
 if [ $DT_MODE = 0 ]; then
-#=========================================================================================
-# Read which output to use then add/remove modules
-#-----------------------------------------------------------------------------------------
-pcp_read_chosen_audio() {
-	[ $AUDIO = Analog ] &&      pcp_disable_i2s
-	[ $AUDIO = USB ] &&         pcp_disable_i2s
-	[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
-	[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
-	[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
-	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
-	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac
-	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
-	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
-}
+	#=========================================================================================
+	# Read which output to use then add/remove modules
+	#-----------------------------------------------------------------------------------------
+	pcp_read_chosen_audio() {
+		[ $AUDIO = Analog ] &&      pcp_disable_i2s
+		[ $AUDIO = USB ] &&         pcp_disable_i2s
+		[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
+		[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
+		[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
+		[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
+		[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac
+		[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
+		[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
+	}
 
-#========================================================================================
-# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
-#----------------------------------------------------------------------------------------
-pcp_disable_i2s() {
-	sudo /usr/local/etc/init.d/squeezelite stop
-	sleep 1
-	sudo modprobe -qr snd_soc_wm8804
-	sudo modprobe -qr snd_soc_hifiberry_dac
-	sudo modprobe -qr snd_soc_hifiberry_digi
-	sudo modprobe -qr snd_soc_iqaudio_dac
-}
+	#========================================================================================
+	# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+	#----------------------------------------------------------------------------------------
+	pcp_disable_i2s() {
+		sudo /usr/local/etc/init.d/squeezelite stop
+		sleep 1
+		sudo modprobe -qr snd_soc_wm8804
+		sudo modprobe -qr snd_soc_hifiberry_dac
+		sudo modprobe -qr snd_soc_hifiberry_digi
+		sudo modprobe -qr snd_soc_iqaudio_dac
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_dac() {
-	pcp_disable_i2s
-	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_pcm5102a
-	sudo modprobe -q snd_soc_hifiberry_dac
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry DAC
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_dac() {
+		pcp_disable_i2s
+		sudo modprobe -q snd_soc_bcm2708_i2s
+	#	sudo modprobe -q bcm2708_dmaengine
+		sudo modprobe -q snd_soc_pcm5102a
+		sudo modprobe -q snd_soc_hifiberry_dac
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_digi() {
-	pcp_disable_i2s
-	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_wm8804
-	sleep 1
-	sudo modprobe -q snd_soc_hifiberry_digi
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_digi() {
+		pcp_disable_i2s
+		sudo modprobe -q snd_soc_bcm2708_i2s
+	#	sudo modprobe -q bcm2708_dmaengine
+		sudo modprobe -q snd_soc_wm8804
+		sleep 1
+		sudo modprobe -q snd_soc_hifiberry_digi
+	}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC and IQaudIO DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac() {
-	pcp_disable_i2s
-	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_pcm512x
-	sleep 1
-	sudo modprobe -q snd_soc_iqaudio_dac
-	sleep 1
-}
+	#========================================================================================
+	# Load the correct modules for IQaudIO DAC and IQaudIO DAC+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_iqaudio_dac() {
+		pcp_disable_i2s
+		sudo modprobe -q snd_soc_bcm2708_i2s
+	#	sudo modprobe -q bcm2708_dmaengine
+		sudo modprobe -q snd_soc_pcm512x
+		sleep 1
+		sudo modprobe -q snd_soc_iqaudio_dac
+		sleep 1
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_hifiberry_dac_p() {
-	pcp_disable_i2s
-	sudo modprobe -q snd_soc_pcm512x_i2c
-	sudo modprobe -q snd_soc_pcm512x
-	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_pcm_dmaengine
-	sudo modprobe -q snd_soc_hifiberry_dacplus
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry DAC+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_hifiberry_dac_p() {
+		pcp_disable_i2s
+		sudo modprobe -q snd_soc_pcm512x_i2c
+		sudo modprobe -q snd_soc_pcm512x
+		sudo modprobe -q snd_soc_bcm2708_i2s
+	#	sudo modprobe -q bcm2708_dmaengine
+		sudo modprobe -q snd_pcm_dmaengine
+		sudo modprobe -q snd_soc_hifiberry_dacplus
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry AMP
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_amp() {
-	pcp_disable_i2s
-	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_wm8804
-	sleep 1
-	sudo modprobe -q snd_soc_hifiberry_amp
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry AMP
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_amp() {
+		pcp_disable_i2s
+		sudo modprobe -q snd_soc_bcm2708_i2s
+	#	sudo modprobe -q bcm2708_dmaengine
+		sudo modprobe -q snd_soc_wm8804
+		sleep 1
+		sudo modprobe -q snd_soc_hifiberry_amp
+	}
 fi
 
-
 if [ $DT_MODE = 1 ]; then 
-#=========================================================================================
-# Read which output to use then add/remove modules
-#-----------------------------------------------------------------------------------------
-pcp_read_chosen_audio() {
-	[ $AUDIO = Analog ] &&      pcp_disable_i2s
-	[ $AUDIO = USB ] &&         pcp_disable_i2s
-	[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
-	[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
-	[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
-	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
-	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
-	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
-	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
-}
+	#=========================================================================================
+	# Read which output to use then add/remove modules
+	#-----------------------------------------------------------------------------------------
+	pcp_read_chosen_audio() {
+		[ $AUDIO = Analog ] &&      pcp_disable_i2s
+		[ $AUDIO = USB ] &&         pcp_disable_i2s
+		[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
+		[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
+		[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
+		[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
+		[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
+		[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
+		[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
+	}
 
-#========================================================================================
-# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
-#----------------------------------------------------------------------------------------
-pcp_disable_i2s() {
-	pcp_mount_mmcblk0p1_nohtml
-	# Remove Soundcards Device Tree
-	sed -i '/dtoverlay=/d' $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
+	#========================================================================================
+	# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+	#----------------------------------------------------------------------------------------
+	pcp_disable_i2s() {
+		pcp_mount_mmcblk0p1_nohtml
+		# Remove Soundcards Device Tree
+		sed -i '/dtoverlay=/d' $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
 
-#device_tree=
-}
+	#device_tree=
+	}
 
-#========================================================================================
-# Remove Devicetree modules
-#----------------------------------------------------------------------------------------
-pcp_remove_DT() {
-	pcp_mount_mmcblk0p1_nohtml
-	sleep 1
-	# Remove Soundcards Device Tree
-	sed -i '/dtoverlay=/d' $CONFIGTXT
-}
+	#========================================================================================
+	# Remove Device tree modules
+	#----------------------------------------------------------------------------------------
+	pcp_remove_dt() {
+		pcp_mount_mmcblk0p1_nohtml
+		sleep 1
+		# Remove Soundcards Device Tree
+		sed -i '/dtoverlay=/d' $CONFIGTXT
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_dac() {
-	pcp_remove_DT
-	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry DAC
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_dac() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_digi() {
-	pcp_remove_DT
-	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_digi() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac() {
-	pcp_remove_DT
-	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for IQaudIO DAC
+	#----------------------------------------------------------------------------------------
+	pcp_enable_iqaudio_dac() {
+		pcp_remove_dt
+		sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac_p() {
-	echo "goees fine"
-	pcp_remove_DT
-	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for IQaudIO DAC+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_iqaudio_dac_p() {
+		pcp_remove_dt
+		sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_hifiberry_dac_p() {
-	pcp_remove_DT
-	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry DAC+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_hifiberry_dac_p() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry AMP
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_amp() {
-	pcp_remove_DT
-	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry AMP
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_amp() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 fi
