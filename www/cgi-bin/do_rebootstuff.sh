@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.21 2015-08-14 SBP
+#	Enabling DT loading of audio cards.
+
 # Version: 0.20 2015-07-09 SBP
 #	Revised method of loading wifi firmware.
 
@@ -212,12 +215,6 @@ echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
 
-#echo -n "${BLUE}Loading sound modules... ${NORMAL}"
-#sudo modprobe snd-bcm2835
-#sudo modprobe snd_soc_bcm2708_i2s
-#sudo modprobe snd_soc_wm8804
-#echo "${GREEN}Done.${NORMAL}"
-
 # Connect wifi if WIFI is on
 echo -n "${BLUE}Checking wifi... ${NORMAL}"
 if [ $WIFI = on ]; then
@@ -251,10 +248,14 @@ echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
 echo "${GREEN}Done.${NORMAL}"
 
-# Load the correct output audio modules
+# Load the correct output audio modules 
+# ******************************** 
+# GREG do we need this here - I think we only need this if variables are comming from newconfig.cfg.
+# So could it be moved into the sections above dealing with newconfig.cfg?
 echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 pcp_read_chosen_audio >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
+# ********************************
 
 echo -n "${YELLOW}Waiting for soundcards to populate"
 for i in 1 2 3 4 5 6 7 8 9 10; do
@@ -272,15 +273,6 @@ if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 	sudo amixer cset numid=3 1 >/dev/null 2>&1
 	if [ $ALSAlevelout = Default ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
-	fi
-fi
-# If we also have a USB-DAC attached the analog board is card 1 - but this logic needs improving so that it will detect and use the analog card number
-aplay -l | grep 'card 1: ALSA'  >/dev/null 2>&1
-if [ $? == 0 ] && [ $AUDIO = Analog ]; then
-	# Set the analog output via audio jack
-	sudo amixer cset numid=3 1 >/dev/null 2>&1
-	if [ $ALSAlevelout = Default ]; then
-		sudo amixer -c 1 set 'PCM',0 100% >/dev/null 2>&1
 	fi
 fi
 
