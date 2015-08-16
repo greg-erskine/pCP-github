@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.15 2015-08-16 GE
+#	Revised modes.
+
 # Version: 0.14 2015-07-01 GE
 #	Added pcp_mode tabs.
 #	Added pcp_picoreplayers tabs.
@@ -179,7 +182,7 @@ pcp_main_update_triode() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_triode
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_triode
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite - Ralphy-------------------
@@ -212,7 +215,7 @@ pcp_main_update_ralphy() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_ralphy
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_ralphy
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------
@@ -269,7 +272,7 @@ pcp_main_update_pcp() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_pcp
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_pcp
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Save to USB-----------------------------------
@@ -299,33 +302,10 @@ pcp_main_save_usb() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_save_usb
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 
-[ $MODE -ge $MODE_BASIC ] && pcp_main_padding
-
-#------------------------------------------Static IP-------------------------------------
-pcp_main_static_ip(){
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Static IP" action="xtras_staticip.cgi" method="get">'
-	echo '                  <input type="submit" value="Static IP" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
-#----------------------------------------------------------------------------------------
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_padding
 
 #------------------------------------------Stop------------------------------------------
 pcp_main_stop() {
@@ -410,6 +390,29 @@ pcp_main_shutdown() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_shutdown
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Static IP-------------------------------------
+pcp_main_static_ip(){
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Static IP" action="xtras_staticip.cgi" method="get">'
+	echo '                  <input type="submit" value="Static IP" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reset ALL-------------------------------------
@@ -550,7 +553,7 @@ pcp_main_diagnostics() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_diagnostics
+[ $MODE -ge $MODE_BETA ] && pcp_main_diagnostics
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Extras----------------------------------------
@@ -573,7 +576,30 @@ pcp_main_extras() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_extras
+[ $MODE -ge $MODE_BETA ] && pcp_main_extras
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------copy2fs----------------------------------------
+pcp_main_copy2fs() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="copy2fs" action="xtras_copy2fs.cgi" method="get">'
+	echo '                  <input type="submit" value="copy2fs" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Set copy2fs flag&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This sets the copy2fs flag so extensions are loaded into ram.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Debug-----------------------------------------

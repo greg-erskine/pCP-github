@@ -34,7 +34,7 @@ pcp_html_head "Add piCore extension" "GE"
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_mode_lt_99
+pcp_mode_lt_beta
 
 # Set variables
 SUBMIT=Initial
@@ -434,7 +434,7 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '</table>'
 fi
 
-if [ $MODE = $MODE_DEVELOPER ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
+if [ $MODE = $MODE_BETA ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 	#========================================================================================
 	# Display disk space using df
 	#----------------------------------------------------------------------------------------

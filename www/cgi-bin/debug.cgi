@@ -21,8 +21,11 @@
 #	Use the interactive mode.
 #-----------------------------------------------------------------------------------------
 
+# Version: 0.04 2015-08-16 GE
+#	Revised sed to match a tab in front of DEBUG, TEST and MODE.
+
 # Version: 0.03 2015-07-01 GE
-#	Made to work in non-interactive mode,
+#	Made to work in non-interactive mode.
 
 # Version: 0.02 2015-06-04 GE
 #	Added interaction mode.
@@ -42,21 +45,21 @@ pcp_httpd_query_string
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_debug_save() {
-	sed -i "s/\(DEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
-	sed -i "s/\(TEST=\).*/\1$t/" $PCPHOME/pcp-functions
-	sed -i "s/\(MODE=\).*/\1$m/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tDEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tTEST=\).*/\1$t/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tMODE=\).*/\1$m/" $PCPHOME/pcp-functions
 } 
 
 pcp_debug_reset() {
-	sed -i "s/\(DEBUG=\).*/\10/" $PCPHOME/pcp-functions
-	sed -i "s/\(TEST=\).*/\10/" $PCPHOME/pcp-functions
-	sed -i "s/\(MODE=\).*/\10/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tDEBUG=\).*/\10/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tTEST=\).*/\10/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tMODE=\).*/\10/" $PCPHOME/pcp-functions
 }
 
 pcp_debug_set() {
-	sed -i "s/\(DEBUG=\).*/\11/" $PCPHOME/pcp-functions
-	sed -i "s/\(TEST=\).*/\11/" $PCPHOME/pcp-functions
-	sed -i "s/\(MODE=\).*/\11/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tDEBUG=\).*/\11/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tTEST=\).*/\11/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tMODE=\).*/\11/" $PCPHOME/pcp-functions
 }
 
 #========================================================================================
@@ -66,18 +69,18 @@ pcp_debug_cli() {
 	if [ x"" != x"$QUERY_STRING" ]; then
 		case $QUERY_STRING in
 			d=[01])
-				sed -i "s/\(DEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
+				sed -i "s/\(\\tDEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
 				;;
 			t=[0-9])
-				sed -i "s/\(TEST=\).*/\1$t/" $PCPHOME/pcp-functions
+				sed -i "s/\(\\tTEST=\).*/\1$t/" $PCPHOME/pcp-functions
 				;;
 			m=100|m=[0-9][0-9]|m=[0-9]) 
-				sed -i "s/\(MODE=\).*/\1$m/" $PCPHOME/pcp-functions
+				sed -i "s/\(\\tMODE=\).*/\1$m/" $PCPHOME/pcp-functions
 				;;
 			a=[01])
-				sed -i "s/\(DEBUG=\).*/\1$a/" $PCPHOME/pcp-functions
-				sed -i "s/\(TEST=\).*/\1$a/" $PCPHOME/pcp-functions
-				sed -i "s/\(MODE=\).*/\1$a/" $PCPHOME/pcp-functions
+				sed -i "s/\(\\tDEBUG=\).*/\1$a/" $PCPHOME/pcp-functions
+				sed -i "s/\(\\tTEST=\).*/\1$a/" $PCPHOME/pcp-functions
+				sed -i "s/\(\\tMODE=\).*/\1$a/" $PCPHOME/pcp-functions
 				;;
 			*)
 				[ $DEBUG = 1 ] && echo '<p class="error">[ ERROR ] XX Invalid option: '$QUERY_STRING'</p>'

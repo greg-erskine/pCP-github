@@ -12,12 +12,12 @@ pcp_html_head "xtras_alsa" "GE"
 pcp_controls
 pcp_banner
 pcp_xtras
-pcp_mode_lt_99
+pcp_mode_lt_developer
 pcp_running_script
 
-
-
-
+###################################
+# Yes, there is nothing here !!
+###################################
 
 pcp_footer
 pcp_refresh_button

@@ -15,7 +15,7 @@ pcp_html_head "xtras_resize" "GE"
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_mode_lt_99
+pcp_mode_lt_beta
 pcp_running_script
 pcp_httpd_query_string
 

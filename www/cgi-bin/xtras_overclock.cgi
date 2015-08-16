@@ -16,12 +16,15 @@
 #========================================================================================
 # Overclocking data from raspi-config (Rasbian 2015-05-05)
 #----------------------------------------------------------------------------------------
-# "None"   "700MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
-# "Modest" "800MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
-# "Medium" "900MHz ARM,  250MHz core, 450MHz SDRAM, 2 overvolt"
-# "High"   "950MHz ARM,  250MHz core, 450MHz SDRAM, 6 overvolt"
-# "Turbo"  "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt"
-# "Pi2"    "1000MHz ARM, 500MHz core, 500MHz SDRAM, 2 overvolt"
+# "Default" "600MHz ARM,  x00MHz core, x00MHz SDRAM, x overvolt"
+# "None"    "700MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
+# "Modest"  "800MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
+# "Medium"  "900MHz ARM,  250MHz core, 450MHz SDRAM, 2 overvolt"
+# "High"    "950MHz ARM,  250MHz core, 450MHz SDRAM, 6 overvolt"
+# "Turbo"   "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt"
+
+# "Default" "900MHz ARM,  x00MHz core, x00MHz SDRAM, x overvolt"
+# "Pi2"     "1000MHz ARM, 500MHz core, 500MHz SDRAM, 2 overvolt"
 #----------------------------------------------------------------------------------------
 
 #========================================================================================

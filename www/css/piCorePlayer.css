@@ -1,7 +1,7 @@
 /* piCorePlayer style sheet
 
-Version: 0.09 2015-06-28 GE
-	Added a.tab7.
+Version: 0.09 2015-07-05 GE
+	Added a.tab7 .small3
 
 Version: 0.08 2015-06-17 GE
 	Added .large22.
@@ -155,6 +155,10 @@ input {
 
 .small2 {
 	width:2em; 
+}
+
+.small3 {
+	width:2.8em; 
 }
 
 .large12 {

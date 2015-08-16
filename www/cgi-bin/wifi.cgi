@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.13 2015-08-16 GE
+#	Revised modes.
+
 # Version: 0.12 2015-07-01 GE
 #	Added pcp_mode tabs.
 #	Added pcp_picoreplayers tabs.
@@ -391,7 +394,7 @@ echo '  </tr>'
 echo '</table>'
 
 pcp_footer
-[ $MODE -ge $MODE_ADVANCED ] && pcp_mode
+[ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

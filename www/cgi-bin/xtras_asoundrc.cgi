@@ -15,6 +15,7 @@ pcp_html_head "xtras_asound_conf" "GE"
 pcp_controls
 pcp_banner
 pcp_xtras
+pcp_mode_lt_developer
 pcp_running_script
 
 VOLUMELEFT=100

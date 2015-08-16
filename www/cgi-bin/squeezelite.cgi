@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.17 2015-08-16 SBP
+#	Removed pcp_squeezelite_visualiser.
+#	Revised modes.
+
 # Version: 0.16 2015-07-01 GE
 #	Added pcp_mode tabs.
 #	Added pcp_picoreplayers tabs.
@@ -274,6 +278,67 @@ echo '                    <p>mmap = memory map<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	#--------------------------------------NEW ALSA settings-------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>ALSA settings</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+
+							ALSA_PARAMS1=$(echo $ALSA_PARAMS | cut -d: -f1 ) # b = buffer time in ms or size in bytes
+							ALSA_PARAMS2=$(echo $ALSA_PARAMS | cut -d: -f2 ) # p = period count or size in bytes
+							ALSA_PARAMS3=$(echo $ALSA_PARAMS | cut -d: -f3 ) # f = sample format (16|24|24_3|32)
+							ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 ) # m = use mmap (0|1)
+							ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 ) # d = opens ALSA twice
+
+	echo '                  <input class="small3" type="text" name="ALSA_PARAMS1" value="'$ALSA_PARAMS1'">:'
+	echo '                  <input class="small3" type="text" name="ALSA_PARAMS2" value="'$ALSA_PARAMS2'">:'
+	echo '                  <input class="small3" type="text" name="ALSA_PARAMS3" value="'$ALSA_PARAMS3'" pattern="^(16|24|24_3|32)$">:'
+	echo '                  <input class="small1" type="text" name="ALSA_PARAMS4" value="'$ALSA_PARAMS4'" pattern="^[0-1]$">:'
+	echo '                  <input class="small1" type="text" name="ALSA_PARAMS5" value="'$ALSA_PARAMS5'" pattern="^[d]$">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;b&gt;:&lt;p&gt;:&lt;f&gt;:&lt;m&gt;:&lt;d&gt;</p>'
+	echo '                    <ul>'
+	echo '                      <li>b = buffer time in ms or size in bytes</li>'
+	echo '                      <li>p = period count or size in bytes</li>'
+	echo '                      <li>f = sample format (16|24|24_3|32)</li>'
+	echo '                      <li>m = use mmap (0|1)</li>'
+	echo '                      <li>d = opens ALSA twice (undocumented) i.e. ::::d</li>'
+	echo '                    </ul>'
+	echo '                    <p>Buffer value &lt; 500 treated as buffer time in ms, otherwise size in bytes.</p>'
+	echo '                    <p>Period value &lt; 50 treated as period count, otherwise size in bytes.</p>'
+	echo '                    <p>Sample format:<p>'
+	echo '                    <ul>'
+	echo '                      <li>16 = Signed 16 bit Little Endian</li>'
+	echo '                      <li>24 = Signed 24 bit Little Endian using low three bytes in 32-bit word</li>'
+	echo '                      <li>24_3 = Signed 24 bit Little Endian in 3bytes format</li>'
+	echo '                      <li>32 = Signed 32 bit Big Endian</li>'
+	echo '                    </ul>'
+	echo '                    <p>mmap = memory map<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'" readonly>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                </td>'
+	echo '              </tr>'
+fi
+
 #--------------------------------------Buffer size settings------------------------------
 pcp_squeezelite_buffer() {
 	pcp_incr_id
@@ -295,7 +360,7 @@ pcp_squeezelite_buffer() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_buffer
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_buffer
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Codec settings------------------------------------
@@ -330,7 +395,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_codec
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_codec
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Priority settings---------------------------------
@@ -356,7 +421,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_priority
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_priority
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Max sample rate-----------------------------------
@@ -384,7 +449,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_max_sample
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_max_sample
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Upsample settings---------------------------------
@@ -422,7 +487,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_upsample_settings
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_upsample_settings
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------MAC address---------------------------------------
@@ -434,7 +499,8 @@ echo '                <td class="column150">'
 echo '                  <p class="row">MAC address</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
+#echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
+echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set MAC address (-m)&nbsp;&nbsp;'
@@ -455,7 +521,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_mac_address
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_mac_address
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Squeezelite server IP-----------------------------
@@ -467,7 +533,8 @@ echo '                <td class="column150">'
 echo '                  <p class="row">Squeezelite server IP</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
+#echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
+echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Connect to the specified LMS, otherwise autodiscovery will find the server (-s)&nbsp;&nbsp;'
@@ -486,7 +553,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_server_ip
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_server_ip
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Log level setting---------------------------------
@@ -555,7 +622,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_log_level
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Log file name-------------------------------------
@@ -582,7 +649,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_log_file
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_file
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Device supports DoP-------------------------------
@@ -608,7 +675,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_dop
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Visualiser support--------------------------------
@@ -639,7 +706,7 @@ echo '              </tr>'
 #echo '                </td>'
 #echo '              </tr>'
 #}
-#[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_visualiser
+#[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_visualiser
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Close output setting------------------------------
@@ -666,7 +733,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_close_output
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_close_output
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------
@@ -692,7 +759,7 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_various_input
+[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_various_input
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Submit button-------------------------------------
@@ -727,7 +794,7 @@ echo '</table>'
 
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_footer
-[ $MODE -ge $MODE_ADVANCED ] && pcp_mode
+[ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

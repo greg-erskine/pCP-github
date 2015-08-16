@@ -9,8 +9,6 @@ pcp_variables
 
 pcp_html_head "xtras copy2fs" "GE"
 
-DEBUG=1
-
 pcp_banner
 pcp_running_string
 pcp_xtras
@@ -27,9 +25,6 @@ case $COPY2FS in
 	No)
 		rm -f /mnt/mmcblk0p2/tce/copy2fs.flg
 		;;
-	*)
-		echo '<p class="error">$COPY2FS not set: '$COPY2FS'</p>'
-	;;
 esac
 
 # Function to check the copy2fs-radio button setting
@@ -61,6 +56,7 @@ echo '                    <p>Set copy2fs flag&nbsp;&nbsp;'
 echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
 echo '                    <div id="'$ID'" class="less">'
 echo '                      <p>This sets the copy2fs flag so extensions are loaded into ram.</p>'
+echo '                      <p>Reboot required for copy2fs flag to take effect.</p>'
 echo '                    </div>'
 echo '                  </td>'
 echo '                </tr>'

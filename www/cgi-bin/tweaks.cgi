@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.16 2015-08-16 GE
+#	Revised modes.
+
 # Version: 0.15 2015-07-01 GE
 #	Added pcp_mode tabs.
 #	Added pcp_picoreplayers tabs.
@@ -170,7 +173,7 @@ pcp_tweaks_jivelite() {
 		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
 	fi
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_jivelite
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Overclock----------------------------------------
@@ -219,6 +222,8 @@ pcp_tweaks_overclock() {
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td colspan="3">'
 		echo '                  <input type="submit" name="SUBMIT" value="Save">'
+		[ $MODE -ge $MODE_BETA ] &&
+		echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
 		echo '                </td>'
 		echo '              </tr>'
 		echo '            </form>'
@@ -254,7 +259,7 @@ pcp_tweaks_overclock() {
 	fi
 
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_overclock
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_overclock
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Timezone----------------------------------
@@ -469,7 +474,7 @@ pcp_tweaks_auto_start() {
 	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
-	[ $MODE -gt 4 ] &&
+	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -530,7 +535,7 @@ pcp_tweaks_auto_start() {
 	echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
-	[ $MODE -gt 4 ] &&
+	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -546,7 +551,7 @@ pcp_tweaks_auto_start() {
 
 	[ $DEBUG = 1 ] && pcp_favorites
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_auto_start
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
@@ -854,7 +859,7 @@ pcp_tweaks_cron() {
 	echo '                <td colspan=3>'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-	[ $MODE -eq $MODE_DEVELOPER ] &&
+	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -889,7 +894,7 @@ pcp_tweaks_cron() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_cron
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_cron
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------User Commands---------------------------------
@@ -965,14 +970,14 @@ pcp_tweaks_user_commands() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_user_commands
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_user_commands
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 
 pcp_footer
-[ $MODE -ge $MODE_ADVANCED ] && pcp_mode
+[ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
 set +f
 echo '</body>'
