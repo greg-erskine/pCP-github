@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 0.13 2015-08-16 GE
+# Version: 0.13 2015-08-18 GE
 #	Revised modes.
+#	Updated javascript to have the correct ENCRYPTION "selected" in pulldown.
+#	Note: Javascript used here instead of shell script as per other pages.
 
 # Version: 0.12 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -72,6 +74,7 @@ echo '<body onload=frmLoad()>'
 #----------------------------------------------------------------------------------------
 echo '<script type="text/javascript">'
 echo 'var enbl = "'$WIFI'";'
+echo 'var encr = "'$ENCRYPTION'";'
 echo ''
 echo 'function frmLoad() {'
 #echo '    document.forms[0].SAVE.disabled=true;'
@@ -83,6 +86,17 @@ echo '        document.forms[0].WIFI[1].checked=true;'
 echo '        document.forms[0].SSID.disabled=true;'
 echo '        document.forms[0].PASSWORD.disabled=true;'
 echo '        document.forms[0].ENCRYPTION.disabled=true;'
+echo '    }'
+echo '    switch(encr) {'
+echo '         case "WPA":'
+echo '            document.forms[0].ENCRYPTION[0].selected=true;'
+echo '            break;'
+echo '         case "WEP":'
+echo '            document.forms[0].ENCRYPTION[1].selected=true;'
+echo '            break;'
+echo '         case "OPEN":'
+echo '            document.forms[0].ENCRYPTION[2].selected=true;'
+echo '            break;'
 echo '    }'
 echo '}'
 echo ''
