@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.13 2015-08-18 GE
+# Version: 0.13 2015-08-20 GE
 #	Revised modes.
 #	Updated javascript to have the correct ENCRYPTION "selected" in pulldown.
 #	Note: Javascript used here instead of shell script as per other pages.
+#	Turned pcp_picoreplayers tabs on in normal mode.
 
 # Version: 0.12 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -119,7 +120,7 @@ echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 echo '</script>'
 
-[ $MODE -ge $MODE_ADVANCED ] && pcp_picoreplayers
+[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation

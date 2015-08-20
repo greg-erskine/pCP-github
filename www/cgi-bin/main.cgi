@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.15 2015-08-16 GE
+# Version: 0.15 2015-08-20 GE
 #	Revised modes.
+#	Turned pcp_picoreplayers tabs on in normal mode.
 
 # Version: 0.14 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -58,7 +59,7 @@ pcp_variables
 
 pcp_html_head "Main Page" "SBP"
 
-[ $MODE -ge $MODE_ADVANCED ] && pcp_picoreplayers
+[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
