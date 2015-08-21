@@ -1,6 +1,6 @@
 #!/bin/sh +x
 
-# Version: 0.02 2015-08-19 GE
+# Version: 0.02 2015-08-21 GE
 #	Updated.
 
 # Version: 0.01 2015-05-19 GE
@@ -33,15 +33,25 @@ if [ $? = 0 ]; then
 	echo 'dialog.tcz already installed.'
 else
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/dialog.tcz ]; then
-		echo 'dialog.tcz downloading... '
-		sudo -u tc tce-load -w dialog.tcz
-		[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+		if [ $(pcp_internet_accessible) = 0 ]; then
+			echo 'dialog.tcz downloading...'
+			tce-load -w dialog.tcz
+			[ $? = 0 ] && echo 'dialog.tcz downloaded.' || echo 'Error downloading dialog.tcz.'
+		else
+			echo 'Error downloading dialog.tcz, cannot access Internet.'
+			exit 1
+		fi
 	else
-		echo 'dialog.tcz downloaded.'
+		echo 'dialog.tcz already downloaded.'
 	fi
 	echo 'dialog.tcz installing... '
-	sudo -u tc tce-load -i dialog.tcz
-	[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+	tce-load -i dialog.tcz
+	if [ $? = 0 ]; then
+		echo 'dialog.tcz installed.'
+	else
+		echo 'Error installing dialog.tcz.'
+		exit 1
+	fi
 fi
 
 #========================================================================================
@@ -52,7 +62,7 @@ pcp_start_message() {
 			--yes-label  "Continue" \
 			--no-label   "Exit" \
 			--backtitle  "$BACKTITLE" \
-			--yesno      "\nThis basic piCorePlayer setup is only intended for configuration of settings that can't be set through the webgui." \
+			--yesno      "\nThis basic piCorePlayer setup is only intended for configuration of settings that can not be set through the web GUI." \
 			10 60
 
 	[ $? = $DIALOG_OK ] || pcp_exit_program
@@ -83,7 +93,7 @@ pcp_exit_program() {
 		echo "Web GUI is $STATUS"
 	fi
 	echo
-	exit
+	exit 0
 }
 
 #========================================================================================
@@ -260,19 +270,14 @@ pcp_static_ip_menu() {
 pcp_get_static_ip_status() {
 	STATISIP=0
 	[ -f $STATICIP ] || STATISIP=$(($STATISIP + 1))
-	grep eth0.sh /opt/bootlocal.sh
+	grep eth0.sh /opt/bootlocal.sh >/dev/null 2>&1
 	[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
-	pcp_mount_mmcblk0p1_nohtml >/dev/null
-	if mount | grep $VOLUME >/dev/null; then
-		grep nodhcp /mnt/mmcblk0p1/cmdline.txt
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	if mount | grep $VOLUME >/dev/null 2>&1; then
+		grep nodhcp /mnt/mmcblk0p1/cmdline.txt >/dev/null 2>&1
 		[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
-		pcp_umount_mmcblk0p1_nohtml >/dev/null
+		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	fi
-
-	dialog	--title      "Static IP Statis" \
-			--backtitle  "$BACKTITLE" \
-			--msgbox      "\n$STATISIP\n\n" \
-			0 0
 }
 
 #----------------------------------------------------------------------------------------
@@ -287,10 +292,10 @@ pcp_read_script() {
 		set -- `cat $STATICIP | grep route`
 		GATEWAY=$5
 	else
-		IP=192.168.1.xxx
+		IP=192.168.1.x
 		NETMASK=255.255.255.0
 		BROADCAST=192.168.1.255
-		GATEWAY=192.168.1.xxx
+		GATEWAY=192.168.1.x
 	fi
 }
 
@@ -325,11 +330,11 @@ pcp_edit_localboot() {
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
 	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...'
-	pcp_mount_mmcblk0p1_nohtml >/dev/null
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' /mnt/mmcblk0p1/cmdline.txt
 		[ $1 = "add" ] && sed -i 's/^/nodhcp /' /mnt/mmcblk0p1/cmdline.txt
-		pcp_umount_mmcblk0p1_nohtml >/dev/null
+		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	else
 		[ $DEBUG = 1 ] && echo '[ ERROR ] '$VOLUME' not mounted'
 	fi
