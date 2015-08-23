@@ -220,7 +220,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=10
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -589,8 +589,8 @@ pcp_picoreplayers() {
 	do
 		TITLE=$(echo $line | awk -F, '{ print $1 }')
 		URL=$(echo $line | awk -F, '{ print $2 }')
-		[ "$NAME" == "$TITLE" ] && TAB=tab7a || TAB=tab7
-		echo '  <a class="'$TAB'" href="http://'$URL'/" title="'$URL'">'$TITLE'</a>'
+		[ "$NAME" == "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
+		echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
 	done <$TMP
 	rm -r $TMP
 
@@ -600,32 +600,32 @@ pcp_picoreplayers() {
 }
 
 pcp_mode() {
-	echo '<!-- Start of mode toolbar -->'
-	TAB_MODE_INITIAL=tab14
-	TAB_MODE_BASIC=tab14
-	TAB_MODE_NORMAL=tab14
-	TAB_MODE_ADVANCED=tab14
-	TAB_MODE_BETA=tab14
-	TAB_MODE_DEVELOPER=tab14
+	TAB_STYLE_MODE_INITIAL=tab14
+	TAB_STYLE_MODE_BASIC=tab14
+	TAB_STYLE_MODE_NORMAL=tab14
+	TAB_STYLE_MODE_ADVANCED=tab14
+	TAB_STYLE_MODE_BETA=tab14
+	TAB_STYLE_MODE_DEVELOPER=tab14
 
 	case $MODE in
-		$MODE_INITIAL)   TAB_MODE_INITIAL=tab14a ;;
-		$MODE_BASIC)     TAB_MODE_BASIC=tab14a ;;
-		$MODE_NORMAL)    TAB_MODE_NORMAL=tab14a ;;
-		$MODE_ADVANCED)  TAB_MODE_ADVANCED=tab14a ;;
-		$MODE_BETA)      TAB_MODE_BETA=tab14a ;;
-		$MODE_DEVELOPER) TAB_MODE_DEVELOPER=tab14a ;;
+		$MODE_INITIAL)   TAB_STYLE_MODE_INITIAL=tab14a ;;
+		$MODE_BASIC)     TAB_STYLE_MODE_BASIC=tab14a ;;
+		$MODE_NORMAL)    TAB_STYLE_MODE_NORMAL=tab14a ;;
+		$MODE_ADVANCED)  TAB_STYLE_MODE_ADVANCED=tab14a ;;
+		$MODE_BETA)      TAB_STYLE_MODE_BETA=tab14a ;;
+		$MODE_DEVELOPER) TAB_STYLE_MODE_DEVELOPER=tab14a ;;
 	esac
 
+	echo '<!-- Start of mode toolbar -->'
 	echo '<p>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
-	echo '  <a class="'$TAB_MODE_INITIAL'" href="debug.cgi?m='$MODE_INITIAL'" title="Initial mode">Initial</a>'
-	echo '  <a class="'$TAB_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
-	echo '  <a class="'$TAB_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
-	echo '  <a class="'$TAB_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
-	echo '  <a class="'$TAB_MODE_BETA'" href="debug.cgi?m='$MODE_BETA'" title="Beta mode">Beta</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_INITIAL'" href="debug.cgi?m='$MODE_INITIAL'" title="Initial mode">Initial</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_BETA'" href="debug.cgi?m='$MODE_BETA'" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
-	echo '  <a class="'$TAB_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
 	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
 	echo '<!-- End of mode toolbar -->'
