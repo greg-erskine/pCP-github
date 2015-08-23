@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.21 2015-08-14 SBP
+# Version: 0.21 2015-08-23 SBP
 #	Enabling DT loading of audio cards.
+#	Changed /usr/local/sbin/dropbearmulti to /usr/local/bin/dropbearmulti.
 
 # Version: 0.20 2015-07-09 SBP
 #	Revised method of loading wifi firmware.
@@ -317,8 +318,8 @@ echo "${GREEN}Done.${NORMAL}"
 # Dropbear fix to allow scp to work
 if [ ! -e /usr/bin/dbclient ]; then
 	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
-	sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/dbclient
-	sudo ln -s /usr/local/sbin/dropbearmulti /usr/bin/scp
+	sudo ln -s /usr/local/bin/dropbearmulti /usr/bin/dbclient
+	sudo ln -s /usr/local/bin/dropbearmulti /usr/bin/scp
 	echo "${GREEN}Done.${NORMAL}"
 fi
 

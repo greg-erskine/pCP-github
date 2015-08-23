@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2015-07-02 GE
+# Version: 0.02 2015-08-24 GE
 #	Mode mods.
 #	Tidy up of code.
 
@@ -12,6 +12,12 @@
 #   http://elinux.org/RPi_Overclocking
 #   http://github.com/asb/raspi-config
 #----------------------------------------------------------------------------------------
+#arm_freq=
+#core_freq=
+#sdram_freq= 
+#over_voltage=
+#force_turbo=
+#gpu_mem=
 
 #========================================================================================
 # Overclocking data from raspi-config (Rasbian 2015-05-05)

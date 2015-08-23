@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.16 2015-08-20 GE
+# Version: 0.16 2015-08-24 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
+#	Turned overclocking on for RPI2B if in beta mode.
 
 # Version: 0.15 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -181,7 +182,7 @@ pcp_tweaks_jivelite() {
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
 pcp_tweaks_overclock() {
-	if [ $(pcp_rpi_is_model_2B) = 1 ]; then
+	if [ $(pcp_rpi_is_model_2B) = 1 ] || [ $MODE -ge $MODE_BETA ] ; then
 		case "$OVERCLOCK" in
 			NONE) OCnone="selected" ;;
 			MILD) OCmild="selected" ;;

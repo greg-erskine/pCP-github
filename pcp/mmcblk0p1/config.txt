@@ -40,7 +40,12 @@ initramfs 7.0alpha1v7.gz followkernel
 #sdtv_mode=2
 
 #uncomment to overclock the arm. 700 MHz is the default.
-#arm_freq=800
+#arm_freq=
+#core_freq=
+#sdram_freq= 
+#over_voltage=
+#force_turbo=
+#gpu_mem=
 
 #----------------------------------------------------
 dtparam=i2c_arm=on,spi=on,audio=on
