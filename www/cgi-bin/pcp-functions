@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.39 2015-08-16 SBP
+# Version: 0.39 2015-08-23 SBP
 #	Added support for device tree.
 #	Revised modes.
+#	Changed reboot message.
 
 # Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
@@ -946,7 +947,7 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot piCorePlayer</p>'
+	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }
 

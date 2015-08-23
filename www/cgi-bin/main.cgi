@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.15 2015-08-20 GE
+# Version: 0.15 2015-08-23 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
+#	Changed reboot, shutdown and backup messages.
 
 # Version: 0.14 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -225,7 +226,7 @@ pcp_main_reboot() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot piCorePlayer?'\'','\''reboot.cgi'\'')" method="get">'
+	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')" method="get">'
 	echo '                  <input type="submit" value="Reboot" />'
 	echo '                </form>'
 	echo '              </td>'
@@ -343,7 +344,7 @@ pcp_main_backup() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="backup" action="javascript:pcp_confirm('\''Do a backup?'\'','\''backup.cgi'\'')" method="get">'
+	echo '                <form name="backup" action="javascript:pcp_confirm('\''Do a backup on '$NAME'?'\'','\''backup.cgi'\'')" method="get">'
 	echo '                  <input type="submit" value="Backup" />'
 	echo '                </form>'
 	echo '              </td>'
@@ -374,7 +375,7 @@ pcp_main_shutdown() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown piCorePlayer?'\'','\''shutdown.cgi'\'')" method="get">'
+	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''shutdown.cgi'\'')" method="get">'
 	echo '                  <input type="submit" value="Shutdown" />'
 	echo '                </form>'
 	echo '              </td>'
