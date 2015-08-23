@@ -80,6 +80,7 @@ echo '</div>'
 echo '<br />'
 
 pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

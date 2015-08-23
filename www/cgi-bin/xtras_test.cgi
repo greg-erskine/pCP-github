@@ -23,6 +23,9 @@ do
 	echo '<iframe src="http://'$i'/cgi-bin/diag_rpi.cgi" width="970" height="645" frameborder="0" scrolling="no"></iframe>'
 done
 
+pcp_footer
+pcp_copyright
+
 echo '</body>'
 echo '</html>'
 exit

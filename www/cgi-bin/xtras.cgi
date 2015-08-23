@@ -35,5 +35,7 @@ pcp_reboot_button
 #----------------------------------------------------------------------------------------
 
 pcp_footer
+pcp_copyright
+
 echo '</body>'
 echo '</html>'
