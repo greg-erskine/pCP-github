@@ -6,6 +6,7 @@
 #	Added support for device tree.
 #	Revised modes.
 #	Changed reboot message.
+#	Updated pcp_navigation.
 
 # Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
@@ -433,16 +434,30 @@ pcp_banner() {
 }
 
 pcp_navigation() {
+	TAB_STYLE_MODE_MAIN=nav5
+	TAB_STYLE_MODE_SQUEEZELITE=nav5
+	TAB_STYLE_MODE_WIFI=nav5
+	TAB_STYLE_MODE_TWEAKS=nav5
+	TAB_STYLE_MODE_ABOUT=nav5
+
+	case $0 in
+		main.cgi)        TAB_STYLE_MODE_MAIN=nav5a ;;
+		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav5a ;;
+		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav5a ;;
+		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav5a ;;
+		about.cgi)       TAB_STYLE_MODE_ABOUT=nav5a ;;
+	esac
+
 	echo '<!-- Start of pcp_navigation toolbar -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav5" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav5" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="nav5" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
-	echo '        <a class="nav5" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="nav5" href="about.cgi" title="pCP - About">About</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="'$0' - pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
