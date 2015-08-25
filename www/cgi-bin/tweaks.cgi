@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.16 2015-08-24 GE
+# Version: 0.16 2015-08-25 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
 #	Turned overclocking on for RPI2B if in beta mode.
+#	Updated some help messages.
 
 # Version: 0.15 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -151,11 +152,11 @@ pcp_tweaks_jivelite() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
-	echo '                    <p>Reboot is needed.<p>'
+	echo '                    <p>A reboot after installation is needed.<p>'
 	echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard is needed.</p>'
 	echo '                    <ul>'
-	echo '                      <li>Enable - Download and install Jivelite</li>'
-	echo '                      <li>Disable - Remove all traces of Jivelite</li>'
+	echo '                      <li>Jivelite enabled - Downloads and installs Jivelite.</li>'
+	echo '                      <li>Jivelite disabled - Removes all traces of Jivelite.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -276,12 +277,13 @@ pcp_tweaks_timezone() {
 	echo '                  <input class="large16" type="text" name="TIMEZONE" value="'$TIMEZONE'" maxlength="28" pattern="^[a-zA-Z0-9-,./]*$">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Add or change your TIMEZONE&nbsp;&nbsp;'
+	echo '                  <p>Add or change your timezone&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Format: EST-10EST,M10.1.0,M4.1.0/3</p>'
-	echo '                    <p>Cut and paste your TIMEZONE from your favourite timezone location</p>'
+	echo '                    <p>Your timezone should be automatically populated.</p>'
+	echo '                    <p>If not, cut and paste your timezone from your favourite timezone location.</p>'
 	echo '                    <p>Example:</p>'
 	echo '                    <ul>'
 	echo '                      <li><a href="http://wiki.openwrt.org/doc/uci/system#time.zones" target="_blank">Openwrt</a></li>'
@@ -321,7 +323,7 @@ pcp_tweaks_password() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Default: piCore</p>'
-	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure</p>'
+	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -445,7 +447,6 @@ pcp_tweaks_auto_start() {
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
 	echo '                      <li>Squeezelite must be running.</li>'
-	#echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
 	echo '                      <li>LMS IP address is auto-discovered.</li>'
 	echo '                      <li>Favorites must exist in LMS.</li>'
 	echo '                      <li>Favorites must be at the top level.</li>'
@@ -523,7 +524,6 @@ pcp_tweaks_auto_start() {
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
 	echo '                      <li>Squeezelite must be running.</li>'
-	#echo '                      <li>LMS IP address must be set on Squeezelite Settings page.</li>'
 	echo '                      <li>LMS IP address is auto-discovered.</li>'
 	echo '                      <li>Do not include MAC address in CLI command.</li>'
 	echo '                      <li>Maximum number of characters 254.</li>'

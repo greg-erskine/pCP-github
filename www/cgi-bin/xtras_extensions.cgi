@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2015-08-25 GE
+#	Added link to Tiny Core Linux Repository browser.
+
 # Version: 0.01 2015-06-16 GE
 #   Original version.
 
@@ -31,7 +34,6 @@ pcp_variables
 
 pcp_html_head "Add piCore extension" "GE"
 
-pcp_controls
 pcp_banner
 pcp_navigation
 pcp_mode_lt_beta
@@ -345,6 +347,7 @@ echo '                      <li>Search for extension - this ensures you have sel
 echo '                      <li>Check free space and download size before loading.</li>'
 echo '                      <li>Load or delete - this loads or marks for deletion extensions and dependencies.</li>'
 echo '                    </ol>'
+echo '                    <p>For more information - see <a href="http://packages.tinycorelinux.net/" target="_new">Tiny Core Linux Repository browser</a>.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
