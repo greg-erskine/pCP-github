@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.39 2015-08-23 SBP
+# Version: 0.39 2015-08-26 SBP
 #	Added support for device tree.
 #	Revised modes.
 #	Changed reboot message.
 #	Updated pcp_navigation.
+#	Updated cron defaults.
 
 # Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
@@ -221,7 +222,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=10
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1197,13 +1198,13 @@ CMD="Default"
 FIQ="0x7"
 ALSAlevelout="Default"
 REBOOT="Disabled"
-RB_H=""
-RB_WD=""
-RB_DMONTH=""
+RB_H="0"
+RB_WD="*"
+RB_DMONTH="*"
 RESTART="Disabled"
-RS_H=""
-RS_WD=""
-RS_DMONTH=""
+RS_H="0"
+RS_WD="*"
+RS_DMONTH="*"
 CRON_COMMAND=""
 AUTOSTARTLMS=""
 A_S_LMS="Disabled"
