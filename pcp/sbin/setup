@@ -1,6 +1,6 @@
 #!/bin/sh +x
 
-# Version: 0.02 2015-08-21 GE
+# Version: 0.02 2015-08-26 GE
 #	Updated.
 
 # Version: 0.01 2015-05-19 GE
@@ -75,12 +75,16 @@ pcp_exit_program() {
 	clear
 	if [ $WIFICHANGED = 1 ]; then
 		echo
+		pcp_backup_nohtml
+		echo
 		echo "WIFI: $WIFI"
 		echo "SSID: $SSID"
 		echo "Password: $PASSWORD"
 		echo "Security: $ENCRYPTION"
 	fi
 	if [ $STATICIPCHANGED = 1 ]; then
+		echo
+		pcp_backup_nohtml
 		echo
 		echo "Static IP: $STATUSIP"
 		echo "Static IP address: $IP"
@@ -112,6 +116,8 @@ pcp_main_menu() {
 		"Wifi"          "Setup Wifi" \
 		"Static IP"     "Setup Static IP (wired networks only)" \
 		"WebGUI"        "Enable/Disable Web GUI" \
+		"Backup"        "Backup $NAME configuration file" \
+		"Reboot"        "Reboot $NAME" \
 	)
 
 	[ $? = $DIALOG_OK ] || pcp_exit_program
@@ -130,6 +136,15 @@ pcp_main_menu() {
 		WebGUI)
 			WEBGUICHANGED=1
 			pcp_webgui_menu
+			;;
+		Backup)
+			pcp_backup_nohtml >/dev/null 2>&1
+			pcp_main_menu
+			;;
+		Reboot)
+			clear
+			echo "Rebooting $NAME..."
+			sudo reboot
 			;;
 	esac
 }
