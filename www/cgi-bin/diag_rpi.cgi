@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.06 2015-08-29 GE
+#	Added shortname.
+
 # Version: 0.05 2015-07-04 GE
 #	More updates.
 
@@ -135,9 +138,15 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
+echo '                <p>Shortname:</p>'
+echo '              </td>'
+echo '              <td class="column150">'
+echo '                <p>'$(pcp_rpi_shortname)'</p>'
+echo '              </td>'
+echo '              <td class="column150">'
 echo '                <p>Uptime:</p>'
 echo '              </td>'
-echo '              <td colspan="4">'
+echo '              <td colspan="3">'
 echo '                <p>'$(pcp_uptime_days)'</p>'
 echo '              </td>'
 echo '            </tr>'
