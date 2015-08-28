@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.17 2015-08-20 SBP
+# Version: 0.17 2015-08-29 SBP
 #	Removed pcp_squeezelite_visualiser.
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
+#	Revised initial mode settings.
 
 # Version: 0.16 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -215,6 +216,8 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Output settings-----------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
@@ -243,45 +246,51 @@ echo '                    <p><b>Note: </b>Sometimes clearing this field complete
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-#--------------------------------------ALSA settings-------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>ALSA settings</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;b&gt;:&lt;p&gt;:&lt;f&gt;:&lt;m&gt;:&lt;d&gt;</p>'
-echo '                    <ul>'
-echo '                      <li>b = buffer time in ms or size in bytes</li>'
-echo '                      <li>p = period count or size in bytes</li>'
-echo '                      <li>f = sample format (16|24|24_3|32)</li>'
-echo '                      <li>m = use mmap (0|1)</li>'
-echo '                      <li>d = opens ALSA twice (undocumented) i.e. ::::d</li>'
-echo '                    </ul>'
-echo '                    <p>Buffer value &lt; 500 treated as buffer time in ms, otherwise size in bytes.</p>'
-echo '                    <p>Period value &lt; 50 treated as period count, otherwise size in bytes.</p>'
-echo '                    <p>Sample format:<p>'
-echo '                    <ul>'
-echo '                      <li>16 = Signed 16 bit Little Endian</li>'
-echo '                      <li>24 = Signed 24 bit Little Endian using low three bytes in 32-bit word</li>'
-echo '                      <li>24_3 = Signed 24 bit Little Endian in 3bytes format</li>'
-echo '                      <li>32 = Signed 32 bit Big Endian</li>'
-echo '                    </ul>'
-echo '                    <p>mmap = memory map<p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+#----------------------------------------------------------------------------------------
 
-if [ $MODE -ge $MODE_DEVELOPER ]; then
-	#--------------------------------------NEW ALSA settings-------------------------------------
+#--------------------------------------ALSA settings-------------------------------------
+pcp_squeezelite_alsa() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>ALSA settings</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;b&gt;:&lt;p&gt;:&lt;f&gt;:&lt;m&gt;:&lt;d&gt;</p>'
+	echo '                    <ul>'
+	echo '                      <li>b = buffer time in ms or size in bytes</li>'
+	echo '                      <li>p = period count or size in bytes</li>'
+	echo '                      <li>f = sample format (16|24|24_3|32)</li>'
+	echo '                      <li>m = use mmap (0|1)</li>'
+	echo '                      <li>d = opens ALSA twice (undocumented) i.e. ::::d</li>'
+	echo '                    </ul>'
+	echo '                    <p>Buffer value &lt; 500 treated as buffer time in ms, otherwise size in bytes.</p>'
+	echo '                    <p>Period value &lt; 50 treated as period count, otherwise size in bytes.</p>'
+	echo '                    <p>Sample format:<p>'
+	echo '                    <ul>'
+	echo '                      <li>16 = Signed 16 bit Little Endian</li>'
+	echo '                      <li>24 = Signed 24 bit Little Endian using low three bytes in 32-bit word</li>'
+	echo '                      <li>24_3 = Signed 24 bit Little Endian in 3bytes format</li>'
+	echo '                      <li>32 = Signed 32 bit Big Endian</li>'
+	echo '                    </ul>'
+	echo '                    <p>mmap = memory map<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+[ $MODE -ge $BASIC ] && pcp_squeezelite_alsa
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------NEW ALSA settings-------------------------------------
+pcp_squeezelite_new_alsa() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -338,7 +347,9 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '                <td>'
 	echo '                </td>'
 	echo '              </tr>'
-fi
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_new_alsa
+#----------------------------------------------------------------------------------------
 
 #--------------------------------------Buffer size settings------------------------------
 pcp_squeezelite_buffer() {
@@ -366,262 +377,262 @@ pcp_squeezelite_buffer() {
 
 #--------------------------------------Codec settings------------------------------------
 pcp_squeezelite_codec() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Codec settings</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="_CODEC" value="'$_CODEC'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Restrict codecs to those specified, otherwise load all available codecs (-c)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;codec1,codec2&gt;</p>'
-echo '                    <p>Known codecs:</p>'
-echo '                    <ul>'
-echo '                      <li>flac</li>'
-echo '                      <li>pcm</li>'
-echo '                      <li>mp3</li>'
-echo '                      <li>ogg</li>'
-echo '                      <li>aac</li>'
-echo '                      <li>wma</li>'
-echo '                      <li>alac</li>'
-echo '                      <li>mad, mpg for specific mp3 codec</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Codec settings</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="_CODEC" value="'$_CODEC'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Restrict codecs to those specified, otherwise load all available codecs (-c)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;codec1,codec2&gt;</p>'
+	echo '                    <p>Known codecs:</p>'
+	echo '                    <ul>'
+	echo '                      <li>flac</li>'
+	echo '                      <li>pcm</li>'
+	echo '                      <li>mp3</li>'
+	echo '                      <li>ogg</li>'
+	echo '                      <li>aac</li>'
+	echo '                      <li>wma</li>'
+	echo '                      <li>alac</li>'
+	echo '                      <li>mad, mpg for specific mp3 codec</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_codec
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Priority settings---------------------------------
 pcp_squeezelite_priority() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Priority settings</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="number" name="PRIORITY" value="'$PRIORITY'" min="1" max="99">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set real time priority of output thread (-p)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;priority&gt;</p>'
-echo '                    <p>Range: 1-99</p>'
-echo '                    <p>Default: 45</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Priority settings</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="number" name="PRIORITY" value="'$PRIORITY'" min="1" max="99">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set real time priority of output thread (-p)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;priority&gt;</p>'
+	echo '                    <p>Range: 1-99</p>'
+	echo '                    <p>Default: 45</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_priority
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Max sample rate-----------------------------------
 pcp_squeezelite_max_sample() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Max sample rate</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="MAX_RATE" value="'$MAX_RATE'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Sample rates supported, allows output to be off when Squeezelite is started (-r)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;rates&gt;[:&lt;delay&gt;]</p>'
-echo '                    <ul>'
-echo '                      <li>rates = &lt;maxrate&gt;|&lt;minrate&gt;-&lt;maxrate&gt;|&lt;rate1&gt;,&lt;rate2&gt;,&lt;rate3&gt;</li>'
-echo '                      <li>delay = optional delay switching rates in ms</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Max sample rate</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="MAX_RATE" value="'$MAX_RATE'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Sample rates supported, allows output to be off when Squeezelite is started (-r)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;rates&gt;[:&lt;delay&gt;]</p>'
+	echo '                    <ul>'
+	echo '                      <li>rates = &lt;maxrate&gt;|&lt;minrate&gt;-&lt;maxrate&gt;|&lt;rate1&gt;,&lt;rate2&gt;,&lt;rate3&gt;</li>'
+	echo '                      <li>delay = optional delay switching rates in ms</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_max_sample
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Upsample settings---------------------------------
 pcp_squeezelite_upsample_settings() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Upsample settings</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="UPSAMPLE" value="'$UPSAMPLE'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Resampling parameters (-R)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;recipe&gt;:&lt;flags&gt;:&lt;attenuation&gt;:&lt;precision&gt;:<br />'
-echo '                       &lt;passband_end&gt;:&lt;stopband_start&gt;:&lt;phase_response&gt;</p>'
-echo '                    <ul>'
-echo '                      <li>recipe = (v|h|m|l|q)(L|I|M)(s) [E|X]</li>'
-echo '                        <ul>'
-echo '                          <li>E = exception - resample only if native rate not supported</li>'
-echo '                          <li>X = async - resample to max rate for device, otherwise to max sync rate</li>'
-echo '                        </ul>'
-echo '                      <li>flags = num in hex</li>'
-echo '                      <li>attenuation = attenuation in dB to apply (default is -1db if not explicitly set)</li>'
-echo '                      <li>precision = number of bits precision (HQ = 20. VHQ = 28)</li>'
-echo '                      <li>passband_end = number in percent (0dB pt. bandwidth to preserve. nyquist = 100%)</li>'
-echo '                      <li>stopband_start = number in percent (Aliasing/imaging control. > passband_end)</li>'
-echo '                      <li>phase_response = 0-100 (0 = minimum / 50 = linear / 100 = maximum)</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Upsample settings</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="UPSAMPLE" value="'$UPSAMPLE'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Resampling parameters (-R)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;recipe&gt;:&lt;flags&gt;:&lt;attenuation&gt;:&lt;precision&gt;:<br />'
+	echo '                       &lt;passband_end&gt;:&lt;stopband_start&gt;:&lt;phase_response&gt;</p>'
+	echo '                    <ul>'
+	echo '                      <li>recipe = (v|h|m|l|q)(L|I|M)(s) [E|X]</li>'
+	echo '                        <ul>'
+	echo '                          <li>E = exception - resample only if native rate not supported</li>'
+	echo '                          <li>X = async - resample to max rate for device, otherwise to max sync rate</li>'
+	echo '                        </ul>'
+	echo '                      <li>flags = num in hex</li>'
+	echo '                      <li>attenuation = attenuation in dB to apply (default is -1db if not explicitly set)</li>'
+	echo '                      <li>precision = number of bits precision (HQ = 20. VHQ = 28)</li>'
+	echo '                      <li>passband_end = number in percent (0dB pt. bandwidth to preserve. nyquist = 100%)</li>'
+	echo '                      <li>stopband_start = number in percent (Aliasing/imaging control. > passband_end)</li>'
+	echo '                      <li>phase_response = 0-100 (0 = minimum / 50 = linear / 100 = maximum)</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_upsample_settings
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------MAC address---------------------------------------
 pcp_squeezelite_mac_address() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">MAC address</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-#echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
-echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set MAC address (-m)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;mac addr&gt;</p>'
-echo '                    <p>Format: ab:cd:ef:12:34:56</p>'
-echo '                    <p>This is used if you want to use a fake MAC address or you want to overwrite the default MAC address determined by Squeezelite.'
-echo '                       Usually you will not need to set a MAC address.</p>'
-echo '                    <p>By default Squeezelite will use one of the following MAC addresses:</p>'
-echo '                    <ul>'
-echo '                      <li>Physical MAC address: '$(pcp_eth0_mac_address)'</li>'
-echo '                      <li>Wireless MAC address: '$(pcp_wlan0_mac_address)'</li>'
-echo '                    </ul>'
-echo '                    <p><b>Note: </b>Squeezelite will ignore MAC addresses from the range 00:04:20:**:**:**</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">MAC address</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	#echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
+	echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set MAC address (-m)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;mac addr&gt;</p>'
+	echo '                    <p>Format: ab:cd:ef:12:34:56</p>'
+	echo '                    <p>This is used if you want to use a fake MAC address or you want to overwrite the default MAC address determined by Squeezelite.'
+	echo '                       Usually you will not need to set a MAC address.</p>'
+	echo '                    <p>By default Squeezelite will use one of the following MAC addresses:</p>'
+	echo '                    <ul>'
+	echo '                      <li>Physical MAC address: '$(pcp_eth0_mac_address)'</li>'
+	echo '                      <li>Wireless MAC address: '$(pcp_wlan0_mac_address)'</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Note: </b>Squeezelite will ignore MAC addresses from the range 00:04:20:**:**:**</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_mac_address
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Squeezelite server IP-----------------------------
 pcp_squeezelite_server_ip() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Squeezelite server IP</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-#echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
-echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Connect to the specified LMS, otherwise autodiscovery will find the server (-s)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
-echo '                    <p>Default port: 3483</p>'
-echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port numbers.</p>'
-echo '                    <p>Current LMS server'\''s IP is:</p>'
-echo '                    <ul>'
-echo '                      <li>'$(pcp_lmsip)'</li>'
-echo '                    </ul>'
-echo '                    <p><b>Hint: </b>Triple click on LMS IP then drag and drop into input field.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Squeezelite server IP</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	#echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
+	echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Connect to the specified LMS, otherwise autodiscovery will find the server (-s)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
+	echo '                    <p>Default port: 3483</p>'
+	echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port numbers.</p>'
+	echo '                    <p>Current LMS server'\''s IP is:</p>'
+	echo '                    <ul>'
+	echo '                      <li>'$(pcp_lmsip)'</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Hint: </b>Triple click on LMS IP then drag and drop into input field.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_server_ip
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Log level setting---------------------------------
 pcp_squeezelite_log_level() {
-case "$LOGLEVEL" in
-	all=info) LOGLEVEL1="selected" ;;
-	all=debug) LOGLEVEL2="selected" ;;
-	all=sdebug) LOGLEVEL3="selected" ;;
-	slimproto=info) LOGLEVEL4="selected" ;;
-	slimproto=debug) LOGLEVEL5="selected" ;;
-	slimproto=sdebug) LOGLEVEL6="selected" ;;
-	stream=info) LOGLEVEL7="selected" ;;
-	stream=debug) LOGLEVEL8="selected" ;;
-	stream=sdebug) LOGLEVEL9="selected" ;;
-	decode=info) LOGLEVEL10="selected" ;;
-	decode=debug) LOGLEVEL11="selected" ;;
-	decode=sdebug) LOGLEVEL12="selected" ;;
-	output=info) LOGLEVEL13="selected" ;;
-	output=debug) LOGLEVEL14="selected" ;;
-	output=sdebug) LOGLEVEL15="selected" ;;
-	*) LOGLEVEL0="selected" ;;
-esac
+	case "$LOGLEVEL" in
+		all=info) LOGLEVEL1="selected" ;;
+		all=debug) LOGLEVEL2="selected" ;;
+		all=sdebug) LOGLEVEL3="selected" ;;
+		slimproto=info) LOGLEVEL4="selected" ;;
+		slimproto=debug) LOGLEVEL5="selected" ;;
+		slimproto=sdebug) LOGLEVEL6="selected" ;;
+		stream=info) LOGLEVEL7="selected" ;;
+		stream=debug) LOGLEVEL8="selected" ;;
+		stream=sdebug) LOGLEVEL9="selected" ;;
+		decode=info) LOGLEVEL10="selected" ;;
+		decode=debug) LOGLEVEL11="selected" ;;
+		decode=sdebug) LOGLEVEL12="selected" ;;
+		output=info) LOGLEVEL13="selected" ;;
+		output=debug) LOGLEVEL14="selected" ;;
+		output=sdebug) LOGLEVEL15="selected" ;;
+		*) LOGLEVEL0="selected" ;;
+	esac
 
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Log level setting</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <select class="large15" name="LOGLEVEL">'
-echo '                    <option value="" '$LOGLEVEL0'>none</option>'
-echo '                    <option value="all=info" '$LOGLEVEL1'>all=info</option>'
-echo '                    <option value="all=debug" '$LOGLEVEL2'>all=debug</option>'
-echo '                    <option value="all=sdebug" '$LOGLEVEL3'>all=sdebug</option>'
-echo '                    <option value="slimproto=info" '$LOGLEVEL4'>slimproto=info</option>'
-echo '                    <option value="slimproto=debug" '$LOGLEVEL5'>slimproto=debug</option>'
-echo '                    <option value="slimproto=sdebug" '$LOGLEVEL6'>slimproto=sdebug</option>'
-echo '                    <option value="stream=info" '$LOGLEVEL7'>stream=info</option>'
-echo '                    <option value="stream=debug" '$LOGLEVEL8'>stream=debug</option>'
-echo '                    <option value="stream=sdebug" '$LOGLEVEL9'>stream=sdebug</option>'
-echo '                    <option value="decode=info" '$LOGLEVEL10'>decode=info</option>'
-echo '                    <option value="decode=debug" '$LOGLEVEL11'>decode=debug</option>'
-echo '                    <option value="decode=sdebug" '$LOGLEVEL12'>decode=sdebug</option>'
-echo '                    <option value="output=info" '$LOGLEVEL13'>output=info</option>'
-echo '                    <option value="output=debug" '$LOGLEVEL14'>output=debug</option>'
-echo '                    <option value="output=sdebug" '$LOGLEVEL15'>output=sdebug</option>'
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set logging level (-d)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;log&gt;=&lt;level&gt;</p>'
-echo '                    <ul>'
-echo '                      <li>log: all|slimproto|stream|decode|output</li>'
-echo '                      <li>level: info|debug|sdebug</li>'
-echo '                    </ul>'
-echo '                    <p><b>Example:</b></p>'
-echo '                    <ul>'
-echo '                      <li>slimproto=info</li>'
-echo '                      <li>all=debug</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Log level setting</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large15" name="LOGLEVEL">'
+	echo '                    <option value="" '$LOGLEVEL0'>none</option>'
+	echo '                    <option value="all=info" '$LOGLEVEL1'>all=info</option>'
+	echo '                    <option value="all=debug" '$LOGLEVEL2'>all=debug</option>'
+	echo '                    <option value="all=sdebug" '$LOGLEVEL3'>all=sdebug</option>'
+	echo '                    <option value="slimproto=info" '$LOGLEVEL4'>slimproto=info</option>'
+	echo '                    <option value="slimproto=debug" '$LOGLEVEL5'>slimproto=debug</option>'
+	echo '                    <option value="slimproto=sdebug" '$LOGLEVEL6'>slimproto=sdebug</option>'
+	echo '                    <option value="stream=info" '$LOGLEVEL7'>stream=info</option>'
+	echo '                    <option value="stream=debug" '$LOGLEVEL8'>stream=debug</option>'
+	echo '                    <option value="stream=sdebug" '$LOGLEVEL9'>stream=sdebug</option>'
+	echo '                    <option value="decode=info" '$LOGLEVEL10'>decode=info</option>'
+	echo '                    <option value="decode=debug" '$LOGLEVEL11'>decode=debug</option>'
+	echo '                    <option value="decode=sdebug" '$LOGLEVEL12'>decode=sdebug</option>'
+	echo '                    <option value="output=info" '$LOGLEVEL13'>output=info</option>'
+	echo '                    <option value="output=debug" '$LOGLEVEL14'>output=debug</option>'
+	echo '                    <option value="output=sdebug" '$LOGLEVEL15'>output=sdebug</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set logging level (-d)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;log&gt;=&lt;level&gt;</p>'
+	echo '                    <ul>'
+	echo '                      <li>log: all|slimproto|stream|decode|output</li>'
+	echo '                      <li>level: info|debug|sdebug</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Example:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>slimproto=info</li>'
+	echo '                      <li>all=debug</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
 #----------------------------------------------------------------------------------------
@@ -655,26 +666,26 @@ echo '              </tr>'
 
 #--------------------------------------Device supports DoP-------------------------------
 pcp_squeezelite_dop() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Device supports DoP</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="DSDOUT" value="'$DSDOUT'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Output device supports DSD over PCM (DoP) (-D)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>[delay]</p>'
-echo '                    <p>delay = optional delay switching between PCM and DoP in ms.</p>'
-echo '                    <p><b>Note: </b>LMS requires the DoP patch applied.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Device supports DoP</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="DSDOUT" value="'$DSDOUT'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Output device supports DSD over PCM (DoP) (-D)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>[delay]</p>'
+	echo '                    <p>delay = optional delay switching between PCM and DoP in ms.</p>'
+	echo '                    <p><b>Note: </b>LMS requires the DoP patch applied.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop
 #----------------------------------------------------------------------------------------
@@ -712,53 +723,53 @@ echo '              </tr>'
 
 #--------------------------------------Close output setting------------------------------
 pcp_squeezelite_close_output() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Close output setting</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="number" name="CLOSEOUT" value="'$CLOSEOUT'" min="1" max="1000">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set idle time before Squeezelite closes output (-C)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;timeout&gt;</p>'
-echo '                    <p>Value in seconds.</p>'
-echo '                    <p>Close output device when idle after timeout seconds, default is to keep it open while player is on.</p>'
-echo '                    <p><b>Note: </b>Available in Squeezelite v1.8</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Close output setting</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="number" name="CLOSEOUT" value="'$CLOSEOUT'" min="1" max="1000">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set idle time before Squeezelite closes output (-C)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;timeout&gt;</p>'
+	echo '                    <p>Value in seconds.</p>'
+	echo '                    <p>Close output device when idle after timeout seconds, default is to keep it open while player is on.</p>'
+	echo '                    <p><b>Note: </b>Available in Squeezelite v1.8</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_close_output
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------
 pcp_squeezelite_various_input() {
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Various input</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="OTHER" value="'$OTHER'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Add another option&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Use this field to add options that are supported by Squeezelite but unavailable in the piCorePlayer web interface.</p>'
-echo '                    <p><b>Note: </b>Ensure to include the correct switch first, i.e. -n or -o etc</p>'
-echo '                    <p><b>Example: </b>-e dsd</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Various input</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="OTHER" value="'$OTHER'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Add another option&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Use this field to add options that are supported by Squeezelite but unavailable in the piCorePlayer web interface.</p>'
+	echo '                    <p><b>Note: </b>Ensure to include the correct switch first, i.e. -n or -o etc</p>'
+	echo '                    <p><b>Example: </b>-e dsd</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_various_input
 #----------------------------------------------------------------------------------------

@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 0.16 2015-08-25 GE
+# Version: 0.16 2015-08-29 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
 #	Turned overclocking on for RPI2B if in beta mode.
 #	Updated some help messages.
+#	Revised initial mode settings.
 
 # Version: 0.15 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -345,7 +346,7 @@ pcp_tweaks_password() {
 	echo '            </form>'
 	echo '          </table>'
 }
-[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_password
+[ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------

@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.06 2015-08-20 GE
+# Version: 0.06 2015-08-29 GE
 #	Hide password.
 #	Turned pcp_picoreplayers tabs on in normal mode.
+#	Revised initial mode settings.
 
 # Version: 0.05 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -75,33 +76,35 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Versions</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <tr>'
-echo '              <td>'
-                      pcp_textarea_inform "none" "cat /usr/local/sbin/piversion.cfg" 30
-echo '              </td>'
-echo '            </tr>'
-echo '            <tr class="padding">'
-echo '              <td></td>'
-echo '              <td></td>'
-echo '            </tr>'
-echo '            <tr>'
-echo '              <td>'
-                      pcp_textarea_inform "none" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 240
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+if [ $MODE -ge $MODE_BASIC ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Versions</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	                      pcp_textarea_inform "none" "cat /usr/local/sbin/piversion.cfg" 30
+	echo '              </td>'
+	echo '            </tr>'
+	echo '            <tr class="padding">'
+	echo '              <td></td>'
+	echo '              <td></td>'
+	echo '            </tr>'
+	echo '            <tr>'
+	echo '              <td>'
+	                      pcp_textarea_inform "none" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 240
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '<table class="bggrey">'
