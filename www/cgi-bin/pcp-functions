@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.39 2015-08-26 SBP
+# Version: 0.39 2015-08-29 SBP
 #	Added support for device tree.
 #	Revised modes.
 #	Changed reboot message.
 #	Updated pcp_navigation.
 #	Updated cron defaults.
+#	Added warning message on beta mode tab.
 
 # Version: 0.38 2015-07-10 GE
 #	Updated pcp_picoreplayers.
@@ -639,7 +640,9 @@ pcp_mode() {
 	echo '  <a class="'$TAB_STYLE_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
-	echo '  <a class="'$TAB_STYLE_MODE_BETA'" href="debug.cgi?m='$MODE_BETA'" title="Beta mode">Beta</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_BETA'"'
+	echo '     onclick="javascript:pcp_confirm('\'WARNING:\\nBeta mode can be dangerous.\\nCorruption of SD card is possible.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
+	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
 	echo '  <div class="tab7end">pCP</div>'

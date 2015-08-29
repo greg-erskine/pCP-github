@@ -63,7 +63,7 @@ pcp_toggle_row_shade
 echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td colspan="3">'
 echo '                    <input type="submit" name="SUBMIT" value="Save">'
-echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\'Reboot piCorePlayer7?\',\'reboot.cgi\'')" />'
+echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\'Reboot ''$NAME''?\',\'reboot.cgi\'')" />'
 echo '                  </td>'
 echo '                </tr>'
 echo '            </table>'

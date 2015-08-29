@@ -112,6 +112,13 @@ pcp_rpi_model_unknown() {
 	[ $MODEL = ? ] && echo 0 || echo 1
 }
 
+pcp_rpi_shortname() {
+	SHORTMAC=$(pcp_eth0_mac_address)
+	[ $MODEL = A ] || [ $MODEL = A+ ] && SHORTMAC=$(pcp_wlan0_mac_address)
+	SHORTMAC=$(echo $SHORTMAC | sed 's/://g')
+	echo "RPi-$(pcp_rpi_model)-${SHORTMAC:6}"
+}
+
 pcp_rpi_is_model_A() {
 	pcp_rpi_details
 	[ $MODEL = A ] && echo 0 || echo 1
@@ -150,14 +157,6 @@ pcp_rpi_is_model_Aplus() {
 pcp_rpi_is_model_2B() {
 	pcp_rpi_details
 	[ $MODEL = 2B ] && echo 0 || echo 1
-}
-
-pcp_rpi_shortname() {
-	pcp_rpi_details
-	SHORTMAC=$(pcp_eth0_mac_address)
-	[ $MODEL = A ] ||[ $MODEL = A+ ] && SHORTMAC=$(pcp_wlan0_mac_address)
-	SHORTMAC=$(echo $SHORTMAC | sed 's/://g')
-	echo "RPi-$(pcp_rpi_model)-${SHORTMAC:6}"
 }
 
 #=========================================================================================

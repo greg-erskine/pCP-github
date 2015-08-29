@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.15 2015-08-23 GE
+# Version: 0.15 2015-08-29 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
 #	Changed reboot, shutdown and backup messages.
+#	Added warning message on reset all.
 
 # Version: 0.14 2015-07-01 GE
 #	Added pcp_mode tabs.
@@ -423,7 +424,7 @@ pcp_main_reset_all() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reset ALL" action="writetoconfig.cgi" method="get">'
+	echo '                <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi'\'')" method="get">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reset ALL" />'
 	echo '                </form>'
 	echo '              </td>'
