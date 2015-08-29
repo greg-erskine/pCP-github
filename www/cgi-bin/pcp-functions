@@ -414,6 +414,7 @@ pcp_html_head() {
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
 	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">'
+	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
 	echo ''
