@@ -223,7 +223,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -237,10 +237,6 @@ pcp_variables() {
 
 	# Use test download area
 	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
-
-	# Set to DT_MODE to 0 in order to use old way of loading soundcards or 1 to use the new Device Tree mode (while in testing) it needs a reboot after changing soundcards
-	# When Device tree is working fine we could delete the DT_MODE=0 section.
-	DT_MODE=1
 }
 
 pcp_variables
@@ -1247,97 +1243,7 @@ EOF
 	( crontab -l | grep -v "Custom" ) | crontab -
 }
 
-if [ $DT_MODE = 0 ]; then
-	#=========================================================================================
-	# Read which output to use then add/remove modules
-	#-----------------------------------------------------------------------------------------
-	pcp_read_chosen_audio() {
-		[ $AUDIO = Analog ] &&      pcp_disable_i2s
-		[ $AUDIO = USB ] &&         pcp_disable_i2s
-		[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
-		[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
-		[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
-		[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
-		[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac
-		[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
-		[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
-	}
 
-	#========================================================================================
-	# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
-	#----------------------------------------------------------------------------------------
-	pcp_disable_i2s() {
-		sudo /usr/local/etc/init.d/squeezelite stop
-		sleep 1
-		sudo modprobe -qr snd_soc_wm8804
-		sudo modprobe -qr snd_soc_hifiberry_dac
-		sudo modprobe -qr snd_soc_hifiberry_digi
-		sudo modprobe -qr snd_soc_iqaudio_dac
-	}
-
-	#========================================================================================
-	# Load the correct modules for HiFiBerry DAC
-	#----------------------------------------------------------------------------------------
-	pcp_enable_i2s_dac() {
-		pcp_disable_i2s
-		sudo modprobe -q snd_soc_bcm2708_i2s
-	#	sudo modprobe -q bcm2708_dmaengine
-		sudo modprobe -q snd_soc_pcm5102a
-		sudo modprobe -q snd_soc_hifiberry_dac
-	}
-
-	#========================================================================================
-	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
-	#----------------------------------------------------------------------------------------
-	pcp_enable_i2s_digi() {
-		pcp_disable_i2s
-		sudo modprobe -q snd_soc_bcm2708_i2s
-	#	sudo modprobe -q bcm2708_dmaengine
-		sudo modprobe -q snd_soc_wm8804
-		sleep 1
-		sudo modprobe -q snd_soc_hifiberry_digi
-	}
-
-	#========================================================================================
-	# Load the correct modules for IQaudIO DAC and IQaudIO DAC+
-	#----------------------------------------------------------------------------------------
-	pcp_enable_iqaudio_dac() {
-		pcp_disable_i2s
-		sudo modprobe -q snd_soc_bcm2708_i2s
-	#	sudo modprobe -q bcm2708_dmaengine
-		sudo modprobe -q snd_soc_pcm512x
-		sleep 1
-		sudo modprobe -q snd_soc_iqaudio_dac
-		sleep 1
-	}
-
-	#========================================================================================
-	# Load the correct modules for HiFiBerry DAC+
-	#----------------------------------------------------------------------------------------
-	pcp_enable_hifiberry_dac_p() {
-		pcp_disable_i2s
-		sudo modprobe -q snd_soc_pcm512x_i2c
-		sudo modprobe -q snd_soc_pcm512x
-		sudo modprobe -q snd_soc_bcm2708_i2s
-	#	sudo modprobe -q bcm2708_dmaengine
-		sudo modprobe -q snd_pcm_dmaengine
-		sudo modprobe -q snd_soc_hifiberry_dacplus
-	}
-
-	#========================================================================================
-	# Load the correct modules for HiFiBerry AMP
-	#----------------------------------------------------------------------------------------
-	pcp_enable_i2s_amp() {
-		pcp_disable_i2s
-		sudo modprobe -q snd_soc_bcm2708_i2s
-	#	sudo modprobe -q bcm2708_dmaengine
-		sudo modprobe -q snd_soc_wm8804
-		sleep 1
-		sudo modprobe -q snd_soc_hifiberry_amp
-	}
-fi
-
-if [ $DT_MODE = 1 ]; then 
 	#=========================================================================================
 	# Read which output to use then add/remove modules
 	#-----------------------------------------------------------------------------------------
@@ -1428,4 +1334,3 @@ if [ $DT_MODE = 1 ]; then
 		sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
 		pcp_umount_mmcblk0p1_nohtml
 	}
-fi
