@@ -56,7 +56,7 @@ sudo mkdir $UPD_PCP/tce
 
 # Download the boot files and the tce files and Break if errors in downloading boot files
 echo '<p class="info">[ INFO ] Downloading '$INSITU'_boot.tar.gz...</p>'
-sudo -P "$UPD_PCP"/boot "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_boot.tar.gz &
+sudo wget -P "$UPD_PCP"/boot "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_boot.tar.gz &
 
 echo -n "Downloading"
 CNT=0
