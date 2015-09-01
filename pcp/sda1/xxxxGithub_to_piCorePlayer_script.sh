@@ -49,12 +49,12 @@ getpackage() {
 #-----------------------------------------------------------------------------------------
 pcp_mount() {
 	PARTITION=$1
-	if mount | grep /mnt/$PARTITION; then
+	if mount | grep /mnt/$PARTITION >/dev/null 2>&1; then
 		echo "${RED}[ ERROR ] /mnt/$PARTITION already mounted.${NORMAL}"
 		RESULT=0
 	else
 		echo "${GREEN}[ INFO ] Mounting /mnt/$PARTITION...${NORMAL}"
-		sudo mount /mnt/$PARTITION
+		sudo mount /mnt/$PARTITION >/dev/null 2>&1
 		RESULT=$?
 	fi
 	[ $RESULT = 0 ] || echo "${RED}[ ERROR ] Mounting /mnt/$PARTITION.${NORMAL}"
@@ -65,9 +65,9 @@ pcp_mount() {
 #-----------------------------------------------------------------------------------------
 pcp_umount() {
 	PARTITION=$1
-	if mount | grep /mnt/$PARTITION; then
+	if mount | grep /mnt/$PARTITION >/dev/null 2>&1; then
 		echo "${GREEN}[ INFO ] Unmounting /mnt/$PARTITION...${NORMAL}"
-		sudo umount /mnt/$PARTITION
+		sudo umount /mnt/$PARTITION >/dev/null 2>&1
 		RESULT=$?
 	else
 		echo "${RED}[ ERROR ] /mnt/$PARTITION already unmounted.${NORMAL}"
@@ -76,14 +76,41 @@ pcp_umount() {
 	[ $RESULT = 0 ] || echo "${RED}[ ERROR ] Unmounting /mnt/$PARTITION.${NORMAL}"
 }
 
+#=========================================================================================
+# Backup routine with error check and report
+#-----------------------------------------------------------------------------------------
+pcp_backup() {
+	# Delete any previous backup_done file
+	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
+
+	# Do a backup - filetool.sh backs up files in .filetool.lst
+	echo "${YELLOW}[ INFO ] "
+	sudo filetool.sh -b
+	sync
+	echo "${NORMAL}"
+
+	# If backup_status file exists and is non-zero in size then an error has occurred
+	if [ -s /tmp/backup_status ]; then
+		echo "${RED}[ ERROR ] Backup status.${YELLOW}"
+		cat /tmp/backup_status
+	fi
+
+	# If backup_done exists then the backup was successful
+	if [ -f /tmp/backup_done ]; then
+		echo "${GREEN}[ OK ] Backup successful.${NORMAL}"
+	else
+		echo "${RED}[ ERROR ] Backup failed.${NORMAL}"
+	fi
+}
+
 clear
 
 # Check that you are running the script as root
 if [ "$(id -u)" != "0" ]; then
-	echo "${RED}[ ERROR ] This script must be run as root.${NORMAL}"
+	echo "${RED}[ ERROR ] Script must be run as root.${NORMAL}"
 	exit 1
 else
-	echo "${GREEN}[ INFO ] This script is running as root.${NORMAL}"
+	echo "${GREEN}[ INFO ] Script is running as root.${NORMAL}"
 fi
 
 # Set copy2fs.flg and reboot so mmcblk0p2 can be unmounted
@@ -94,7 +121,16 @@ if [ ! -f /mnt/mmcblk0p2/tce/copy2fs.flg ]; then
 	echo "${RED}[ ERROR ] copy2fs.flg not found.${NORMAL}"
 	touch /mnt/mmcblk0p2/tce/copy2fs.flg
 	[ $? = 0 ] && "${YELLOW}[ INFO ] copy2fs.flg created.${NORMAL}"
-	sudo filetool.sh -b
+	#sudo filetool.sh -b
+	pcp_backup
+	while true; do
+		read -p "Do you wish to reboot?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) exit;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	done
 	echo "${RED}[ ERROR ] Rebooting.1...${NORMAL}"
 	sudo reboot
 	exit 1
@@ -108,6 +144,14 @@ echo "${GREEN}[ INFO ] Continuing...${NORMAL}"
 if df | grep /dev/loop; then
 	echo "${RED}[ ERROR ] Loop mounted filesystems found - reboot required.${NORMAL}"
 	echo "${RED}[ ERROR ] Rebooting.2...${NORMAL}"
+	while true; do
+		read -p "Do you wish to reboot?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) exit;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	done
 	sudo reboot
 	exit 1
 else
@@ -129,9 +173,19 @@ else
 fi
 [ "$CONTINUE" = "NO" ] && exit
 
+# Use these figures to work out if we need to increase partition size
+SIZE=$(df -h | grep mmcblk0p2 | awk '{print $2}' | awk -F. '{print $1}')
+PERCENTAGE=$(df -h | grep mmcblk0p2 | awk '{print $5}' | awk -F% '{print $1}')
+
+echo "${GREEN}[ INFO ] Size: ${SIZE}M Used: ${PERCENTAGE}% ${NORMAL}"
+
 DEVELOPMENT=0
 
 if [ $DEVELOPMENT = 0 ]; then
+
+	sudo /usr/local/etc/init.d/squeezelite stop
+	sleep 1
+
 	pcp_umount mmcblk0p2
 	[ $RESULT = 0 ] || exit
 
@@ -164,7 +218,7 @@ sudo find /tmp/pcp -type f ! -name "*.tcz" ! -name "*.png" ! -name "*.gif" -prin
 pcp_mount mmcblk0p2
 [ $RESULT = 0 ] || exit
 
-# Remove any tcz package from piCore first time through
+# Remove all tcz packages from piCore first time through
 if [ -f $TCZ_PLACE/mc.tcz ]; then
 	echo "${GREEN}[ INFO ] Removing tcz packages from piCore${NORMAL}"
 	rm -f $TCZ_PLACE/*.*
@@ -181,6 +235,7 @@ getfile $TMP/pcp/conf          wifi.db              /home/tc
 chown root:root /home/tc/wifi.db
 chmod u=rw,g=rw,o=r /home/tc/wifi.db
 
+###### I don't think this is necessary any more???
 getfile $TMP/pcp/conf          timezone             /etc/sysconfig
 chown root:root /etc/sysconfig/timezone
 chmod u=rw,g=rw,o=r /etc/sysconfig/timezone
@@ -192,8 +247,6 @@ chmod u=rwx,g=rx,o=rx $SBIN/config.cfg
 getfile $TMP/pcp/conf          piversion.cfg        $SBIN
 chown root:root $SBIN/piversion.cfg
 chmod u=rw,g=r,o=r $SBIN/piversion.cfg
-
-#getfile $TMP/pcp/conf         wpa_supplicant.conf /etc
 
 getfile $TMP/pcp/conf          asound.conf          /etc
 chown root:root /etc/asound.conf
@@ -230,10 +283,6 @@ chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
 getfile $TMP/pcp/opt           bootsync.sh          /opt
 chown root:staff /opt/bootsync.sh
 chmod u=rwx,g=rwx,o= /opt/bootsync.sh
-
-#getfile $TMP/pcp/sbin          webgui               $SBIN
-#chown root:root $SBIN/webgui
-#chmod u=rwx,g=rx,o=rx $SBIN/webgui
 
 getfile $TMP/pcp/sbin          setup                $SBIN
 chown root:root $SBIN/setup
@@ -328,9 +377,10 @@ getpackage firmware-rtlwifi.tcz
 #--------------------------------------------
 echo "${GREEN}[ INFO ] Downloading Ralphy's tcz packages...${YELLOW}"
 
-#rm -f /mnt/mmcblk0p2/tce/squeezelite-armv6hf
-#sudo wget -P /mnt/mmcblk0p2/tce/ http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf
-#sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
+rm -f /mnt/mmcblk0p2/tce/squeezelite-armv6hf
+sudo wget -P /mnt/mmcblk0p2/tce/ http://ralph_irving.users.sourceforge.net/pico/squeezelite-1.8-armv6hf
+sudo mv /mnt/mmcblk0p2/tce/squeezelite-1.8-armv6hf /mnt/mmcblk0p2/tce/squeezelite-armv6hf
+sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 
 echo "${GREEN}[ INFO ] Copying Ralphy's tcz packages...${YELLOW}"
 getfile $TMP/pcp/Ralphys_files libffmpeg.tcz $TCZ_PLACE
@@ -350,6 +400,15 @@ chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
 # Do a backup
 #--------------------------------------------
 #sudo alsactl store
-echo "${GREEN}"
-sudo filetool.sh -b
-echo "${NORMAL}"
+pcp_backup
+
+while true; do
+	read -p "Do you wish to reboot?" yn
+	case $yn in
+		[Yy]* ) break;;
+		[Nn]* ) exit;;
+		* ) echo "Please answer yes or no.";;
+	esac
+done
+sudo reboot
+exit
