@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.08 2015-09-01 SBP
+#	Fixed wget bug.
+
 # Version: 0.07 2015-06-29 GE
 #	Increased size of submit button.
 
@@ -70,7 +73,7 @@ do
 	fi
 done
 
-result_boot=$?
+result_boot=$?								# NOT SURE THIS ACTUALLY WORKS ANY MORE
 if [ $result_boot = 0 ]; then
 	echo '<p class="ok">[ OK ] Success downloading boot files</p>'
 else
@@ -83,19 +86,19 @@ if [ $result_boot = 0 ]; then
 	echo '<p class="info">[ INFO ] Downloading '$INSITU'_tce.tar.gz...</p>'
 	sudo wget -P "$UPD_PCP"/tce "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_tce.tar.gz &
 
-echo -n "Downloading"
-CNT=0
-until -f "$UPD_PCP"/tce/"$INSITU"_tce.tar.gz
-do
-	if [ $((CNT++)) -gt 20 ]; then
-		break
-	else
-		echo -n "."
-		sleep 1
-	fi
-done
+	echo -n "Downloading"
+	CNT=0
+	until -f "$UPD_PCP"/tce/"$INSITU"_tce.tar.gz
+	do
+		if [ $((CNT++)) -gt 20 ]; then
+			break
+		else
+			echo -n "."
+			sleep 1
+		fi
+	done
 
-	result_tce=$?
+	result_tce=$?							# NOT SURE THIS ACTUALLY WORKS ANY MORE
 	if [ $result_tce = 0 ]; then
 		echo '<p class="ok">[ OK ] Success downloading tce files</p>'
 		echo '<form name="do_update" action= "do_updatepicoreplayer.cgi" method="get">'

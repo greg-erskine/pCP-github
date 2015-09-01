@@ -1,11 +1,14 @@
 #!/bin/sh
 
+# Version: 0.03 2015-09-01 SBP
+#	Added hostname command so hostname is set dynamically.
+
 # Version: 0.02 2014-12-10 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
 
 # Version: 0.01 2014-08-06 SBP
-#   Original version.
+#	Original version.
 
 . pcp-functions
 pcp_variables
@@ -21,12 +24,12 @@ HOST=`sudo $HTPPD -d \"$HOST\"`
 
 # Update host name in config.cfg file
 sudo sed -i "s/\(HOST *=*\).*/\1$HOST/" $CONFIGCFG
-echo '<p class="info">[ INFO ] Your HOST name is set to: '$HOST'</p>'
 
 # Update host name in bootsync.sh file
 sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
 
-sudo hostname "$HOST"   # In order to change name immediately 
+sudo hostname "$HOST"              # In order to change name immediately 
+echo '<p class="info">[ INFO ] Your HOST name is set to: '$(hostname)'</p>'
 
 pcp_backup
 
