@@ -1,5 +1,8 @@
 #!/bin/sh +x
 
+# Version: 0.03 2015-09-01 GE
+#	Added shutdown option.
+
 # Version: 0.02 2015-08-26 GE
 #	Updated.
 
@@ -118,6 +121,7 @@ pcp_main_menu() {
 		"WebGUI"        "Enable/Disable Web GUI" \
 		"Backup"        "Backup $NAME configuration file" \
 		"Reboot"        "Reboot $NAME" \
+		"Shutdown"      "Shutdown $NAME" \
 	)
 
 	[ $? = $DIALOG_OK ] || pcp_exit_program
@@ -145,6 +149,11 @@ pcp_main_menu() {
 			clear
 			echo "Rebooting $NAME..."
 			sudo reboot
+			;;
+		Shutdown)
+			clear
+			echo "Shutting down $NAME..."
+			exitcheck.sh
 			;;
 	esac
 }
