@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.18 2015-09-01 GE
+#	Fixed bug in pcp_squeezelite_alsa.
+
 # Version: 0.17 2015-08-29 SBP
 #	Removed pcp_squeezelite_visualiser.
 #	Revised modes.
@@ -286,7 +289,7 @@ pcp_squeezelite_alsa() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $BASIC ] && pcp_squeezelite_alsa
+[ $MODE -ge $MODE_BASIC ] && pcp_squeezelite_alsa
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------NEW ALSA settings-------------------------------------
