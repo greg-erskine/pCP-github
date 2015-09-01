@@ -26,6 +26,8 @@ echo '<p class="info">[ INFO ] Your HOST name is set to: '$HOST'</p>'
 # Update host name in bootsync.sh file
 sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
 
+sudo hostname "$HOST"   # In order to change name immediately 
+
 pcp_backup
 
 [ $DEBUG = 1 ] && pcp_show_bootsync_sh
