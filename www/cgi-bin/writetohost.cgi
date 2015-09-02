@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version: 0.03 2015-09-01 SBP
-#	Added hostname command so hostname is set dynamically.
+#	Added hostname command so the hostname is set dynamically.
 
 # Version: 0.02 2014-12-10 GE
 #	Using pcp_html_head now.
@@ -20,15 +20,19 @@ pcp_running_script
 pcp_httpd_query_string
 
 # Decode Host name using httpd
-HOST=`sudo $HTPPD -d \"$HOST\"`
+HOST=`sudo $HTPPD -d $HOST`
 
 # Update host name in config.cfg file
-sudo sed -i "s/\(HOST *=*\).*/\1$HOST/" $CONFIGCFG
+sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
 
 # Update host name in bootsync.sh file
 sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
 
-sudo hostname "$HOST"              # In order to change name immediately 
+# Dynamically set the hostname immediately
+# We may need to use sethostname as it also updates /etc/hosts and /etc/hostname
+# The double quotes around $HOST are to ensure it works with spaces,
+# but spaces are not valid in hostnames
+sudo hostname "$HOST"               
 echo '<p class="info">[ INFO ] Your HOST name is set to: '$(hostname)'</p>'
 
 pcp_backup
