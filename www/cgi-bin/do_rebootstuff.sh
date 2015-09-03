@@ -135,6 +135,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
+	pcp_write_to_host
 	pcp_save_to_config
 	pcp_set_timezone >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
@@ -154,6 +155,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
 	. /mnt/mmcblk0p1/newconfig.cfg
 	pcp_timezone
+	pcp_write_to_host
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------

@@ -2,9 +2,6 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.40 2015-09-01 SBP
-#	Removed DT_MODE code.
-
 # Version: 0.39 2015-08-29 SBP
 #	Added support for device tree.
 #	Revised modes.
@@ -217,7 +214,7 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -226,7 +223,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -717,6 +714,13 @@ pcp_write_to_log() {
 	echo ====================================================================================== >> $LOG
 	echo >> $LOG
 }
+
+
+pcp_write_to_host() {
+	sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
+	sudo hostname "$HOST"   # In order to change name immediately 
+}
+
 
 ##################################################
 # NOTE: Below routines will eventually be obsolete
@@ -1246,93 +1250,94 @@ EOF
 	( crontab -l | grep -v "Custom" ) | crontab -
 }
 
-#=========================================================================================
-# Read which output to use then add/remove modules
-#-----------------------------------------------------------------------------------------
-pcp_read_chosen_audio() {
-	[ $AUDIO = Analog ] &&      pcp_disable_i2s
-	[ $AUDIO = USB ] &&         pcp_disable_i2s
-	[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
-	[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
-	[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
-	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
-	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
-	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
-	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
-}
 
-#========================================================================================
-# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
-#----------------------------------------------------------------------------------------
-pcp_disable_i2s() {
-	pcp_mount_mmcblk0p1_nohtml
-	# Remove Soundcards Device Tree
-	sed -i '/dtoverlay=/d' $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
+	#=========================================================================================
+	# Read which output to use then add/remove modules
+	#-----------------------------------------------------------------------------------------
+	pcp_read_chosen_audio() {
+		[ $AUDIO = Analog ] &&      pcp_disable_i2s
+		[ $AUDIO = USB ] &&         pcp_disable_i2s
+		[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
+		[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
+		[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
+		[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
+		[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
+		[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
+		[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
+	}
 
-#device_tree=
-}
+	#========================================================================================
+	# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+	#----------------------------------------------------------------------------------------
+	pcp_disable_i2s() {
+		pcp_mount_mmcblk0p1_nohtml
+		# Remove Soundcards Device Tree
+		sed -i '/dtoverlay=/d' $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
 
-#========================================================================================
-# Remove Device tree modules
-#----------------------------------------------------------------------------------------
-pcp_remove_dt() {
-	pcp_mount_mmcblk0p1_nohtml
-	sleep 1
-	# Remove Soundcards Device Tree
-	sed -i '/dtoverlay=/d' $CONFIGTXT
-}
+	#device_tree=
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_dac() {
-	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Remove Device tree modules
+	#----------------------------------------------------------------------------------------
+	pcp_remove_dt() {
+		pcp_mount_mmcblk0p1_nohtml
+		sleep 1
+		# Remove Soundcards Device Tree
+		sed -i '/dtoverlay=/d' $CONFIGTXT
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_digi() {
-	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry DAC
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_dac() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac() {
-	pcp_remove_dt
-	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_digi() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac_p() {
-	pcp_remove_dt
-	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for IQaudIO DAC
+	#----------------------------------------------------------------------------------------
+	pcp_enable_iqaudio_dac() {
+		pcp_remove_dt
+		sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_hifiberry_dac_p() {
-	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for IQaudIO DAC+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_iqaudio_dac_p() {
+		pcp_remove_dt
+		sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry AMP
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_amp() {
-	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-}
+	#========================================================================================
+	# Load the correct modules for HiFiBerry DAC+
+	#----------------------------------------------------------------------------------------
+	pcp_enable_hifiberry_dac_p() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
+
+	#========================================================================================
+	# Load the correct modules for HiFiBerry AMP
+	#----------------------------------------------------------------------------------------
+	pcp_enable_i2s_amp() {
+		pcp_remove_dt
+		sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
+	}
