@@ -717,8 +717,10 @@ pcp_write_to_log() {
 
 
 pcp_write_to_host() {
-	sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
-	sudo hostname "$HOST"   # In order to change name immediately 
+	pcp_mount_mmcblk0p1_nohtml
+	sudo sed -i "s/\(host=\).*/\1$HOST/" /mnt/mmcblk0p1/cmdline.txt
+	sudo sethostname "$HOST"   # In order to change name immediately 
+	pcp_umount_mmcblk0p1_nohtml
 }
 
 
