@@ -73,7 +73,7 @@ do
 	fi
 done
 
-result_boot=$?								# NOT SURE THIS ACTUALLY WORKS ANY MORE
+result_boot=$?								# NOT SURE THIS ACTUALLY WORKS ANY MORE - I don't think it is working - needs to be fixed. There is no check if the file is downloaded
 if [ $result_boot = 0 ]; then
 	echo '<p class="ok">[ OK ] Success downloading boot files</p>'
 else
@@ -98,7 +98,7 @@ if [ $result_boot = 0 ]; then
 		fi
 	done
 
-	result_tce=$?							# NOT SURE THIS ACTUALLY WORKS ANY MORE
+	result_tce=$?							# NOT SURE THIS ACTUALLY WORKS ANY MORE - I don't think it is working - needs to be fixed. There is no check if the file is downloaded 
 	if [ $result_tce = 0 ]; then
 		echo '<p class="ok">[ OK ] Success downloading tce files</p>'
 		echo '<form name="do_update" action= "do_updatepicoreplayer.cgi" method="get">'
