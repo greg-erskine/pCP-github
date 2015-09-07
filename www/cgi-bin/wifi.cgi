@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.14 2015-09-07 GE
+#	Added diagnostics button (beta mode).
+
 # Version: 0.13 2015-08-20 GE
 #	Revised modes.
 #	Updated javascript to have the correct ENCRYPTION "selected" in pulldown.
@@ -352,6 +355,8 @@ echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SAVE" value="Save/Connect">'
+[ $MODE -ge $MODE_BETA ] &&
+echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'
