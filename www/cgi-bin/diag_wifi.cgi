@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 0.02 2015-09-07 GE
+# Version: 0.02 2015-09-08 GE
 #	Updated.
 
 # Version: 0.01 2015-08-20 GE
@@ -46,7 +46,7 @@ pcp_wifi_diag_dmesg() {
 
 #========================================================================================
 # Routine to generate a list of wifi related modules. Some of the standard RPi modules
-# are not displayed to foucs on wifi modules.
+# have been filtered to foucs on wifi modules.
 #----------------------------------------------------------------------------------------
 pcp_wifi_diag_lsmod() {
 	echo "lsmod" >>$LOG
@@ -80,7 +80,7 @@ pcp_install_lsusb() {
 
 #========================================================================================
 # Routine to report on usb devices. Some of the standard RPi usb devices have been
-# excluded to focus on wifi usb devices.
+# filtered to focus on wifi usb devices.
 #----------------------------------------------------------------------------------------
 pcp_wifi_diag_lsusb() {
 	echo "wifi usb report (lsusb)" >>$LOG
@@ -90,7 +90,7 @@ pcp_wifi_diag_lsusb() {
 }
 
 #========================================================================================
-#
+# Routine to report on the wifi interface using the wireless specific iwconfig tool.
 #----------------------------------------------------------------------------------------
 pcp_wifi_diag_iwconfig() {
 	echo "iwconfig" >>$LOG
@@ -100,7 +100,7 @@ pcp_wifi_diag_iwconfig() {
 }
 
 #========================================================================================
-#
+# Routine to report on the wifi interface using the generic interface ifconfig tool. 
 #----------------------------------------------------------------------------------------
 pcp_wifi_diag_ifconfig() {
 	echo "ifconfig" >>$LOG
@@ -110,7 +110,7 @@ pcp_wifi_diag_ifconfig() {
 }
 
 #========================================================================================
-#
+# Routine to get wireless statistics from specific nodes.
 #----------------------------------------------------------------------------------------
 pcp_wifi_diag_iwlist() {
 	echo "iwlist" >>$LOG
@@ -119,6 +119,9 @@ pcp_wifi_diag_iwlist() {
 	echo >>$LOG
 }
 
+#========================================================================================
+# Routine to display wireless access points statistics in a nice format.
+#----------------------------------------------------------------------------------------
 available_networks() {
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
@@ -203,9 +206,8 @@ available_networks() {
 				level[i] = c[3]
 				gsub(" ","",level[i])
 			}
-			split(q,c," ")
-###			qual[i] = c[1] * 10 / 7
-			qual[i] = c[1]
+			split(q,c,"/")
+			qual[i] = c[1] * 100 / c[2]
 		}
 		if ($1 ~ /Encr/){
 			enc[i] = $2
@@ -222,18 +224,18 @@ available_networks() {
 	END {
 		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
 		print ""
-		print "-------------------------------------------------------------------------------------------"
-		print "        SSID                 Quality  Level      Channel     Encryption       Address"
-		print "-------------------------------------------------------------------------------------------"
+		print "---------------------------------------------------------------------------------------------"
+		print "       SSID                 Quality   Level       Channel      Encryption       Address"
+		print "---------------------------------------------------------------------------------------------"
 		for (l=1; l<15; l++) {
 			++j
-			if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], " ", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address      
+			if ( j <= i ) printf "%2d. %-25s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
 		}
-		print "-------------------------------------------------------------------------------------------"
+		print "---------------------------------------------------------------------------------------------"
 	} ' | tee -a $LOG
 }
 #----------------------------------------------------------------------------------------
-
 
 #========================================================================================
 # Create the log file. Start with some basic information.
@@ -262,7 +264,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Wifi</legend>'
+echo '          <legend>Wifi diagnostics</legend>'
 echo '          <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
 pcp_start_row_shade
@@ -431,7 +433,7 @@ pcp_start_row_shade
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>ifconig results:</b></p>'
+echo '                <p><b>ifconfig results:</b></p>'
 echo '              </td>'
 echo '            </tr>'
 pcp_toggle_row_shade

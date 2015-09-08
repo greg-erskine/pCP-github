@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.14 2015-09-07 GE
+# Version: 0.14 2015-09-08 GE
 #	Added diagnostics button (beta mode).
+#	Updated format of available networks.
 
 # Version: 0.13 2015-08-20 GE
 #	Revised modes.
@@ -213,9 +214,8 @@ available_networks() {
 				level[i] = c[3]
 				gsub(" ","",level[i])
 			}
-			split(q,c," ")
-###			qual[i] = c[1] * 10 / 7
-			qual[i] = c[1]
+			split(q,c,"/")
+			qual[i] = c[1] * 100 / c[2]
 		}
 		if ($1 ~ /Encr/){
 			enc[i] = $2
@@ -232,14 +232,15 @@ available_networks() {
 	END {
 		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
 		print ""
-		print "-------------------------------------------------------------------------------------------"
-		print "        SSID                 Quality  Level      Channel     Encryption       Address"
-		print "-------------------------------------------------------------------------------------------"
+		print "---------------------------------------------------------------------------------------------"
+		print "       SSID                 Quality   Level       Channel      Encryption       Address"
+		print "---------------------------------------------------------------------------------------------"
 		for (l=1; l<15; l++) {
 			++j
-			if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], " ", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address      
+			if ( j <= i ) printf "%2d. %-25s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
 		}
-		print "-------------------------------------------------------------------------------------------"
+		print "---------------------------------------------------------------------------------------------"
 	} '
 }
 #----------------------------------------------------------------------------------------
