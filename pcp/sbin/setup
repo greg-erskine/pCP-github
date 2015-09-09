@@ -1,5 +1,8 @@
 #!/bin/sh +x
 
+# Version: 0.04 2015-09-09 GE
+#	Added backup to pcp_write_wifi.
+
 # Version: 0.03 2015-09-01 GE
 #	Added shutdown option.
 
@@ -444,6 +447,7 @@ pcp_write_wifi() {
 	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
 	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
 	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	pcp_backup_nohtml >/dev/null 2>&1
 }
 
 #========================================================================================
