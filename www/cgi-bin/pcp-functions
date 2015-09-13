@@ -214,7 +214,7 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -223,7 +223,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=30
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -719,7 +719,7 @@ pcp_write_to_log() {
 pcp_write_to_host() {
 	pcp_mount_mmcblk0p1_nohtml
 	sudo sed -i "s/\(host=\).*/\1$HOST/" /mnt/mmcblk0p1/cmdline.txt
-	sudo sethostname "$HOST"   # In order to change name immediately 
+#	sudo sethostname "$HOST"   # In order to change name immediately - doesnt work when hostname is set in cmdline.txt 
 	pcp_umount_mmcblk0p1_nohtml
 }
 

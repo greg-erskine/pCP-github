@@ -154,8 +154,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
 	. /mnt/mmcblk0p1/newconfig.cfg
-	pcp_timezone
-	pcp_write_to_host
+	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
@@ -164,11 +163,15 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
 	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
 	#-----------------------------------------------------------------------------------------
-	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
+	pcp_timezone
+	pcp_write_to_host
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
-else
+	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
+	sleep 3
+	sudo reboot
+	else
 	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
 fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
