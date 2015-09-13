@@ -139,6 +139,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	pcp_save_to_config
 	pcp_set_timezone >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
+	pcp_read_chosen_audio >/dev/null 2>&1
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
 else
 	echo -n "${YELLOW}  newconfig.cfg not found on sda1.${NORMAL}"
@@ -166,6 +167,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_timezone
 	pcp_write_to_host
 	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
+	pcp_read_chosen_audio >/dev/null 2>&1
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -174,6 +176,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	else
 	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
 fi
+
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 
@@ -263,13 +266,22 @@ pcp_read_chosen_audio >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 # ********************************
 
-echo -n "${YELLOW}Waiting for soundcards to populate"
-for i in 1 2 3 4 5 6 7 8 9 10; do
-	echo -n "."
-	aplay -l | grep PLAYBACK >/dev/null 2>&1
-	[ $? = 0 ] && break || sleep 1
+echo -n "${YELLOW}Waiting for soundcards to populate."
+CNT=1
+until aplay -l | grep -q PLAYBACK 
+do
+	if [ $((CNT++)) -gt 20 ]; then
+	echo "${RED} Failed ($CNT).${NORMAL}"
+		break
+	else
+		echo -n "."
+		sleep 1
+	fi
 done
-[ $i -lt 10 ] && echo "${GREEN} Done ($i).${NORMAL}" || echo "${RED} Failed ($i).${NORMAL}"
+echo "${GREEN} Done ($CNT).${NORMAL}"
+
+
+
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
