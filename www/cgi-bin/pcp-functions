@@ -325,9 +325,7 @@ pcp_mode_lt_developer() {
 #-----------------------------------------------------------------------------------------
 pcp_set_timezone() {
 	. $CONFIGCFG
-	pcp_mount_mmcblk0p1_nohtml
 	pcp_timezone
-	pcp_umount_mmcblk0p1_nohtml
 }
 
 pcp_timezone() {
@@ -717,10 +715,7 @@ pcp_write_to_log() {
 
 
 pcp_write_to_host() {
-	pcp_mount_mmcblk0p1_nohtml
 	sudo sed -i "s/\(host=\).*/\1$HOST/" /mnt/mmcblk0p1/cmdline.txt
-#	sudo sethostname "$HOST"   # In order to change name immediately - doesnt work when hostname is set in cmdline.txt 
-	pcp_umount_mmcblk0p1_nohtml
 }
 
 

@@ -24,15 +24,13 @@ pcp_html_head "Set Timezone" "GE" "15" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-
-# Decode variables using httpd, no quotes
-TIMEZONE=`sudo $HTPPD -d $TIMEZONE`
-# Save the encoded parameter to the config file, with quotes
-sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
+pcp_save_to_config
 
 echo '<p class="info">[ INFO ] Timezone: '$TIMEZONE'</p>'
 
+pcp_mount_mmcblk0p1
 pcp_set_timezone
+pcp_umount_mmcblk0p1
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
 
