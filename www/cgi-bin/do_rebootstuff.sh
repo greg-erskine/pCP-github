@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.22 2015-09-16 SBP
+#	Updated newconfig.cfg routines.
+#	Updated Waiting for soundcards to populate routine.
+
 # Version: 0.21 2015-08-23 SBP
 #	Enabling DT loading of audio cards.
 #	Changed /usr/local/sbin/dropbearmulti to /usr/local/bin/dropbearmulti.
@@ -108,7 +112,7 @@ if [ PCP_SOURCE = tcz ]; then
 #			sudo filetool.sh -b						# should be enabled later but not while testing
 			echo "${GREEN} Done. will reboot in 5 sec. ${NORMAL}"
 			wait 5
-#			sudo reboot							# should be enabled later but not while testing
+#			sudo reboot								# should be enabled later but not while testing
 		else
 			break
 	fi
@@ -173,10 +177,9 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
 	sudo reboot
-	else
+else
 	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
 fi
-
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 
@@ -280,9 +283,6 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-
-
-
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
@@ -333,6 +333,7 @@ echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 echo "${GREEN}Done.${NORMAL}"
 
 # Dropbear fix to allow scp to work
+# INVESTIGATE AND FIX
 if [ ! -e /usr/bin/dbclient ]; then
 	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
 	sudo ln -s /usr/local/bin/dropbearmulti /usr/bin/dbclient
@@ -370,7 +371,7 @@ fi
 
 # Automatically set the timezone
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
-	echo "${BLUE}Auto set of timezone settings, if wrong they can be changed on tweaks page... ${NORMAL}"
+	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page... ${NORMAL}"
 	# Fetch timezone from Ubuntu's geoip server
 	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
 	# Translate country/city to timezone string

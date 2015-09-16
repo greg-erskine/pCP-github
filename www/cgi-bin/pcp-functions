@@ -2,6 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.40 2015-09-16 SBP
+#	Removed mount/umount functions from inside other pcp-functions.
+#	Updated pcp_write_to_host.
+#	Removed *=* from cron commands.
+#	Added pcp_html_head_no_content.
+
 # Version: 0.39 2015-08-29 SBP
 #	Added support for device tree.
 #	Revised modes.
@@ -223,7 +229,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -414,6 +420,15 @@ pcp_html_head() {
 	echo ''
 	echo '<body>'
 	echo '<!-- End of pcp_html_head -->'
+}
+
+pcp_html_head_no_content() {
+	echo -n "HTTP/1.1 204 No Content\n\n"
+#cat <<EOF
+#HTTP/1.1 204 No Content
+#
+#EOF
+#	printf "%s\n\n" "HTTP/1.1 204 No Content"
 }
 
 pcp_banner() {
@@ -713,11 +728,9 @@ pcp_write_to_log() {
 	echo >> $LOG
 }
 
-
 pcp_write_to_host() {
 	sudo sed -i "s/\(host=\).*/\1$HOST/" /mnt/mmcblk0p1/cmdline.txt
 }
-
 
 ##################################################
 # NOTE: Below routines will eventually be obsolete
@@ -1139,16 +1152,15 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
 	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT *=*\).*/\1\"$REBOOT\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H *=*\).*/\1\"$RB_H\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD *=*\).*/\1\"$RB_WD\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH *=*\).*/\1\"$RB_DMONTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART *=*\).*/\1\"$RESTART\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H *=*\).*/\1\"$RS_H\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD *=*\).*/\1\"$RS_WD\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH *=*\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD=\).*/\1\"$RB_WD\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH=\).*/\1\"$RB_DMONTH\"/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART=\).*/\1\"$RESTART\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H=\).*/\1\"$RS_H\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD=\).*/\1\"$RS_WD\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH=\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
 	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $CONFIGCFG
-#	sudo sed -i "s/\(CRON_COMMAND *=*\).*/\1\"$CRON_COMMAND\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
@@ -1247,94 +1259,93 @@ EOF
 	( crontab -l | grep -v "Custom" ) | crontab -
 }
 
+#=========================================================================================
+# Read which output to use then add/remove modules
+#-----------------------------------------------------------------------------------------
+pcp_read_chosen_audio() {
+	[ $AUDIO = Analog ] &&      pcp_disable_i2s
+	[ $AUDIO = USB ] &&         pcp_disable_i2s
+	[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
+	[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
+	[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
+	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
+	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
+	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
+	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
+}
 
-	#=========================================================================================
-	# Read which output to use then add/remove modules
-	#-----------------------------------------------------------------------------------------
-	pcp_read_chosen_audio() {
-		[ $AUDIO = Analog ] &&      pcp_disable_i2s
-		[ $AUDIO = USB ] &&         pcp_disable_i2s
-		[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
-		[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
-		[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
-		[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
-		[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
-		[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
-		[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
-	}
+#========================================================================================
+# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+#----------------------------------------------------------------------------------------
+pcp_disable_i2s() {
+	pcp_mount_mmcblk0p1_nohtml
+	# Remove Soundcards Device Tree
+	sed -i '/dtoverlay=/d' $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
 
-	#========================================================================================
-	# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
-	#----------------------------------------------------------------------------------------
-	pcp_disable_i2s() {
-		pcp_mount_mmcblk0p1_nohtml
-		# Remove Soundcards Device Tree
-		sed -i '/dtoverlay=/d' $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
+#device_tree=
+}
 
-	#device_tree=
-	}
+#========================================================================================
+# Remove Device tree modules
+#----------------------------------------------------------------------------------------
+pcp_remove_dt() {
+	pcp_mount_mmcblk0p1_nohtml
+	sleep 1
+	# Remove Soundcards Device Tree
+	sed -i '/dtoverlay=/d' $CONFIGTXT
+}
 
-	#========================================================================================
-	# Remove Device tree modules
-	#----------------------------------------------------------------------------------------
-	pcp_remove_dt() {
-		pcp_mount_mmcblk0p1_nohtml
-		sleep 1
-		# Remove Soundcards Device Tree
-		sed -i '/dtoverlay=/d' $CONFIGTXT
-	}
+#========================================================================================
+# Load the correct modules for HiFiBerry DAC
+#----------------------------------------------------------------------------------------
+pcp_enable_i2s_dac() {
+	pcp_remove_dt
+	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+}
 
-	#========================================================================================
-	# Load the correct modules for HiFiBerry DAC
-	#----------------------------------------------------------------------------------------
-	pcp_enable_i2s_dac() {
-		pcp_remove_dt
-		sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
-	}
+#========================================================================================
+# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+#----------------------------------------------------------------------------------------
+pcp_enable_i2s_digi() {
+	pcp_remove_dt
+	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+}
 
-	#========================================================================================
-	# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
-	#----------------------------------------------------------------------------------------
-	pcp_enable_i2s_digi() {
-		pcp_remove_dt
-		sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
-	}
+#========================================================================================
+# Load the correct modules for IQaudIO DAC
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_dac() {
+	pcp_remove_dt
+	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+}
 
-	#========================================================================================
-	# Load the correct modules for IQaudIO DAC
-	#----------------------------------------------------------------------------------------
-	pcp_enable_iqaudio_dac() {
-		pcp_remove_dt
-		sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
-	}
+#========================================================================================
+# Load the correct modules for IQaudIO DAC+
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_dac_p() {
+	pcp_remove_dt
+	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+}
 
-	#========================================================================================
-	# Load the correct modules for IQaudIO DAC+
-	#----------------------------------------------------------------------------------------
-	pcp_enable_iqaudio_dac_p() {
-		pcp_remove_dt
-		sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
-	}
+#========================================================================================
+# Load the correct modules for HiFiBerry DAC+
+#----------------------------------------------------------------------------------------
+pcp_enable_hifiberry_dac_p() {
+	pcp_remove_dt
+	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+}
 
-	#========================================================================================
-	# Load the correct modules for HiFiBerry DAC+
-	#----------------------------------------------------------------------------------------
-	pcp_enable_hifiberry_dac_p() {
-		pcp_remove_dt
-		sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
-	}
-
-	#========================================================================================
-	# Load the correct modules for HiFiBerry AMP
-	#----------------------------------------------------------------------------------------
-	pcp_enable_i2s_amp() {
-		pcp_remove_dt
-		sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
-		pcp_umount_mmcblk0p1_nohtml
-	}
+#========================================================================================
+# Load the correct modules for HiFiBerry AMP
+#----------------------------------------------------------------------------------------
+pcp_enable_i2s_amp() {
+	pcp_remove_dt
+	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+}

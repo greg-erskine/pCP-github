@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2015-09-16 SBP
+#	Added pcp_save_to_config, pcp_mount_mmcblk0p1 and pcp_umount_mmcblk0p1.
+
 # Version: 0.04 2015-06-25 SBP
 #	Removed reboot button - not needed anymore.
 
@@ -24,9 +27,11 @@ pcp_html_head "Set Timezone" "GE" "15" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-pcp_save_to_config
 
+# Decode variables using httpd, no quotes
+TIMEZONE=`sudo $HTPPD -d $TIMEZONE`
 echo '<p class="info">[ INFO ] Timezone: '$TIMEZONE'</p>'
+pcp_save_to_config
 
 pcp_mount_mmcblk0p1
 pcp_set_timezone
