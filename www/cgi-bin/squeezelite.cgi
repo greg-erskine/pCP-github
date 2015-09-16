@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.19 2015-09-16 SBP
+#	Added Raspberry Pi Model A.
+
 # Version: 0.18 2015-09-01 GE
 #	Fixed bug in pcp_squeezelite_alsa.
 
@@ -148,7 +151,7 @@ echo '                    <option value="Analog" '$ANCHECKED'>Analog audio:</opt
 echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</option>'
 echo '                    <option value="USB" '$USBCHECKED'>USB audio:</option>'
 
-if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ pcp_rpi_is_model_A ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_is_model_A) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
 	echo '                    <option value="I2SDIG" '$I2DIGCHECKED'>I2S audio: HiFiBerry Digi</option>'
 	echo '                    <option value="IQaudio" '$IQaudioCHECKED'>I2S audio: IQaudIO Pi-DAC</option>'
