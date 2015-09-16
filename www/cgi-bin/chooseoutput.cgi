@@ -50,64 +50,95 @@ echo '[ INFO ] Setting $AUDIO to '$AUDIO
 # Set the default settings
 case "$AUDIO" in
 	Analog*)
+		pcp_mount_mmcblk0p1
 		pcp_disable_i2s
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="80:::0"
+		pcp_umount_mmcblk0p1
 		;;
 	HDMI*)
+		pcp_mount_mmcblk0p1
 		pcp_disable_i2s
-		sudo ./enablehdmi.sh
+		pcp_disable_HDMI
+		pcp_enable_HDMI
+		#sudo ./enablehdmi.sh
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="::32:0"
+		pcp_umount_mmcblk0p1
 		;;
 	USB*)
+		pcp_mount_mmcblk0p1
 		pcp_disable_i2s
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT=""
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	I2SDAC*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_i2s_dac
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	I2SDIG*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_i2s_digi
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	I2SAMP*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_i2s_amp
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	IQaudio*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_iqaudio_dac
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	I2SpDAC*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_hifiberry_dac_p
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;	
 	I2SpDIG*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_i2s_digi
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	I2SpIQaudIO*)
+		pcp_mount_mmcblk0p1
 		pcp_enable_iqaudio_dac_p
-		sudo ./disablehdmi.sh
+		pcp_disable_HDMI
+		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1
 		;;
 	*)
 		echo '[ ERROR ] Error setting $AUDIO to '$AUDIO

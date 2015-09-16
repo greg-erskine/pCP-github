@@ -139,12 +139,19 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
+	pcp_disable_HDMI
+	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	pcp_read_chosen_audio
+	echo "${GREEN}Done.${NORMAL}"
+	pcp_timezone
 	pcp_write_to_host
 	pcp_save_to_config
-	pcp_set_timezone >/dev/null 2>&1
-	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
-	pcp_read_chosen_audio >/dev/null 2>&1
-	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
+	pcp_backup_nohtml >/dev/null 2>&1
+	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
+	sleep 3
+	sudo reboot
 else
 	echo -n "${YELLOW}  newconfig.cfg not found on sda1.${NORMAL}"
 fi
@@ -168,10 +175,12 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
 	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
 	#-----------------------------------------------------------------------------------------
+	pcp_disable_HDMI
+	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	pcp_read_chosen_audio
+	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
-	if [ $AUDIO = HDMI ]; then sudo $PCPHOME/enablehdmi.sh; else sudo $PCPHOME/disablehdmi.sh; fi
-	pcp_read_chosen_audio >/dev/null 2>&1
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -259,15 +268,6 @@ echo "${GREEN}Done.${NORMAL}"
 echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
 echo "${GREEN}Done.${NORMAL}"
-
-# Load the correct output audio modules 
-# ******************************** 
-# GREG do we need this here - I think we only need this if variables are comming from newconfig.cfg.
-# So could it be moved into the sections above dealing with newconfig.cfg?
-echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
-pcp_read_chosen_audio >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
-# ********************************
 
 echo -n "${YELLOW}Waiting for soundcards to populate."
 CNT=1
@@ -378,7 +378,9 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
 	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
 	pcp_save_to_config
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	pcp_set_timezone >/dev/null 2>&1
+	pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	TZ=$TIMEZONE
 	echo "${GREEN}Done.${NORMAL}"
 fi
