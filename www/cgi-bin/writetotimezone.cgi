@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.05 2015-09-16 SBP
+# Version: 0.05 2015-09-18 SBP
 #	Added pcp_save_to_config, pcp_mount_mmcblk0p1 and pcp_umount_mmcblk0p1.
+#	Removed httpd decoding.
 
 # Version: 0.04 2015-06-25 SBP
 #	Removed reboot button - not needed anymore.

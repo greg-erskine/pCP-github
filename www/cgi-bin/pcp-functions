@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.40 2015-09-16 SBP
+# Version: 0.40 2015-09-18 SBP
 #	Removed mount/umount functions from inside other pcp-functions.
 #	Updated pcp_write_to_host.
 #	Removed *=* from cron commands.
 #	Added pcp_html_head_no_content.
+#	Updated pcp_httpd_query_string to decode $QUERY_STRING.
 
 # Version: 0.39 2015-08-29 SBP
 #	Added support for device tree.
@@ -229,7 +230,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
+	MODE=100
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -775,8 +776,33 @@ pcp_show_bootsync_sh() {
 #-----------------------------------------------------------------------------------------
 pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
-	eval $(sudo $HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { print $i} }')
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+
+	######################################## DELETE THIS SECTION ####################################################
+
+	# Original string
+	greg0=$(echo "$QUERY_STRING")
+	echo "<p>0: $greg0</p>"
+
+	# split on &
+	greg1=$(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { print $i} }')
+	echo "<p>1: $greg1</p>"
+
+	# decode
+	greg2=$($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { print $i} }')
+	echo "<p>2: $greg2</p>"
+
+	# add trailing "
+	greg3=$($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\" ",$i} }')
+	echo "<p>3: $greg3</p>"
+
+	# add " after =
+	greg4=$($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\" ",$i} }' | sed 's/=/="/g')
+	echo "<p>4: $greg4</p>"
+
+	######################################## DELETE THIS SECTION ####################################################
+
+	eval $($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\" ",$i} }' | sed 's/=/="/g')
+	[ $DEBUG = 1 ] && echo '<p class="error">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
 #=========================================================================================

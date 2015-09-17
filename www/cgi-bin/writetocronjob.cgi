@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2015-09-18 SBP
+#	Removed httpd decoding.
+
 # Version: 0.06 2015-06-24 SBP
 #	Added Custom cron command.
 
@@ -30,10 +33,6 @@ pcp_html_head "Write to crontab" "SBP" "15" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-
-# Decode SUBMIT variable using httpd
-SUBMIT=`sudo $HTPPD -d $SUBMIT`
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT
 
 #----------------------------------------------------------------------------------------
 # Reset section
@@ -71,12 +70,6 @@ fi
 #----------------------------------------------------------------------------------------
 # Reboot piCorePlayer section
 #----------------------------------------------------------------------------------------
-# Decode Reboot variables using httpd
-REBOOT=`sudo $HTPPD -d $REBOOT`
-RB_H=`sudo $HTPPD -d $RB_H`
-RB_WD=`sudo $HTPPD -d $RB_WD`
-RB_DMONTH=`sudo $HTPPD -d $RB_DMONTH`
-
 # Use these default values if empty.
 [ x"" = x"$RB_H" ] && RB_H="0"
 [ x"" = x"$RB_WD" ] && RB_WD="*"
@@ -85,22 +78,10 @@ RB_DMONTH=`sudo $HTPPD -d $RB_DMONTH`
 #----------------------------------------------------------------------------------------
 # Restart Squeezelite section
 #----------------------------------------------------------------------------------------
-# Decode Restart variables using httpd
-RESTART=`sudo $HTPPD -d $RESTART`
-RS_H=`sudo $HTPPD -d $RS_H`
-RS_WD=`sudo $HTPPD -d $RS_WD`
-RS_DMONTH=`sudo $HTPPD -d $RS_DMONTH`
-
 # Use these default values if empty.
 [ x"" = x"$RS_H" ] && RS_H="0"
 [ x"" = x"$RS_WD" ] && RS_WD="*"
 [ x"" = x"$RS_DMONTH" ] && RS_DMONTH="*"
-
-#----------------------------------------------------------------------------------------
-# Custom cron section
-#----------------------------------------------------------------------------------------
-# Decode Custom cron variables using httpd
-CRON_COMMAND=`sudo $HTPPD -d $CRON_COMMAND`
 
 #---------------------------------------------------------------------------------------
 # Save cron variables to config
