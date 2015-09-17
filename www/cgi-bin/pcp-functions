@@ -430,6 +430,7 @@ pcp_html_head_no_content() {
 #EOF
 #	printf "%s\n\n" "HTTP/1.1 204 No Content"
 }
+
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
@@ -1304,7 +1305,6 @@ pcp_disable_HDMI() {
 	sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
 	# sed -i '/hdmi_ignore_edid=0xa5000080/d' $CONFIGTXT
 }
-
 
 pcp_enable_HDMI() {
 	sudo echo hdmi_drive=2 >> $CONFIGTXT
