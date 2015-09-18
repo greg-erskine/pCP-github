@@ -802,7 +802,7 @@ pcp_httpd_query_string() {
 	######################################## DELETE THIS SECTION ####################################################
 
 	eval $($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\" ",$i} }' | sed 's/=/="/g')
-	[ $DEBUG = 1 ] && echo '<p class="error">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
 #=========================================================================================
