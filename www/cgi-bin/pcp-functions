@@ -796,12 +796,12 @@ pcp_httpd_query_string() {
 	echo "<p>3: $greg3</p>"
 
 	# add " after =
-	greg4=$($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "<P>%s\"\n</P>",$i} }' | sed 's/=/="/')
+	greg4=$($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\" ",$i} }' | sed 's/=/="/g')
 	echo "<p>4: $greg4</p>"
 
 	######################################## DELETE THIS SECTION ####################################################
 
-	eval $($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	eval $($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\" ",$i} }' | sed 's/=/="/g')
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
@@ -1191,9 +1191,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
 	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_2\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_3\"/" $CONFIGCFG
+	sudo sed -i "s@\(USER_COMMAND_1=\).*@\1\"$USER_COMMAND_1\"@" $CONFIGCFG
+	sudo sed -i "s@\(USER_COMMAND_2=\).*@\1\"$USER_COMMAND_2\"@" $CONFIGCFG
+	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $CONFIGCFG
 	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
 }
 

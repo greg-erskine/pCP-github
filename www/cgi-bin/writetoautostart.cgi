@@ -29,10 +29,8 @@ pcp_set_austostart_lms() {
 	fi
 
 	# Save the encoded parameter to the config file, with quotes
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
-
+	pcp_save_to_config
+	
 	echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Autostart LMS is: '$A_S_LMS'</p>'
 
@@ -58,9 +56,7 @@ pcp_set_austostart_fav() {
 	fi
 
 	# Save the encoded parameter to the config file, with quotes
-	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
+	pcp_save_to_config
 
 	echo '<p class="info">[ INFO ] Auto start FAV is set to: '$AUTOSTARTFAV'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Auto start FAV is: '$A_S_FAV'</p>'
@@ -77,15 +73,10 @@ pcp_set_austostart_fav() {
 # Set USER_COMMAND_x variables in config.cfg routine
 #----------------------------------------------------------------------------------------
 pcp_set_user_commands() {
-	# Save the encoded parameter to the config file, with quotes
-	sudo sed -i "s/\(USER_COMMAND_1=\).*/\1\"$USER_COMMAND_1\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_2=\).*/\1\"$USER_COMMAND_2\"/" $CONFIGCFG
-	sudo sed -i "s/\(USER_COMMAND_3=\).*/\1\"$USER_COMMAND_3\"/" $CONFIGCFG
-
+	pcp_save_to_config
 	echo '<p class="info">[ INFO ] User command #1 is set to: '$USER_COMMAND_1'<br />'
 	echo '                [ INFO ] User command #2 is set to: '$USER_COMMAND_2'<br />'
 	echo '                [ INFO ] User command #3 is set to: '$USER_COMMAND_3'</p>'
-
 	pcp_backup
 }
 
