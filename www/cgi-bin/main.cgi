@@ -313,7 +313,24 @@ pcp_main_save_usb() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_padding
+if [ $MODE -ge $MODE_NORMAL ]; then 
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+if [ $MODE -ge $MODE_ADVANCED ]; then 
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Advanced mode operations</legend>'
+	echo '          <table class="bggrey percent100">'
+fi
 
 #------------------------------------------Stop------------------------------------------
 pcp_main_stop() {
@@ -399,6 +416,25 @@ pcp_main_shutdown() {
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_shutdown
 #----------------------------------------------------------------------------------------
+
+if [ $MODE -ge $MODE_ADVANCED ]; then 
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+if [ $MODE -ge $MODE_BETA ]; then 
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Beta mode operations</legend>'
+	echo '          <table class="bggrey percent100">'
+fi
 
 #------------------------------------------Static IP-------------------------------------
 pcp_main_static_ip(){
@@ -609,6 +645,25 @@ pcp_main_copy2fs() {
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
+
+if [ $MODE -ge $MODE_BETA ]; then 
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+if [ $MODE -ge $MODE_DEVELOPER ]; then 
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Beta mode operations</legend>'
+	echo '          <table class="bggrey percent100">'
+fi
 
 #------------------------------------------Debug-----------------------------------------
 pcp_main_debug() {
