@@ -128,7 +128,7 @@ echo '</script>'
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
-pcp_httpd_query_string
+#pcp_httpd_query_string
 
 available_networks() {
 	#=========================================================================================

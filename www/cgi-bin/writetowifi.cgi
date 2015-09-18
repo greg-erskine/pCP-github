@@ -28,14 +28,7 @@ pcp_html_head "Write WIFI Settings" "SBP" "20" "wifi.cgi"
 pcp_banner
 pcp_running_string
 pcp_httpd_query_string
-
-# Decode variables using httpd
-# WIFI=`sudo $HTPPD -d $WIFI`
-if [ $WIFI = on ]; then
-	SSID=`sudo $HTPPD -d $SSID`
-	PASSWORD=`sudo $HTPPD -d $PASSWORD`
-	ENCRYPTION=`sudo $HTPPD -d $ENCRYPTION`
-fi
+pcp_save_to_config
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
@@ -58,9 +51,6 @@ sudo chmod 766 /home/tc/wifi.db
 sudo echo ${SSSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION} > /home/tc/wifi.db
 
 pcp_textarea "" "cat $WIFIDB" 40
-
-# Save the parameters to the config file
-pcp_save_to_config
 
 #========================================================================================
 # Toggle whether wifi and wireless firmware tcz are loaded during boot
