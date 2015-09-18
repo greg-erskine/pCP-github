@@ -16,7 +16,7 @@
 
 . pcp-functions
 pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "Write to Audio Tweak" "SBP" "15" "tweaks.cgi"
 
@@ -27,24 +27,17 @@ pcp_httpd_query_string
 #========================================================================================
 # ALSA output level section
 #----------------------------------------------------------------------------------------
-# Decode $ALSAlevelout using httpd, add quotes
-ALSAlevelout=`sudo $HTPPD -d \"$ALSAlevelout\"`
-sudo sed -i "s/\(ALSAlevelout *=*\).*/\1$ALSAlevelout/" $CONFIGCFG
 echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 
 #========================================================================================
 # CMD section
 #----------------------------------------------------------------------------------------
-# Decode $CMD using httpd, add quotes
-CMD=`sudo $HTPPD -d \"$CMD\"`
-sudo sed -i "s/\(CMD *=*\).*/\1$CMD/" $CONFIGCFG
-
 case "$CMD" in 
-	\"Default\")
+	"Default")
 		echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 		sudo ./disableotg.sh
 		;;
-	\"Slow\")
+	"Slow")
 		echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 		sudo ./enableotg.sh
 		;;
@@ -56,14 +49,7 @@ esac
 #========================================================================================
 # FIQ spilt section
 #----------------------------------------------------------------------------------------
-# Decode $FIQ using httpd, add quotes
-FIQ=`sudo $HTPPD -d \"$FIQ\"`
-sudo sed -i "s/\(FIQ *=*\).*/\1$FIQ/" $CONFIGCFG
-
-pcp_backup
-
-. $CONFIGCFG
-
+echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
 pcp_mount_mmcblk0p1
 
 if mount | grep $VOLUME; then
@@ -78,9 +64,8 @@ else
 	echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 fi
 
-echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
 #----------------------------------------------------------------------------------------
-
+pcp_save_to_config
 pcp_backup
 [ $DEBUG = 1 ] && pcp_show_config_cfg
 pcp_go_back_button

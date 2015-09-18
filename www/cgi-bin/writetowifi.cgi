@@ -30,7 +30,7 @@ pcp_running_string
 pcp_httpd_query_string
 
 # Decode variables using httpd
-WIFI=`sudo $HTPPD -d $WIFI`
+# WIFI=`sudo $HTPPD -d $WIFI`
 if [ $WIFI = on ]; then
 	SSID=`sudo $HTPPD -d $SSID`
 	PASSWORD=`sudo $HTPPD -d $PASSWORD`

@@ -24,10 +24,7 @@ pcp_html_head "Write Overclock to Config" "SBP" "15" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-
-# Decode $OVERCLOCK using httpd, add quotes
-OVERCLOCK=`sudo $HTPPD -d \"$OVERCLOCK\"`
-sudo sed -i "s/\(OVERCLOCK *=*\).*/\1$OVERCLOCK/" $CONFIGCFG
+pcp_save_to_config
 
 pcp_backup
 
