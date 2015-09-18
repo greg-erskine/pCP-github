@@ -886,8 +886,6 @@ pcp_wlan0_ip() {
 pcp_auto_start_lms() {
 	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
-		# Decode variables using httpd, no quotes
-		AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 		for i in 1 2 3 4 5
 		do
 			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
@@ -903,8 +901,6 @@ pcp_auto_start_lms() {
 }
 
 pcp_autofav_id() {
-	# Decode variable using httpd, no quotes
-	AUTOSTARTFAV=`sudo $HTPPD -d $AUTOSTARTFAV`
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	# Decode variable using httpd, no quotes
 	FAVLIST=`sudo $HTPPD -d $FAVLIST`
