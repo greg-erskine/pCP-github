@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.01 2015-02-04 GE
 #	Original - combined writeautostartlms.cgi and writeautostartfav.cgi
 #	Added pcp_user_commands.

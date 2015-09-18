@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.06 2015-07-09 SBP
 #	Revised method of loading wifi firmware.
 

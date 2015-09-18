@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.04 2015-06-06 GE
 #	Remove multiple spaces from CONFIGCFG.
 #	Removed duplicate ALSA output level section.

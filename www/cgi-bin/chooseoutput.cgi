@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.08 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.07 2015-06-10 SBP
 #	Modified to handle quotes around variables more consistently.
 

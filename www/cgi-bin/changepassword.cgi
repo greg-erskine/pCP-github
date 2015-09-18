@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.02 2014-12-10 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.

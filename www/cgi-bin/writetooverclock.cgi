@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 0.04 2015-05-23
+# Version: 0.05 2015-09-19 SBP
+#	Removed httpd decoding.
+
+# Version: 0.04 2015-05-23 GE
 #	Reverted to version 0.02
 #	Incorporated overclock.sh
 
