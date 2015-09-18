@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2015-09-18 SBP
+#	Removed httpd decoding.
+
 # Version: 0.04 2015-01-23 SBP
 #	Added CLOSEOUT.
 #	Removed debugging code.
@@ -25,7 +28,6 @@ pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-
 
 #========================================================================================
 # Reset configuration
