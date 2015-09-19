@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.16 2015-09-19 GE
+#	Added fieldsets around Advanced, Beta and Developer modes.
+
 # Version: 0.15 2015-08-29 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
@@ -156,7 +159,9 @@ pcp_main_restart() {
 pcp_main_restart
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Padding---------------------------------------
 [ $MODE -le $MODE_BASIC ] && pcp_main_padding
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite - Triode-------------------
 pcp_main_update_triode() {
@@ -313,16 +318,14 @@ pcp_main_save_usb() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 
-if [ $MODE -ge $MODE_NORMAL ]; then 
+#------------------------------------------Advanced mode fieldset------------------------
+if [ $MODE -ge $MODE_ADVANCED ]; then 
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-fi
-
-if [ $MODE -ge $MODE_ADVANCED ]; then 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -331,10 +334,11 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '          <legend>Advanced mode operations</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Stop------------------------------------------
 pcp_main_stop() {
-	pcp_toggle_row_shade
+	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
@@ -408,8 +412,8 @@ pcp_main_shutdown() {
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
 	echo '                  <p>This will shutdown piCorePlayer gracefully.</p>'
-	echo '                  <p>To restart piCorePlayer you will need to remove then reapply power.</p>'
-	echo '                  <p><b>Note: </b>This option is not really required - piCorePlayer can be turn off at the switch.</p>'
+	echo '                  <p>To restart piCorePlayer you will need to remove then reapply the power.</p>'
+	echo '                  <p><b>Note: </b>This option is not really required - piCorePlayer can be turned off at the switch.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -417,16 +421,14 @@ pcp_main_shutdown() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_shutdown
 #----------------------------------------------------------------------------------------
 
-if [ $MODE -ge $MODE_ADVANCED ]; then 
+#------------------------------------------Beta mode fieldset----------------------------
+if [ $MODE -ge $MODE_BETA ]; then 
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-fi
-
-if [ $MODE -ge $MODE_BETA ]; then 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -435,10 +437,11 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '          <legend>Beta mode operations</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Static IP-------------------------------------
 pcp_main_static_ip(){
-	pcp_toggle_row_shade
+	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
@@ -646,28 +649,27 @@ pcp_main_copy2fs() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
 
-if [ $MODE -ge $MODE_BETA ]; then 
+#------------------------------------------Developer mode fieldset-----------------------
+if [ $MODE -ge $MODE_DEVELOPER ]; then 
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-fi
-
-if [ $MODE -ge $MODE_DEVELOPER ]; then 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Beta mode operations</legend>'
+	echo '          <legend>Developer mode operations</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Debug-----------------------------------------
 pcp_main_debug() {
-	pcp_toggle_row_shade
+	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
