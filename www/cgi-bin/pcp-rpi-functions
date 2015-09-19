@@ -115,7 +115,7 @@ pcp_rpi_model_unknown() {
 pcp_rpi_shortname() {
 	pcp_rpi_details
 	SHORTMAC=$(pcp_eth0_mac_address)
-	([ $MODEL = A+ ] || [ $MODEL = A+ ]) && SHORTMAC=$(pcp_wlan0_mac_address)
+	([ $MODEL = A ] || [ $MODEL = A+ ]) && SHORTMAC=$(pcp_wlan0_mac_address)
 	SHORTMAC=$(echo $SHORTMAC | sed 's/://g')
 	echo "RPi-$(pcp_rpi_model)-${SHORTMAC:6}"
 }
