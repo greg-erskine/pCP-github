@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
-# Version: 0.07 2015-08-29 GE
+# Version: 0.07 2015-09-19 GE
 #	Added pcp_rpi_shortname.
 
 # Version: 0.06 2015-05-30 GE
@@ -90,10 +90,10 @@ pcp_rpi_details() {
 		*B1)   HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=1; HOLES=0; PIN3=0; PIN5=1; PIN13=21; I2C=0; P5=0; P6=0;;
 		*B1+)  HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=0; PIN3=0; PIN5=1; PIN13=21; I2C=0; P5=0; P6=0;;
 		*B2)   HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
-		*A)    HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
+		*A2)   HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
 		*B+*)  HARDWARE=BCM2708; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*CM*)  HARDWARE=BCM2708; ETHER=0; USB=0; LED=X; P2PINS=0; HOLES=0; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
-		*A+)   HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
+		*A+1)  HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*2B*)  HARDWARE=BCM2709; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*)     HARDWARE=X;       ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 	esac
@@ -113,8 +113,9 @@ pcp_rpi_model_unknown() {
 }
 
 pcp_rpi_shortname() {
+	pcp_rpi_details
 	SHORTMAC=$(pcp_eth0_mac_address)
-	[ $MODEL = A ] || [ $MODEL = A+ ] && SHORTMAC=$(pcp_wlan0_mac_address)
+	([ $MODEL = A+ ] || [ $MODEL = A+ ]) && SHORTMAC=$(pcp_wlan0_mac_address)
 	SHORTMAC=$(echo $SHORTMAC | sed 's/://g')
 	echo "RPi-$(pcp_rpi_model)-${SHORTMAC:6}"
 }
