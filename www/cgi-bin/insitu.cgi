@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.09 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.08 2015-09-01 SBP
 #	Fixed wget bug.
 
@@ -34,9 +37,6 @@ pcp_banner
 pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
-
-# Decode variables using httpd
-INSITU=`sudo $HTPPD -d $INSITU`
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] QUERY_STRING: '$QUERY_STRING'<br />'

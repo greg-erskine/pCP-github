@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-09-19 SBP
+#	Removed httpd decoding.
+
 # Version: 0.02 2015-08-24 GE
 #	Mode mods.
 #	Tidy up of code.
@@ -117,10 +120,7 @@ pcp_display_config_txt() {
 }
 
 pcp_start_save() {
-	# Decode $OVERCLOCK using httpd, add quotes
-	OVERCLOCK=`sudo $HTPPD -d \"$OVERCLOCK\"`
-	sudo sed -i "s/\(OVERCLOCK *=*\).*/\1$OVERCLOCK/" $CONFIGCFG
-
+	pcp_save_to_config
 	pcp_backup >/dev/null 2>&1
 
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
