@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 0.03 2015-09-20 GE
+#	Added evdev to exclude list.
+
 # Version: 0.02 2015-09-08 GE
 #	Updated.
 
@@ -51,7 +54,7 @@ pcp_wifi_diag_dmesg() {
 pcp_wifi_diag_lsmod() {
 	echo "lsmod" >>$LOG
 	echo ========================================================================================= >>$LOG
-	lsmod | grep -vE "^snd|^ctr|^ccm|^arc4|^uio|^i2c|^crc|^spi|^bcm2" | tee -a $LOG
+	lsmod | grep -vE "^snd|^ctr|^ccm|^arc4|^uio|^i2c|^crc|^spi|^bcm2|^evdev" | tee -a $LOG
 	echo >>$LOG
 }
 

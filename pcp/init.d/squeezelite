@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.05 2015-09-20 GE
+#	Added -e option.
+#	Added -U option (not working).
+#	Added -V option (not working).
+
 # Version: 0.04 2015-03-13 SBP
 #	Fixed VISUALISER -v option.
 
@@ -31,6 +36,7 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$ALSA_PARAMS" ] && ALSA_PARAMS="-a "$ALSA_PARAMS""
 [ x"" != x"$BUFFER_SIZE" ] && BUFFER_SIZE="-b $BUFFER_SIZE"
 [ x"" != x"$_CODEC" ]      && _CODEC="-c $_CODEC"
+[ x"" != x"$XCODEC" ]      && XCODEC="-e $XCODEC"
 [ x"" != x"$PRIORITY" ]    && PRIORITY="-p $PRIORITY"
 [ x"" != x"$MAX_RATE" ]    && MAX_RATE="-r $MAX_RATE"
 [ x"" != x"$UPSAMPLE" ]    && UPSAMPLE="-R $UPSAMPLE"
@@ -40,6 +46,8 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
 [ x"" != x"$VISUALISER" ]  && VISUALISER="-v"
 [ x"" != x"$CLOSEOUT" ]    && CLOSEOUT="-C $CLOSEOUT"
+[ x"" != x"$UNMUTE" ]      && UNMUTE="-U PCM"
+[ x"" != x"$ALSAVOLUME" ]  && ALSAVOLUME="-V PCM"
 [ x"" != x"$OTHER" ]       && OTHER="$OTHER"
 [ x"" != x"$LOGFILE" ]     && LOGFILE="-f /tmp/$LOGFILE"
 
@@ -50,7 +58,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $OTHER $LOGFILE
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $UNMUTE $OTHER $LOGFILE
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then

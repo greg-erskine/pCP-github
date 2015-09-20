@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.20 2015-09-20 GE
+#	Added -e option.
+#	Added -U option (not working).
+#	Added -V option (not working).
+
 # Version: 0.19 2015-09-16 SBP
 #	Added Raspberry Pi Model A.
 
@@ -100,6 +105,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$ALSA_PARAMS" ] && STRING="$STRING -a "$ALSA_PARAMS""
 [ x"" != x"$BUFFER_SIZE" ] && STRING="$STRING -b $BUFFER_SIZE"
 [ x"" != x"$_CODEC" ]      && STRING="$STRING -c $_CODEC"
+[ x"" != x"$XCODEC" ]      && STRING="$STRING -e $XCODEC"
 [ x"" != x"$PRIORITY" ]    && STRING="$STRING -p $PRIORITY"
 [ x"" != x"$MAX_RATE" ]    && STRING="$STRING -r $MAX_RATE"
 [ x"" != x"$UPSAMPLE" ]    && STRING="$STRING -R $UPSAMPLE"
@@ -109,9 +115,21 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$DSDOUT" ]      && STRING="$STRING -D $DSDOUT"
 [ x"" != x"$VISUALISER" ]  && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
+[ x"" != x"$UNMUTE" ]      && STRING="$STRING -U PCM"
+[ x"" != x"$ALSAVOLUME" ]  && STRING="$STRING -V PCM"
 [ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
 [ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /tmp/$LOGFILE"
 STRING="$STRING &"
+
+#========================================================================================
+# Missing squeezelite options
+#----------------------------------------------------------------------------------------
+#  -e <codec1>,<codec2>	Explicitly exclude native support of one or more codecs; known codecs: flac,pcm,mp3,ogg,aac,wma,alac,dsd (mad,mpg for specific mp3 codec)
+#  -M <modelname>		Set the squeezelite player model name sent to the server (default: SqueezeLite)
+#  -N <filename>		Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
+#  -P <filename>		Store the process id (PID) in filename
+#  -U <control>			Unmute ALSA control and set to full volume (not supported with -V)
+#  -V <control>			Use ALSA control for volume adjustment, otherwise use software volume adjustment
 
 #========================================================================================
 # Start table
@@ -229,7 +247,7 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Output settings</p>'
+echo '                  <p>Output setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" pattern="^[a-zA-Z0-9:,=]*$">'
@@ -260,7 +278,7 @@ pcp_squeezelite_alsa() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>ALSA settings</p>'
+	echo '                  <p>ALSA setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
@@ -301,7 +319,7 @@ pcp_squeezelite_new_alsa() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>ALSA settings</p>'
+	echo '                  <p>ALSA setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 
@@ -387,7 +405,7 @@ pcp_squeezelite_codec() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>Codec settings</p>'
+	echo '                  <p>Restrict codec setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="_CODEC" value="'$_CODEC'">'
@@ -416,13 +434,50 @@ pcp_squeezelite_codec() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_codec
 #----------------------------------------------------------------------------------------
 
+#--------------------------------------Exclude Codec settings----------------------------
+pcp_squeezelite_xcodec() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Exclude codec setting</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="XCODEC" value="'$XCODEC'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Explicitly exclude native support of one or more codecs (-e)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;codec1,codec2&gt;</p>'
+	echo '                    <p>Known codecs:</p>'
+	echo '                    <ul>'
+	echo '                      <li>flac</li>'
+	echo '                      <li>pcm</li>'
+	echo '                      <li>mp3</li>'
+	echo '                      <li>ogg</li>'
+	echo '                      <li>aac</li>'
+	echo '                      <li>wma</li>'
+	echo '                      <li>alac</li>'
+	echo '                      <li>dsd</li>'
+	echo '                      <li>mad, mpg for specific mp3 codec</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Example: </b>dsd</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_xcodec
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------Priority settings---------------------------------
 pcp_squeezelite_priority() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Priority settings</p>'
+	echo '                  <p class="row">Priority setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="number" name="PRIORITY" value="'$PRIORITY'" min="1" max="99">'
@@ -476,7 +531,7 @@ pcp_squeezelite_upsample_settings() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Upsample settings</p>'
+	echo '                  <p class="row">Upsample setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="UPSAMPLE" value="'$UPSAMPLE'">'
@@ -752,6 +807,68 @@ pcp_squeezelite_close_output() {
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_close_output
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------Unmute ALSA control--------------------------------
+pcp_squeezelite_unmute() {
+	case "$UNMUTE" in
+		PCM) UNMUTEYES="checked" ;;
+		*) UNMUTENO="checked" ;;
+esac
+
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p class="row">Unmute ALSA control (not working)</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <input class="small1" type="radio" name="UNMUTE" value="PCM" '$UNMUTEYES'>Yes&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" name="UNMUTE" value="" '$UNMUTENO'>No'
+echo '                </td>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Unmute ALSA control and set to full volume (-U)&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p><b>Note: </b>Not supported with -V option.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_unmute
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------ALSA volume control-------------------------------
+pcp_squeezelite_volume() {
+	case "$ALSAVOLUME" in
+		PCM) ALSAVOLUMEYES="checked" ;;
+		*) ALSAVOLUMENO="checked" ;;
+esac
+
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p class="row">ALSA volume control (not working)</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <input class="small1" type="radio" name="ALSAVOLUME" value="PCM" '$ALSAVOLUMEYES'>Yes&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" name="ALSAVOLUME" value="" '$ALSAVOLUMENO'>No'
+echo '                </td>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Use ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>otherwise use software volume adjustment.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_volume
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------

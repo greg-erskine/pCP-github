@@ -2,6 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.21 2015-09-20 GE
+#	Added -e option.
+#	Added -U option.
+#	Added -V option.
+
 # Version: 0.40 2015-09-19 SBP
 #	Removed mount/umount functions from inside other pcp-functions.
 #	Updated pcp_write_to_host.
@@ -1131,6 +1136,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
 	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $CONFIGCFG
 	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $CONFIGCFG
+	sudo sed -i "s/\(XCODEC=\).*/\1\"$XCODEC\"/" $CONFIGCFG
 	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $CONFIGCFG
 	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $CONFIGCFG
 	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $CONFIGCFG
@@ -1141,6 +1147,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $CONFIGCFG
 	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $CONFIGCFG
 	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
 	sudo sed -i "s/\(OTHER=\).*/\1\"$OTHER\"/" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
@@ -1192,6 +1200,7 @@ OUTPUT="sysdefault:CARD=ALSA"
 ALSA_PARAMS="80:::0"
 BUFFER_SIZE=""
 _CODEC=""
+XCODEC=""
 PRIORITY=""
 MAX_RATE=""
 UPSAMPLE=""
@@ -1202,6 +1211,8 @@ LOGFILE=""
 DSDOUT=""
 VISUALISER=""
 CLOSEOUT=""
+UNMUTE=""
+ALSAVOLUME=""
 OTHER=""
 AUDIO="Analog"
 HOST="piCorePlayer"

@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.16 2015-09-19 GE
+# Version: 0.16 2015-09-20 GE
 #	Added fieldsets around Advanced, Beta and Developer modes.
+#	Fixed pcp_main_reset_all routine.
 
 # Version: 0.15 2015-08-29 GE
 #	Revised modes.
@@ -468,7 +469,7 @@ pcp_main_reset_all() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi'\'')" method="get">'
+	echo '                <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi?SUBMIT=Reset'\'')" method="get">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reset ALL" />'
 	echo '                </form>'
 	echo '              </td>'
