@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.08 2015-09-19 SBP
+# Version: 0.08 2015-09-21 SBP
 #	Removed httpd decoding.
+#	Added pcp_reboot_required.
 
 # Version: 0.07 2015-06-10 SBP
 #	Modified to handle quotes around variables more consistently.
@@ -154,7 +155,6 @@ if [ $DEBUG = 1 ]; then
 	echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
 fi
 
-# Save variable to the config file, add quotes
 pcp_save_to_config
 
 pcp_textarea "" "cat $CONFIGCFG" 380
@@ -163,7 +163,9 @@ pcp_squeezelite_start
 
 pcp_backup
 pcp_go_back_button
-pcp_reboot_button
+pcp_reboot_button			# DELETE THIS??????
+
+pcp_reboot_required
 
 echo '</body>'
 echo '</html>'

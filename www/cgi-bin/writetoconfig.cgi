@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.05 2015-09-18 SBP
+# Version: 0.05 2015-09-21 SBP
 #	Removed httpd decoding.
+#	Added pcp_restart_required.
 
 # Version: 0.04 2015-01-23 SBP
 #	Added CLOSEOUT.
@@ -71,6 +72,8 @@ esac
 pcp_show_config_cfg
 pcp_backup
 pcp_go_back_button
+
+pcp_restart_required
 
 echo '</body>'
 echo '</html>'

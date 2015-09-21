@@ -2,10 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.21 2015-09-20 GE
+# Version: 0.21 2015-09-21 GE
 #	Added -e option.
 #	Added -U option.
 #	Added -V option.
+#	Added pcp_reboot_required.
+#	Added pcp_restart_required.
 
 # Version: 0.40 2015-09-19 SBP
 #	Removed mount/umount functions from inside other pcp-functions.
@@ -783,6 +785,21 @@ pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
 	eval $($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+#=========================================================================================
+# Restart and Reboot popups
+#-----------------------------------------------------------------------------------------
+pcp_reboot_required() {
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')'
+	echo '</script>'
+}
+
+pcp_restart_required() {
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
+	echo '</script>'
 }
 
 #=========================================================================================
