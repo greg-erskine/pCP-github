@@ -163,7 +163,7 @@ pcp_lms_players() {
 		RS="playerindex:"
 		i = 0
 	}
-	#main
+	# main
 	{
 		#0 playerid:b8:27:eb:c7:e0:61 uuid: ip:192.168.1.103:48826 name:123456789 model:squeezelite isplayer:1 displaytype:none canpoweroff:1 connected:1 
 		x++
@@ -199,7 +199,7 @@ pcp_lms_players() {
 				#printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
 				#,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
 				#printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]
-				printf "%s,%s\n",name[y],ipaddr[y]
+				printf "%s,%s,%s\n",name[y],ipaddr[y],connected[y]
 			}
 		}
 	} '
@@ -227,7 +227,7 @@ pcp_lms_volume_down() {
 #	info total albums ?				Implemented
 #	info total songs ?				Implemented
 #	genres
-#	artists
+#	artists							Implemented
 #	albums
 #	years
 #	mediafolder
@@ -263,16 +263,16 @@ pcp_lms_info_total_songs() {
 
 
 pcp_lms_artists() {
-	RESULT=$(pcp_lms_request_list "artists 0 100")
+	RESULT=$(pcp_lms_request_list "artists 0 1000")
 	echo $RESULT | awk '
 	BEGIN {
 		RS="id:"
 		i = 0
 	}
-	#main
+	# main
 	{
-		 #8107 artist:Various Artists
-		 #8106 artist:10cc
+		#8107 artist:Various Artists
+		#8106 artist:10cc
 		#0123456789012345678901234567890
 
 		x++
@@ -399,6 +399,14 @@ pcp_lms_path() {
 	pcp_lms_request "path ?"
 }
 
+pcp_lms_next() {
+	pcp_lms_send "playlist jump +1"
+}
+
+pcp_lms_prev() {
+	pcp_lms_send "playlist jump -1"
+}
+
 #========================================================================================
 # Plugins commands and queries 
 #---------------------------------------------------------------------------------------
@@ -417,18 +425,4 @@ pcp_lms_path() {
 pcp_lms_randomplay() {
 	MODE=tracks
 	pcp_lms_send "randomplay $MODE"
-}
-
-
-
-#========================================================================================
-# Other commands to LMS
-#---------------------------------------------------------------------------------------
-
-pcp_lms_next() {
-	pcp_lms_send "playlist jump +1"
-}
-
-pcp_lms_prev() {
-	pcp_lms_send "playlist jump -1"
 }

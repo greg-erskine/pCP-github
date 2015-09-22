@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.03 2015-09-19 SBP
+# Version: 0.03 2015-09-22 SBP
 #	Removed httpd decoding.
+#	Minor code tidy up.
 
 # Version: 0.02 2015-08-24 GE
 #	Mode mods.
@@ -15,12 +16,14 @@
 #   http://elinux.org/RPi_Overclocking
 #   http://github.com/asb/raspi-config
 #----------------------------------------------------------------------------------------
+# The following lines need to be included in config.txt:
 #arm_freq=
 #core_freq=
 #sdram_freq= 
 #over_voltage=
 #force_turbo=
 #gpu_mem=
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Overclocking data from raspi-config (Rasbian 2015-05-05)
@@ -31,7 +34,7 @@
 # "Medium"  "900MHz ARM,  250MHz core, 450MHz SDRAM, 2 overvolt"
 # "High"    "950MHz ARM,  250MHz core, 450MHz SDRAM, 6 overvolt"
 # "Turbo"   "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt"
-
+#
 # "Default" "900MHz ARM,  x00MHz core, x00MHz SDRAM, x overvolt"
 # "Pi2"     "1000MHz ARM, 500MHz core, 500MHz SDRAM, 2 overvolt"
 #----------------------------------------------------------------------------------------
@@ -39,14 +42,13 @@
 #========================================================================================
 # Userspace: /sys/devices/system/cpu/cpu0/cpufreq/
 #----------------------------------------------------------------------------------------
-# affected_cpus                  related_cpus                     scaling_governor
-# cpuinfo_cur_freq               scaling_available_frequencies    scaling_max_freq
-# cpuinfo_max_freq               scaling_available_governors      scaling_min_freq
-# cpuinfo_min_freq               scaling_cur_freq                 scaling_setspeed
-# cpuinfo_transition_latency     scaling_driver
+# affected_cpus                related_cpus                    scaling_governor
+# cpuinfo_cur_freq             scaling_available_frequencies   scaling_max_freq
+# cpuinfo_max_freq             scaling_available_governors     scaling_min_freq
+# cpuinfo_min_freq             scaling_cur_freq                scaling_setspeed
+# cpuinfo_transition_latency   scaling_driver
 #----------------------------------------------------------------------------------------
 
-. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -102,7 +104,7 @@ pcp_set_gpu_memory_default() {
 }
 
 pcp_display_current() {
-	echo -n '<p class="info">'
+	echo -n '<p style="font-family:courier">'
 	for FILE in $(ls /sys/devices/system/cpu/cpu0/cpufreq/); do
 		echo -n $FILE': '
 		cat /sys/devices/system/cpu/cpu0/cpufreq/$FILE
@@ -136,29 +138,29 @@ pcp_start_save() {
 	. $CONFIGCFG
 	case $OVERCLOCK in
 		DEFAULT) pcp_set_overclock_default ;;
-		UNDER) pcp_set_overclock UNDER 600 250 400 0 ;;
-		NONE) pcp_set_overclock NONE 700 250 400 0 ;;
-		MODEST)pcp_set_overclock MODEST 800 250 400 0 ;;
-		MEDIUM) pcp_set_overclock MEDIUM 900 250 450 2 ;;
-		HIGH) pcp_set_overclock HIGH 950 250 450 6 ;;
-		TURBO) pcp_set_overclock TURBO 1000 500 600 6 ;;
-		PI2) pcp_set_overclock PI2 1000 500 500 2 ;;
-		*) [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid overclock option: '$OVERCLOCK'</p>' ;;
+		UNDER)   pcp_set_overclock UNDER 600 250 400 0 ;;
+		NONE)    pcp_set_overclock NONE 700 250 400 0 ;;
+		MODEST)  pcp_set_overclock MODEST 800 250 400 0 ;;
+		MEDIUM)  pcp_set_overclock MEDIUM 900 250 450 2 ;;
+		HIGH)    pcp_set_overclock HIGH 950 250 450 6 ;;
+		TURBO)   pcp_set_overclock TURBO 1000 500 600 6 ;;
+		PI2)     pcp_set_overclock PI2 1000 500 500 2 ;;
+		*)       [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid overclock option: '$OVERCLOCK'</p>' ;;
 	esac
 
 	case $FORCETURBO in
 		DEFAULT) pcp_set_force_turbo_default ;;
-		0) pcp_set_force_turbo 0 ;;
-		1) pcp_set_force_turbo 1 ;;
-		*) [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
+		0)       pcp_set_force_turbo 0 ;;
+		1)       pcp_set_force_turbo 1 ;;
+		*)       [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
 	esac
 
 	case $GPUMEMORY in
 		DEFAULT) pcp_set_gpu_memory_default ;;
-		16) pcp_set_gpu_memory 16 ;;
-		32) pcp_set_gpu_memory 32 ;;
-		64) pcp_set_gpu_memory 64 ;;
-		*) [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
+		16)      pcp_set_gpu_memory 16 ;;
+		32)      pcp_set_gpu_memory 32 ;;
+		64)      pcp_set_gpu_memory 64 ;;
+		*)       [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
 	esac
 
 	[ $DEBUG = 1 ] && pcp_check_config_txt
@@ -218,13 +220,13 @@ esac
 #----------------------------------------------------------------------------------------
 case $OVERCLOCK in
 	DEFAULT) OCdefault="selected" ;;
-	UNDER) OCunder="selected" ;;
-	NONE) OCnone="selected" ;;
-	MODEST) OCmodest="selected" ;;
-	MEDIUM) OCmedium="selected" ;;
-	HIGH) OChigh="selected" ;;
-	TURBO) OCturbo="selected" ;;
-	PI2) OCpi2="selected" ;;
+	UNDER)   OCunder="selected" ;;
+	NONE)    OCnone="selected" ;;
+	MODEST)  OCmodest="selected" ;;
+	MEDIUM)  OCmedium="selected" ;;
+	HIGH)    OChigh="selected" ;;
+	TURBO)   OCturbo="selected" ;;
+	PI2)     OCpi2="selected" ;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -235,8 +237,8 @@ FORCETURBO=$(cat $CONFIGTXT | grep force_turbo)
 
 case $FORCETURBO in
 	\#force_turbo=0) FTdefault="selected" ;;
-	force_turbo=0) FT0="selected" ;;
-	force_turbo=1) FT1="selected" ;;
+	force_turbo=0)  FT0="selected" ;;
+	force_turbo=1)  FT1="selected" ;;
 esac
 
 GPUMEMORY=$(cat $CONFIGTXT | grep gpu_mem)
@@ -409,7 +411,7 @@ if [ $DEBUG = 1 ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="debug information" method="get">'
+	echo '      <form>'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
 	echo '            <legend>Debug information</legend>'
@@ -454,7 +456,7 @@ if [ $MODE = $MODE_DEVELOPER ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="overclock_settings" method="get">'
+	echo '      <form>'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
 	echo '            <legend>Current overclock settings</legend>'
@@ -479,7 +481,7 @@ if [ $MODE = $MODE_DEVELOPER ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="current_config.cfg" method="get">'
+	echo '      <form>'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
 	echo '            <legend>Current config.cfg</legend>'
