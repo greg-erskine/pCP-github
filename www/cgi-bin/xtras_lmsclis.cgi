@@ -36,15 +36,15 @@ echo '<table>'
 echo '  <tr>'
 
 PLAYERDATA=$(pcp_lms_players squeezelite)
-
 GREG=$(echo $PLAYERDATA | awk '{ for(i=1;i<=NF;i++) { printf "<p>%s</p>", $i} }')
-
-#'{ for(i=1;i<=NF;i++) { printf "<p>%s</p>\n", $1} }'
-
 echo $GREG
 
 echo '  </tr>'
 echo '<table>'
+
+#--------------------------------------pcp_lms_player_status-----------------------------
+echo '<h2>Mode: (pcp_lms_player_status)</h2>'
+echo '<p>'$(pcp_lms_player_status)'</p>'
 
 #--------------------------------------pcp_lms_artists-----------------------------------
 echo '<h2>Artists: (pcp_lms_artists)</h2>'

@@ -215,6 +215,11 @@ pcp_lms_volume_down() {
 	pcp_lms_send "mixer volume -$AMOUNT"
 }
 
+pcp_lms_player_status() {
+	PLAYERID=$(pcp_lms_player_id)
+	pcp_lms_request_list "status -"
+}
+
 #========================================================================================
 # Database commands and queries
 #----------------------------------------------------------------------------------------
