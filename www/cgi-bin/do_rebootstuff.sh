@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.22 2015-09-24 SBP
+# Version: 0.22 2015-09-26 SBP
 #	Updated newconfig.cfg routines.
 #	Updated Waiting for soundcards to populate routine.
 #	Added ln -s /usr/local/bin/scp /usr/bin/scp.
@@ -336,8 +336,8 @@ echo "${GREEN}Done.${NORMAL}"
 # Dropbear fix to allow scp to work
 if [ ! -e /usr/bin/dbclient ]; then
 	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
-	sudo ln -s /usr/local/bin/dropbearmulti /usr/bin/dbclient
-	sudo ln -s /usr/local/bin/scp /usr/bin/scp
+	ln -s /usr/local/bin/dropbearmulti /usr/bin/dbclient
+	ln -s /usr/local/bin/scp /usr/bin/scp
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
