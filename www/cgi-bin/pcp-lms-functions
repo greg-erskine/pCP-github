@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 0.03 2015-10-01 GE
+#	Added pcp_lms_controls.
+
 # Version: 0.02 2015-06-02 GE
 #	Modified pcp_controls.
 #	Renamed styles nav to nav5 and nav2 to nav7.
@@ -35,6 +38,15 @@ pcp_controls() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_lms_controls toolbar -->'
+}
+
+#========================================================================================
+# LMS controls from LMS web interface
+#----------------------------------------------------------------------------------------
+pcp_lms_controls() {
+	MAC=$(pcp_controls_mac_address)
+	LMSIP=$(pcp_lmsip)
+	echo '<iframe src="http://'${LMSIP}':9000/status_header.html?player='${MAC}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
 }
 
 #========================================================================================

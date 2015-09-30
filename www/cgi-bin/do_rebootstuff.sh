@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.22 2015-09-26 SBP
+# Version: 0.22 2015-09-24 SBP
 #	Updated newconfig.cfg routines.
 #	Updated Waiting for soundcards to populate routine.
 #	Added ln -s /usr/local/bin/scp /usr/bin/scp.
