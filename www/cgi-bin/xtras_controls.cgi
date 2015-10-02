@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2015-10-01 GE
+# Version: 0.02 2015-10-02 GE
 #	Added pcp_lms_controls.
 
 # Version: 0.01 2015-02-25 GE
@@ -34,6 +34,15 @@ pcp_footer
 pcp_refresh_button
 
 echo ' <embed width="15%" height="15%" src="../images/controls.svg" type="image/svg+xml" style="margin:0;"/>'
+
+
+echo '<script>'
+
+echo "window.open('http://${LMSIP}:9000/status_header.html?player=${MAC}', 'playerControl', 'width=400,height=150,status=no,menubar=no,location=no,resizable=yes');"
+
+echo '</script>'
+
+#http://'${LMSIP}':9000/status_header.html?player='${MAC}
 
 echo '</body>'
 echo '</html>'
