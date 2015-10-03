@@ -237,7 +237,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1304,14 +1304,14 @@ pcp_read_chosen_audio() {
 # Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
-	sed -i '/dtoverlay=/d' $CONFIGTXT
+	sed -i '/#picoreplayer I2S configuration/d' $CONFIGTXT
 }
 
 #========================================================================================
 # Remove Device tree modules
 #----------------------------------------------------------------------------------------
 pcp_remove_dt() {
-	sed -i '/dtoverlay=/d' $CONFIGTXT
+	sed -i '/#picoreplayer I2S configuration/d' $CONFIGTXT
 }
 
 #=========================================================================================
@@ -1336,7 +1336,7 @@ pcp_enable_HDMI() {
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s_dac() {
 	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+	sudo echo 'dtoverlay=hifiberry-dac #picoreplayer I2S configuration' >> $CONFIGTXT
 }
 
 #========================================================================================
@@ -1344,7 +1344,7 @@ pcp_enable_i2s_dac() {
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s_digi() {
 	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
+	sudo echo 'dtoverlay=hifiberry-digi #picoreplayer I2S configuration' >> $CONFIGTXT
 }
 
 #========================================================================================
@@ -1352,7 +1352,7 @@ pcp_enable_i2s_digi() {
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac() {
 	pcp_remove_dt
-	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+	sudo echo 'dtoverlay=iqaudio-dac #picoreplayer I2S configuration' >> $CONFIGTXT
 }
 
 #========================================================================================
@@ -1360,7 +1360,7 @@ pcp_enable_iqaudio_dac() {
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac_p() {
 	pcp_remove_dt
-	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+	sudo echo 'dtoverlay=iqaudio-dacplus #picoreplayer I2S configuration' >> $CONFIGTXT
 }
 
 #========================================================================================
@@ -1368,7 +1368,7 @@ pcp_enable_iqaudio_dac_p() {
 #----------------------------------------------------------------------------------------
 pcp_enable_hifiberry_dac_p() {
 	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+	sudo echo 'dtoverlay=hifiberry-dacplus #picoreplayer I2S configuration' >> $CONFIGTXT
 }
 
 #========================================================================================
@@ -1376,5 +1376,5 @@ pcp_enable_hifiberry_dac_p() {
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s_amp() {
 	pcp_remove_dt
-	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+	sudo echo 'dtoverlay=hifiberry-amp #picoreplayer I2S configuration' >> $CONFIGTXT
 }
