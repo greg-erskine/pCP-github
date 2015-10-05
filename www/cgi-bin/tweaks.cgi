@@ -180,6 +180,62 @@ pcp_tweaks_jivelite() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
 #----------------------------------------------------------------------------------------
 
+#---------------------------------------Screen rotate-----------------------------------------
+# Function to check the radio button according to config.cfg file
+#----------------------------------------------------------------------------------------
+pcp_tweaks_screenrotate() {
+	case "$SCREENROTATE" in
+		YES) SCREENyes="selected" ;;
+		NO) SCREENno="selected" ;;
+	esac
+
+	pcp_incr_id
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="screen_rotate" action= "writetoscreenrotate.cgi" method="get">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Rotate screen</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="SCREENROTATE">'
+	echo '                    <option value="YES" '$SCREENyes'>Rotate screen</option>'
+	echo '                    <option value="NO" '$SCREENno'>Default screen rotattion</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Rotate screen if upside down&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows to rotate piCorePlayer if upside down.</p>'
+	echo '                    <p>A reboot after any change is needed.<p>'
+	echo '                    <p><b>Note:</b> For some screen mounts piCorePlayer is shown upside down.</p>'
+	echo '                    <ul>'
+	echo '                      <li>Rotate screen - will flip the view 180 degrees.</li>'
+	echo '                      <li>Default screen orientation.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
+		echo '                 [ DEBUG ] $SCREENyes: '$SCREENyes'<br />'
+		echo '                 [ DEBUG ] $SCREENno: '$SCREENno'</p>'
+	fi
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+#----------------------------------------------------------------------------------------
+
 #---------------------------------------Overclock----------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
