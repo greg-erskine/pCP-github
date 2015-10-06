@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-05-10 GE
+# Version: 0.01 2015-10-06 SBP
 #	Original.
 
 . pcp-functions
@@ -13,10 +13,10 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 pcp_save_to_config
+
 #========================================================================================
 # write to mmcblk0p1/config.txt
 #----------------------------------------------------------------------------------------
-
 case "$SCREENROTATE" in
 	YES*)
 		pcp_mount_mmcblk0p1
@@ -40,7 +40,6 @@ pcp_show_config_cfg
 pcp_backup
 pcp_reboot_required
 pcp_go_back_button
-
 
 echo '</body>'
 echo '</html>'

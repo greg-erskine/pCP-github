@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.17 2015-10-06 SBP
+#	Added 
+
 # Version: 0.16 2015-08-29 GE
 #	Revised modes.
 #	Turned pcp_picoreplayers tabs on in normal mode.
@@ -180,7 +183,7 @@ pcp_tweaks_jivelite() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
 #----------------------------------------------------------------------------------------
 
-#---------------------------------------Screen rotate-----------------------------------------
+#---------------------------------------Screen rotate------------------------------------
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
 pcp_tweaks_screenrotate() {
@@ -191,7 +194,7 @@ pcp_tweaks_screenrotate() {
 
 	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="screen_rotate" action= "writetoscreenrotate.cgi" method="get">'
+	echo '            <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -200,7 +203,7 @@ pcp_tweaks_screenrotate() {
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="SCREENROTATE">'
 	echo '                    <option value="YES" '$SCREENyes'>Rotate screen</option>'
-	echo '                    <option value="NO" '$SCREENno'>Default screen rotattion</option>'
+	echo '                    <option value="NO" '$SCREENno'>Default screen rotation</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
