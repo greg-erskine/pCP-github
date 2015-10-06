@@ -3,7 +3,7 @@
 # Version: 0.05 2015-09-20 GE
 #	Added -e option.
 #	Added -U option (not working).
-#	Added -V option (not working).
+#	Added -V option.
 
 # Version: 0.04 2015-03-13 SBP
 #	Fixed VISUALISER -v option.
@@ -58,7 +58,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $UNMUTE $OTHER $LOGFILE
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $UNMUTE $ALSAVOLUME $OTHER $LOGFILE
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then
