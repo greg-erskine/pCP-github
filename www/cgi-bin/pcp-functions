@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.22 2015-10-06 SBP
+# Version: 0.22 2015-10-09 SBP
 #	Added #piCorePlayer I2S configuration to i2s configuration routines.
+#	Updated pcp_disable_i2s routine.
 
 # Version: 0.21 2015-09-21 GE
 #	Added -e option.
@@ -1309,14 +1310,21 @@ pcp_read_chosen_audio() {
 # Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
-	sed -i '/#piCorePlayer I2S configuration/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-dac/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
+	sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
+	sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
+	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
+	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
 }
 
 #========================================================================================
 # Remove Device tree modules
 #----------------------------------------------------------------------------------------
 pcp_remove_dt() {
-	sed -i '/#piCorePlayer I2S configuration/d' $CONFIGTXT
+	sed -i '/dtoverlay=/d' $CONFIGTXT
 }
 
 #=========================================================================================
@@ -1341,45 +1349,61 @@ pcp_enable_HDMI() {
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s_dac() {
 	pcp_remove_dt
-	sudo echo 'dtoverlay=hifiberry-dac #piCorePlayer I2S configuration' >> $CONFIGTXT
+	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
 }
 
 #========================================================================================
 # Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s_digi() {
-	pcp_remove_dt
-	sudo echo 'dtoverlay=hifiberry-digi #piCorePlayer I2S configuration' >> $CONFIGTXT
-}
-
-#========================================================================================
-# Load the correct modules for IQaudIO DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac() {
-	pcp_remove_dt
-	sudo echo 'dtoverlay=iqaudio-dac #piCorePlayer I2S configuration' >> $CONFIGTXT
-}
-
-#========================================================================================
-# Load the correct modules for IQaudIO DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac_p() {
-	pcp_remove_dt
-	sudo echo 'dtoverlay=iqaudio-dacplus #piCorePlayer I2S configuration' >> $CONFIGTXT
+	pcp_disable_i2s
+	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
 }
 
 #========================================================================================
 # Load the correct modules for HiFiBerry DAC+
 #----------------------------------------------------------------------------------------
 pcp_enable_hifiberry_dac_p() {
-	pcp_remove_dt
-	sudo echo 'dtoverlay=hifiberry-dacplus #piCorePlayer I2S configuration' >> $CONFIGTXT
+	pcp_disable_i2s
+	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
 }
 
 #========================================================================================
 # Load the correct modules for HiFiBerry AMP
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s_amp() {
-	pcp_remove_dt
-	sudo echo 'dtoverlay=hifiberry-amp #piCorePlayer I2S configuration' >> $CONFIGTXT
+	pcp_disable_i2s
+	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for IQaudIO DAC
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_dac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for IQaudIO DAC+
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_dac_p() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for raspidac3
+#----------------------------------------------------------------------------------------
+pcp_enable_raspidac3() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for rpi-dac
+#----------------------------------------------------------------------------------------
+pcp_enable_rpi_dac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
 }

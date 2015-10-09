@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.08 2015-09-21 SBP
+# Version: 0.08 2015-10-09 SBP
 #	Removed httpd decoding.
 #	Added pcp_reboot_required.
+#	Added _nohtml to mount and umount routines.
 
 # Version: 0.07 2015-06-10 SBP
 #	Modified to handle quotes around variables more consistently.
@@ -51,95 +52,85 @@ echo '[ INFO ] Setting $AUDIO to '$AUDIO
 # Set the default settings
 case "$AUDIO" in
 	Analog*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_disable_i2s
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="80:::0"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	HDMI*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_disable_i2s
 		pcp_disable_HDMI
 		pcp_enable_HDMI
-		#sudo ./enablehdmi.sh
 		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="::32:0"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	USB*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_disable_i2s
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT=""
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	I2SDAC*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_dac
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	I2SDIG*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_digi
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	I2SAMP*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_amp
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	IQaudio*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_dac
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	I2SpDAC*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_hifiberry_dac_p
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;	
 	I2SpDIG*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_digi
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	I2SpIQaudIO*)
-		pcp_mount_mmcblk0p1
+		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_dac_p
 		pcp_disable_HDMI
-		#sudo ./disablehdmi.sh
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
-		pcp_umount_mmcblk0p1
+		pcp_umount_mmcblk0p1_nohtml
 		;;
 	*)
 		echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
