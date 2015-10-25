@@ -311,6 +311,15 @@ if [ $ALSAlevelout = Custom ]; then
 fi
 echo "${GREEN}Done.${NORMAL}"
 
+# Unmute IQaudIO amplifier via GPIO pin 22
+if [ $AUDIO = I2SpIQAMP ]; then
+echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
+	sudo sh -c "echo 22 > /sys/class/gpio/export"
+	sudo sh -c "echo out >/sys/class/gpio/gpio22/direction"
+	sudo sh -c "echo 1 >/sys/class/gpio/gpio22/value"
+echo "${GREEN}Done.${NORMAL}"
+fi
+
 # Start the essential stuff for piCorePlayer
 echo -n "${YELLOW}Waiting for network."
 CNT=1
@@ -364,9 +373,14 @@ if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"
 fi
 
 if [ $JIVELITE = "YES" ]; then
-	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-	/opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
+    echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+    export SDL_TOUCHSCREEN=1
+    export TSLIB_TSDEVICE=/dev/input/event0
+    export SDL_MOUSEDRV=TSLIB
+    export SDL_MOUSEDEV=$TSLIB_TSDEVICE
+
+    /opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
+     echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Automatically set the timezone

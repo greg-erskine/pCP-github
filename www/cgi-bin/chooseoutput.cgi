@@ -108,6 +108,17 @@ case "$AUDIO" in
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
+
+	I2SpIQAMP*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_iqaudio_amp
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=IQaudIODAC"
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+		;;
+
+
 	I2SpDAC*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_hifiberry_dac_p

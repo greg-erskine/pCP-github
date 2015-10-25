@@ -232,7 +232,7 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -1302,6 +1302,7 @@ pcp_read_chosen_audio() {
 	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
 	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
 	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
+	[ $AUDIO = I2SpIQAMP ] &&   pcp_enable_iqaudio_amp
 	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
 	[ $AUDIO = HDMI ] &&        pcp_enable_HDMI
 }
@@ -1388,6 +1389,14 @@ pcp_enable_iqaudio_dac() {
 # Load the correct modules for IQaudIO DAC+
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac_p() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for IQaudIO AMP+ and digiAMP+
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_amp() {
 	pcp_disable_i2s
 	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
 }

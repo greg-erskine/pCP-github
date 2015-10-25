@@ -155,6 +155,7 @@ case "$AUDIO" in
 	I2SpDAC*) I2SDACpCHECKED="selected" ;;
 	I2SpDIG*) I2SDIGpCHECKED="selected" ;;
 	I2SpIQaudIO*) IQaudIOpCHECKED="selected" ;;
+	I2SpIQAMP*) IQAMPCHECKED="selected" ;;
 	*) CHECKED="Not set" ;;
 esac
 
@@ -181,6 +182,7 @@ if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio+: HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio+: HiFiBerry Digi+</option>'
 	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio+: IQaudIO Pi-DAC+</option>'
+	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio+: IQaudIO Pi-(Digi)AMP+</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio+: HiFiBerry AMP+</option>'
 fi
 
