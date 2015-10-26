@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.23 2015-10-27 SBP
+#	Added touchscreeen controls for Jivelite.
+
 # Version: 0.22 2015-09-24 SBP
 #	Updated newconfig.cfg routines.
 #	Updated Waiting for soundcards to populate routine.
@@ -374,8 +377,9 @@ fi
 
 if [ $JIVELITE = "YES" ]; then
     echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
     export SDL_TOUCHSCREEN=1
-    export TSLIB_TSDEVICE=/dev/input/event0
+    export TSLIB_TSDEVICE=/dev/input/$eventno
     export SDL_MOUSEDRV=TSLIB
     export SDL_MOUSEDEV=$TSLIB_TSDEVICE
 
