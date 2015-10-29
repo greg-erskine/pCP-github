@@ -8,8 +8,10 @@ libvorbis.tcz
 libfaad.tcz
 libsoxr.tcz
 libmad.tcz
+libts.tcz
 flac.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
 firmware-atheros.tcz
 wifi.tcz
+
