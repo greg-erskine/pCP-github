@@ -377,12 +377,13 @@ fi
 
 if [ $JIVELITE = "YES" ]; then
     echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
-    export SDL_TOUCHSCREEN=1
-    export TSLIB_TSDEVICE=/dev/input/$eventno
-    export SDL_MOUSEDRV=TSLIB
-    export SDL_MOUSEDEV=$TSLIB_TSDEVICE
-
+    eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
+	if [ x"" != x$eventno ];then
+       export SDL_TOUCHSCREEN=1
+       export TSLIB_TSDEVICE=/dev/input/$eventno
+       export SDL_MOUSEDRV=TSLIB
+       export SDL_MOUSEDEV=$TSLIB_TSDEVICE
+       fi
     /opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
      echo "${GREEN}Done.${NORMAL}"
 fi

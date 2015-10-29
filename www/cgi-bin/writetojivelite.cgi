@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-29-08 SBP
+#   Changed to touch-screen version.
+
 # Version: 0.02 2015-05-08 GE
 #   Revised.
 
@@ -20,8 +23,13 @@ sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
 
-downloadtcz="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz"
-downloadmd5="http://ralph_irving.users.sourceforge.net/pico/jivelite.tcz.md5.txt"
+jivelite_tcz="jivelite_touch.tcz"
+jivelite_md5="jivelite_touch.tcz.md5.txt"
+
+downloadtcz="http://ralph_irving.users.sourceforge.net/pico/$jivelite_tcz"
+downloadmd5="http://ralph_irving.users.sourceforge.net/pico/$jivelite_md5"
+
+
 
 #########################################################################################
 # Steen, this md5 file is WRONG. It has no use in its current form. Also, this script
@@ -59,9 +67,9 @@ pcp_load_jivelite() {
 		echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
 	else
 		echo '<p class="ok">[ OK ] Download successful'
-		sudo cp /tmp/jivelite.tcz /mnt/mmcblk0p2/tce/optional/jivelite.tcz
+		sudo cp /tmp/$jivelite_tcz /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-		sudo cp /tmp/jivelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+		sudo cp /tmp/$jivelite_md5 /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	fi
 }
@@ -95,8 +103,8 @@ pcp_delete_jivelite() {
 pcp_remove_temp() {
 	if [ -e /tmp/jivelite.tcz ]; then
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloads from tmp directory.</p>'
-		sudo rm -f /tmp/jivelite.tcz
-		sudo rm -f /tmp/jivelite.tcz.md5.txt
+		sudo rm -f /tmp/$jivelite_tcz
+		sudo rm -f /tmp/$jivelite_md5
 	fi
 }
 
