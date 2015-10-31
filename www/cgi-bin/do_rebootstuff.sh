@@ -275,7 +275,7 @@ echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${YELLOW}Waiting for soundcards to populate."
 CNT=1
-until aplay -l | grep -q PLAYBACK 
+until aplay -l | grep -q PLAYBACK 2>&1
 do
 	if [ $((CNT++)) -gt 20 ]; then
 	echo "${RED} Failed ($CNT).${NORMAL}"
@@ -375,19 +375,6 @@ if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $JIVELITE = "YES" ]; then
-    echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-    eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
-	if [ x"" != x$eventno ];then
-       export SDL_TOUCHSCREEN=1
-       export TSLIB_TSDEVICE=/dev/input/$eventno
-       export SDL_MOUSEDRV=TSLIB
-       export SDL_MOUSEDEV=$TSLIB_TSDEVICE
-       fi
-    /opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
-     echo "${GREEN}Done.${NORMAL}"
-fi
-
 # Automatically set the timezone
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page... ${NORMAL}"
@@ -414,3 +401,16 @@ ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_et
 ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_wlan0_ip)${NORMAL}"
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
+
+if [ $JIVELITE = "YES" ]; then
+    echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+    eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
+	if [ x"" != x$eventno ];then
+       export SDL_TOUCHSCREEN=1
+       export TSLIB_TSDEVICE=/dev/input/$eventno
+       export SDL_MOUSEDRV=TSLIB
+       export SDL_MOUSEDEV=$TSLIB_TSDEVICE
+       fi
+    /opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
+     echo "${GREEN}Done.${NORMAL}"
+fi
