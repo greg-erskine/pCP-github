@@ -1,10 +1,14 @@
 #!/bin/sh
 
+# Version: 0.02 2015-11-05 GE
+#	Original.
+
 # Version: 0.01 2015-09-07 GE
 #	Original.
 
 #========================================================================================
-# This script creates a files system on sda suitable for piCorePlayer.
+# This script duplicates and prepares a piCore SD card ready for piCorePlayer.
+# piCore uses 3 heads, 8 sectors. This script generates 4 heads, 16 sectors.
 #
 #   1. Insert piCore SD card into mmcblk0p
 #   2. Insert second SD card into sda
@@ -29,8 +33,12 @@
 #----------------------------------------------------------------------------------------
 
 clear
-
 . /etc/init.d/tc-functions
+
+echo "${GREEN}[ INFO ] This script duplicates and prepares a piCore SD card ready for piCorePlayer.${NORMAL}"
+echo "${GREEN}[ INFO ] 1. piCore SD card should be in mmcblk0p.${NORMAL}"
+echo "${GREEN}[ INFO ] 2. piCorePlyaer SD card should be in sda.${NORMAL}"
+echo
 
 # Check that you are running the script as root
 if [ "$(id -u)" != "0" ]; then
@@ -38,12 +46,14 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 else
 	echo "${GREEN}[ INFO ] Script is running as root.${NORMAL}"
+	echo
 fi
 
-echo "${RED}[ WARNING ] This script will overwrite sda!${NORMAL}"
+echo "${RED}[ WARNING ] This script will overwrite ALL data on sda!${NORMAL}"
 echo "${RED}[ WARNING ] IN DEVELOPMENT - sort of works${NORMAL}"
+echo
 while true; do
-	read -p "${RED}Do you wish to continue? ${NORMAL}" yn
+	read -p "${YELLOW}Do you wish to continue? ${NORMAL}" yn
 	case $yn in
 		[Yy]* ) break;;
 		[Nn]* ) exit;;
@@ -55,6 +65,7 @@ done
 # Check for dosfstools.tcz and download and install
 #-----------------------------------------------------------------------------------------
 pcp_check_dosfsck() {
+	echo "${GREEN}"
 	mount /mnt/mmcblk0p2
 	echo "${GREEN}[ INFO ] Note: Requires dosfstools.tcz${NORMAL}"
 	which dosfsck
@@ -103,24 +114,57 @@ pcp_backup() {
 	fi
 }
 
+#=========================================================================================
+# Check if partition is mounted otherwise mount it
+#-----------------------------------------------------------------------------------------
+pcp_mount() {
+	PARTITION=$1
+	if mount | grep /mnt/$PARTITION >/dev/null 2>&1; then
+		echo "${RED}[ ERROR ] /mnt/$PARTITION already mounted.${NORMAL}"
+		RESULT=0
+	else
+		echo "${GREEN}[ INFO ] Mounting /mnt/$PARTITION...${NORMAL}"
+		sudo mount /mnt/$PARTITION >/dev/null 2>&1
+		RESULT=$?
+	fi
+	[ $RESULT = 0 ] || echo "${RED}[ ERROR ] Mounting /mnt/$PARTITION.${NORMAL}"
+}
+
+#=========================================================================================
+# Check if partition is unmounted otherwise unmount it
+#-----------------------------------------------------------------------------------------
+pcp_umount() {
+	PARTITION=$1
+	if mount | grep /mnt/$PARTITION >/dev/null 2>&1; then
+		echo "${GREEN}[ INFO ] Unmounting /mnt/$PARTITION...${NORMAL}"
+		sudo umount /mnt/$PARTITION >/dev/null 2>&1
+		RESULT=$?
+	else
+		echo "${RED}[ ERROR ] /mnt/$PARTITION already unmounted.${NORMAL}"
+		RESULT=0
+	fi
+	[ $RESULT = 0 ] || echo "${RED}[ ERROR ] Unmounting /mnt/$PARTITION.${NORMAL}"
+}
+
+# Work out the number of partitions on sda. There should be 1 or 2 partitions.
 NOOFPART=$(fdisk -l /dev/sda | grep "sda" | wc -l)
 NOOFPART=$(($NOOFPART - 1))
 echo "${YELLOW}"
-mount /mnt/sda1
+pcp_mount sda1
 if [ $? = 0 ]; then
 	echo "${GREEN}[ INFO ] sda found.${NORMAL}"
 else
 	echo "${RED}[ ERROR ] sda not found.${NORMAL}"
-	#exit
+	exit 1
 fi
 echo "${YELLOW}"
-umount /mnt/sda1
-umount /mnt/mmcblk0p2
+pcp_umount sda1
+pcp_umount mmcblk0p2
 
 echo "${GREEN}[ INFO ] Found $NOOFPART partitions on sda.${YELLOW}"
 case $NOOFPART in
 	1)
-		echo "${GREEN}[ INFO ] Deleteing $NOOFPART partition on sda...${YELLOW}"
+		echo "${GREEN}[ INFO ] Deleting $NOOFPART partition on sda...${YELLOW}"
 		fdisk /dev/sda <<EOF
 p
 d
@@ -129,7 +173,7 @@ w
 EOF
 		;;
 	2)
-		echo "${GREEN}[ INFO ] Deleteing $NOOFPART partition on sda...${YELLOW}"
+		echo "${GREEN}[ INFO ] Deleting $NOOFPART partition on sda...${YELLOW}"
 		fdisk /dev/sda <<EOF
 p
 d
@@ -167,18 +211,37 @@ EOF
 
 pcp_check_dosfsck
 
+pcp_umount sda1
+pcp_umount sda2
+
 echo "${YELLOW}"
 mkfs.vfat -n PCP /dev/sda1
 mkfs.ext4 /dev/sda2
 
-pcp_backup
+while true; do
+	read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
+	case $yn in
+		[Yy]* ) break;;
+		[Nn]* ) exit;;
+		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
+	esac
+done
 
 fdisk -l /dev/sda
 
-mount /mnt/mmcblk0p1
-mount /mnt/mmcblk0p2
-mount /mnt/sda1
-mount /mnt/sda2
+pcp_mount mmcblk0p1
+pcp_mount mmcblk0p2
+pcp_mount sda1
+pcp_mount sda2
+
+while true; do
+	read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
+	case $yn in
+		[Yy]* ) break;;
+		[Nn]* ) exit;;
+		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
+	esac
+done
 
 cd /mnt/sda1
 cp -Rvp /mnt/mmcblk0p1/* .
@@ -188,13 +251,13 @@ cd tce
 cp -Rvp /mnt/mmcblk0p2/tce/* .
 
 while true; do
-	read -p "${RED}Do you wish to reboot? ${NORMAL}" yn
+	read -p "${YELLOW}Do you wish to shutdown? ${NORMAL}" yn
 	case $yn in
 		[Yy]* ) break;;
 		[Nn]* ) exit;;
 		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
 	esac
 done
-"${GREEN}[ INFO ] Rebooting ${NORMAL}"
-sudo reboot
+echo "${GREEN}[ INFO ] Shutting down... ${NORMAL}"
+exitcheck.sh
 exit
