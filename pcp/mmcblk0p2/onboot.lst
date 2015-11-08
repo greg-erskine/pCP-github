@@ -5,7 +5,9 @@ flac.tcz
 libmad.tcz
 libvorbis.tcz
 libffmpeg.tcz
+libts.tcz
 ncurses.tcz
 alsa.tcz
 alsa-config.tcz
+libsoxr.tcz
 
