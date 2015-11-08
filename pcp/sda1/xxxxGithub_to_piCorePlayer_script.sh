@@ -215,6 +215,8 @@ echo "${GREEN}[ INFO ] Setting end of line markers to unix - dos2unix${NORMAL}"
 sudo find /tmp/www -type f ! -name "*.tcz" ! -name "*.png" ! -name "*.gif" -print0 | xargs -0 dos2unix
 sudo find /tmp/pcp -type f ! -name "*.tcz" ! -name "*.png" ! -name "*.gif" -print0 | xargs -0 dos2unix
 
+sudo rebuildfstab
+sleep 1
 pcp_mount mmcblk0p2
 [ $RESULT = 0 ] || exit
 
@@ -263,6 +265,10 @@ chmod u=rw,g=r,o=r $STORAGE/piCorePlayer.dep
 getfile $TMP/pcp/etc           motd                 /etc
 chown root:root /etc/motd
 chmod u=rw,g=r,o=r /etc/motd
+
+getfile $TMP/pcp/etc           pointercal           /usr/local/etc
+chown root:root /usr/local/etc/pointercal
+chmod u=rw,g=r,o=r /usr/local/etc/pointercal
 
 getfile $TMP/pcp/init.d        squeezelite          $INITD
 chown root:root $INITD/squeezelite
@@ -396,10 +402,17 @@ getfile $TMP/pcp/Ralphys_files libfaad.tcz $TCZ_PLACE
 chown tc:staff $TCZ_PLACE/libfaad.tcz
 chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
 
+# For now we use Ralphy's libtc which is in our GIT until an officiel libtc is ready
+getfile $TMP/pcp/libts-tcz/          libts.tcz   $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/libts.tcz
+chmod u=rw,g=rw,o=r $TCZ_PLACE/libts.tcz
+
 #--------------------------------------------
 # Do a backup
 #--------------------------------------------
 #sudo alsactl store
+# remove copy2fs.flg
+rm -f $STORAGE/copy2fs.flg
 pcp_backup
 
 while true; do
