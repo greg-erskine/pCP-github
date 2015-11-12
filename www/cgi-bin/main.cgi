@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.17 2015-11-13 GE
+#	Moved Update Triode's version of Squeezelite to MODE_DEVELOPER.
+
 # Version: 0.16 2015-09-20 GE
 #	Added fieldsets around Advanced, Beta and Developer modes.
 #	Fixed pcp_main_reset_all routine.
@@ -191,7 +194,7 @@ pcp_main_update_triode() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_triode
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_triode
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite - Ralphy-------------------
