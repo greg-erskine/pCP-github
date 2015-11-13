@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.23 2015-11-13 GE
+#	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
+
 # Version: 0.22 2015-10-09 SBP
 #	Added #piCorePlayer I2S configuration to i2s configuration routines.
 #	Updated pcp_disable_i2s routine.
@@ -241,7 +244,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -632,7 +635,10 @@ pcp_picoreplayers() {
 		echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
 	done <$TMP
 	rm -r $TMP
-
+	LMSIP=$(pcp_lmsip)
+	if [ $MODE -ge $MODE_BETA ]; then
+		echo '  <a class="tab7" href="http://'$LMSIP':9000/" title="'$LMSIP'" target="_blank">LMS</a>'
+	fi
 	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
 	echo '<!-- End of picoreplayers toolbar -->'
