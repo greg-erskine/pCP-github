@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Version: 0.03 2015-11-15 GE
+#	Minor updates.
+
 # Version: 0.02 2015-08-25 GE
 #	Added link to Tiny Core Linux Repository browser.
 
 # Version: 0.01 2015-06-16 GE
-#   Original version.
+#	Original version.
 
 #========================================================================================
 # This script installs piCore extensions. ie. nano.tcz, wget.tcz, dialog.tcz
@@ -19,7 +22,7 @@
 #   1. Sufficient space, need to expand file system
 #
 # Future enhancements:
-#   1. Search all 3.x, 4.x, 5.x, 6.x, arm6 and arm7 extension repositories
+#   1. Search all 3.x, 4.x, 5.x, 6.x, 7.x, arm6 and arm7 extension repositories
 #   2. Pull-down list of all available extensions
 #   3. Check for fastest repository mirror
 #
@@ -98,7 +101,8 @@ pcp_init_search() {
 }
 
 pcp_free_space() {
-	set -- `/bin/df -h | grep mmcblk0p2`
+#	set -- `/bin/df -h | grep mmcblk0p2`
+	set -- $(/bin/df -h | grep mmcblk0p2)
 	echo $4
 }
 
@@ -165,7 +169,7 @@ displayFiles() {
 #========================================================================================
 # Loaded extensions on /mnt/mmcblk0p2/tce/optional/
 #----------------------------------------------------------------------------------------
-if [ $MODE = $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_DEVELOPER ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -202,7 +206,7 @@ fi
 #========================================================================================
 # Downloaded extensions on /mnt/mmcblk0p2/tce/optional/
 #----------------------------------------------------------------------------------------
-if [ $MODE = $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_DEVELOPER ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -239,7 +243,7 @@ fi
 #========================================================================================
 # Available extensions from tags.db
 #----------------------------------------------------------------------------------------
-if [ $MODE = $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_DEVELOPER ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -284,8 +288,6 @@ echo '    <td>'
 pcp_running_script
 pcp_httpd_query_string
 pcp_debug_info
-
-EXTN=`sudo $HTPPD -d $EXTN`
 
 case "$SUBMIT" in
 	Initial)
@@ -375,6 +377,14 @@ fi
 echo '                  <input type="submit" name="SUBMIT" value="Search">'
 echo '                </td>'
 echo '              </tr>'
+
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+                        pcp_textarea_inform "none" "pcp_free_space" 20
+echo '                </td>'
+echo '              </tr>'
+
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
@@ -437,7 +447,7 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '</table>'
 fi
 
-if [ $MODE = $MODE_BETA ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
+if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
 	#========================================================================================
 	# Display disk space using df
 	#----------------------------------------------------------------------------------------

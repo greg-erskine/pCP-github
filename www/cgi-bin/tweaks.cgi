@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# Version: 0.18 2015-11-17 GE
+#	Fixed auto favorites for decode $HTPPD change and LMS 7.9
+
 # Version: 0.17 2015-10-06 SBP
-#	Added 
+#	Added Screen rotate routine.
 
 # Version: 0.16 2015-08-29 GE
 #	Revised modes.
@@ -364,7 +367,6 @@ pcp_tweaks_timezone() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Password----------------------------------
-# Change password - STILL UNDER DEVELOPMENT
 # Note: changing passwords through a script over html is not very secure.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_password() {
@@ -439,9 +441,13 @@ pcp_tweaks_auto_start() {
 	echo '          <legend>Auto start tweaks</legend>'
 
 	#----------------------------------------------Auto start favorite-----------------------------
+	#b8:27:eb:b8:7d:33 favorites items 0 100 title:Favorites id:0 name:702 ABC Sydney | (Public Radio) type:audio isaudio:1 hasitems:0 id:1 name:ABC Grandstand (Sports Talk and News) type:audio
+	#isaudio:1 hasitems:0 id:2 name:Elephant type:playlist isaudio:1 hasitems:1 id:3 name:ABC NewsRadio 630 (National News) type:audio isaudio:1 hasitems:0 id:4 name:16 Of Their Greatest Hits
+	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
+	#----------------------------------------------------------------------------------------------
 
-	# Decode variables using httpd, no quotes
-	AUTOSTARTFAV=`sudo $HTPPD -d $AUTOSTARTFAV`
+####	# Decode variables using httpd, no quotes
+####	AUTOSTARTFAV=$(sudo $HTPPD -d $AUTOSTARTFAV)
 
 	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
@@ -454,7 +460,7 @@ pcp_tweaks_auto_start() {
 
 	# Generate a list of options
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=`sudo $HTPPD -d $FAVLIST`
+	FAVLIST=$(sudo $HTPPD -d $FAVLIST)
 	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
 	BEGIN {
 		RS="id:"
@@ -464,25 +470,36 @@ pcp_tweaks_auto_start() {
 	# Main
 	{
 		i++
-		split($1,a," ")
-		id[i]=a[1]
-		split(id[i],b,".")
-		num[i]=b[2]
+#		split($1,a," ")
+#		id[i]=a[1]
+####		split(id[i],b,".")
+####		num[i]=b[2]
 		name[i]=$2
 		gsub(" type","",name[i])
 		sel[i]=""
 		if ( name[i] == autostartfav ) {
 			sel[i]="selected"
 		}
-		hasitems[i]=$5
-		gsub("count","",hasitems[i])
-		if ( hasitems[i] != "0 " ) {
+####		hasitems[i]=$5
+####		gsub("count","",hasitems[i])
+####		if ( hasitems[i] != "0 " ) {
+####			i--
+####		}
+
+		isaudio[i]=$3
+		gsub(" hasitems","",isaudio[i])
+		if ( isaudio[i] == "0" ) {
+			i--
+		}
+		isfavorite[i]=$6
+		gsub(" title","",isfavorite[i])
+		if ( isfavorite[i] == "33 favorites items 0 100" ) {
 			i--
 		}
 	}
 	END {
 		for (j=1; j<=i; j++) {
-			printf "                    <option value=\"%s\" id=\"%10s\" %s>%s - %s</option>\n",name[j],id[j],sel[j],num[j],name[j]
+			printf "                    <option id=\"%s\" value=\"%s\" %s>%s</option>\n",j,name[j],sel[j],name[j]
 		}
 	} '
 
@@ -511,6 +528,8 @@ pcp_tweaks_auto_start() {
 	echo '                      <li>Favorites must exist in LMS.</li>'
 	echo '                      <li>Favorites must be at the top level.</li>'
 	echo '                      <li>Folders will not be navigated.</li>'
+	echo '                      <li>Maximum of 100 favorites.</li>'
+	echo '                      <li>Favorite name can not have an &.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -520,12 +539,10 @@ pcp_tweaks_auto_start() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="even">'
 		echo '  <td  colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
+		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
+		echo '                     [ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
 		echo '                     [ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
 		echo '                     [ DEBUG ] $FAVLIST: '$FAVLIST'</p>'
-		echo '    <textarea class="inform">'
-		            ifconfig
-		echo '    </textarea>'
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
