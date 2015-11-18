@@ -16,7 +16,25 @@ pcp_html_head "Write to Autostart" "GE" "5" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
+
 pcp_httpd_query_string
+
+if [ $DEBUG = 1 ]; then
+	echo '<!-- Start of debug info -->'
+	echo '<tr class="odd">'
+	echo '  <td  colspan="3">'
+	echo '    <p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'<br />'
+	echo '                     [ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
+	echo '                     [ DEBUG ] $AUTOSTART: '$AUTOSTART'<br />'
+	echo '                     [ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
+	echo '                     [ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
+	echo '                     [ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
+	echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
+	echo '                     [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
+	echo '  </td>'
+	echo '</tr>'
+	echo '<!-- End of debug info -->'
+fi
 
 #========================================================================================
 # Set Auto start LMS variables in config.cfg routine
@@ -33,7 +51,7 @@ pcp_set_austostart_lms() {
 
 	# Save the encoded parameter to the config file, with quotes
 	pcp_save_to_config
-	
+
 	echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Autostart LMS is: '$A_S_LMS'</p>'
 
@@ -95,6 +113,9 @@ case "$AUTOSTART" in
 		;;
 	CMD)
 		pcp_set_user_commands
+		;;
+	*)
+		echo '<p class="error">[ ERROR ] Invalid AUTOSTART option: '$AUTOSTART'</p>'
 		;;
 esac
 

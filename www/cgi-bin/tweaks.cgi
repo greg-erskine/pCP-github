@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.18 2015-11-17 GE
+# Version: 0.18 2015-11-19 GE
 #	Fixed auto favorites for decode $HTPPD change and LMS 7.9
+#	Added VU Meters.
 
 # Version: 0.17 2015-10-06 SBP
 #	Added Screen rotate routine.
@@ -139,10 +140,10 @@ pcp_tweaks_jivelite() {
 		NO) JIVEno="selected" ;;
 	esac
 
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Jivelite</p>'
@@ -171,7 +172,9 @@ pcp_tweaks_jivelite() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Restart">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
@@ -184,6 +187,101 @@ pcp_tweaks_jivelite() {
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
+
+#---------------------------------------VU Meter-----------------------------------------
+# Function to check the radio button according to config.cfg file
+#----------------------------------------------------------------------------------------
+pcp_tweaks_vumeter() {
+
+	LOADED_VU_METER=$(cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
+
+# Check unique match
+#UNIQUE=$(echo $LOADED_VU_METER | wc -l)
+#if [ $UNIQUE = 1 ]; then
+#	echo '<p class="info">[ INFO ] OK $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
+#	echo '                [ INFO ] OK $UNIQUE: '$UNIQUE'</p>'
+#else
+#	echo '<p class="error">[ ERROR ] BAD $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
+#	echo '<p class="error">[ ERROR ] BAD $UNIQUE: '$UNIQUE'</p>'
+#fi
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
+	pcp_start_row_shade
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Jivelite VU Meter</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="VUMETER">'
+
+	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter )
+	                          for i in $VUMETERS
+	                          do
+	                            [ $i == $LOADED_VU_METER ] && SEL="selected" || SEL=""
+	                            DISPLAY=$( echo $i | sed 's/^VU_Meter_//' | sed 's/.tcz$//' | sed 's/_/ /g' )
+	                            echo '                    <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
+	                          done
+
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Select VU Meter&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows you to select VU Meter.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG = 1 ]; then
+		#========================================================================================
+		# Display debug inofrmation 
+		#----------------------------------------------------------------------------------------
+		pcp_start_row_shade
+		pcp_toggle_row_shade
+		echo '           <table class="bggrey percent100">'
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		echo '                 <p>[ DEBUG ] Loop mounted extensions</p>'
+		echo '               </td>'
+		echo '             </tr>'
+		pcp_toggle_row_shade
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		                       pcp_textarea_inform "none" "df | grep /dev/loop " 200
+		echo '               </td>'
+		echo '             </tr>'
+		pcp_toggle_row_shade
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		echo '                 <p>[ DEBUG ] Installed extensions</p>'
+		echo '               <td>'
+		echo '             </tr>'
+		pcp_toggle_row_shade
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		                       ls /usr/local/tce.installed >/tmp/installed.lst
+		                       pcp_textarea_inform "none" "cat /tmp/installed.lst" 100
+		echo '               </td>'
+		echo '             </tr>'
+		echo '           </table>'
+	fi
+
+}
+[ $MODE -ge $MODE_BETA ] && [ $JIVELITE == YES ] && pcp_tweaks_vumeter
+
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen rotate------------------------------------
