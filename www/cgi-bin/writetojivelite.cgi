@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.04 2015-11-18 GE
+# Version: 0.04 2015-11-19 GE
 #	Added code for VU Meters.
+#	Revised jivelite download code.
 
 # Version: 0.03 2015-08-29 SBP
 #	Changed to touch-screen version.
@@ -22,67 +23,61 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG   #<--------------????????????????????
+sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG                       #<--------------????????????????????
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
 
-jivelite_tcz="jivelite_touch.tcz"
-jivelite_md5="jivelite_touch.tcz.md5.txt"
-
-dl_jivelite_tcz="http://ralph_irving.users.sourceforge.net/pico/$jivelite_tcz"
-dl_jivelite_md5="http://ralph_irving.users.sourceforge.net/pico/$jivelite_md5"
-
-vumeter_tcz="VU_Meter*.tcz"
-vumeter_md5="VU_Meter*.tcz.md5.txt"
-default_vumeter_tcz="VU_Meter_b.tcz"
-
-dl_vumeter_tcz="http://ralph_irving.users.sourceforge.net/pico/$vumeter_tcz"
-dl_vumeter_md5="http://ralph_irving.users.sourceforge.net/pico/$vumeter_md5"
-
-#########################################################################################
-# You are supposed to use the md5sum to verify the file was downloaded correctly. See
-# sample script below.
-#########################################################################################
-#        echo "Downloading: $1"
-#        wget -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
-#        wget -c "$MIRROR"/"$1"
-#        md5sum -c "$1".md5.txt
-#        if [ "$?" != 0 ]; then
-#                echo "Error on $1"
-#                abort_to_saved_dir
-#        fi
-#########################################################################################
+REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
+JIVELITE_TCZ="jivelite_touch.tcz"
+JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
+DEFAULT_VUMETER="b"
+AVAILABLE_VUMETERS="b d XXXX e j w"
 
 if [ $DEBUG = 1 ]; then
-	echo '<p class="debug">[ DEBUG ] OPTION: '$OPTION'<br />'
+	echo '<p class="debug">[ DEBUG ] SUBMIT: '$SUBMIT'<br />'
+	echo '                 [ DEBUG ] OPTION: '$OPTION'<br />'
 	echo '                 [ DEBUG ] JIVELITE: '$JIVELITE'<br />'
 	echo '                 [ DEBUG ] VISUALISER: '$VISUALISER'<br />'
 	echo '                 [ DEBUG ] VUMETER: '$VUMETER'</p>'
+	echo '<p class="debug">[ DEBUG ] REPOSITORY: '$REPOSITORY'<br />'
+	echo '                 [ DEBUG ] JIVELITE_TCZ: '$JIVELITE_TCZ'<br />'
+	echo '                 [ DEBUG ] JIVELITE_MD5: '$JIVELITE_MD5'<br />'
+	echo '                 [ DEBUG ] DEFAULT_VUMETER: '$DEFAULT_VUMETER'<br />'
+	echo '                 [ DEBUG ] AVAILABLE_VUMETERS: '$AVAILABLE_VUMETERS'</p>'
 fi
 
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
-pcp_load_jivelite() {
+pcp_download_jivelite() {
+	cd /tmp
+	sudo rm -f /tmp/${JIVELITE_TCZ}
+	sudo rm -f /tmp/${JIVELITE_MD5}
 	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy'\''s repository...</p>'
-	wget -P /tmp $dl_jivelite_md5
-	wget -P /tmp $dl_jivelite_tcz
-	# The next few lines need to be changed to check md5.
-	result=$?
-	if [ $result -ne "0" ]; then
-		echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
+
+	wget -s ${REPOSITORY}${JIVELITE_TCZ}
+	if [ $? = 0 ]; then
+		echo '<p class="info">[ INFO ] Downloading '$JIVELITE_TCZ'...'
+		wget -P /tmp ${REPOSITORY}${JIVELITE_TCZ}
+		wget -P /tmp ${REPOSITORY}${JIVELITE_MD5}
+		md5sum -c ${JIVELITE_MD5}
+		if [ $? = 0 ]; then
+			echo '<p class="ok">[ OK ] '$JIVELITE_TCZ' download successful.</p>'
+			sudo cp /tmp/$JIVELITE_TCZ /mnt/mmcblk0p2/tce/optional/jivelite.tcz             #<-------------why do we rename jivelite extension????
+			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
+			sudo cp /tmp/$JIVELITE_MD5 /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt     #<-------------why do we rename jivelite extension????
+			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+		else
+			echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
+		fi
 	else
-		echo '<p class="ok">[ OK ] Download successful'
-		sudo cp /tmp/$jivelite_tcz /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-		sudo cp /tmp/$jivelite_md5 /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
-		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+		echo '<p class="error">[ ERROR ] '$TCZ' not available in repository, try again later!</p>'
 	fi
 }
 
 pcp_install_jivelite() {
-	echo '<p class="info">[ INFO ] Jivelite is installed in piCorePlayer.</p>'
-	sudo -u tc tce-load -i jivelite.tcz
+	echo '<p class="info">[ INFO ] Jivelite is installed.</p>'
+	sudo -u tc tce-load -i jivelite.tcz                                            #<--------------if doing a reboot is this necessary???
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to onboot.lst</p>'
 	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo 'jivelite.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
@@ -91,7 +86,7 @@ pcp_install_jivelite() {
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 	sudo echo 'opt/jivelite' >> /opt/.xfiletool.lst
 
-	# need to add this to cmdline.txt ==> consoleblank=0 
+	# need to add this to cmdline.txt ==> consoleblank=0                           #<--------------part of jivelite OR screen support
 }
 
 pcp_delete_jivelite() {
@@ -109,36 +104,49 @@ pcp_delete_jivelite() {
 }
 
 pcp_remove_temp() {
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous downloads from tmp directory.</p>'
-	sudo rm -f /tmp/$jivelite_tcz
-	sudo rm -f /tmp/$jivelite_md5
-	sudo rm -f /tmp/$vumeter_tcz
-	sudo rm -f /tmp/$vumeter_md5
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous Jivelite downloads from /tmp directory.</p>'
+	sudo rm -f /tmp/$JIVELITE_TCZ
+	sudo rm -f /tmp/$JIVELITE_MD5
+	sudo rm -f /tmp/VU_Meter*
 }
 
-pcp_load_vumeters() {
+pcp_download_vumeters() {
+	cd /tmp
+	sudo rm -f VU_Meter*
 	echo '<p class="info">[ INFO ] Downloading VU Meters from Ralphy'\''s repository...</p>'
-	wget -P /tmp $dl_jivelite_md5
-	wget -P /tmp $dl_jivelite_tcz 
-	# The next few lines need to be changed to check md5.
-	result=$?
-	if [ $result -ne "0" ]; then
-		echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
-	else
-		echo '<p class="ok">[ OK ] Download successful'
-		sudo cp /tmp/$vumeter_tcz /mnt/mmcblk0p2/tce/optional/
-		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/$vumeter_tcz
-		sudo cp /tmp/$vumeter_md5 /mnt/mmcblk0p2/tce/optional/
-		sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/$vumeter_md5
-	fi
+
+	for i in $AVAILABLE_VUMETERS
+	do
+		TCZ=VU_Meter_${i}.tcz
+		MD5=VU_Meter_${i}.tcz.md5.txt
+
+		wget -s ${REPOSITORY}${TCZ}
+		if [ $? = 0 ]; then
+			echo '<p class="info">[ INFO ] Downloading '$TCZ'...'
+			wget -P /tmp ${REPOSITORY}${TCZ}
+			wget -P /tmp ${REPOSITORY}${MD5}
+			md5sum -c ${MD5}
+			if [ $? = 0 ]; then
+				echo '<p class="ok">[ OK ] '$TCZ' download successful.</p>'
+				sudo cp /tmp/${TCZ} /mnt/mmcblk0p2/tce/optional/
+				sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/${TCZ}
+				sudo cp /tmp/${MD5} /mnt/mmcblk0p2/tce/optional/
+				sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/${MD5}
+			else
+				echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
+			fi
+		else
+			echo '<p class="error">[ ERROR ] '$TCZ' not available in repository, try again later!</p>'
+		fi
+	done
 }
 
 pcp_install_default_vumeter() {
-	echo '<p class="info">[ INFO ] Default VU Meter is installed.</p>'
-	sudo -u tc tce-load -i $default_vumeter_tcz
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Default VU Meter is added to onboot.lst</p>'
-	sudo sed -i '/VU_Meters/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo $default_vumeter_tcz >> /mnt/mmcblk0p2/tce/onboot.lst
+	echo '<p class="info">[ INFO ] Installing default VU Meter...</p>'
+	sudo -u tc tce-load -i "VU_Meter_${DEFAULT_VUMETER}.tcz"
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Adding default VU Meter to onboot.lst...</p>'
+	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo "VU_Meter_${DEFAULT_VUMETER}.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 pcp_install_vumeter() {
@@ -161,11 +169,11 @@ pcp_install_vumeter() {
 }
 
 pcp_delete_vumeters() {
-	echo '<p class="info">[ INFO ] VU Meters are removed.</p>'
+	echo '<p class="info">[ INFO ] Removing VU Meters...</p>'
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
 
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] VU Meters are removed from onboot.lst</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meters from onboot.lst...</p>'
 	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
@@ -178,15 +186,15 @@ case $OPTION in
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
 		case $JIVELITE in
 			YES)
-				#pcp_load_jivelite
+				pcp_download_jivelite
 				pcp_install_jivelite
-				#pcp_load_vumeters
+				pcp_download_vumeters
 				pcp_install_default_vumeter
 				pcp_remove_temp
 				;;
 			NO)
-				#pcp_delete_jivelite
-				#pcp_delete_vumeters
+				pcp_delete_jivelite
+				pcp_delete_vumeters
 				pcp_remove_temp
 				;;
 			*)
@@ -203,8 +211,14 @@ case $OPTION in
 
 	VUMETER)
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
-		pcp_install_vumeter
-		;;
+		case $SUBMIT in
+			Save)
+				pcp_install_vumeter
+				;;
+			Download)
+				pcp_download_vumeters
+				;;
+		esac
 esac
 
 pcp_go_back_button

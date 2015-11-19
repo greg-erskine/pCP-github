@@ -174,6 +174,7 @@ pcp_tweaks_jivelite() {
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Restart">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -216,7 +217,7 @@ pcp_tweaks_vumeter() {
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="VUMETER">'
 
-	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter )
+	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter | grep .tcz$ )
 	                          for i in $VUMETERS
 	                          do
 	                            [ $i == $LOADED_VU_METER ] && SEL="selected" || SEL=""
@@ -240,6 +241,8 @@ pcp_tweaks_vumeter() {
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	[ $MODE -ge $MODE_DEVELOPER ] &&
+	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
