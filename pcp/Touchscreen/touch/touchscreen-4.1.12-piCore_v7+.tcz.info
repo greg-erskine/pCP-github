@@ -1,0 +1,14 @@
+Title:          touchscreen-4.1.12-piCore_v7+.tcz
+Description:    Drivers for touchscreen input
+Version:        4.1.12
+Author:         RaspberryPi
+Original-site:  https://www.raspberrypi.org/
+Copying-policy: See LICENSE file in /mnt/mmcblk0p1
+Size:		    49152 b
+Extension_by:   SBP
+Tags:	    	Drivers for the official RaspberryPi 7" touchscreen. Might also add support for USB based touchscreens - not tested.
+Comments:       Binaries only
+                ----
+                ----
+                PPI compatible
+Change-log:     2015/11/5 First version
