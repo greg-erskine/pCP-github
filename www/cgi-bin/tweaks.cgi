@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.18 2015-11-19 GE
+# Version: 0.18 2015-11-20 GE
 #	Fixed auto favorites for decode $HTPPD change and LMS 7.9
 #	Added VU Meters.
 
@@ -132,7 +132,7 @@ pcp_tweaks_hostname() {
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Jivelite-----------------------------------------
-# Function to check the radio button according to config.cfg file
+# Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_jivelite() {
 	case "$JIVELITE" in
@@ -160,12 +160,15 @@ pcp_tweaks_jivelite() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
+	echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
 	echo '                    <p>A reboot after installation is needed.<p>'
-	echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard is needed.</p>'
+	echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
 	echo '                    <ul>'
 	echo '                      <li>Jivelite enabled - Downloads and installs Jivelite.</li>'
 	echo '                      <li>Jivelite disabled - Removes all traces of Jivelite.</li>'
 	echo '                    </ul>'
+	echo '                    <p>Jivelite may use all the free space which will prevent insitu upgrade from working.<p>'
+	echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -189,22 +192,12 @@ pcp_tweaks_jivelite() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
 
-#---------------------------------------VU Meter-----------------------------------------
-# Function to check the radio button according to config.cfg file
+#---------------------------------------VU Meters----------------------------------------
+# Function to download/install/delete Jivelite VU Meters
 #----------------------------------------------------------------------------------------
 pcp_tweaks_vumeter() {
 
-	LOADED_VU_METER=$(cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
-
-# Check unique match
-#UNIQUE=$(echo $LOADED_VU_METER | wc -l)
-#if [ $UNIQUE = 1 ]; then
-#	echo '<p class="info">[ INFO ] OK $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
-#	echo '                [ INFO ] OK $UNIQUE: '$UNIQUE'</p>'
-#else
-#	echo '<p class="error">[ ERROR ] BAD $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
-#	echo '<p class="error">[ ERROR ] BAD $UNIQUE: '$UNIQUE'</p>'
-#fi
+	LOADED_VU_METER=$( cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
 
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
@@ -221,18 +214,20 @@ pcp_tweaks_vumeter() {
 	                          for i in $VUMETERS
 	                          do
 	                            [ $i == $LOADED_VU_METER ] && SEL="selected" || SEL=""
-	                            DISPLAY=$( echo $i | sed 's/^VU_Meter_//' | sed 's/.tcz$//' | sed 's/_/ /g' )
+	                            DISPLAY=$( echo $i | sed -e 's/^VU_Meter_//' -e 's/.tcz$//' -e 's/_/ /g' )
 	                            echo '                    <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
 	                          done
 
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Select VU Meter&nbsp;&nbsp;'
+	echo '                  <p>Select Jivelite VU Meter (Joggler Skin only)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows you to select VU Meter.</p>'
+	echo '                    <p>Allows you to select VU Meters from a dropdown list.</p>'
+	echo '                    <p>A reboot is needed after changing VU Meter.<p>'
+	echo '                    <p>VU Meters have been sourced from various community members. Thank you.<p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -241,7 +236,6 @@ pcp_tweaks_vumeter() {
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -280,10 +274,13 @@ pcp_tweaks_vumeter() {
 		echo '               </td>'
 		echo '             </tr>'
 		echo '           </table>'
-	fi
 
+		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
+		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
+		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
+	fi
 }
-[ $MODE -ge $MODE_BETA ] && [ $JIVELITE == YES ] && pcp_tweaks_vumeter
+[ $MODE -ge $MODE_NORMAL ] && [ $JIVELITE == YES ] && pcp_tweaks_vumeter
 
 #----------------------------------------------------------------------------------------
 
@@ -547,8 +544,8 @@ pcp_tweaks_auto_start() {
 	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
 	#----------------------------------------------------------------------------------------------
 
-####	# Decode variables using httpd, no quotes
-####	AUTOSTARTFAV=$(sudo $HTPPD -d $AUTOSTARTFAV)
+###	# Decode variables using httpd, no quotes
+###	AUTOSTARTFAV=$(sudo $HTPPD -d $AUTOSTARTFAV)
 
 	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
@@ -571,21 +568,21 @@ pcp_tweaks_auto_start() {
 	# Main
 	{
 		i++
-#		split($1,a," ")
-#		id[i]=a[1]
-####		split(id[i],b,".")
-####		num[i]=b[2]
+###		split($1,a," ")
+###		id[i]=a[1]
+###		split(id[i],b,".")
+###		num[i]=b[2]
 		name[i]=$2
 		gsub(" type","",name[i])
 		sel[i]=""
 		if ( name[i] == autostartfav ) {
 			sel[i]="selected"
 		}
-####		hasitems[i]=$5
-####		gsub("count","",hasitems[i])
-####		if ( hasitems[i] != "0 " ) {
-####			i--
-####		}
+###		hasitems[i]=$5
+###		gsub("count","",hasitems[i])
+###		if ( hasitems[i] != "0 " ) {
+###			i--
+###		}
 
 		isaudio[i]=$3
 		gsub(" hasitems","",isaudio[i])
