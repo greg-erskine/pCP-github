@@ -402,15 +402,18 @@ ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
 
+
 if [ $JIVELITE = "YES" ]; then
-    echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-    eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
-	if [ x"" != x$eventno ];then
-       export SDL_TOUCHSCREEN=1
-       export TSLIB_TSDEVICE=/dev/input/$eventno
-       export SDL_MOUSEDRV=TSLIB
-       export SDL_MOUSEDEV=$TSLIB_TSDEVICE
-       fi
-    /opt/jivelite/bin/jivelite-sp >/dev/null 2>&1
-     echo "${GREEN}Done.${NORMAL}"
+     echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+     eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
+    if [ x"" != x$eventno ];then
+        export JIVE_NOCURSOR=1
+        export TSLIB_TSDEVICE=/dev/input/$eventno
+        export SDL_MOUSEDRV=TSLIB
+        export SDL_MOUSEDEV=$TSLIB_TSDEVICE
+    fi
+                                     
+    export HOME=/home/tc
+    sudo -E -b /opt/jivelite/bin/jivelite.sh
+    echo "${GREEN}Done.${NORMAL}"
 fi
