@@ -31,7 +31,9 @@ REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
 DEFAULT_VUMETER="b"
-AVAILABLE_VUMETERS="b d XXXX e j w"
+#AVAILABLE_VUMETERS="b d XXXX e j w"
+content=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU\w*.tcz' | sort | uniq )
+AVAILABLE_VUMETERS=$(echo $content)
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] SUBMIT: '$SUBMIT'<br />'
@@ -117,8 +119,8 @@ pcp_download_vumeters() {
 
 	for i in $AVAILABLE_VUMETERS
 	do
-		TCZ=VU_Meter_${i}.tcz
-		MD5=VU_Meter_${i}.tcz.md5.txt
+		TCZ=${i}
+		MD5=${i}.md5.txt
 
 		wget -s ${REPOSITORY}${TCZ}
 		if [ $? = 0 ]; then
