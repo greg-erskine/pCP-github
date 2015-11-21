@@ -30,9 +30,8 @@ pcp_save_to_config
 REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
-DEFAULT_VUMETER="b"
-#AVAILABLE_VUMETERS="b d XXXX e j w"
-content=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU\w*.tcz' | sort | uniq )
+DEFAULT_VUMETER="VU_Meter_Logitech_Black.tcz"
+content=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq )
 AVAILABLE_VUMETERS=$(echo $content)
 
 if [ $DEBUG = 1 ]; then
@@ -148,7 +147,7 @@ pcp_install_default_vumeter() {
 	sudo -u tc tce-load -i "VU_Meter_${DEFAULT_VUMETER}.tcz"
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Adding default VU Meter to onboot.lst...</p>'
 	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo "VU_Meter_${DEFAULT_VUMETER}.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo $DEFAULT_VUMETER >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 pcp_install_vumeter() {
