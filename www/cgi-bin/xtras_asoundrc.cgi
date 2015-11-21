@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Version: 0.03 2015-11-22 GE
+#	Moved to MODE_BETA.
+
 # Version: 0.02 2015-05-01 GE
-#   Continued development.
+#	Continued development.
 
 # Version: 0.01 2015-03-10 GE
-#   Original version.
+#	Original version.
 
 . pcp-functions
 pcp_variables
@@ -15,7 +18,7 @@ pcp_html_head "xtras_asound_conf" "GE"
 pcp_controls
 pcp_banner
 pcp_xtras
-pcp_mode_lt_developer
+pcp_mode_lt_beta
 pcp_running_script
 
 VOLUMELEFT=100
@@ -136,6 +139,9 @@ case $HW in
 	plughw) HW1="checked" ;;
 esac
 
+#########################################################################################
+# Not sure if we will need this code in future. Leave here for time being.
+#########################################################################################
 #VOLUMELEFT=`grep "0\.[10]" $ASOUNDCONF | awk '{print $2}'`
 #if [ $VOLUMELEFT = "1" ]; then
 #	VOLUMELEFT=100
@@ -166,6 +172,17 @@ esac
 #	fi
 #fi
 
+#========================================================================================
+# WARNING message
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr class="warning">'
+echo '    <td>'
+echo '      <p style="color:white"><b>WARNING:</b> Beta software!! Does not work 100%,'
+echo '      but it may be useful. Use at your own risk.</p>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 #========================================================================================
 # Start table
 #----------------------------------------------------------------------------------------
@@ -266,27 +283,25 @@ echo '</table>'
 # Current asound.conf
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
-if [ $MODE = $MODE_DEVELOPER ]; then
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="asound_conf" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Current asound.conf</legend>'
-	echo '            <table class="bggrey percent100">'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_textarea_inform "none" "cat $ASOUNDCONF" 150
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-fi
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="asound_conf" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Current asound.conf</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+	                    pcp_textarea_inform "none" "cat $ASOUNDCONF" 150
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
 #--------------------------------------Output settings-----------------------------------
 echo '  <tr class="warning">'
 echo '    <td class="column150">'
@@ -296,7 +311,7 @@ echo '    <td class="column210">'
 echo '      <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" readonly>'
 echo '    </td>'
 echo '    <td>'
-echo '      <p style="color:white">This field should be empty.</p>'
+echo '      <p style="color:white">This field should be empty - use Squeezelite Settings page.</p>'
 echo '    </td>'
 echo '  </tr>'
 #------------------------------------Squeezelite restart button--------------------------
@@ -315,7 +330,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_footer
-pcp_refresh_button
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

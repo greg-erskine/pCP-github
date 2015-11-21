@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.04 2015-11-19 GE
+# Version: 0.04 2015-11-22 GE
 #	Added code for VU Meters.
 #	Revised jivelite download code.
 
@@ -23,7 +23,7 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG                       #<--------------????????????????????
+###sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG                       #<--------------????????????????????
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
 
@@ -31,8 +31,7 @@ REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
 DEFAULT_VUMETER="VU_Meter_Logitech_Black.tcz"
-content=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq )
-AVAILABLE_VUMETERS=$(echo $content)
+AVAILABLE_VUMETERS=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] SUBMIT: '$SUBMIT'<br />'
@@ -95,13 +94,16 @@ pcp_delete_jivelite() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	sudo rm -rf /home/tc/.jivelite
-	sudo rm -rf /opt/jivelite
+###	sudo rm -rf /opt/jivelite
 
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from onboot.lst</p>'
 	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from .xfiletool.lst</p>'
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+
+	[ $JIVELITE = NO ] && VISUALISER="no"
+	pcp_save_to_config
 }
 
 pcp_remove_temp() {
@@ -144,7 +146,7 @@ pcp_download_vumeters() {
 
 pcp_install_default_vumeter() {
 	echo '<p class="info">[ INFO ] Installing default VU Meter...</p>'
-	sudo -u tc tce-load -i "VU_Meter_${DEFAULT_VUMETER}.tcz"
+	sudo -u tc tce-load -i $DEFAULT_VUMETER
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Adding default VU Meter to onboot.lst...</p>'
 	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo $DEFAULT_VUMETER >> /mnt/mmcblk0p2/tce/onboot.lst
@@ -164,7 +166,7 @@ pcp_install_vumeter() {
 
 	rm -f /usr/local/tce.installed/VU_Meter*
 	sudo -u tc tce-load -i $VUMETER >/dev/null 2>&1
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] VU Meters is added to onboot.lst</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] VU Meter is added to onboot.lst</p>'
 	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo $VUMETER >> /mnt/mmcblk0p2/tce/onboot.lst
 }
@@ -174,7 +176,7 @@ pcp_delete_vumeters() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
 
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meters from onboot.lst...</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meter from onboot.lst...</p>'
 	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
@@ -204,10 +206,9 @@ case $OPTION in
 		esac
 
 		pcp_backup
-		[ $DEBUG = 1 ] && pcp_show_config_cfg
-
 		echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
-		pcp_reboot_button
+		pcp_reboot_required
+		[ $DEBUG = 1 ] && pcp_show_config_cfg
 		;;
 
 	VUMETER)
@@ -215,6 +216,9 @@ case $OPTION in
 		case $SUBMIT in
 			Save)
 				pcp_install_vumeter
+				# Reboot or restart ???
+				#echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
+				#pcp_reboot_required
 				;;
 			Download)
 				pcp_download_vumeters
