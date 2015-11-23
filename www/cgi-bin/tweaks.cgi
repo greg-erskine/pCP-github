@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.18 2015-11-20 GE
+# Version: 0.18 2015-11-23 GE
 #	Fixed auto favorites for decode $HTPPD change and LMS 7.9
+#	Fixed Autostart LMS and User commands.
 #	Added VU Meters.
 
 # Version: 0.17 2015-10-06 SBP
@@ -544,9 +545,6 @@ pcp_tweaks_auto_start() {
 	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
 	#----------------------------------------------------------------------------------------------
 
-###	# Decode variables using httpd, no quotes
-###	AUTOSTARTFAV=$(sudo $HTPPD -d $AUTOSTARTFAV)
-
 	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
@@ -568,22 +566,12 @@ pcp_tweaks_auto_start() {
 	# Main
 	{
 		i++
-###		split($1,a," ")
-###		id[i]=a[1]
-###		split(id[i],b,".")
-###		num[i]=b[2]
 		name[i]=$2
 		gsub(" type","",name[i])
 		sel[i]=""
 		if ( name[i] == autostartfav ) {
 			sel[i]="selected"
 		}
-###		hasitems[i]=$5
-###		gsub("count","",hasitems[i])
-###		if ( hasitems[i] != "0 " ) {
-###			i--
-###		}
-
 		isaudio[i]=$3
 		gsub(" hasitems","",isaudio[i])
 		if ( isaudio[i] == "0" ) {
@@ -627,7 +615,7 @@ pcp_tweaks_auto_start() {
 	echo '                      <li>Favorites must be at the top level.</li>'
 	echo '                      <li>Folders will not be navigated.</li>'
 	echo '                      <li>Maximum of 100 favorites.</li>'
-	echo '                      <li>Favorite name can not have an &.</li>'
+	echo '                      <li>Favorite name can not have an "&" - Rename using LMS.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -706,6 +694,19 @@ pcp_tweaks_auto_start() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="even">'
+		echo '  <td  colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
+		echo '                     [ DEBUG ] $A_S_LMS_Y: '$A_S_LMS_Y'<br />'
+		echo '                     [ DEBUG ] $A_S_LMS_N: '$A_S_LMS_N'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -1077,9 +1078,9 @@ pcp_tweaks_cron() {
 #----------------------------------------------User Commands---------------------------------
 pcp_tweaks_user_commands() {
 	# Decode variables using httpd, no quotes
-	USER_COMMAND_1=`sudo $HTPPD -d $USER_COMMAND_1`
-	USER_COMMAND_2=`sudo $HTPPD -d $USER_COMMAND_2`
-	USER_COMMAND_3=`sudo $HTPPD -d $USER_COMMAND_3`
+	USER_COMMAND_1=$(sudo $HTPPD -d $USER_COMMAND_1)
+	USER_COMMAND_2=$(sudo $HTPPD -d $USER_COMMAND_2)
+	USER_COMMAND_3=$(sudo $HTPPD -d $USER_COMMAND_3)
 
 	pcp_incr_id
 	echo '<table class="bggrey">'
@@ -1138,6 +1139,18 @@ pcp_tweaks_user_commands() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="odd">'
+		echo '  <td  colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
+		echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
+		echo '                     [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
 
 	echo '            </table>'
 	echo '          </fieldset>'

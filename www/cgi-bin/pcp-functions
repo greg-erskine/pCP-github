@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.23 2015-11-13 GE
+# Version: 0.23 2015-11-23 GE
 #	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
+#	Added pcp_httpd_query_string_no_decode.
 
 # Version: 0.22 2015-10-09 SBP
 #	Added #piCorePlayer I2S configuration to i2s configuration routines.
@@ -235,7 +236,7 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -439,11 +440,6 @@ pcp_html_head() {
 
 pcp_html_head_no_content() {
 	echo -n "HTTP/1.1 204 No Content\n\n"
-#cat <<EOF
-#HTTP/1.1 204 No Content
-#
-#EOF
-#	printf "%s\n\n" "HTTP/1.1 204 No Content"
 }
 
 pcp_banner() {
@@ -539,6 +535,7 @@ pcp_copyright() {
 	echo '<!-- End of pcp_copyright -->'
 }
 
+# Broken 2015-11-23 GE
 pcp_favorites() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	FAVLIST=`sudo $HTPPD -d $FAVLIST`
@@ -566,9 +563,21 @@ pcp_favorites() {
 		gsub(" type","",name[i])
 		hasitems[i]=$5
 		gsub("count","",hasitems[i])
-		if ( hasitems[i] != "0 " ) {
+#		if ( hasitems[i] != "0 " ) {
+#			i--
+#		}
+		
+		isaudio[i]=$3
+		gsub(" hasitems","",isaudio[i])
+		if ( isaudio[i] == "0" ) {
 			i--
 		}
+		isfavorite[i]=$6
+		gsub(" title","",isfavorite[i])
+		if ( isfavorite[i] == "33 favorites items 0 100" ) {
+			i--
+		}
+		
 	}
 	END {
 		for (j=1; j<=7; j++) {
@@ -797,6 +806,13 @@ pcp_httpd_query_string() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
+# Needed when we want to store an encoded string in config.cfg
+pcp_httpd_query_string_no_decode() {
+	# Process the $QUERY_STRING from httpd
+	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
 #=========================================================================================
 # Restart and Reboot popups
 #-----------------------------------------------------------------------------------------
@@ -892,6 +908,7 @@ pcp_wlan0_ip() {
 #-----------------------------------------------------------------------------------------
 pcp_auto_start_lms() {
 	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
+		AUTOSTARTLMS=$(sudo $HTPPD -d $AUTOSTARTLMS)                                                              ######<---- 2015-11-23 GE
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		for i in 1 2 3 4 5
 		do

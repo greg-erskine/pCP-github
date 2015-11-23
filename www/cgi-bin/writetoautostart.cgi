@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-11-23 GE
+#	Fixed deciding issue with Autostart FAV, LMS and User commands.
+
 # Version: 0.02 2015-09-19 SBP
 #	Removed httpd decoding.
 
@@ -17,6 +20,7 @@ pcp_html_head "Write to Autostart" "GE" "5" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 
+# Get $AUTOSTART option only
 pcp_httpd_query_string
 
 if [ $DEBUG = 1 ]; then
@@ -35,33 +39,6 @@ if [ $DEBUG = 1 ]; then
 	echo '</tr>'
 	echo '<!-- End of debug info -->'
 fi
-
-#========================================================================================
-# Set Auto start LMS variables in config.cfg routine
-#----------------------------------------------------------------------------------------
-pcp_set_austostart_lms() {
-	if [ "$SUBMIT" == "Clear" ]; then
-		AUTOSTARTLMS=""
-		A_S_LMS="Disabled"
-	fi
-
-	if [ "$A_S_LMS" == "Enabled" ]; then
-		A_S_FAV="Disabled"
-	fi
-
-	# Save the encoded parameter to the config file, with quotes
-	pcp_save_to_config
-
-	echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Autostart LMS is: '$A_S_LMS'</p>'
-
-	pcp_backup
-
-	if [ "$SUBMIT" == "Test" ]; then
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Submit: '$SUBMIT'</p>'
-		pcp_auto_start_lms
-	fi
-}
 
 #========================================================================================
 # Set Auto start FAV variables in config.cfg routine
@@ -91,6 +68,33 @@ pcp_set_austostart_fav() {
 }
 
 #========================================================================================
+# Set Auto start LMS variables in config.cfg routine
+#----------------------------------------------------------------------------------------
+pcp_set_austostart_lms() {
+	if [ "$SUBMIT" == "Clear" ]; then
+		AUTOSTARTLMS=""
+		A_S_LMS="Disabled"
+	fi
+
+	if [ "$A_S_LMS" == "Enabled" ]; then
+		A_S_FAV="Disabled"
+	fi
+
+	# Save the encoded parameter to the config file, with quotes
+	pcp_save_to_config
+
+	echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Autostart LMS is: '$A_S_LMS'</p>'
+
+	pcp_backup
+
+	if [ "$SUBMIT" == "Test" ]; then
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Submit: '$SUBMIT'</p>'
+		pcp_auto_start_lms
+	fi
+}
+
+#========================================================================================
 # Set USER_COMMAND_x variables in config.cfg routine
 #----------------------------------------------------------------------------------------
 pcp_set_user_commands() {
@@ -105,13 +109,16 @@ pcp_set_user_commands() {
 # Main routine
 #----------------------------------------------------------------------------------------
 case "$AUTOSTART" in
-	LMS)
-		pcp_set_austostart_lms
-		;;
 	FAV)
+		pcp_httpd_query_string
 		pcp_set_austostart_fav
 		;;
+	LMS)
+		pcp_httpd_query_string_no_decode
+		pcp_set_austostart_lms
+		;;
 	CMD)
+		pcp_httpd_query_string_no_decode
 		pcp_set_user_commands
 		;;
 	*)
