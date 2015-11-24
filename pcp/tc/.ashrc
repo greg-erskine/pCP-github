@@ -1,0 +1,45 @@
+# ~/.ashrc: Executed by SHells.
+#
+. /etc/init.d/tc-functions
+if [ -n "$DISPLAY" ]
+then
+	`which editor >/dev/null` && EDITOR=editor || EDITOR=vi
+else
+	EDITOR=vi
+fi
+export EDITOR
+
+PS1='\[\033[01;32m\]\u@\h:\[\033[00m\]\[\033[01;34m\]\w\$\[\033[00m\] '
+export PS1
+
+# Alias definitions.
+#
+alias df='df -h'
+alias du='du -h'
+
+alias ls='ls -p'
+alias ll='ls -l'
+alias la='ls -la'
+
+# Avoid errors... use -f to skip confirmation.
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -i'
+
+# Change directory to
+alias ce='cd /mnt/mmcblk0p2/tce'
+alias ceo='cd /mnt/mmcblk0p2/tce/optional'
+alias c1='cd /mnt/mmcblk0p1'
+alias c2='cd /mnt/mmcblk0p2'
+
+# Mount partition
+alias m1='sudo mount /mnt/mmcblk0p1'
+alias m2='sudo mount /mnt/mmcblk0p2'
+
+# Unmount partition
+alias u1='sudo umount /mnt/mmcblk0p1'
+alias u2='sudo umount /mnt/mmcblk0p2'
+
+# Edit config files
+alias vicfg='vi config.txt'
+alias vicmd='vi cmdline.txt'

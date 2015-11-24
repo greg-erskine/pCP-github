@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Version: 0.01 2015-11-24 GE
+#	Original.
+
+#========================================================================================
+# Basic piCorePlayer Squeezelite CLI
+#----------------------------------------------------------------------------------------
+# - pcp play	: play current track in playlist
+# - pcp stop	: stop
+# - pcp up		: volume up
+# - pcp down	: volume down
+# - pcp next	: next track
+# - pcp prev	: previous track
+# - pcp rand	: random track
+#----------------------------------------------------------------------------------------
+
+. /home/tc/www/cgi-bin/pcp-lms-functions
+
+case $1 in
+	play)
+		pcp_lms_play
+		;;
+	stop)
+		pcp_lms_stop
+		;;
+	up)
+		pcp_lms_volume_up
+		;;
+	down)
+		pcp_lms_volume_down
+		;;
+	next)
+		pcp_lms_next
+		;;
+	prev)
+		pcp_lms_prev
+		;;
+	rand*)
+		pcp_lms_randomplay
+		;;
+	*)
+		echo -e "Usage: `basename $0` [play|stop|up|down|next|previous]" 
+		;;
+esac
