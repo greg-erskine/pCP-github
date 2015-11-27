@@ -1,19 +1,30 @@
 #!/bin/sh
 
-# Version: 0.01 2015-11-24 GE
+# Version: 0.01 2015-11-26 GE
 #	Original.
 
-#========================================================================================
-# Basic piCorePlayer Squeezelite CLI
-#----------------------------------------------------------------------------------------
-# - pcp play	: play current track in playlist
-# - pcp stop	: stop
-# - pcp up		: volume up
-# - pcp down	: volume down
-# - pcp next	: next track
-# - pcp prev	: previous track
-# - pcp rand	: random track
-#----------------------------------------------------------------------------------------
+pcp_help() {
+	echo ========================================================================================
+	echo  Basic piCorePlayer CLI
+	echo ----------------------------------------------------------------------------------------
+	echo  Squeezelite/LMS
+	echo  ---------------
+	echo  - pcp play	: play current track in playlist
+	echo  - pcp stop	: stop
+	echo  - pcp up		: volume up
+	echo  - pcp down	: volume down
+	echo  - pcp next	: next track
+	echo  - pcp prev	: previous track
+	echo  - pcp rand	: random track
+	echo ----------------------------------------------------------------------------------------
+	echo  PiCore
+	echo  ------
+	echo  - pcp bu		: filetool.sh -b
+	echo  - pcp sd		: checkexit.sh
+	echo  - pcp bs		: pcp_backup_nohtml\; checkexit.sh
+	echo  - pcp rb		: sudo reboot
+	echo ----------------------------------------------------------------------------------------
+}
 
 . /home/tc/www/cgi-bin/pcp-lms-functions
 
@@ -39,7 +50,20 @@ case $1 in
 	rand*)
 		pcp_lms_randomplay
 		;;
+	bu|backup)
+		pcp_backup_nohtml
+		;;
+	sd|shutdown)
+		exitcheck.sh
+		;;
+	bs|backdown)
+		pcp_backup_nohtml
+		exitcheck.sh
+		;;
+	rb|reboot)
+		sudo reboot
+		;;
 	*)
-		echo -e "Usage: `basename $0` [play|stop|up|down|next|previous]" 
+		pcp_help 
 		;;
 esac

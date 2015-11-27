@@ -1,10 +1,10 @@
 #!/bin/sh -x
 
-# Version: 0.01 2015-11-25 GE
-#   Original version.
+# Version: 0.01 2015-11-27 GE
+#	Original version.
 
 fdisk -l /dev/mmcblk0
-HOUSE=/home/tc
+SCRATCH=/home/tc
 
 #========================================================================================
 # fdisk routine
@@ -43,23 +43,29 @@ pcp_resize2fs() {
 # Main
 #----------------------------------------------------------------------------------------
 
-if [ -f $HOUSE/fdisk_required ]; then
+if [ -f $SCRATCH/fdisk_required ]; then
 	echo "Resizing partition using fdisk..."
 	pcp_fdisk
-	rm -f $HOUSE/fdisk_required
-	touch $HOUSE/resize2fs_required
-	sudo filetool.sh -b
-	sudo reboot
+	rm -f $SCRATCH/fdisk_required
+	sleep 1
+	if [ ! -f $SCRATCH/fdisk_required ]; then
+		touch $SCRATCH/resize2fs_required
+		sudo filetool.sh -b
+		sudo reboot
+	fi
 	exit
 fi
 
-if [ -f $HOUSE/resize2fs_required ]; then
+if [ -f $SCRATCH/resize2fs_required ]; then
 	echo "Resizing partition using resize2fs..."
 	pcp_resize2fs
-	rm -f $HOUSE/resize2fs_required
-	sudo filetool.sh -b
-	sudo reboot
+	rm -f $SCRATCH/resize2fs_required
+	sleep 1
+	if [ ! -f $SCRATCH/resize2fs_required ]; then
+		sudo filetool.sh -b
+		sudo reboot
+	fi
 	exit
 fi
 
-echo "Resize.sh skipped..."
+echo "Autoresize.sh skipped..."

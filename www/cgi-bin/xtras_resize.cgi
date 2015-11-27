@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2015-11-27 GE
+#	Added autoresize.
+
 # Version: 0.02 2015-06-02 GE
 #	Minor updates.
 
@@ -25,6 +28,14 @@ case "$SUBMIT" in
 		;;
 	resi*)
 		OPT=2
+		;;
+	auto)
+		touch /home/tc/fdisk_required
+		sudo filetool.sh -b
+		sudo reboot
+		;;
+	*)
+		OPT=0
 		;;
 esac
 
@@ -73,19 +84,58 @@ pcp_resize2fs() {
 }
 
 #========================================================================================
+# auto resize partition
+#----------------------------------------------------------------------------------------
+if [ -f /home/tc/www/cgi-bin/autoresize.sh ]; then
+
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '        <legend>Auto resize partition</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="auto" action="xtras_resize.cgi" method="get">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <p>Auto resizing the partition is an automatic process:</p>'
+	echo '                  <ol>'
+	echo '                    <li>fdisk, then auto reboot</li>'
+	echo '                    <li>resize2fs, then auto reboot</li>'
+	echo '                  </ol>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr class="warning">'
+	echo '                <td>'
+	echo '                  <p style="color:white"><input type="submit" name="SUBMIT" value="auto" />&nbsp;&nbsp;auto resize partition</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+fi
+
+#========================================================================================
 # fdisk and resize2fs buttons
 #----------------------------------------------------------------------------------------
+pcp_start_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '        <legend>Resize partition</legend>'
+echo '        <legend>Manual resize partition</legend>'
 echo '          <table class="bggrey percent100">'
-echo '            <form name="increase" action="xtras_resize.cgi" method="get" id="increase">'
-echo '              <tr class="even">'
+echo '            <form name="increase" action="xtras_resize.cgi" method="get">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
-echo '                  <p>Resizing the partition is a 2 step process</p>'
+echo '                  <p>Resizing the partition is a 2 step process:</p>'
 echo '                  <ol>'
 echo '                    <li>Step 1 - fdisk, then reboot</li>'
 echo '                    <li>Step 2 - resize2fs, then reboot</li>'
@@ -97,7 +147,8 @@ echo '                <td>'
 echo '                  <p style="color:white"><input type="submit" name="SUBMIT" value="fdisk" />&nbsp;&nbsp;fdisk to resize partition</p>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="even">'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
                         [ $OPT == 1 ] && pcp_fdisk
 echo '                </td>'
@@ -107,7 +158,8 @@ echo '                <td>'
 echo '                  <p style="color:white"><input type="submit" name="SUBMIT" value="resize2fs" />&nbsp;&nbsp;resize2fs to expand partition to fit file system</p>'
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="even">'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
                         [ $OPT == 2 ] && pcp_resize2fs
 echo '                </td>'
@@ -123,6 +175,7 @@ echo '</table>'
 #========================================================================================
 # Partition information
 #----------------------------------------------------------------------------------------
+pcp_start_row_shade
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -131,12 +184,18 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Partition Information</legend>'
 echo '            <table class="bggrey percent100">'
-echo '              <tr class="odd">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
                         pcp_textarea_inform "none" "df -h /dev/mmc*" 50
 echo '                </td>'
 echo '              </tr>'
-echo '              <tr class="odd">'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
                         pcp_textarea_inform "none" "fdisk -l" 120
 echo '                </td>'
