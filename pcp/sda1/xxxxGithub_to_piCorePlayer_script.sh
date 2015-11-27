@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 0.02 2015-11-27 SBP
+#	Added dialog.tcz.
+
+# Version: 0.01 2015-00-00 SBP
+#	Original
+
 # Burn latest piCore onto SD card
 # Boot using newly created SD card
 # Copy this script to home directory (/home/tc)
@@ -179,7 +185,7 @@ PERCENTAGE=$(df -h | grep mmcblk0p2 | awk '{print $5}' | awk -F% '{print $1}')
 
 echo "${GREEN}[ INFO ] Size: ${SIZE}M Used: ${PERCENTAGE}% ${NORMAL}"
 
-DEVELOPMENT=0
+DEVELOPMENT=1
 
 if [ $DEVELOPMENT = 0 ]; then
 
@@ -374,6 +380,8 @@ getpackage wifi.tcz
 getpackage firmware-atheros.tcz
 getpackage firmware-ralinkwifi.tcz
 getpackage firmware-rtlwifi.tcz
+getpackage dialog.tcz
+
 #getpackage faad2.tcz
 #getpackage libsoxr.tcz
 #getpackage libffmpeg.tcz
