@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-11-26 GE
+# Version: 0.01 2015-11-28 GE
 #	Original.
 
 pcp_help() {
@@ -23,6 +23,7 @@ pcp_help() {
 	echo  - pcp sd		: checkexit.sh
 	echo  - pcp bs		: pcp_backup_nohtml\; checkexit.sh
 	echo  - pcp rb		: sudo reboot
+	echo  - pcp br		: pcp_backup_nohtml\; sudo reboot
 	echo ----------------------------------------------------------------------------------------
 }
 
@@ -61,6 +62,10 @@ case $1 in
 		exitcheck.sh
 		;;
 	rb|reboot)
+		sudo reboot
+		;;
+	br|backreboot)
+		pcp_backup_nohtml
 		sudo reboot
 		;;
 	*)
