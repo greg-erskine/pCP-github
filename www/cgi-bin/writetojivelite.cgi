@@ -30,7 +30,7 @@ pcp_save_to_config
 REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
-DEFAULT_VUMETER="VU_Meter_Logitech_Black.tcz"
+DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
 AVAILABLE_VUMETERS=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
 
 if [ $DEBUG = 1 ]; then
