@@ -227,8 +227,10 @@ pcp_variables() {
 	DEVICE=/dev/mmcblk0p1
 	UPD_PCP=/tmp/upd_picoreplayer
 	PCPHOME=/home/tc/www/cgi-bin
-
+	
 	. $PCPHOME/pcp-rpi-functions
+
+	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 	if [ $(pcp_rpi_is_model_2B) = 0 ]; then
@@ -246,19 +248,21 @@ pcp_variables() {
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
 	MODE=40
-	MODE_INITIAL=0				# Not used at the moment
+	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
-	MODE_NORMAL=20				# This is the typical setting for normal users
+	MODE_NORMAL=20			# This is the typical setting for normal users
 	MODE_ADVANCED=30			# Add more options for advanced users
 	MODE_BETA=40				# Beta options that can be shared with beta testers
 	MODE_DEVELOPER=100			# Beta and experiential options for developers only
 
+	# Use test download area
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
+		REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/beta"
 	fi
 
 	# Use test download area
-	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
+	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"             #<----------IS this ever used anymore
 }
 
 pcp_variables

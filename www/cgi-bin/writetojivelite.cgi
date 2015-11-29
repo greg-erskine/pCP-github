@@ -27,7 +27,7 @@ pcp_httpd_query_string
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
 
-REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
+#REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
 DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
