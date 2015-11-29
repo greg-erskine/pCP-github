@@ -23,15 +23,14 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-###sudo sed -i "s/\(JIVELITE *=*\).*/\1$JIVELITE/" $CONFIGCFG                       #<--------------????????????????????
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
 
-#REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
 DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
-AVAILABLE_VUMETERS=$(wget http://ralph_irving.users.sourceforge.net/pico -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
+VU_REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
+AVAILABLE_VUMETERS=$(wget $VU_REPOSITORY -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] SUBMIT: '$SUBMIT'<br />'
@@ -123,11 +122,11 @@ pcp_download_vumeters() {
 		TCZ=${i}
 		MD5=${i}.md5.txt
 
-		wget -s ${REPOSITORY}${TCZ}
+		wget -s ${VU_REPOSITORY}${TCZ}
 		if [ $? = 0 ]; then
 			echo '<p class="info">[ INFO ] Downloading '$TCZ'...'
-			wget -P /tmp ${REPOSITORY}${TCZ}
-			wget -P /tmp ${REPOSITORY}${MD5}
+			wget -P /tmp ${VU_REPOSITORY}${TCZ}
+			wget -P /tmp ${VU_REPOSITORY}${MD5}
 			md5sum -c ${MD5}
 			if [ $? = 0 ]; then
 				echo '<p class="ok">[ OK ] '$TCZ' download successful.</p>'

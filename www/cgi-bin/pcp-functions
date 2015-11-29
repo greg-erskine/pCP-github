@@ -238,13 +238,13 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
 	# Set to 3 in order to use beta download page from sourceforge when testing beta versions.
 	# Default is 0.
-	TEST=0
+	TEST=3
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
 	MODE=40
@@ -258,7 +258,7 @@ pcp_variables() {
 	# Use test download area
 	if [ $TEST = 3 ]; then
 		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/beta"
-		REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/beta"
+		REPOSITORY="http://sourceforge.net/projects/picoreplayer/files/beta/"
 	fi
 
 	# Use test download area
