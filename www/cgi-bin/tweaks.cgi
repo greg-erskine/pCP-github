@@ -227,7 +227,7 @@ pcp_tweaks_vumeter() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Allows you to select VU Meters from a dropdown list.</p>'
-	echo '                    <p>A reboot is needed after changing VU Meter.<p>'
+	echo '                    <p>Jivelite will restart after changing VU Meter.<p>'
 	echo '                    <p>VU Meters have been sourced from various community members. Thank you.<p>'
 	echo '                  </div>'
 	echo '                </td>'

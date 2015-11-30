@@ -217,7 +217,9 @@ case $OPTION in
 			Save)
 				pcp_install_vumeter
 				# Reboot or restart ???
-				#echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
+				echo '<p class="info">[ INFO ] A restart of Jivelite is needed in order to finalize!</p>'
+				echo '<p class="info">[ INFO ] Jivelite will now restart!</p>'
+				sudo killall jivelite
 				#pcp_reboot_required
 				;;
 			Download)
