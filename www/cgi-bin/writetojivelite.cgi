@@ -164,6 +164,7 @@ pcp_install_vumeter() {
 	done
 
 	rm -f /usr/local/tce.installed/VU_Meter*
+	sudo rm /opt/jivelite/share/jive/applets/JogglerSkin/images/UNOFFICIAL/VUMeter/vu_analog_25seq_w.png
 	sudo -u tc tce-load -i $VUMETER >/dev/null 2>&1
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] VU Meter is added to onboot.lst</p>'
 	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
