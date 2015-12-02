@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.23 2015-11-23 GE
+# Version: 0.23 2015-12-02 GE
 #	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
 #	Added pcp_httpd_query_string_no_decode.
+#	Updated pcp_write_to_host.
 
 # Version: 0.22 2015-10-09 SBP
 #	Added #piCorePlayer I2S configuration to i2s configuration routines.
@@ -238,16 +239,16 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
 	# Set to 3 in order to use beta download page from sourceforge when testing beta versions.
 	# Default is 0.
-	TEST=3
+	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -760,7 +761,9 @@ pcp_write_to_log() {
 }
 
 pcp_write_to_host() {
-	sudo sed -i "s/\(host=\).*/\1$HOST/" /mnt/mmcblk0p1/cmdline.txt
+	#sudo sed -i "s/\(host=\).*/\1$HOST/" /mnt/mmcblk0p1/cmdline.txt
+	sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
+	sudo sethostname "$HOST" > /dev/null 2>&1  # In order to change name immediately
 }
 
 ##################################################

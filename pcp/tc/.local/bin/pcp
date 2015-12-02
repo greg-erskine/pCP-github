@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-11-28 GE
+# Version: 0.01 2015-12-02 GE
 #	Original.
 
 pcp_help() {
@@ -17,13 +17,25 @@ pcp_help() {
 	echo  - pcp prev	: previous track
 	echo  - pcp rand	: random track
 	echo ----------------------------------------------------------------------------------------
-	echo  PiCore
+	echo  piCore
 	echo  ------
 	echo  - pcp bu		: filetool.sh -b
 	echo  - pcp sd		: checkexit.sh
 	echo  - pcp bs		: pcp_backup_nohtml\; checkexit.sh
 	echo  - pcp rb		: sudo reboot
 	echo  - pcp br		: pcp_backup_nohtml\; sudo reboot
+	echo ----------------------------------------------------------------------------------------
+	echo  piCorePlayer
+	echo  ------------
+	echo  - pcp d0		: debug off
+	echo  - pcp d1		: debug on
+#	echo  - pcp m0		: mode 0
+#	echo  - pcp m100	: mode 100
+#	echo  - pcp t0		: test 0
+#	echo  - pcp t1		: test 1
+#	echo  - pcp t3		: test 3
+#	echo  - pcp a0		: all 0
+#	echo  - pcp a1		: all 1
 	echo ----------------------------------------------------------------------------------------
 }
 
@@ -67,6 +79,37 @@ case $1 in
 	br|backreboot)
 		pcp_backup_nohtml
 		sudo reboot
+		;;
+	d0)
+		sed -i "s/\(\\tDEBUG=\).*/\10/" $PCPHOME/pcp-functions
+		;;
+	d1)
+		sed -i "s/\(\\tDEBUG=\).*/\11/" $PCPHOME/pcp-functions
+		;;
+	m0)
+		sed -i "s/\(\\tMODE=\).*/\10/" $PCPHOME/pcp-functions
+		;;
+	m100)
+		sed -i "s/\(\\tMODE=\).*/\1100/" $PCPHOME/pcp-functions
+		;;
+	t0)
+		sed -i "s/\(\\tTEST=\).*/\10/" $PCPHOME/pcp-functions
+		;;
+	t1)
+		sed -i "s/\(\\tTEST=\).*/\11/" $PCPHOME/pcp-functions
+		;;
+	t3)
+		sed -i "s/\(\\tTEST=\).*/\13/" $PCPHOME/pcp-functions
+		;;
+	a0)
+		sed -i "s/\(\\tDEBUG=\).*/\10/" $PCPHOME/pcp-functions
+		sed -i "s/\(\\tMODE=\).*/\10/" $PCPHOME/pcp-functions
+		sed -i "s/\(\\tTEST=\).*/\10/" $PCPHOME/pcp-functions
+		;;
+	a1)
+		sed -i "s/\(\\tDEBUG=\).*/\11/" $PCPHOME/pcp-functions
+		sed -i "s/\(\\tMODE=\).*/\140/" $PCPHOME/pcp-functions
+		sed -i "s/\(\\tTEST=\).*/\11/" $PCPHOME/pcp-functions
 		;;
 	*)
 		pcp_help 
