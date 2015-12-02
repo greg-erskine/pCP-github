@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.03 2015-12-03 GE
+#	Added more debug information.
+#	PROBLEM: udhcpc uses box.
+
 # Version: 0.02 2014-12-10 GE
 #	Using pcp_html_head now.
 #	HTML5 formatting.
@@ -22,9 +26,15 @@ pcp_umount_mmcblk0p1
 pcp_save_to_config
 pcp_backup
 
-[ $DEBUG = 1 ] && pcp_show_bootsync_sh
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+if [ $DEBUG = 1 ]; then
+	pcp_textarea "Current hostname" "hostname" 50
+	pcp_textarea "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
+	pcp_textarea "Current /etc/hosts" "cat /etc/hosts" 180
+	pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 380
+	pcp_textarea "ps " "ps | grep -v grep | grep udhcpc" 100
+fi
 
+pcp_reboot_required
 pcp_go_back_button
 
 echo '</body>'
