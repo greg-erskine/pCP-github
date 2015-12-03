@@ -239,7 +239,7 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -1318,6 +1318,9 @@ EOF
 	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+
+	# Reset hostname
+	sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
 
 	# Remove cron stuff
 	( crontab -l | grep -v "reboot" ) | crontab -
