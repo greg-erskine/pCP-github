@@ -248,7 +248,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -1310,6 +1310,7 @@ EOF
 	#Remove VU_Meter stuff
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
+	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
 
 	# Remove wifi stuff
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
