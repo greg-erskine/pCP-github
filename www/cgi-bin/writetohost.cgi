@@ -28,6 +28,7 @@ pcp_backup
 
 if [ $DEBUG = 1 ]; then
 	pcp_textarea "Current hostname" "hostname" 50
+	pcp_textarea "Current /etc/hostname" "cat /etc/hostname" 50
 	pcp_textarea "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
 	pcp_textarea "Current /etc/hosts" "cat /etc/hosts" 180
 	pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 380
