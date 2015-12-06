@@ -314,7 +314,7 @@ pcp_mount mmcblk0p1
 getfile $TMP/pcp/mmcblk0p1      LICENCE.piCorePlayer  /mnt/mmcblk0p1
 
 echo "${GREEN}[ INFO ] Updating cmdline.txt...${GREEN}"
-echo smsc95xx.turbo_mode=N noswap showapps cron consoleblank=0>> /mnt/mmcblk0p1/cmdline.txt
+echo host=piCorePlayer smsc95xx.turbo_mode=N noswap showapps cron consoleblank=0 >> /mnt/mmcblk0p1/cmdline.txt
 
 echo "${YELLOW}====================================================================${NORMAL}"
 cat /mnt/mmcblk0p1/cmdline.txt
