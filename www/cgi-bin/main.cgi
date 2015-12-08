@@ -175,7 +175,7 @@ pcp_main_update_triode() {
 	echo '              <td class="column150 center">'
 	echo '                <form name="updateTriode" action="updatesqlt.cgi" method="get">'
 	echo '                  <input type="hidden" name="VERSION" value="Triode"/>'
-	echo '                  <input type="submit" value="Update" />'
+	echo '                  <input type="submit" value="TUpdate" />'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
@@ -197,15 +197,59 @@ pcp_main_update_triode() {
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_triode
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Update Squeezelite - Ralphy-------------------
+#------------------------------------------Update Squeezelite - Ralphy - new -------------------
 pcp_main_update_ralphy() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
+
+	echo '                  <input type="hidden" name="OPTION" value="VERSION">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo ' 		<td class="column210">'
+	echo '                  <select class="large16" name="VERSION">'
+	echo '                    <option value="Small">Ralphys'\''s small version</option>'
+	echo '                    <option value="Large">Ralphys'\''s large version</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Select and update Squeezelite&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will download and install Squeezelite from Ralphy'\''s repository.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Internet access is required.</li>'
+	echo '                    <li>The small version is 1 MB which plays pcm (wav/aiff)flac, mp3, ogg and aac.</li>'
+	echo '                    <li>The large version is 12 MB which in addition plays ALAC and WMA via ffmpeg (build in).</li>'
+	echo '                    <li>Triode is the author of Squeezelite and Ralphy has continued development.</li>'
+	echo '                    <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+
+
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_ralphy
+#----------------------------------------------------------------------------------------
+
+
+
+
+
+#------------------------------------------Update Squeezelite - Ralphy-------------------
+pcp_main_update_ralphy_original() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="updateRalphy" action="updatesqlt.cgi" method="get">'
 	echo '                  <input type="hidden" name="VERSION" value="Ralphy"/>'
-	echo '                  <input type="submit" value="Update" />'
+	echo '                  <input type="submit" value="RUpdate" />'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
@@ -227,7 +271,7 @@ pcp_main_update_ralphy() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_ralphy
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_ralphy
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------

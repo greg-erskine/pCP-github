@@ -26,7 +26,18 @@ case $VERSION in
 		message="Updating Squeezelite to Ralphys latest version which supports ALAC..."
 		download="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf"
 		;;
+	Small*)
+		message="Updating Squeezelite to Ralphys small version..."
+		download="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf-noffmpeg"
+		;;
+	Large*)
+		message="Updating Squeezelite to Ralphys large version..."
+		download="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf-ffmpeg"
+		;;
+
 esac
+
+
 
 echo '<h1>[ INFO ] '$message'</h1>'
 echo '<p class="info">[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)'</p>'
@@ -37,7 +48,7 @@ if [ -e /tmp/squeezelite-armv6hf ]; then
 	sudo rm -f /tmp/squeezelite-armv6hf*
 fi
 
-wget -P /tmp $download
+wget -O /tmp/squeezelite-armv6hf $download
 result=$?
 if [ $result -ne "0" ]; then
 	echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
