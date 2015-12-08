@@ -2,6 +2,10 @@
 . pcp-functions
 pcp_variables
 
+# Version: 0.03 2015-12-09 GE
+#	Remove Triode's version.
+#	Update Ralphy's version.
+
 # Version: 0.02 2014-12-09 GE
 #	HTML5 formatted.
 
@@ -18,28 +22,17 @@ pcp_httpd_query_string
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Version: '$VERSION'</p>'
 
 case $VERSION in
-	Triode*)
-		message="Updating Squeezelite to Triodes latest version..."
-		download="http://squeezelite-downloads.googlecode.com/git/squeezelite-armv6hf"
-		;;
-	Ralphy*)
-		message="Updating Squeezelite to Ralphys latest version which supports ALAC..."
-		download="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf"
-		;;
 	Small*)
-		message="Updating Squeezelite to Ralphys small version..."
+		message="Updating Squeezelite to Ralphy small version..."
 		download="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf-noffmpeg"
 		;;
 	Large*)
-		message="Updating Squeezelite to Ralphys large version..."
+		message="Updating Squeezelite to Ralphy large version (will take a few minutes)..."
 		download="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf-ffmpeg"
 		;;
-
 esac
 
-
-
-echo '<h1>[ INFO ] '$message'</h1>'
+echo '<p>[ INFO ] '${message}'</p>'
 echo '<p class="info">[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)'</p>'
 
 # Remove Squeezelite from /tmp
@@ -58,6 +51,8 @@ else
 	sudo cp /tmp/squeezelite-armv6hf /mnt/mmcblk0p2/tce
 	sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 fi
+
+[ $DEBUG = 1 ] && (echo '<p class="ok">[ OK ] '; ls -al /mnt/mmcblk0p2/tce/squeezelite-armv6hf)
 
 pcp_squeezelite_start
 
