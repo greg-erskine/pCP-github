@@ -53,7 +53,7 @@ pcp_fdisk() {
 
 	echo '$LAST_PARTITION_NUM: '$LAST_PARTITION_NUM
 	echo '$PARTITION_START: '$PARTITION_START
-
+	pcp_squeezelite_stop
 	fdisk /dev/mmcblk0 <<EOF
 p
 d
@@ -64,7 +64,6 @@ $LAST_PARTITION_NUM
 $PARTITION_START
 
 w
-p
 EOF
 
 	echo '</textarea>'
@@ -75,6 +74,7 @@ EOF
 # resize2fs routine
 #----------------------------------------------------------------------------------------
 pcp_resize2fs() {
+	pcp_squeezelite_stop
 	echo '<textarea class="inform">'
 	echo 'resize2fs can take a couple of minutes. Please wait...'
 	sudo resize2fs /dev/mmcblk0p2
