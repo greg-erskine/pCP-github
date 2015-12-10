@@ -3,6 +3,7 @@
 # Version: 0.01 2015-11-27 GE
 #	Original version.
 
+. /home/tc/www/cgi-bin/pcp-functions
 fdisk -l /dev/mmcblk0
 SCRATCH=/home/tc
 
@@ -10,7 +11,7 @@ SCRATCH=/home/tc
 # fdisk routine
 #----------------------------------------------------------------------------------------
 pcp_fdisk() {
-
+	pcp_squeezelite_stop
 	LAST_PARTITION_NUM=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | cut -c14)
 	PARTITION_START=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2)
 
@@ -27,7 +28,6 @@ $LAST_PARTITION_NUM
 $PARTITION_START
 
 w
-p
 EOF
 }
 
@@ -35,6 +35,7 @@ EOF
 # resize2fs routine
 #----------------------------------------------------------------------------------------
 pcp_resize2fs() {
+	pcp_squeezelite_stop
 	echo 'resize2fs can take a couple of minutes. Please wait...'
 	sudo resize2fs /dev/mmcblk0p2
 }
@@ -57,7 +58,7 @@ if [ -f $SCRATCH/fdisk_required ]; then
 fi
 
 if [ -f $SCRATCH/resize2fs_required ]; then
-	echo "Resizing partition using resize2fs..."
+	echo "Resizing partition using resize2fs...Please wait. System will reboot when ready"
 	pcp_resize2fs
 	rm -f $SCRATCH/resize2fs_required
 	sleep 1
