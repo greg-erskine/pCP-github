@@ -300,9 +300,6 @@ getfile $TMP/pcp/sbin          setup                $SBIN
 chown root:root $SBIN/setup
 chmod u=rwx,g=rx,o=rx $SBIN/setup
 
-getfile $TMP/pcp/mmcblk0p2     onboot.lst           $STORAGE
-chown tc:staff $STORAGE/onboot.lst
-chmod u=rwx,g=rwx,o=rx $STORAGE/onboot.lst
 
 sleep 2
 
@@ -335,6 +332,7 @@ echo "#sdram_freq=" >> /mnt/mmcblk0p1/config.txt
 echo "#over_voltage=" >> /mnt/mmcblk0p1/config.txt
 echo "#force_turbo=" >> /mnt/mmcblk0p1/config.txt
 echo "#gpu_mem=" >> /mnt/mmcblk0p1/config.txt
+echo "initial_turbo = 30" >> /mnt/mmcblk0p1/config.txt
 echo "" >> /mnt/mmcblk0p1/config.txt
 echo "# Force max current to USB" >> /mnt/mmcblk0p1/config.txt
 echo "max_usb_current=1" >> /mnt/mmcblk0p1/config.txt
@@ -373,18 +371,26 @@ getpackage busybox-httpd.tcz
 getpackage dropbear.tcz
 getpackage alsa.tcz
 getpackage alsa-config.tcz
-getpackage flac.tcz
-getpackage libvorbis.tcz
-getpackage libmad.tcz
+getpackage dialog.tcz
+#getpackage flac.tcz
+#getpackage libvorbis.tcz
+#getpackage libmad.tcz
 getpackage wifi.tcz
 getpackage firmware-atheros.tcz
 getpackage firmware-ralinkwifi.tcz
 getpackage firmware-rtlwifi.tcz
-getpackage dialog.tcz
+
 
 #getpackage faad2.tcz
 #getpackage libsoxr.tcz
 #getpackage libffmpeg.tcz
+
+
+#Remove onboot.lst and use the correct pCP version
+Sudo rm -f $STORAGE/onboot.lst 
+getfile $TMP/pcp/mmcblk0p2     onboot.lst           $STORAGE
+chown tc:staff $STORAGE/onboot.lst
+chmod u=rwx,g=rwx,o=rx $STORAGE/onboot.lst
 
 #--------------------------------------------
 # Download Ralphy's files
@@ -396,24 +402,36 @@ sudo wget -P /mnt/mmcblk0p2/tce/ http://ralph_irving.users.sourceforge.net/pico/
 sudo mv /mnt/mmcblk0p2/tce/squeezelite-1.8-armv6hf /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 
-echo "${GREEN}[ INFO ] Copying Ralphy's tcz packages...${YELLOW}"
-getfile $TMP/pcp/Ralphys_files libffmpeg.tcz $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/libffmpeg.tcz
-chmod u=rw,g=rw,o=r $TCZ_PLACE/libffmpeg.tcz
+#echo "${GREEN}[ INFO ] Copying Ralphy's tcz packages...${YELLOW}"
+#getfile $TMP/pcp/Ralphys_files libffmpeg.tcz $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libffmpeg.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libffmpeg.tcz
 
-getfile $TMP/pcp/Ralphys_files libsoxr.tcz $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/libsoxr.tcz
-chmod u=rw,g=rw,o=r $TCZ_PLACE/libsoxr.tcz
+#getfile $TMP/pcp/Ralphys_files libsoxr.tcz $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libsoxr.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libsoxr.tcz
 
 # For now we use Ralphy's instead of the official faad2.tcz package
-getfile $TMP/pcp/Ralphys_files libfaad.tcz $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/libfaad.tcz
-chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
+#getfile $TMP/pcp/Ralphys_files libfaad.tcz $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libfaad.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
 
 # For now we use Ralphy's libtc which is in our GIT until an officiel libtc is ready
 getfile $TMP/pcp/libts-tcz/          libts.tcz   $TCZ_PLACE
 chown tc:staff $TCZ_PLACE/libts.tcz
 chmod u=rw,g=rw,o=r $TCZ_PLACE/libts.tcz
+
+# For now we use our own backlight.tcz which is in our GIT until an officiel backlight package is ready
+getfile $TMP/pcp/Touchscreen/backlight     backlight*   $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/backlight*
+chmod u=rw,g=rw,o=r $TCZ_PLACE/backlight
+
+# For now we use our own touchscreen.tcz which is in our GIT until an officiel touch package is ready
+getfile $TMP/pcp/Touchscreen/touch     touchscreen*   $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/touchscreen*
+chmod u=rw,g=rw,o=r $TCZ_PLACE/touchscreen*
+
+
 
 #--------------------------------------------
 # Do a backup

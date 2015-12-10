@@ -180,6 +180,9 @@ mount /dev/mmcblk0p1
 mkdir /mnt/sda1/"$NAME"
 tar -zcvf /mnt/sda1/"$NAME"/"$NAME"_boot.tar.gz /mnt/mmcblk0p1
 tar -zcvf /mnt/sda1/"$NAME"/"$NAME"_tce.tar.gz /mnt/mmcblk0p2/tce
+
+sudo umount -lf /mnt/mmcblk0p1
+sudo umount -lf /mnt/mmcblk0p2
 dd if=/dev/mmcblk0 of=/mnt/sda1/"$NAME"/"$NAME".img bs=1M count=75
 sync;sync
 
