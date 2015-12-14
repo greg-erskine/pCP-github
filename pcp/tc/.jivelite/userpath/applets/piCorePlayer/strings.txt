@@ -1,26 +1,39 @@
 MENU_REBOOT
 	EN	Reboot piCorePlayer
+	NL	piCorePlayer opnieuw opstarten
 MENU_SHUTDOWN
 	EN	Shutdown piCorePlayer
+	NL	piCorePlayer afsluiten
 MENU_SAVE_SETTINGS
 	EN	Save settings to SD card
+	NL	Instellingen opslaan op SD kaart
 LABEL_REBOOT_IN_PROGRESS
 	EN	Reboot in
+	NL	Opnieuw opstarten in
 LABEL_REBOOTING
 	EN	Rebooting!
+	NL	Opnieuw opstarten!
 LABEL_SHUTDOWN_IN_PROGRESS
 	EN	Shutdown in
+	NL	Afsluiten in
 LABEL_SHUTTING_DOWN
 	EN	Shutting down!
+	NL	Afsluiten!
 LABEL_COUNTDOWN_5_SECONDS
 	EN	5 seconds
+	NL	5 seconden
 LABEL_COUNTDOWN_4_SECONDS
 	EN	4 seconds
+	NL	4 seconden
 LABEL_COUNTDOWN_3_SECONDS
 	EN	3 seconds
+	NL	3 seconden
 LABEL_COUNTDOWN_2_SECONDS
 	EN	2 seconds
+	NL	2 seconden
 LABEL_COUNTDOWN_1_SECOND
 	EN	1 second
+	NL	1 seconde
 LABEL_SETTINGS_SAVED
 	EN	Settings saved to SD card!
+	NL	Instellingen opgeslagen op SD kaart!

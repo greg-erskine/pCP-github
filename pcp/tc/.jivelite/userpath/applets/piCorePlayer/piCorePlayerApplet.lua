@@ -1,5 +1,6 @@
 local tostring				 = tostring
 local os                     = require("os")
+local io               		 = require("io")
 local oo                     = require("loop.simple")
 local Applet                 = require("jive.Applet")
 local Event                  = require("jive.ui.Event")
@@ -71,10 +72,11 @@ function rebootPi(self, menuItem)
 				       elseif state == 1 then
 					       label:setValue(self:string("LABEL_COUNTDOWN_1_SECOND"))
 				       elseif state == 0 then
-							icon:setStyle("icon_popup_box_power")
+							icon:setStyle("")
 							label:setValue("")
 							text:setValue(self:string("LABEL_REBOOTING"))
 				       elseif state == -1 then
+							-- log:info("piCorePlayer: Reboot")
 							os.execute("/home/tc/.local/bin/pcp rb")
 				       end
 				       state = state - 1
@@ -116,6 +118,12 @@ function shutdownPi(self, menuItem)
 							label:setValue("")
 							text:setValue(self:string("LABEL_SHUTTING_DOWN"))
 				       elseif state == -1 then
+							-- log:info("piCorePlayer: Shutdown")
+							-- turn off display!
+							-- code from Ralphy's DisplayOffApplet.lua
+							-- no need to remember the current state
+							-- as the Pi is about to be powered off
+							_write("/sys/class/backlight/rpi_backlight/bl_power", "1")
 							os.execute("/home/tc/.local/bin/pcp sd")
 				       end
 				       state = state - 1
@@ -126,7 +134,8 @@ function shutdownPi(self, menuItem)
 end
 
 function saveToSDCard(self, menuItem)
-
+	-- log:info("piCorePlayer: Save settings to SD card")
+	
 	local popup = Popup("toast_popup_text")
 	
 	popup:setTransparent(true)
@@ -136,13 +145,24 @@ function saveToSDCard(self, menuItem)
 	popup:addWidget(text)
 
 	-- save piCorePlayer settings
+	-- should/could we test for return value/errors
 	os.execute("/home/tc/.local/bin/pcp bu")
 	
-	-- display the message for 1.2 seconds
-	popup:addTimer(1200, function()
-						popup:hide(Window.transitionFadeOut)
+	-- display the message for 2 seconds
+	popup:addTimer(2000, function()
+						popup:hide()
 			       end)
 
 	self:tieAndShowWindow(popup, Window.transitionFadeIn)
 	return popup
+end
+
+function _write(file, val)
+	local fh, err = io.open(file, "w")
+	if err then
+		-- log:warn("Can't write to ", file)
+		return
+	end
+	fh:write(val)
+	fh:close()
 end
