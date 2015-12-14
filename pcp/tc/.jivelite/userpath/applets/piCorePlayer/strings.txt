@@ -9,7 +9,7 @@ MENU_SHUTDOWN
 MENU_SAVE_SETTINGS
 	EN	Save settings to SD card
 	NL	Instellingen opslaan op SD kaart
-	DA	Gem indstillinger på SD kort
+	DA	Gem indstillinger pÃ¥ SD kort
 LABEL_REBOOT_IN_PROGRESS
 	EN	Reboot in
 	NL	Opnieuw opstarten in
@@ -49,4 +49,4 @@ LABEL_COUNTDOWN_1_SECOND
 LABEL_SETTINGS_SAVED
 	EN	Settings saved to SD card!
 	NL	Instellingen opgeslagen op SD kaart!
-	DA	Indstillinger gemt på SD kort
+	DA	Indstillinger gemt pÃ¥ SD kort
