@@ -1,3 +1,7 @@
+DESCRIPTION
+	EN	piCorePlayer settings jive menu
+APPLET_NAME
+	EN	piCorePlayer
 MENU_REBOOT
 	EN	Reboot piCorePlayer
 	NL	piCorePlayer opnieuw opstarten
