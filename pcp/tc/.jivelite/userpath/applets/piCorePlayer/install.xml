@@ -1,0 +1,24 @@
+<?xml version='1.0' standalone='yes'?>
+<extension>
+  <id>3337c510-a29a-11e5-9696-001fc659afbe</id>
+
+  <name>APPLET_NAME</name>
+  <playerMenu>settings</playerMenu>
+
+  <creator>Kolossos</creator>
+  <defaultState>enabled</defaultState>
+  <version>1.0</version>
+  <description>DESCRIPTION</description>
+  <email>kolossos4730@gmail.com</email>
+
+  <homepageURL>http://sourceforge.net/projects/picoreplayer</homepageURL>
+
+  <type>2</type><!-- type=extension -->
+
+  <targetApplication>
+    <id>SqueezeCenter</id>
+    <minVersion>7.7</minVersion>
+    <maxVersion>*</maxVersion>
+  </targetApplication>
+
+</extension>
