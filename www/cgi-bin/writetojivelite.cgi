@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.05 2015-12-19 GE
+#	Added /bin/busybox to wget -s
+#	Minor changes.
+
 # Version: 0.04 2015-11-22 GE
 #	Added code for VU Meters.
 #	Revised jivelite download code.
@@ -53,8 +57,9 @@ pcp_download_jivelite() {
 	sudo rm -f /tmp/${JIVELITE_TCZ}
 	sudo rm -f /tmp/${JIVELITE_MD5}
 	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy'\''s repository...</p>'
+	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	wget -s ${REPOSITORY}${JIVELITE_TCZ}
+	/bin/busybox wget -s ${REPOSITORY}${JIVELITE_TCZ}
 	if [ $? = 0 ]; then
 		echo '<p class="info">[ INFO ] Downloading '$JIVELITE_TCZ'...'
 		wget -P /tmp ${REPOSITORY}${JIVELITE_TCZ}
@@ -122,7 +127,7 @@ pcp_download_vumeters() {
 		TCZ=${i}
 		MD5=${i}.md5.txt
 
-		wget -s ${VU_REPOSITORY}${TCZ}
+		/bin/busybox wget -s ${VU_REPOSITORY}${TCZ}
 		if [ $? = 0 ]; then
 			echo '<p class="info">[ INFO ] Downloading '$TCZ'...'
 			wget -P /tmp ${VU_REPOSITORY}${TCZ}
@@ -216,11 +221,9 @@ case $OPTION in
 		case $SUBMIT in
 			Save)
 				pcp_install_vumeter
-				# Reboot or restart ???
 				echo '<p class="info">[ INFO ] A restart of Jivelite is needed in order to finalize!</p>'
 				echo '<p class="info">[ INFO ] Jivelite will now restart!</p>'
 				sudo killall jivelite
-				#pcp_reboot_required
 				;;
 			Download)
 				pcp_download_vumeters
