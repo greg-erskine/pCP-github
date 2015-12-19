@@ -55,7 +55,7 @@ case "$AUDIO" in
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_disable_i2s
 		pcp_disable_HDMI
-		OUTPUT="sysdefault:CARD=ALSA"
+		OUTPUT="hw:CARD=ALSA"
 		ALSA_PARAMS="80:::0"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
@@ -64,7 +64,7 @@ case "$AUDIO" in
 		pcp_disable_i2s
 		pcp_disable_HDMI
 		pcp_enable_HDMI
-		OUTPUT="sysdefault:CARD=ALSA"
+		OUTPUT="hw:CARD=ALSA"
 		ALSA_PARAMS="::32:0"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
