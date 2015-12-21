@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2015-12-21 GE
+#	Added Upload to pastebin feature.
+
 # Version: 0.06 2015-08-29 GE
 #	Hide password.
 #	Turned pcp_picoreplayers tabs on in normal mode.
@@ -119,6 +122,16 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	                      pcp_textarea_inform "$CONFIGCFG" 'cat $CONFIGCFG | sed s/^PASSWORD=.*/PASSWORD=\"******\"/' 560
 	echo '              </td>'
 	echo '            </tr>'
+
+	echo '            <tr>'
+	echo '              <td class="column150">'
+	echo '                <form name="Paste" action="pastebin.cgi" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
+	echo '                  <input type="hidden" name="FILE" value="'$CONFIGCFG'" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '            </tr>'
+
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'

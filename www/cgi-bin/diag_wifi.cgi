@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 0.04 2015-12-22 GE
+#	Added Upload to pastebin feature.
+
 # Version: 0.03 2015-09-20 GE
 #	Added evdev to exclude list.
 
@@ -19,6 +22,9 @@ pcp_html_head "Wifi Diagnostics" "GE"
 pcp_banner
 pcp_diagnostics
 pcp_running_script
+
+MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
+LOG="/tmp/pcp_diagwifi_${MAC:6}.log"
 
 #========================================================================================
 # Routine to display usb devices found during boot process. Some of the standard RPi usb
@@ -147,6 +153,15 @@ available_networks() {
 		echo '</textarea>'
 		echo '                </td>'
 		echo '              </tr>'
+
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150">'
+		echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
+		echo '                  <input type="hidden" name="FILE" value="'$LOG'" />'
+		echo '                </td>'
+		echo '              </tr>'
+
 		echo '            </table>'
 		echo '          </fieldset>'
 		echo '        </div>'
@@ -243,9 +258,6 @@ available_networks() {
 #========================================================================================
 # Create the log file. Start with some basic information.
 #----------------------------------------------------------------------------------------
-MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
-LOG="/tmp/pcp_diagwifi_${MAC:6}.log"
-
 echo Report $0 generated on $(date) >$LOG
 cat /etc/motd >>$LOG
 echo >>$LOG
@@ -467,7 +479,7 @@ echo '            </tr>'
 echo '          </table>'
 echo '        </fieldset>'
 #------------------------------------Available networks----------------------------------
-echo '        <form name="wifi_networks" method="get">'
+echo '        <form name="Paste" action="pastebin.cgi" method="get">'
 echo '          <div class="row">'
 echo '            <fieldset>'
 echo '              <legend>Available wifi networks</legend>'
@@ -476,6 +488,13 @@ pcp_start_row_shade
 echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td>'
 	                      pcp_textarea_inform "none" "available_networks" 110
+echo '                  </td>'
+echo '                </tr>'
+pcp_toggle_row_shade
+echo '                <tr class="'$ROWSHADE'">'
+echo '                  <td class="column150">'
+echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
+echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
 echo '                  </td>'
 echo '                </tr>'
 echo '              </table>'
