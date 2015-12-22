@@ -60,7 +60,7 @@ pcp_wifi_diag_dmesg() {
 pcp_wifi_diag_lsmod() {
 	echo "lsmod" >>$LOG
 	echo ========================================================================================= >>$LOG
-	lsmod | grep -vE "^snd|^ctr|^ccm|^arc4|^uio|^i2c|^crc|^spi|^bcm2|^evdev" | tee -a $LOG
+	lsmod | grep -vE "^snd|^ctr|^ccm|^arc4|^uio|^i2c|^crc|^spi|^bcm2|^evdev|^regmap" | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -493,6 +493,7 @@ echo '                </tr>'
 pcp_toggle_row_shade
 echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td class="column150">'
+[ $MODE -ge $MODE_BETA ] &&
 echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
 echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
 echo '                  </td>'

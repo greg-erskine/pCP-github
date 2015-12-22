@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common pastebin functions used by piCorePlayer
 
-# Version: 0.01 2015-12-21 GE
+# Version: 0.01 2015-12-22 GE
 #	Original.
 
 #========================================================================================
@@ -103,7 +103,7 @@ pcp_pastebin_paste() {
 	POST_DATA=$POST_DATA"&api_paste_name=$API_PASTE_NAME"
 	POST_DATA=$POST_DATA"&api_user_key=$API_USER_KEY"
 
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Uploading '$API_POST_CODE', please wait...</p>'
+	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Uploading '$1', please wait...</p>'
 	PASTEBIN_URL=$(wget -O - --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
 
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] url: '$PASTEBIN_URL'</p>'

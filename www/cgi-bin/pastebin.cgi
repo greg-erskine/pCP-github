@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2015-12-21 GE
+# Version: 0.01 2015-12-22 GE
 #	Original version.
 
 . pcp-functions
