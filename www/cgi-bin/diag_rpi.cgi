@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.07 2015-12-24 GE
+#	Added Upload to pastebin feature.
+
 # Version: 0.06 2015-08-29 GE
 #	Added shortname.
 
@@ -22,6 +25,7 @@
 . pcp-rpi-functions
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
 
 # Local variables
 START="====================> Start <===================="
@@ -334,6 +338,8 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+pcp_pastebin_button raspi
 
 pcp_footer
 pcp_copyright

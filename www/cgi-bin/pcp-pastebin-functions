@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common pastebin functions used by piCorePlayer
 
-# Version: 0.01 2015-12-22 GE
+# Version: 0.01 2015-12-24 GE
 #	Original.
 
 #========================================================================================
@@ -40,11 +40,13 @@ pcp_pastebin_encoding() {
 				o="${c}"
 				;;
 			*)
-				o=%$(echo -n "${c}" | hexdump -e '/1 "%02x"')
+#				o=%$(echo -n "${c}" | hexdump -e '/1 "%02x"')
+				o=$( printf "%%%02X" "'${c}")
 				;;
 		esac
 		encoded=$encoded"${o}"
 		pos=$(($pos + 1))
+#		echo -n ${c}
 	done
 	echo "${encoded}" 
 }
@@ -73,6 +75,39 @@ pcp_install_wget() {
 }
 
 #========================================================================================
+# pCP pastebin button
+#----------------------------------------------------------------------------------------
+pcp_pastebin_button() {
+	if [ $MODE -ge $MODE_BETA ]; then
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <div class="row">'
+		echo '        <form name="Paste" action="pastebin.cgi" method="get">'
+		echo '          <div class="row">'
+		echo '            <fieldset>'
+		echo '              <legend>Upload</legend>'
+		echo '              <table class="bggrey percent100">'
+		pcp_start_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150">'
+		echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
+		echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
+		echo '                    <input type="hidden" name="REPORT" value="'${1}'" />'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </table>'
+		echo '            </fieldset>'
+		echo '          </div>'
+		echo '        </form>'
+		echo '      </div>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+	fi
+}
+
+#========================================================================================
 # Get api_user_key
 #----------------------------------------------------------------------------------------
 pcp_pastebin_get_api_user_key() {
@@ -94,6 +129,7 @@ pcp_pastebin_paste() {
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Encoding '$1', please wait...</p>'
 	API_POST_CODE=$(cat ${1})
 	API_POST_CODE=$(pcp_pastebin_encoding "$API_POST_CODE")
+	API_PASTE_NAME="${API_PASTE_NAME}-${2}"
 
 	POST_DATA="api_option=paste"
 	POST_DATA=$POST_DATA"&api_dev_key=$API_DEV_KEY"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.07 2015-12-22 GE
+# Version: 0.07 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
 # Version: 0.06 2015-08-29 GE
@@ -29,6 +29,8 @@
 . pcp-lms-functions
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
+LOG=$CONFIGCFG
 
 pcp_html_head "About" "SBP"
 
@@ -122,15 +124,15 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	                      pcp_textarea_inform "$CONFIGCFG" 'cat $CONFIGCFG | sed s/^PASSWORD=.*/PASSWORD=\"******\"/' 560
 	echo '              </td>'
 	echo '            </tr>'
-	echo '            <tr>'
-	echo '              <td class="column150">'
-	echo '                <form name="Paste" action="pastebin.cgi" method="get">'
-	[ $MODE -ge $MODE_BETA ] &&
-	echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
-	echo '                  <input type="hidden" name="FILE" value="'$CONFIGCFG'" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '            </tr>'
+#	echo '            <tr>'
+#	echo '              <td class="column150">'
+#	echo '                <form name="Paste" action="pastebin.cgi" method="get">'
+#	[ $MODE -ge $MODE_BETA ] &&
+#	echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
+#	echo '                  <input type="hidden" name="FILE" value="'$CONFIGCFG'" />'
+#	echo '                </form>'
+#	echo '              </td>'
+#	echo '            </tr>'
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -139,6 +141,8 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '</table>'
 fi
 #----------------------------------------------------------------------------------------
+
+pcp_pastebin_button config.cfg
 
 pcp_footer
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mode

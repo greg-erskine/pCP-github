@@ -1,6 +1,9 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 0.06 2015-12-24 GE
+#	Added Upload to pastebin feature.
+
 # Version: 0.05 2015-07-04 GE
 #	Minor updates.
 
@@ -20,6 +23,7 @@
 
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
 
 # Local variables
 START="====================> Start <===================="
@@ -63,6 +67,8 @@ pcp_textarea "Right speaker test" "speaker-test -t sine -f 480 -c 2 -s 2" 240 lo
 
 echo '<br />'
 echo '<br />'
+
+pcp_pastebin_button sound
 
 pcp_footer
 pcp_copyright

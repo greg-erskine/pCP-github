@@ -1,7 +1,7 @@
 #!/bin/sh
 # Diagnostics script
 
-# Version: 0.11 2015-12-22 GE
+# Version: 0.11 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
 # Version: 0.10 2015-07-04 GE
@@ -39,6 +39,7 @@
 
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
 
 # Local variables
 START="====================> Start <===================="
@@ -79,31 +80,7 @@ pcp_textarea "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
 pcp_textarea "lsmod" "lsmod" 300 log
 pcp_textarea "Directory of www/cgi-bin" "ls -al" 300 log
 
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <form name="Paste" action="pastebin.cgi" method="get">'
-echo '          <div class="row">'
-echo '            <fieldset>'
-echo '              <legend>Upload</legend>'
-echo '              <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td class="column150">'
-[ $MODE -ge $MODE_BETA ] &&
-echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
-echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
-echo '                  </td>'
-echo '                </tr>'
-echo '              </table>'
-echo '            </fieldset>'
-echo '          </div>'
-echo '        </form>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_pastebin_button diagnostics
 
 echo '<br />'
 echo '<br />'

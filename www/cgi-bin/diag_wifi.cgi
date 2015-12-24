@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 0.04 2015-12-22 GE
+# Version: 0.04 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
 # Version: 0.03 2015-09-20 GE
@@ -16,6 +16,7 @@
 . pcp-rpi-functions
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
 
 pcp_html_head "Wifi Diagnostics" "GE"
 
@@ -490,19 +491,14 @@ echo '                  <td>'
 	                      pcp_textarea_inform "none" "available_networks" 110
 echo '                  </td>'
 echo '                </tr>'
-pcp_toggle_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td class="column150">'
-[ $MODE -ge $MODE_BETA ] &&
-echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
-echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
-echo '                  </td>'
-echo '                </tr>'
 echo '              </table>'
 echo '            </fieldset>'
 echo '          </div>'
 echo '        </form>'
 #----------------------------------------------------------------------------------------
+
+pcp_pastebin_button wifi
+
 echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
