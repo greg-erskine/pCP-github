@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.11 2015-12-24 GE
+#	Added Upload to pastebin feature.
+
 # Version: 0.10 2015-07-04 GE
 #	Minor updates.
 
@@ -36,6 +39,7 @@
 
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
 
 # Local variables
 START="====================> Start <===================="
@@ -75,6 +79,8 @@ pcp_textarea "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
 pcp_textarea "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
 pcp_textarea "lsmod" "lsmod" 300 log
 pcp_textarea "Directory of www/cgi-bin" "ls -al" 300 log
+
+pcp_pastebin_button diagnostics
 
 echo '<br />'
 echo '<br />'

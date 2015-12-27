@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2015-12-24 GE
+#	Added Upload to pastebin feature.
+
 # Version: 0.06 2015-08-29 GE
 #	Hide password.
 #	Turned pcp_picoreplayers tabs on in normal mode.
@@ -26,6 +29,8 @@
 . pcp-lms-functions
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
+LOG=$CONFIGCFG
 
 pcp_html_head "About" "SBP"
 
@@ -49,14 +54,14 @@ echo '                   known as <a href="http://tinycorelinux.net/">Tiny Core 
 echo '                   A special thanks to bmarkus from the <a href="http://forum.tinycorelinux.net/">microcore forum</a> '
 echo '                   for help building the piCore (a special version for the Raspberry Pi) and support. '
 echo '                   It boots very fast (often within 15 sec), and it is running entirely in RAM, therefore, '
-echo '                   you can simply pull the power without any risk of corruption of your SD-card.</p>'
+echo '                   you can simply pull the power without any risk of corruption of your SD card.</p>'
 echo '                <p>In addition, piCorePlayer is using the fine Squeezelite player developed by Triode, which can be '
 echo '                   found <a href="https://code.google.com/p/squeezelite/">here</a>. Thanks to Ralphy for building '
 echo '                   a version of Squeezelite with wma and alac support and for providing the jivelite package.</p>'
 echo '                <p>To use piCorePlayer you will need a Raspberry Pi computer. Read more about this '
 echo '                   <a href="http://www.raspberrypi.org/">small credit sized computer</a>. '
 echo '                   Raspberry Pi is a trademark of the Raspberry Pi Foundation.</p>'
-echo '                <p>The web-GUI is powered by the small build-in Busybox webserver '
+echo '                <p>The web-GUI is powered by the small built-in Busybox webserver '
 echo '                   <a href="http://www.busybox.net/">HTTPD</a>.</p>'
 echo '                <p>The official piCorePlayer web page can be found here '
 echo '                   <a href="https://sites.google.com/site/picoreplayer/home/news">piCorePlayer web page</a>. '
@@ -127,6 +132,8 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '</table>'
 fi
 #----------------------------------------------------------------------------------------
+
+pcp_pastebin_button config.cfg
 
 pcp_footer
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mode
