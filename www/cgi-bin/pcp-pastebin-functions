@@ -22,6 +22,7 @@ API_USER_PASSWORD="picoreplayer"
 API_PASTE_PRIVATE="2"
 API_PASTE_NAME="$(pcp_rpi_shortname)"
 API_PASTE_EXPIRE_DATE="1D"
+WGET="/usr/local/bin/wget"
 
 #========================================================================================
 # urlencode is not installed by default in piCore/piCorePlayer so here is a ash hack.
@@ -90,10 +91,13 @@ pcp_pastebin_button() {
 		echo '              <table class="bggrey percent100">'
 		pcp_start_row_shade
 		echo '                <tr class="'$ROWSHADE'">'
-		echo '                  <td class="column150">'
+		echo '                  <td class="column150 center">'
 		echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
 		echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
 		echo '                    <input type="hidden" name="REPORT" value="'${1}'" />'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Upload report to pastebin.</p>'
 		echo '                  </td>'
 		echo '                </tr>'
 		echo '              </table>'
@@ -115,7 +119,7 @@ pcp_pastebin_get_api_user_key() {
 	POST_DATA=$POST_DATA"&api_user_name=$API_USER_NAME"
 	POST_DATA=$POST_DATA"&api_user_password=$API_USER_PASSWORD"
 
-	API_USER_KEY=$(wget -O - --post-data=$POST_DATA 'http://pastebin.com/api/api_login.php')
+	API_USER_KEY=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_login.php')
 
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] api_user_key: '$API_USER_KEY'</p>'
 }
@@ -140,7 +144,7 @@ pcp_pastebin_paste() {
 	POST_DATA=$POST_DATA"&api_user_key=$API_USER_KEY"
 
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Uploading '$1', please wait...</p>'
-	PASTEBIN_URL=$(wget -O - --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
+	PASTEBIN_URL=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
 
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] url: '$PASTEBIN_URL'</p>'
 }
@@ -158,7 +162,7 @@ pcp_pastebin_get_listing() {
 
 	LISTING_LOG=/tmp/pcp_pastebin_listing.log
 
-	$(wget -O $LISTING_LOG --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
+	$($WGET -O $LISTING_LOG --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
 
 	cat $LISTING_LOG
 }
