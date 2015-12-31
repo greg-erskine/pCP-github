@@ -758,6 +758,13 @@ pcp_tweaks_audio_tweaks() {
 		Custom) ALSAcustom="checked" ;;
 	esac
 
+	# Function to check the ALSA-EQ-radio button according to config file
+	case "$ALSAeq" in
+		no) ALSAeqno="checked" ;;
+		yes) ALSAeqyes="checked" ;;
+	esac
+
+
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -842,6 +849,47 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
+
+	#-------------------------------------ALSA Equalizer-----------------------------------
+
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>ALSA 10 band Equalizer</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
+	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Use 10 band ALSA equalizer&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Note: </b>Toggle ALSA Equalizer on off.</p>'
+	echo '                    <p><b>Step to adjust Equalizer settings:</b></p>'
+	echo '                    <ol>'
+	echo '                      <li>Login via ssh.</li>'
+	echo '                      <li>Use "sudo alsamixer -D equal" and adjust the settings, press escape.</li>'
+	echo '                      <li>Backup ALSA settings by typing "sudo filetool.sh -b" or use "Backup button" on the Main page.</li>'
+	echo '                    <ol>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="odd">'
+		echo '  <td  colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $ALSAeq: '$ALSAeq'<br />'
+		echo '                     [ DEBUG ] $ALSAeqno: '$ALSAeqno'<br />'
+		echo '                     [ DEBUG ] $ALSAeqyes: '$ALSAeqyes'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
 
 	#-------------------------------------FIQ-Split acceleration-----------------------------
 	pcp_incr_id

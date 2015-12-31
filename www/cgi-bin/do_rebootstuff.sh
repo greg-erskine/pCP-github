@@ -345,6 +345,10 @@ echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 /usr/local/etc/init.d/dropbear start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
+echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
+/usr/local/etc/init.d/dbus start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
+
 # Dropbear fix to allow scp to work
 if [ ! -e /usr/bin/dbclient ]; then
 	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
@@ -352,6 +356,10 @@ if [ ! -e /usr/bin/dbclient ]; then
 	ln -s /usr/local/bin/scp /usr/bin/scp
 	echo "${GREEN}Done.${NORMAL}"
 fi
+
+echo -n "${BLUE}Starting avahi daemon... ${NORMAL}"
+/usr/local/etc/init.d/avahi start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1

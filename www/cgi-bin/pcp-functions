@@ -228,6 +228,7 @@ pcp_variables() {
 	DEVICE=/dev/mmcblk0p1
 	UPD_PCP=/tmp/upd_picoreplayer
 	PCPHOME=/home/tc/www/cgi-bin
+	ONBOOT=/mnt/mmcblk0p2/tce/onboot.lst
 	
 	. $PCPHOME/pcp-rpi-functions
 
@@ -804,6 +805,20 @@ pcp_show_bootsync_sh() {
 	echo '</textarea>'
 }
 
+pcp_show_asound() {
+	echo '<h1>[ INFO ] Current asound.conf</h1>'
+	echo '<textarea name="TextBox" rows="15">'
+	cat $ASOUNDCONF
+	echo '</textarea>'
+}
+
+pcp_show_onboot() {
+	echo '<h1>[ INFO ] Current onboot.lst</h1>'
+	echo '<textarea name="TextBox" rows="15">'
+	cat $ONBOOT
+	echo '</textarea>'
+}
+
 #=========================================================================================
 # Busybox httpd
 #-----------------------------------------------------------------------------------------
@@ -1207,6 +1222,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
 	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
 	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $CONFIGCFG
 	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $CONFIGCFG
@@ -1273,6 +1289,7 @@ OVERCLOCK="NONE"
 CMD="Default"
 FIQ="0x7"
 ALSAlevelout="Default"
+ALSAeq="no"
 REBOOT="Disabled"
 RB_H="0"
 RB_WD="*"
