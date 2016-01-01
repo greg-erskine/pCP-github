@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.19 2016-01-01 SBP
+#	Added ALSA Equalizer.
+
 # Version: 0.18 2015-11-23 GE
 #	Fixed auto favorites for decode $HTPPD change and LMS 7.9
 #	Fixed Autostart LMS and User commands.
@@ -245,7 +248,7 @@ pcp_tweaks_vumeter() {
 
 	if [ $DEBUG = 1 ]; then
 		#========================================================================================
-		# Display debug inofrmation 
+		# Display debug information
 		#----------------------------------------------------------------------------------------
 		pcp_start_row_shade
 		pcp_toggle_row_shade
@@ -282,7 +285,6 @@ pcp_tweaks_vumeter() {
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && [ $JIVELITE == YES ] && pcp_tweaks_vumeter
-
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen rotate------------------------------------
@@ -623,7 +625,7 @@ pcp_tweaks_auto_start() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="even">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
 		echo '                     [ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
@@ -697,7 +699,7 @@ pcp_tweaks_auto_start() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="even">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
 		echo '                     [ DEBUG ] $A_S_LMS_Y: '$A_S_LMS_Y'<br />'
@@ -760,10 +762,9 @@ pcp_tweaks_audio_tweaks() {
 
 	# Function to check the ALSA-EQ-radio button according to config file
 	case "$ALSAeq" in
-		no) ALSAeqno="checked" ;;
 		yes) ALSAeqyes="checked" ;;
+		no) ALSAeqno="checked" ;;
 	esac
-
 
 	pcp_incr_id
 	echo '<table class="bggrey">'
@@ -799,7 +800,7 @@ pcp_tweaks_audio_tweaks() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="even">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
 		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
@@ -840,7 +841,7 @@ pcp_tweaks_audio_tweaks() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="odd">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $ALSAlevelout: '$ALSAlevelout'<br />'
 		echo '                     [ DEBUG ] $ALSAdefault: '$ALSAdefault'<br />'
@@ -850,8 +851,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- End of debug info -->'
 	fi
 
-	#-------------------------------------ALSA Equalizer-----------------------------------
-
+	#-------------------------------------ALSA Equalizer-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -859,8 +859,8 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>ALSA 10 band Equalizer</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Use 10 band ALSA equalizer&nbsp;&nbsp;'
@@ -880,8 +880,8 @@ pcp_tweaks_audio_tweaks() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="odd">'
-		echo '  <td  colspan="3">'
+		echo '<tr class="'$ROWSHADE'">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $ALSAeq: '$ALSAeq'<br />'
 		echo '                     [ DEBUG ] $ALSAeqno: '$ALSAeqno'<br />'
 		echo '                     [ DEBUG ] $ALSAeqyes: '$ALSAeqyes'</p>'
@@ -889,7 +889,6 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
 
 	#-------------------------------------FIQ-Split acceleration-----------------------------
 	pcp_incr_id
@@ -929,7 +928,7 @@ pcp_tweaks_audio_tweaks() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="even">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $FIQ: '$FIQ'<br />'
 		echo '                     [ DEBUG ] $selected1: '$selected1'<br />'
@@ -1092,7 +1091,7 @@ pcp_tweaks_cron() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="odd">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 		echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y'<br />'
@@ -1123,7 +1122,7 @@ pcp_tweaks_cron() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_cron
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------User Commands---------------------------------
+#----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
 	# Decode variables using httpd, no quotes
 	USER_COMMAND_1=$(sudo $HTPPD -d $USER_COMMAND_1)
@@ -1190,7 +1189,7 @@ pcp_tweaks_user_commands() {
 
 	if [ $DEBUG = 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="odd">'
+		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
 		echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'

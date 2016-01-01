@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.24 2016-01-01 SBP
+#	Added dbus and avahi startup routines.
+
 # Version: 0.23 2015-10-27 SBP
 #	Added touchscreeen controls for Jivelite.
 
@@ -108,7 +111,7 @@ echo "${GREEN}Done.${NORMAL}"
 # in the future this check is not needed
 
 # Check for pCP installed via pCP.tcz and pCP.tcz not present any more
-if [ PCP_SOURCE = tcz ]; then 
+if [ PCP_SOURCE = tcz ]; then
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/pCP.tcz ]; then
 			echo "${YELLOW} Removing all traces of piCorePlayer... ${NORMAL}"
 			sudo sed -i "/do_rebootstuff.sh/d" /opt/bootlocal.sh
@@ -345,10 +348,6 @@ echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 /usr/local/etc/init.d/dropbear start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
-/usr/local/etc/init.d/dbus start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
-
 # Dropbear fix to allow scp to work
 if [ ! -e /usr/bin/dbclient ]; then
 	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
@@ -356,6 +355,10 @@ if [ ! -e /usr/bin/dbclient ]; then
 	ln -s /usr/local/bin/scp /usr/bin/scp
 	echo "${GREEN}Done.${NORMAL}"
 fi
+
+echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
+/usr/local/etc/init.d/dbus start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Starting avahi daemon... ${NORMAL}"
 /usr/local/etc/init.d/avahi start >/dev/null 2>&1
@@ -410,7 +413,6 @@ ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
 
-
 if [ $JIVELITE = "YES" ]; then
      echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
      eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
@@ -420,7 +422,7 @@ if [ $JIVELITE = "YES" ]; then
         export SDL_MOUSEDRV=TSLIB
         export SDL_MOUSEDEV=$TSLIB_TSDEVICE
     fi
-                                     
+
     export HOME=/home/tc
     echo "${GREEN}Done.${NORMAL}"
     sudo -E -b /opt/jivelite/bin/jivelite.sh

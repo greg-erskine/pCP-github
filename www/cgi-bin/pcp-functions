@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.24 2016-01-01 SBP
+#	Added ALSAeq.
+
 # Version: 0.23 2015-12-05 GE
 #	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
 #	Added pcp_httpd_query_string_no_decode.
@@ -224,12 +227,12 @@ pcp_variables() {
 	HTTPDCONF=/home/tc/httpd.conf
 	ASOUNDCONF=/etc/asound.conf
 	WIFIDB=/home/tc/wifi.db
+	ONBOOTLST=/mnt/mmcblk0p2/tce/onboot.lst
 	VOLUME=/mnt/mmcblk0p1
 	DEVICE=/dev/mmcblk0p1
 	UPD_PCP=/tmp/upd_picoreplayer
 	PCPHOME=/home/tc/www/cgi-bin
-	ONBOOT=/mnt/mmcblk0p2/tce/onboot.lst
-	
+
 	. $PCPHOME/pcp-rpi-functions
 
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
@@ -802,20 +805,6 @@ pcp_show_bootsync_sh() {
 	echo '<h1>[ INFO ] Current bootsync.sh</h1>'
 	echo '<textarea name="TextBox" rows="8">'
 	cat $BOOTSYNC
-	echo '</textarea>'
-}
-
-pcp_show_asound() {
-	echo '<h1>[ INFO ] Current asound.conf</h1>'
-	echo '<textarea name="TextBox" rows="15">'
-	cat $ASOUNDCONF
-	echo '</textarea>'
-}
-
-pcp_show_onboot() {
-	echo '<h1>[ INFO ] Current onboot.lst</h1>'
-	echo '<textarea name="TextBox" rows="15">'
-	cat $ONBOOT
 	echo '</textarea>'
 }
 

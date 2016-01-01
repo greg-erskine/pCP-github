@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2016-01-01 SBP
+#	Added ALSA Equalizer.
+
 # Version: 0.05 2015-09-19 SBP
 #	Removed httpd decoding.
 
@@ -15,7 +18,7 @@
 #	HTML5 formatting.
 
 # Version: 0.01 2014-08-06 SBP
-#   Original version.
+#	Original version.
 
 . pcp-functions
 pcp_variables
@@ -35,38 +38,37 @@ echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 #========================================================================================
 # ALSA Equalizer section
 #----------------------------------------------------------------------------------------
-echo '<p class="info">[ INFO ] ALSA equalizer is set to: '$ALSAeq'</p>'
 case "$ALSAeq" in 
-	"no")
+	yes)
+		echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
+		OUTPUT="equal"
+		if grep -Fxq "alsaequal.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
+			[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSA equalizer modules already loaded.</p>'
+		else
+			sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+			sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		fi
+		if [ $AUDIO = "Analog" ] || [ $AUDIO = "HDMI" ]; then
+			sed -i 's/plughw:1,0/plughw:0,0/g' /etc/asound.conf
+		fi
+		if [ $AUDIO = "USB" ] || [ $AUDIO = "I2S" ]; then
+			sed -i 's/plughw:0,0/plughw:1,0/g' /etc/asound.conf
+		fi
+		;;
+	no)
 		echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
 		OUTPUT=""
 		sudo sed -i '/alsaequal.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 		sudo sed -i '/caps/d' /mnt/mmcblk0p2/tce/onboot.lst
 		;;
-	"yes")
-		echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
-		OUTPUT="equal"
-		if grep -Fxq "alsaequal.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Alsa equalizer modules already loaded.</p>'
-		else
-		sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
-		sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
-			if AUDIO="Analog" || AUDIO="HDMI"; then
-			sed -i 's/plughw:1,0/plughw:0,0/g' /etc/asound.conf
-			fi
-			if AUDIO="USB" || AUDIO="I2S"; then
-			sed -i 's/plughw:0,0/plughw:1,0/g' /etc/asound.conf
- 			fi
-		fi
-		;;
 	*)
 		echo '<p class="error">[ ERROR ] ALSA equalizer invalid: '$ALSAeq'</p>'
 		;;
 esac
-		
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] AUDIO='$AUDIO'.</p>'
-		[ $DEBUG = 1 ] && pcp_show_asound
-		[ $DEBUG = 1 ] && pcp_show_onboot
+
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] AUDIO='$AUDIO'</p>'
+[ $DEBUG = 1 ] && pcp_textarea "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
+[ $DEBUG = 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
 
 #========================================================================================
 # CMD section
