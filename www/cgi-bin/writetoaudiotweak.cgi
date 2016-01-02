@@ -38,6 +38,26 @@ echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 #========================================================================================
 # ALSA Equalizer section
 #----------------------------------------------------------------------------------------
+#determination of the number of the current sound-card:
+
+#if output is analog or HDMI then find the number of the used ALSA-card
+if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
+CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
+fi
+
+#if output is different from analog or HDMI then find the number of the non-ALSA card
+aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
+if [ $? == 0 ]; then
+	if [ $AUDIO != analog ] || [ $AUDIO != HDMI ]; then
+	CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
+	fi
+else
+	if [ $AUDIO != analog ] || [ $AUDIO != HDMI ]; then
+	CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
+	fi
+fi
+
+
 case "$ALSAeq" in 
 	yes)
 		echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
@@ -48,12 +68,7 @@ case "$ALSAeq" in
 			sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 			sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 		fi
-		if [ $AUDIO = "Analog" ] || [ $AUDIO = "HDMI" ]; then
-			sed -i 's/plughw:1,0/plughw:0,0/g' /etc/asound.conf
-		fi
-		if [ $AUDIO = "USB" ] || [ $AUDIO = "I2S" ]; then
-			sed -i 's/plughw:0,0/plughw:1,0/g' /etc/asound.conf
-		fi
+			sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 		;;
 	no)
 		echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
@@ -99,7 +114,7 @@ if mount | grep $VOLUME; then
 	# Add FIQ settings from config file
 	sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' /mnt/mmcblk0p1/cmdline.txt
 
-	[ $DEBUG = 1 ] && pcp_show_cmdline_txt
+	[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 	pcp_umount_mmcblk0p1
 else
 	echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
@@ -108,7 +123,7 @@ fi
 #----------------------------------------------------------------------------------------
 pcp_save_to_config
 pcp_backup
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+	[ $DEBUG = 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 pcp_go_back_button
 pcp_reboot_required
 
