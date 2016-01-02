@@ -48,11 +48,11 @@ fi
 #if output is different from analog or HDMI then find the number of the non-ALSA card
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? == 0 ]; then
-	if [ $AUDIO != analog ] || [ $AUDIO != HDMI ]; then
+	if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
 	CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
 	fi
 else
-	if [ $AUDIO != analog ] || [ $AUDIO != HDMI ]; then
+	if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
 	CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
 	fi
 fi
@@ -81,6 +81,7 @@ case "$ALSAeq" in
 		;;
 esac
 
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Card has number:'$CARDNO'.</p>'
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] AUDIO='$AUDIO'</p>'
 [ $DEBUG = 1 ] && pcp_textarea "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
 [ $DEBUG = 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
