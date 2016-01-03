@@ -243,7 +243,7 @@ pcp_variables() {
 	fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -1231,6 +1231,7 @@ pcp_save_to_config() {
 	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $CONFIGCFG
 	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
+	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1297,6 +1298,7 @@ USER_COMMAND_2=""
 USER_COMMAND_3=""
 JIVELITE="NO"
 SCREENROTATE="NO"
+SHAIRPORT="no"
 EOF
 
 	# Remove timezone stuff

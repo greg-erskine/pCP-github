@@ -103,6 +103,30 @@ case "$CMD" in
 		;;
 esac
 
+
+#========================================================================================
+# SHAIRPORT section
+#----------------------------------------------------------------------------------------
+echo '<p class="info">[ INFO ] Shairport is enabled? '$SHAIRPORT'</p>'
+
+
+case "$SHAIRPORT" in 
+	yes)
+		echo '<p class="info">[ INFO ] Shairport is used: '$SHAIRPORT'</p>'
+		CLOSEOUT="15"
+		;;
+	no)
+		echo '<p class="info">[ INFO ] Shairport is used: '$SHAIRPORT'</p>'
+		CLOSEOUT=""
+		;;
+	*)
+		echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'
+		;;
+esac
+
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Shairport variable is:'$SHAIRPORT'.</p>'
+
+
 #========================================================================================
 # FIQ spilt section
 #----------------------------------------------------------------------------------------

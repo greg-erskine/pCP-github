@@ -356,13 +356,19 @@ if [ ! -e /usr/bin/dbclient ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
-/usr/local/etc/init.d/dbus start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
+if [ $SHAIRPORT = yes ]; then
+	echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
+	/usr/local/etc/init.d/dbus start >/dev/null 2>&1
+	echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}Starting avahi daemon... ${NORMAL}"
-/usr/local/etc/init.d/avahi start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
+	echo -n "${BLUE}Starting avahi daemon... ${NORMAL}"
+	/usr/local/etc/init.d/avahi start >/dev/null 2>&1
+	echo "${GREEN}Done.${NORMAL}"
+
+	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
+	/usr/local/etc/init.d/shairport_sync start >/dev/null 2>&1
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1

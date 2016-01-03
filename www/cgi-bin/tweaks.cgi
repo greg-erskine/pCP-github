@@ -738,6 +738,13 @@ pcp_tweaks_auto_start() {
 # Determine state of check boxes.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
+	# Function to check the SHAIRPORT-radio button according to config file
+	case "$SHAIRPORT" in
+		yes) SHAIRPORTyes="checked" ;;
+		no) SHAIRPORTno="checked" ;;
+	esac
+
+
 	# Function to check the CMD-radio button according to config file
 	case "$CMD" in
 		Default) CMDdefault="checked" ;;
@@ -776,8 +783,45 @@ pcp_tweaks_audio_tweaks() {
 	echo '            <legend>Audio tweaks</legend>'
 	echo '            <table class="bggrey percent100">'
 
-	#-------------------------------------------dwc_otg.speed--------------------------------
+	#-------------------------------------------SHAIRPORT--------------------------------
 	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Shairport</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="yes" '$SHAIRPORTyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="no" '$SHAIRPORTno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Use Shairport-sync to play from ITunes"&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
+	echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="'$ROWSHADE'">'
+		echo '  <td  colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
+		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
+		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
+
+
+	#-------------------------------------------dwc_otg.speed--------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>OTG-Speed</p>'
