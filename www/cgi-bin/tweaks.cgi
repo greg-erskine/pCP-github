@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.19 2016-01-01 SBP
+# Version: 0.19 2016-01-04 SBP
 #	Added ALSA Equalizer.
+#	Added Shairport-sync.
 
 # Version: 0.18 2015-11-23 GE
 #	Fixed auto favorites for decode $HTPPD change and LMS 7.9
@@ -738,14 +739,13 @@ pcp_tweaks_auto_start() {
 # Determine state of check boxes.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
-	# Function to check the SHAIRPORT-radio button according to config file
+	# Function to check the SHAIRPORT radio button according to config file
 	case "$SHAIRPORT" in
 		yes) SHAIRPORTyes="checked" ;;
 		no) SHAIRPORTno="checked" ;;
 	esac
 
-
-	# Function to check the CMD-radio button according to config file
+	# Function to check the CMD radio button according to config file
 	case "$CMD" in
 		Default) CMDdefault="checked" ;;
 		Slow) CMDslow="checked" ;;
@@ -761,13 +761,13 @@ pcp_tweaks_audio_tweaks() {
 		0x8) selected6="selected" ;;
 	esac
 
-	# Function to check the ALSA-radio button according to config file
+	# Function to check the ALSA radio button according to config file
 	case "$ALSAlevelout" in
 		Default) ALSAdefault="checked" ;;
 		Custom) ALSAcustom="checked" ;;
 	esac
 
-	# Function to check the ALSA-EQ-radio button according to config file
+	# Function to check the ALSA-EQ radio button according to config file
 	case "$ALSAeq" in
 		yes) ALSAeqyes="checked" ;;
 		no) ALSAeqno="checked" ;;
@@ -783,7 +783,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '            <legend>Audio tweaks</legend>'
 	echo '            <table class="bggrey percent100">'
 
-	#-------------------------------------------SHAIRPORT--------------------------------
+	#-------------------------------------------Shairport--------------------------------
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -794,13 +794,11 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="no" '$SHAIRPORTno'>No'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Use Shairport-sync to play from ITunes"&nbsp;&nbsp;'
+	echo '                  <p>Use Shairport-sync to stream from iDevices&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
-	echo '                    <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
-	echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
+	echo '                    <p>Stream audio from your iDevice.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -809,15 +807,13 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
-		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
-		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+		echo '    <p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
+		echo '                     [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
+		echo '                     [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
-
 
 	#-------------------------------------------dwc_otg.speed--------------------------------
 	pcp_incr_id

@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.24 2016-01-01 SBP
-#	Added ALSAeq.
+# Version: 0.24 2016-01-04 SBP
+#	Added ALSA Equalizer.
+#	Added Shairport-sync.
 
 # Version: 0.23 2015-12-05 GE
 #	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
@@ -252,7 +253,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users

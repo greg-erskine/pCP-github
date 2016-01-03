@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 0.24 2016-01-01 SBP
-#	Added dbus and avahi startup routines.
+# Version: 0.24 2016-01-04 SBP
+#	Added dbus, avahi and shairport startup routines.
 
 # Version: 0.23 2015-10-27 SBP
 #	Added touchscreeen controls for Jivelite.
