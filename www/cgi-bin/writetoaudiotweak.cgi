@@ -45,7 +45,7 @@ pcp_httpd_query_string
 
 
 SHAIRP="shairport-sync"
-AVAHI="avahi.tar.gz"
+AVAHI="avahi.tzc and needed packages"
  
 #========================================================================================================
 # Routines
@@ -53,30 +53,70 @@ AVAHI="avahi.tar.gz"
 pcp_download_shairport() {
 	cd /tmp
 	sudo rm -f /tmp/${SHAIRP}
-	sudo rm -f /tmp/${AVAHI}
-	echo '<p class="info">[ INFO ] Downloading Shairport and Avahi from Ralphy'\''s repository...</p>'
+	echo '<p class="info">[ INFO ] Downloading Shairport from Ralphy'\''s repository...</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
 	/bin/busybox wget -s ${REPOSITORY}${SHAIRP}
-#	/bin/busybox wget -s ${REPOSITORY}${AVAHI}
 	if [ $? = 0 ]; then
 		echo '<p class="info">[ INFO ] Downloading '$SHAIRP' and '$AVAHI'...'
 		wget -P /tmp ${REPOSITORY}${SHAIRP}
-#		wget -P /tmp ${REPOSITORY}${AVAHI}
 		if [ $? = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			sudo pkill shairport-sync
 			sudo cp /tmp/$SHAIRP /mnt/mmcblk0p2/tce/shairport-sync            
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/shairport-sync
 			sudo chmod 755 /mnt/mmcblk0p2/tce/shairport-sync
-#			sudo tar -xzf /tmp/$AVAHI -C /mnt/mmcblk0p2/tce/optional
 			else
-			echo '<p class="error">[ ERROR ] Download unsuccessful, try again!</p>'
+			echo '<p class="error">[ ERROR ] Shairport download unsuccessful, try again!</p>'
 		fi
 	else
-		echo '<p class="error">[ ERROR ] '$TCZ' not available in repository, try again later!</p>'
+		echo '<p class="error">[ ERROR ] Shairport not available in repository, try again later!</p>'
+	fi
+
+	sudo rm -f /tmp/avahi/
+	echo '<p class="info">[ INFO ] Downloading Avahi from Ralphy'\''s repository...</p>'
+	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
+
+	/bin/busybox wget -s ${REPOSITORY}avahi.tcz
+	if [ $? = 0 ]; then
+		echo '<p class="info">[ INFO ] Downloading Avahi...'
+		wget -P /tmp/avahi ${REPOSITORY}avahi.tcz
+		wget -P /tmp/avahi ${REPOSITORY}avahi.tcz.dep
+		wget -P /tmp/avahi ${REPOSITORY}avahi.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}dbus.tcz
+		wget -P /tmp/avahi ${REPOSITORY}dbus.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}expat2.tcz
+		wget -P /tmp/avahi ${REPOSITORY}expat2.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}libattr.tcz
+		wget -P /tmp/avahi ${REPOSITORY}libattr.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}libavahi.tcz
+		wget -P /tmp/avahi ${REPOSITORY}libavahi.tcz.dep
+		wget -P /tmp/avahi ${REPOSITORY}libavahi.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}libcap.tcz
+		wget -P /tmp/avahi ${REPOSITORY}libcap.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}libcofi.tcz
+		wget -P /tmp/avahi ${REPOSITORY}libcofi.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}libdaemon.tcz
+		wget -P /tmp/avahi ${REPOSITORY}libdaemon.tcz.md5.txt
+		wget -P /tmp/avahi ${REPOSITORY}nss-mdns.tcz
+		wget -P /tmp/avahi ${REPOSITORY}nss-mdns.tcz.md5.txt
+		if [ $? = 0 ]; then
+			echo '<p class="ok">[ OK ] Download successful.</p>'
+			sudo pkill shairport-sync
+			sudo chown -R tc:staff /tmp/avahi/*
+			sudo chmod -R 755 /tmp/avahi/*
+			sudo cp -r /tmp/avahi/* /mnt/mmcblk0p2/tce/optional            
+			else
+			echo '<p class="error">[ ERROR ] Avahi download unsuccessful, try again!</p>'
+		fi
+	else
+		echo '<p class="error">[ ERROR ] Avahi not available in repository, try again later!</p>'
 	fi
 }
+
+
+
+
 
 #========================================================================================
 # ALSA output level section
