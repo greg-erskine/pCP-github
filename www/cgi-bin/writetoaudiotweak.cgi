@@ -54,7 +54,7 @@ pcp_download_shairport() {
 	$WGET -s ${REPOSITORY}${SHAIRP}
 	if [ $? = 0 ]; then
 		echo '<p class="info">[ INFO ] Downloading '$SHAIRP' and '$AVAHI'...'
-###		$WGET -P /tmp ${REPOSITORY}${SHAIRP}
+		$WGET -P /tmp ${REPOSITORY}${SHAIRP}
 		if [ $? = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			sudo pkill shairport-sync
@@ -76,47 +76,47 @@ pcp_download_shairport() {
 	$WGET -s ${REPOSITORY}avahi.tcz
 	if [ $? = 0 ]; then
 		RESULT=0
-		echo '<p class="info">[ INFO ] Downloading Avahi'
+		echo -n '<p class="info">[ INFO ] Downloading Avahi'
 		$WGET -P /tmp/avahi ${REPOSITORY}avahi.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}avahi.tcz.dep
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}avahi.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}dbus.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}dbus.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}expat2.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}expat2.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libattr.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libattr.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libavahi.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libavahi.tcz.dep
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libavahi.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libcap.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libcap.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libcofi.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libcofi.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libdaemon.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}libdaemon.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}nss-mdns.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET -P /tmp/avahi ${REPOSITORY}nss-mdns.tcz.md5.txt
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			sudo pkill shairport-sync
@@ -134,47 +134,49 @@ pcp_download_shairport() {
 #========================================================================================
 # ALSA output level section
 #----------------------------------------------------------------------------------------
-echo '<hr>'
-echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSAlevelout is: '$ALSAlevelout'</p>'
-
 # Only do something if variable is changed
-if [ $ORIG_ALSAlevelout = $ALSAlevelout ]; then
+if [ $ORIG_ALSAlevelout != $ALSAlevelout ]; then
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSAlevelout is: '$ALSAlevelout'</p>'
+	echo '<hr>'
+else
 	echo '<p class="info">[ INFO ] ALSAlevelout variable unchanged.</p>'
 fi
 
 #========================================================================================
 # ALSA Equalizer section
 #----------------------------------------------------------------------------------------
-echo '<hr>'
-echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
-# Determination of the number of the current sound-card
-
-# If output is analog or HDMI then find the number of the used ALSA-card
-if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
-	CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
-fi
-
-# If output is different from analog or HDMI then find the number of the non-ALSA card
-aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-if [ $? == 0 ]; then
-	if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-		CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
-	fi
-else
-	if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
-	fi
-fi
-
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Card has number: '$CARDNO'.</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] AUDIO is: '$AUDIO'</p>'
-
 # Only do something if variable is changed
 if [ $ORIG_ALSAeq != $ALSAeq ]; then
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
+
+	# Determination of the number of the current sound-card
+
+	# If output is analog or HDMI then find the number of the used ALSA-card
+	if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
+		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
+	fi
+
+	# If output is different from analog or HDMI then find the number of the non-ALSA card
+	aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
+	if [ $? == 0 ]; then
+		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+			CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
+		fi
+	else
+		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+			CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
+		fi
+	fi
+
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Card has number: '$CARDNO'.</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] AUDIO is: '$AUDIO'</p>'
+
 	case "$ALSAeq" in
 		yes)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
@@ -185,7 +187,7 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 				sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 				sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 			fi
-				sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
+			sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 			;;
 		no)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
@@ -197,6 +199,7 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 			echo '<p class="error">[ ERROR ] ALSA equalizer invalid: '$ALSAeq'</p>'
 			;;
 	esac
+	echo '<hr>'
 else
 	echo '<p class="info">[ INFO ] ALSAeq variable unchanged.</p>'
 fi
@@ -204,13 +207,13 @@ fi
 #========================================================================================
 # CMD section
 #----------------------------------------------------------------------------------------
-echo '<hr>'
-echo '<p class="info">[ INFO ] CMD is set to: '$CMD'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_CMD is: '$ORIG_CMD'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] CMD is: '$CMD'</p>'
-
 # Only do something if variable is changed
 if [ $ORIG_CMD != $CMD ]; then
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] CMD is set to: '$CMD'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_CMD is: '$ORIG_CMD'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] CMD is: '$CMD'</p>'
+
 	case "$CMD" in
 		"Default")
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
@@ -247,6 +250,7 @@ if [ $ORIG_CMD != $CMD ]; then
 			echo '<p class="error">[ ERROR ] CMD invalid: '$CMD'</p>'
 			;;
 	esac
+	echo '<hr>'
 else
 	echo '<p class="info">[ INFO ] CMD variable unchanged.</p>'
 fi
@@ -254,13 +258,13 @@ fi
 #========================================================================================
 # SHAIRPORT section
 #----------------------------------------------------------------------------------------
-echo '<hr>'
-echo '<p class="info">[ INFO ] SHAIRPORT is set to: '$SHAIRPORT'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SHAIRPORT is: '$ORIG_SHAIRPORT'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] SHAIRPORT is: '$SHAIRPORT'</p>'
-
 # Only do something if variable is changed
 if [ $ORIG_SHAIRPORT != $SHAIRPORT ]; then
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] SHAIRPORT is set to: '$SHAIRPORT'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SHAIRPORT is: '$ORIG_SHAIRPORT'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] SHAIRPORT is: '$SHAIRPORT'</p>'
+
 	case "$SHAIRPORT" in
 		yes)
 			echo '<p class="info">[ INFO ] Shairport will be enabled.</p>'
@@ -281,6 +285,7 @@ if [ $ORIG_SHAIRPORT != $SHAIRPORT ]; then
 			echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'
 			;;
 	esac
+	echo '<hr>'
 else
 	echo '<p class="info">[ INFO ] SHAIRPORT variable unchanged.</p>'
 fi
@@ -288,13 +293,13 @@ fi
 #========================================================================================
 # FIQ spilt section
 #----------------------------------------------------------------------------------------
-echo '<hr>'
-echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FIG is: '$ORIG_FIQ'</p>'
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] FIQ is: '$FIQ'</p>'
-
 # Only do something if variable is changed
 if [ $ORIG_FIQ != $FIQ ]; then
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FIG is: '$ORIG_FIQ'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] FIQ is: '$FIQ'</p>'
+
 	pcp_mount_mmcblk0p1
 
 	if mount | grep $VOLUME; then
@@ -308,6 +313,7 @@ if [ $ORIG_FIQ != $FIQ ]; then
 	else
 		echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 	fi
+	echo '<hr>'
 else
 	echo '<p class="info">[ INFO ] FIQ variable unchanged.</p>'
 fi
@@ -316,11 +322,11 @@ fi
 echo '<hr>'
 pcp_save_to_config
 pcp_backup
-	[ $DEBUG = 1 ] && pcp_textarea "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
-	[ $DEBUG = 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
-	[ $DEBUG = 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
-pcp_go_back_button
+[ $DEBUG = 1 ] && pcp_textarea "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
+[ $DEBUG = 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
+[ $DEBUG = 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 pcp_reboot_required
+pcp_go_back_button
 
 echo '</body>'
 echo '</html>'
