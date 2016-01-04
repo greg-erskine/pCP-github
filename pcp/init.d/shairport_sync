@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# Version: 0.02 2016-01-03 SBP
+#	Added reuse of variable from config.cfg.
+
+# Version: 0.01 2014-06-27 GE
+#	Original.
+
+PNAME=Shairport-sync
+DESC="Shairport-sync player"
+DAEMON=/mnt/mmcblk0p2/tce/shairport-sync
+PIDFILE=/var/run/shairport-sync.pid
+
+# Read from config file
+. /usr/local/sbin/config.cfg
+
+# Check if variable is present then add the correct option in front
+[ x"" != x"$NAME" ]        && NAME="$NAME"							# <--- Moved "-n" to allow for spaces
+[ x"" != x"$OUTPUT" ]      && OUTPUT="$OUTPUT"
+
+
+case "$1" in
+	start)
+		if [ -f $PIDFILE ]; then
+			echo "$PNAME already running."
+			exit 1
+		fi
+		echo "Starting $DESC: $PNAME..."
+		start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- -a "$NAME" -o alsa -S soxr -d -D -R -- -d "$OUTPUT"
+		;;
+	stop)
+		if [ ! -f $PIDFILE ]; then
+			echo "$PNAME is not running."
+			exit 1
+		fi
+		echo "Stopping $DESC: $PNAME..."
+		start-stop-daemon --stop --quiet -p $PIDFILE
+		sudo rm -f $PIDFILE
+		;;
+	restart)
+		echo "Restarting $DESC..."
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	force)
+		# Force should only be used for testing purposes.
+		echo "Forcing a restart of $PNAME..."
+		if [ -f $PIDFILE ]; then
+			sudo kill `cat $PIDFILE`
+			sudo rm -f $PIDFILE
+		fi
+		sudo ps | grep shairport-sync | grep -v grep | awk '{print $1}' | xargs kill -9
+		sleep 1
+		$0 start
+		;;
+	status)
+		# Now checking for shairport daemon is running?
+		pidof shairport-sync && echo "$PNAME is running." && exit 0 || echo "$PNAME not running." && exit 1
+		;;
+	*)
+		echo
+		echo -e "Usage: $0 [start|stop|restart|force|status]"
+		echo
+		exit 1
+		;;
+esac
+
+exit 0
