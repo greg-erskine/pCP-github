@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.06 2016-01-04 SBP
+# Version: 0.06 2016-01-05 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
 
@@ -40,6 +40,9 @@ pcp_httpd_query_string
 SHAIRP="shairport-sync"
 AVAHI="avahi.tzc and needed packages"
 WGET="/bin/busybox wget"
+
+# Only offer reboot option if needed
+REBOOT=0
 
 #========================================================================================================
 # Routines
@@ -132,32 +135,29 @@ pcp_download_shairport() {
 }
 
 pcp_remove_shairport() {
-		sudo pkill shairport-sync
-		sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz.dep
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz.dep
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz.md5.txt
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz
-		sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz.md5.txt
+	sudo pkill shairport-sync
+	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz.dep
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz.dep
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz.md5.txt
 }
-
-# Only offer reboot option if needed
-REBOOT=0
 
 #========================================================================================
 # ALSA output level section
