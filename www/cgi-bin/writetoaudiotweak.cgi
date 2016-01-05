@@ -122,10 +122,9 @@ pcp_download_shairport() {
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
-			sudo pkill shairport-sync
 			sudo chown -R tc:staff /tmp/avahi/*
-			sudo chmod -R 755 /tmp/avahi/*
-			sudo cp -r /tmp/avahi/* /mnt/mmcblk0p2/tce/optional
+			sudo chmod -R 644 /tmp/avahi/*
+			sudo cp -rp /tmp/avahi/* /mnt/mmcblk0p2/tce/optional
 		else
 			echo '<p class="error">[ ERROR ] Avahi download unsuccessful, try again!</p>'
 		fi
@@ -137,26 +136,15 @@ pcp_download_shairport() {
 pcp_remove_shairport() {
 	sudo pkill shairport-sync
 	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz.dep
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz.dep
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz.md5.txt
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz*
 }
 
 #========================================================================================
