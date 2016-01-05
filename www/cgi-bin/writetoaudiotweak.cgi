@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.06 2016-01-05 SBP
+# Version: 0.06 2016-01-06 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
 
@@ -60,7 +60,8 @@ pcp_download_shairport() {
 		$WGET -P /tmp ${REPOSITORY}${SHAIRP}
 		if [ $? = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
-			sudo pkill shairport-sync
+			/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
+#			sudo pkill shairport-sync
 			sudo cp /tmp/$SHAIRP /mnt/mmcblk0p2/tce/shairport-sync
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/shairport-sync
 			sudo chmod 755 /mnt/mmcblk0p2/tce/shairport-sync
@@ -134,7 +135,8 @@ pcp_download_shairport() {
 }
 
 pcp_remove_shairport() {
-	sudo pkill shairport-sync
+	/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
+#	sudo pkill shairport-sync
 	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz*
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz*

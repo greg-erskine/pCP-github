@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.24 2016-01-04 SBP
+# Version: 0.24 2016-01-06 SBP
 #	Added dbus, avahi and shairport-sync startup routines.
 
 # Version: 0.23 2015-10-27 SBP
