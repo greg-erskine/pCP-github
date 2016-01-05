@@ -6,10 +6,12 @@
 # Version: 0.01 2014-06-27 GE
 #	Original.
 
-PNAME=Shairport-sync
+PNAME=shairport-sync
 DESC="Shairport-sync player"
 DAEMON=/mnt/mmcblk0p2/tce/shairport-sync
 PIDFILE=/var/run/shairport-sync.pid
+
+echo "PID file er :" "$PIDFILE"
 
 # Read from config file
 . /usr/local/sbin/config.cfg
@@ -26,7 +28,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- -a "$NAME" -o alsa -S soxr -d -D -R -- -d "$OUTPUT"
+		start-stop-daemon --start --quiet -b -b -m -p $PIDFILE --exec $DAEMON -- -a "$NAME" -o alsa -S soxr -d -D -R -- -d "$OUTPUT"
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then
@@ -34,7 +36,8 @@ case "$1" in
 			exit 1
 		fi
 		echo "Stopping $DESC: $PNAME..."
-		start-stop-daemon --stop --quiet -p $PIDFILE
+                sudo pkill shairport-sync
+#		start-stop-daemon --stop --quiet -p $PIDFILE
 		sudo rm -f $PIDFILE
 		;;
 	restart)
@@ -46,11 +49,8 @@ case "$1" in
 	force)
 		# Force should only be used for testing purposes.
 		echo "Forcing a restart of $PNAME..."
-		if [ -f $PIDFILE ]; then
-			sudo kill `cat $PIDFILE`
+                        sudo pkill shairport-sync
 			sudo rm -f $PIDFILE
-		fi
-		sudo ps | grep shairport-sync | grep -v grep | awk '{print $1}' | xargs kill -9
 		sleep 1
 		$0 start
 		;;
@@ -67,3 +67,4 @@ case "$1" in
 esac
 
 exit 0
+
