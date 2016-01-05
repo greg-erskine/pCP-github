@@ -366,7 +366,7 @@ if [ $SHAIRPORT = yes ]; then
 	echo "${GREEN}Done.${NORMAL}"
 
 	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
-	/usr/local/etc/init.d/shairport_sync start >/dev/null 2>&1
+	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
