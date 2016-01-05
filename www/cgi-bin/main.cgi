@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.18 2016-01-06 GE
+#	Added check for version of Ralphy's squeezelite.
+
 # Version: 0.17 2015-12-09 SBP
 #	Removed Update Triode's version of Squeezelite.
 #	Updated download and update Ralphy's version of Squeezelite.
@@ -87,8 +90,6 @@ echo '          <table class="bggrey percent100">'
 
 #------------------------------------------Squeezelite Indication------------------------
 pcp_main_squeezelite_indication() {
-	pcp_start_row_shade
-	pcp_incr_id
 
 	if [ $(pcp_squeezelite_status) = 0 ]; then
 		IMAGE="green.png"
@@ -98,6 +99,8 @@ pcp_main_squeezelite_indication() {
 		STATUS="not running"
 	fi
 
+	pcp_start_row_shade
+	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
 	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
@@ -170,6 +173,14 @@ pcp_main_restart
 
 #------------------------------------------Update Squeezelite - Ralphy-------------------
 pcp_main_update_ralphy() {
+
+	SIZE=$(ls -l /mnt/mmcblk0p2/tce/squeezelite-armv6hf | awk '{ print $5 }')
+	if [ $SIZE -lt 2000000 ]; then
+		VERSIONsmall="selected"
+	else
+		VERSIONlarge="selected"
+	fi
+
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -179,8 +190,8 @@ pcp_main_update_ralphy() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="VERSION">'
-	echo '                    <option value="Small">Ralphy'\''s basic version</option>'
-	echo '                    <option value="Large">Ralphy'\''s ffmpeg version</option>'
+	echo '                    <option value="Small" '$VERSIONsmall'>Ralphy'\''s basic version</option>'
+	echo '                    <option value="Large" '$VERSIONlarge'>Ralphy'\''s ffmpeg version</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
