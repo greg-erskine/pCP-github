@@ -1,12 +1,16 @@
 #!/bin/sh
-. pcp-functions
-pcp_variables
 
-# Version: 0.02 2014-12-09 GE
+# Version: 0.3 2016-01-07 SBP
+#	Added shairport restart.
+
+# Version: 0.2 2014-12-09 GE
 #	HTML5 formatted.
 
-# Version: 0.01 2014-06-24 GE
+# Version: 0.1 2014-06-24 GE
 #	Original.
+
+. pcp-functions
+pcp_variables
 
 pcp_html_head "Restart Squeezelite" "SBP" "5" "main.cgi"
 
@@ -17,9 +21,9 @@ sleep 2
 pcp_squeezelite_start
 
 if [ $SHAIRPORT = yes ]; then
-pcp_shairport_stop
-sleep 2
-pcp_shairport_start
+	pcp_shairport_stop
+	sleep 2
+	pcp_shairport_start
 fi
 
 echo '</body>'

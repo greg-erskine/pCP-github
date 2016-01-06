@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 0.01 2016-01-06 SBP
-#    Original.
+# Version: 0.01 2016-01-07 SBP
+#       Original.
 
 PNAME="Shairport-sync"
 DESC="Shairport-sync player"
@@ -33,8 +33,15 @@ case "$1" in
                 $0 start
                 ;;
         status)
-                # Checking if shairport-sync daemon is running
-                ps -ef | grep $DAEMON | grep -v grep | awk '{ print $0 }'
+                # Check if shairport-sync daemon is running
+                PID=$(ps -ef | grep $DAEMON | grep -v grep | awk '{ print $1 }')
+                if [ $PID -gt "0" ]; then
+                        echo "$PNAME is running."
+                        exit 0
+                else
+                        echo "$PNAME not running."
+                        exit 1
+                fi
                 ;;
         *)
                 echo
