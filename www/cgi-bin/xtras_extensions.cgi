@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-01-06 GE
+#	Deleted pcp_free_space.
+
 # Version: 0.03 2015-11-15 GE
 #	Minor updates.
 
@@ -98,12 +101,6 @@ pcp_delete_extn() {
 #----------------------------------------------------------------------------------------
 pcp_init_search() {
 	search.sh picoreplayer
-}
-
-pcp_free_space() {
-#	set -- `/bin/df -h | grep mmcblk0p2`
-	set -- $(/bin/df -h | grep mmcblk0p2)
-	echo $4
 }
 
 #========================================================================================

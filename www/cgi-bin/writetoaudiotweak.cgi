@@ -48,6 +48,17 @@ REBOOT=0
 # Routines
 #--------------------------------------------------------------------------------------------------------
 pcp_download_shairport() {
+	SPACE=$(pcp_free_space k) 
+	REQUIRED=2000	# Actually 1713.227
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
+	if [ $REQUIRED -lt $SPACE ]; then
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
+	else
+		echo '<p class="error">[ ERROR ] Not enough space.</p>'
+		pcp_go_back_button
+		exit 1
+	fi
+
 	cd /tmp
 	sudo rm -f /tmp/${SHAIRP}
 	echo '<p class="info">[ INFO ] Downloading Shairport from Ralphy'\''s repository...</p>'
@@ -132,6 +143,8 @@ pcp_download_shairport() {
 	else
 		echo '<p class="error">[ ERROR ] Avahi not available in repository, try again later!</p>'
 	fi
+	SPACE=$(pcp_free_space k)
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k</p>'
 }
 
 pcp_remove_shairport() {

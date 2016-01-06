@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.24 2016-01-04 SBP
+# Version: 0.24 2016-01-06 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
+#	Added pcp_free_space.
 
 # Version: 0.23 2015-12-05 GE
 #	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
@@ -286,6 +287,21 @@ MAGENTA="$(echo -e '\033[1;35m')"
 CYAN="$(echo -e '\033[1;36m')"
 WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
+
+#=========================================================================================
+# Free space on /mnt/mmcblk0p2
+#  - k = kilobytes free
+#  - m = megabytes free
+#  - p = percentage free
+#-----------------------------------------------------------------------------------------
+pcp_free_space() {
+	case $1 in
+		k) set -- $(/bin/busybox df -k | grep mmcblk0p2); echo $4 ;;
+		m) set -- $(/bin/busybox df -m | grep mmcblk0p2); echo $4 ;;
+		p) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $5 | sed 's/%//' ;;
+		*) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $4 ;;
+	esac
+}
 
 #=========================================================================================
 # Row shading
