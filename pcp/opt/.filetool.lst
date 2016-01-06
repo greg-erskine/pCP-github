@@ -12,6 +12,7 @@ usr/local/etc/dropbear/dropbear_dss_host_key
 usr/local/etc/dropbear/dropbear_rsa_host_key
 usr/local/etc/init.d/squeezelite
 usr/local/etc/init.d/httpd
+usr/local/etc/init.d/shairport-sync
 usr/local/sbin/config.cfg
 usr/local/sbin/piversion.cfg
 usr/local/sbin/setup

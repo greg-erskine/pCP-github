@@ -254,7 +254,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -879,6 +879,32 @@ pcp_squeezelite_restart() {
 
 pcp_squeezelite_status() {
 	sudo /usr/local/etc/init.d/squeezelite status > /dev/null 2>&1
+	echo $?
+}
+
+#=========================================================================================
+# Start/stop Shairport-sync
+#-----------------------------------------------------------------------------------------
+pcp_shairport_start() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/shairport-sync start
+	echo '</p>'
+}
+
+pcp_shairport_stop() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/shairport-sync stop
+	echo '</p>'
+}
+
+pcp_shairport_restart() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/shairport-sync restart
+	echo '</p>'
+}
+
+pcp_shairport_status() {
+	sudo /usr/local/etc/init.d/shairport-sync status > /dev/null 2>&1
 	echo $?
 }
 

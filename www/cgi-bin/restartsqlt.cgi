@@ -16,5 +16,11 @@ pcp_squeezelite_stop
 sleep 2
 pcp_squeezelite_start
 
+if [ $SHAIRPORT = yes ]; then
+pcp_shairport_stop
+sleep 2
+pcp_shairport_start
+fi
+
 echo '</body>'
 echo '</html>'

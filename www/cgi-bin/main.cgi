@@ -99,6 +99,17 @@ pcp_main_squeezelite_indication() {
 		STATUS="not running"
 	fi
 
+	
+if [ $SHAIRPORT = yes ]; then
+	if [ $(pcp_shairport_status) = 1 ]; then
+		SH_IMAGE="green.png"
+		SH_STATUS="running"
+	else
+		SH_IMAGE="red.png"
+		SH_STATUS="not running"
+	fi
+fi
+
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -122,7 +133,35 @@ pcp_main_squeezelite_indication() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+
+
+if [ $SHAIRPORT = yes ]; then
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p class="centre"><img src="../images/'$SH_IMAGE'" alt="'$SH_STATUS'"></p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Shairport is '$SH_STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li>GREEN = Shairport running.</li>'
+	echo '                    <li>RED = Shairport not running.</li>'
+	echo '                  </ul>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Shairport must be running for music to play from iDevices.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+fi
+
 }
+
+
 pcp_main_squeezelite_indication
 #----------------------------------------------------------------------------------------
 
@@ -149,6 +188,19 @@ pcp_main_restart() {
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
+if [ $SHAIRPORT = yes ];then
+	echo '                <p>Restart Squeezelite and Shairport with new settings&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will kill Squeezelite and Shairport then restart them.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>A restart of Squeezelite and shairport is required after you change name or output settings.</li>'
+#	echo '                    <li>Squeezelite running indicator will turn green.</li>'
+#	echo '                    <li>Squeezelite in the footer will turn green.</li>'
+
+fi
 	echo '                <p>Restart Squeezelite with new settings&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
