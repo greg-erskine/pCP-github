@@ -42,7 +42,7 @@ AVAHI="avahi.tzc and needed packages"
 WGET="/bin/busybox wget"
 
 # Only offer reboot option if needed
-REBOOT=0
+REBOOT_REQUIRED=0
 
 #========================================================================================================
 # Routines
@@ -171,7 +171,7 @@ fi
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
 if [ $ORIG_ALSAeq != $ALSAeq ]; then
-	REBOOT=1
+	REBOOT_REQUIRED=1
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
 
@@ -231,7 +231,7 @@ fi
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
 if [ $ORIG_CMD != $CMD ]; then
-	REBOOT=1
+	REBOOT_REQUIRED=1
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] CMD is set to: '$CMD'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_CMD is: '$ORIG_CMD'</p>'
@@ -283,7 +283,7 @@ fi
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
 if [ $ORIG_SHAIRPORT != $SHAIRPORT ]; then
-	REBOOT=1
+	REBOOT_REQUIRED=1
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] SHAIRPORT is set to: '$SHAIRPORT'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SHAIRPORT is: '$ORIG_SHAIRPORT'</p>'
@@ -320,7 +320,7 @@ fi
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
 if [ $ORIG_FIQ != $FIQ ]; then
-	REBOOT=1
+	REBOOT_REQUIRED=1
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FIG is: '$ORIG_FIQ'</p>'
@@ -352,7 +352,7 @@ pcp_backup
 [ $DEBUG = 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
 [ $DEBUG = 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
-[ $REBOOT = 1 ] && pcp_reboot_required
+[ $REBOOT_REQUIRED = 1 ] && pcp_reboot_required
 pcp_go_back_button
 
 echo '</body>'
