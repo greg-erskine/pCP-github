@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.06 2016-01-06 SBP
+# Version: 0.06 2016-01-07 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
 
@@ -48,17 +48,7 @@ REBOOT=0
 # Routines
 #--------------------------------------------------------------------------------------------------------
 pcp_download_shairport() {
-	SPACE=$(pcp_free_space k) 
-	REQUIRED=2000	# Actually 1713.227
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
-	if [ $REQUIRED -lt $SPACE ]; then
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
-	else
-		echo '<p class="error">[ ERROR ] Not enough space.</p>'
-		pcp_go_back_button
-		exit 1
-	fi
-
+	pcp_sufficient_free_space 2000
 	cd /tmp
 	sudo rm -f /tmp/${SHAIRP}
 	echo '<p class="info">[ INFO ] Downloading Shairport from Ralphy'\''s repository...</p>'

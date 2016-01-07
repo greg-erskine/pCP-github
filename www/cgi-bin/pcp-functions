@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.24 2016-01-06 SBP
+# Version: 0.24 2016-01-07 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
 #	Added pcp_free_space.
@@ -301,6 +301,20 @@ pcp_free_space() {
 		p) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $5 | sed 's/%//' ;;
 		*) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $4 ;;
 	esac
+}
+
+pcp_sufficient_free_space() {
+	REQUIRED=$1
+	SPACE=$(pcp_free_space k) 
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
+	if [ $REQUIRED -lt $SPACE ]; then
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
+	else
+		echo '<p class="error">[ ERROR ] Not enough space.</p>'
+		echo '<p class="info">[ INFO ] Try expanding your partition.</p>'
+		pcp_go_back_button
+		exit 1
+	fi
 }
 
 #=========================================================================================
