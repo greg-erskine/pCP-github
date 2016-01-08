@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-01-08 GE
+#	Fixed pcp_running_script.
+
 # Version: 0.03 2015-09-22 SBP
 #	Removed httpd decoding.
 #	Minor code tidy up.
@@ -57,7 +60,7 @@ pcp_html_head "xtras overclocking" "GE"
 
 pcp_controls
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_xtras
 pcp_httpd_query_string
 
