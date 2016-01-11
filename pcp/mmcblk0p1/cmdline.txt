@@ -1,1 +1,1 @@
-dwc_otg.fiq_fsm_mask=0x7 smsc95xx.turbo_mode=N dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/ram0 elevator=deadline rootwait nortc loglevel=3 noembed noswap showapps tz=CET-1CEST%252CM3.5.0%252CM10.5
+tz=CET-1CEST,M3.5.0,M10.5.0/3  dwc_otg.fiq_fsm_mask=0x7  waitusb=5 dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/ram0 elevator=deadline rootwait quiet nortc loglevel=3 noembed smsc95xx.turbo_mode=N noswap nozswap showapps cron consoleblank=0 host=piCorePlayer 

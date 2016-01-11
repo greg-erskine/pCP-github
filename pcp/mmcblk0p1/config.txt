@@ -2,7 +2,17 @@
 # http://www.raspberrypi.org/documentation/configuration/config-txt.md
 # Some settings may impact device functionality. See link above for details
 
-initramfs 7.0alpha1v7.gz followkernel
+[PI1]
+initramfs 7.0beta1.gz followkernel
+kernel kernel4113.img
+cmdline cmdline.txt
+
+[PI2]
+initramfs 7.0beta1v7.gz followkernel
+kernel kernel4113v7.img
+cmdline cmdline.txt
+
+[ALL]
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
@@ -39,21 +49,27 @@ initramfs 7.0alpha1v7.gz followkernel
 # uncomment for composite PAL
 #sdtv_mode=2
 
-#uncomment to overclock the arm. 700 MHz is the default.
+
+#----------------------------------------------------
+dtparam=i2c=on,spi=on,i2s=on
+
+
+#---pCP----------------------------------------------
+dtparam=audio=on
+
+
+# uncomment to overclock the arm. 700 MHz is the default.
 #arm_freq=
 #core_freq=
-#sdram_freq= 
+#sdram_freq=
 #over_voltage=
 #force_turbo=
 #gpu_mem=
 
-#----------------------------------------------------
-dtparam=i2c_arm=on,spi=on,audio=on
-
-#Force max current to USB
+# Force max current to USB
 max_usb_current=1
 
-#remove audio hiss
+# Remove audio hiss
 disable_audio_dither=1
+lcd_rotate=2
 
-dtoverlay=hifiberry-dac
