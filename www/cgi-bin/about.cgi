@@ -133,7 +133,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-pcp_pastebin_button config.cfg
+#pcp_pastebin_button config.cfg
 
 pcp_footer
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mode

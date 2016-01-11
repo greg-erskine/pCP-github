@@ -240,9 +240,9 @@ pcp_variables() {
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
 
 	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
-	if [ $(pcp_rpi_is_model_2B) = 0 ]; then
-		INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
-	fi
+	#if [ $(pcp_rpi_is_model_2B) = 0 ]; then
+	#	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
+	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
@@ -254,7 +254,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=20
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users

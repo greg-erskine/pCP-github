@@ -892,6 +892,7 @@ pcp_tweaks_audio_tweaks() {
 	fi
 
 	#-------------------------------------ALSA Equalizer-------------------------------------
+if [ DEBUG = 1 ] && [ TEST = 1 ] && [ MODE_DEVELOPER = 100 ]; then
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -929,7 +930,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
+fi
 	#-------------------------------------FIQ-Split acceleration-----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
