@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.09 2016-01-15 GE
+#	Deleted Reboot button.
+
 # Version: 0.08 2015-10-09 SBP
 #	Removed httpd decoding.
 #	Added pcp_reboot_required.
@@ -64,7 +67,7 @@ case "$AUDIO" in
 		pcp_disable_i2s
 		pcp_disable_HDMI
 		pcp_enable_HDMI
-		OUTPUT="hw:CARD=ALSA"
+		OUTPUT="hw:CARD=ALSA"			#<-GE- Should this be sysdefault:CARD=ALSA?
 		ALSA_PARAMS="::32:0"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
@@ -108,7 +111,6 @@ case "$AUDIO" in
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
-
 	I2SpIQAMP*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_amp
@@ -117,8 +119,6 @@ case "$AUDIO" in
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
-
-
 	I2SpDAC*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_hifiberry_dac_p
@@ -158,16 +158,11 @@ if [ $DEBUG = 1 ]; then
 fi
 
 pcp_save_to_config
-
 pcp_textarea "" "cat $CONFIGCFG" 380
-
 pcp_squeezelite_start
-
 pcp_backup
-pcp_go_back_button
-pcp_reboot_button			# DELETE THIS??????
-
 pcp_reboot_required
+pcp_go_back_button
 
 echo '</body>'
 echo '</html>'

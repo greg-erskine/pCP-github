@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2016-01-15 SBP
+#	Changed order of back button and reboot prompt.
+
 # Version: 0.05 2015-09-21 SBP
 #	Removed httpd decoding.
 #	Added pcp_restart_required.
@@ -71,9 +74,9 @@ esac
 
 pcp_show_config_cfg
 pcp_backup
-pcp_go_back_button
-
+sleep 1
 pcp_restart_required
+pcp_go_back_button
 
 echo '</body>'
 echo '</html>'

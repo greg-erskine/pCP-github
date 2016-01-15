@@ -81,9 +81,22 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-#echo '                  <input class="large16" type="text" name="HOST" value="'$HOST'" maxlength="26" pattern="^[a-zA-Z0-9-]*$">'
+
+greg=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
+#echo $greg
+
+echo '            <form name="adjust" action="'$0'" method="get">'
 
 
+i=1
+for VALUE in $greg
+do
+	echo '                  <p><input class="large16" type="range" name="VALUE'$i'" value="'$VALUE'" min="0" max="100"></p>'
+	i=$((i + 1))
+done
+
+echo '                  <input type="submit">'
+echo '            </form>'
 
 pcp_footer
 pcp_copyright

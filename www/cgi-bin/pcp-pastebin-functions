@@ -2,6 +2,9 @@
 # pcp-pastebin-functions
 # These are the common pastebin functions used by piCorePlayer
 
+# Version: 0.02 2016-01-15 GE
+#	Changed pastebin button to developer mode.
+
 # Version: 0.01 2015-12-24 GE
 #	Original.
 
@@ -79,7 +82,7 @@ pcp_install_wget() {
 # pCP pastebin button
 #----------------------------------------------------------------------------------------
 pcp_pastebin_button() {
-	if [ $MODE -ge $MODE_BETA ]; then
+	if [ $MODE -ge $MODE_DEVELOPER ]; then
 		echo '<table class="bggrey">'
 		echo '  <tr>'
 		echo '    <td>'
