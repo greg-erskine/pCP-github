@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.19 2016-01-15 GE
+#	Updated "Update pCP" help text.
+
 # Version: 0.18 2016-01-07 GE
 #	Added check for version of Ralphy's squeezelite.
 #	Added Shairport indicator and restart option.
@@ -89,7 +92,7 @@ echo '        <fieldset>'
 echo '          <legend>Main piCorePlayer operations</legend>'
 echo '          <table class="bggrey percent100">'
 
-#------------------------------------------Squeezelite Indication------------------------
+#------------------------------------Squeezelite/Shairport Indication--------------------
 pcp_main_squeezelite_indication() {
 
 	if [ $(pcp_squeezelite_status) = 0 ]; then
@@ -98,16 +101,6 @@ pcp_main_squeezelite_indication() {
 	else
 		IMAGE="red.png"
 		STATUS="not running"
-	fi
-
-	if [ $SHAIRPORT = yes ]; then
-		if [ $(pcp_shairport_status) = 0 ]; then
-			SH_IMAGE="green.png"
-			SH_STATUS="running"
-		else
-			SH_IMAGE="red.png"
-			SH_STATUS="not running"
-		fi
 	fi
 
 	pcp_start_row_shade
@@ -133,7 +126,17 @@ pcp_main_squeezelite_indication() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+
 	if [ $SHAIRPORT = yes ]; then
+
+		if [ $(pcp_shairport_status) = 0 ]; then
+			SH_IMAGE="green.png"
+			SH_STATUS="running"
+		else
+			SH_IMAGE="red.png"
+			SH_STATUS="not running"
+		fi
+
 		pcp_incr_id
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="column150">'
@@ -320,17 +323,17 @@ pcp_main_update_pcp() {
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will do an insitu update of piCorePlayer.</p>'
-	echo '                  <p>This can be used when the SD card is not accessible.</p>'
+	echo '                  <p>This can be used when the SD card slot is not accessible.</p>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
 	echo '                    <li>Internet access is required.</li>'
-	echo '                    <li>Existing version of piCorePlayer will be overwritten.</li>'
+	echo '                    <li>The current version of piCorePlayer will be completely overwritten.</li>'
+	echo '                    <li>Additional extensions (ie. Jivelite, Shairport) will need to be reloaded.</li>'
 	echo '                    <li>When the update has completed:</li>'
-	echo '                      <ol>'
-	echo '                        <li>select SqueezeLite Settings and confirm your Audio Output settings</li>'
-	echo '                        <li>click [Save] and then click [Reboot].</li>'
-	echo '                      </ol>'
+	echo '                    <ol>'
+	echo '                      <li>select [SqueezeLite Settings] and confirm your "Audio output" settings.</li>'
+	echo '                      <li>click [Save] and [Reboot].</li>'
+	echo '                    </ol>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -370,7 +373,7 @@ pcp_main_save_usb() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Advanced mode fieldset------------------------
-if [ $MODE -ge $MODE_ADVANCED ]; then 
+if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -473,7 +476,7 @@ pcp_main_shutdown() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Beta mode fieldset----------------------------
-if [ $MODE -ge $MODE_BETA ]; then 
+if [ $MODE -ge $MODE_BETA ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -701,7 +704,7 @@ pcp_main_copy2fs() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Developer mode fieldset-----------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then 
+if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'

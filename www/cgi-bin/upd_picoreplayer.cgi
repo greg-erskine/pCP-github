@@ -34,7 +34,7 @@ pcp_banner
 pcp_navigation
 pcp_running_script
 
-echo '<h1>[ INFO ] You are currently using version: piCorePlayer'$(pcp_picoreplayer_version)'</h1>'
+echo '<p>[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)'</p>'
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Tidying up...</p>'
 sudo rm -rf $UPD_PCP
