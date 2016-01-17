@@ -13,7 +13,9 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-DEBUG=1
+DEBUG=1 ################
+
+WGET="/bin/busybox wget"
 
 # As all the insitu upgrade is done in one file, it may be better to define this here
 UPD_PCP=/tmp/upd_picoreplayer
@@ -44,14 +46,12 @@ pcp_create_upd_directory() {
 # Download a list of available piCorePlayer versions from Sourceforge
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
-	echo '<p class="info">[ INFO ] Downloading insitu.cfg...</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Downloading '$INSITU_DOWNLOAD'/insitu.cfg...</p>'
-	sudo wget -P $UPD_PCP $INSITU_DOWNLOAD/insitu.cfg
-	result=$?
-	if [ $result = 0 ]; then
-		echo '<p class="ok">[ OK ] Success downloading insitu.cfg</p>'
+	echo '[ INFO ] STEP 1. Downloading insitu.cfg...'
+	$WGET -P $UPD_PCP $INSITU_DOWNLOAD/insitu.cfg
+	if [ $? = 0 ]; then
+		echo '[ OK ] Success downloading insitu.cfg'
 	else
-		echo '<p class="error">[ ERROR: '$result' ] Error downloading insitu.cfg</p>'
+		echo '[ ERROR ] Error downloading insitu.cfg'
 	fi
 }
 
@@ -60,13 +60,16 @@ pcp_get_insitu_cfg() {
 #----------------------------------------------------------------------------------------
 case $ACTION in
 	initial)
+		STEP="Step 1 - Downloading available version"
 		pcp_create_upd_directory
 #		pcp_get_insitu_cfg
 		;;
 	download)
+		STEP="Step 2 - Downloading files"
 		echo
 		;;
-	CMD)
+	install)
+		STEP="Step 3 - Installing files"
 		echo
 		;;
 	*)
@@ -83,17 +86,19 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Status</legend>'
+echo '          <legend>'$STEP'</legend>'
 echo '          <table class="bggrey percent100">'
 
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <p>[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)'</p>'
+[ $ACTION = "download" ] &&
+echo '                  <p>[ INFO ] You are loading piCorePlayer'$VERSION'</p>'
 echo '                </td>'
 echo '              </tr>'
 
-
+if [ $ACTION = "initial" ]; then
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	                    if [ $(pcp_internet_accessible) = 0 ]; then
@@ -124,7 +129,6 @@ echo '              </tr>'
 	echo '              </td>'
 	echo '            </tr>'
 
-if [ $ACTION = "initial" ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -151,49 +155,50 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-
 #========================================================================================
 # 
 #----------------------------------------------------------------------------------------
-pcp_incr_id
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>piCorePlayer insitu upgrade</legend>'
-echo '          <table class="bggrey percent100">'
+if [ $ACTION = "initial" ]; then
+	pcp_incr_id
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>piCorePlayer insitu upgrade</legend>'
+	echo '          <table class="bggrey percent100">'
 
-echo '            <form name="insitu" action= "'$0'" method="get">'
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="large18">'
-echo '                  <select name="VERSION">'
-                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' $UPD_PCP/insitu.cfg
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Choose version of piCorePlayer from Drop-Down list you require.</p>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="large18 center">'
-echo '                  <input class="large12" type="submit" value="Update piCorePlayer">'
-echo '                  <input type="hidden" name="ACTION" value="download">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Update may take a few minutes... please be patient. When the download has finished a new page will load.</p>'
-echo '                </td>'
-echo '              </tr>'
-echo '            </form>'
+	echo '            <form name="insitu" action= "'$0'" method="get">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="large18">'
+	echo '                  <select name="VERSION">'
+	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' $UPD_PCP/insitu.cfg
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Choose version of piCorePlayer from Drop-Down list you require.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="large18 center">'
+	echo '                  <input class="large12" type="submit" value="Update piCorePlayer">'
+	echo '                  <input type="hidden" name="ACTION" value="download">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Update may take a few minutes... please be patient. When the download has finished a new page will load.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
 
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 
 pcp_footer
 pcp_copyright
@@ -208,7 +213,7 @@ exit
 
 # Download the boot files and the tce files and Break if errors in downloading boot files
 echo '<p class="info">[ INFO ] Downloading '$INSITU'_boot.tar.gz...Please wait</p>'
-sudo wget -P "$UPD_PCP"/boot "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_boot.tar.gz
+$WGET -P "$UPD_PCP"/boot "$INSITU_DOWNLOAD"/"$INSITU"/"$INSITU"_boot.tar.gz
 
 result_boot=$?
 if [ $result_boot = 0 ]; then

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.20 2016-01-18 GE
+#	Minor update to alsaequal.
+
 # Version: 0.19 2016-01-04 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
@@ -892,7 +895,7 @@ pcp_tweaks_audio_tweaks() {
 	fi
 
 	#-------------------------------------ALSA Equalizer-------------------------------------
-if [ DEBUG = 1 ] && [ TEST = 1 ] && [ MODE_DEVELOPER = 100 ]; then
+if [ $DEBUG = 1 ] && [ $TEST = 1 ] && [ $MODE_DEVELOPER = 100 ]; then
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
