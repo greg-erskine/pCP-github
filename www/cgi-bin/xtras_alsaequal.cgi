@@ -37,8 +37,9 @@ pcp_load_equaliser() {
 }
 
 ID1=3
-echo "ID er " $ID1 "$ID2" "$ID3" "$ID4"
+echo 'ID er " $ID1 "$ID2" "$ID3" "$ID4"'
 greg=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
+echo $greg
 #=========================================================================================
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -52,24 +53,29 @@ echo '          <table class="bggrey percent100">'
 echo '            <form name="equal" action="'$0'" method="get">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column210">'
+echo '                <td>'
 echo '            <form name="adjust" action="'$0'" method="get">'
 
-LB1='31 Hz Playback Volume'
-LB2='63 Hz Playback Volume'
-LB3='125 Hz Playback Volume'
-LB4='250 Hz Playback Volume'
-LB5='500 Hz Playback Volume'
-LB6='1 kHz Playback Volume'
-LB7='2 kHz Playback Volume'
-LB8='4 kHz Playback Volume'
-LB9='8 kHz Playback Volume'
-LB10='16 kHz Playback Volume'
+LB1="31 Hz Playback Volume"
+LB2="63 Hz Playback Volume"
+LB3="125 Hz Playback Volume"
+LB4="250 Hz Playback Volume"
+LB5="500 Hz Playback Volume"
+LB6="1 kHz Playback Volume"
+LB7="2 kHz Playback Volume"
+LB8="4 kHz Playback Volume"
+LB9="8 kHz Playback Volume"
+LB10="16 kHz Playback Volume"
+
+# Added this line because I don't have alsaequal loaded
+greg="66 66 66 66 66 66 66 66 66 66"
+
 	i=1
 	for VALUE in $greg
 	do
 #		echo '                  <label for=""ID">"$LB'$ID'"</label>
-		echo '                  <p><input class="large16" type="range" name="VALUE'$i'" value="'$VALUE'" min="0" max="100" id="ID'$i'" <label for="id">"$LB'$i'"</label> </p>'
+#ans=$(eval "echo \$LB$i")
+		echo '                  <p><input class="large36" type="range" name="VALUE'$i'" value="'$VALUE'" min="0" max="100" id="ID'$i'" <label for="id">&nbsp;&nbsp;'$(eval "echo \$LB$i")'</label></p>'
 	i=$((i + 1))
 	done
 
@@ -98,7 +104,7 @@ EQSET=$(echo "$VALUE1" "$VALUE2" "$VALUE3" "$VALUE4" "$VALUE5" "$VALUE6" "$VALUE
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ID is: "$ID1" "$ID2" "$ID3" "$ID4" </p>'
 
 #THE LINE BELOW IS JUST FOR DEBUG
-echo "LB1 is" "$LB1"
+echo "LB1 is $LB1"
 
 pcp_load_equaliser
 
