@@ -27,20 +27,17 @@ BAND=1
 # Routines
 #----------------------------------------------------------------------------------------
 
-RESET="66 66 66 66 66 66 66 66 66 66"
-TREBLE="66 66 66 66 66 66 66 71 76 76"
-BASS="76 76 71 66 66 66 66 66 66 66"
-
 pcp_load_equaliser() {
-	for VALUE in $RANGE
+	for VALUE in $EQSET
 	do
 		${SET_EQUAL}$BAND $VALUE >/dev/null 2>&1
 		BAND=$(($BAND + 1))
 	done
+#      Here we need a method to refresh the pCP-webpage in this place. So that the new settings will be shown.       <----------------Do yo have an idea
 }
 
-pcp_load_equaliser
 
+greg=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
 #=========================================================================================
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -54,14 +51,15 @@ echo '          <table class="bggrey percent100">'
 echo '            <form name="equal" action="'$0'" method="get">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">Preset</td>'
 echo '                <td class="column210">'
+echo '            <form name="adjust" action="'$0'" method="get">'
 
-echo '                  <select class="large16" name="RANGE">'
-echo '                    <option value="'$RESET'" '$AEreset'>Reset</option>'
-echo '                    <option value="'$TREBLE'" '$AEtreble'>Treble</option>'
-echo '                    <option value="'$BASS'" '$AEbass'>Bass</option>'
-echo '                  </select>'
+	i=1
+	for VALUE in $greg
+	do
+		echo '                  <p><input class="large16" type="range" name="VALUE'$i'" value="'$VALUE'" min="0" max="100"></p>'
+	i=$((i + 1))
+	done
 
 echo '                </td>'
 echo '              </tr>'
@@ -82,21 +80,12 @@ echo '  </tr>'
 echo '</table>'
 
 
-greg=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
-#echo $greg
 
-echo '            <form name="adjust" action="'$0'" method="get">'
+EQSET=$(echo "$VALUE1" "$VALUE2" "$VALUE3" "$VALUE4" "$VALUE5" "$VALUE6" "$VALUE7" "$VALUE8" "$VALUE9" "$VALUE10")
+[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] EQSET is: '$EQSET' </p>'
 
+pcp_load_equaliser
 
-i=1
-for VALUE in $greg
-do
-	echo '                  <p><input class="large16" type="range" name="VALUE'$i'" value="'$VALUE'" min="0" max="100"></p>'
-	i=$((i + 1))
-done
-
-echo '                  <input type="submit">'
-echo '            </form>'
 
 pcp_footer
 pcp_copyright
