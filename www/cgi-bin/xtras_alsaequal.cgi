@@ -33,13 +33,15 @@ pcp_load_equaliser() {
 		${SET_EQUAL}$BAND $VALUE >/dev/null 2>&1
 		BAND=$(($BAND + 1))
 	done
+
 #      Here we need a method to refresh the pCP-webpage in this place. So that the new settings will be shown.       <----------------Do yo have an idea
 }
 
 ID1=3
 echo 'ID er " $ID1 "$ID2" "$ID3" "$ID4"'
 greg=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
-echo $greg
+#echo $greg
+
 #=========================================================================================
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -68,16 +70,28 @@ LB9="8 kHz Playback Volume"
 LB10="16 kHz Playback Volume"
 
 # Added this line because I don't have alsaequal loaded
-greg="66 66 66 66 66 66 66 66 66 66"
+#greg="66 66 66 66 66 66 66 66 66 66"
 
 	i=1
 	for VALUE in $greg
 	do
-#		echo '                  <label for=""ID">"$LB'$ID'"</label>
-#ans=$(eval "echo \$LB$i")
 		echo '                  <p><input class="large36" type="range" name="VALUE'$i'" value="'$VALUE'" min="0" max="100" id="ID'$i'" <label for="id">&nbsp;&nbsp;'$(eval "echo \$LB$i")'</label></p>'
 	i=$((i + 1))
 	done
+
+	echo '                <p><b>10 band ALSA equalizer&nbsp;&nbsp;</b>'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>Use the sliders to achive the soundstage you want.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Changes are reflected immideately so you can hear the effects.</li>'
+	echo '                    <li>Please use the refresh button after you have saved your settings.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+
+
 
 echo '                </td>'
 echo '              </tr>'
@@ -101,13 +115,12 @@ echo '</table>'
 
 EQSET=$(echo "$VALUE1" "$VALUE2" "$VALUE3" "$VALUE4" "$VALUE5" "$VALUE6" "$VALUE7" "$VALUE8" "$VALUE9" "$VALUE10")
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] EQSET is: '$EQSET' </p>'
+#echo $greg
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ID is: "$ID1" "$ID2" "$ID3" "$ID4" </p>'
 
-#THE LINE BELOW IS JUST FOR DEBUG
-echo "LB1 is $LB1"
-
 pcp_load_equaliser
-
+pcp_backup
+pcp_refresh_button
 
 pcp_footer
 pcp_copyright
