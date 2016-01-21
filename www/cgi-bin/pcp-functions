@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.25 2016-01-22 GE
+#	Updated pcp_mount_mmcblk0p1_nohtml.
+
 # Version: 0.24 2016-01-07 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
@@ -254,7 +257,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=20
+	MODE=0
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -305,7 +308,7 @@ pcp_free_space() {
 
 pcp_sufficient_free_space() {
 	REQUIRED=$1
-	SPACE=$(pcp_free_space k) 
+	SPACE=$(pcp_free_space k)
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
 	if [ $REQUIRED -lt $SPACE ]; then
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
@@ -606,7 +609,7 @@ pcp_favorites() {
 #		if ( hasitems[i] != "0 " ) {
 #			i--
 #		}
-		
+
 		isaudio[i]=$3
 		gsub(" hasitems","",isaudio[i])
 		if ( isaudio[i] == "0" ) {
@@ -617,7 +620,7 @@ pcp_favorites() {
 		if ( isfavorite[i] == "33 favorites items 0 100" ) {
 			i--
 		}
-		
+
 	}
 	END {
 		for (j=1; j<=7; j++) {
@@ -1163,7 +1166,7 @@ pcp_running_script() {
 pcp_mount_mmcblk0p1() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep $VOLUME; then
-		echo '<p class="error">[ ERROR ] '$VOLUME' already mounted</p>'
+		echo '<p class="error">[ WARN ] '$VOLUME' already mounted.</p>'
 	else
 		echo '<p class="info">[ INFO ] Mounting '$VOLUME'...</p>'
 		echo '<p style="font-size:10px">'
@@ -1181,8 +1184,8 @@ pcp_umount_mmcblk0p1() {
 
 pcp_mount_mmcblk0p1_nohtml() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
-	if mount | grep $VOLUME; then
-		echo '[ ERROR ] '$VOLUME' already mounted'
+	if mount | grep >/dev/null $VOLUME; then
+		echo '[ WARN ] '$VOLUME' already mounted.'
 	else
 		echo '[ INFO ] Mounting '$VOLUME'...'
 		sudo mount $DEVICE;
@@ -1204,7 +1207,7 @@ pcp_umount_mmcblk0p1_nohtml() {
 pcp_mount_device() {
 	# Check if device is mounted otherwise mount it
 	if mount | grep "/mnt/$1"; then
-		echo '<p class="error">[ ERROR ] /mnt/'$1' already mounted</p>'
+		echo '<p class="error">[ WARN ] /mnt/'$1' already mounted.</p>'
 	else
 		echo '<p class="info">[ INFO ] Mounting /dev/'$1'...</p>'
 		echo '<p style="font-size:10px">'
@@ -1442,8 +1445,8 @@ pcp_disable_HDMI() {
 
 pcp_enable_HDMI() {
 	sudo echo hdmi_drive=2 >> $CONFIGTXT
-	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT                                                           
-	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT                                                        
+	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
 	# sudo echo hdmi_ignore_edid=0xa5000080 >> $CONFIGTXT
 }
 
