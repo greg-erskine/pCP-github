@@ -22,6 +22,7 @@ pcp_httpd_query_string
 
 SET_EQUAL="sudo amixer -D equal cset numid="
 BAND=1
+FORMID=alsaequal
 
 #========================================================================================
 # Routines
@@ -57,7 +58,9 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '            <form name="adjust" action="'$0'" method="get">'
-
+echo '</form>' #------------------new
+echo '</form>' #------------------new
+echo '<form id="$FORMID" action="xtras_alsaequal.cgi">' #------------------new
 LB1="31 Hz Playback Volume"
 LB2="63 Hz Playback Volume"
 LB3="125 Hz Playback Volume"
@@ -98,7 +101,9 @@ echo '              </tr>'
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'" >'
 echo '                <td colspan=3>'
+
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
+
 echo '                </td>'
 echo '              </tr>'
 echo '            </form>'
@@ -112,7 +117,6 @@ echo '  </tr>'
 echo '</table>'
 
 
-
 EQSET=$(echo "$VALUE1" "$VALUE2" "$VALUE3" "$VALUE4" "$VALUE5" "$VALUE6" "$VALUE7" "$VALUE8" "$VALUE9" "$VALUE10")
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] EQSET is: '$EQSET' </p>'
 #echo $greg
@@ -121,6 +125,7 @@ EQSET=$(echo "$VALUE1" "$VALUE2" "$VALUE3" "$VALUE4" "$VALUE5" "$VALUE6" "$VALUE
 pcp_load_equaliser
 pcp_backup
 pcp_refresh_button
+pcp_refresh
 
 pcp_footer
 pcp_copyright
