@@ -40,6 +40,7 @@ pcp_httpd_query_string
 SHAIRP="shairport-sync"
 AVAHI="avahi.tzc and needed packages"
 WGET="/bin/busybox wget"
+EQREPOSITORY="http://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/"
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -169,6 +170,48 @@ fi
 #========================================================================================
 # ALSA Equalizer section
 #----------------------------------------------------------------------------------------
+#Routines
+pcp_download_alsaequal() {
+	pcp_sufficient_free_space 2000
+	cd /tmp
+	sudo rm -f /tmp/alsaequal.tcz
+	sudo rm -f /tmp/caps*
+	echo '<p class="info">[ INFO ] Downloading Alsaequalizer from repository...</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${EQREPOSITORY}'</p>'
+	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
+
+	$WGET -s ${EQREPOSITORY}alsaequal.tcz
+	if [ $? = 0 ]; then
+		echo '<p class="info">[ INFO ] Downloading Alsaequalizer and packages...'
+		$WGET -P /tmp ${EQREPOSITORY}alsaequal.tcz
+		$WGET -P /tmp ${EQREPOSITORY}caps-0.4.5.tcz
+		if [ $? = 0 ]; then
+			echo '<p class="ok">[ OK ] Download successful.</p>'
+			sudo cp /tmp/alsaequal.tcz /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
+			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
+			sudo chmod 755 /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
+			sudo cp /tmp/caps-0.4.5.tcz /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
+			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
+			sudo chmod 755 /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
+			sudo rm -f /tmp/alsaequal.tcz
+			sudo rm -f /tmp/caps*
+		else
+			echo '<p class="error">[ ERROR ] Alsaequalizer download unsuccessful, try again!</p>'
+		fi
+	else
+		echo '<p class="error">[ ERROR ] Alsaequalizer not available in repository, try again later!</p>'
+	fi
+
+	SPACE=$(pcp_free_space k)
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k</p>'
+}
+
+pcp_remove_alsaequal() {
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
+}
+
+#----------------------------------------------------------------------------------------
 # Only do something if variable is changed
 if [ $ORIG_ALSAeq != $ALSAeq ]; then
 	REBOOT_REQUIRED=1
@@ -208,6 +251,7 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 			else
 				sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 				sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+				pcp_download_alsaequal
 			fi
 			sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 			;;
@@ -216,6 +260,7 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 			OUTPUT=""
 			sudo sed -i '/alsaequal.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			sudo sed -i '/caps/d' /mnt/mmcblk0p2/tce/onboot.lst
+			pcp_remove_alsaequal
 			;;
 		*)
 			echo '<p class="error">[ ERROR ] ALSA equalizer invalid: '$ALSAeq'</p>'

@@ -895,7 +895,7 @@ pcp_tweaks_audio_tweaks() {
 	fi
 
 	#-------------------------------------ALSA Equalizer-------------------------------------
-if [ $DEBUG = 1 ] && [ $TEST = 1 ] && [ $MODE_DEVELOPER = 100 ]; then
+#if [ $DEBUG = 1 ] && [ $TEST = 1 ] && [ $MODE_DEVELOPER = 100 ]; then
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -907,7 +907,7 @@ if [ $DEBUG = 1 ] && [ $TEST = 1 ] && [ $MODE_DEVELOPER = 100 ]; then
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Use 10 band ALSA equalizer&nbsp;&nbsp;'
+	echo '                  <p>Use 10 band ALSA equalizer <a href="xtras_alsaequal.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -933,7 +933,7 @@ if [ $DEBUG = 1 ] && [ $TEST = 1 ] && [ $MODE_DEVELOPER = 100 ]; then
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-fi
+#fi
 	#-------------------------------------FIQ-Split acceleration-----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
