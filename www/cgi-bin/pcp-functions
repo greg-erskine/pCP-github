@@ -1095,23 +1095,6 @@ pcp_refresh_button() {
 	echo '<!-- End of pcp_refresh_button -->'
 }
 
-pcp_refresh() {
-echo	'<script>
-		document.getElementById("$FORMID").addEventListener("submit", myFunction);
-
-		function myFunction() {
-		"javascript:location.href=document.referrer;"
-		alert("The page is refreshed by location reload");
-		"javascript:history.go(0)";
-    		alert("The page is refreshed by javascript");
-		window.location.reload(true);
-    		alert("The page is refreshed");
-		HREF="javascript:history.go(0)";
-		location.reload(true);
-    		}
-	</script>'
-}
-
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
 	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
