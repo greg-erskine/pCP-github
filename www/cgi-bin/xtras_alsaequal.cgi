@@ -1,20 +1,16 @@
 #!/bin/sh
 
-# Version: 0.01 2016-01-24 GE
+# Version: 0.01 2016-01-29 GE
 #	Original version.
-
-#DEBUG=1
 
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-
-
 SET_EQUAL="sudo amixer -D equal cset numid="
 BAND=1
-i=1
 PRESETS=0
+i=1
 
 # Labels for equalizer bands
 LB1="31 Hz"
@@ -36,7 +32,6 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
@@ -47,13 +42,8 @@ pcp_load_equaliser() {
 		BAND=$(($BAND + 1))
 	done
 }
+
 #----------------------------------------------------------------------------------------
-
-if [ -n $EQPRESET ]; then
-	# Add EQPRESET="60 60 60 60 60 60 60 60 60 60"
-	echo '<p class="error">[ WARN ] Please add $EQPRESET to your config.cfg ("'$EQPRESET'")'
-fi
-
 if [ -f /home/tc/.alsaequal.presets ]; then
 	PRESETS=1
 	. /home/tc/.alsaequal.presets
@@ -66,33 +56,23 @@ case $ACTION in
 		;;
 	Backup)
 		RANGE="$R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $R10"
-		pcp_backup
-		;;
-	Set*)
-		RANGE="$R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $R10"
-		sudo sed -i "s/\(EQPRESET=\).*/\1\"$RANGE\"/" $CONFIGCFG
-		;;
-	Use*)
-		RANGE=$EQPRESET
+		pcp_backup >/dev/null 2>&1
 		;;
 	Reset)
 		RANGE="66 66 66 66 66 66 66 66 66 66"
-		;;
-	Preset*)
-		echo
 		;;
 esac
 
 pcp_load_equaliser
 
+# Determine if alsaequalizer is loaded
 CURRENT_EQ_SETTINGS=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
 
-#Determine if alsaequalizer is loaded
 if [ x"" = x"$CURRENT_EQ_SETTINGS" ]; then
-echo '<p class="info">[ INFO ] Alsa equalizer package is not loaded...</p>'
-echo '<p class="info">[ INFO ] Please try to reboot pCP</p>'
-sleep 1
-pcp_reboot_required
+	echo '<p class="error">[ ERROR ] Alsa equalizer package is not loaded...</p>'
+	echo '<p class="info">[ INFO ] Please try to reboot.</p>'
+	sleep 1
+	pcp_reboot_required
 fi
 
 #-----------------------------Manual Equalizer Adjustment--------------------------------
@@ -125,13 +105,10 @@ echo '                </td>'
 echo '              </tr>'
 
 pcp_toggle_row_shade
-
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <input type="submit" name="ACTION" value="Test">'
 echo '                  <input type="submit" name="ACTION" value="Backup">'
-#echo '                  <input type="submit" name="ACTION" value="Set Custom">'
-#echo '                  <input type="submit" name="ACTION" value="Use Custom">'
 echo '                  <input type="submit" name="ACTION" value="Reset">'
 echo '                </td>'
 echo '              </tr>'
@@ -145,8 +122,6 @@ echo '                    <p>Use the sliders to adjust the soundstage, then</p>'
 echo '                    <ul>'
 echo '                      <li><b>Test</b> - The changes will be written to ALSA, so you can hear the effects.</li>'
 echo '                      <li><b>Backup</b> - The equalizer settings are backed up to make them available after a reboot.</li>'
-#echo '                      <li><b>Set Custom</b> - Save the current equalizer settings to the piCorePlayer configuration file.</li>'
-#echo '                      <li><b>Use Custom</b> - Use the custom equalizer settings from the piCorePlayer configuration file.</li>'
 echo '                      <li><b>Reset</b> - Set the equalizer to the defaults settings.</li>'
 echo '                    </ul>'
 echo '                  </div>'
@@ -176,7 +151,9 @@ if [ $PRESETS = 1 ]; then
 	echo '            <form name="presets" action="'$0'" method="get">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">Preset</td>'
+	echo '                <td class="column150">'
+	echo '                  <p>Preset</p>'
+	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="RANGE">'
 
@@ -186,6 +163,26 @@ if [ $PRESETS = 1 ]; then
 	done
 
 	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Select one of your preset&nbsp;&nbsp;</b>'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Use [Test] and [Backup] after selecting preset to make it permanent.</p>'
+	echo '                    <p>Presets are:</p>'
+	echo '                    <ul>'
+	echo '                      <li>An advanced feature that requires some linux skills to maintain.</li>'
+	echo '                      <li>Stored in the file $HOME/.alsaequal.presets</li>'
+	echo '                      <li>Edited using a text editor such as vi.</li>'
+	echo '                      <li>The format of the presets file is important, i.e.</li>'
+	echo '                      <ul>'
+	echo '                        <li>RESET="66 66 66 66 66 66 66 66 66 66"</li>'
+	echo '                        <li>The name of the preset is a simple single word, no spaces.</li>'
+	echo '                        <li>There are 10 values between 0 and 100, enclosed in double quotes.</li>'
+	echo '                      </ul>'
+	echo '                    </ul>'
+	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade

@@ -2,7 +2,7 @@
 
 # Version: 0.21 2016-01-29 SBP
 #	Activated alsaeqaual feature.
-#	Added link to xtras_alsaequal.cgi
+#	Added configure button to xtras_alsaequal.cgi
 
 # Version: 0.20 2016-01-18 GE
 #	Minor update to alsaequal.
@@ -911,14 +911,20 @@ pcp_tweaks_audio_tweaks() {
 #	echo '                  <input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p><input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">'
-	echo '                  &nbsp;Use 10 band ALSA equalizer&nbsp;&nbsp;'
+
+	if [ $ALSAeq = "yes" ]; then
+		echo '                  <p><input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">&nbsp;'
+	else
+		echo '                  <p>'
+	fi
+
+	echo '                    Use 10 band ALSA equalizer&nbsp;&nbsp;'
 #	echo '                  <p>Use 10 band ALSA equalizer <a href="xtras_alsaequal.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p><b>Note: </b>Toggle ALSA Equalizer on off.</p>'
-	echo '                    <p><b>Step to adjust Equalizer settings:</b></p>'
+	echo '                    <p><b>Steps to manually adjust Equalizer settings:</b></p>'
 	echo '                    <ol>'
 	echo '                      <li>Login via ssh.</li>'
 	echo '                      <li>Use "sudo alsamixer -D equal" and adjust the settings, press escape.</li>'
