@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.21 2016-01-29 SBP
+#	Activated alsaeqaual feature.
+#	Added link to xtras_alsaequal.cgi
+
 # Version: 0.20 2016-01-18 GE
 #	Minor update to alsaequal.
 
@@ -148,10 +152,10 @@ pcp_tweaks_jivelite() {
 		NO) JIVEno="selected" ;;
 	esac
 
+	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
 	pcp_start_row_shade
-	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Jivelite</p>'
@@ -207,10 +211,10 @@ pcp_tweaks_vumeter() {
 
 	LOADED_VU_METER=$( cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
 
+	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
 	pcp_start_row_shade
-	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Jivelite VU Meter</p>'
@@ -895,7 +899,6 @@ pcp_tweaks_audio_tweaks() {
 	fi
 
 	#-------------------------------------ALSA Equalizer-------------------------------------
-#if [ $DEBUG = 1 ] && [ $TEST = 1 ] && [ $MODE_DEVELOPER = 100 ]; then
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -905,9 +908,12 @@ pcp_tweaks_audio_tweaks() {
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes'
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
+#	echo '                  <input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Use 10 band ALSA equalizer <a href="xtras_alsaequal.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
+	echo '                  <p><input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">'
+	echo '                  &nbsp;Use 10 band ALSA equalizer&nbsp;&nbsp;'
+#	echo '                  <p>Use 10 band ALSA equalizer <a href="xtras_alsaequal.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -933,7 +939,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-#fi
+
 	#-------------------------------------FIQ-Split acceleration-----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
