@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common pastebin functions used by piCorePlayer
 
-# Version: 0.02 2016-01-15 GE
+# Version: 0.02 2016-01-28 GE
 #	Changed pastebin button to developer mode.
 
 # Version: 0.01 2015-12-24 GE
@@ -14,14 +14,12 @@
 # - http://stackoverflow.com/questions/296536/how-to-urlencode-data-for-curl-command
 #----------------------------------------------------------------------------------------
 
-. pcp-rpi-functions
-
 #========================================================================================
 # Default API settings
 #----------------------------------------------------------------------------------------
-API_DEV_KEY="TEST"
-API_USER_NAME="TEST"
-API_USER_PASSWORD="TEST"
+API_DEV_KEY="2aec56fbd1e156783c02ae91d6c57bc5"
+API_USER_NAME="pCP"
+API_USER_PASSWORD="picoreplayer1234"
 API_PASTE_PRIVATE="2"
 API_PASTE_NAME="$(pcp_rpi_shortname)"
 API_PASTE_EXPIRE_DATE="1D"
@@ -30,6 +28,7 @@ WGET="/usr/local/bin/wget"
 #========================================================================================
 # urlencode is not installed by default in piCore/piCorePlayer so here is a ash hack.
 #----------------------------------------------------------------------------------------
+. pcp-rpi-functions
 pcp_pastebin_encoding() {
 	local string="${1}"
 	local strlen=${#string}
@@ -122,8 +121,8 @@ pcp_pastebin_get_api_user_key() {
 	POST_DATA=$POST_DATA"&api_user_name=$API_USER_NAME"
 	POST_DATA=$POST_DATA"&api_user_password=$API_USER_PASSWORD"
 
+	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
 	API_USER_KEY=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_login.php')
-
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] api_user_key: '$API_USER_KEY'</p>'
 }
 
@@ -146,9 +145,9 @@ pcp_pastebin_paste() {
 	POST_DATA=$POST_DATA"&api_paste_name=$API_PASTE_NAME"
 	POST_DATA=$POST_DATA"&api_user_key=$API_USER_KEY"
 
+	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Uploading '$1', please wait...</p>'
 	PASTEBIN_URL=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
-
 	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] url: '$PASTEBIN_URL'</p>'
 }
 

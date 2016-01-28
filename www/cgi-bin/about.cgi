@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.08 2016-01-28 GE
+#	Changed upload to developer mode.
+
 # Version: 0.07 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
@@ -133,7 +136,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-#pcp_pastebin_button config.cfg
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button config.cfg
 
 pcp_footer
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mode

@@ -229,6 +229,7 @@ pcp_variables() {
 	BOOTLOCAL=/opt/bootlocal.sh
 	BOOTSYNC=/opt/bootsync.sh
 	SHUTDOWN=/opt/shutdown.sh
+	PB100=/home/tc/.local/bin/.pbtemp
 	HTTPDCONF=/home/tc/httpd.conf
 	ASOUNDCONF=/etc/asound.conf
 	WIFIDB=/home/tc/wifi.db
@@ -257,7 +258,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=100
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -760,6 +761,10 @@ pcp_linux_release() {
 #-----------------------------------------------------------------------------------------
 pcp_tc_user() {
 	cat /etc/sysconfig/tcuser
+}
+
+pcp_pb_get() {
+	echo $1 | tr a-zA-Z n-za-mN-ZA-M
 }
 
 #=========================================================================================
