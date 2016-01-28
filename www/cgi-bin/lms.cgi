@@ -35,8 +35,26 @@ pcp_main_lms_indication() {
 		IMAGE="red.png"
 		STATUS="not running"
 	fi
+#----------------------------------------------------------------------------------------
+# Determine state of check boxes.
+#----------------------------------------------------------------------------------------
+	# Function to check the LMS radio button according to config file
+	case "$LMS" in
+		yes) LMSyes="checked" ;;
+		no) LMSno="checked" ;;
+	esac
+
+	# Function to check the Samba radio button according to config file
+	case "$SAMBA" in
+		yes) SAMBAyes="checked" ;;
+		no) SAMBAno="checked" ;;
+	esac
+#----------------------------------------------------------------------------------------
+
 
 	pcp_start_row_shade
+
+
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
@@ -72,8 +90,32 @@ pcp_main_padding() {
 	echo '            </tr>'
 }
 pcp_main_padding
-#----------------------------------------------------------------------------------------
 
+#------------------------------------------Enable/download LMS---------------------------------------
+
+pcp_LMS_enable() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                <form name="Enable" action="restartlms.cgi" method="get">'
+	echo '                  <input type="submit" value="Enable" />'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="LMS" value="yes" '$LMSyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="LMS" value="no" '$LMSno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enable and download LMS Server&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Download LMS from repro.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+pcp_LMS_enable
 
 #------------------------------------------Start LMS---------------------------------------
 pcp_lms_start() {
@@ -236,11 +278,35 @@ pcp_samba_indication() {
 }
 pcp_samba_indication
 
+#------------------------------------------Enable/download Samba---------------------------------------
 
+pcp_samba_enable() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                <form name="Enable" action="restartlms.cgi" method="get">'
+	echo '                  <input type="submit" value="Enable" />'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="SAMBA" value="no" '$SAMBAno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enable and download Samba file server  <a href="samba_conf.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Download Samba from repro.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+pcp_samba_enable
 
 #------------------------------------------Start SAMBA------------------------------------------
 pcp_samba_start() {
-	pcp_start_row_shade
+	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
@@ -249,7 +315,7 @@ pcp_samba_start() {
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Stop Squeezelite&nbsp;&nbsp;'
+	echo '                <p>Start Samba file server&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -257,7 +323,7 @@ pcp_samba_start() {
 	echo '                  <p>Click [Start] to start Samba.</p>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>Samba running indicator will turn red.</li>'
+	echo '                    <li>Samba running indicator will turn green.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -269,6 +335,7 @@ pcp_samba_start
 #------------------------------------------Stop------------------------------------------
 pcp_samba_stop() {
 	pcp_start_row_shade
+	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
@@ -277,16 +344,15 @@ pcp_samba_stop() {
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Stop Squeezelite&nbsp;&nbsp;'
+	echo '                <p>Stop Samba file server&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will kill the Squeezelite process.</p>'
-	echo '                  <p>Click [Restart] to start Squeezelite again.</p>'
+	echo '                  <p>This will stop Samba file server.</p>'
+	echo '                  <p>Click [Stop] to stop Samba file server.</p>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>Squeezelite running indicator will turn red.</li>'
-	echo '                    <li>Squeezelite in the footer will turn red.</li>'
+	echo '                    <li>Samba running indicator will turn red.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
