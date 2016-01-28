@@ -9,6 +9,8 @@
 pcp_variables
 . $CONFIGCFG
 
+
+
 SET_EQUAL="sudo amixer -D equal cset numid="
 BAND=1
 i=1
@@ -33,6 +35,7 @@ pcp_banner
 pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
+
 
 #========================================================================================
 # Routines
@@ -83,6 +86,14 @@ esac
 pcp_load_equaliser
 
 CURRENT_EQ_SETTINGS=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
+
+#Determine if alsaequalizer is loaded
+if [ x"" = x"$CURRENT_EQ_SETTINGS" ]; then
+echo '<p class="info">[ INFO ] Alsa equalizer package is not loaded...</p>'
+echo '<p class="info">[ INFO ] Please try to reboot pCP</p>'
+sleep 1
+pcp_reboot_required
+fi
 
 #-----------------------------Manual Equalizer Adjustment--------------------------------
 echo '<table class="bggrey">'
