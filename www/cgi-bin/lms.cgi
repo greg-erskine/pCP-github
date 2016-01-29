@@ -1,11 +1,14 @@
 #!/bin/sh
 
-# Version: 0.01 2016-01-29 SBP
+# Version: 0.01 2016-01-30 SBP
 #	Original.
 
 . pcp-lms-functions
 . pcp-functions
 pcp_variables
+. $CONFIGCFG
+
+DEBUG=1
 
 pcp_html_head "LMS Main Page" "SBP"
 
@@ -13,6 +16,27 @@ pcp_html_head "LMS Main Page" "SBP"
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
+pcp_running_script
+pcp_httpd_query_string
+
+case $ACTION in
+	Start)
+		sudo /usr/local/etc/init.d/slimserver start
+		;;
+	Stop)
+		sudo /usr/local/etc/init.d/slimserver stop
+		sleep 2
+		;;
+	Restart)
+		sudo /usr/local/etc/init.d/slimserver stop
+		sudo /usr/local/etc/init.d/slimserver start
+		;;
+esac
+
+pcp_lms_status() {
+	RESULT=$(sudo /usr/local/etc/init.d/slimserver status)
+	echo $RESULT
+}
 
 #========================================================================================
 # Main piCorePlayer operations
@@ -28,7 +52,7 @@ echo '          <table class="bggrey percent100">'
 #------------------------------------LMS Indication--------------------------------------
 pcp_main_lms_indication() {
 
-	if [ $(pcp_lms_status) = 0 ]; then
+	if [ "x" != "x$(pcp_lms_status)" ]; then
 		IMAGE="green.png"
 		STATUS="running"
 	else
@@ -121,8 +145,8 @@ pcp_lms_start() {
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Start" action="restartlms.cgi" method="get">'
-	echo '                  <input type="submit" value="Start" />'
+	echo '                <form name="Start" action="'$0'" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Start" />'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
@@ -145,8 +169,8 @@ pcp_lms_stop() {
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Stop" action="restartlms.cgi" method="get">'
-	echo '                  <input type="submit" value="Stop" />'
+	echo '                <form name="Stop" action="'$0'" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Stop" />'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
@@ -169,8 +193,8 @@ pcp_lms_restart() {
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Restart" action="restartlms.cgi" method="get">'
-	echo '                  <input type="submit" value="Restart" />'
+	echo '                <form name="Restart" action="'$0'" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Restart" />'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
