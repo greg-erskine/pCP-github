@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2016-01-29 SBP
+#	Activated ALSA Equalizer.
+
 # Version: 0.06 2016-01-07 SBP
 #	Added ALSA Equalizer.
 #	Added Shairport-sync.
@@ -41,6 +44,7 @@ SHAIRP="shairport-sync"
 AVAHI="avahi.tzc and needed packages"
 WGET="/bin/busybox wget"
 EQREPOSITORY="http://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/"
+CAPS="caps-0.4.5"
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -169,10 +173,15 @@ fi
 
 #========================================================================================
 # ALSA Equalizer section
+#
+#  24576 alsaequal.tcz
+# 733184 caps-0.4.5.tcz
+# ------
+# 757760
 #----------------------------------------------------------------------------------------
 #Routines
 pcp_download_alsaequal() {
-	pcp_sufficient_free_space 2000
+	pcp_sufficient_free_space 800
 	cd /tmp
 	sudo rm -f /tmp/alsaequal.tcz
 	sudo rm -f /tmp/caps*
@@ -182,17 +191,20 @@ pcp_download_alsaequal() {
 
 	$WGET -s ${EQREPOSITORY}alsaequal.tcz
 	if [ $? = 0 ]; then
+		RESULT=0
 		echo '<p class="info">[ INFO ] Downloading Alsaequalizer and packages...'
 		$WGET -P /tmp ${EQREPOSITORY}alsaequal.tcz
-		$WGET -P /tmp ${EQREPOSITORY}caps-0.4.5.tcz
-		if [ $? = 0 ]; then
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		$WGET -P /tmp ${EQREPOSITORY}${CAPS}.tcz
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			sudo cp /tmp/alsaequal.tcz /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-			sudo chmod 755 /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-			sudo cp /tmp/caps-0.4.5.tcz /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
-			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
-			sudo chmod 755 /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
+			sudo chmod 644 /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
+			sudo cp /tmp/${CAPS}.tcz /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
+			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
+			sudo chmod 644 /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
 			sudo rm -f /tmp/alsaequal.tcz
 			sudo rm -f /tmp/caps*
 		else
@@ -208,7 +220,7 @@ pcp_download_alsaequal() {
 
 pcp_remove_alsaequal() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/caps-0.4.5.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
 }
 
 #----------------------------------------------------------------------------------------
