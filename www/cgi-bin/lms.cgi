@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Version: 0.01 2016-01-26 GE
+# Version: 0.01 2016-01-29 SBP
 #	Original.
 
 . pcp-lms-functions
 . pcp-functions
 pcp_variables
 
-pcp_html_head "Main Page" "SBP"
+pcp_html_head "LMS Main Page" "SBP"
 
 [ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
@@ -25,7 +25,7 @@ echo '        <fieldset>'
 echo '          <legend>Logitech Media Server (LMS) operations</legend>'
 echo '          <table class="bggrey percent100">'
 
-#------------------------------------LMS Indication--------------------
+#------------------------------------LMS Indication--------------------------------------
 pcp_main_lms_indication() {
 
 	if [ $(pcp_lms_status) = 0 ]; then
@@ -35,9 +35,10 @@ pcp_main_lms_indication() {
 		IMAGE="red.png"
 		STATUS="not running"
 	fi
-#----------------------------------------------------------------------------------------
-# Determine state of check boxes.
-#----------------------------------------------------------------------------------------
+
+	#------------------------------------------------------------------------------------
+	# Determine state of check boxes.
+	#------------------------------------------------------------------------------------
 	# Function to check the LMS radio button according to config file
 	case "$LMS" in
 		yes) LMSyes="checked" ;;
@@ -49,13 +50,10 @@ pcp_main_lms_indication() {
 		yes) SAMBAyes="checked" ;;
 		no) SAMBAno="checked" ;;
 	esac
-#----------------------------------------------------------------------------------------
 
-
-	pcp_start_row_shade
-
-
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
+	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
 	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
@@ -83,7 +81,6 @@ pcp_main_lms_indication
 #------------------------------------------Padding---------------------------------------
 pcp_main_padding() {
 	pcp_toggle_row_shade
-	pcp_incr_id
 	echo '            <tr class="padding '$ROWSHADE'">'
 	echo '              <td></td>'
 	echo '              <td></td>'
@@ -91,15 +88,16 @@ pcp_main_padding() {
 }
 pcp_main_padding
 
-#------------------------------------------Enable/download LMS---------------------------------------
+#------------------------------------------Enable/download LMS---------------------------
 
 pcp_LMS_enable() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                <form name="Enable" action="restartlms.cgi" method="get">'
-	echo '                  <input type="submit" value="Enable" />'
+	echo '                  <form name="Enable" action="restartlms.cgi" method="get">'
+	echo '                    <input type="submit" value="Enable" />'
+	echo '                  </form>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="LMS" value="yes" '$LMSyes'>Yes'
@@ -110,7 +108,7 @@ pcp_LMS_enable() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Download LMS from repro.</p>'
+	echo '                    <p>Download LMS from repo.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -119,8 +117,8 @@ pcp_LMS_enable
 
 #------------------------------------------Start LMS---------------------------------------
 pcp_lms_start() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="Start" action="restartlms.cgi" method="get">'
@@ -128,7 +126,7 @@ pcp_lms_start() {
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Stop LMS&nbsp;&nbsp;'
+	echo '                <p>Start LMS&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -141,11 +139,10 @@ pcp_lms_start() {
 pcp_lms_start
 #----------------------------------------------------------------------------------------
 
-
-#------------------------------------------Stop LMS---------------------------------------
+#------------------------------------------Stop LMS--------------------------------------
 pcp_lms_stop() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="Stop" action="restartlms.cgi" method="get">'
@@ -166,12 +163,10 @@ pcp_lms_stop() {
 pcp_lms_stop
 #----------------------------------------------------------------------------------------
 
-
-
-#-------------------------------Restart - LMS-----------------------
+#-------------------------------Restart - LMS--------------------------------------------
 pcp_lms_restart() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="Restart" action="restartlms.cgi" method="get">'
@@ -193,7 +188,6 @@ pcp_lms_restart() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-
 pcp_lms_restart
 #----------------------------------------------------------------------------------------
 
@@ -203,8 +197,8 @@ pcp_lms_restart
 
 #------------------------------------------Update LMS------------------------------------
 pcp_lms_update() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="InSitu" action="upd_lms.cgi" method="get">'
@@ -225,7 +219,7 @@ pcp_lms_update() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_update
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------SAMBA mode fieldset------------------------
+#------------------------------------------SAMBA mode fieldset---------------------------
 if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
@@ -253,8 +247,8 @@ pcp_samba_indication() {
 		SB_STATUS="not running"
 	fi
 
-	pcp_start_row_shade
 	pcp_incr_id
+	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
 	echo '                <p class="centre"><img src="../images/'$SB_IMAGE'" alt="'$SB_STATUS'"></p>'
@@ -278,15 +272,15 @@ pcp_samba_indication() {
 }
 pcp_samba_indication
 
-#------------------------------------------Enable/download Samba---------------------------------------
-
+#------------------------------------------Enable/download Samba-------------------------
 pcp_samba_enable() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                <form name="Enable" action="restartlms.cgi" method="get">'
-	echo '                  <input type="submit" value="Enable" />'
+	echo '                  <form name="Enable" action="restartlms.cgi" method="get">'
+	echo '                    <input type="submit" value="Enable" />'
+	echo '                  </form>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>Yes'
@@ -304,10 +298,10 @@ pcp_samba_enable() {
 }
 pcp_samba_enable
 
-#------------------------------------------Start SAMBA------------------------------------------
+#------------------------------------------Start SAMBA-----------------------------------
 pcp_samba_start() {
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="Stop" action="samba.cgi" method="get">'
@@ -334,9 +328,9 @@ pcp_samba_start
 
 #------------------------------------------Stop------------------------------------------
 pcp_samba_stop() {
+	pcp_incr_id
 	pcp_start_row_shade
 	pcp_toggle_row_shade
-	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="Stop" action="stop.cgi" method="get">'
