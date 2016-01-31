@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.25 2016-02-01 SBP
+#	Added LMS startup.
+
 # Version: 0.24 2016-01-06 SBP
 #	Added dbus, avahi and shairport-sync startup routines.
 
@@ -409,11 +412,10 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 fi
 
 if [ $LMS = "yes" ]; then
-	echo -n "${BLUE}Starting LMS, this can take ome time... ${NORMAL}"
+	echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
 	sudo /usr/local/etc/init.d/slimserver start
 	echo "${GREEN}Done.${NORMAL}"
 fi
-
 
 # Save the parameters to the config file
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
@@ -427,18 +429,15 @@ ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
 
 if [ $JIVELITE = "YES" ]; then
-     echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
-     eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
-    if [ x"" != x$eventno ];then
-        export JIVE_NOCURSOR=1
-        export TSLIB_TSDEVICE=/dev/input/$eventno
-        export SDL_MOUSEDRV=TSLIB
-        export SDL_MOUSEDEV=$TSLIB_TSDEVICE
-    fi
-
-    export HOME=/home/tc
-    echo "${GREEN}Done.${NORMAL}"
-    sudo -E -b /opt/jivelite/bin/jivelite.sh
+	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+	eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
+	if [ x"" != x$eventno ];then
+		export JIVE_NOCURSOR=1
+		export TSLIB_TSDEVICE=/dev/input/$eventno
+		export SDL_MOUSEDRV=TSLIB
+		export SDL_MOUSEDEV=$TSLIB_TSDEVICE
+	fi
+	export HOME=/home/tc
+	echo "${GREEN}Done.${NORMAL}"
+	sudo -E -b /opt/jivelite/bin/jivelite.sh
 fi
-
-

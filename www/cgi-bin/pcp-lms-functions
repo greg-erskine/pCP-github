@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 0.04 2016-02-01 GE
+#	Added pcp_lms_power and pcp_lms_volume_set.
+
 # Version: 0.03 2015-10-01 GE
 #	Added pcp_lms_controls.
 
@@ -289,9 +292,6 @@ pcp_lms_info_total_songs() {
 	pcp_lms_request "info total songs ?"
 }
 
-
-
-
 pcp_lms_artists() {
 	RESULT=$(pcp_lms_request_list "artists 0 1000")
 	echo $RESULT | awk '
@@ -321,9 +321,6 @@ pcp_lms_artists() {
 		}
 	} '
 }
-
-
-
 
 #========================================================================================
 # Playlist commands and queries

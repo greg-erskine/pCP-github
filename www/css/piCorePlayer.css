@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.10 2016-02-01 SBP
+	Added a.nav6, a.nav6a.
+
 Version: 0.09 2015-08-23 GE
 	Added a.tab7 .small3, a.nav5a, a.nav7a.
 
@@ -274,7 +277,7 @@ textarea.white {
 }
 
 /* Horizontal navigation and controls bar */
-a.nav5, a.nav7, a.nav5a, a.nav7a {
+a.nav5, a.nav6, a.nav7, a.nav5a, a.nav6a, a.nav7a{
 	background:black;
 	border:1px solid black;
 	border-radius:8px 8px 8px 8px;
@@ -285,6 +288,10 @@ a.nav5, a.nav7, a.nav5a, a.nav7a {
 	margin-top:-12px;
 	overflow:hidden;
 	text-align:center;
+	width:187.5px;
+}
+
+a.nav6, a.nav6a {
 	width:155.5px;
 }
 
@@ -292,12 +299,14 @@ a.nav7, a.nav7a {
 	width:133px;
 }
 
-a.nav5:hover, a.nav7:hover , a.nav5a:hover, a.nav7a:hover{
+a.nav5:hover, a.nav5a:hover,
+a.nav6:hover, a.nav6a:hover,
+a.nav7:hover, a.nav7a:hover{
 	background:white;
 	color:black;
 }
 
-a.nav5a, a.nav7a {
+a.nav5a, a.nav6a , a.nav7a{
 	background:#d8d8d8;
 	color:black;
 }

@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.26 2016-02-01 SBP
+#	Added LMS tab.
+
 # Version: 0.25 2016-01-22 GE
 #	Updated pcp_mount_mmcblk0p1_nohtml.
 
@@ -258,7 +261,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=100
+	MODE=0
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -501,20 +504,20 @@ pcp_banner() {
 }
 
 pcp_navigation() {
-	TAB_STYLE_MODE_MAIN=nav5
-	TAB_STYLE_MODE_SQUEEZELITE=nav5
-	TAB_STYLE_MODE_WIFI=nav5
-	TAB_STYLE_MODE_TWEAKS=nav5
-	TAB_STYLE_MODE_LMS=nav5
-	TAB_STYLE_MODE_ABOUT=nav5
+	TAB_STYLE_MODE_MAIN=nav6
+	TAB_STYLE_MODE_SQUEEZELITE=nav6
+	TAB_STYLE_MODE_WIFI=nav6
+	TAB_STYLE_MODE_TWEAKS=nav6
+	TAB_STYLE_MODE_LMS=nav6
+	TAB_STYLE_MODE_ABOUT=nav6
 
 	case $0 in
-		main.cgi)        TAB_STYLE_MODE_MAIN=nav5a ;;
-		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav5a ;;
-		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav5a ;;
-		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav5a ;;
-		lms.cgi)         TAB_STYLE_MODE_LMS=nav5a ;;
-		about.cgi)       TAB_STYLE_MODE_ABOUT=nav5a ;;
+		main.cgi)        TAB_STYLE_MODE_MAIN=nav6a ;;
+		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav6a ;;
+		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav6a ;;
+		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav6a ;;
+		lms.cgi)         TAB_STYLE_MODE_LMS=nav6a ;;
+		about.cgi)       TAB_STYLE_MODE_ABOUT=nav6a ;;
 	esac
 
 	echo '<!-- Start of pcp_navigation toolbar -->'
