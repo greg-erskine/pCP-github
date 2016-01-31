@@ -119,7 +119,7 @@ pcp_LMS_enable() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <form name="Enable" action="restartlms.cgi" method="get">'
+	echo '                  <form name="Enable" action="writetolms.cgi" method="get">'
 	echo '                    <input type="submit" value="Enable" />'
 	echo '                  </form>'
 	echo '                </td>'
@@ -302,7 +302,7 @@ pcp_samba_enable() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <form name="Enable" action="restartlms.cgi" method="get">'
+	echo '                  <form name="Enable" action="writetolms.cgi" method="get">'
 	echo '                    <input type="submit" value="Enable" />'
 	echo '                  </form>'
 	echo '                </td>'

@@ -249,7 +249,7 @@ pcp_variables() {
 	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -505,6 +505,7 @@ pcp_navigation() {
 	TAB_STYLE_MODE_SQUEEZELITE=nav5
 	TAB_STYLE_MODE_WIFI=nav5
 	TAB_STYLE_MODE_TWEAKS=nav5
+	TAB_STYLE_MODE_LMS=nav5
 	TAB_STYLE_MODE_ABOUT=nav5
 
 	case $0 in
@@ -512,6 +513,7 @@ pcp_navigation() {
 		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav5a ;;
 		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav5a ;;
 		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav5a ;;
+		lms.cgi)         TAB_STYLE_MODE_LMS=nav5a ;;
 		about.cgi)       TAB_STYLE_MODE_ABOUT=nav5a ;;
 	esac
 
@@ -524,6 +526,7 @@ pcp_navigation() {
 	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS Server">LMS</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
@@ -1297,6 +1300,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMS=\).*/\1\"$LMS\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1364,6 +1369,8 @@ USER_COMMAND_3=""
 JIVELITE="NO"
 SCREENROTATE="NO"
 SHAIRPORT="no"
+ALSAeq="no"
+LMS="no"
 EOF
 
 	# Remove timezone stuff

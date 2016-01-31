@@ -408,6 +408,13 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+if [ $LMS = "yes" ]; then
+	echo -n "${BLUE}Starting LMS, this can take ome time... ${NORMAL}"
+	sudo /usr/local/etc/init.d/slimserver start
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+
 # Save the parameters to the config file
 echo -n "${BLUE}Updating configuration... ${NORMAL}"
 pcp_backup_nohtml >/dev/null 2>&1
@@ -433,3 +440,5 @@ if [ $JIVELITE = "YES" ]; then
     echo "${GREEN}Done.${NORMAL}"
     sudo -E -b /opt/jivelite/bin/jivelite.sh
 fi
+
+
