@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-02-01 GE
+#	Added power and volume.
+
 # Version: 0.01 2015-12-02 GE
 #	Original.
 
@@ -9,13 +12,15 @@ pcp_help() {
 	echo ----------------------------------------------------------------------------------------
 	echo  Squeezelite/LMS
 	echo  ---------------
-	echo  - pcp play	: play current track in playlist
-	echo  - pcp stop	: stop
-	echo  - pcp up		: volume up
-	echo  - pcp down	: volume down
-	echo  - pcp next	: next track
-	echo  - pcp prev	: previous track
-	echo  - pcp rand	: random track
+	echo  - pcp play			: play current track in playlist
+	echo  - pcp stop			: stop
+	echo  - pcp up				: volume up
+	echo  - pcp down			: volume down
+	echo  - pcp next			: next track
+	echo  - pcp prev			: previous track
+	echo  - pcp rand			: random track
+	echo  - pcp power [on|off]	: power on or off
+	echo  - pcp volume [0-100]	: volume between 0 to 100
 	echo ----------------------------------------------------------------------------------------
 	echo  piCore
 	echo  ------
@@ -42,6 +47,12 @@ pcp_help() {
 . /home/tc/www/cgi-bin/pcp-lms-functions
 
 case $1 in
+	volume)
+		pcp_lms_volume_set $2
+		;;
+	power)
+		pcp_lms_power $2
+		;;
 	play)
 		pcp_lms_play
 		;;

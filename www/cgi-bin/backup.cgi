@@ -19,7 +19,7 @@ pcp_html_head "Backup mydata" "SBP" "5" "main.cgi"
 
 pcp_banner
 pcp_running_script
-pcp_backup
+pcp_textarea "none" "pcp_backup_nohtml" "80"
 pcp_go_main_button
 
 echo '</body>'

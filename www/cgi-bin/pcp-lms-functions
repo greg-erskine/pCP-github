@@ -98,7 +98,7 @@ pcp_lms_send() {
 #	sleep
 #	sync
 #	syncgroups
-#	power
+#	power						Implemented
 #	mixer volume				Implemented
 #	mixer muting
 #	mixer bass
@@ -166,6 +166,14 @@ pcp_lms_connected() {
 	pcp_lms_request "connected ?"
 }
 
+pcp_lms_power() {
+	case $1 in
+		on) VALUE=1 ;;
+		off) VALUE=0 ;;
+	esac
+	pcp_lms_send "power $VALUE"
+}
+
 pcp_lms_players() {
 	SEARCH=$1
 	NO_OF_PLAYERS=$(pcp_lms_player_count)
@@ -225,6 +233,11 @@ pcp_lms_volume_up() {
 pcp_lms_volume_down() {
 	AMOUNT=5
 	pcp_lms_send "mixer volume -$AMOUNT"
+}
+
+pcp_lms_volume_set() {
+	AMOUNT=$1
+	pcp_lms_send "mixer volume $AMOUNT"
 }
 
 pcp_lms_player_status() {

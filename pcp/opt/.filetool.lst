@@ -16,5 +16,6 @@ usr/local/etc/init.d/shairport-sync
 usr/local/sbin/config.cfg
 usr/local/sbin/piversion.cfg
 usr/local/sbin/setup
+usr/local/sbin/pcp
 var/lib/alsa/asound.state
 var/spool/cron/crontabs
