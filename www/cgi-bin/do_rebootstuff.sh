@@ -304,21 +304,21 @@ if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 	fi
 fi
 
-# Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
-aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	# Set the analog output via HDMI out
-	sudo amixer cset numid=3 2 >/dev/null 2>&1
-	if [ $ALSAlevelout = Default ]; then
-		sudo amixer set PCM 400 unmute >/dev/null 2>&1
-	fi
-fi
-
 # If Custom ALSA settings are used, then restore the settings
 if [ $ALSAlevelout = Custom ]; then
 	alsactl restore
 fi
 echo "${GREEN}Done.${NORMAL}"
+
+# Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
+aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
+if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
+	if [ $ALSAlevelout = Default ]; then
+		sudo amixer set PCM 400 unmute >/dev/null 2>&1
+	fi
+	# Set the analog output via HDMI out
+	sudo amixer cset numid=3 2 >/dev/null 2>&1
+fi
 
 # Unmute IQaudIO amplifier via GPIO pin 22
 if [ $AUDIO = I2SpIQAMP ]; then

@@ -261,7 +261,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=30
 	MODE_INITIAL=0			# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20			# This is the typical setting for normal users
@@ -503,7 +503,7 @@ pcp_banner() {
 	echo '<!-- End of pcp_banner -->'
 }
 
-pcp_navigation() {
+New_pcp_navigation() {                                #<--------------- Use this when LMS is ready, rename to pcp_navigation
 	TAB_STYLE_MODE_MAIN=nav6
 	TAB_STYLE_MODE_SQUEEZELITE=nav6
 	TAB_STYLE_MODE_WIFI=nav6
@@ -537,6 +537,43 @@ pcp_navigation() {
 	echo '</table>'
 	echo '<!-- End of pcp_navigation toolbar -->'
 }
+
+
+pcp_navigation() {                             #<-------------- Delete this function when LMS is ready
+	TAB_STYLE_MODE_MAIN=nav5
+	TAB_STYLE_MODE_SQUEEZELITE=nav5
+	TAB_STYLE_MODE_WIFI=nav5
+	TAB_STYLE_MODE_TWEAKS=nav5
+#	TAB_STYLE_MODE_LMS=nav5
+	TAB_STYLE_MODE_ABOUT=nav5
+
+	case $0 in
+		main.cgi)        TAB_STYLE_MODE_MAIN=nav5a ;;
+		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav5a ;;
+		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav5a ;;
+		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav5a ;;
+#		lms.cgi)         TAB_STYLE_MODE_LMS=nav5a ;;
+		about.cgi)       TAB_STYLE_MODE_ABOUT=nav5a ;;
+	esac
+
+	echo '<!-- Start of pcp_navigation toolbar -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="'$0' - pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+#	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS Server">LMS</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of pcp_navigation toolbar -->'
+}
+
 
 pcp_footer() {
 	if [ -f /etc/sysconfig/timezone ]; then
@@ -889,6 +926,9 @@ pcp_restart_required() {
 #-----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
+	if [ $AUDIO = HDMI ]; then
+	sudo amixer cset numid=3 2 >/dev/null 2>&1
+	fi
 	sudo /usr/local/etc/init.d/squeezelite start
 	echo '</p>'
 }
@@ -901,6 +941,9 @@ pcp_squeezelite_stop() {
 
 pcp_squeezelite_restart() {
 	echo '<p class="info">[ INFO ] '
+	if [ $AUDIO = HDMI ]; then
+	sudo amixer cset numid=3 2 >/dev/null 2>&1
+	fi
 	sudo /usr/local/etc/init.d/squeezelite restart
 	echo '</p>'
 }

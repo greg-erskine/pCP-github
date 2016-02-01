@@ -67,9 +67,10 @@ case "$AUDIO" in
 		pcp_disable_i2s
 		pcp_disable_HDMI
 		pcp_enable_HDMI
-		OUTPUT="hw:CARD=ALSA"			#<-GE- Should this be sysdefault:CARD=ALSA?
+		OUTPUT="sysdefault:CARD=ALSA"
 		ALSA_PARAMS="::32:0"
 		pcp_umount_mmcblk0p1_nohtml
+		sudo amixer cset numid=3 2 >/dev/null 2>&1
 		;;
 	USB*)
 		pcp_mount_mmcblk0p1_nohtml
