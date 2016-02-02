@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# Version: 0.25 2016-02-01 SBP
+# Version: 0.25 2016-02-02 SBP
+#	Reordered custom alsactl restore.
 #	Added LMS startup.
 
 # Version: 0.24 2016-01-06 SBP
@@ -114,7 +115,7 @@ echo "${GREEN}Done.${NORMAL}"
 # in the future this check is not needed
 
 # Check for pCP installed via pCP.tcz and pCP.tcz not present any more
-if [ PCP_SOURCE = tcz ]; then
+if [ PCP_SOURCE == "tcz" ]; then
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/pCP.tcz ]; then
 			echo "${YELLOW} Removing all traces of piCorePlayer... ${NORMAL}"
 			sudo sed -i "/do_rebootstuff.sh/d" /opt/bootlocal.sh
@@ -293,8 +294,13 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-# Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
+# If Custom ALSA settings are used, then restore the settings
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
+if [ $ALSAlevelout = Custom ]; then
+	alsactl restore
+fi
+
+# Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 	# Set the analog output via audio jack
@@ -303,12 +309,6 @@ if [ $? == 0 ] && [ $AUDIO = Analog ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi
-
-# If Custom ALSA settings are used, then restore the settings
-if [ $ALSAlevelout = Custom ]; then
-	alsactl restore
-fi
-echo "${GREEN}Done.${NORMAL}"
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
@@ -319,14 +319,15 @@ if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
 	# Set the analog output via HDMI out
 	sudo amixer cset numid=3 2 >/dev/null 2>&1
 fi
+echo "${GREEN}Done.${NORMAL}"
 
 # Unmute IQaudIO amplifier via GPIO pin 22
 if [ $AUDIO = I2SpIQAMP ]; then
-echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
+	echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
 	sudo sh -c "echo 22 > /sys/class/gpio/export"
 	sudo sh -c "echo out >/sys/class/gpio/gpio22/direction"
 	sudo sh -c "echo 1 >/sys/class/gpio/gpio22/value"
-echo "${GREEN}Done.${NORMAL}"
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Start the essential stuff for piCorePlayer
@@ -411,7 +412,7 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $LMS = "yes" ]; then
+if [ $LMSERVER = "yes" ]; then
 	echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
 	sudo /usr/local/etc/init.d/slimserver start
 	echo "${GREEN}Done.${NORMAL}"

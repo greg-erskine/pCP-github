@@ -2,6 +2,9 @@
 . pcp-functions
 pcp_variables
 
+# Version: 0.03 2016-02-02 GE
+#	Added pcp_go_main_button.
+
 # Version: 0.02 2014-12-09 GE
 #	HTML5 formatted.
 
@@ -13,6 +16,7 @@ pcp_html_head "Reboot Raspberry Pi" "SBP" "5" "main.cgi"
 pcp_banner
 pcp_running_script
 pcp_reboot
+pcp_go_main_button
 
 echo '</body>'
 echo '</html>'

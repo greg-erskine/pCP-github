@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.26 2016-02-01 SBP
+# Version: 0.26 2016-02-02 SBP
 #	Added LMS tab.
 
 # Version: 0.25 2016-01-22 GE
@@ -252,7 +252,7 @@ pcp_variables() {
 	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -261,10 +261,10 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
-	MODE_INITIAL=0			# Not used at the moment
+	MODE=0
+	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
-	MODE_NORMAL=20			# This is the typical setting for normal users
+	MODE_NORMAL=20				# This is the typical setting for normal users
 	MODE_ADVANCED=30			# Add more options for advanced users
 	MODE_BETA=40				# Beta options that can be shared with beta testers
 	MODE_DEVELOPER=100			# Beta and experiential options for developers only
@@ -806,10 +806,6 @@ pcp_tc_user() {
 	cat /etc/sysconfig/tcuser
 }
 
-pcp_pb_get() {
-	echo $1 | tr a-zA-Z n-za-mN-ZA-M
-}
-
 #=========================================================================================
 # Show various configuration and setup files
 # $1 = title, $2 = command, $3 = height, $4 = write to log
@@ -1347,7 +1343,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMS=\).*/\1\"$LMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1416,7 +1412,7 @@ JIVELITE="NO"
 SCREENROTATE="NO"
 SHAIRPORT="no"
 ALSAeq="no"
-LMS="no"
+LMSERVER="no"
 EOF
 
 	# Remove timezone stuff

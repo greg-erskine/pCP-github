@@ -1,12 +1,15 @@
 #!/bin/sh
 
-# Version: 0.3 2016-01-07 SBP
+# Version: 0.04 2016-02-02 GE
+#	Added pcp_go_main_button.
+
+# Version: 0.03 2016-01-07 SBP
 #	Added shairport restart.
 
-# Version: 0.2 2014-12-09 GE
+# Version: 0.02 2014-12-09 GE
 #	HTML5 formatted.
 
-# Version: 0.1 2014-06-24 GE
+# Version: 0.01 2014-06-24 GE
 #	Original.
 
 . pcp-functions
@@ -25,6 +28,8 @@ if [ $SHAIRPORT = yes ]; then
 	sleep 2
 	pcp_shairport_start
 fi
+
+[ $DEBUG = 1 ] && pcp_go_main_button
 
 echo '</body>'
 echo '</html>'
