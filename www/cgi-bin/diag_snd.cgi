@@ -1,6 +1,9 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 0.07 2016-02-03 GE
+#	Moved pcp_pastebin_button to Developer mode.
+
 # Version: 0.06 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
@@ -68,7 +71,7 @@ pcp_textarea "Right speaker test" "speaker-test -t sine -f 480 -c 2 -s 2" 240 lo
 echo '<br />'
 echo '<br />'
 
-pcp_pastebin_button sound
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button sound
 
 pcp_footer
 pcp_copyright

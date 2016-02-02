@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.08 2016-02-03 GE
+#	Moved pcp_pastebin_button to Developer mode.
+
 # Version: 0.07 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
@@ -339,7 +342,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-pcp_pastebin_button raspi
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button raspi
 
 pcp_footer
 pcp_copyright

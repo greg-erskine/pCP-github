@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 0.05 2016-02-03 GE
+#	Moved pcp_pastebin_button to Developer mode.
+
 # Version: 0.04 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
@@ -497,7 +500,7 @@ echo '          </div>'
 echo '        </form>'
 #----------------------------------------------------------------------------------------
 
-pcp_pastebin_button wifi
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button wifi
 
 echo '      </div>'
 echo '    </td>'

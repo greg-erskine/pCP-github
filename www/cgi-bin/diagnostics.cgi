@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.12 2016-02-03 GE
+#	Moved pcp_pastebin_button to Developer mode.
+
 # Version: 0.11 2015-12-24 GE
 #	Added Upload to pastebin feature.
 
@@ -80,7 +83,7 @@ pcp_textarea "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
 pcp_textarea "lsmod" "lsmod" 300 log
 pcp_textarea "Directory of www/cgi-bin" "ls -al" 300 log
 
-pcp_pastebin_button diagnostics
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
 
 echo '<br />'
 echo '<br />'
