@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.26 2016-02-02 SBP
+# Version: 0.26 2016-02-03 SBP
 #	Added LMS tab.
 
 # Version: 0.25 2016-01-22 GE
@@ -538,7 +538,6 @@ New_pcp_navigation() {                                #<--------------- Use this
 	echo '<!-- End of pcp_navigation toolbar -->'
 }
 
-
 pcp_navigation() {                             #<-------------- Delete this function when LMS is ready
 	TAB_STYLE_MODE_MAIN=nav5
 	TAB_STYLE_MODE_SQUEEZELITE=nav5
@@ -573,7 +572,6 @@ pcp_navigation() {                             #<-------------- Delete this func
 	echo '</table>'
 	echo '<!-- End of pcp_navigation toolbar -->'
 }
-
 
 pcp_footer() {
 	if [ -f /etc/sysconfig/timezone ]; then
@@ -923,7 +921,7 @@ pcp_restart_required() {
 pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
 	if [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2 >/dev/null 2>&1
+		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	sudo /usr/local/etc/init.d/squeezelite start
 	echo '</p>'
@@ -938,7 +936,7 @@ pcp_squeezelite_stop() {
 pcp_squeezelite_restart() {
 	echo '<p class="info">[ INFO ] '
 	if [ $AUDIO = HDMI ]; then
-	sudo amixer cset numid=3 2 >/dev/null 2>&1
+		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	sudo /usr/local/etc/init.d/squeezelite restart
 	echo '</p>'
