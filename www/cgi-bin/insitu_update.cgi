@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# version: 0.01 2016-01-22 GE
+# version: 0.01 2016-02-03 GE
 #	Original - Combined upd_picoreplayer.cgi, insitu.cgi and do_updatepicoreplayer.cgi
 
 . pcp-functions
@@ -12,8 +12,6 @@ pcp_banner
 pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
-
-#DEBUG=1
 
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
@@ -29,7 +27,8 @@ INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
 # --------
 # 35977609 bytes
 #----------------------------------------------------------------------------------------
-SPACE_REQUIRED=$((35977609 * 2 / 1000))
+#SPACE_REQUIRED=$((35977609 * 2 / 1000))
+SPACE_REQUIRED=21044
 
 #========================================================================================
 # DEBUG info showing variables
@@ -325,7 +324,6 @@ case $ACTION in
 		;;
 	*)
 		STEP="Invalid ACTION"
-		echo '[ ERROR ] Invalid ACTION: "'$ACTION'"'
 		FAIL_MSG="Invalid ACTION: $ACTION"
 		;;
 esac

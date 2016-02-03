@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.20 2016-02-03 GE
+#	Changed Insitu update.
+
 # Version: 0.19 2016-01-15 GE
 #	Updated "Update pCP" help text.
 
@@ -314,8 +317,9 @@ pcp_main_update_pcp() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="InSitu" action="upd_picoreplayer.cgi" method="get">'
+	echo '                <form name="InSitu" action="insitu_update.cgi" method="get">'
 	echo '                  <input type="submit" value="Update pCP" />'
+	echo '                  <input type="hidden" name="ACTION" value="initial" />'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
