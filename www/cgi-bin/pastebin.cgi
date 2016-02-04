@@ -1,14 +1,12 @@
 #!/bin/sh
 
-# Version: 0.01 2016-01-28 GE
+# Version: 0.01 2016-02-05 GE
 #	Original version.
 
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 . pcp-pastebin-functions
-
-DEBUG=1
 
 pcp_html_head "pastebin" "GE"
 
