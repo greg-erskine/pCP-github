@@ -1341,7 +1341,6 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 }
 
@@ -1410,7 +1409,6 @@ USER_COMMAND_3=""
 JIVELITE="NO"
 SCREENROTATE="NO"
 SHAIRPORT="no"
-ALSAeq="no"
 LMSERVER="no"
 EOF
 
