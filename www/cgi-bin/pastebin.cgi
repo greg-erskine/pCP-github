@@ -82,6 +82,12 @@ if [ $SUBMIT = "Upload" ]; then
 	echo '            <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	                        pcp_install_wget
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p>The window above contains the paste text that will be uploaded '
 	echo '                     into pastebin. Please check you are happy with the content '
@@ -99,12 +105,6 @@ if [ $SUBMIT = "Upload" ]; then
 	echo '                  <input type="submit" name="SUBMIT" value="Reject">'
 	echo '                  <input type="hidden" name="FILE" value="'$FILE'">'
 	echo '                  <input type="hidden" name="REPORT" value="'$REPORT'">'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	                        pcp_install_wget
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
