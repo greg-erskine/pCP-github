@@ -7,7 +7,7 @@
 pcp_variables
 
 # Store the original values so we can see if they are changed
-ORIG_LMS="$LMS"
+ORIG_LMSERVER="$LMSERVER"
 ORIG_SAMBA="$SAMBA"
 
 pcp_html_head "Write to Audio Tweak" "SBP" "15" "tweaks.cgi"
@@ -97,14 +97,14 @@ pcp_remove_lms() {
 # LMS section
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
-#if [ $ORIG_LMS != $LMS ]; then
+#if [ $ORIG_LMSERVER != $LMSERVER ]; then
 	REBOOT_REQUIRED=1
 	echo '<hr>'
-	echo '<p class="info">[ INFO ] LMS is set to: '$LMS'</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMS'</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is: '$LMS'</p>'
+	echo '<p class="info">[ INFO ] LMS is set to: '$LMSERVER'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMSERVER'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is: '$LMSERVER'</p>'
 
-	case "$LMS" in
+	case "$LMSERVER" in
 		yes)
 			echo '<p class="info">[ INFO ] LMS will be downloaded and enabled.</p>'
 			pcp_download_lms
@@ -115,7 +115,7 @@ pcp_remove_lms() {
 			pcp_remove_lms
 			;;
 		*)
-			echo '<p class="error">[ ERROR ] LMS selection invalid: '$LMS'</p>'
+			echo '<p class="error">[ ERROR ] LMS selection invalid: '$LMSERVER'</p>'
 			;;
 	esac
 	echo '<hr>'

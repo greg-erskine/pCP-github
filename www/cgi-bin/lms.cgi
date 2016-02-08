@@ -64,9 +64,9 @@ pcp_main_lms_indication() {
 	# Determine state of check boxes.
 	#------------------------------------------------------------------------------------
 	# Function to check the LMS radio button according to config file
-	case "$LMS" in
-		yes) LMSyes="checked" ;;
-		no) LMSno="checked" ;;
+	case "$LMSERVER" in
+		yes) LMSERVERyes="checked" ;;
+		no) LMSERVERno="checked" ;;
 	esac
 
 	# Function to check the Samba radio button according to config file
@@ -117,15 +117,18 @@ pcp_main_padding
 pcp_LMS_enable() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	
+		echo '                  <form name="Enable" action="writetolms.cgi" method="get">'
+	
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <form name="Enable" action="writetolms.cgi" method="get">'
+
 	echo '                    <input type="submit" value="Enable" />'
-	echo '                  </form>'
+
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="LMS" value="yes" '$LMSyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="LMS" value="no" '$LMSno'>No'
+	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>No'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Enable and download LMS Server&nbsp;&nbsp;'
@@ -136,7 +139,10 @@ pcp_LMS_enable() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	
+		echo '                  </form>'
 }
+
 pcp_LMS_enable
 
 #------------------------------------------Start LMS---------------------------------------
