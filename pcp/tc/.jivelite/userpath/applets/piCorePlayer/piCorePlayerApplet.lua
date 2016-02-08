@@ -77,7 +77,7 @@ function rebootPi(self, menuItem)
 							text:setValue(self:string("LABEL_REBOOTING"))
 				       elseif state == -1 then
 							-- log:info("piCorePlayer: Reboot")
-							os.execute("/home/tc/.local/bin/pcp rb")
+							os.execute("sudo reboot")
 				       end
 				       state = state - 1
 			       end)
@@ -124,7 +124,7 @@ function shutdownPi(self, menuItem)
 							-- no need to remember the current state
 							-- as the Pi is about to be powered off
 							_write("/sys/class/backlight/rpi_backlight/bl_power", "1")
-							os.execute("/home/tc/.local/bin/pcp sd")
+							os.execute("exitcheck.sh")
 				       end
 				       state = state - 1
 			       end)
@@ -146,7 +146,7 @@ function saveToSDCard(self, menuItem)
 
 	-- save piCorePlayer settings
 	-- should/could we test for return value/errors
-	os.execute("/home/tc/.local/bin/pcp bu")
+	os.execute("sudo filetool.sh -b")
 	
 	-- display the message for 2 seconds
 	popup:addTimer(2000, function()

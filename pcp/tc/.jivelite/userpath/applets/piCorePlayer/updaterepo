@@ -9,7 +9,7 @@ fi
 # http://picoreplayer.sourceforge.net/repo.xml
 
 # package URL
-# http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.0.zip
+# http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.1.zip
 
 APPKG=$1
 
