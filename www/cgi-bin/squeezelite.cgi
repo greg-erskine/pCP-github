@@ -252,7 +252,12 @@ echo '                <td class="column150">'
 echo '                  <p>Output setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
+if [ $ALSAeq = yes ]; then
+echo ' When using ALSA equalizer OUTPUT is set to use equal'
+OUTPUT="equal"
+else
 echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" pattern="^[a-zA-Z0-9:,=]*$">'
+fi
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'

@@ -149,6 +149,10 @@ case "$AUDIO" in
 		;;
 esac
 
+#----If ALSA equalizer is chosen output should always be equal----
+
+[ $ALSAeq = yes ] && OUTPUT="equal"
+
 echo '</textarea>'
 
 if [ $DEBUG = 1 ]; then
