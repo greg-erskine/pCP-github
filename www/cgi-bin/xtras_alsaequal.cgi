@@ -92,7 +92,8 @@ for VALUE in $CURRENT_EQ_SETTINGS
 do
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	echo '                  <p style="height:12px"><input class="large36" type="range" name="R'$i'" value="'$VALUE'" min="0" max="100">&nbsp;&nbsp;'$(eval "echo \$LB$i")'</p>'
+	echo '                  <p style="height:12px"><input class="large36" type="range" id="R'$i'" name="R'$i'" value="'$VALUE'" min="0" max="100" oninput="P'$i'.value=R'$i'.value">&nbsp;&nbsp;&nbsp;'$(eval "echo \$LB$i")'</p>'
+	echo '                  <output name="P'$i'" id="P'$i'" for="R'$i'">0</output>' 
 	echo '                </td>'
 	echo '              </tr>'
 	i=$((i + 1))
