@@ -5,16 +5,17 @@
    </details>
 
    <applets>
-     <applet name="piCorePlayer" version="1.0" minTarget="0.1" maxTarget="*" target="squeezeplay|jivelite" >
+     <applet name="piCorePlayer" version="1.1" minTarget="0.1" maxTarget="*" target="squeezeplay|jivelite" >
        <title lang="EN">piCorePlayer menu</title>
        <desc lang="EN">Access common piCorePlayer features from jive settings menu.</desc>
        <changes lang="EN">Initial Release.</changes>
        <creator>Kolossos</creator>
        <email>kolossos@gmail.com</email>
-       <url>http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.0.zip</url>
-       <sha>2eb60baf15a7b861434f20e76901152fd7a1b879</sha>
+       <url>http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.1.zip</url>
+       <sha>f89ab89b3180cb6d0c84dfcae392eed66ec1693f</sha>
        <link>http://sourceforge.net/projects/picoreplayer</link>
      </applet>
-   </applets>
+   </applets>  
+   
 </extensions>
 
