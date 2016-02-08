@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.21 2016-02-09 SBP
+#	Change Output settings for alsaequal.
+
 # Version: 0.20 2015-09-20 GE
 #	Added -e option.
 #	Added -U option (not working).
@@ -245,6 +248,13 @@ echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Output settings-----------------------------------
+if [ $ALSAeq = yes ]; then
+	OUTPUT="equal"
+	READONLY="readonly"
+else
+	READONLY=""
+fi
+
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -252,29 +262,34 @@ echo '                <td class="column150">'
 echo '                  <p>Output setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-if [ $ALSAeq = yes ]; then
-echo ' When using ALSA equalizer OUTPUT is set to use equal'
-OUTPUT="equal"
-else
-echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" pattern="^[a-zA-Z0-9:,=]*$">'
-fi
+echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" '$READONLY' pattern="^[a-zA-Z0-9:,=]*$">'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;output device&gt;</p>'
-echo '                    <ul>'
-echo '                      <li>Default: default</li>'
-echo '                      <li>- = output to stdout</li>'
-echo '                    </ul>'
-echo '                    <p>Squeezelite found these output devices:</p>'
-echo '                    <ul>'
-                            /mnt/mmcblk0p2/tce/squeezelite-armv6hf -l | awk '/^  / { print "                        <li> "$1"</li>" }'
-echo '                    </ul>'
-echo '                    <p><b>Note: </b>Sometimes clearing this field completely may help. This forces the default ALSA setting to be used.</p>'
-echo '                  </div>'
+
+if [ $ALSAeq = yes ]; then
+	echo '                  <p><b>NOTE:</b> ALSA equalizer has set the output to "equal"</p>'
+else
+	echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;output device&gt;</p>'
+	echo '                    <ul>'
+	echo '                      <li>Default: default</li>'
+	echo '                      <li>- = output to stdout</li>'
+	echo '                    </ul>'
+	echo '                    <p>Squeezelite found these output devices:</p>'
+	echo '                    <ul>'
+	                            /mnt/mmcblk0p2/tce/squeezelite-armv6hf -l | awk '/^  / { print "                        <li> "$1"</li>" }'
+	echo '                    </ul>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>Using ALSA equalizer will set the output to "equal".</li>'
+	echo '                      <li>Sometimes clearing this field completely may help. This forces the default ALSA setting to be used.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+fi
+
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -756,37 +771,6 @@ pcp_squeezelite_dop() {
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop
-#----------------------------------------------------------------------------------------
-
-#--------------------------------------Visualiser support--------------------------------
-#pcp_squeezelite_visualiser() {
-#case "$VISUALISER" in
-#	yes) VISUALISERYES="checked" ;;
-#	*) VISUALISERNO="checked" ;;
-#esac
-
-#pcp_incr_id
-#pcp_toggle_row_shade
-#echo '              <tr class="'$ROWSHADE'">'
-#echo '                <td class="column150">'
-#echo '                  <p class="row">Visualiser support</p>'
-#echo '                </td>'
-#echo '                <td class="column210">'
-#echo '                  <input class="small1" type="radio" name="VISUALISER" value="yes" '$VISUALISERYES'>Yes&nbsp;&nbsp;'
-#echo '                  <input class="small1" type="radio" name="VISUALISER" value="" '$VISUALISERNO'>No'
-#echo '                </td>'
-#echo '                </td>'
-#echo '                <td>'
-#echo '                  <p>Visualiser support (-v)&nbsp;&nbsp;'
-#echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-#echo '                  </p>'
-#echo '                  <div id="'$ID'" class="less">'
-#echo '                    <p><b>Note: </b>An option for jivelite if it gets ported to piCorePlayer. For now, not of any use.</p>'
-#echo '                  </div>'
-#echo '                </td>'
-#echo '              </tr>'
-#}
-#[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_visualiser
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Close output setting------------------------------

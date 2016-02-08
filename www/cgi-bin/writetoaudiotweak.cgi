@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.08 2016-02-09 SBP
+#	Updated CARDNO.
+
 # Version: 0.07 2016-01-29 SBP
 #	Activated ALSA Equalizer.
 
@@ -236,25 +239,25 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 	if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
 		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
 	fi
+	
+	#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----	
+	if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+	 CARDNO=1
+	fi
 
 	# If output is different from analog or HDMI then find the number of the non-ALSA card
-	aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-
-
-#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----	
-if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-CARDNO=1
-#-- Code below is not fully working as I2S DACs needs a reboot to show up ---------------------------------	
-#	if [ $? == 0 ]; then
-#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-#			CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
-#		fi
-#	else
-#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-#			CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
-#		fi
-#	fi
-# ---------------------------------------------------------------------------------------------------------
+	#	aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
+	#-- Code below is not fully working as I2S DACs needs a reboot to show up ---------------------------------	
+	#	if [ $? == 0 ]; then
+	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+	#			CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
+	#		fi
+	#	else
+	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+	#			CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
+	#		fi
+	#	fi
+	# ---------------------------------------------------------------------------------------------------------
 
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'

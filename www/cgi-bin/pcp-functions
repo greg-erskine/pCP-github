@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.26 2016-02-05 SBP
+# Version: 0.26 2016-02-09 SBP
 #	Added busybox before wget.
 #	Added LMS tab.
+#	Updated pcp_lmsip.
 
 # Version: 0.25 2016-01-22 GE
 #	Updated pcp_mount_mmcblk0p1_nohtml.
@@ -253,7 +254,7 @@ pcp_variables() {
 	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -262,7 +263,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1006,7 +1007,7 @@ pcp_uptime_days() {
 # Determine the IP addresses
 #-----------------------------------------------------------------------------------------
 pcp_lmsip() {
-	netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | awk -F: '{ print $1 }'
+	netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | grep :3483 | awk -F: '{ print $1 }'
 }
 
 pcp_eth0_ip() {

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.10 2016-02-09 SBP
+#	Modified CARDNO.
+
 # Version: 0.09 2016-01-15 GE
 #	Deleted Reboot button.
 
@@ -149,29 +152,26 @@ case "$AUDIO" in
 		;;
 esac
 
+echo '</textarea>'
+
 #----If ALSA equalizer is chosen output should always be equal----
 [ $ALSAeq = yes ] && OUTPUT="equal"
 
 #----If ALSA equalizer is chosen then the card number in alsa equalizer part of asound.conf should be updated if another card is chosen----  
-	# Determination of the number of the current sound-card
+# Determination of the number of the current sound-card
 
-	# If output is analog or HDMI then find the number of the used ALSA-card
-	if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
-		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
-	fi
+# If output is analog or HDMI then find the number of the used ALSA-card
+if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
+	CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
+fi
 
-	# If output is different from analog or HDMI then find the number of the non-ALSA card
-	# For now we simply set the card number to 1. The problem is that I2S cards needs a reboot to show up.
-	
-		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-		CARDNO=1
-		fi
-	sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
-
+# If output is different from analog or HDMI then find the number of the non-ALSA card
+# For now we simply set the card number to 1. The problem is that I2S cards needs a reboot to show up.
+if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+	CARDNO=1
+fi
+sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 # We might have an issue if both I2S DACS and USB DACs are attached at the same time..
-
-
-echo '</textarea>'
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
