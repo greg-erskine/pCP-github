@@ -253,7 +253,7 @@ pcp_variables() {
 	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -262,7 +262,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=30
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -923,6 +923,9 @@ pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
 	if [ $AUDIO = HDMI ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
+	fi
+	if [ SHAIRPORT = yes ]; then
+		pcp_shairport_restart
 	fi
 	sudo /usr/local/etc/init.d/squeezelite start
 	echo '</p>'
