@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.10 2016-02-09 SBP
+# Version: 0.10 2016-02-10 SBP
 #	Modified CARDNO.
+#	Set OUTPUT to equal for alsaequal. 
 
 # Version: 0.09 2016-01-15 GE
 #	Deleted Reboot button.
@@ -170,6 +171,32 @@ fi
 if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
 	CARDNO=1
 fi
+
+#========================================================================================
+#CARDS=$(cat /proc/asound/card*/id)
+#NO_OF_CARDS=$(echo $CARDS | wc -w )
+
+#tc@piScreen:/proc/asound/card1$ ls
+#id        pcm0c/    pcm0p/    stream0   usbbus    usbid     usbmixer
+
+#cat /proc/asound/card1/pcm0p/info | grep 'id' | awk -F ": " '{print $2}'
+
+#========================================================================================
+#case $AUDIO in
+#	Analog|HDMI)
+#		CARDNO=$(cat /proc/asound/cards | grep ': bcm2835' | grep 'ALSA' | awk '{print $1}')
+#		;;
+#	USB*)
+#		# Do USB cards always have USB in description?
+#		CARDNO=$(cat /proc/asound/cards | grep '\]:' | grep 'USB' | awk '{print $1}')
+#		;;
+#	*)
+#		#CARDNO=$(cat /proc/asound/cards | grep '\]:' | grep -v 'ALSA' | grep -v 'USB' | awk '{print $1}')
+#		CARDNO=1
+#		;;
+#esac
+#========================================================================================
+
 sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 # We might have an issue if both I2S DACS and USB DACs are attached at the same time..
 
