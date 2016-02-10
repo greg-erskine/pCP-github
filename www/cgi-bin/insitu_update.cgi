@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.2 2016-02-10 GE
+#	Added warning on each page.
+#	Added warnings for alsaequal and slimserver.
+
 # version: 0.01 2016-02-03 GE
 #	Original - Combined upd_picoreplayer.cgi, insitu.cgi and do_updatepicoreplayer.cgi
 
@@ -72,9 +76,16 @@ pcp_sourceforge_indicator() {
 pcp_check_for_extension() {
 	EXTENSION=$1
 	if [ -f "/usr/local/tce.installed/${EXTENSION}" ]; then
-		echo '[ WARN ] You will need to reinstall '$EXTENSION
+		echo '[ WARN ] You will need to REINSTALL '$EXTENSION
 	fi
 }
+
+pcp_check_for_all_extensions() {
+	pcp_check_for_extension jivelite
+	pcp_check_for_extension shairport-sync
+	pcp_check_for_extension alsaequal
+	pcp_check_for_extension slimserver
+	}
 
 #========================================================================================
 # Check for free space - set FAIL_MSG if insufficient space is available
@@ -318,9 +329,11 @@ case $ACTION in
 		;;
 	download)
 		STEP="Step 2 - Downloading files"
+		pcp_warning_message
 		;;
 	install)
 		STEP="Step 3 - Installing files"
+		pcp_warning_message
 		;;
 	*)
 		STEP="Invalid ACTION"
@@ -349,9 +362,7 @@ if [ $ACTION = "initial" ]; then
 	echo '[ INFO ] '$SOURCEFORGE_STATUS
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 	pcp_enough_free_space $SPACE_REQUIRED
-	pcp_check_for_extension jivelite
-	pcp_check_for_extension shairport-sync
-	#pcp_check_for_extension alsa
+	pcp_check_for_all_extensions
 	[ $FAIL_MSG = "ok" ] && pcp_get_insitu_cfg
 fi
 #----------------------------------------------------------------------------------------
