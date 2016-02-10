@@ -1,0 +1,28 @@
+Files
+-----
+
+/usr/local/tce.installed/firmware-brcmwifi
+/lib/firmware/brcm/brcmfmac43143.bin
+
+
+download firmware-brcmwifi and brcmfmac43143.bin to home directory
+
+Instructions
+------------
+
+tce-load -w squashfs-tools.tcz
+tce-load -i squashfs-tools.tcz
+
+cd /tmp
+mkdir -p brcm
+
+cd brcm
+mkdir -p usr/local/tce.installed/
+mkdir -p lib/firmware/brcm/
+
+cp ~/firmware-brcmwifi usr/local/tce.installed/
+cp ~/brcmfmac43143.bin lib/firmware/brcm/
+
+sudo -s
+cd /tmp
+mksquashfs brcm/ firmware-brcmwifi.tcz
