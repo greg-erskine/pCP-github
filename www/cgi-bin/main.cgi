@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.21 2016-02-10 GE
+#	Renamed Squeezelite [Save] button to [Install].
+
 # Version: 0.20 2016-02-03 GE
 #	Changed Insitu update.
 
@@ -252,7 +255,7 @@ pcp_main_update_ralphy() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Install">'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="VERSION">'

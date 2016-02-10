@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.2 2016-02-10 GE
+# Version: 0.02 2016-02-10 GE
 #	Added warning on each page.
 #	Added warnings for alsaequal and slimserver.
 
@@ -76,7 +76,7 @@ pcp_sourceforge_indicator() {
 pcp_check_for_extension() {
 	EXTENSION=$1
 	if [ -f "/usr/local/tce.installed/${EXTENSION}" ]; then
-		echo '[ WARN ] You will need to REINSTALL '$EXTENSION
+		echo '[ WARN ] *** You will need to REINSTALL '$EXTENSION' ***'
 	fi
 }
 
@@ -85,7 +85,7 @@ pcp_check_for_all_extensions() {
 	pcp_check_for_extension shairport-sync
 	pcp_check_for_extension alsaequal
 	pcp_check_for_extension slimserver
-	}
+}
 
 #========================================================================================
 # Check for free space - set FAIL_MSG if insufficient space is available
@@ -244,6 +244,13 @@ pcp_finish_install() {
 		sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
 		sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	fi
+
+	[ $JIVELITE = YES ] && JIVELITE="NO"
+	[ $VISUALISER = yes ] && VISUALISER="no"
+	[ $ALSAeq = yes ] && ALSAeq="no"
+	[ $OUTPUT = equal ] && OUTPUT=""
+	[ $SHAIRPORT = yes ] && SHAIRPORT="no"
+	[ $LMSERVER = yess ] && LMSERVER="no"
 }
 
 #========================================================================================
@@ -261,10 +268,10 @@ pcp_warning_message() {
 	echo '              <td>'
 	echo '                <p style="color:white"><b>Warning:</b> An insitu upgrade will overwrite ALL data on your SD card.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Addtional extensions will need to be reloaded i.e. jivelite and shairport-sync</li>'
+	echo '                  <li style="color:white">Any addtional extensions will need to be reinstalled i.e. jivelite, shairport-sync, alsaequal.</li>'
 	echo '                  <li style="color:white">Any modified or additional files will be lost.</li>'
 	echo '                  <li style="color:white">An insitu upgrade requires about 50% free space.</li>'
-	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwrtitten.</li>'
+	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
