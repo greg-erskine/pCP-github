@@ -255,7 +255,7 @@ pcp_finish_install() {
 	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/opt/bootlocal.sh
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/opt/bootlocal.sh > /opt/bootlocal.sh
 
-	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot
+	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot as it always have been done
 
 	# Copy possible new content from the new untarred tce directory except (bootlocal.lst and mydata.tgz) - so we remove them first.
 	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/optional
@@ -263,9 +263,9 @@ pcp_finish_install() {
 	sudo rm -f /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz
 	sudo cp -af /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce /mnt/mmcblk0p2/tce/
 
-	#Copy the content from the new version to the correct loaction 
+	# Update pCP by copying the content from the new version to the correct loaction followed by a backup 
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
-	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/www/ /home/www/
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/www/
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
@@ -275,7 +275,7 @@ pcp_finish_install() {
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/setup /usr/local/sbin/setup
 
 	#backup changes to make a new mydata.tgz containing an updated version
-	#sudo filetool.sh -b
+	sudo filetool.sh -b
 }
 
 
@@ -336,6 +336,7 @@ pcp_html_end() {
 	pcp_footer
 	pcp_copyright
 
+	pcp_finish_install
 	if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
 		pcp_finish_install
 		pcp_reboot_required
