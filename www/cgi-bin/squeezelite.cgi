@@ -249,7 +249,6 @@ echo '              </tr>'
 
 #--------------------------------------Output settings-----------------------------------
 if [ $ALSAeq = yes ]; then
-	OUTPUT="equal"
 	READONLY="readonly"
 else
 	READONLY=""
