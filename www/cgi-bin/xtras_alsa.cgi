@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.2 2016-02-13 GE
+#	Added Analog/HDMI option.
+
 # Version: 0.1 2016-01-27 GE
 #	Original version.
 
@@ -32,6 +35,7 @@ pcp_view_asound_state() {
 case $ACTION in
 	Save)
 		sudo amixer -c $CARD -- sset PCM $UNMUTE $VOL >/dev/null 2>&1
+		sudo amixer -c ALSA cset name='PCM Playback Route' $HDMI >/dev/null 2>&1
 		;;
 	Store)
 		sudo alsactl store
@@ -125,6 +129,28 @@ echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
 echo '                      <li>Unmute or mute.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+#--------------------------------------Analog/HDMI---------------------------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Analog/HDMI</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <input class="small1" type="radio" name="HDMI" value="1" checked>Analog&nbsp;'
+echo '                  <input class="small1" type="radio" name="HDMI" value="2">HDMI'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Select Analog/HDMI&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Select Anlog or HDMI output for on-board sound card.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'

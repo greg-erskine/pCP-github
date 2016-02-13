@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.09 2016-02-12 GE
+#	Updated temperature function.
+
 # Version: 0.08 2015-11-27 GE
 #	Added Raspberry Pi Zero (not tested)
 
@@ -251,5 +254,9 @@ pcp_rpi_thermal() {
 
 pcp_rpi_thermal_temp() {
 	TEMP_IN_DEGRESS=$(pcp_rpi_thermal "temp")
-	printf "%s %.f" $TEMP_IN_DEGRESS $((($TEMP_IN_DEGRESS+500)/1000))
+	if [ $1 == "degrees" ]; then
+		printf "%.f" $((($TEMP_IN_DEGRESS+500)/1000))
+	else
+		printf "%s" $TEMP_IN_DEGRESS
+	fi
 }

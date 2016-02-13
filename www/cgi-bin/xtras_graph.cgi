@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-02-12 GE
+#	Updated due to changed pcp_rpi_thermal_temp routine.
+
 # Version: 0.03 2015-07-05 GE
 #	Added previous and next buttons.
 
@@ -41,13 +44,14 @@ pcp_write_cputemp_sh() {
 cat <<EOF > /tmp/cputemp.sh
 #!/bin/sh
 
+. /home/tc/www/cgi-bin/pcp-functions
 . /home/tc/www/cgi-bin/pcp-rpi-functions
 
 while true
 do
-	TEMP=\$(pcp_rpi_thermal_temp)
+	TEMP=\$(pcp_rpi_thermal_temp degrees)
 	TIME=\$(date | awk '{print \$4}' | awk -F: '{print \$1, \$2}' | sed 's/ /:/g')
-	echo "\$TIME \$TEMP" | awk '{print \$1,\$3}'
+	echo "\$TIME \$TEMP"
 	sleep 60
 done
 EOF

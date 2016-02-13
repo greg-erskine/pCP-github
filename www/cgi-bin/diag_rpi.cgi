@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.09 2016-02-12 GE
+#	Minor enhancements.
+
 # Version: 0.08 2016-02-03 GE
 #	Moved pcp_pastebin_button to Developer mode.
 
@@ -53,7 +56,7 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Raspberry Pi</legend>'
 echo '          <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
+#-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -66,16 +69,16 @@ echo '              <td class="column150">'
 echo '                <p>CPU Temperature:</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>'$(pcp_rpi_thermal_temp)'</p>'
+echo '                <p>'$(pcp_rpi_thermal_temp degrees)'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>Physical MAC:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td>'
 echo '                <p>'$(pcp_eth0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#-------------------------------------Row 2----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -93,11 +96,11 @@ echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>Wireless MAC:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td>'
 echo '                <p>'$(pcp_wlan0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#-------------------------------------Row 3----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -115,11 +118,11 @@ echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>Configuration MAC:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td>'
 echo '                <p>'$(pcp_config_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#-------------------------------------Row 4----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -137,11 +140,11 @@ echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>Controls MAC:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td>'
 echo '                <p>'$(pcp_controls_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#-------------------------------------Row 5----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -198,10 +201,10 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_squeezelite_version)'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>Compile version:</p>'
+echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p>'$(pcp_which_squeezelite)'</p>'
+echo '              <td>'
+echo '                <p></p>'
 echo '              </td>'
 echo '            </tr>'
 echo '          </table>'
@@ -238,7 +241,7 @@ echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>Hostname:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td>'
 echo '                <p>'$HOST'</p>'
 echo '              </td>'
 echo '            </tr>'
@@ -272,6 +275,9 @@ echo '                <p>Linux release:</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>'$(pcp_linux_release)'</p>'
+echo '              </td>'
+echo '              <td class="column150">'
+echo '                <p></p>'
 echo '              </td>'
 echo '              <td>'
 echo '                <p></p>'
@@ -323,15 +329,8 @@ echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td>'
 echo '                <p>'$STATUS'</p>'
-echo '              </td>'
-
-echo '              <td class="column150">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="column150">'
-echo '                <p></p>'
 echo '              </td>'
 
 echo '            </tr>'
