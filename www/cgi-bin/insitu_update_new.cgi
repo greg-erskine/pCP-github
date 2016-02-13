@@ -23,7 +23,7 @@ FAIL_MSG="ok"
 
 # As all the insitu upgrade is done in one file, it may be better to define this here
 UPD_PCP=/tmp/pcp_insitu_update
-INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
+INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -153,8 +153,8 @@ pcp_get_boot_files() {
 #========================================================================================                      <------------------ Disabled function for now when testing 
 # Install the boot files
 #----------------------------------------------------------------------------------------
-#pcp_install_boot_files() {
-#	echo '[ INFO ] Installing boot files...'
+pcp_install_boot_files() {
+	echo '[ INFO ] Installing boot files...'
 #	pcp_mount_mmcblk0p1_nohtml
 
 #	# Delete all files from the boot partition
@@ -174,7 +174,7 @@ pcp_get_boot_files() {
 #	fi
 #
 #	pcp_umount_mmcblk0p1_nohtml
-#}
+}
 
 #=========================================================================================
 # Save configuration files to the boot partiton
@@ -236,8 +236,8 @@ pcp_finish_install() {
 	sudo tar zxvf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
 
 	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
-	# So check that the final bootlocal contains all from the new version and add eventual extra from the old 
-	sudo cat /mnt/mmcblk0p2/tce/onboot1.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
+	# So check that the final onboot contains all from the new version and add eventual extra from the old 
+	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
@@ -248,24 +248,18 @@ pcp_finish_install() {
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old 
 	sudo cat /opt/.xfiletool.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst
-	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst > /opt/.filetool.lst
+	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst > /opt/.xfiletool.lst
 
 	# Track and include user made changes to bootlocal.sh. It is important as user might have modified bootlocal.sh.
 	# So check that the final bootlocal.sh contains all from the new version and add eventual extra from the old 
-	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/opt/bootlocal.sh
-	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/opt/bootlocal.sh > /opt/bootlocal.sh
+	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh
+	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh > /opt/bootlocal.sh
 
 	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot as it always have been done
 
-	# Copy possible new content from the new untarred tce directory except (bootlocal.lst and mydata.tgz) - so we remove them first.
-	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/optional
-	sudo rm -f /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootlocal.lst
-	sudo rm -f /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz
-	sudo cp -af /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce /mnt/mmcblk0p2/tce/
-
 	# Update pCP by copying the content from the new version to the correct loaction followed by a backup 
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
-	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/www/
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
@@ -273,6 +267,18 @@ pcp_finish_install() {
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/pcp /usr/local/sbin/pcp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/piversion.cfg /usr/local/sbin/piversion.cfg
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/setup /usr/local/sbin/setup
+
+	# Copy possible new content from the new untarred tce directory except those below - so we remove them first.
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/var
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/optional
+	sudo rm -r /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/ondemand
+	sudo rm -f /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
+	sudo rm -f /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz
+	sudo cp -af /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/* /mnt/mmcblk0p2/tce/
 
 	#backup changes to make a new mydata.tgz containing an updated version
 	sudo filetool.sh -b
@@ -336,9 +342,9 @@ pcp_html_end() {
 	pcp_footer
 	pcp_copyright
 
-	pcp_finish_install
+	pcp_finish_install                                                  #<---------------added here while testing because otherwise it is not run
 	if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
-		pcp_finish_install
+#		pcp_finish_install
 		pcp_reboot_required
 	fi
 
