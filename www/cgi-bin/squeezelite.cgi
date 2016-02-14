@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.22 2016-02-14 GE
+# Version: 0.22 2016-02-15 GE
 #	Updated for Raspberry Pi Zero.
+#	Started to add support for raspidac3 and rpi_dac.
 
 # Version: 0.21 2016-02-09 SBP
 #	Change Output settings for alsaequal.
@@ -162,6 +163,10 @@ case "$AUDIO" in
 	I2SpDIG*) I2SDIGpCHECKED="selected" ;;
 	I2SpIQaudIO*) IQaudIOpCHECKED="selected" ;;
 	I2SpIQAMP*) IQAMPCHECKED="selected" ;;
+
+	raspidac3*) raspidac3CHECKED="selected" ;;
+	rpi_dac*) rpi_dacCHECKED="selected" ;;
+
 	*) CHECKED="Not set" ;;
 esac
 
@@ -193,6 +198,9 @@ if [ $(pcp_rpi_is_hat) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio+: IQaudIO Pi-(Digi)AMP+</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio+: HiFiBerry AMP+</option>'
 fi
+
+#echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
+#echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: RPi DAC</option>'
 
 echo '                  </select>'
 echo '                </td>'

@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.10 2016-02-10 SBP
+# Version: 0.10 2016-02-15 SBP
 #	Modified CARDNO.
-#	Set OUTPUT to equal for alsaequal. 
+#	Set OUTPUT to equal for alsaequal.
+#	Started to add support for raspidac3 and rpi_dac.
 
 # Version: 0.09 2016-01-15 GE
 #	Deleted Reboot button.
@@ -145,6 +146,22 @@ case "$AUDIO" in
 		pcp_enable_iqaudio_dac_p
 		pcp_disable_HDMI
 		OUTPUT="hw:CARD=IQaudIODAC"
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+		;;
+	raspidac3*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_raspidac3
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=xxxxxxxx"
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+		;;
+	rpi_dac*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_rpi_dac
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=xxxxxxxx"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 		;;
