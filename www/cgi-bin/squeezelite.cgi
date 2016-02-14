@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.22 2016-02-14 GE
+#	Updated for Raspberry Pi Zero.
+
 # Version: 0.21 2016-02-09 SBP
 #	Change Output settings for alsaequal.
 
@@ -173,14 +176,16 @@ echo '                    <option value="Analog" '$ANCHECKED'>Analog audio:</opt
 echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</option>'
 echo '                    <option value="USB" '$USBCHECKED'>USB audio:</option>'
 
-if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_is_model_A) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+#if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_is_model_A) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+if [ $(pcp_rpi_is_hat) != 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
 	echo '                    <option value="I2SDIG" '$I2DIGCHECKED'>I2S audio: HiFiBerry Digi</option>'
 	echo '                    <option value="IQaudio" '$IQaudioCHECKED'>I2S audio: IQaudIO Pi-DAC</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP</option>'
 fi
 
-if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+#if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+if [ $(pcp_rpi_is_hat) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: generic</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio+: HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio+: HiFiBerry Digi+</option>'
@@ -197,6 +202,7 @@ echo '                <td colspan="2">'
 echo '                  <input type="submit" value="Save">'
 echo '                </td>'
 echo '              </tr>'
+
 #----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
