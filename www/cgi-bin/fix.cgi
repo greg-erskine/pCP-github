@@ -35,6 +35,7 @@ FIX_CGI="/home/tc/www/cgi-bin"
 # Fixes
 #----------------------------------------------------------------------------------------
 pcp_do_fix_1() {
+	# fix for piCorePlayer 2.01
 	echo "[ INFO ] Applying fix_1"
 	echo "[ INFO ] Fixing insitu_update.cgi"
 
@@ -43,10 +44,24 @@ pcp_do_fix_1() {
 	TO='$WGET -O ${UPD_PCP}/insitu.cfg ${INSITU_DOWNLOAD}/insitu.cfg/download'
 
 	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
+
+	sudo sed -i '/openssl.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 pcp_do_fix_2() {
+	# fix for piCorePlayer 2.00
 	echo "[ INFO ] Applying fix_2"
+	echo "[ INFO ] Fixing upd_picoreplayer.cgi"
+
+	FILE="/home/tc/www/cgi-bin/upd_picoreplayer.cgi"
+	FROM='sudo wget -P $UPD_PCP $INSITU_DOWNLOAD/insitu.cfg'
+	TO='sudo wget -O ${UPD_PCP}/insitu.cfg ${INSITU_DOWNLOAD}/insitu.cfg/download'
+
+	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
+
+	sudo sed -i '/openssl.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 pcp_do_fixes() {
