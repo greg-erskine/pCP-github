@@ -192,6 +192,10 @@ input {
 	width:36em;
 }
 
+.large60 {
+	width:60em;
+}
+
 /* Define columns widths */
 .column150 {
 	width:150px;

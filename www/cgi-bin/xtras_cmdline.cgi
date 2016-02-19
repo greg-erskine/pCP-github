@@ -86,7 +86,6 @@ echo '                <td>'
 
 	TEMPFILE=$(mktemp)
 	echo '<textarea class="inform" style="height:250px">'
-	echo $LINUXCMD
 	eval "$LINUXCMD" 2>&1 >$TEMPFILE
 	RESULT=$?
 	cat $TEMPFILE
