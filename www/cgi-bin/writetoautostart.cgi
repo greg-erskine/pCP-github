@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-02-21 GE
+#	Added clear function to pcp_set_user_commands.
+
 # Version: 0.03 2015-11-23 GE
 #	Fixed deciding issue with Autostart FAV, LMS and User commands.
 
@@ -98,6 +101,11 @@ pcp_set_austostart_lms() {
 # Set USER_COMMAND_x variables in config.cfg routine
 #----------------------------------------------------------------------------------------
 pcp_set_user_commands() {
+	if [ "$SUBMIT" == "Clear" ]; then
+		USER_COMMAND_1=""
+		USER_COMMAND_2=""
+		USER_COMMAND_3=""
+	fi
 	pcp_save_to_config
 	echo '<p class="info">[ INFO ] User command #1 is set to: '$USER_COMMAND_1'<br />'
 	echo '                [ INFO ] User command #2 is set to: '$USER_COMMAND_2'<br />'

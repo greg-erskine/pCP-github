@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.22 2016-02-21 GE
+#	Increased size of Custom Cron Command field.
+#	Increased size of User Command fields.
+#	Added Clear button to User commands.
+
 # Version: 0.21 2016-01-29 SBP
 #	Activated alsaeqaual feature.
 #	Added configure button to xtras_alsaequal.cgi
@@ -797,7 +802,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>Shairport</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="yes" '$SHAIRPORTyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="yes" '$SHAIRPORTyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="no" '$SHAIRPORTno'>No'
 	echo '                </td>'
 	echo '                <td>'
@@ -906,7 +911,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>ALSA 10 band Equalizer</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
 #	echo '                  <input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">'
 	echo '                </td>'
@@ -1113,7 +1118,7 @@ pcp_tweaks_cron() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Custom Cron command</td>'
 	echo '                <td>'
-	echo '                  <input class="large36" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
+	echo '                  <input class="large60" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
 	echo '                </td>'
 	echo '              </tr>'
 
@@ -1198,21 +1203,21 @@ pcp_tweaks_user_commands() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #1</td>'
 	echo '                <td>'
-	echo '                  <input class="large36" type="text" name="USER_COMMAND_1" value="'$USER_COMMAND_1'" maxlength="254">'
+	echo '                  <input class="large60" type="text" name="USER_COMMAND_1" value="'$USER_COMMAND_1'" maxlength="254">'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #2</td>'
 	echo '                <td>'
-	echo '                  <input class="large36" type="text" name="USER_COMMAND_2" value="'$USER_COMMAND_2'" maxlength="254">'
+	echo '                  <input class="large60" type="text" name="USER_COMMAND_2" value="'$USER_COMMAND_2'" maxlength="254">'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #3</td>'
 	echo '                <td>'
-	echo '                  <input class="large36" type="text" name="USER_COMMAND_3" value="'$USER_COMMAND_3'" maxlength="254">'
+	echo '                  <input class="large60" type="text" name="USER_COMMAND_3" value="'$USER_COMMAND_3'" maxlength="254">'
 	echo '                </td>'
 	echo '              </tr>'
 
@@ -1240,6 +1245,7 @@ pcp_tweaks_user_commands() {
 	echo '                <td colspan=2>'
 	echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
 
