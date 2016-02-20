@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.03 2016-02-19 SBP
+#	Added code to allow existing add-ons to remain functioning.
+#	Fixed sourceforge redirection issue.
+
 # Version: 0.02 2016-02-10 GE
 #	Added warning on each page.
 #	Added warnings for alsaequal and slimserver.
@@ -21,8 +25,8 @@ WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 
 # As all the insitu upgrade is done in one file, it may be better to define this here
-UPD_PCP=/tmp/pcp_insitu_update
-INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
+UPD_PCP="/tmp/pcp_insitu_update"
+INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -76,7 +80,7 @@ pcp_sourceforge_indicator() {
 pcp_check_for_extension() {
 	EXTENSION=$1
 	if [ -f "/usr/local/tce.installed/${EXTENSION}" ]; then
-		echo '[ WARN ] *** You will need to REINSTALL '$EXTENSION' ***'
+		echo '[ WARN ] *** You may need to REINSTALL '$EXTENSION' ***'
 	fi
 }
 
@@ -116,6 +120,8 @@ pcp_create_download_directory() {
 	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/boot"
 	sudo mkdir ${UPD_PCP}/tce
 	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/tce"
+	sudo mkdir ${UPD_PCP}/mydata
+	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/mydata"
 }
 
 #========================================================================================
@@ -123,7 +129,7 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 1. - Downloading insitu.cfg...'
-	$WGET -P $UPD_PCP ${INSITU_DOWNLOAD}/insitu.cfg
+	$WGET ${INSITU_DOWNLOAD}/insitu.cfg/download -O ${UPD_PCP}/insitu.cfg
 	if [ $? = 0 ]; then
 		echo '[  OK  ] Successfully downloaded insitu.cfg'
 	else
@@ -138,7 +144,7 @@ pcp_get_insitu_cfg() {
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 2A. - Downloading '$VERSION'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET -P ${UPD_PCP}/boot ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz/download -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
 	if [ $? = 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -147,7 +153,7 @@ pcp_get_boot_files() {
 	fi
 }
 
-#========================================================================================
+#======================================================================================== 
 # Install the boot files
 #----------------------------------------------------------------------------------------
 pcp_install_boot_files() {
@@ -183,13 +189,6 @@ pcp_save_configuration() {
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	[ $? = 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 
-	if [ $ALSAlevelout = "Custom" ]; then
-		sudo cp /etc/asound.conf /mnt/mmcblk0p1/
-		[ $? = 0 ] || FAIL_MSG="Error saving ALSA configuration file."
-		sudo cp /var/lib/alsa/asound.state /mnt/mmcblk0p1/
-		[ $? = 0 ] || FAIL_MSG="Error saving ALSA configuration file."
-	fi
-
 	[ $FAIL_MSG = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
@@ -199,7 +198,7 @@ pcp_save_configuration() {
 pcp_get_tce_files() {
 	echo '[ INFO ] Step 2B. - Downloading '$VERSION'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET -P ${UPD_PCP}/tce ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz/download -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
 	if [ $? = 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -208,7 +207,7 @@ pcp_get_tce_files() {
 	fi
 }
 
-#========================================================================================
+#========================================================================================  <------------------------------------Started with the new version from here
 # Install the tce files
 #----------------------------------------------------------------------------------------
 pcp_install_tce_files() {
@@ -216,9 +215,11 @@ pcp_install_tce_files() {
 	sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
 	[ $? = 0 ] || FAIL_MSG="Error removing kernel specific files."
 
-	# Untar and overwrite the tce files
+
+	# Untar and update the tzc packages files to optional
 	echo '[ INFO ] Untarring '${VERSION}'_tce.tar.gz...'
-	[ $FAIL_MSG = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz -C /
+	[ $FAIL_MSG = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
+
 	if [ $? = 0 ]; then
 		[ $DEBUG = 1 ] && echo '[ DEBUG ] tce tar result: '$?
 		echo '[  OK  ] Successfully untarred tce tar.'
@@ -232,25 +233,73 @@ pcp_install_tce_files() {
 # Finish the install process
 #----------------------------------------------------------------------------------------
 pcp_finish_install() {
-	# Add eventual missing packages to onboot.lst. It is important if different versions of piCorePlayer have different needs.
-	fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct loactions
+	sudo mkdir ${UPD_PCP}/mydata
+	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz -C ${UPD_PCP}/mydata
+	sudo tar zxvf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
 
-	# Remove wifi firmware from onboot.lst if wifi is off so that pCP will boot faster
-	if [ $WIFI = off ]; then
-		sleep 1
-		sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	fi
+	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
+	# So check that the final onboot contains all from the new version and add eventual extra from the old
+	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
+	echo "content of mnt onboot.lst before:"; cat /mnt/mmcblk0p2/tce/onboot.lst
+	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
+	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
+	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
+	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
+	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
+	sudo chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
 
-	[ $JIVELITE = YES ] && JIVELITE="NO"
-	[ $VISUALISER = yes ] && VISUALISER="no"
-	[ $ALSAeq = yes ] && ALSAeq="no"
-	[ $OUTPUT = equal ] && OUTPUT=""
-	[ $SHAIRPORT = yes ] && SHAIRPORT="no"
-	[ $LMSERVER = yess ] && LMSERVER="no"
+	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
+	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
+	sudo chown root:staff /opt/.filetool.lst 
+	sudo cat /opt/.filetool.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst
+	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst > /opt/.filetool.lst
+	sudo chown root:staff /opt/.filetool.lst
+	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
+
+	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
+	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
+	sudo chown root:staff /opt/.xfiletool.lst 
+	sudo cat /opt/.xfiletool.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst
+	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst > /opt/.xfiletool.lst
+	sudo chown root:staff /opt/.xfiletool.lst
+	sudo chmod u=rw,g=rw,o=r /opt/.xfiletool.lst
+
+	# Track and include user made changes to bootlocal.sh. It is important as user might have modified bootlocal.sh.
+	# So check that the final bootlocal.sh contains all from the new version and add eventual extra from the old
+	sudo chown root:staff /opt/bootlocal.sh 
+	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh
+	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh > /opt/bootlocal.sh
+	sudo chown root:staff /opt/bootlocal.sh
+	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
+
+	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot as it always have been done
+
+	# Update pCP by copying the content from the new version to the correct loaction followed by a backup 
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
+
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/init.d/
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/pcp /usr/local/sbin/pcp
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/piversion.cfg /usr/local/sbin/piversion.cfg
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/setup /usr/local/sbin/setup
+
+	# Copy possible new content from the new untarred tce directory except directories.
+	# sudo cp /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/* /mnt/mmcblk0p2/tce
+	# sudo cp -f /home/tc/www/cgi-bin/insitu_update_new.cgi /home/tc/www/cgi-bin/insitu_update.cgi     # This is because otherwise the old version will be used
+
+	sudo chown -R tc:staff /home/tc/www
+	sudo chmod u=rwx,g=rx,o= /home/tc/www/cgi-bin/*
+	sudo chmod u=rw,g=r,o= /home/tc/www/css/*
+	sudo chmod u=rw,g=r,o= /home/tc/www/images/*
+	sudo chmod u=rw,g=r,o= /home/tc/www/js/*
+	sudo chmod u=rw,g=r,o= /home/tc/www/index.html
+
+	# Backup changes to make a new mydata.tgz containing an updated version
+	pcp_backup_nohtml
 }
 
 #========================================================================================
@@ -311,7 +360,7 @@ pcp_html_end() {
 	pcp_copyright
 
 	if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
-		pcp_finish_install
+		#pcp_finish_install
 		pcp_reboot_required
 	fi
 
@@ -516,6 +565,21 @@ if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
 	echo '                  <textarea class="inform" style="height:130px">'
 	echo                      '[ INFO ] Installing tce files...'
 	                          [ $FAIL_MSG = "ok" ] && pcp_install_tce_files
+	echo '                  </textarea>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <p></p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <textarea class="inform" style="height:130px">'
+	echo                      '[ INFO ] Installing tce files...'
+	                          [ $FAIL_MSG = "ok" ] && pcp_finish_install
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'

@@ -1,6 +1,7 @@
 #!/bin/sh
-. pcp-functions
-pcp_variables
+
+# Version: 0.05 2016-02-20 GE
+#	Fixed sourceforge redirection issue.
 
 # Version: 0.04 2016-02-10 GE
 #	Added SQLT_VERSION.
@@ -16,9 +17,14 @@ pcp_variables
 # Version: 0.01 2014-06-24 GE
 #	Original.
 
-pcp_html_head "Updating Squeezelite" "SBP" "15" "main.cgi"
+. pcp-functions
+pcp_variables
+
+pcp_html_head "Updating Squeezelite" "SBP" "5" "main.cgi"
 
 . $CONFIGCFG
+
+WGET="/bin/busybox wget"
 OLD_SQLT_VERSION=$SQLT_VERSION
 
 pcp_banner
@@ -41,6 +47,13 @@ pcp_enough_free_space() {
 		return 1
 	fi
 }
+
+pcp_end() {
+	pcp_squeezelite_start
+	echo '</body>'
+	echo '</html>'
+	exit
+}
 #----------------------------------------------------------------------------------------
 
 [ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Version: '$VERSION'</p>'
@@ -48,13 +61,13 @@ pcp_enough_free_space() {
 case $VERSION in
 	Small*)
 		MESSAGE="Updating Squeezelite to Ralphy basic version..."
-		DOWNLOAD="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf-noffmpeg"
+		DOWNLOAD="squeezelite-armv6hf-noffmpeg"
 		SQLT_VERSION="basic"
 		SPACE_REQUIRED=1100
 		;;
 	Large*)
 		MESSAGE="Updating Squeezelite to Ralphy ffmpeg version (will take a few minutes)..."
-		DOWNLOAD="http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf-ffmpeg"
+		DOWNLOAD="squeezelite-armv6hf-ffmpeg"
 		SQLT_VERSION="ffmpeg"
 		SPACE_REQUIRED=13000
 		;;
@@ -64,7 +77,7 @@ echo '<p>[ INFO ] '${MESSAGE}'</p>'
 echo '<p class="info">[ INFO ] Current Squeezelite '$OLD_SQLT_VERSION' version: '$(pcp_squeezelite_version)'</p>'
 
 pcp_enough_free_space $SPACE_REQUIRED
-[ $? = 0 ] || exit
+[ $? = 0 ] || pcp_end
 
 # Remove Squeezelite from /tmp
 if [ -e /tmp/squeezelite-armv6hf ]; then
@@ -72,7 +85,7 @@ if [ -e /tmp/squeezelite-armv6hf ]; then
 	sudo rm -f /tmp/squeezelite-armv6hf*
 fi
 
-wget -O /tmp/squeezelite-armv6hf $DOWNLOAD
+$WGET ${REPOSITORY}/$DOWNLOAD -O /tmp/squeezelite-armv6hf
 result=$?
 if [ $result -ne "0" ]; then
 	echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
@@ -86,9 +99,5 @@ fi
 [ $DEBUG = 1 ] && (echo '<p class="ok">[ OK ] '; ls -al /mnt/mmcblk0p2/tce/squeezelite-armv6hf)
 
 pcp_save_to_config
-pcp_squeezelite_start
-
 echo '<p class="ok">[ OK ] Upgraded Squeezelite '$SQLT_VERSION' version: '$(pcp_squeezelite_version)'</p>'
-
-echo '</body>'
-echo '</html>'
+pcp_end

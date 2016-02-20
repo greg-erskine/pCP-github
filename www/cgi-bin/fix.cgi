@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# version: 0.01 2016-02-17 GE
+# version: 0.01 2016-02-20 GE
 #	Original.
 
 . pcp-functions
@@ -28,7 +28,7 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
-FIX_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files"
+FIX_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files"
 FIX_CGI="/home/tc/www/cgi-bin"
 
 #========================================================================================
@@ -64,9 +64,14 @@ pcp_do_fix_2() {
 	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
+pcp_do_fix_2() {
+	echo fix 3
+}
+
 pcp_do_fixes() {
 	pcp_do_fix_1
 	pcp_do_fix_2
+	pcp_do_fix_3
 }
 
 #========================================================================================
@@ -146,7 +151,7 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 pcp_get_fix_cgi_md5() {
 	echo '[ INFO ] Downloading fix.cgi.md5.txt...'
-	$WGET -O ${FIX_PCP}/fix.cgi.md5.txt ${FIX_DOWNLOAD}/fix.cgi.md5.txt/download
+	$WGET ${FIX_DOWNLOAD}/fix.cgi.md5.txt/download -O ${FIX_PCP}/fix.cgi.md5.txt
 	if [ $? = 0 ]; then
 		echo '[  OK  ] Successfully downloaded fix.cgi.md5.txt'
 	else
@@ -172,7 +177,7 @@ pcp_get_fix_cgi_md5() {
 #----------------------------------------------------------------------------------------
 pcp_get_fix_cgi() {
 	echo '[ INFO ] Downloading fix.cgi...'
-	$WGET -O ${FIX_PCP}/fix.cgi ${FIX_DOWNLOAD}/fix.cgi/download
+	$WGET ${FIX_DOWNLOAD}/fix.cgi/download -O ${FIX_PCP}/fix.cgi
 	if [ $? = 0 ]; then
 		echo '[  OK  ] Successfully downloaded fix.cgi'
 	else
@@ -313,7 +318,7 @@ echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
 if [ $ACTION = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
-	#echo '[ INFO ] '$SOURCEFORGE_STATUS
+	#echo '[ INFO ] '$SOURCEFORGE_STATUS					#<--- Turn off atm as it may fail
 	pcp_enough_free_space $SPACE_REQUIRED
 	[ $FAIL_MSG = "ok" ] && pcp_get_fix_cgi_md5
 	[ $FAIL_MSG = "ok" ] && pcp_check_fix_md5

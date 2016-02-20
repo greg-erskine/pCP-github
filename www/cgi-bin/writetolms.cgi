@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2016-02-20 GE
+#	Fixed sourceforge redirection issue.
+
 # Version: 0.01 2016-01-30 SBP
 #	Original version.
 
@@ -19,12 +22,10 @@ pcp_httpd_query_string
 #LMS="slimserver*"
 SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
-LMSREPOSITORY="http://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS/"
+LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
-
-
 
 #========================================================================================================
 # Routines
@@ -38,26 +39,26 @@ pcp_download_lms() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Repo: '${LMSREPOSITORY}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${LMSREPOSITORY}slimserver-CPAN-armv6.tcz
+	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz
 	if [ $? = 0 ]; then
 		RESULT=0
 		echo '<p class="info">[ INFO ] Downloading Logitech Media Server LMS...'
-		$WGET -P /tmp/LMS ${LMSREPOSITORY}slimserver-CPAN-armv6.tcz
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz/download -O /tmp/LMS/slimserver-CPAN-armv6.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/LMS ${LMSREPOSITORY}slimserver-CPAN-armv6.tcz.dep
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.dep/download -O /tmp/LMS/slimserver-CPAN-armv6.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/LMS ${LMSREPOSITORY}slimserver-CPAN-armv6.tcz.md5.txt
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN-armv6.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/LMS ${LMSREPOSITORY}slimserver.tcz.md5.txt
+		$WGET ${LMSREPOSITORY}/slimserver.tcz.md5.txt/download -O /tmp/LMS/slimserver.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/LMS ${LMSREPOSITORY}slimserver.tcz.dep
+		$WGET ${LMSREPOSITORY}/slimserver.tcz.dep/download -O /tmp/LMS/slimserver.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/LMS ${LMSREPOSITORY}slimserver.tcz
+		$WGET ${LMSREPOSITORY}/slimserver.tcz/download -O /tmp/LMS/slimserver.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 
 		sudo -u tc tce-load -w gcc_libs.tcz
 		sudo -u tc tce-load -w perl5.tcz
-		
+
 		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
@@ -68,7 +69,6 @@ pcp_download_lms() {
 		else
 			echo '<p class="error">[ ERROR ] LMS download unsuccessful, try again!</p>'
 		fi
-
 	else
 		echo '<p class="error">[ ERROR ] LMS not available in repository, try again later!</p>'
 	fi
@@ -78,13 +78,14 @@ pcp_download_lms() {
 }
 
 pcp_install_lms() {
-	echo '<p class="info">[ INFO ] Installation of LMS.</p>'
+	echo '<p class="info">[ INFO ] Installing LMS...</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 pcp_remove_lms() {
+	echo '<p class="info">[ INFO ] Removing LMS...</p>'
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN-armv6*
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz*
@@ -124,8 +125,6 @@ pcp_remove_lms() {
 #fi
 
 
-
-
 echo '<hr>'
 pcp_save_to_config
 pcp_backup
@@ -134,8 +133,6 @@ pcp_backup
 [ $DEBUG = 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
 [ $REBOOT_REQUIRED = 1 ] && pcp_reboot_required
-
-
 
 pcp_go_back_button
 

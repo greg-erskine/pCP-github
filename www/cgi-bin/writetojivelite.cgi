@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2016-02-20 GE
+#	Fixed sourceforge redirection issue.
+
 # Version: 0.05 2015-12-19 GE
 #	Added /bin/busybox to wget -s
 #	Minor changes.
@@ -21,7 +24,7 @@
 pcp_variables
 . $CONFIGCFG
 
-pcp_html_head "Write to Jivelite Tweak" "SBP" "15" "tweaks.cgi"
+pcp_html_head "Write to Jivelite Tweak" "SBP" "150000" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
@@ -30,11 +33,11 @@ pcp_httpd_query_string
 [ $JIVELITE = YES ] && VISUALISER="yes"
 pcp_save_to_config
 
+WGET="/bin/busybox wget"
 JIVELITE_TCZ="jivelite_touch.tcz"
 JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
 DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
-VU_REPOSITORY="http://ralph_irving.users.sourceforge.net/pico/"
-AVAILABLE_VUMETERS=$(wget $VU_REPOSITORY -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
+AVAILABLE_VUMETERS=$($WGET $REPOSITORY -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] SUBMIT: '$SUBMIT'<br />'
@@ -59,11 +62,11 @@ pcp_download_jivelite() {
 	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy'\''s repository...</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	/bin/busybox wget -s ${REPOSITORY}${JIVELITE_TCZ}
+	$WGET -s ${REPOSITORY}/${JIVELITE_TCZ}
 	if [ $? = 0 ]; then
 		echo '<p class="info">[ INFO ] Downloading '$JIVELITE_TCZ'...'
-		wget -P /tmp ${REPOSITORY}${JIVELITE_TCZ}
-		wget -P /tmp ${REPOSITORY}${JIVELITE_MD5}
+		$WGET ${REPOSITORY}/${JIVELITE_TCZ} -O /tmp/${JIVELITE_TCZ}
+		$WGET ${REPOSITORY}/${JIVELITE_MD5} -O /tmp/${JIVELITE_MD5}
 		md5sum -c ${JIVELITE_MD5}
 		if [ $? = 0 ]; then
 			echo '<p class="ok">[ OK ] '$JIVELITE_TCZ' download successful.</p>'
@@ -127,11 +130,11 @@ pcp_download_vumeters() {
 		TCZ=${i}
 		MD5=${i}.md5.txt
 
-		/bin/busybox wget -s ${VU_REPOSITORY}${TCZ}
+		$WGET -s ${REPOSITORY}/${TCZ}
 		if [ $? = 0 ]; then
 			echo '<p class="info">[ INFO ] Downloading '$TCZ'...'
-			wget -P /tmp ${VU_REPOSITORY}${TCZ}
-			wget -P /tmp ${VU_REPOSITORY}${MD5}
+			$WGET ${REPOSITORY}/${TCZ} -O /tmp/${TCZ}
+			$WGET ${REPOSITORY}/${MD5} -O /tmp/${MD5}
 			md5sum -c ${MD5}
 			if [ $? = 0 ]; then
 				echo '<p class="ok">[ OK ] '$TCZ' download successful.</p>'

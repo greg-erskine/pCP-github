@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.09 2016-02-20 GE
+#	Fixed sourceforge redirection issue.
+
 # Version: 0.08 2016-02-09 SBP
 #	Updated CARDNO.
 
@@ -31,11 +34,11 @@
 pcp_variables
 
 # Store the original values so we can see if they are changed
-ORIG_ALSAeq="$ALSAeq"
-ORIG_SHAIRPORT="$SHAIRPORT"
-ORIG_ALSAlevelout="$ALSAlevelout"
-ORIG_FIQ="$FIQ"
-ORIG_CMD="$CMD"
+ORIG_ALSAeq=$ALSAeq
+ORIG_SHAIRPORT=$SHAIRPORT
+ORIG_ALSAlevelout=$ALSAlevelout
+ORIG_FIQ=$FIQ
+ORIG_CMD=$CMD
 
 pcp_html_head "Write to Audio Tweak" "SBP" "15" "tweaks.cgi"
 
@@ -46,7 +49,7 @@ pcp_httpd_query_string
 SHAIRP="shairport-sync"
 AVAHI="avahi.tzc and needed packages"
 WGET="/bin/busybox wget"
-EQREPOSITORY="http://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/"
+EQREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal"
 CAPS="caps-0.4.5"
 
 # Only offer reboot option if needed
@@ -63,10 +66,10 @@ pcp_download_shairport() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Ralphy repo: '${REPOSITORY}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${REPOSITORY}${SHAIRP}
+	$WGET -s ${REPOSITORY}/${SHAIRP}
 	if [ $? = 0 ]; then
 		echo '<p class="info">[ INFO ] Downloading '$SHAIRP' and '$AVAHI'...'
-		$WGET -P /tmp ${REPOSITORY}${SHAIRP}
+		$WGET ${REPOSITORY}/${SHAIRP} -O /tmp/${SHAIRP}
 		if [ $? = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
@@ -76,9 +79,11 @@ pcp_download_shairport() {
 			sudo chmod 755 /mnt/mmcblk0p2/tce/shairport-sync
 		else
 			echo '<p class="error">[ ERROR ] Shairport download unsuccessful, try again!</p>'
+#			SHAIRPORT=$ORIG_SHAIRPORT
 		fi
 	else
 		echo '<p class="error">[ ERROR ] Shairport not available in repository, try again later!</p>'
+#		SHAIRPORT=$ORIG_SHAIRPORT
 	fi
 
 	sudo rm -f /tmp/avahi/*
@@ -86,49 +91,49 @@ pcp_download_shairport() {
 	echo '<p class="info">[ INFO ] Downloading Avahi from Ralphy'\''s repository...</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${REPOSITORY}avahi.tcz
+	$WGET -s ${REPOSITORY}/avahi.tcz
 	if [ $? = 0 ]; then
 		RESULT=0
 		echo -n '<p class="info">[ INFO ] Downloading Avahi'
-		$WGET -P /tmp/avahi ${REPOSITORY}avahi.tcz
+		$WGET ${REPOSITORY}/avahi.tcz -O /tmp/avahi/avahi.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}avahi.tcz.dep
+		$WGET ${REPOSITORY}/avahi.tcz.dep -O /tmp/avahi/avahi.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}avahi.tcz.md5.txt
+		$WGET ${REPOSITORY}/avahi.tcz.md5.txt -O /tmp/avahi/avahi.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}dbus.tcz
+		$WGET ${REPOSITORY}/dbus.tcz -O /tmp/avahi/dbus.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}dbus.tcz.md5.txt
+		$WGET ${REPOSITORY}/dbus.tcz.md5.txt -O /tmp/avahi/dbus.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}expat2.tcz
+		$WGET ${REPOSITORY}/expat2.tcz -O /tmp/avahi/expat2.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}expat2.tcz.md5.txt
+		$WGET ${REPOSITORY}/expat2.tcz.md5.txt -O /tmp/avahi/expat2.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libattr.tcz
+		$WGET ${REPOSITORY}/libattr.tcz -O /tmp/avahi/libattr.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libattr.tcz.md5.txt
+		$WGET ${REPOSITORY}/libattr.tcz.md5.txt -O /tmp/avahi/libattr.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libavahi.tcz
+		$WGET ${REPOSITORY}/libavahi.tcz -O /tmp/avahi/libavahi.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libavahi.tcz.dep
+		$WGET ${REPOSITORY}/libavahi.tcz.dep -O /tmp/avahi/libavahi.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libavahi.tcz.md5.txt
+		$WGET ${REPOSITORY}/libavahi.tcz.md5.txt -O /tmp/avahi/libavahi.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libcap.tcz
+		$WGET ${REPOSITORY}/libcap.tcz -O /tmp/avahi/libcap.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libcap.tcz.md5.txt
+		$WGET ${REPOSITORY}/libcap.tcz.md5.txt -O /tmp/avahi/libcap.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libcofi.tcz
+		$WGET ${REPOSITORY}/libcofi.tcz -O /tmp/avahi/libcofi.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libcofi.tcz.md5.txt
+		$WGET ${REPOSITORY}/libcofi.tcz.md5.txt -O /tmp/avahi/libcofi.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libdaemon.tcz
+		$WGET ${REPOSITORY}/libdaemon.tcz -O /tmp/avahi/libdaemon.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}libdaemon.tcz.md5.txt
+		$WGET ${REPOSITORY}/libdaemon.tcz.md5.txt -O /tmp/avahi/libdaemon.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}nss-mdns.tcz
+		$WGET ${REPOSITORY}/nss-mdns.tcz -O /tmp/avahi/nss-mdns.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp/avahi ${REPOSITORY}nss-mdns.tcz.md5.txt
+		$WGET ${REPOSITORY}/nss-mdns.tcz.md5.txt -O /tmp/avahi/nss-mdns.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
@@ -146,6 +151,7 @@ pcp_download_shairport() {
 }
 
 pcp_remove_shairport() {
+	echo '<p class="info">[ INFO ] Removing Shairport...'
 	/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
 #	sudo pkill shairport-sync
 	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
@@ -188,17 +194,17 @@ pcp_download_alsaequal() {
 	cd /tmp
 	sudo rm -f /tmp/alsaequal.tcz
 	sudo rm -f /tmp/caps*
-	echo '<p class="info">[ INFO ] Downloading Alsaequalizer from repository...</p>'
+	echo '<p class="info">[ INFO ] Downloading ALSA Equalizer from repository...</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${EQREPOSITORY}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${EQREPOSITORY}alsaequal.tcz
+	$WGET -s ${EQREPOSITORY}/alsaequal.tcz
 	if [ $? = 0 ]; then
 		RESULT=0
-		echo '<p class="info">[ INFO ] Downloading Alsaequalizer and packages...'
-		$WGET -P /tmp ${EQREPOSITORY}alsaequal.tcz
+		echo '<p class="info">[ INFO ] Downloading ALSA Equalizer and packages...'
+		$WGET ${EQREPOSITORY}/alsaequal.tcz/download -O /tmp/alsaequal.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET -P /tmp ${EQREPOSITORY}${CAPS}.tcz
+		$WGET ${EQREPOSITORY}/${CAPS}.tcz/download -O /tmp/${CAPS}.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
@@ -212,9 +218,11 @@ pcp_download_alsaequal() {
 			sudo rm -f /tmp/caps*
 		else
 			echo '<p class="error">[ ERROR ] Alsaequalizer download unsuccessful, try again!</p>'
+			#ALSAeq=$ORIG_ALSAeq
 		fi
 	else
 		echo '<p class="error">[ ERROR ] Alsaequalizer not available in repository, try again later!</p>'
+		#ALSAeq=$ORIG_ALSAeq
 	fi
 
 	SPACE=$(pcp_free_space k)
@@ -222,8 +230,10 @@ pcp_download_alsaequal() {
 }
 
 pcp_remove_alsaequal() {
+	echo '<p class="info">[ INFO ] Removing ALSA Equalizer...</p>'
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
+	sudo rm -f /home/tc/.alsaequal.bin
 }
 
 #----------------------------------------------------------------------------------------
@@ -267,13 +277,15 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 	case "$ALSAeq" in
 		yes)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
-			OUTPUT="equal"
 			if grep -Fxq "alsaequal.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
 				[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ALSA equalizer modules already loaded.</p>'
 			else
+				sudo sed -i '/alsaequal.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 				sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+				sudo sed -i '/caps/d' /mnt/mmcblk0p2/tce/onboot.lst
 				sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 				pcp_download_alsaequal
+				OUTPUT="equal"
 			fi
 			sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 			;;
