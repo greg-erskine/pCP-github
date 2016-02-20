@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 0.22 2016-02-15 GE
+# Version: 0.22 2016-02-21 GE
 #	Updated for Raspberry Pi Zero.
-#	Started to add support for raspidac3 and rpi_dac.
+#	Added support for raspidac3 and rpi_dac.
 
 # Version: 0.21 2016-02-09 SBP
 #	Change Output settings for alsaequal.
@@ -199,8 +199,8 @@ if [ $(pcp_rpi_is_hat) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio+: HiFiBerry AMP+</option>'
 fi
 
-#echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
-#echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: RPi DAC</option>'
+echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
+echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: RPi DAC</option>'
 
 echo '                  </select>'
 echo '                </td>'
@@ -824,7 +824,7 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p class="row">Unmute ALSA control (not working)</p>'
+echo '                  <p class="row">Unmute ALSA control</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <input class="small1" type="radio" name="UNMUTE" value="PCM" '$UNMUTEYES'>Yes&nbsp;&nbsp;'
@@ -832,7 +832,7 @@ echo '                  <input class="small1" type="radio" name="UNMUTE" value="
 echo '                </td>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Unmute ALSA control and set to full volume (-U)&nbsp;&nbsp;'
+echo '                  <p>(not working) Unmute ALSA control and set to full volume (-U)&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
@@ -855,7 +855,7 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p class="row">ALSA volume control (not working)</p>'
+echo '                  <p class="row">ALSA volume control</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <input class="small1" type="radio" name="ALSAVOLUME" value="PCM" '$ALSAVOLUMEYES'>Yes&nbsp;&nbsp;'
@@ -863,7 +863,7 @@ echo '                  <input class="small1" type="radio" name="ALSAVOLUME" val
 echo '                </td>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Use ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
+echo '                  <p>(not working) Use ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
@@ -873,6 +873,56 @@ echo '                </td>'
 echo '              </tr>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_volume
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------Power On/Off GPIO---------------------------------
+pcp_squeezelite_power_gpio() {
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p class="row">Power On/Off GPIO</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <input class="large15" type="number" name="POWER_GPIO" value="'$POWER_GPIO'" min="1" max="40">'
+echo '                </td>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>(not working) Power On/Off GPIO (-G)&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_power_gpio
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------Power On/Off Script-------------------------------
+pcp_squeezelite_power_gpio() {
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p class="row">Power On/Off Script</p>'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <input class="large15" type="text" name="POWER_SCRIPT" value="'$POWER_SCRIPT'">'
+echo '                </td>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>(not working) Power On/Off Script (-S)&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Squeezelite will run this script when the Power On/Off button is pressed.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_power_gpio
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------

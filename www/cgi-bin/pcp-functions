@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.28 2016-02-20 GE
+# Version: 0.28 2016-02-21 GE
 #	Fixed sourceforge redirection issue.
+#	Fixed "other" in pcp_save_to_config.
 
 # Version: 0.27 2016-02-12 GE
 #	Added SQLT_VERSION.
@@ -269,7 +270,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1323,7 +1324,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
 	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
-	sudo sed -i "s/\(OTHER=\).*/\1\"$OTHER\"/" $CONFIGCFG
+	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
 	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
