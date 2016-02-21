@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# version: 0.01 2016-02-20 GE
+# version: 0.01 2016-02-21 GE
 #	Original.
 
 . pcp-functions
@@ -35,8 +35,15 @@ FIX_CGI="/home/tc/www/cgi-bin"
 # Fixes
 #----------------------------------------------------------------------------------------
 pcp_do_fix_1() {
-	# fix for piCorePlayer 2.01
 	echo "[ INFO ] Applying fix_1"
+	echo "[ INFO ] Adding oprnssl to onboot.lst"
+	sudo sed -i '/openssl.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+}
+
+pcp_do_fix_2() {
+	# fix for piCorePlayer 2.01
+	echo "[ INFO ] Applying fix_2"
 	echo "[ INFO ] Fixing insitu_update.cgi"
 
 	FILE="/home/tc/www/cgi-bin/insitu_update.cgi"
@@ -44,14 +51,11 @@ pcp_do_fix_1() {
 	TO='$WGET -O ${UPD_PCP}/insitu.cfg ${INSITU_DOWNLOAD}/insitu.cfg/download'
 
 	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
-
-	sudo sed -i '/openssl.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
-pcp_do_fix_2() {
+pcp_do_fix_3() {
 	# fix for piCorePlayer 2.00
-	echo "[ INFO ] Applying fix_2"
+	echo "[ INFO ] Applying fix_3"
 	echo "[ INFO ] Fixing upd_picoreplayer.cgi"
 
 	FILE="/home/tc/www/cgi-bin/upd_picoreplayer.cgi"
@@ -59,19 +63,24 @@ pcp_do_fix_2() {
 	TO='sudo wget -O ${UPD_PCP}/insitu.cfg ${INSITU_DOWNLOAD}/insitu.cfg/download'
 
 	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
-
-	sudo sed -i '/openssl.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
-pcp_do_fix_2() {
-	echo fix 3
+pcp_do_fix_4() {
+	echo "[ INFO ] Applying fix_4"
+	echo "[ INFO ] Fixing writetoaudiotweak.cgi"
+
+	FILE="/home/tc/www/cgi-bin/writetoaudiotweak.cgi"
+	FROM='http://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/'
+	TO='https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/'
+
+	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
 }
 
 pcp_do_fixes() {
 	pcp_do_fix_1
 	pcp_do_fix_2
 	pcp_do_fix_3
+	pcp_do_fix_4
 }
 
 #========================================================================================
