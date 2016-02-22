@@ -2,9 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.28 2016-02-21 GE
+# Version: 0.28 2016-02-23 GE
 #	Fixed sourceforge redirection issue.
 #	Fixed "other" in pcp_save_to_config.
+#	Added pcp_squeezelite_build_option.
+#	Added some UTF-8 Dingbats definitions.
 
 # Version: 0.27 2016-02-12 GE
 #	Added SQLT_VERSION.
@@ -303,6 +305,22 @@ MAGENTA="$(echo -e '\033[1;35m')"
 CYAN="$(echo -e '\033[1;36m')"
 WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
+
+#=========================================================================================
+# UTF-8 Dingbats and other symbols
+#
+# References:
+#  - http://nealchester.com/special-characters/#crosses
+#  - http://www.w3schools.com/charsets/ref_utf_dingbats.asp
+#-----------------------------------------------------------------------------------------
+HEAVY_CHECK_MARK="&#10004;"
+HEAVY_BALLOT_X="&#10008;"
+DEGREE_SIGN="&deg;"
+
+BLACKTRIANGLE="&#9650;"
+BLACKTRIANGLEDOWN="&#9660;"
+BLACKTRIANGLELEFT="&#9668;"
+BLACKTRIANGLERIGHT="&#9658;"
 
 #=========================================================================================
 # Free space on /mnt/mmcblk0p2
@@ -800,6 +818,11 @@ pcp_squeezelite_version() {
 pcp_which_squeezelite() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep FFMPEG > /dev/null
 	[ $? = 0 ] && echo "Ralphy" || echo "Triode"
+}
+
+pcp_squeezelite_build_option() {
+	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep $1 > /dev/null
+	echo $?
 }
 
 pcp_linux_release() {

@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.21 2016-02-10 GE
+# Version: 0.21 2016-02-23 GE
 #	Renamed Squeezelite [Save] button to [Install].
+#	Added "Build options" to update squeezelite.
 
 # Version: 0.20 2016-02-03 GE
 #	Changed Insitu update.
@@ -88,6 +89,17 @@ pcp_banner
 pcp_navigation
 
 #========================================================================================
+# Padding
+#----------------------------------------------------------------------------------------
+pcp_main_padding() {
+	pcp_toggle_row_shade
+	echo '            <tr class="padding '$ROWSHADE'">'
+	echo '              <td></td>'
+	echo '              <td></td>'
+	echo '            </tr>'
+}
+
+#========================================================================================
 # Main piCorePlayer operations
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
@@ -102,18 +114,20 @@ echo '          <table class="bggrey percent100">'
 pcp_main_squeezelite_indication() {
 
 	if [ $(pcp_squeezelite_status) = 0 ]; then
-		IMAGE="green.png"
+		INDICATOR=$HEAVY_CHECK_MARK
+		CLASS="indicator_green"
 		STATUS="running"
 	else
-		IMAGE="red.png"
+		INDICATOR=$HEAVY_BALLOT_X
+		CLASS="indicator_red"
 		STATUS="not running"
 	fi
 
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+	echo '              <td class="column150 centre">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
 	echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
@@ -121,8 +135,8 @@ pcp_main_squeezelite_indication() {
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
 	echo '                  <ul>'
-	echo '                    <li>GREEN = Squeezelite running.</li>'
-	echo '                    <li>RED = Squeezelite not running.</li>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = Squeezelite running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = Squeezelite not running.</li>'
 	echo '                  </ul>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
@@ -136,17 +150,22 @@ pcp_main_squeezelite_indication() {
 	if [ $SHAIRPORT = yes ]; then
 
 		if [ $(pcp_shairport_status) = 0 ]; then
-			SH_IMAGE="green.png"
-			SH_STATUS="running"
+			INDICATOR=$HEAVY_CHECK_MARK
+			CLASS="indicator_green"
+			STATUS="running"
 		else
-			SH_IMAGE="red.png"
-			SH_STATUS="not running"
+			INDICATOR=$HEAVY_BALLOT_X
+			CLASS="indicator_red"
+			STATUS="not running"
 		fi
 
+		pcp_main_padding
+
 		pcp_incr_id
+		pcp_toggle_row_shade
 		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td class="column150">'
-		echo '                <p class="centre"><img src="../images/'$SH_IMAGE'" alt="'$SH_STATUS'"></p>'
+		echo '              <td class="column150 centre">'
+		echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 		echo '              </td>'
 		echo '              <td>'
 		echo '                <p>Shairport is '$SH_STATUS'&nbsp;&nbsp;'
@@ -154,8 +173,8 @@ pcp_main_squeezelite_indication() {
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
 		echo '                  <ul>'
-		echo '                    <li>GREEN = Shairport running.</li>'
-		echo '                    <li>RED = Shairport not running.</li>'
+		echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
+		echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
 		echo '                  </ul>'
 		echo '                  <p><b>Note:</b></p>'
 		echo '                  <ul>'
@@ -170,14 +189,6 @@ pcp_main_squeezelite_indication
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Padding---------------------------------------
-pcp_main_padding() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
-	echo '            </tr>'
-}
 pcp_main_padding
 #----------------------------------------------------------------------------------------
 
@@ -200,7 +211,7 @@ pcp_main_restart_squeezelite() {
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
 	echo '                    <li>A restart of Squeezelite is required after you change any of the Squeezelite settings.</li>'
-	echo '                    <li>Squeezelite running indicator will turn green.</li>'
+	echo '                    <li>Squeezelite running indicator will turn to a green tick.</li>'
 	echo '                    <li>Squeezelite in the footer will turn green.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
@@ -226,7 +237,7 @@ pcp_main_restart_shairport() {
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
 	echo '                    <li>A restart of Squeezelite and Shairport is required after you change any of the Squeezelite settings.</li>'
-	echo '                    <li>Squeezelite and Shairport running indicators will turn green.</li>'
+	echo '                    <li>Squeezelite and Shairport running indicators will turn to a green tick.</li>'
 	echo '                    <li>Squeezelite in the footer will turn green.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
@@ -278,6 +289,8 @@ pcp_main_update_ralphy() {
 	echo '                      <li>Ralphy provides Squeezelite binaries with the additional features enabled.</li>'
 	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
 	echo '                    </ul>'
+	echo '                    <p><b>Build options:</b></p>'
+	echo '                    <p>'$(sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </form>'

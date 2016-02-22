@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.11 2016-02-23 SGE
+	Added .large60, .large64, .indicator_green, .indicator_red
+
 Version: 0.10 2016-02-01 SBP
 	Added a.nav6, a.nav6a.
 
@@ -128,6 +131,16 @@ h2 {
 	font-size:10px;
 }
 
+.indicator_green {
+	color:green;
+	font-size:15px;
+}
+
+.indicator_red {
+	color:red;
+	font-size:15px;
+}
+
 /* Squeezelite running indicator */
 .centre {
 	text-align:center;
@@ -194,6 +207,10 @@ input {
 
 .large60 {
 	width:60em;
+}
+
+.large64 {
+	width:64em;
 }
 
 /* Define columns widths */
