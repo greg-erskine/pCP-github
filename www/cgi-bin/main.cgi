@@ -168,7 +168,7 @@ pcp_main_squeezelite_indication() {
 		echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <p>Shairport is '$SH_STATUS'&nbsp;&nbsp;'
+		echo '                <p>Shairport is '$STATUS'&nbsp;&nbsp;'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
