@@ -1,8 +1,10 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 0.09 2016-02-12 GE
+# Version: 0.09 2016-02-24 GE
 #	Minor enhancements.
+#	Changed to tick and cross indicator.
+#	Updated output to log file.
 
 # Version: 0.08 2016-02-03 GE
 #	Moved pcp_pastebin_button to Developer mode.
@@ -33,18 +35,73 @@
 pcp_variables
 . pcp-pastebin-functions
 
-# Local variables
-START="====================> Start <===================="
-END="=====================> End <====================="
-LOG="/tmp/pcp_diagrpi.log"
-(echo $0; date) > $LOG
-cat /etc/motd >> $LOG
-
 pcp_html_head "RasPi Diagnostics" "GE"
 
 pcp_banner
 pcp_diagnostics
 pcp_running_script
+
+#=========================================================================================
+# Add information to log file.
+#-----------------------------------------------------------------------------------------
+pcp_add_to_log() {
+	START="====================> Start <===================="
+	END="=====================> End <====================="
+	LOG="/tmp/pcp_diagrpi.log"
+	(echo $0; date) > $LOG
+	cat /etc/motd >> $LOG
+	echo  >> $LOG 
+	echo "Raspberry Pi" >> $LOG
+	echo  ============ >> $LOG
+	echo  >> $LOG
+	echo "Model: $(pcp_rpi_model)" >> $LOG
+	echo "Revision: $(pcp_rpi_revision)" >> $LOG
+	echo "PCB Revision: $(pcp_rpi_pcb_revision)" >> $LOG
+	echo "Memory: $(pcp_rpi_memory)" >> $LOG
+	echo "Shortname: $(pcp_rpi_shortname)" >> $LOG
+	echo "CPU Temperature: $(pcp_rpi_thermal_temp degrees)" >> $LOG
+	echo "eth0 IP: $(pcp_eth0_ip)" >> $LOG
+	echo "wlan0 IP: $(pcp_wlan0_ip)" >> $LOG
+	echo "LMS IP: $(pcp_lmsip)" >> $LOG
+	echo "Uptime: $(pcp_uptime_days)" >> $LOG
+	echo "Physical MAC: $(pcp_eth0_mac_address)" >> $LOG
+	echo "Wireless MAC: $(pcp_wlan0_mac_address)" >> $LOG
+	echo "Configuration MAC:$(pcp_config_mac_address)" >> $LOG
+	echo "Controls MAC: $(pcp_controls_mac_address)" >> $LOG
+	echo  >> $LOG
+	echo "Squeezelite" >> $LOG
+	echo  =========== >> $LOG
+	echo  >> $LOG
+	echo "Version: $(pcp_squeezelite_version)" >> $LOG
+	if [ $(pcp_squeezelite_status) = 0 ]; then
+		echo "Squeezelite running..." >> $LOG
+	else
+		echo  "Squeezelite not running!!" >> $LOG
+	fi
+	echo  >> $LOG
+	echo "piCorePlayer" >> $LOG
+	echo  ============ >> $LOG
+	echo  >> $LOG
+	echo "Version: $(pcp_picoreplayer_version)" >> $LOG
+	echo "pCP name: $NAME" >> $LOG
+	echo "Hostname: $HOST" >> $LOG
+	echo  >> $LOG
+	echo "piCore" >> $LOG
+	echo  ====== >> $LOG
+	echo  >> $LOG
+	echo "Version: $(pcp_picore_version)" >> $LOG
+	echo "Linux release: $(pcp_linux_release)" >> $LOG
+	if [ $(pcp_internet_accessible) = 0 ]; then
+		echo "Internet found..." >> $LOG
+	else
+		echo "Internet not found!!" >> $LOG
+	fi
+	if [ $(pcp_sourceforge_accessible) = 0 ]; then
+		echo "Sourceforge accessible..." >> $LOG
+	else
+		echo "Sourceforge not accessible!!" >> $LOG
+	fi
+}
 
 #========================================================================================
 # Raspberry Pi
@@ -172,10 +229,12 @@ echo '</table>'
 # Squeezelite
 #----------------------------------------------------------------------------------------
 if [ $(pcp_squeezelite_status) = 0 ]; then
-	IMAGE="green.png"
+	INDICATOR=$HEAVY_CHECK_MARK
+	CLASS="indicator_green"
 	STATUS="Running..."
 else
-	IMAGE="red.png"
+	INDICATOR=$HEAVY_BALLOT_X
+	CLASS="indicator_red"
 	STATUS="Not running!!"
 fi
 
@@ -188,8 +247,8 @@ echo '          <legend>Squeezelite</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
-echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+echo '              <td class="column150 centre">'
+echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>'$STATUS'</p>'
@@ -304,30 +363,34 @@ pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 
                     if [ $(pcp_internet_accessible) = 0 ]; then
-                      IMAGE="green.png"
+                      INDICATOR=$HEAVY_CHECK_MARK
+                      CLASS="indicator_green"
                       STATUS="Internet found..."
                     else
-                      IMAGE="red.png"
+                      INDICATOR=$HEAVY_BALLOT_X
+                      CLASS="indicator_red"
                       STATUS="Internet not found!!"
                     fi
 
-echo '              <td class="column150">'
-echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+echo '              <td class="column150 centre">'
+echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
                     if [ $(pcp_sourceforge_accessible) = 0 ]; then
-                      IMAGE="green.png"
+                      INDICATOR=$HEAVY_CHECK_MARK
+                      CLASS="indicator_green"
                       STATUS="Sourceforge accessible..."
                     else
-                      IMAGE="red.png"
+                      INDICATOR=$HEAVY_BALLOT_X
+                      CLASS="indicator_red"
                       STATUS="Sourceforge not accessible!!"
                     fi
 
-echo '              <td class="column150">'
-echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+echo '              <td class="column150 centre">'
+echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td>'
 echo '                <p>'$STATUS'</p>'
@@ -341,6 +404,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
+pcp_add_to_log
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button raspi
 
 pcp_footer
@@ -348,15 +412,3 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
-
-#=========================================================================================
-# Add information to log file.
-#-----------------------------------------------------------------------------------------
-echo "[ INFO ] Rev: $(pcp_rpi_revision)" >> $LOG
-echo "[ INFO ] Model: $(pcp_rpi_model)" >> $LOG
-echo "[ INFO ] PCB rev: $(pcp_rpi_pcb_revision)" >> $LOG
-echo "[ INFO ] memory: $(pcp_rpi_memory)" >> $LOG
-
-[ $(pcp_rpi_is_model_A) = 0 ]     && echo "[ INFO ] model A: Yes" >> $LOG  || echo "[ INFO ] model A: No" >> $LOG
-[ $(pcp_rpi_is_model_B) = 0 ]     && echo "[ INFO ] model B: Yes" >> $LOG  || echo "[ INFO ] model B: No" >> $LOG
-[ $(pcp_rpi_is_model_Bplus) = 0 ] && echo "[ INFO ] model B+: Yes" >> $LOG || echo "[ INFO ] model B+: No" >> $LOG
