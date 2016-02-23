@@ -7,6 +7,7 @@
 #	Fixed "other" in pcp_save_to_config.
 #	Added pcp_squeezelite_build_option.
 #	Added some UTF-8 Dingbats definitions.
+#	Added firmware-brcmwifi.tcz.
 
 # Version: 0.27 2016-02-12 GE
 #	Added SQLT_VERSION.
@@ -552,7 +553,7 @@ New_pcp_navigation() {                                #<--------------- Use this
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="'$0' - pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
@@ -587,7 +588,7 @@ pcp_navigation() {                             #<-------------- Delete this func
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="'$0' - pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
@@ -1467,9 +1468,10 @@ EOF
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
 
 	# Remove wifi stuff
+	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-brcmwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 

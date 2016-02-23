@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.08 2016-02-23 GE
+#	Added firmware-brcmwifi.tcz.
+
 # Version: 0.07 2015-09-19 SBP
 #	Removed httpd decoding.
 
@@ -66,12 +69,15 @@ if [ $WIFI = on ]; then
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Loading wifi firmware and modules.</p>'
 		# Add wifi related modules back
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+
+		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
+		sudo -u tc tce-load -i firmware-brcmwifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo '<p class="info">[ INFO ] Broadcom firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Broadcom firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo '<p class="info">[ INFO ] Ralink firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Ralink firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo '<p class="info">[ INFO ] Realtek firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Realtek firmware load error.</p>'
-		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
 
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo '<p class="info">[ INFO ] Wifi modules loaded.</p>' || echo '<p class="error">[ ERROR ] Wifi modules load error.</p>'
@@ -80,9 +86,10 @@ fi
 
 if [ $WIFI = off ]; then
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] wifi is off. Removing wifi extensions...</p>'
+	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-brcmwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 fi

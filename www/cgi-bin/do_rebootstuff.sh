@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.26 2016-02-23 GE
+#	Added firmware-brcmwifi.tcz.
+
 # Version: 0.25 2016-02-02 SBP
 #	Reordered custom alsactl restore.
 #	Added LMS startup.
@@ -211,12 +214,16 @@ if [ $WIFI = "on" ]; then
 		# Add wifi related modules back
 		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+
+		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
+		sudo -u tc tce-load -i firmware-brcmwifi.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW}  Broadcom firmware loaded.${NORMAL}" || echo "${RED}  Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
+
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"

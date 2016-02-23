@@ -429,7 +429,7 @@ pcp_main_stop() {
 	echo '                  <p>Click [Restart] to start Squeezelite again.</p>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>Squeezelite running indicator will turn red.</li>'
+	echo '                    <li>Squeezelite running indicator will turn to a red cross.</li>'
 	echo '                    <li>Squeezelite in the footer will turn red.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
