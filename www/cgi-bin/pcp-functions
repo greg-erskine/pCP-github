@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.28 2016-02-23 GE
+# Version: 0.28 2016-02-24 GE
 #	Fixed sourceforge redirection issue.
 #	Fixed "other" in pcp_save_to_config.
 #	Added pcp_squeezelite_build_option.
 #	Added some UTF-8 Dingbats definitions.
 #	Added firmware-brcmwifi.tcz.
+#	Added backup too big warning message to pcp_backup and pcp_backup_nohtml.
 
 # Version: 0.27 2016-02-12 GE
 #	Added SQLT_VERSION.
@@ -1188,6 +1189,11 @@ pcp_reboot_button() {
 #=========================================================================================
 # Backup mydata
 #-----------------------------------------------------------------------------------------
+pcp_check_mydata() {
+	SIZE=$(ls -l /mnt/mmcblk0p2/tce/mydata.tgz | awk '{print $5}')
+	echo $SIZE
+}
+
 pcp_backup() {
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
@@ -1212,6 +1218,7 @@ pcp_backup() {
 	else
 		echo '<p class="error">[ ERROR ] Backup failed.</p>'
 	fi
+	[ $(pcp_check_mydata) -gt 200000 ] && echo '<p class="warn">[ WARN ] Backup is too big - $(pcp_check_mydata) bytes</p>'
 }
 
 pcp_backup_nohtml() {
@@ -1235,6 +1242,7 @@ pcp_backup_nohtml() {
 	else
 		echo '[ ERROR ] Backup failed.'
 	fi
+	[ $(pcp_check_mydata) -gt 200000 ] && echo "[ WARN ] Backup is too big - $(pcp_check_mydata) bytes"
 }
 
 #=========================================================================================

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version: 0.01 2015-02-15 GE
-#   Original version.
+#	Original version.
 
 . pcp-functions
 pcp_variables
@@ -13,6 +13,8 @@ pcp_controls
 pcp_banner
 pcp_xtras
 pcp_running_script
+
+pcp_mount_mmcblk0p1_nohtml
 
 echo '<p><b>Note: </b>At the moment this page simply displays the contents of cmdline.txt and cmdline.'
 echo '   In the future, it is intended to be able to modify the contents of cmdline.txt.</p>'
@@ -170,7 +172,6 @@ echo '</table>'
 #========================================================================================
 # /mnt/mmcblkop1/cmdline.txt
 #----------------------------------------------------------------------------------------
-pcp_mount_mmcblk0p1
 
 pcp_textarea "" "cat $CMDLINETXT" 50
 
