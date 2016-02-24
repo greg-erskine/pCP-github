@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 0.06 2016-02-24 GE
+#	Changed indicators to tick and cross.
+
 # Version: 0.05 2016-02-03 GE
 #	Moved pcp_pastebin_button to Developer mode.
 
@@ -353,23 +356,25 @@ echo '              </td>'
 echo '            </tr>'
 ----------------------------------------------------------------------------------------
 if [ $(pcp_uptime_seconds) -lt 86400 ]; then
-	IMAGE="green.png"
+	INDICATOR=$HEAVY_CHECK_MARK
+	CLASS="indicator_green"
 	STATUS="No reboot required."
 else
-	IMAGE="red.png"
+	INDICATOR=$HEAVY_BALLOT_X
+	CLASS="indicator_red"
 	STATUS="Reboot recommended."
 fi
 
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column300">'
-echo '                <p>Your piCorePlayer has not been reboot for:</p>'
+echo '                <p>Your piCorePlayer has not been rebooted for:</p>'
 echo '              </td>'
 echo '              <td class="column300">'
 echo '                <p>'$(pcp_uptime_days)'</p>'
 echo '              </td>'
 echo '              <td class="column300">'
-echo '                <p><img src="../images/'$IMAGE'" alt="'$STATUS'">&nbsp;&nbsp;'$STATUS'</p>'
+echo '                <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
 echo '              </td>'
 echo '            </tr>'
 #------------------------------------dmesg-----------------------------------------------

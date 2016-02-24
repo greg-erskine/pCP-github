@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.21 2016-02-23 GE
+# Version: 0.21 2016-02-24 GE
 #	Renamed Squeezelite [Save] button to [Install].
 #	Added "Build options" to update squeezelite.
+#	Changed indicators to tick and cross.
 
 # Version: 0.20 2016-02-03 GE
 #	Changed Insitu update.
