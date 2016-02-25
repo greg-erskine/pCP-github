@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.10 2016-02-26 SBP
+#	Added SQUEEZELITE section.
+
 # Version: 0.09 2016-02-20 GE
 #	Fixed sourceforge redirection issue.
 

@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.22 2016-02-21 GE
+# Version: 0.22 2016-02-26 GE
 #	Increased size of Custom Cron Command field.
 #	Increased size of User Command fields.
 #	Added Clear button to User commands.
+#	Added squeezelite autostart option.
 
 # Version: 0.21 2016-01-29 SBP
 #	Activated alsaeqaual feature.
@@ -834,7 +835,6 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- End of debug info -->'
 	fi
 
-
 	#-------------------------------------------Shairport--------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -954,7 +954,6 @@ pcp_tweaks_audio_tweaks() {
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
-#	echo '                  <input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">'
 	echo '                </td>'
 	echo '                <td>'
 
@@ -965,7 +964,6 @@ pcp_tweaks_audio_tweaks() {
 	fi
 
 	echo '                    Use 10 band ALSA equalizer&nbsp;&nbsp;'
-#	echo '                  <p>Use 10 band ALSA equalizer <a href="xtras_alsaequal.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'

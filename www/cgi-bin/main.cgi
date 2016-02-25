@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 0.21 2016-02-24 GE
+# Version: 0.21 2016-02-26 GE
 #	Renamed Squeezelite [Save] button to [Install].
 #	Added "Build options" to update squeezelite.
 #	Changed indicators to tick and cross.
+#	Added 
 
 # Version: 0.20 2016-02-03 GE
 #	Changed Insitu update.
@@ -132,9 +133,8 @@ pcp_main_squeezelite_indication() {
 	echo '              </td>'
 	echo '              <td>'
 	echo '                <p>Squeezelite is '$STATUS'.&nbsp;&nbsp;'
-					if [ $SQUEEZELITE = no ]; then
-					echo 'And Squeezelite is disabled on Tweaks page.&nbsp;&nbsp;'
-					fi
+	[ $SQUEEZELITE = no ] &&
+	echo '                  And Squeezelite is disabled on Tweaks page.&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'

@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 0.26 2016-02-23 GE
+# Version: 0.26 2016-02-26 GE
 #	Added firmware-brcmwifi.tcz.
+#	Added IR startup.
+#	Changed squeezelite startup code.
 
 # Version: 0.25 2016-02-02 SBP
 #	Reordered custom alsactl restore.
@@ -351,10 +353,17 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-if [ $SQUEEZELITE = yes ]; then
-echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
-/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
+if [ $IR_LIRC = "yes" ]; then
+	echo -n "${BLUE}Starting lirc... ${NORMAL}"
+	/usr/local/sbin/lircd --device=/dev/lirc0
+#	/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+if [ $SQUEEZELITE = "yes" ]; then
+	echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+	/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
@@ -369,7 +378,7 @@ if [ ! -e /usr/bin/dbclient ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $SHAIRPORT = yes ]; then
+if [ $SHAIRPORT = "yes" ]; then
 	echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
 	/usr/local/etc/init.d/dbus start >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"

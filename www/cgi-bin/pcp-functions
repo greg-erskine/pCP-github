@@ -2,13 +2,15 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.28 2016-02-24 GE
+# Version: 0.28 2016-02-26 GE
 #	Fixed sourceforge redirection issue.
 #	Fixed "other" in pcp_save_to_config.
 #	Added pcp_squeezelite_build_option.
 #	Added some UTF-8 Dingbats definitions.
 #	Added firmware-brcmwifi.tcz.
 #	Added backup too big warning message to pcp_backup and pcp_backup_nohtml.
+#	Added IR_LIRC, IR_GPIO and SQUEEZELITE.
+
 
 # Version: 0.27 2016-02-12 GE
 #	Added SQLT_VERSION.
@@ -274,7 +276,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1387,6 +1389,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1457,6 +1461,8 @@ SHAIRPORT="no"
 LMSERVER="no"
 SQLT_VERSION="basic"
 SQUEEZELITE="yes"
+IR_LIRC="no"
+IR_GPIO=""
 EOF
 
 	# Remove timezone stuff
