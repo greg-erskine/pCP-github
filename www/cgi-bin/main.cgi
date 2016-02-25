@@ -131,7 +131,10 @@ pcp_main_squeezelite_indication() {
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+	echo '                <p>Squeezelite is '$STATUS'.&nbsp;&nbsp;'
+					if [ $SQUEEZELITE = no ]; then
+					echo 'And Squeezelite is disabled on Tweaks page.&nbsp;&nbsp;'
+					fi
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'

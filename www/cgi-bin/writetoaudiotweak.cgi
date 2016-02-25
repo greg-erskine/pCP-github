@@ -36,6 +36,7 @@ pcp_variables
 # Store the original values so we can see if they are changed
 ORIG_ALSAeq=$ALSAeq
 ORIG_SHAIRPORT=$SHAIRPORT
+ORIG_SQUEEZELITE=$SQUEEZELITE
 ORIG_ALSAlevelout=$ALSAlevelout
 ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
@@ -355,6 +356,35 @@ if [ $ORIG_CMD != $CMD ]; then
 	echo '<hr>'
 else
 	echo '<p class="info">[ INFO ] CMD variable unchanged.</p>'
+fi
+
+#========================================================================================
+# SQUEEZELITE section
+#----------------------------------------------------------------------------------------
+# Only do something if variable is changed
+if [ $ORIG_SQUEEZELITE != $SQUEEZELITE ]; then
+	REBOOT_REQUIRED=1
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] SQUEEZELITET is set to: '$SQUEEZELITE'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SQUEEZELITE is: '$ORIG_SQUEEZELITE'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] SQUEEZELITE is: '$SQUEEZELITE'</p>'
+
+	case "$SQUEEZELITE" in
+		yes)
+			echo '<p class="info">[ INFO ] Squeezelite will be enabled and starts automatically when pCP is started.</p>'
+			CLOSEOUT="15"
+			;;
+		no)
+			echo '<p class="info">[ INFO ] Squeezelite will be disabled and will not start after a reboot.</p>'
+			CLOSEOUT=""
+			;;
+		*)
+			echo '<p class="error">[ ERROR ] Squeezelite selection invalid: '$SHAIRPORT'</p>'
+			;;
+	esac
+	echo '<hr>'
+else
+	echo '<p class="info">[ INFO ] SQUEEZELITE variable unchanged.</p>'
 fi
 
 #========================================================================================

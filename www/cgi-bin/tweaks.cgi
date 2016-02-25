@@ -751,6 +751,12 @@ pcp_tweaks_auto_start() {
 # Determine state of check boxes.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
+	# Function to check the SQUEEZELITE radio button according to config file
+	case "$SQUEEZELITE" in
+		yes) SQUEEZELITEyes="checked" ;;
+		no) SQUEEZELITEno="checked" ;;
+	esac
+
 	# Function to check the SHAIRPORT radio button according to config file
 	case "$SHAIRPORT" in
 		yes) SHAIRPORTyes="checked" ;;
@@ -795,8 +801,43 @@ pcp_tweaks_audio_tweaks() {
 	echo '            <legend>Audio tweaks</legend>'
 	echo '            <table class="bggrey percent100">'
 
-	#-------------------------------------------Shairport--------------------------------
+	#-------------------------------------------Squeezelite--------------------------------
 	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="SQUEEZELITE" value="yes" '$SQUEEZELITEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="SQUEEZELITE" value="no" '$SQUEEZELITEno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Automatically start Squeezelite when pCP starts&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Enable or disable that Squeezelite starts automatically.</p>'
+	echo '                    <p>If pCP is used as a LMS server or touch controler for other players it is not needed that Squeezelite starts.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="'$ROWSHADE'">'
+		echo '  <td  colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $SQUEEZELITE: '$SQUEEZELITE'<br />'
+		echo '                     [ DEBUG ] $SQUEEZELITEyes: '$SQUEEZELITEyes'<br />'
+		echo '                     [ DEBUG ] $SQUEEZELITEno: '$SQUEEZELITEno'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
+
+	#-------------------------------------------Shairport--------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Shairport</p>'
@@ -810,7 +851,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Stream audio from your iDevice.</p>'
+	echo '                    <p>Automatically start Shairport when pCP starts to stream audio from your iDevice.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'

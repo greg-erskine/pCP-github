@@ -351,9 +351,11 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
+if [ $SQUEEZELITE = yes ]; then
 echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
 /usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
+fi
 
 echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
 /usr/local/etc/init.d/dropbear start >/dev/null 2>&1
