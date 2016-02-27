@@ -267,9 +267,11 @@ pcp_finish_install() {
 
 	# Track and include user made changes to bootlocal.sh. It is important as user might have modified bootlocal.sh.
 	# So check that the final bootlocal.sh contains all from the new version and add eventual extra from the old
-	sudo chown root:staff /opt/bootlocal.sh 
-	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh
-	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh > /opt/bootlocal.sh
+	sudo chown root:staff /opt/bootlocal.sh
+	grep -Fxv -f /opt/bootlocal.sh ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh >> /opt/bootlocal.sh
+
+#	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh
+#	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh > /opt/bootlocal.sh
 	sudo chown root:staff /opt/bootlocal.sh
 	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
 
