@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.28 2016-02-26 GE
+# Version: 0.28 2016-02-29 GE
 #	Fixed sourceforge redirection issue.
 #	Fixed "other" in pcp_save_to_config.
 #	Added pcp_squeezelite_build_option.
@@ -10,7 +10,7 @@
 #	Added firmware-brcmwifi.tcz.
 #	Added backup too big warning message to pcp_backup and pcp_backup_nohtml.
 #	Added IR_LIRC, IR_GPIO and SQUEEZELITE.
-
+#	Changed LMS tab to developer mode.
 
 # Version: 0.27 2016-02-12 GE
 #	Added SQLT_VERSION.
@@ -276,7 +276,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -761,7 +761,7 @@ pcp_picoreplayers() {
 	done <$TMP
 	rm -r $TMP
 	LMSIP=$(pcp_lmsip)
-	if [ $MODE -ge $MODE_BETA ]; then
+	if [ $MODE -ge $MODE_DEVELOPER ]; then
 		echo '  <a class="tab7" href="http://'$LMSIP':9000/" title="'$LMSIP'" target="_blank">LMS</a>'
 	fi
 	echo '  <div class="tab7end">pCP</div>'
