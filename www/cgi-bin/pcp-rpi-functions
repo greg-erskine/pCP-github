@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.10 2016-03-01 GE
+#	Added support for Raspberry Pi 3B (not tested)
+
 # Version: 0.09 2016-02-14 GE
 #	Updated temperature function.
 #	Updated for Raspberry Pi Zero.
@@ -53,7 +56,8 @@
 #    MEMSIZE        20: 0=256M    1=512M    2=1G
 #    MANUFACTURER   16: 0=SONY    1=EGOMAN  2=EMBEST
 #    PROCESSOR      12: 0=2835    1=2836    
-#    TYPE           04: 0=MODELA  1=MODELB  2=MODELA+  3=MODELB+  4=Pi2 MODEL B  5=ALPHA  6=CM
+#    TYPE           04: 0=MODELA  1=MODELB  2=MODELA+  3=MODELB+  4=MODEL 2B  5=ALPHA???
+#                       6=CM      7=???     8=MODEL 3B  9=ZERO
 #    REV            00: 0=REV0    1=REV1    2=REV2
 
 #    *a21041
@@ -90,7 +94,8 @@ pcp_rpi_details() {
 		*0014)  MODEL=CM;   PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
 		*0015)  MODEL=A+;   PCBREV=1.1;  MEMORY=256;;
 		*041)   MODEL=2B;   PCBREV=1;    MEMORY=1024;;
-		*0092)  MODEL=ZERO; PCBREV=1;    MEMORY=512;;
+		*092)   MODEL=ZERO; PCBREV=1;    MEMORY=512;;		# Check PCBREV
+		*082)   MODEL=3B;   PCBREV=1.2;  MEMORY=1024;;		# a22082
 		*)      MODEL=?;    PCBREV=?;    MEMORY=?;;
 	esac
 
@@ -104,6 +109,7 @@ pcp_rpi_details() {
 		A+*)   HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
 		2B*)   HARDWARE=BCM2709; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		ZERO*) HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		3B*)   HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*)     HARDWARE=X;       ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 	esac
 }
