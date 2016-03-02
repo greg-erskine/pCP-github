@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.23 2016-03-02 GE
+#	Added -e option.
+#	Added -U option.
+#	Added -V option.
+
 # Version: 0.22 2016-02-22 GE
 #	Updated for Raspberry Pi Zero.
 #	Added support for raspidac3 and rpi_dac.
@@ -122,8 +127,8 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$DSDOUT" ]      && STRING="$STRING -D $DSDOUT"
 [ x"" != x"$VISUALISER" ]  && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
-[ x"" != x"$UNMUTE" ]      && STRING="$STRING -U PCM"
-[ x"" != x"$ALSAVOLUME" ]  && STRING="$STRING -V PCM"
+[ x"" != x"$UNMUTE" ]      && STRING="$STRING -U $UNMUTE"
+[ x"" != x"$ALSAVOLUME" ]  && STRING="$STRING -V $ALSAVOLUME"
 [ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
 [ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /tmp/$LOGFILE"
 STRING="$STRING &"
@@ -135,8 +140,6 @@ STRING="$STRING &"
 #  -M <modelname>		Set the squeezelite player model name sent to the server (default: SqueezeLite)
 #  -N <filename>		Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
 #  -P <filename>		Store the process id (PID) in filename
-#  -U <control>			Unmute ALSA control and set to full volume (not supported with -V)
-#  -V <control>			Use ALSA control for volume adjustment, otherwise use software volume adjustment
 
 #========================================================================================
 # Start table
@@ -182,7 +185,7 @@ echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</optio
 echo '                    <option value="USB" '$USBCHECKED'>USB audio:</option>'
 
 #if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_is_model_A) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
-if [ $(pcp_rpi_is_hat) != 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+if [ $(pcp_rpi_is_hat) != 0 ] || [ $(pcp_rpi_model_unknown) = 0 ] || [ $MODE -ge $MODE_BETA ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
 	echo '                    <option value="I2SDIG" '$I2DIGCHECKED'>I2S audio: HiFiBerry Digi</option>'
 	echo '                    <option value="IQaudio" '$IQaudioCHECKED'>I2S audio: IQaudIO Pi-DAC</option>'
@@ -190,13 +193,13 @@ if [ $(pcp_rpi_is_hat) != 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
 fi
 
 #if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
-if [ $(pcp_rpi_is_hat) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
+if [ $(pcp_rpi_is_hat) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ] || [ $MODE -ge $MODE_BETA ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: generic</option>'
-	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio+: HiFiBerry DAC+</option>'
-	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio+: HiFiBerry Digi+</option>'
-	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio+: IQaudIO Pi-DAC+</option>'
-	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio+: IQaudIO Pi-(Digi)AMP+</option>'
-	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio+: HiFiBerry AMP+</option>'
+	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+</option>'
+	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
+	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio: IQaudIO Pi-DAC+</option>'
+	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi)AMP+</option>'
+	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
 fi
 
 echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
@@ -503,7 +506,7 @@ pcp_squeezelite_xcodec() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_xcodec
+[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_xcodec
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Priority settings---------------------------------
@@ -827,21 +830,23 @@ pcp_squeezelite_unmute() {
 	echo '                  <p class="row">Unmute ALSA control</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="UNMUTE" value="PCM" '$UNMUTEYES'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="UNMUTE" value="" '$UNMUTENO'>No'
+	echo '                  <input class="large15" type="txt" name="UNMUTE" value="'$UNMUTE'">'
 	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>(not working) Unmute ALSA control and set to full volume (-U)&nbsp;&nbsp;'
+	echo '                  <p>Set ALSA control to unmute and set to full volume (-U)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;control&gt;</p>'
+	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note: </b>Not supported with -V option.</p>'
+	echo '                    <p><b>Controls found: </b>' $(amixer scontrols | awk -F"'" '{print $2}')'</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_unmute
+[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_unmute
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------ALSA volume control-------------------------------
@@ -858,21 +863,23 @@ pcp_squeezelite_volume() {
 	echo '                  <p class="row">ALSA volume control</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ALSAVOLUME" value="PCM" '$ALSAVOLUMEYES'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="ALSAVOLUME" value="" '$ALSAVOLUMENO'>No'
+	echo '                  <input class="large15" type="txt" name="ALSAVOLUME" value="'$ALSAVOLUME'">'
 	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>(not working) Use ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
+	echo '                  <p>Set ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>otherwise use software volume adjustment.</p>'
+	echo '                    <p>&lt;control&gt;</p>'
+	echo '                    <p>Use ALSA control for volume adjustment otherwise use software volume adjustment.</p>'
+	echo '                    <p><b>Note: </b>Not supported with -U option.</p>'
+	echo '                    <p><b>Controls found: </b>' $(amixer scontrols | awk -F"'" '{print $2}')'</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_volume
+[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_volume
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------IR------------------------------------------------

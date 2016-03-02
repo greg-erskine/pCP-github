@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.06 2016-03-02 GE
+#	Added -U option.
+#	Added -V option.
+
 # Version: 0.05 2015-09-20 GE
 #	Added -e option.
 #	Added -U option (not working).
@@ -46,8 +50,8 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
 [ x"" != x"$VISUALISER" ]  && VISUALISER="-v"
 [ x"" != x"$CLOSEOUT" ]    && CLOSEOUT="-C $CLOSEOUT"
-[ x"" != x"$UNMUTE" ]      && UNMUTE="-U PCM"
-[ x"" != x"$ALSAVOLUME" ]  && ALSAVOLUME="-V PCM"
+[ x"" != x"$UNMUTE" ]      && UNMUTE="-U $UNMUTE"
+[ x"" != x"$ALSAVOLUME" ]  && ALSAVOLUME="-V $ALSAVOLUME"
 [ x"" != x"$OTHER" ]       && OTHER="$OTHER"
 [ x"" != x"$LOGFILE" ]     && LOGFILE="-f /tmp/$LOGFILE"
 
