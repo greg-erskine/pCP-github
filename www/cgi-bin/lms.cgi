@@ -95,7 +95,7 @@ pcp_main_lms_indication() {
 	echo '                  </ul>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>LMS must be running to stream music to players.</li>'
+	echo '                    <li>LMS must be running to stream music to players from this pCP.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -252,7 +252,7 @@ pcp_lms_update() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------SAMBA mode fieldset---------------------------
-if [ $MODE -ge $MODE_ADVANCED ]; then
+if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -302,7 +302,7 @@ pcp_samba_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-pcp_samba_indication
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_indication
 
 #------------------------------------------Enable/download Samba-------------------------
 pcp_samba_enable() {
@@ -328,7 +328,7 @@ pcp_samba_enable() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-pcp_samba_enable
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_enable
 
 #------------------------------------------Start SAMBA-----------------------------------
 pcp_samba_start() {
@@ -355,7 +355,7 @@ pcp_samba_start() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-pcp_samba_start
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_start
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Stop------------------------------------------
@@ -384,7 +384,7 @@ pcp_samba_stop() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-pcp_samba_stop
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_stop
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
