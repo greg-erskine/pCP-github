@@ -537,7 +537,7 @@ pcp_banner() {
 	echo '<!-- End of pcp_banner -->'
 }
 
-New_pcp_navigation() {                                #<--------------- Use this when LMS is ready, rename to pcp_navigation
+pcp_navigation() {                                #<--------------- Use this when LMS is ready, rename to pcp_navigation
 	TAB_STYLE_MODE_MAIN=nav6
 	TAB_STYLE_MODE_SQUEEZELITE=nav6
 	TAB_STYLE_MODE_WIFI=nav6
@@ -572,7 +572,7 @@ New_pcp_navigation() {                                #<--------------- Use this
 	echo '<!-- End of pcp_navigation toolbar -->'
 }
 
-pcp_navigation() {                             #<-------------- Delete this function when LMS is ready
+old_pcp_navigation() {                             #<-------------- Delete this function when LMS is ready
 	TAB_STYLE_MODE_MAIN=nav5
 	TAB_STYLE_MODE_SQUEEZELITE=nav5
 	TAB_STYLE_MODE_WIFI=nav5
