@@ -1,9 +1,11 @@
 #!/bin/sh
 
-# Version: 0.23 2016-03-02 GE
-#	Added -e option.
-#	Added -U option.
-#	Added -V option.
+# Version: 0.23 2016-03-03 GE
+#	Updated -e option.
+#	Updated -U option.
+#	Updated -V option.
+#	Added -G option.
+#	Added -S option.
 
 # Version: 0.22 2016-02-22 GE
 #	Updated for Raspberry Pi Zero.
@@ -112,25 +114,28 @@ pcp_navigation
 # Create Squeezelite command string
 #----------------------------------------------------------------------------------------
 STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
-[ x"" != x"$NAME" ]        && STRING="$STRING -n \"$NAME\""
-[ x"" != x"$OUTPUT" ]      && STRING="$STRING -o $OUTPUT"
-[ x"" != x"$ALSA_PARAMS" ] && STRING="$STRING -a "$ALSA_PARAMS""
-[ x"" != x"$BUFFER_SIZE" ] && STRING="$STRING -b $BUFFER_SIZE"
-[ x"" != x"$_CODEC" ]      && STRING="$STRING -c $_CODEC"
-[ x"" != x"$XCODEC" ]      && STRING="$STRING -e $XCODEC"
-[ x"" != x"$PRIORITY" ]    && STRING="$STRING -p $PRIORITY"
-[ x"" != x"$MAX_RATE" ]    && STRING="$STRING -r $MAX_RATE"
-[ x"" != x"$UPSAMPLE" ]    && STRING="$STRING -R $UPSAMPLE"
-[ x"" != x"$MAC_ADDRESS" ] && STRING="$STRING -m $MAC_ADDRESS"
-[ x"" != x"$SERVER_IP" ]   && STRING="$STRING -s $SERVER_IP"
-[ x"" != x"$LOGLEVEL" ]    && STRING="$STRING -d $LOGLEVEL"
-[ x"" != x"$DSDOUT" ]      && STRING="$STRING -D $DSDOUT"
-[ x"" != x"$VISUALISER" ]  && STRING="$STRING -v"
-[ x"" != x"$CLOSEOUT" ]    && STRING="$STRING -C $CLOSEOUT"
-[ x"" != x"$UNMUTE" ]      && STRING="$STRING -U $UNMUTE"
-[ x"" != x"$ALSAVOLUME" ]  && STRING="$STRING -V $ALSAVOLUME"
-[ x"" != x"$OTHER" ]       && STRING="$STRING $OTHER"
-[ x"" != x"$LOGFILE" ]     && STRING="$STRING -f /tmp/$LOGFILE"
+[ x"" != x"$NAME" ]         && STRING="$STRING -n \"$NAME\""
+[ x"" != x"$OUTPUT" ]       && STRING="$STRING -o $OUTPUT"
+[ x"" != x"$ALSA_PARAMS" ]  && STRING="$STRING -a "$ALSA_PARAMS""
+[ x"" != x"$BUFFER_SIZE" ]  && STRING="$STRING -b $BUFFER_SIZE"
+[ x"" != x"$_CODEC" ]       && STRING="$STRING -c $_CODEC"
+[ x"" != x"$XCODEC" ]       && STRING="$STRING -e $XCODEC"
+[ x"" != x"$PRIORITY" ]     && STRING="$STRING -p $PRIORITY"
+[ x"" != x"$MAX_RATE" ]     && STRING="$STRING -r $MAX_RATE"
+[ x"" != x"$UPSAMPLE" ]     && STRING="$STRING -R $UPSAMPLE"
+[ x"" != x"$MAC_ADDRESS" ]  && STRING="$STRING -m $MAC_ADDRESS"
+[ x"" != x"$SERVER_IP" ]    && STRING="$STRING -s $SERVER_IP"
+[ x"" != x"$LOGLEVEL" ]     && STRING="$STRING -d $LOGLEVEL -f /tmp/pcp_squeezelite.log"
+[ x"" != x"$DSDOUT" ]       && STRING="$STRING -D $DSDOUT"
+[ x"" != x"$VISUALISER" ]   && STRING="$STRING -v"
+[ x"" != x"$CLOSEOUT" ]     && STRING="$STRING -C $CLOSEOUT"
+[ x"" != x"$UNMUTE" ]       && STRING="$STRING -U $UNMUTE"
+[ x"" != x"$ALSAVOLUME" ]   && STRING="$STRING -V $ALSAVOLUME"
+[ x"" != x"$IR_GPIO" ]      && STRING="$STRING -i $IR_GPIO"
+[ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO"
+[ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
+[ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
+#[ x"" != x"$LOGFILE" ]      && STRING="$STRING -f /tmp/$LOGFILE"
 STRING="$STRING &"
 
 #========================================================================================
@@ -610,7 +615,6 @@ pcp_squeezelite_mac_address() {
 	echo '                  <p class="row">MAC address</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	#echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$" placeholder="ab:cd:ef:12:34:56">'
 	echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">'
 	echo '                </td>'
 	echo '                <td>'
@@ -644,7 +648,6 @@ pcp_squeezelite_server_ip() {
 	echo '                  <p class="row">Squeezelite server IP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	#echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" placeholder="192.168.1.xxx">'
 	echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
 	echo '                </td>'
 	echo '                <td>'
@@ -760,7 +763,7 @@ pcp_squeezelite_log_file() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_file
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_log_file
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Device supports DoP-------------------------------
@@ -779,7 +782,7 @@ pcp_squeezelite_dop() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>[delay]</p>'
+	echo '                    <p>&lt;delay&gt;</p>'
 	echo '                    <p>delay = optional delay switching between PCM and DoP in ms.</p>'
 	echo '                    <p><b>Note: </b>LMS requires the DoP patch applied.</p>'
 	echo '                  </div>'
@@ -841,10 +844,12 @@ pcp_squeezelite_unmute() {
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note: </b>Not supported with -V option.</p>'
+
 	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print "Card: "$1 " "  $4}')'</p>'
 	echo '                    <p><b>For card 0 controls found: </b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
 	echo '                    <p><b>For card 1 controls found: </b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
 	echo '                    <p><b>For card 2 controls found: </b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -876,12 +881,14 @@ pcp_squeezelite_volume() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Use ALSA control for volume adjustment otherwise use software volume adjustment.</p>'
+
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
 	echo '                    <p><b>Note: </b>Not supported with -U option.</p>'
 	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print "Card: "$1 " "  $4}')'</p>'
 	echo '                    <p><b>For card 0 controls found: </b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
 	echo '                    <p><b>For card 1 controls found: </b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
 	echo '                    <p><b>For card 2 controls found: </b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -905,7 +912,6 @@ pcp_squeezelite_ir() {
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="IR" value="yes" '$IRYES'>Yes&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="IR" value="no" '$IRNO'>No'
-	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>(not working) IR (-i)&nbsp;&nbsp;'
@@ -931,18 +937,18 @@ pcp_squeezelite_power_gpio() {
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="number" name="POWER_GPIO" value="'$POWER_GPIO'" min="1" max="40">'
 	echo '                </td>'
-	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>(not working) Power On/Off GPIO (-G)&nbsp;&nbsp;'
+	echo '                  <p>Power On/Off GPIO (-G)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;gpio&gt;</p>'
 	echo '                    <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_gpio
+[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_gpio
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off Script-------------------------------
@@ -956,18 +962,18 @@ pcp_squeezelite_power_gpio() {
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="POWER_SCRIPT" value="'$POWER_SCRIPT'">'
 	echo '                </td>'
-	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>(not working) Power On/Off Script (-S)&nbsp;&nbsp;'
+	echo '                  <p>Power On/Off Script (-S)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;/path/script.sh&gt;</p>'
 	echo '                    <p>Squeezelite will run this script when the Power On/Off button is pressed.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_gpio
+[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_gpio
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------

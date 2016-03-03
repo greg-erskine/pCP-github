@@ -1,8 +1,12 @@
 #!/bin/sh
 
-# Version: 0.06 2016-03-02 GE
-#	Added -U option.
-#	Added -V option.
+# Version: 0.06 2016-03-03 GE
+#	Updated -e option.
+#	Updated -U option.
+#	Updated -V option.
+#	Added -G option.
+#	Added -S option.
+#	Removed LOGFILE.
 
 # Version: 0.05 2015-09-20 GE
 #	Added -e option.
@@ -35,25 +39,28 @@ PIDFILE=/var/run/squeezelite.pid
 . /usr/local/sbin/config.cfg
 
 # Check if variable is present then add the correct option in front
-[ x"" != x"$NAME" ]        && NAME="$NAME"							# <--- Moved "-n" to allow for spaces
-[ x"" != x"$OUTPUT" ]      && OUTPUT="-o $OUTPUT"
-[ x"" != x"$ALSA_PARAMS" ] && ALSA_PARAMS="-a "$ALSA_PARAMS""
-[ x"" != x"$BUFFER_SIZE" ] && BUFFER_SIZE="-b $BUFFER_SIZE"
-[ x"" != x"$_CODEC" ]      && _CODEC="-c $_CODEC"
-[ x"" != x"$XCODEC" ]      && XCODEC="-e $XCODEC"
-[ x"" != x"$PRIORITY" ]    && PRIORITY="-p $PRIORITY"
-[ x"" != x"$MAX_RATE" ]    && MAX_RATE="-r $MAX_RATE"
-[ x"" != x"$UPSAMPLE" ]    && UPSAMPLE="-R $UPSAMPLE"
-[ x"" != x"$MAC_ADDRESS" ] && MAC_ADDRESS="-m $MAC_ADDRESS"
-[ x"" != x"$SERVER_IP" ]   && SERVER_IP="-s $SERVER_IP"
-[ x"" != x"$LOGLEVEL" ]    && LOGLEVEL="-d $LOGLEVEL"
-[ x"" != x"$DSDOUT" ]      && DSDOUT="-D $DSDOUT"
-[ x"" != x"$VISUALISER" ]  && VISUALISER="-v"
-[ x"" != x"$CLOSEOUT" ]    && CLOSEOUT="-C $CLOSEOUT"
-[ x"" != x"$UNMUTE" ]      && UNMUTE="-U $UNMUTE"
-[ x"" != x"$ALSAVOLUME" ]  && ALSAVOLUME="-V $ALSAVOLUME"
-[ x"" != x"$OTHER" ]       && OTHER="$OTHER"
-[ x"" != x"$LOGFILE" ]     && LOGFILE="-f /tmp/$LOGFILE"
+[ x"" != x"$NAME" ]         && NAME="$NAME"							# <--- Moved "-n" to allow for spaces
+[ x"" != x"$OUTPUT" ]       && OUTPUT="-o $OUTPUT"
+[ x"" != x"$ALSA_PARAMS" ]  && ALSA_PARAMS="-a "$ALSA_PARAMS""
+[ x"" != x"$BUFFER_SIZE" ]  && BUFFER_SIZE="-b $BUFFER_SIZE"
+[ x"" != x"$_CODEC" ]       && _CODEC="-c $_CODEC"
+[ x"" != x"$XCODEC" ]       && XCODEC="-e $XCODEC"
+[ x"" != x"$PRIORITY" ]     && PRIORITY="-p $PRIORITY"
+[ x"" != x"$MAX_RATE" ]     && MAX_RATE="-r $MAX_RATE"
+[ x"" != x"$UPSAMPLE" ]     && UPSAMPLE="-R $UPSAMPLE"
+[ x"" != x"$MAC_ADDRESS" ]  && MAC_ADDRESS="-m $MAC_ADDRESS"
+[ x"" != x"$SERVER_IP" ]    && SERVER_IP="-s $SERVER_IP"
+[ x"" != x"$LOGLEVEL" ]     && LOGLEVEL="-d $LOGLEVEL -f /tmp/pcp_squeezelite.log"
+[ x"" != x"$DSDOUT" ]       && DSDOUT="-D $DSDOUT"
+[ x"" != x"$VISUALISER" ]   && VISUALISER="-v"
+[ x"" != x"$CLOSEOUT" ]     && CLOSEOUT="-C $CLOSEOUT"
+[ x"" != x"$UNMUTE" ]       && UNMUTE="-U $UNMUTE"
+[ x"" != x"$ALSAVOLUME" ]   && ALSAVOLUME="-V $ALSAVOLUME"
+[ x"" != x"$IR_GPIO" ]      && IR_GPIO="-i $IR_GPIO"
+[ x"" != x"$POWER_GPIO" ]   && POWER_GPIO="-G $POWER_GPIO"
+[ x"" != x"$POWER_SCRIPT" ] && POWER_SCRIPT="-S $POWER_SCRIPT"
+[ x"" != x"$OTHER" ]        && OTHER="$OTHER"
+#[ x"" != x"$LOGFILE" ]      && LOGFILE="-f /tmp/$LOGFILE"
 
 case "$1" in
 	start)
@@ -62,7 +69,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $UNMUTE $ALSAVOLUME $OTHER $LOGFILE
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $UNMUTE $ALSAVOLUME $POWER_GPIO $POWER_SCRIPT $OTHER
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then
