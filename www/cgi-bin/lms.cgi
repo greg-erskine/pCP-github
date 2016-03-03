@@ -53,10 +53,12 @@ echo '          <table class="bggrey percent100">'
 pcp_main_lms_indication() {
 
 	if [ "x" != "x$(pcp_lms_status)" ]; then
-		IMAGE="green.png"
+		INDICATOR=$HEAVY_CHECK_MARK
+		CLASS="indicator_green"
 		STATUS="running"
 	else
-		IMAGE="red.png"
+		INDICATOR=$HEAVY_BALLOT_X
+		CLASS="indicator_red"
 		STATUS="not running"
 	fi
 
@@ -79,8 +81,8 @@ pcp_main_lms_indication() {
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+	echo '              <td class="column150 centre">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
 	echo '                <p>LMS is '$STATUS'&nbsp;&nbsp;'
@@ -88,8 +90,8 @@ pcp_main_lms_indication() {
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
 	echo '                  <ul>'
-	echo '                    <li>GREEN = LMS running.</li>'
-	echo '                    <li>RED = LMS not running.</li>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
 	echo '                  </ul>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
