@@ -4,7 +4,6 @@
 #	Renamed Squeezelite [Save] button to [Install].
 #	Added "Build options" to update squeezelite.
 #	Changed indicators to tick and cross.
-#	Added 
 
 # Version: 0.20 2016-02-03 GE
 #	Changed Insitu update.
