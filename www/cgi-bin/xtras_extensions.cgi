@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2016-03-05 GE
+#	Changed indicators to tick and cross.
+
 # Version: 0.04 2016-01-06 GE
 #	Deleted pcp_free_space.
 
@@ -403,15 +406,19 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '          <legend>Internet</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
+
 	                  if [ $(pcp_internet_accessible) = 0 ]; then
-	                    IMAGE="green.png"
-	                    STATUS="Internet accessible..."
+	                      INDICATOR=$HEAVY_CHECK_MARK
+	                      CLASS="indicator_green"
+	                      STATUS="Internet accessible..."
 	                  else
-	                    IMAGE="red.png"
-	                    STATUS="Internet not accessible!!"
+	                      INDICATOR=$HEAVY_BALLOT_X
+	                      CLASS="indicator_red"
+	                      STATUS="Internet not accessible!!"
 	                  fi
-	echo '              <td class="column150">'
-	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td class="column150">'
 	echo '                <p>'$STATUS'</p>'
@@ -422,15 +429,19 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '              <td>'
 	echo '                <p></p>'
 	echo '              </td>'
+
 	                    if [ $(pcp_picore_accessible) = 0 ]; then
-	                      IMAGE="green.png"
-	                      STATUS="piCore repository accessible..."
+	                        INDICATOR=$HEAVY_CHECK_MARK
+	                        CLASS="indicator_green"
+	                        STATUS="piCore repository accessible..."
 	                    else
-	                      IMAGE="red.png"
-	                      STATUS="piCore repository not accessible!!"
+	                        INDICATOR=$HEAVY_BALLOT_X
+	                        CLASS="indicator_red"
+	                        STATUS="piCore repository not accessible!!"
 	                    fi
-	echo '              <td class="column150">'
-	echo '                <p class="centre"><img src="../images/'$IMAGE'" alt="'$STATUS'"></p>'
+
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td class="column210">'
 	echo '                <p>'$STATUS'</p>'
