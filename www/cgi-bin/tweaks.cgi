@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 0.23 2016-03-05 GE
-#	Modified Auto start tweaks more> help.
+# Version: 0.23 2016-03-06 GE
+#	Fixed Auto start favorite pull-down list.
 
 # Version: 0.22 2016-02-26 GE
 #	Increased size of Custom Cron Command field.
@@ -604,7 +604,7 @@ pcp_tweaks_auto_start() {
 	}
 	END {
 		for (j=1; j<=i; j++) {
-			printf "                    <option id=\"%s\" value=\"%s\" %s>%s</option>\n",j,name[j],sel[j],name[j]
+			printf "                    <option value=\"%s\" %s>%s</option>\n",name[j],sel[j],name[j]
 		}
 	} '
 
@@ -634,7 +634,7 @@ pcp_tweaks_auto_start() {
 	echo '                      <li>Favorites must be at the top level.</li>'
 	echo '                      <li>Folders will not be navigated.</li>'
 	echo '                      <li>Maximum of 100 favorites.</li>'
-#	echo '                      <li>Favorite name can not have an "&" - Rename using LMS.</li>'
+	echo '                      <li>Favorite name can not have an "&" - Rename using LMS.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
