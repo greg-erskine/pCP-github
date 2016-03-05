@@ -19,6 +19,10 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
+#For now set here, but should be read from slimserver.cfg file
+LMS_SERV_LOG='/var/log/slimserver/server.log'
+LMS_SCAN_LOG='/var/log/slimserver/scanner.log'
+
 case $ACTION in
 	Start)
 		sudo /usr/local/etc/init.d/slimserver start
@@ -34,8 +38,8 @@ case $ACTION in
 esac
 
 pcp_lms_status() {
-	RESULT=$(sudo /usr/local/etc/init.d/slimserver status)
-	echo $RESULT
+	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
+	echo $?
 }
 
 #========================================================================================
@@ -52,7 +56,8 @@ echo '          <table class="bggrey percent100">'
 #------------------------------------LMS Indication--------------------------------------
 pcp_main_lms_indication() {
 
-	if [ "x" != "x$(pcp_lms_status)" ]; then
+	if [ $(pcp_lms_status) = 0 ]; then
+#	if [ "x" != "x$(pcp_lms_status)" ]; then
 		INDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
 		STATUS="running"
@@ -223,6 +228,34 @@ pcp_lms_restart() {
 pcp_lms_restart
 #----------------------------------------------------------------------------------------
 
+#-------------------------------Show LMS logs --------------------------------------------
+pcp_lms_logshow() {
+
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="logshow" action="'$0'" method="get">'
+	echo '                    <input type="submit" value="Show Logs" />'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" >Yes'
+	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" 'checked' >No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Show LMS logs below&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Show Server and Scanner log in text area below.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+pcp_lms_logshow
+
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Padding---------------------------------------
 [ $MODE -le $MODE_BASIC ] && pcp_main_padding
 #----------------------------------------------------------------------------------------
@@ -249,6 +282,40 @@ pcp_lms_update() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_update
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------LMS log text area---------------------------
+pcp_lms_logview() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Show LMS logs</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	                      pcp_textarea_inform "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 250
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	                      pcp_textarea_inform "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 250
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+
+if [ $LOGSHOW = yes ]; then
+pcp_lms_logview
+fi
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------SAMBA mode fieldset---------------------------
