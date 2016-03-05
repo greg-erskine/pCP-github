@@ -2,6 +2,7 @@
 
 # Version: 0.23 2016-03-06 GE
 #	Fixed Auto start favorite pull-down list.
+#	Added LMS Web Port.
 
 # Version: 0.22 2016-02-26 GE
 #	Increased size of Custom Cron Command field.
@@ -526,6 +527,41 @@ pcp_tweaks_password() {
 	echo '          </table>'
 }
 [ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------------LMS Web Port------------------------------
+pcp_tweaks_lmswebport() {
+	pcp_incr_id
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">LMS Web Port</td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16" type="number" name="LMSWEBPORT" value="'$LMSWEBPORT'" min="9001" max="9999">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enter non-default LMS Web Port number&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;number&gt;</p>'
+	echo '                    <p><b>Default:</b> 9000</p>'
+	echo '                    <p><b>Range:</b> 9001:9999</p>'
+	echo '                    <p><b>Note:</b> Only add this if you have changed from the default LMS Web Port value.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="2">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------

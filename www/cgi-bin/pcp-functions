@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.29 2016-03-03 GE
+# Version: 0.29 2016-03-06 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
 #	Updated pcp_enable_i2s_dac.
+#	Added LMSWEBPORT.
 
 # Version: 0.28 2016-02-26 GE
 #	Fixed sourceforge redirection issue.
@@ -764,8 +765,9 @@ pcp_picoreplayers() {
 	done <$TMP
 	rm -r $TMP
 	LMSIP=$(pcp_lmsip)
+	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	if [ $MODE -ge $MODE_BETA ]; then
-		echo '  <a class="tab7" href="http://'$LMSIP':9000/" title="'$LMSIP'" target="_blank">LMS</a>'
+		echo '  <a class="tab7" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
 	fi
 	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
@@ -1396,6 +1398,7 @@ pcp_save_to_config() {
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
 	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1470,6 +1473,7 @@ POWER_GPIO=""
 POWER_SCRIPT=""
 IR_LIRC="no"
 IR_GPIO=""
+LMSWEBPORT=""
 EOF
 
 	# Remove timezone stuff
