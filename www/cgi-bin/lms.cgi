@@ -26,7 +26,7 @@ pcp_httpd_query_string
 CFG_FILE="/home/tc/.slimserver.cfg"
 TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 
-if [ -x "$CFG_FILE" ]; then
+if [ -f "$CFG_FILE" ]; then
         . $CFG_FILE
 fi
 
