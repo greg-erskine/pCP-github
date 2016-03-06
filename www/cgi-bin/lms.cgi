@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2016-03-05 SBP
+#	Added LMS log view, space check and hide SAMBA and update LMS options.
+
 # Version: 0.01 2016-01-30 SBP
 #	Original.
 
@@ -19,9 +22,24 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-#For now set here, but should be read from slimserver.cfg file
-LMS_SERV_LOG='/var/log/slimserver/server.log'
-LMS_SCAN_LOG='/var/log/slimserver/scanner.log'
+#Read from slimserver.cfg file
+CFG_FILE="/home/tc/.slimserver.cfg"
+TCEDIR=$(readlink "/etc/sysconfig/tcedir")
+
+if [ -x "$CFG_FILE" ]; then
+        . $CFG_FILE
+fi
+
+#Set Default Settings if not defined in CFG_FILE
+[ -n "$CACHE" ] || CACHE=$TCEDIR/slimserver/Cache
+[ -n "$LOGS" ] || LOGS=/var/log/slimserver
+[ -n "$PREFS" ] || PREFS=$TCEDIR/slimserver/prefs
+[ -n "$LMSUSER" ] || LMSUSER=tc
+[ -n "$LMSGROUP" ] || LMSGROUP=staff
+
+LMS_SERV_LOG=$LOGS'/server.log'
+LMS_SCAN_LOG=$LOGS'/scanner.log'
+
 
 case $ACTION in
 	Start)
@@ -82,6 +100,15 @@ pcp_main_lms_indication() {
 		no) SAMBAno="checked" ;;
 	esac
 
+	# Function to check the show log radio button according to selection
+	if [ $LOGSHOW = yes ]; then
+		LOGSHOWyes="checked"
+		else 
+		LOGSHOWno="checked"
+	fi
+
+
+
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
@@ -122,6 +149,7 @@ pcp_main_padding
 #------------------------------------------Enable/download LMS---------------------------
 
 pcp_LMS_enable() {
+	pcp_sufficient_free_space 40000
 	pcp_incr_id
 	pcp_toggle_row_shade
 	
@@ -239,8 +267,8 @@ pcp_lms_logshow() {
 	echo '                    <input type="submit" value="Show Logs" />'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" >Yes'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" 'checked' >No'
+	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
+	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Show LMS logs below&nbsp;&nbsp;'
@@ -281,7 +309,7 @@ pcp_lms_update() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_update
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_lms_update
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area---------------------------
