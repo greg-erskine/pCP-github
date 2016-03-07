@@ -271,7 +271,7 @@ pcp_variables() {
 	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -280,7 +280,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1399,6 +1399,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
 	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
+	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1474,6 +1475,7 @@ POWER_SCRIPT=""
 IR_LIRC="no"
 IR_GPIO=""
 LMSWEBPORT=""
+FSM="Default"
 EOF
 
 	# Remove timezone stuff

@@ -809,6 +809,13 @@ pcp_tweaks_audio_tweaks() {
 		Slow) CMDslow="checked" ;;
 	esac
 
+	# Function to check the FSM radio button according to config file
+	case "$FSM" in
+		Default) FSMdefault="checked" ;;
+		Diabled) FSMdisabled="checked" ;;
+	esac
+
+
 	# Function to select the FIQ-split radio button according to config file
 	case "$FIQ" in
 		0x1) selected1="selected" ;;
@@ -919,7 +926,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <input class="small1" type="radio" name="CMD" value="Slow" '$CMDslow'>dwc_otg.speed=1'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set "dwc_otg.speed=1"&nbsp;&nbsp;'
+	echo '                  <p>Fix C-Media based DACs by "dwc_otg.speed=1"&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -937,6 +944,41 @@ pcp_tweaks_audio_tweaks() {
 		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
 		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
 		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
+	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 --------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>USB-FSM driver</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="FSM" value="Default" '$FSMdefault'>Default'
+	echo '                  <input class="small1" type="radio" name="FSM" value="Disabled" '$FSMdisabled'>Disable USB-FSM'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Fix Emotiva XMC-1 DAC by "dwc_otg.fiq_fsm_enable=0"&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Adds "dwc_otg.fiq_fsm_enable=0" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>The USB controller can have issues with external DACs. If set to 0 the new FIQ_FSM driver is disabled and the old NOP FIQ is used.</p>'
+	echo '                    <p>This is needed for Emotiva XMC-1 DAC.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	if [ $DEBUG = 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="'$ROWSHADE'">'
+		echo '  <td  colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $FSM: '$CMD'<br />'
+		echo '                     [ DEBUG ] $FSMdefault: '$FSMdefault'<br />'
+		echo '                     [ DEBUG ] $FSMdisabled: '$FSMdisabled'</p>'
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'

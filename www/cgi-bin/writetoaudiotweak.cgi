@@ -43,6 +43,7 @@ ORIG_SQUEEZELITE=$SQUEEZELITE
 ORIG_ALSAlevelout=$ALSAlevelout
 ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
+ORIG_FSM=$FSM
 
 pcp_html_head "Write to Audio Tweak" "SBP" "15" "tweaks.cgi"
 
@@ -360,6 +361,56 @@ if [ $ORIG_CMD != $CMD ]; then
 else
 	echo '<p class="info">[ INFO ] CMD variable unchanged.</p>'
 fi
+
+#========================================================================================
+# USB_FIQ FSM section
+#----------------------------------------------------------------------------------------
+# Only do something if variable is changed
+if [ $ORIG_FSM != $FSM ]; then
+	REBOOT_REQUIRED=1
+	echo '<hr>'
+	echo '<p class="info">[ INFO ] FSM is set to: '$FSM'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FSM is: '$ORIG_FSM'</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] FSM is: '$FSM'</p>'
+
+case "$FSM" in
+		"Default")
+			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
+	
+			pcp_mount_mmcblk0p1
+
+			if mount | grep $VOLUME; then
+				# dwc_otg.fiq_fsm_enable=0
+				sed -i 's/dwc_otg.fiq_fsm_enable=0 //g' /mnt/mmcblk0p1/cmdline.txt
+		[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+				pcp_umount_mmcblk0p1
+			else
+				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
+			fi
+			;;
+		"Disabled")
+			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
+
+			pcp_mount_mmcblk0p1
+
+			if mount | grep $VOLUME; then
+				# Remove dwc_otg.fiq_fsm_enable=0
+				sed -i 's/dwc_otg.fiq_fsm_enable=0 //g' /mnt/mmcblk0p1/cmdline.txt
+
+				# Add dwc_otg.fiq_fsm_enable=0
+				sed -i '1 s/^/dwc_otg.fiq_fsm_enable=0 /' /mnt/mmcblk0p1/cmdline.txt
+		[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+				pcp_umount_mmcblk0p1
+			else
+				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
+			fi
+			;;
+#		[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+esac
+else
+	echo '<p class="info">[ INFO ] USB FSM FIQ variable unchanged.</p>'
+fi
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # SQUEEZELITE section
