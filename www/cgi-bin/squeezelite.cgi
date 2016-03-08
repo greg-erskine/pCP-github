@@ -645,7 +645,7 @@ pcp_squeezelite_server_ip() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Squeezelite server IP</p>'
+	echo '                  <p class="row">LMS server IP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
@@ -658,9 +658,14 @@ pcp_squeezelite_server_ip() {
 	echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
 	echo '                    <p>Default port: 3483</p>'
 	echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port numbers.</p>'
-	echo '                    <p>Current LMS server'\''s IP is:</p>'
-	echo '                    <ul>'
-	echo '                      <li>'$(pcp_lmsip)'</li>'
+						if [ $LMSERVER = yes ]; then
+	echo '						You have LMS enabled, if you also want to listen to music from the LMS server on this pCP then use:' 
+	echo '                      		<li><b>127.0.0.1</b> in the LMS server IP box</li>'
+						else
+	echo '                    			p>Current LMS server'\''s IP is:</p>'
+	echo '                    			<ul>'
+	echo '                      		<li>'$(pcp_lmsip)'</li>'
+						fi
 	echo '                    </ul>'
 	echo '                    <p><b>Hint: </b>Triple click on LMS IP then drag and drop into input field.</p>'
 	echo '                  </div>'
