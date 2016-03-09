@@ -292,6 +292,7 @@ pcp_main_update_ralphy() {
 	echo '                      <li>Ralphy provides Squeezelite binaries with the additional features enabled.</li>'
 	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
 	echo '                    </ul>'
+	echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
 	echo '                    <p><b>Build options:</b></p>'
 	echo '                    <p>'$(sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
 	echo '                  </div>'
