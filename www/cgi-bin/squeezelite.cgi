@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 0.23 2016-03-03 GE
+# Version: 0.23 2016-03-09 GE
 #	Updated -e option.
 #	Updated -U option.
 #	Updated -V option.
 #	Added -G option.
 #	Added -S option.
+#	Revised various help messages.
 
 # Version: 0.22 2016-02-22 GE
 #	Updated for Raspberry Pi Zero.
@@ -141,7 +142,6 @@ STRING="$STRING &"
 #========================================================================================
 # Missing squeezelite options
 #----------------------------------------------------------------------------------------
-#  -e <codec1>,<codec2>	Explicitly exclude native support of one or more codecs; known codecs: flac,pcm,mp3,ogg,aac,wma,alac,dsd (mad,mpg for specific mp3 codec)
 #  -M <modelname>		Set the squeezelite player model name sent to the server (default: SqueezeLite)
 #  -N <filename>		Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
 #  -P <filename>		Store the process id (PID) in filename
@@ -288,7 +288,7 @@ echo '                </td>'
 echo '                <td>'
 
 if [ $ALSAeq = yes ]; then
-	echo '                  <p><b>NOTE:</b> ALSA equalizer has set the output to "equal"</p>'
+	echo '                  <p><b>NOTE:</b> ALSA equalizer has set the output to "equal".</p>'
 else
 	echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -301,7 +301,7 @@ else
 	echo '                    </ul>'
 	echo '                    <p>Squeezelite found these output devices:</p>'
 	echo '                    <ul>'
-	                            /mnt/mmcblk0p2/tce/squeezelite-armv6hf -l | awk '/^  / { print "                        <li> "$1"</li>" }'
+	                            /mnt/mmcblk0p2/tce/squeezelite-armv6hf -l | awk '/^  / { print "                      <li> "$1"</li>" }'
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
@@ -645,7 +645,7 @@ pcp_squeezelite_server_ip() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">LMS server IP</p>'
+	echo '                  <p class="row">LMS IP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
@@ -657,17 +657,18 @@ pcp_squeezelite_server_ip() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
 	echo '                    <p>Default port: 3483</p>'
-	echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port numbers.</p>'
-						if [ $LMSERVER = yes ]; then
-	echo '						You have LMS enabled, if you also want to listen to music from the LMS server on this pCP then use:' 
-	echo '                      		<li><b>127.0.0.1</b> in the LMS server IP box</li>'
-						else
-	echo '                    			p>Current LMS server'\''s IP is:</p>'
-	echo '                    			<ul>'
-	echo '                      		<li>'$(pcp_lmsip)'</li>'
-						fi
-	echo '                    </ul>'
-	echo '                    <p><b>Hint: </b>Triple click on LMS IP then drag and drop into input field.</p>'
+	echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port number.</p>'
+	                          if [ $LMSERVER = no ]; then
+	echo   '                    <p>Current LMS IP is:</p>'
+	echo   '                    <ul>'
+	echo   '                      <li>'$(pcp_lmsip)'</li>'
+	echo   '                    </ul>'
+	                          else
+	echo   '                    <p>You have LMS enabled, if you also want to listen to music from this LMS on this pCP then use:</p>'
+	echo   '                    <ul>'
+	echo   '                      <li><b>127.0.0.1</b> in the LMS IP field</li>'
+	echo   '                    </ul>'
+	                          fi
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -732,11 +733,7 @@ pcp_squeezelite_log_level() {
 	echo '                      <li>log: all|slimproto|stream|decode|output</li>'
 	echo '                      <li>level: info|debug|sdebug</li>'
 	echo '                    </ul>'
-	echo '                    <p><b>Example:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>slimproto=info</li>'
-	echo '                      <li>all=debug</li>'
-	echo '                    </ul>'
+	echo '                    <p><b>Note:</b> Log file is /tmp/pcp_squeezelite.log</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -744,7 +741,7 @@ pcp_squeezelite_log_level() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Log file name-------------------------------------
+#--------------------------------------Log file name-------------------------------------OBSOLETE
 pcp_squeezelite_log_file() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -816,7 +813,6 @@ pcp_squeezelite_close_output() {
 	echo '                    <p>&lt;timeout&gt;</p>'
 	echo '                    <p>Value in seconds.</p>'
 	echo '                    <p>Close output device when idle after timeout seconds, default is to keep it open while player is on.</p>'
-	echo '                    <p><b>Note: </b>Available in Squeezelite v1.8</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -848,12 +844,12 @@ pcp_squeezelite_unmute() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
-	echo '                    <p><b>Note: </b>Not supported with -V option.</p>'
+	echo '                    <p><b>Note:</b> Not supported with -V option.</p>'
 
 	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print "Card: "$1 " "  $4}')'</p>'
-	echo '                    <p><b>For card 0 controls found: </b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 1 controls found: </b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 2 controls found: </b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>For card 0 controls found:</b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>For card 1 controls found:</b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>For card 2 controls found:</b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	echo '                  </div>'
 	echo '                </td>'
@@ -888,11 +884,11 @@ pcp_squeezelite_volume() {
 	echo '                    <p>Use ALSA control for volume adjustment otherwise use software volume adjustment.</p>'
 
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
-	echo '                    <p><b>Note: </b>Not supported with -U option.</p>'
+	echo '                    <p><b>Note:</b> Not supported with -U option.</p>'
 	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print "Card: "$1 " "  $4}')'</p>'
-	echo '                    <p><b>For card 0 controls found: </b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 1 controls found: </b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 2 controls found: </b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>For card 0 controls found:</b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>For card 1 controls found:</b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>For card 2 controls found:</b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	echo '                  </div>'
 	echo '                </td>'
@@ -949,6 +945,9 @@ pcp_squeezelite_power_gpio() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;gpio&gt;</p>'
 	echo '                    <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
+	echo '                    <p class="error"><b>WARNING:</b></p>'
+	echo '                    <p class="error">Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
+	echo '                    <p class="error">If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -974,6 +973,9 @@ pcp_squeezelite_power_gpio() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;/path/script.sh&gt;</p>'
 	echo '                    <p>Squeezelite will run this script when the Power On/Off button is pressed.</p>'
+	echo '                    <p class="error"><b>WARNING:</b></p>'
+	echo '                    <p class="error">Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
+	echo '                    <p class="error">If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
