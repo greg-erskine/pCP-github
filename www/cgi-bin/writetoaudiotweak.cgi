@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.11 2016-03-09 SBP
+#	Added dwc_otg.fiq_fsm_enable.
+
 # Version: 0.10 2016-02-26 SBP
 #	Added SQUEEZELITE section.
 
@@ -373,16 +376,16 @@ if [ $ORIG_FSM != $FSM ]; then
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FSM is: '$ORIG_FSM'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] FSM is: '$FSM'</p>'
 
-case "$FSM" in
+	case "$FSM" in
 		"Default")
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
-	
+
 			pcp_mount_mmcblk0p1
 
 			if mount | grep $VOLUME; then
 				# dwc_otg.fiq_fsm_enable=0
-				sed -i 's/dwc_otg.fiq_fsm_enable=0 //g' /mnt/mmcblk0p1/cmdline.txt
-		[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' /mnt/mmcblk0p1/cmdline.txt
+				[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 				pcp_umount_mmcblk0p1
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
@@ -395,18 +398,17 @@ case "$FSM" in
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg.fiq_fsm_enable=0
-				sed -i 's/dwc_otg.fiq_fsm_enable=0 //g' /mnt/mmcblk0p1/cmdline.txt
+				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' /mnt/mmcblk0p1/cmdline.txt
 
 				# Add dwc_otg.fiq_fsm_enable=0
 				sed -i '1 s/^/dwc_otg.fiq_fsm_enable=0 /' /mnt/mmcblk0p1/cmdline.txt
-		[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+				[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 				pcp_umount_mmcblk0p1
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
 			;;
-#		[ $DEBUG = 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-esac
+	esac
 else
 	echo '<p class="info">[ INFO ] USB FSM FIQ variable unchanged.</p>'
 fi

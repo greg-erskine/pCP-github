@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.23 2016-03-06 GE
+# Version: 0.23 2016-03-09 GE
 #	Fixed Auto start favorite pull-down list.
 #	Added LMS Web Port.
+#	Added dwc_otg.fiq_fsm_enable.
 
 # Version: 0.22 2016-02-26 GE
 #	Increased size of Custom Cron Command field.
@@ -812,9 +813,8 @@ pcp_tweaks_audio_tweaks() {
 	# Function to check the FSM radio button according to config file
 	case "$FSM" in
 		Default) FSMdefault="checked" ;;
-		Diabled) FSMdisabled="checked" ;;
+		Disabled) FSMdisabled="checked" ;;
 	esac
-
 
 	# Function to select the FIQ-split radio button according to config file
 	case "$FIQ" in
@@ -949,7 +949,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- End of debug info -->'
 	fi
 
-	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 --------------------------------
+	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 ----------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'

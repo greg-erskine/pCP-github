@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.29 2016-03-06 GE
+# Version: 0.29 2016-03-09 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
 #	Updated pcp_enable_i2s_dac.
 #	Added LMSWEBPORT.
+#	Added FSM.
 
 # Version: 0.28 2016-02-26 GE
 #	Fixed sourceforge redirection issue.
@@ -271,7 +272,7 @@ pcp_variables() {
 	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -280,7 +281,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
