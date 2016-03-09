@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.22 2016-03-10 GE
+#	Added squeezelite version to more> help.
+
 # Version: 0.21 2016-02-26 GE
 #	Renamed Squeezelite [Save] button to [Install].
 #	Added "Build options" to update squeezelite.
