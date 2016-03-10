@@ -282,7 +282,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1048,7 +1048,16 @@ pcp_uptime_days() {
 # Determine the IP addresses
 #-----------------------------------------------------------------------------------------
 pcp_lmsip() {
-	netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | grep :3483 | awk -F: '{ print $1 }'
+if	[ x"" != x"$SERVER_IP" ] & [ "$SERVER_IP" != 127.0.0.1 ]; then
+	echo "$SERVER_IP"
+else
+	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+	if [ $(pcp_lms_status) = 0 ]; then
+	netstat -nt 2>&1 | grep :"$LMSPORT" | grep ESTABLISHED | awk '{ print $4 }' | grep :"$LMSPORT" | uniq -f 4 | awk -F: '{ print $1 }'
+	else
+	netstat -nt 2>&1 | grep :"$LMSPORT" | grep ESTABLISHED | awk '{ print $5 }' | grep :"$LMSPORT" | uniq -f 4 | awk -F: '{ print $1 }'
+	fi
+fi
 }
 
 pcp_eth0_ip() {
