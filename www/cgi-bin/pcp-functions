@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.29 2016-03-09 GE
+# Version: 0.29 2016-03-10 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
 #	Updated pcp_enable_i2s_dac.
 #	Added LMSWEBPORT.
 #	Added FSM.
+#	Changed backup too big warning messages in pcp_backup and pcp_backup_nohtml.
 
 # Version: 0.28 2016-02-26 GE
 #	Fixed sourceforge redirection issue.
@@ -281,7 +282,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1226,7 +1227,11 @@ pcp_backup() {
 	else
 		echo '<p class="error">[ ERROR ] Backup failed.</p>'
 	fi
-	[ $(pcp_check_mydata) -gt 200000 ] && echo '<p class="warn">[ WARN ] Backup is too big - $(pcp_check_mydata) bytes</p>'
+	if [ $(pcp_check_mydata) -gt 350000 ]; then
+		echo '<p class="warn">[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.</p>'
+		echo '<p class="info">[ INFO ] Be careful adding large files to /home/tc.</p>'
+		echo '<p class="info">[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.</p>'
+	fi
 }
 
 pcp_backup_nohtml() {
@@ -1250,7 +1255,11 @@ pcp_backup_nohtml() {
 	else
 		echo '[ ERROR ] Backup failed.'
 	fi
-	[ $(pcp_check_mydata) -gt 200000 ] && echo "[ WARN ] Backup is too big - $(pcp_check_mydata) bytes"
+	if [ $(pcp_check_mydata) -gt 350000 ]; then
+		echo '[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.'
+		echo '[ INFO ] Be careful adding large files to /home/tc.'
+		echo '[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'
+	fi
 }
 
 #=========================================================================================
