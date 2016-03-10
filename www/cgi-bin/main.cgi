@@ -2,6 +2,7 @@
 
 # Version: 0.22 2016-03-10 GE
 #	Added squeezelite version to more> help.
+#	Added LMS indicator.
 
 # Version: 0.21 2016-02-26 GE
 #	Renamed Squeezelite [Save] button to [Install].
@@ -152,50 +153,81 @@ pcp_main_squeezelite_indication() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
-
-	if [ $SHAIRPORT = yes ]; then
-
-		if [ $(pcp_shairport_status) = 0 ]; then
-			INDICATOR=$HEAVY_CHECK_MARK
-			CLASS="indicator_green"
-			STATUS="running"
-		else
-			INDICATOR=$HEAVY_BALLOT_X
-			CLASS="indicator_red"
-			STATUS="not running"
-		fi
-
-		pcp_main_padding
-
-		pcp_incr_id
-		pcp_toggle_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td class="column150 centre">'
-		echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-		echo '              </td>'
-		echo '              <td>'
-		echo '                <p>Shairport is '$STATUS'&nbsp;&nbsp;'
-		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                </p>'
-		echo '                <div id="'$ID'" class="less">'
-		echo '                  <ul>'
-		echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
-		echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
-		echo '                  </ul>'
-		echo '                  <p><b>Note:</b></p>'
-		echo '                  <ul>'
-		echo '                    <li>Shairport must be running for music to play from iDevices.</li>'
-		echo '                  </ul>'
-		echo '                </div>'
-		echo '              </td>'
-		echo '            </tr>'
-	fi
 }
-pcp_main_squeezelite_indication
+pcp_main_squeezelite_indication && pcp_main_padding
+
+#------------------------------------LMS Indication--------------------------------------
+pcp_main_lms_indication() {
+
+	if [ $(pcp_lms_status) = 0 ]; then
+		INDICATOR=$HEAVY_CHECK_MARK
+		CLASS="indicator_green"
+		STATUS="running"
+	else
+		INDICATOR=$HEAVY_BALLOT_X
+		CLASS="indicator_red"
+		STATUS="not running"
+	fi
+
+	pcp_start_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 centre">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>LMS is '$STATUS'.&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $LMSERVER = yes ] && pcp_main_lms_indication && pcp_main_padding
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Padding---------------------------------------
-pcp_main_padding
+#------------------------------------Shairport Indication--------------------------------
+pcp_main_shairport_indication() {
+
+	if [ $(pcp_shairport_status) = 0 ]; then
+		INDICATOR=$HEAVY_CHECK_MARK
+		CLASS="indicator_green"
+		STATUS="running"
+	else
+		INDICATOR=$HEAVY_BALLOT_X
+		CLASS="indicator_red"
+		STATUS="not running"
+	fi
+
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 centre">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Shairport is '$STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
+	echo '                  </ul>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Shairport must be running for music to play from iDevices.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $SHAIRPORT = yes ] && pcp_main_shairport_indication && pcp_main_padding
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------

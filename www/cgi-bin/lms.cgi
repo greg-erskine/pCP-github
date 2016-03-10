@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.02 2016-03-05 SBP
+# Version: 0.02 2016-03-10 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
+#	Moved pcp_lms_status to pcp-lms-functions.
 
 # Version: 0.01 2016-01-30 SBP
 #	Original.
@@ -54,11 +55,6 @@ case $ACTION in
 		sudo /usr/local/etc/init.d/slimserver start
 		;;
 esac
-
-pcp_lms_status() {
-	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
-	echo $?
-}
 
 #========================================================================================
 # Main piCorePlayer operations

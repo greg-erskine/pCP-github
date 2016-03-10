@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 0.05 2016-03-10 GE
+#	Added pcp_lms_status.
+
 # Version: 0.04 2016-02-01 GE
 #	Added pcp_lms_power and pcp_lms_volume_set.
 
@@ -19,6 +22,11 @@
 
 MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
+
+pcp_lms_status() {
+	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
+	echo $?
+}
 
 #========================================================================================
 # LMS controls toolbar

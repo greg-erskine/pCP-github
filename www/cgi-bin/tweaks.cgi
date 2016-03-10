@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.23 2016-03-09 GE
+# Version: 0.23 2016-03-10 GE
 #	Fixed Auto start favorite pull-down list.
 #	Added LMS Web Port.
 #	Added dwc_otg.fiq_fsm_enable.
@@ -886,7 +886,7 @@ pcp_tweaks_audio_tweaks() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>Shairport</p>'
+	echo '                  <p>Shairport-sync</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="yes" '$SHAIRPORTyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
