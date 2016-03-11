@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2016-02-25 GE
+# Version: 0.01 2016-03-12 GE
 #	Original.
 
 . pcp-lms-functions
@@ -10,7 +10,7 @@ pcp_variables
 
 DEBUG=1
 
-pcp_html_head "IR" "GE"
+pcp_html_head "LIRC" "GE"
 
 pcp_banner
 pcp_navigation
@@ -20,20 +20,15 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget"
 LIRC_REPOSITORY="https://raw.github.com/ralph-irving/tcz-lirc/master"
 PICO_REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
-IR_DOWNLOAD="/tmp/IR"
+IR_DOWNLOAD="/tmp/LIRC"
 FAIL_MSG="ok"
 RESULT=0
+KERNEL=$(uname -r)
 
 #========================================================================================
-#irda-4.1.13-piCore+.tcz
-#irda-4.1.13-piCore+.tcz.md5.txt
-#irda-4.1.13-piCore_v7+.tcz
-#irda-4.1.13-piCore_v7+.tcz.md5.txt
+#irda-KERNEL.tcz
 #lirc.tcz
-#lirc.tcz.dep
-#lirc.tcz.md5.txt
 #libcofi.tcz
-#libcofi.tcz.md5.txt
 # --------
 # 
 #----------------------------------------------------------------------------------------
@@ -157,7 +152,7 @@ pcp_get_file() {
 # Delete a file from the local repository
 #----------------------------------------------------------------------------------------
 pcp_delete_file() {
-	echo -n '[ INFO ] Deleting '$1'...'
+	echo -n '[ INFO ] Deleting '$1'... '
 	echo "OK"
 }
 
@@ -173,12 +168,10 @@ pcp_ir_install() {
 	sudo mkdir -m 755 $IR_DOWNLOAD
 	[ $? != 0 ] && FAIL_MSG="Can not make directory $IR_DOWNLOAD"
 
-#	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-4.1.13-piCore+.tcz
-#	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-4.1.13-piCore+.tcz.md5.txt
-# 	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-4.1.13-piCore_v7+.tcz
-# 	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-4.1.13-piCore_v7+.tcz.md5.txt
-#	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz
-# 	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz.dep
+	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz
+	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz.md5.txt
+	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz
+ 	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz.dep
  	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz.md5.txt
 
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz ]; then
@@ -198,29 +191,24 @@ pcp_ir_install() {
 	echo -n '[ INFO ] Updating configuration files...'
 	[ $FAIL_MSG = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
 	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
-
-	
-
 }
 
 #========================================================================================
 # IR uninstall
 #----------------------------------------------------------------------------------------
 pcp_ir_uninstall() {
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-4.1.13-piCore+.tcz
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-4.1.13-piCore+.tcz.md5.txt
- 	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-4.1.13-piCore_v7+.tcz
- 	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-4.1.13-piCore_v7+.tcz.md5.txt
+	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
+	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
 	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz
- 	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz.dep
- 	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
+	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz.dep
+	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
 
 	if [ $SHAIRPORT = "no" ]; then
 		[ $FAIL_MSG = "ok" ] && pcp_delete_file libcofi.tcz
 		[ $FAIL_MSG = "ok" ] && pcp_delete_file libcofi.tcz.md5.txt
 	fi
 
-	IR_LIRC="no" && pcp_save_to_config
+	[ $FAIL_MSG = "ok" ] && IR_LIRC="no" && pcp_save_to_config
 }
 
 #========================================================================================
@@ -232,6 +220,10 @@ case $ACTION in
 		;;
 	Uninstall)
 		pcp_warning_message
+		;;
+	Change)
+		pcp_warning_message
+		[ $FAIL_MSG = "ok" ] && pcp_save_to_config
 		;;
 	*)
 		ACTION=Initial
@@ -246,57 +238,87 @@ esac
 #========================================================================================
 # Start Initial table
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "Initial" ]; then
+if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>IR</legend>'
+	echo '          <legend>Linux Infrared Remote Control (LIRC)</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="IR" action="'$0'" method="get">'
+
 	#------------------------------------------Install/Unintall IR---------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Column 1</p>'
-	echo '                </td>'
-	echo '                <td class="column150 center">'
-	[ $IR_LIRC = "no" ] &&
-	echo '                  <input type="submit" name="ACTION" value="Install" />'
-	[ $IR_LIRC = "yes" ] &&
-	echo '                  <input type="submit" name="ACTION" value="Uninstall" />'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Install/Uninstall IR&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Install/Uninstall IR from repo.</p>'
-	echo '                  </div>'
-	echo '                </td>'
+
+	if [ $IR_LIRC = "no" ]; then
+		echo '                <td class="column150 center">'
+		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Install LIRC&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Install LIRC from repository.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+	fi
+
+	if [ $IR_LIRC = "yes" ]; then
+		echo '                <td class="column150 center">'
+		echo '                  <input type="submit" name="ACTION" value="Uninstall" />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Uninstall LIRC&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Uninstall LIRC from piCorePlayer.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+	fi
+
 	echo '              </tr>'
-	#------------------------------------------IR GPIO---------------------------------------
+
+	#------------------------------------------LIRC GPIO-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Column 1</p>'
-	echo '                </td>'
 	echo '                <td class="column150 center">'
-	echo '                  <input class="large15" type="text" name="IR_GPIO" value="'$IR_GPIO'">'  
+	echo '                  <input class="input" type="number" name="IR_GPIO" value="'$IR_GPIO'">'  
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>IR GPIO&nbsp;&nbsp;'
+	echo '                  <p>Set LIRC GPIO&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>IR GPIO.</p>'
+	echo '                    <p>Set LIRC GPIO to GPIO where IR Receiver is connected.</p>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+
+	if [ $IR_LIRC = "yes" ]; then
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 center">'
+		echo '                  <input type="submit" name="ACTION" value="Change" />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Change LIRC GPIO&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Change LIRC GPIO to new value.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
+
 	#----------------------------------------------------------------------------------------
 	echo '            </form>'
 	#----------------------------------------------------------------------------------------
@@ -310,48 +332,50 @@ fi
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# xxx table
+# Installing table
 #----------------------------------------------------------------------------------------
-pcp_incr_id
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>'$STEP'</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
+if [ $ACTION != "Change" ]; then
+	pcp_incr_id
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>'$ACTION'</legend>'
+	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
 
-#----------------------------------------------------------------------------------------
-if [ $ACTION = "Initial" ]; then
-	echo '                  <textarea class="inform" style="height:100px">'
-	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$SOURCEFORGE_STATUS
-	pcp_enough_free_space $SPACE_REQUIRED
+	#----------------------------------------------------------------------------------------
+	if [ $ACTION = "Initial" ]; then
+		echo '                  <textarea class="inform" style="height:100px">'
+		echo '[ INFO ] '$INTERNET_STATUS
+		echo '[ INFO ] '$SOURCEFORGE_STATUS
+		pcp_enough_free_space $SPACE_REQUIRED
+	fi
+	#----------------------------------------------------------------------------------------
+	if [ $ACTION = "Install" ]; then
+		echo '                  <textarea class="inform" style="height:200px">'
+		pcp_enough_free_space $SPACE_REQUIRED
+		[ $FAIL_MSG = "ok" ] && pcp_ir_install
+	fi
+	#----------------------------------------------------------------------------------------
+	if [ $ACTION = "Uninstall" ]; then
+		echo '                  <textarea class="inform" style="height:80px">'
+		[ $FAIL_MSG = "ok" ] && pcp_ir_uninstall
+	fi
+	#----------------------------------------------------------------------------------------
+	echo '                  </textarea>'
+	echo '                </td>'
+	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 fi
-#----------------------------------------------------------------------------------------
-if [ $ACTION = "Install" ]; then
-	echo '                  <textarea class="inform" style="height:200px">'
-	pcp_enough_free_space $SPACE_REQUIRED
-	[ $FAIL_MSG = "ok" ] && pcp_ir_install
-fi
-#----------------------------------------------------------------------------------------
-if [ $ACTION = "Uninstall" ]; then
-	echo '                  <textarea class="inform" style="height:80px">'
-	[ $FAIL_MSG = "ok" ] && pcp_ir_uninstall
-fi
-#----------------------------------------------------------------------------------------
-echo '                  </textarea>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
 pcp_html_end
