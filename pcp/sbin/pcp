@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 0.04 2016-02-01 GE
+# Version: 0.03 2016-03-11 GE
+#	Fixed help message for pcp power.
+
+# Version: 0.02 2016-02-01 GE
 #	Added power and volume.
 
 # Version: 0.01 2015-12-02 GE
@@ -19,7 +22,7 @@ pcp_help() {
 	echo  - pcp next			: next track
 	echo  - pcp prev			: previous track
 	echo  - pcp rand			: random track
-	echo  - pcp power [on|off]	: power on or off
+	echo  - pcp power [on\|off]	: power on or off
 	echo  - pcp volume [0-100]	: volume between 0 to 100
 	echo ----------------------------------------------------------------------------------------
 	echo  piCore
