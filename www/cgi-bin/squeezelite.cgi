@@ -955,9 +955,9 @@ pcp_squeezelite_power_gpio() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;gpio&gt;:&lt;H/L&gt;</p>'
+	echo '                    <p>&lt;gpio&gt;:&lt;H|L&gt;</p>'
 	echo '                    <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
-	echo '                    <p>H or L to tell Squeezlite if the output should be active High or Low</p>'
+	echo '                    <p>H or L to tell Squeezlite if the output should be active High or Low.</p>'
 	echo '                    <p class="error"><b>WARNING:</b></p>'
 	echo '                    <p class="error">Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
 	echo '                    <p class="error">If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'
@@ -969,7 +969,7 @@ pcp_squeezelite_power_gpio() {
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off Script-------------------------------
-pcp_squeezelite_power_gpio() {
+pcp_squeezelite_power_script() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -993,7 +993,7 @@ pcp_squeezelite_power_gpio() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_gpio
+[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_script
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------
