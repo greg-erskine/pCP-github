@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.24 2016-03-12 PH
+#	Updated -G option for Output Active High or Low
+
 # Version: 0.23 2016-03-09 GE
 #	Updated -e option.
 #	Updated -U option.
@@ -133,7 +136,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$UNMUTE" ]       && STRING="$STRING -U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && STRING="$STRING -V $ALSAVOLUME"
 [ x"" != x"$IR_GPIO" ]      && STRING="$STRING -i $IR_GPIO"
-[ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO"
+[ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
 #[ x"" != x"$LOGFILE" ]      && STRING="$STRING -f /tmp/$LOGFILE"
@@ -931,20 +934,30 @@ pcp_squeezelite_ir() {
 pcp_squeezelite_power_gpio() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	if [ -n "$POWER_GPIO" ]; then
+		case "$POWER_OUTPUT" in
+			H) POH="checked" ;;
+			L) POL="checked" ;;
+		esac
+	fi
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p class="row">Power On/Off GPIO</p>'
+	echo '                  <p class="row">Output is Active</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="number" name="POWER_GPIO" value="'$POWER_GPIO'" min="1" max="40">'
+	echo '                  <p><input class="large15" type="number" name="POWER_GPIO" value="'$POWER_GPIO'" min="1"	max="40"></p>'
+	echo '                  <input class="small1" type="radio" name="POWER_OUTPUT" value="H" '$POH'>High&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="POWER_OUTPUT" value="L" '$POL'>Low'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Power On/Off GPIO (-G)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;gpio&gt;</p>'
+	echo '                    <p>&lt;gpio&gt;:&lt;H/L&gt;</p>'
 	echo '                    <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
+	echo '                    <p>H or L to tell Squeezlite if the output should be active High or Low</p>'
 	echo '                    <p class="error"><b>WARNING:</b></p>'
 	echo '                    <p class="error">Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
 	echo '                    <p class="error">If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2016-03-12 PH
+#	Updated -G option
+
 # Version: 0.06 2016-03-03 GE
 #	Updated -e option.
 #	Updated -U option.
@@ -57,7 +60,7 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$UNMUTE" ]       && UNMUTE="-U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && ALSAVOLUME="-V $ALSAVOLUME"
 [ x"" != x"$IR_GPIO" ]      && IR_GPIO="-i $IR_GPIO"
-[ x"" != x"$POWER_GPIO" ]   && POWER_GPIO="-G $POWER_GPIO"
+[ x"" != x"$POWER_GPIO" ]   && POWER_GPIO="-G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && POWER_SCRIPT="-S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && OTHER="$OTHER"
 #[ x"" != x"$LOGFILE" ]      && LOGFILE="-f /tmp/$LOGFILE"

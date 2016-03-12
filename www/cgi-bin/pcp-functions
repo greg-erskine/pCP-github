@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 0.30 2016-03-12 PH
+#	Added POWER_OUTPUT
+
 # Version: 0.29 2016-03-10 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
 #	Updated pcp_enable_i2s_dac.
@@ -1414,6 +1417,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
 	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
@@ -1490,6 +1494,7 @@ LMSERVER="no"
 SQLT_VERSION="basic"
 SQUEEZELITE="yes"
 POWER_GPIO=""
+POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
 IR_GPIO=""
