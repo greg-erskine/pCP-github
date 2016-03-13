@@ -39,15 +39,15 @@ pcp_download_lms() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Repo: '${LMSREPOSITORY}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz
+	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN.tcz
 	if [ $? = 0 ]; then
 		RESULT=0
 		echo '<p class="info">[ INFO ] Downloading Logitech Media Server LMS...'
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz/download -O /tmp/LMS/slimserver-CPAN-armv6.tcz
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.dep/download -O /tmp/LMS/slimserver-CPAN-armv6.tcz.dep
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN-armv6.tcz.md5.txt
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET ${LMSREPOSITORY}/slimserver.tcz.md5.txt/download -O /tmp/LMS/slimserver.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
