@@ -1,14 +1,12 @@
 #!/bin/sh
 
-# Version: 0.01 2016-03-14 GE
+# Version: 0.01 2016-03-15 GE
 #	Original.
 
 . pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
-
-DEBUG=1
 
 pcp_html_head "LIRC" "GE"
 
@@ -71,34 +69,6 @@ pcp_enough_free_space() {
 		echo '[ ERROR ] Not enough free space - try expanding your partition.'
 		FAIL_MSG="Not enough free space - try expanding your partition."
 	fi
-}
-
-#========================================================================================
-# Warning message
-#----------------------------------------------------------------------------------------
-pcp_warning_message() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>BETA Warning</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
-	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> LIRC install.</p>'
-	echo '                <ul>'
-	echo '                  <li style="color:white">[ BETA ] Probably will not fully work properly.</li>'
-	echo '                  <li style="color:white">[ INFO ] This message will be removed.</li>'
-	echo '                </ul>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
 }
 
 #========================================================================================
@@ -195,6 +165,7 @@ pcp_lirc_install() {
 	echo '[ INFO ] Updating configuration files... '
 
 	touch /home/tc/.lircrc
+	sudo chown tc:staff /home/tc/.lircrc
 
 	pcp_mount_mmcblk0p1_nohtml
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
@@ -242,22 +213,16 @@ pcp_lirc_uninstall() {
 #----------------------------------------------------------------------------------------
 case $ACTION in
 	Install)
-		pcp_warning_message
+		ACTION=$ACTION
 		;;
 	Uninstall)
-		pcp_warning_message
+		ACTION=$ACTION
 		;;
 	Change)
-		pcp_warning_message
-#		[ $FAIL_MSG = "ok" ] && pcp_save_to_config
-#		pcp_mount_mmcblk0p1_nohtml
-#		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-#		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
-#		pcp_umount_mmcblk0p1_nohtml
+		ACTION=$ACTION
 		;;
 	*)
 		ACTION=Initial
-		pcp_warning_message
 		;;
 esac
 
@@ -300,12 +265,13 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>Uninstall LIRC from piCorePlayer.</p>'
+		echo '                    <p>Uninstall LIRC from '$NAME'.</p>'
 		echo '                  </div>'
 		echo '                </td>'
 	fi
 
 	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
 
 	#------------------------------------------LIRC GPIO-------------------------------------
 	pcp_incr_id
@@ -319,11 +285,12 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Set LIRC GPIO to GPIO where IR Receiver is connected.</p>'
+	echo '                    <p>Set GPIO to the connected IR Receiver.</p>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
 
 	#------------------------------------------LIRC Config-----------------------------------
 	pcp_incr_id
@@ -337,11 +304,12 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Default: ~/.licrc</p>'
+	echo '                    <p><b>Default:</b> ~/.licrc</p>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
 
 	#------------------------------------------Change----------------------------------------
 	if [ $IR_LIRC = "yes" ]; then
@@ -352,19 +320,21 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 		echo '                  <input type="submit" name="ACTION" value="Change" />'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Change LIRC GPIO&nbsp;&nbsp;'
+		echo '                  <p>Change LIRC GPIO and/or configuration file&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>Change LIRC GPIO to a new value.</p>'
+		echo '                    <ul>'
+		echo '                      <li>Change LIRC GPIO to a new value.</li>'
+		echo '                      <li>Change LIRC configuration file.</li>'
+		echo '                    </ul>'
 		echo '                  </div>'
 		echo '                </td>'
 		echo '              </tr>'
 	fi
+	#----------------------------------------------------------------------------------------
 
-	#----------------------------------------------------------------------------------------
 	echo '            </form>'
-	#----------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
