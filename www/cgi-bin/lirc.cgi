@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2016-03-12 GE
+# Version: 0.01 2016-03-14 GE
 #	Original.
 
 . pcp-lms-functions
@@ -26,13 +26,13 @@ RESULT=0
 KERNEL=$(uname -r)
 
 #========================================================================================
-#irda-KERNEL.tcz
-#lirc.tcz
-#libcofi.tcz
+#  335872 irda-4.1.13-piCore+.tcz
+#  221184 lirc.tczlirc.tcz
+#    8192 libcofi.tcz
 # --------
-# 
+#  565248
 #----------------------------------------------------------------------------------------
-SPACE_REQUIRED=10000
+SPACE_REQUIRED=600
 
 #========================================================================================
 # Check we have internet access - set FAIL_MSG if not accessible
@@ -82,13 +82,14 @@ pcp_warning_message() {
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Warning</legend>'
+	echo '          <legend>BETA Warning</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> Beta IR install.</p>'
+	echo '                <p style="color:white"><b>Warning:</b> LIRC install.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Probably will not work properly.</li>'
+	echo '                  <li style="color:white">[ BETA ] Probably will not fully work properly.</li>'
+	echo '                  <li style="color:white">[ INFO ] This message will be removed.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -129,6 +130,7 @@ pcp_html_end() {
 
 	echo '</body>'
 	echo '</html>'
+	[ $ACTION != "Initial" ] && pcp_reboot_required
 	exit
 }
 
@@ -153,13 +155,15 @@ pcp_get_file() {
 #----------------------------------------------------------------------------------------
 pcp_delete_file() {
 	echo -n '[ INFO ] Deleting '$1'... '
-	echo "OK"
+	rm -f /mnt/mmcblk0p2/tce/optional/${1}
+	[ $? = 0 ] || FAIL_MSG="Cannot delete ${1}."
+	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
-# IR install
+# LIRC install
 #----------------------------------------------------------------------------------------
-pcp_ir_install() {
+pcp_lirc_install() {
 	echo '[ INFO ] Preparing download directory...'
 	if [ -d $IR_DOWNLOAD ]; then
 		sudo rm -rf $IR_DOWNLOAD
@@ -179,7 +183,7 @@ pcp_ir_install() {
 		[ $FAIL_MSG = "ok" ] && pcp_get_file pico libcofi.tcz.md5.txt
 	fi
 
-	echo -n '[ INFO ] Installing files...'
+	echo -n '[ INFO ] Installing files... '
 	[ $FAIL_MSG = "ok" ] && sudo chown tc:staff $IR_DOWNLOAD/*
 	[ $? = 0 ] || FAIL_MSG="Can not change ownership."
 	[ $FAIL_MSG = "ok" ] && sudo chmod u=rw,g=rw,o=r $IR_DOWNLOAD/*
@@ -188,15 +192,26 @@ pcp_ir_install() {
 	[ $? = 0 ] || FAIL_MSG="Can not copy to tce/optional."
 	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
 
-	echo -n '[ INFO ] Updating configuration files...'
+	echo '[ INFO ] Updating configuration files... '
+
+	touch /home/tc/.lircrc
+
+	pcp_mount_mmcblk0p1_nohtml
+	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+
+	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
+	sudo echo "lirc.tcz" >> $ONBOOTLST
+
 	[ $FAIL_MSG = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
 	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
-# IR uninstall
+# LIRC uninstall
 #----------------------------------------------------------------------------------------
-pcp_ir_uninstall() {
+pcp_lirc_uninstall() {
 	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
 	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
 	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz
@@ -208,7 +223,18 @@ pcp_ir_uninstall() {
 		[ $FAIL_MSG = "ok" ] && pcp_delete_file libcofi.tcz.md5.txt
 	fi
 
+	echo '[ INFO ] Removing configuration files... '
+
+	rm -f /home/tc/.lircrc
+
+	pcp_mount_mmcblk0p1_nohtml
+	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+
+	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
+
 	[ $FAIL_MSG = "ok" ] && IR_LIRC="no" && pcp_save_to_config
+	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
@@ -223,15 +249,15 @@ case $ACTION in
 		;;
 	Change)
 		pcp_warning_message
-		[ $FAIL_MSG = "ok" ] && pcp_save_to_config
+#		[ $FAIL_MSG = "ok" ] && pcp_save_to_config
+#		pcp_mount_mmcblk0p1_nohtml
+#		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+#		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+#		pcp_umount_mmcblk0p1_nohtml
 		;;
 	*)
 		ACTION=Initial
 		pcp_warning_message
-		pcp_internet_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
-		pcp_sourceforge_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
 		;;
 esac
 
@@ -246,9 +272,9 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	echo '        <fieldset>'
 	echo '          <legend>Linux Infrared Remote Control (LIRC)</legend>'
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="IR" action="'$0'" method="get">'
+	echo '            <form name="LIRC" action="'$0'" method="get">'
 
-	#------------------------------------------Install/Unintall IR---------------------------
+	#------------------------------------------Install/Unintall LIRC-------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -265,9 +291,7 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 		echo '                    <p>Install LIRC from repository.</p>'
 		echo '                  </div>'
 		echo '                </td>'
-	fi
-
-	if [ $IR_LIRC = "yes" ]; then
+	else
 		echo '                <td class="column150 center">'
 		echo '                  <input type="submit" name="ACTION" value="Uninstall" />'
 		echo '                </td>'
@@ -301,6 +325,25 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 
+	#------------------------------------------LIRC Config-----------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input class="input" type="text" name="IR_CONFIG" value="'$IR_CONFIG'">'  
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set alternative LIRC configuration file&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Default: ~/.licrc</p>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	#------------------------------------------Change----------------------------------------
 	if [ $IR_LIRC = "yes" ]; then
 		pcp_incr_id
 		pcp_toggle_row_shade
@@ -313,7 +356,7 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>Change LIRC GPIO to new value.</p>'
+		echo '                    <p>Change LIRC GPIO to a new value.</p>'
 		echo '                  </div>'
 		echo '                </td>'
 		echo '              </tr>'
@@ -334,7 +377,7 @@ fi
 #========================================================================================
 # Installing table
 #----------------------------------------------------------------------------------------
-if [ $ACTION != "Change" ]; then
+if [ $ACTION != "Initial" ]; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -346,26 +389,36 @@ if [ $ACTION != "Change" ]; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-
-	#----------------------------------------------------------------------------------------
-	if [ $ACTION = "Initial" ]; then
-		echo '                  <textarea class="inform" style="height:100px">'
+	#---------------------------------------Install------------------------------------------
+	if [ $ACTION = "Install" ]; then
+		echo '                  <textarea class="inform" style="height:240px">'
+		pcp_internet_indicator
+		[ $FAIL_MSG = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$INTERNET_STATUS
+		pcp_sourceforge_indicator
+		[ $FAIL_MSG = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$SOURCEFORGE_STATUS
 		pcp_enough_free_space $SPACE_REQUIRED
+		[ $FAIL_MSG = "ok" ] && pcp_lirc_install
 	fi
-	#----------------------------------------------------------------------------------------
-	if [ $ACTION = "Install" ]; then
-		echo '                  <textarea class="inform" style="height:200px">'
-		pcp_enough_free_space $SPACE_REQUIRED
-		[ $FAIL_MSG = "ok" ] && pcp_ir_install
-	fi
-	#----------------------------------------------------------------------------------------
+	#---------------------------------------Uninstall----------------------------------------
 	if [ $ACTION = "Uninstall" ]; then
-		echo '                  <textarea class="inform" style="height:80px">'
-		[ $FAIL_MSG = "ok" ] && pcp_ir_uninstall
+		echo '                  <textarea class="inform" style="height:200px">'
+		[ $FAIL_MSG = "ok" ] && pcp_lirc_uninstall
+	fi
+	#---------------------------------------Change-------------------------------------------
+	if [ $ACTION = "Change" ]; then
+		echo '                  <textarea class="inform" style="height:100px">'
+		[ $FAIL_MSG = "ok" ] && pcp_save_to_config
+		pcp_mount_mmcblk0p1_nohtml
+		echo '[ INFO ] Changing '$CONFIGTXT'... '
+		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+		pcp_umount_mmcblk0p1_nohtml
 	fi
 	#----------------------------------------------------------------------------------------
+	pcp_backup_nohtml
+
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'

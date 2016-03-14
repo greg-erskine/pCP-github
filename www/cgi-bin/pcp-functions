@@ -2,15 +2,14 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-03-12 PH
-#	Added POWER_OUTPUT
-
-# Version: 0.29 2016-03-10 GE
+# Version: 0.29 2016-03-14 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
 #	Updated pcp_enable_i2s_dac.
 #	Added LMSWEBPORT.
 #	Added FSM.
 #	Changed backup too big warning messages in pcp_backup and pcp_backup_nohtml.
+#	Added POWER_OUTPUT. PH.
+#	Added IR_CONFIG.
 
 # Version: 0.28 2016-02-26 GE
 #	Fixed sourceforge redirection issue.
@@ -285,7 +284,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1421,6 +1420,7 @@ pcp_save_to_config() {
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
 	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
 	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
 }
@@ -1498,6 +1498,7 @@ POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
 IR_GPIO=""
+IR_CONFIG=""
 LMSWEBPORT=""
 FSM="Default"
 EOF

@@ -1,15 +1,14 @@
 #!/bin/sh
 
-# Version: 0.06 2016-03-12 PH
-#	Updated -G option
-
-# Version: 0.06 2016-03-03 GE
+# Version: 0.06 2016-03-14 GE
 #	Updated -e option.
 #	Updated -U option.
 #	Updated -V option.
 #	Added -G option.
 #	Added -S option.
 #	Removed LOGFILE.
+#	Updated -G option. PH.
+#	Updated $VISUALISER and $IR_LIRC.
 
 # Version: 0.05 2015-09-20 GE
 #	Added -e option.
@@ -55,11 +54,11 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$SERVER_IP" ]    && SERVER_IP="-s $SERVER_IP"
 [ x"" != x"$LOGLEVEL" ]     && LOGLEVEL="-d $LOGLEVEL -f /tmp/pcp_squeezelite.log"
 [ x"" != x"$DSDOUT" ]       && DSDOUT="-D $DSDOUT"
-[ x"" != x"$VISUALISER" ]   && VISUALISER="-v"
+[ $VISUALISER = "YES" ]     && VIS="-v"
 [ x"" != x"$CLOSEOUT" ]     && CLOSEOUT="-C $CLOSEOUT"
 [ x"" != x"$UNMUTE" ]       && UNMUTE="-U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && ALSAVOLUME="-V $ALSAVOLUME"
-[ x"" != x"$IR_GPIO" ]      && IR_GPIO="-i $IR_GPIO"
+[ $IR_LIRC = "yes" ]        && LIRC="-i $IR_CONFIG"
 [ x"" != x"$POWER_GPIO" ]   && POWER_GPIO="-G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && POWER_SCRIPT="-S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && OTHER="$OTHER"
@@ -72,7 +71,7 @@ case "$1" in
 			exit 1
 		fi
 		echo "Starting $DESC: $PNAME..."
-		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VISUALISER $CLOSEOUT $UNMUTE $ALSAVOLUME $POWER_GPIO $POWER_SCRIPT $OTHER
+		start-stop-daemon --start --quiet -b -m -p $PIDFILE --exec $DAEMON -- -n "$NAME" $OUTPUT $ALSA_PARAMS $BUFFER_SIZE $_CODEC $XCODEC $PRIORITY $MAX_RATE $UPSAMPLE $MAC_ADDRESS $SERVER_IP $LOGLEVEL $DSDOUT $VIS $CLOSEOUT $UNMUTE $ALSAVOLUME $LIRC $POWER_GPIO $POWER_SCRIPT $OTHER
 		;;
 	stop)
 		if [ ! -f $PIDFILE ]; then

@@ -1,15 +1,14 @@
 #!/bin/sh
 
-# Version: 0.24 2016-03-12 PH
-#	Updated -G option for Output Active High or Low
-
-# Version: 0.23 2016-03-09 GE
+# Version: 0.23 2016-03-14 GE
 #	Updated -e option.
 #	Updated -U option.
 #	Updated -V option.
 #	Added -G option.
 #	Added -S option.
 #	Revised various help messages.
+#	Updated -G option for Output Active High or Low. PH.
+#	Updated $VISUALISER and $IR_LIRC.
 
 # Version: 0.22 2016-02-22 GE
 #	Updated for Raspberry Pi Zero.
@@ -131,11 +130,11 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$SERVER_IP" ]    && STRING="$STRING -s $SERVER_IP"
 [ x"" != x"$LOGLEVEL" ]     && STRING="$STRING -d $LOGLEVEL -f /tmp/pcp_squeezelite.log"
 [ x"" != x"$DSDOUT" ]       && STRING="$STRING -D $DSDOUT"
-[ x"" != x"$VISUALISER" ]   && STRING="$STRING -v"
+[ $VISUALISER = "YES" ]     && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]     && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$UNMUTE" ]       && STRING="$STRING -U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && STRING="$STRING -V $ALSAVOLUME"
-[ x"" != x"$IR_GPIO" ]      && STRING="$STRING -i $IR_GPIO"
+[ $IR_LIRC = "yes" ]        && STRING="$STRING -i $IR_CONFIG"
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
@@ -898,36 +897,6 @@ pcp_squeezelite_volume() {
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_squeezelite_volume
-#----------------------------------------------------------------------------------------
-
-#--------------------------------------IR------------------------------------------------
-pcp_squeezelite_ir() {
-	case "IR" in
-		yes) IRYES="checked" ;;
-		no) IRNO="checked" ;;
-	esac
-
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p class="row">IR</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="IR" value="yes" '$IRYES'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="IR" value="no" '$IRNO'>No'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>(not working) IR (-i)&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>blah blah IR.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && [ $(pcp_squeezelite_build_option IR ) = 0 ] && pcp_squeezelite_ir
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off GPIO---------------------------------
