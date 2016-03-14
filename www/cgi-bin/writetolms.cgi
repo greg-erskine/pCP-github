@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.02 2016-02-20 GE
+# Version: 0.02 2016-03-13 GE
 #	Fixed sourceforge redirection issue.
+#	Updated slimserver extension names   PH
 
 # Version: 0.01 2016-01-30 SBP
 #	Original version.
@@ -43,11 +44,11 @@ pcp_download_lms() {
 	if [ $? = 0 ]; then
 		RESULT=0
 		echo '<p class="info">[ INFO ] Downloading Logitech Media Server LMS...'
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN-armv6.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN.tcz.md5.txt
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET ${LMSREPOSITORY}/slimserver.tcz.md5.txt/download -O /tmp/LMS/slimserver.tcz.md5.txt
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
@@ -87,7 +88,7 @@ pcp_install_lms() {
 pcp_remove_lms() {
 	echo '<p class="info">[ INFO ] Removing LMS...</p>'
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN-armv6*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN*
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz*
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz
