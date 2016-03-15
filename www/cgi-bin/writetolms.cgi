@@ -23,7 +23,6 @@ pcp_httpd_query_string
 #LMS="slimserver*"
 SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
-LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -31,75 +30,25 @@ REBOOT_REQUIRED=0
 #========================================================================================================
 # Routines
 #--------------------------------------------------------------------------------------------------------
-pcp_download_lms() {
-#	pcp_sufficient_free_space 2000
-	cd /tmp
-	sudo rm -f /tmp/LMS
-	sudo mkdir /tmp/LMS
-	echo '<p class="info">[ INFO ] Downloading LMS from repository...</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Repo: '${LMSREPOSITORY}'</p>'
-	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN.tcz
-	if [ $? = 0 ]; then
-		RESULT=0
-		echo '<p class="info">[ INFO ] Downloading Logitech Media Server LMS...'
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN.tcz.md5.txt
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver.tcz.md5.txt/download -O /tmp/LMS/slimserver.tcz.md5.txt
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver.tcz.dep/download -O /tmp/LMS/slimserver.tcz.dep
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver.tcz/download -O /tmp/LMS/slimserver.tcz
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-
-		sudo -u tc tce-load -w gcc_libs.tcz
-		sudo -u tc tce-load -w perl5.tcz
-
-		if [ $RESULT = 0 ]; then
-			echo '<p class="ok">[ OK ] Download successful.</p>'
-			sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
-			sudo chown -R tc:staff /tmp/LMS
-			sudo chmod -R 755 /tmp/LMS
-			sudo cp -a /tmp/LMS/. /mnt/mmcblk0p2/tce/optional/
-			sudo rm -f /tmp/LMS
-		else
-			echo '<p class="error">[ ERROR ] LMS download unsuccessful, try again!</p>'
-		fi
-	else
-		echo '<p class="error">[ ERROR ] LMS not available in repository, try again later!</p>'
-	fi
-
-#	SPACE=$(pcp_free_space k)
-#	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k</p>'
-}
-
-pcp_install_lms() {
-	echo '<p class="info">[ INFO ] Installing LMS...</p>'
+pcp_enable_lms() {
+	echo '<p class="info">[ INFO ] Enabling automatic start of LMS...</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
 
-pcp_remove_lms() {
-	echo '<p class="info">[ INFO ] Removing LMS...</p>'
-	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz
+pcp_disable_lms() {
+	echo '<p class="info">[ INFO ] Disabling automatic start of LMS...</p>'
+#	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 #========================================================================================
 # LMS section
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
-#if [ $ORIG_LMSERVER != $LMSERVER ]; then
+ Only do something if variable is changed
+if [ $ORIG_LMSERVER != $LMSERVER ]; then
 	REBOOT_REQUIRED=1
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] LMS is set to: '$LMSERVER'</p>'
@@ -108,22 +57,21 @@ pcp_remove_lms() {
 
 	case "$LMSERVER" in
 		yes)
-			echo '<p class="info">[ INFO ] LMS will be downloaded and enabled.</p>'
-			pcp_download_lms
-			pcp_install_lms
+			echo '<p class="info">[ INFO ] Automatic start of LMS is enabled.</p>'
+			pcp_enable_lms
 			;;
 		no)
-			echo '<p class="info">[ INFO ] LMS will be disabled and removed.</p>'
-			pcp_remove_lms
+			echo '<p class="info">[ INFO ] Automatic start of LMS is disabled</p>'
+			pcp_disable_lms
 			;;
 		*)
 			echo '<p class="error">[ ERROR ] LMS selection invalid: '$LMSERVER'</p>'
 			;;
 	esac
 	echo '<hr>'
-#else
-#	echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
-#fi
+else
+	echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
+fi
 
 
 echo '<hr>'

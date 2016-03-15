@@ -12,8 +12,6 @@
 pcp_variables
 . $CONFIGCFG
 
-DEBUG=1
-
 pcp_html_head "LMS Main Page" "SBP"
 
 [ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
@@ -40,7 +38,75 @@ fi
 
 LMS_SERV_LOG=$LOGS'/server.log'
 LMS_SCAN_LOG=$LOGS'/scanner.log'
+WGET="/bin/busybox wget"
+LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
+#---------------------------Routines---------------------------------------------------------------------
+
+pcp_download_lms() {
+	cd /tmp
+	sudo rm -f /tmp/LMS
+	sudo mkdir /tmp/LMS
+	echo '<p class="info">[ INFO ] Downloading LMS from repository...</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Repo: '${LMSREPOSITORY}'</p>'
+	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
+
+	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN.tcz
+	if [ $? = 0 ]; then
+		RESULT=0
+		echo '<p class="info">[ INFO ] Downloading Logitech Media Server LMS...'
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN.tcz.md5.txt
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		$WGET ${LMSREPOSITORY}/slimserver.tcz.md5.txt/download -O /tmp/LMS/slimserver.tcz.md5.txt
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		$WGET ${LMSREPOSITORY}/slimserver.tcz.dep/download -O /tmp/LMS/slimserver.tcz.dep
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		$WGET ${LMSREPOSITORY}/slimserver.tcz/download -O /tmp/LMS/slimserver.tcz
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+
+		sudo -u tc tce-load -w gcc_libs.tcz
+		sudo -u tc tce-load -w perl5.tcz
+
+		if [ $RESULT = 0 ]; then
+			echo '<p class="ok">[ OK ] Download successful.</p>'
+			sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
+			sudo chown -R tc:staff /tmp/LMS
+			sudo chmod -R 755 /tmp/LMS
+			sudo cp -a /tmp/LMS/. /mnt/mmcblk0p2/tce/optional/
+			sudo rm -f /tmp/LMS
+		else
+			echo '<p class="error">[ ERROR ] LMS download unsuccessful, try again!</p>'
+		fi
+	else
+		echo '<p class="error">[ ERROR ] LMS not available in repository, try again later!</p>'
+	fi
+}
+
+pcp_install_lms() {
+	echo '<p class="info">[ INFO ] Installing LMS...</p>'
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
+	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+}
+
+pcp_remove_lms() {
+	echo '<p class="info">[ INFO ] Removing LMS...</p>'
+	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz.md5.txt
+	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
+	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+}
+
+
+#-----------------------------------------------------------------------
 
 case $ACTION in
 	Start)
@@ -53,6 +119,17 @@ case $ACTION in
 	Restart)
 		sudo /usr/local/etc/init.d/slimserver stop
 		sudo /usr/local/etc/init.d/slimserver start
+		;;
+	Install)
+		pcp_download_lms
+		pcp_install_lms
+		pcp_backup
+		pcp_reboot_required
+		;;
+	Remove)
+		pcp_remove_lms
+		pcp_backup
+		pcp_reboot_required
 		;;
 esac
 
@@ -71,7 +148,6 @@ echo '          <table class="bggrey percent100">'
 pcp_main_lms_indication() {
 
 	if [ $(pcp_lms_status) = 0 ]; then
-#	if [ "x" != "x$(pcp_lms_status)" ]; then
 		INDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
 		STATUS="running"
@@ -142,39 +218,63 @@ pcp_main_padding() {
 }
 pcp_main_padding
 
-#------------------------------------------Enable/download LMS---------------------------
+#------------------------------------------Enable/disable autostart of LMS---------------------
 
 pcp_LMS_enable() {
-	pcp_sufficient_free_space 40000
 	pcp_incr_id
 	pcp_toggle_row_shade
-	
-		echo '                  <form name="Enable" action="writetolms.cgi" method="get">'
-	
+	echo '                  <form name="Select" action="writetolms.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-
-	echo '                    <input type="submit" value="Enable" />'
-
+	echo '                    <input type="submit" value="LMS autostart" />'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>No'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enable and download LMS Server&nbsp;&nbsp;'
+	echo '                  <p>Automatic start of LMS Server when pCP boots&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Download LMS from repo.</p>'
+	echo '                    <p>Yes - will enable automatic start of LMS when pCP boots.</p>'
+	echo '                    <p>No - will disable automatic start of LMS when pCP boots.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	
-		echo '                  </form>'
+	echo '                  </form>'
 }
-
 pcp_LMS_enable
+
+#------------------------------------------Install/uninstall LMS---------------------------------------
+pcp_lms_start() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Start" action="'$0'" method="get">'
+		if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+				pcp_sufficient_free_space 40000
+	echo '                  <input type="submit" name="ACTION" value="Install" />'
+		else
+	echo '                  <input type="submit" name="ACTION" value="Remove" />'
+		fi
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Install or remove LMS from pCP&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>Install, this will install LMS on pCP.</p>'
+	echo '                  <p>Remove, this will remove LMS and all the extra packages that was added with LMS.</p>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+pcp_lms_start
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Start LMS---------------------------------------
 pcp_lms_start() {
@@ -277,7 +377,6 @@ pcp_lms_logshow() {
 	echo '              </tr>'
 }
 pcp_lms_logshow
-
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Padding---------------------------------------
@@ -338,7 +437,7 @@ pcp_lms_logview() {
 }
 
 if [ $LOGSHOW = yes ]; then
-pcp_lms_logview
+	pcp_lms_logview
 fi
 #----------------------------------------------------------------------------------------
 
