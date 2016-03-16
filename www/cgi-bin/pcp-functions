@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.29 2016-03-14 GE
+# Version: 0.29 2016-03-17 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
 #	Updated pcp_enable_i2s_dac.
 #	Added LMSWEBPORT.
@@ -284,7 +284,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1049,7 +1049,7 @@ pcp_uptime_days() {
 #=========================================================================================
 # Determine the IP addresses
 #-----------------------------------------------------------------------------------------
-pcp_lmsip() {
+pcp_lmsip_BAD() {
 	if	[ x"" = x"$LMSWEBPORT" ]; then LMSPORT=9000
 		else LMSPORT="$LMSWEBPORT"
 	fi
@@ -1058,6 +1058,14 @@ pcp_lmsip() {
 		else
 		netstat -nt 2>&1 | awk '{ print $5 " " $6 }' | grep :"$LMSPORT" | grep ESTABLISHED | sort -u | awk -F: '{ print $1 }'
 	fi
+}
+
+pcp_lmsip() {
+	IP=$(netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | grep :3483 | awk -F: '{ print $1 }')
+	if [ $IP = "127.0.0.1" ]; then
+		[ x"" = x"$(pcp_eth0_ip)" ] && IP=$(pcp_wlan0_ip) || IP=$(pcp_eth0_ip)
+	fi
+	echo $IP
 }
 
 pcp_eth0_ip() {
