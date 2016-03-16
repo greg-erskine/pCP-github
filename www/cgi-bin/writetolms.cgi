@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-03-13 GE
+# Version: 0.02 2016-03-16 GE
 #	Fixed sourceforge redirection issue.
 #	Updated slimserver extension names   PH
 
@@ -50,7 +50,6 @@ pcp_disable_lms() {
  Only do something if variable is changed
 if [ $ORIG_LMSERVER != $LMSERVER ]; then
 	REBOOT_REQUIRED=1
-	echo '<hr>'
 	echo '<p class="info">[ INFO ] LMS is set to: '$LMSERVER'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMSERVER'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is: '$LMSERVER'</p>'
@@ -68,11 +67,9 @@ if [ $ORIG_LMSERVER != $LMSERVER ]; then
 			echo '<p class="error">[ ERROR ] LMS selection invalid: '$LMSERVER'</p>'
 			;;
 	esac
-	echo '<hr>'
 else
 	echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
 fi
-
 
 echo '<hr>'
 pcp_save_to_config

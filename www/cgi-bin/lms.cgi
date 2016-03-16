@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-03-10 SBP
+# Version: 0.02 2016-03-16 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
 #	Moved pcp_lms_status to pcp-lms-functions.
 
@@ -21,40 +21,37 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-#Read from slimserver.cfg file
+# Read from slimserver.cfg file
 CFG_FILE="/home/tc/.slimserver.cfg"
 TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 
-if [ -f "$CFG_FILE" ]; then
-        . $CFG_FILE
-fi
+[ -f "$CFG_FILE" ] && . $CFG_FILE
 
-#Set Default Settings if not defined in CFG_FILE
-[ -n "$CACHE" ] || CACHE=$TCEDIR/slimserver/Cache
+# Set Default Settings if not defined in CFG_FILE
+[ -n "$CACHE" ] || CACHE=${TCEDIR}/slimserver/Cache
 [ -n "$LOGS" ] || LOGS=/var/log/slimserver
-[ -n "$PREFS" ] || PREFS=$TCEDIR/slimserver/prefs
+[ -n "$PREFS" ] || PREFS=${TCEDIR}/slimserver/prefs
 [ -n "$LMSUSER" ] || LMSUSER=tc
 [ -n "$LMSGROUP" ] || LMSGROUP=staff
 
-LMS_SERV_LOG=$LOGS'/server.log'
-LMS_SCAN_LOG=$LOGS'/scanner.log'
+LMS_SERV_LOG=${LOGS}/server.log
+LMS_SCAN_LOG=${LOGS}/scanner.log
 WGET="/bin/busybox wget"
 LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
-#---------------------------Routines---------------------------------------------------------------------
-
+#---------------------------Routines-----------------------------------------------------
 pcp_download_lms() {
 	cd /tmp
 	sudo rm -f /tmp/LMS
 	sudo mkdir /tmp/LMS
-	echo '<p class="info">[ INFO ] Downloading LMS from repository...</p>'
+	echo '<p class="info">[ INFO ] Downloading Logitech Media Server (LMS) from repository...</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Repo: '${LMSREPOSITORY}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
 	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN.tcz
 	if [ $? = 0 ]; then
 		RESULT=0
-		echo '<p class="info">[ INFO ] Downloading Logitech Media Server LMS...'
+		echo '<p class="info">[ INFO ] Downloading LMS'
 		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
@@ -66,17 +63,21 @@ pcp_download_lms() {
 		$WGET ${LMSREPOSITORY}/slimserver.tcz.dep/download -O /tmp/LMS/slimserver.tcz.dep
 		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		$WGET ${LMSREPOSITORY}/slimserver.tcz/download -O /tmp/LMS/slimserver.tcz
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
 
+		echo -n '<p class="info">[ INFO ] '
 		sudo -u tc tce-load -w gcc_libs.tcz
+		echo '<p>'
+		echo -n '<p class="info">[ INFO ] '
 		sudo -u tc tce-load -w perl5.tcz
+		echo '<p>'
 
 		if [ $RESULT = 0 ]; then
 			echo '<p class="ok">[ OK ] Download successful.</p>'
 			sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 			sudo chown -R tc:staff /tmp/LMS
-			sudo chmod -R 755 /tmp/LMS
-			sudo cp -a /tmp/LMS/. /mnt/mmcblk0p2/tce/optional/
+			sudo chmod 664 /tmp/LMS/*
+			sudo cp -a /tmp/LMS/* /mnt/mmcblk0p2/tce/optional/
 			sudo rm -f /tmp/LMS
 		else
 			echo '<p class="error">[ ERROR ] LMS download unsuccessful, try again!</p>'
@@ -105,29 +106,48 @@ pcp_remove_lms() {
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
+pcp_lms_padding() {
+	pcp_toggle_row_shade
+	echo '            <tr class="padding '$ROWSHADE'">'
+	echo '              <td></td>'
+	echo '              <td></td>'
+	echo '            </tr>'
+}
 
 #-----------------------------------------------------------------------
 
 case $ACTION in
 	Start)
+		echo '<p class="info">[ INFO ] Starting LMS...</p>'
+		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver start
 		;;
 	Stop)
+		echo '<p class="info">[ INFO ] Stopping LMS...</p>'
+		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
 		sleep 2
 		;;
 	Restart)
+		echo '<p class="info">[ INFO ] Restarting LMS...</p>'
+		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
+		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver start
 		;;
 	Install)
+		pcp_sufficient_free_space 40000
 		pcp_download_lms
 		pcp_install_lms
+		LMSERVER="yes"
+		pcp_save_to_config
 		pcp_backup
 		pcp_reboot_required
 		;;
 	Remove)
 		pcp_remove_lms
+		LMSERVER="no"
+		pcp_save_to_config
 		pcp_backup
 		pcp_reboot_required
 		;;
@@ -145,269 +165,233 @@ echo '          <legend>Logitech Media Server (LMS) operations</legend>'
 echo '          <table class="bggrey percent100">'
 
 #------------------------------------LMS Indication--------------------------------------
-pcp_main_lms_indication() {
+if [ $(pcp_lms_status) = 0 ]; then
+	INDICATOR=$HEAVY_CHECK_MARK
+	CLASS="indicator_green"
+	STATUS="running"
+else
+	INDICATOR=$HEAVY_BALLOT_X
+	CLASS="indicator_red"
+	STATUS="not running"
+fi
 
-	if [ $(pcp_lms_status) = 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
-	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
-	fi
+#------------------------------------------------------------------------------------
+# Determine state of check boxes.
+#------------------------------------------------------------------------------------
+# Function to check the LMS radio button according to config file
+case "$LMSERVER" in
+	yes) LMSERVERyes="checked" ;;
+	no) LMSERVERno="checked" ;;
+esac
 
-	#------------------------------------------------------------------------------------
-	# Determine state of check boxes.
-	#------------------------------------------------------------------------------------
-	# Function to check the LMS radio button according to config file
-	case "$LMSERVER" in
-		yes) LMSERVERyes="checked" ;;
-		no) LMSERVERno="checked" ;;
-	esac
+# Function to check the Samba radio button according to config file
+case "$SAMBA" in
+	yes) SAMBAyes="checked" ;;
+	no) SAMBAno="checked" ;;
+esac
 
-	# Function to check the Samba radio button according to config file
-	case "$SAMBA" in
-		yes) SAMBAyes="checked" ;;
-		no) SAMBAno="checked" ;;
-	esac
+# Function to check the show log radio button according to selection
+case "$LOGSHOW" in
+	yes) LOGSHOWyes="checked" ;;
+	*) LOGSHOWno="checked" ;;
+esac
 
-	# Function to check the show log radio button according to selection
-	if [ $LOGSHOW = yes ]; then
-		LOGSHOWyes="checked"
-		else 
-		LOGSHOWno="checked"
-	fi
-
-
-
-	#------------------------------------------------------------------------------------
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 centre">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>LMS is '$STATUS'&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
-	echo '                  </ul>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>LMS must be running to stream music to players from this pCP.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-pcp_main_lms_indication
+pcp_incr_id
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column150 centre">'
+echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>LMS is '$STATUS'&nbsp;&nbsp;'
+echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                </p>'
+echo '                <div id="'$ID'" class="less">'
+echo '                  <ul>'
+echo '                    <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
+echo '                    <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
+echo '                  </ul>'
+echo '                  <p><b>Note:</b></p>'
+echo '                  <ul>'
+echo '                    <li>LMS must be running to stream music to players from this pCP.</li>'
+echo '                  </ul>'
+echo '                </div>'
+echo '              </td>'
+echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Padding---------------------------------------
-pcp_main_padding() {
-	pcp_toggle_row_shade
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
-	echo '            </tr>'
-}
-pcp_main_padding
+pcp_lms_padding
 
-#------------------------------------------Enable/disable autostart of LMS---------------------
+#-----------------------------------Enable/disable autostart of LMS----------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '            <form name="Select" action="writetolms.cgi" method="get">'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150 center">'
+echo '                  <input type="submit" value="LMS autostart" />'
+echo '                </td>'
+echo '                <td class="column100">'
+echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
+echo '                  <input class="small1" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>No'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Automatic start of LMS when pCP boots&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Yes - will enable automatic start of LMS when pCP boots.</p>'
+echo '                    <p>No - will disable automatic start of LMS when pCP boots.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+echo '            </form>'
+#----------------------------------------------------------------------------------------
 
-pcp_LMS_enable() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '                  <form name="Select" action="writetolms.cgi" method="get">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                    <input type="submit" value="LMS autostart" />'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>No'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Automatic start of LMS Server when pCP boots&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Yes - will enable automatic start of LMS when pCP boots.</p>'
-	echo '                    <p>No - will disable automatic start of LMS when pCP boots.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '                  </form>'
-}
-pcp_LMS_enable
+echo '            <form name="Start" action="'$0'" method="get">'
 
-#------------------------------------------Install/uninstall LMS---------------------------------------
-pcp_lms_start() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Start" action="'$0'" method="get">'
-		if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-				pcp_sufficient_free_space 40000
+#------------------------------------------Install/uninstall LMS-------------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150 center">'
+
+if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 	echo '                  <input type="submit" name="ACTION" value="Install" />'
-		else
+else
 	echo '                  <input type="submit" name="ACTION" value="Remove" />'
-		fi
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Install or remove LMS from pCP&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>Install, this will install LMS on pCP.</p>'
-	echo '                  <p>Remove, this will remove LMS and all the extra packages that was added with LMS.</p>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-pcp_lms_start
+fi
+
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Install or remove LMS from pCP&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Install - this will install LMS on pCP.</p>'
+echo '                    <p>Remove - this will remove LMS and all the extra packages that was added with LMS.</p>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Start LMS---------------------------------------
-pcp_lms_start() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Start" action="'$0'" method="get">'
-	echo '                  <input type="submit" name="ACTION" value="Start" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Start LMS&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will start LMS.</p>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-pcp_lms_start
+#------------------------------------------Start LMS-------------------------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150 center">'
+echo '                  <input type="submit" name="ACTION" value="Start" />'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Start LMS&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>This will start LMS.</p>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Stop LMS--------------------------------------
-pcp_lms_stop() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Stop" action="'$0'" method="get">'
-	echo '                  <input type="submit" name="ACTION" value="Stop" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Stop LMS&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will stop LMS.</p>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-pcp_lms_stop
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150 center">'
+echo '                  <input type="submit" name="ACTION" value="Stop" />'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Stop LMS&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>This will stop LMS.</p>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Restart - LMS--------------------------------------------
-pcp_lms_restart() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Restart" action="'$0'" method="get">'
-	echo '                  <input type="submit" name="ACTION" value="Restart" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Restart LMS&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will kill LMS and then restart it.</p>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>A restart of LMS is rarely needed.</li>'
-	echo '                    <li>LMS running indicator will turn green.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-pcp_lms_restart
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150 center">'
+echo '                  <input type="submit" name="ACTION" value="Restart" />'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Restart LMS&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>This will stop LMS and then restart it.</p>'
+echo '                    <p><b>Note:</b></p>'
+echo '                    <ul>'
+echo '                      <li>A restart of LMS is rarely needed.</li>'
+echo '                      <li>LMS running indicator will turn green.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
-#-------------------------------Show LMS logs --------------------------------------------
-pcp_lms_logshow() {
-
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="logshow" action="'$0'" method="get">'
-	echo '                    <input type="submit" value="Show Logs" />'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Show LMS logs below&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Show Server and Scanner log in text area below.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-pcp_lms_logshow
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Padding---------------------------------------
-[ $MODE -le $MODE_BASIC ] && pcp_main_padding
+#-------------------------------Show LMS logs--------------------------------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150 center">'
+echo '                  <input type="submit" value="Show Logs" />'
+echo '                <td class="column100">'
+echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
+echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Show LMS logs&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Show Server and Scanner log in text area below.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update LMS------------------------------------
 pcp_lms_update() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="InSitu" action="upd_lms.cgi" method="get">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Update LMS" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Update LMS&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will update LMS.</p>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '                </td>'
+	echo '                <td class="column100">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Update LMS&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will update LMS.</p>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_lms_update
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------LMS log text area---------------------------
+#----------------------------------------------------------------------------------------
+echo '            </form>'
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------LMS log text area-----------------------------
 pcp_lms_logview() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -435,10 +419,11 @@ pcp_lms_logview() {
 	echo '  </tr>'
 	echo '</table>'
 }
-
-if [ $LOGSHOW = yes ]; then
-	pcp_lms_logview
-fi
+[ $LOGSHOW = yes ] && pcp_lms_logview
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------SAMBA mode fieldset---------------------------
@@ -457,6 +442,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          <legend>SAMBA operations</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
+
 #----------------------------------------------------------------------------------------
 
 pcp_samba_indication() {
@@ -575,15 +561,6 @@ pcp_samba_stop() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_stop
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_footer
