@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-03-16 SBP
+# Version: 0.02 2016-03-17 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
 #	Moved pcp_lms_status to pcp-lms-functions.
 
@@ -115,8 +115,38 @@ pcp_lms_padding() {
 	echo '            </tr>'
 }
 
-#-----------------------------------------------------------------------
+#========================================================================================
+# Warning message
+#----------------------------------------------------------------------------------------
+pcp_warning_message() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Warning</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Note:</b> This is our first implementation of Logitech Media Server (LMS), so there are some limitations.</p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">Support for USB drives only.</li>'
+	echo '                  <li style="color:white">Support for RPi1 and PRi2 only.</li>'
+	echo '                  <li style="color:white">LMS upgrade is via command line only.</li></br>'
+	echo '                  <li style="color:white">Many thanks to Paul123 and jgrulich.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+#----------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------
 case $ACTION in
 	Start)
 		echo '<p class="info">[ INFO ] Starting LMS...</p>'
@@ -151,6 +181,9 @@ case $ACTION in
 		pcp_save_to_config
 		pcp_backup
 		pcp_reboot_required
+		;;
+	*)
+		pcp_warning_message
 		;;
 esac
 
@@ -256,13 +289,13 @@ pcp_lms_configure_lms() {
 
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
-	LMS_SERVER_WEB_IP="http://${LMS_SERVER_WEB}:${LMSPORT}"
+	LMS_SERVER_WEB_URL="http://${LMS_SERVER_WEB}:${LMSPORT}"
 
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <form name="Configure" action="'$LMS_SERVER_WEB_IP'" method="get">'
+	echo '                  <form name="Configure" action="'$LMS_SERVER_WEB_URL'" method="get">'
 	echo '                    <input type="submit" value="Configure LMS" />'
 	echo '                  </form>'
 	echo '                </td>'
@@ -290,20 +323,26 @@ pcp_lms_install_lms() {
 
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Install LMS on pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will install LMS on pCP.</p>'
+		echo '                  </div>'
 	else
 		echo '                  <input type="submit" name="ACTION" value="Remove" />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Remove LMS from pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will remove LMS and all the extra packages that was added with LMS.</p>'
+		echo '                  </div>'
 	fi
 
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Install or remove LMS from pCP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Install - this will install LMS on pCP.</p>'
-	echo '                    <p>Remove - this will remove LMS and all the extra packages that was added with LMS.</p>'
-	echo '                    </ul>'
-	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
