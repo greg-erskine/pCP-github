@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.11 2016-03-09 SBP
+# Version: 0.11 2016-03-19 SBP
 #	Added dwc_otg.fiq_fsm_enable.
 
 # Version: 0.10 2016-02-26 SBP
@@ -421,13 +421,13 @@ fi
 if [ $ORIG_SQUEEZELITE != $SQUEEZELITE ]; then
 	REBOOT_REQUIRED=1
 	echo '<hr>'
-	echo '<p class="info">[ INFO ] SQUEEZELITET is set to: '$SQUEEZELITE'</p>'
+	echo '<p class="info">[ INFO ] SQUEEZELITE is set to: '$SQUEEZELITE'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SQUEEZELITE is: '$ORIG_SQUEEZELITE'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] SQUEEZELITE is: '$SQUEEZELITE'</p>'
 
 	case "$SQUEEZELITE" in
 		yes)
-			echo '<p class="info">[ INFO ] Squeezelite will be enabled and starts automatically when pCP is started.</p>'
+			echo '<p class="info">[ INFO ] Squeezelite will be enabled and start automatically when pCP is started.</p>'
 			CLOSEOUT="15"
 			;;
 		no)
@@ -456,7 +456,7 @@ if [ $ORIG_SHAIRPORT != $SHAIRPORT ]; then
 
 	case "$SHAIRPORT" in
 		yes)
-			echo '<p class="info">[ INFO ] Shairport will be enabled.</p>'
+			echo '<p class="info">[ INFO ] Shairport-sync will be enabled.</p>'
 			if grep -Fxq "avahi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
 				[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Shairport-sync already loaded.</p>'
 			else
@@ -466,7 +466,7 @@ if [ $ORIG_SHAIRPORT != $SHAIRPORT ]; then
 			CLOSEOUT="15"
 			;;
 		no)
-			echo '<p class="info">[ INFO ] Shairport will be disabled.</p>'
+			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
 			pcp_remove_shairport
 			sudo sed -i '/avahi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			CLOSEOUT=""
