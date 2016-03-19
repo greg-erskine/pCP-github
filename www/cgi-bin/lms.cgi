@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-03-18 SBP
+# Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
 #	Moved pcp_lms_status to pcp-lms-functions.
 
@@ -295,7 +295,7 @@ pcp_lms_configure_lms() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <form name="Configure" action="'$LMS_SERVER_WEB_URL'" method="get">'
+	echo '                  <form name="Configure" action="'$LMS_SERVER_WEB_URL'" method="get" target="_blank">'
 	echo '                    <input type="submit" value="Configure LMS" />'
 	echo '                  </form>'
 	echo '                </td>'
