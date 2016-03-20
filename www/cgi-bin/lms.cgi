@@ -182,6 +182,9 @@ case $ACTION in
 		pcp_backup
 		pcp_reboot_required
 		;;
+	Scan)
+		pcp_all_lmsip
+		;;
 	*)
 		pcp_warning_message
 		;;
@@ -419,6 +422,31 @@ pcp_lms_restart_lms() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
+#---------------------------------Find or rescan for all LMS server on the network--------------------------------------------
+pcp_lms_restart_lms() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Scan" />'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Scan for availabe LMS on your network&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Find (or rescan for) all available LMS servers on your network.</p>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>Find all available LMS server on your network. This will populate the LMS tabs.</li>'
+	echo '                      <li>You can initiate a rescan if needed (started or stopped a LMS server on your network).</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
+#----------------------------------------------------------------------------------------
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
 	pcp_incr_id
