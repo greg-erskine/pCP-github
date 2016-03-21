@@ -284,7 +284,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -754,7 +754,7 @@ pcp_xtras() {
 	echo '<!-- End of xtras toolbar -->'
 }
 
-original_pcp_picoreplayers() {                                                    # ---------------can be removed if we are happy with the version below
+pcp_picoreplayers() {
 	echo '<!-- Start of picoreplayers toolbar -->'
 	echo '<p>'
 
@@ -777,38 +777,6 @@ original_pcp_picoreplayers() {                                                  
 	echo '</p>'
 	echo '<!-- End of picoreplayers toolbar -->'
 }
-
-pcp_picoreplayers() {
-	echo '<!-- Start of picoreplayers toolbar -->'
-	echo '<p>'
-
-	TMP=$(mktemp)
-	pcp_lms_players squeezelite >$TMP
-	while read line
-	do
-		TITLE=$(echo $line | awk -F, '{ print $1 }')
-		URL=$(echo $line | awk -F, '{ print $2 }')
-		[ "$NAME" == "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
-		echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
-	done <$TMP
-	rm -r $TMP
-
-	TMP=$(mktemp)
-#	pcp_all_lmsip >$TMP      #-------------------------takes some time, so I decided to read from file which are made when about.cgi page loads or after using the update button on LMS.cgi
-	cat /tmp/LMS_IP >$TMP
-	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT	
-while read line
-	do
-		LMSURL=$(echo $line | awk -F, '{ print $1 }')
-		[ "$NAME" == "$LMSTITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
-		echo '  <a class="tab7" href="http://'$LMSURL':'$LMSPORT'/" title="'$LMSURL'" target="_blank">LMS:"'$LMSURL'"</a>'
-	done <$TMP
-	rm -r $TMP
-	echo '  <div class="tab7end">pCP</div>'
-	echo '</p>'
-	echo '<!-- End of picoreplayers toolbar -->'
-}
-
 
 pcp_mode() {
 	TAB_STYLE_MODE_INITIAL=tab14
@@ -1081,11 +1049,6 @@ pcp_uptime_days() {
 #=========================================================================================
 # Determine the IP addresses
 #-----------------------------------------------------------------------------------------
-pcp_all_lmsip() {
-	TMPIP=/tmp/LMS_IP
-	sudo /home/tc/www/cgi-bin/lmspoll > $TMPIP
-}
-
 pcp_lmsip_xxxx() {
 	if	[ x"" = x"$LMSWEBPORT" ]; then LMSPORT=9000
 		else LMSPORT="$LMSWEBPORT"

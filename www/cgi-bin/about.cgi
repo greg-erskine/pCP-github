@@ -42,9 +42,6 @@ pcp_html_head "About" "SBP"
 pcp_banner
 pcp_navigation
 
-# Check for file containing available LMS servers, if not then populate the file 
-[ ! -f /tmp/LMS_IP ] && pcp_all_lmsip
-
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
