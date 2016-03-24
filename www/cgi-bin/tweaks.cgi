@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.24 2016-03-25 SBP
+#	Added 0xf FIQ-Split acceleration.
+
 # Version: 0.23 2016-03-10 GE
 #	Fixed Auto start favorite pull-down list.
 #	Added LMS Web Port.
@@ -1087,7 +1090,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                    <option value="0x4" '$selected4'>0x4 Accelerate high-speed isochronous transactions</option>'
 	echo '                    <option value="0x7" '$selected5'>0x7 Accelerate all transactions [DEFAULT]</option>'
 	echo '                    <option value="0x8" '$selected6'>0x8 Enable Interrupt/Control Split Transaction hack</option>'
-	echo '                    <option value="0xf" '$selected7'>0xf Accelerate all transaction and Enable Interrupt/Control Split Transaction hack</option>'
+	echo '                    <option value="0xf" '$selected7'>0xf Accelerate all transactions and Enable Interrupt/Control Split Transaction hack</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '              </tr>'

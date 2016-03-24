@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2016-03-25 GE
+#	Updated.
+
 # Version: 0.02 2015-09-22 GE
 #	Updated.
 
@@ -17,12 +20,55 @@ pcp_controls
 pcp_banner
 pcp_xtras
 pcp_running_script
-
+pcp_httpd_query_string
 
 if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
 	echo '                 [ DEBUG ] MAC: '$(pcp_controls_mac_address)'</p>'
 fi
+
+#========================================================================================
+# 
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Main piCorePlayer operations</legend>'
+echo '          <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <form name="new-lms-ip" action="'$0'" method="get">'
+echo '                <td class="column150 center">'
+echo '                  <input type="submit" name="SUBMIT" value="Connect">'
+echo '                </td>'
+echo '                <td class="column210">'
+echo '                  <select class="large16" name="NEWLMSIP">'
+echo '                    <option value="192.168.1.7" >192.168.1.7</option>'
+echo '                    <option value="192.168.1.11" >192.168.1.11</option>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Connect to LMS&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>This will connect piCorePlayer to another LMS.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </form>'
+echo '            </tr>'
+
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+[ "$SUBMIT" = "Connect" ] && pcp_lms_connect "$NEWLMSIP"
 
 #========================================================================================
 echo '<h1>Testing the functions in pcp-lms-functions</h1>'

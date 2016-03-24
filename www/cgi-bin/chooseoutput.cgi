@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.11 2016-03-25 GE
+#	Updated raspidac3 settings, CARD=Card.
+
 # Version: 0.10 2016-02-21 SBP
 #	Modified CARDNO.
 #	Set OUTPUT to equal for alsaequal.
@@ -153,7 +156,7 @@ case "$AUDIO" in
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_raspidac3
 		pcp_disable_HDMI
-		OUTPUT="hw:CARD=snd-rpi-raspidac3"
+		OUTPUT="hw:CARD=Card"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 		;;

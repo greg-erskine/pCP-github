@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 0.06 2016-03-25 GE
+#	Added pcp_lms_connect.
+
 # Version: 0.05 2016-03-10 GE
 #	Added pcp_lms_status.
 
@@ -124,7 +127,7 @@ pcp_lms_send() {
 #	button
 #	ir
 #	irenable
-#	connect
+#	connect						Implemented
 #	client forget
 #	disconnect
 #	players
@@ -256,13 +259,18 @@ pcp_lms_player_status() {
 	pcp_lms_request_list "status -"
 }
 
+pcp_lms_connect() {
+	NEWLMSIP=$1
+	pcp_lms_send "connect $NEWLMSIP"
+}
+
 #========================================================================================
 # Database commands and queries
 #----------------------------------------------------------------------------------------
-#	rescan
+#	rescan							Implemented
 #	rescanprogress
 #	abortscan
-#	wipecache
+#	wipecache						Implemented
 #	info total genres ?				Implemented
 #	info total artists ?			Implemented
 #	info total albums ?				Implemented
@@ -283,6 +291,14 @@ pcp_lms_player_status() {
 #	titles
 #	search
 #	pragma
+
+pcp_lms_rescan() {
+	pcp_lms_send "rescan"
+}
+
+pcp_lms_wipecache() {
+	pcp_lms_send "wipecache"
+}
 
 pcp_lms_info_total_genres() {
 	pcp_lms_request "info total genres ?"

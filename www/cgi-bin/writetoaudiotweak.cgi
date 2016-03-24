@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.12 2016-03-25 SBP
+#	Added 0xf FIQ-Split acceleration.
+
 # Version: 0.11 2016-03-19 SBP
 #	Added dwc_otg.fiq_fsm_enable.
 
