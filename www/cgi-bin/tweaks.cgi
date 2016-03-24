@@ -824,6 +824,7 @@ pcp_tweaks_audio_tweaks() {
 		0x4) selected4="selected" ;;
 		0x7) selected5="selected" ;;
 		0x8) selected6="selected" ;;
+		0xf) selected7="selected" ;;
 	esac
 
 	# Function to check the ALSA radio button according to config file
@@ -1086,6 +1087,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                    <option value="0x4" '$selected4'>0x4 Accelerate high-speed isochronous transactions</option>'
 	echo '                    <option value="0x7" '$selected5'>0x7 Accelerate all transactions [DEFAULT]</option>'
 	echo '                    <option value="0x8" '$selected6'>0x8 Enable Interrupt/Control Split Transaction hack</option>'
+	echo '                    <option value="0xf" '$selected7'>0xf Accelerate all transaction and Enable Interrupt/Control Split Transaction hack</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '              </tr>'

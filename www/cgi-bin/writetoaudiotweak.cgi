@@ -495,7 +495,7 @@ if [ $ORIG_FIQ != $FIQ ]; then
 
 	if mount | grep $VOLUME; then
 		# Remove fiq settings
-		sed -i 's/dwc_otg.fiq_fsm_mask=0x[1-8] \+//g' /mnt/mmcblk0p1/cmdline.txt
+		sed -i 's/dwc_otg.fiq_fsm_mask=0x[1-8f] \+//g' /mnt/mmcblk0p1/cmdline.txt
 		# Add FIQ settings from config file
 		sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' /mnt/mmcblk0p1/cmdline.txt
 
