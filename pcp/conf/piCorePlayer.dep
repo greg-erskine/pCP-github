@@ -4,6 +4,7 @@ alsa.tcz
 alsa-config.tcz
 firmware-atheros.tcz
 firmware-brcmwifi.tcz
+firmware-brcmfmac43430.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
 wifi.tcz
