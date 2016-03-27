@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.24 2016-03-25 SBP
+# Version: 0.24 2016-03-27 SBP
 #	Added 0xf FIQ-Split acceleration.
+#	Changed LMS Web Port to Advanced mode.
 
 # Version: 0.23 2016-03-10 GE
 #	Fixed Auto start favorite pull-down list.
@@ -565,7 +566,7 @@ pcp_tweaks_lmswebport() {
 	echo '            </form>'
 	echo '          </table>'
 }
-[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_lmswebport
+[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
