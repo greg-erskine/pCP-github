@@ -5,13 +5,7 @@ For Offical USB wifi adaptor:
 /usr/local/tce.installed/firmware-brcmwifi
 /lib/firmware/brcm/brcmfmac43143.bin
 
-For wifi on-board RPi3:
-/lib/firmware/brcm/brcmfmac43430-sdio.bin 
-/lib/firmware/brcm/brcmfmac43430-sdio.txt
-
 download firmware-brcmwifi and brcmfmac43143.bin to home directory
-download brcmfmac43430-sdio.bin and brcmfmac43430-sdio.txt to home directory
-
 
 Instructions
 ------------
@@ -28,9 +22,6 @@ mkdir -p lib/firmware/brcm/
 
 cp ~/firmware-brcmwifi usr/local/tce.installed/
 cp ~/brcmfmac43143.bin lib/firmware/brcm/
-cp ~/brcmfmac43430-sdio.bin lib/firmware/brcm/
-cp ~/brcmfmac43430-sdio.txt lib/firmware/brcm/
-
 
 sudo -s
 cd /tmp
