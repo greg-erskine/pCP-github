@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2016-03-28 GE
+#	Updated warning message.
+
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
 #	Moved pcp_lms_status to pcp-lms-functions.
@@ -131,7 +134,6 @@ pcp_warning_message() {
 	echo '                <p style="color:white"><b>Note:</b> This is our first implementation of Logitech Media Server (LMS), so there are some limitations.</p>'
 	echo '                <ul>'
 	echo '                  <li style="color:white">Support for USB drives only.</li>'
-	echo '                  <li style="color:white">Support for RPi1 and RPi2 only.</li>'
 	echo '                  <li style="color:white">LMS upgrade is via command line only.</li></br>'
 	echo '                  <li style="color:white">Many thanks to Paul123 and jgrulich.</li>'
 	echo '                </ul>'
