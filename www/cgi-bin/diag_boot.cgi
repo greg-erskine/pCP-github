@@ -1,6 +1,9 @@
 #!/bin/sh
 # Boot diagnostics script
 
+# Version: 0.07 2016-03-28 GE
+#	Changed log location to /var/log.
+
 # Version: 0.06 2015-07-02 GE
 #	Added /opt/eth0.sh
 
@@ -26,7 +29,7 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="/tmp/pcp_diagboot.log"
+LOG="${LOGDIR}/pcp_diagboot.log"
 (echo $0; date) > $LOG
 cat /etc/motd >> $LOG
 echo "This shows the boot process, starting with the initial init and going through to the the tc profile and ashrc files." >> $LOG
@@ -41,7 +44,7 @@ pcp_running_script
 # Boot files in order of execution
 #-----------------------------------------------------------------------------------------
 echo '<p>This shows the boot process, starting with the initial init and going through to the the '
-echo '   tc profile and ashrc files. A log file <b>/tmp/diagboot.log</b> is also created.</p>'
+echo '   tc profile and ashrc files. A log file <b>pcp_diagboot.log</b> is also created.</p>'
 
 echo '<ol>'
 echo '	<li><a href="#01">/init</a></li>'

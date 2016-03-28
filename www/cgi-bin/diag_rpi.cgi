@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 0.10 2016-03-28 GE
+#	Changed log location to /var/log.
+
 # Version: 0.09 2016-02-24 GE
 #	Minor enhancements.
 #	Changed to tick and cross indicator.
@@ -47,7 +50,7 @@ pcp_running_script
 pcp_add_to_log() {
 	START="====================> Start <===================="
 	END="=====================> End <====================="
-	LOG="/tmp/pcp_diagrpi.log"
+	LOG="${LOGDIR}/pcp_diagrpi.log"
 	(echo $0; date) > $LOG
 	cat /etc/motd >> $LOG
 	echo  >> $LOG 

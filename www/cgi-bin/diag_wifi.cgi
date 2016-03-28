@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 0.07 2016-03-28 GE
+#	Changed log location to /var/log.
+
 # Version: 0.06 2016-02-24 GE
 #	Changed indicators to tick and cross.
 
@@ -31,7 +34,7 @@ pcp_diagnostics
 pcp_running_script
 
 MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
-LOG="/tmp/pcp_diagwifi_${MAC:6}.log"
+LOG="${LOGDIR}/pcp_diagwifi_${MAC:6}.log"
 
 #========================================================================================
 # Routine to display usb devices found during boot process. Some of the standard RPi usb

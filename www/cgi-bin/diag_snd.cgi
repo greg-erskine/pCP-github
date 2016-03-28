@@ -1,6 +1,9 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 0.08 2016-03-28 GE
+#	Changed log location to /var/log.
+
 # Version: 0.07 2016-02-03 GE
 #	Moved pcp_pastebin_button to Developer mode.
 
@@ -31,7 +34,7 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="/tmp/pcp_diagsnd.log"
+LOG="${LOGDIR}/pcp_diagsnd.log"
 (echo $0; date) > $LOG
 cat /etc/motd >> $LOG
 
