@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-03-29 GE
+#	Rewrite.
+
 # Version: 0.03 2014-12-09 GE
 #	HTML5 formatted.
 
@@ -14,64 +17,118 @@
 . pcp-functions
 pcp_variables
 
-# First location
-VOLUME_A=/mnt/sda1
-DEVICE_A=/dev/sda1
+MNT_SDA1="/mnt/sda1"
+DEV_SDA1="/dev/sda1"
+FAIL_MSG="OK"
+WAS_MOUNTED=0
+IS_MOUNTED=0
 
-#=========================================================================================
-# Alternative locations. NOT USED.
-#-----------------------------------------------------------------------------------------
-# Second location
-#VOLUME_B=/mnt/sdb1
-#DEVICE_B=/dev/sdb1
-
-# Third location
-# Defined in pcp-functions
-#VOLUME=/mnt/mmcblk0p1
-#DEVICE=/dev/mmcblk0p1
-
-#=========================================================================================
-# is_mounted routine, used later in the script
-#-----------------------------------------------------------------------------------------
-is_mounted() {
-	echo '<p class="info">[ INFO ] '$VOLUME_A' is mounted.</p>'
-	echo '<p class="info">[ INFO ] Copying config.cfg to USB...</p>'
-	sudo /bin/cp -f /usr/local/sbin/config.cfg /mnt/sda1/newconfig.cfg
-	if [ -f /mnt/sda1/newconfig.cfg ]; then
-		echo '<h1>Your config file (config.cfg) has been saved to your USB stick as newconfig.cfg.</h1>'
-		echo '<p><b>Note:</b> If you boot with this USB-stick attached then this file will be copied by piCorePlayer and used as config file.<br>
-				 This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</p>'
-		pcp_textarea "Config files on USB" "ls -al /mnt/sda1/*config.cfg" 60
-	else
-		echo '<h1>Something went wrong! Your config file (config.cfg) was NOT saved - reboot with your USB attached and then try to save your config file again.</h1>'
-	fi
-	sync
-	echo '<p class="info">[ INFO ] Unmounting '$VOLUME_A'</p>'
-	sudo umount $DEVICE_A
-}
-
-pcp_html_head "Save config.cfg to USB" "SBP" "20" "main.cgi"
+pcp_html_head "Save configuration file to USB device" "SBP" "20" "main.cgi"
 
 pcp_banner
 pcp_running_script
 
-if mount | grep $VOLUME_A; then
-	echo '<p class="info">[ INFO ] '$VOLUME_A' is mounted...</p>'
+#========================================================================================
+# Generate staus message and finish html page
+#----------------------------------------------------------------------------------------
+pcp_html_end() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Status</legend>'
+	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	echo '                <p>'$FAIL_MSG'</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+	pcp_footer
+	pcp_copyright
+
+	if [ ${FAIL_MSG:0:2} = "OK" ] ; then
+		pcp_go_main_button
+	fi
+	
+	echo '</body>'
+	echo '</html>'
+	exit
+}
+
+#========================================================================================
+# First fieldset table
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Coping configuration file to USB device ('$MNT_SDA1')</legend>'
+echo '          <table class="bggrey percent100">'
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <textarea class="inform" style="height:100px">'
+#----------------------------------------------------------------------------------------
+
+if mount | grep $MNT_SDA1 >/dev/null 2>&1; then
+	echo '[  OK  ] USB device is already mounted.'
+	WAS_MOUNTED=1
+	IS_MOUNTED=1
 else
-	echo '<p class="info">[ INFO ] Mounting '$VOLUME_A'...</p>'
-	echo '<p style="font-size:10px">'
-	sudo mount $DEVICE_A;
+	echo -n '[ INFO ] Mounting USB device...'
+	sudo mount $DEV_SDA1
+	[ $? = 0 ] && IS_MOUNTED=1 && echo " OK" || echo ""
 	sleep 1
 fi
 
-if mount | grep $VOLUME_A; then
-	is_mounted
+if [ $IS_MOUNTED = 1 ]; then
+	echo -n '[ INFO ] Copying configuration file to USB device...'
+	[ -f ${MNT_SDA1}/newconfig.cfg ] && sudo mv ${MNT_SDA1}/newconfig.cfg ${MNT_SDA1}/newconfig.cfg~
+	sudo /bin/cp -f /usr/local/sbin/config.cfg ${MNT_SDA1}/newconfig.cfg
+	[ $? = 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
+	if [ -f ${MNT_SDA1}/newconfig.cfg ]; then
+		echo '[  OK  ] Your configuration file has been saved to your USB device.'
+		FAIL_MSG="OK - Your configuration file has been saved to your USB device."
+		echo '[ NOTE ] If you boot with this USB device attached, this configuration file will used.'
+		echo '[ NOTE ] This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.'
+	else
+		echo '[ ERROR ] Your configuration file was not saved - reboot with your USB device attached and then try to save your configuration file again.'
+		FAIL_MSG='Your configuration file was not saved.'
+	fi
+	sync
+	if [ $WAS_MOUNTED = 0 ]; then
+		echo -n '[ INFO ] Unmounting USB device...'
+		sudo umount $DEV_SDA1
+		[ $? = 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed unmount USB device."
+	else
+		echo '[  OK  ] Leaving USB device mounted.'
+	fi
 else
-	echo '<p class="error">[ ERROR ] '$VOLUME_A' has NOT mounted.</p>'
-	echo '<p class="error">[ ERROR ] Insert USB stick and try again.</p>'
+	echo '[ ERROR ] USB device is not mounted.'
+	echo '[ ERROR ] Insert USB device and try again.'
+	FAIL_MSG='USB device is not mounted - Insert USB device and try again.'
 fi
 
-pcp_go_main_button
+#----------------------------------------------------------------------------------------
+echo '                  </textarea>'
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 
-echo '</body>'
-echo '</html>'
+pcp_html_end
