@@ -55,10 +55,10 @@ pcp_html_end() {
 	pcp_footer
 	pcp_copyright
 
-	if [ ${FAIL_MSG:0:2} = "OK" ] ; then
+	if [ "${FAIL_MSG:0:2}" = "OK" ] ; then
 		pcp_go_main_button
 	fi
-	
+
 	echo '</body>'
 	echo '</html>'
 	exit
