@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-03-28 GE
+# Version: 0.30 2016-03-30 GE
 #	Added log location $LOGDIR.
+#	Lots of minor tidy up of code.
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -246,12 +247,15 @@
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
 
-# Set the correct path to HTTPD
+	########################################################## Is this needed anymore? GE 2016-03-30
+	# Set the correct path to HTTPD
 	if [ -f /usr/local/sbin/httpd ]; then
 		HTPPD=/usr/local/sbin/httpd
 	else
 		HTPPD=/usr/local/sbin/busybox-httpd
 	fi
+	##########################################################
+
 	CONFIGCFG=/usr/local/sbin/config.cfg
 	CONFIGTXT=/mnt/mmcblk0p1/config.txt
 	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
@@ -274,9 +278,6 @@ pcp_variables() {
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
 
 	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
-	#if [ $(pcp_rpi_is_model_2B) = 0 ]; then
-	#	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu/RPI2"
-	#fi
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
@@ -288,7 +289,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=100
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -301,9 +302,6 @@ pcp_variables() {
 		INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/beta"
 		REPOSITORY="https://sourceforge.net/projects/picoreplayer/files/beta"
 	fi
-
-	# Use test download area
-	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="https://sourceforge.net/projects/pcpsl/files/insitu"             #<----------IS this ever used anymore
 }
 
 pcp_variables
@@ -333,6 +331,7 @@ HEAVY_CHECK_MARK="&#10004;"
 HEAVY_BALLOT_X="&#10008;"
 DEGREE_SIGN="&deg;"
 
+# Used on LMS controls
 BLACKTRIANGLE="&#9650;"
 BLACKTRIANGLEDOWN="&#9660;"
 BLACKTRIANGLELEFT="&#9668;"
@@ -442,11 +441,11 @@ pcp_set_timezone() {
 
 pcp_timezone() {
 	# Remove old timezone settings
-	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' /mnt/mmcblk0p1/cmdline.txt
+	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
 	sudo rm -f /etc/sysconfig/timezone
 	# Add new TIMEZONE settings if used
 	if [ x"" != x"$TIMEZONE" ]; then
-		sed -i '1 s@^@tz='$TIMEZONE' @' /mnt/mmcblk0p1/cmdline.txt
+		sed -i '1 s@^@tz='$TIMEZONE' @' $CMDLINETXT
 		sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone
 		export TZ=$TIMEZONE
 	fi
@@ -528,10 +527,6 @@ pcp_html_head() {
 	echo '<!-- End of pcp_html_head -->'
 }
 
-pcp_html_head_no_content() {
-	echo -n "HTTP/1.1 204 No Content\n\n"
-}
-
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
@@ -546,7 +541,7 @@ pcp_banner() {
 	echo '<!-- End of pcp_banner -->'
 }
 
-pcp_navigation() {                                #<--------------- Use this when LMS is ready, rename to pcp_navigation
+pcp_navigation() {
 	TAB_STYLE_MODE_MAIN=nav6
 	TAB_STYLE_MODE_SQUEEZELITE=nav6
 	TAB_STYLE_MODE_WIFI=nav6
@@ -573,41 +568,6 @@ pcp_navigation() {                                #<--------------- Use this whe
 	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS Server">LMS</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<!-- End of pcp_navigation toolbar -->'
-}
-
-old_pcp_navigation() {                             #<-------------- Delete this function when LMS is ready
-	TAB_STYLE_MODE_MAIN=nav5
-	TAB_STYLE_MODE_SQUEEZELITE=nav5
-	TAB_STYLE_MODE_WIFI=nav5
-	TAB_STYLE_MODE_TWEAKS=nav5
-#	TAB_STYLE_MODE_LMS=nav5
-	TAB_STYLE_MODE_ABOUT=nav5
-
-	case $0 in
-		main.cgi)        TAB_STYLE_MODE_MAIN=nav5a ;;
-		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav5a ;;
-		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav5a ;;
-		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav5a ;;
-#		lms.cgi)         TAB_STYLE_MODE_LMS=nav5a ;;
-		about.cgi)       TAB_STYLE_MODE_ABOUT=nav5a ;;
-	esac
-
-	echo '<!-- Start of pcp_navigation toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-#	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS Server">LMS</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
@@ -896,37 +856,37 @@ pcp_write_to_host() {
 }
 
 ##################################################
-# NOTE: Below routines will eventually be obsolete
+# NOTE: Below routines are obsolete - DELETE
 ##################################################
-pcp_show_config_cfg() {
+xxx_pcp_show_config_cfg() {
 	echo '<h1>[ INFO ] Current config.cfg</h1>'
 	echo '<textarea name="TextBox" rows="26">'
 	cat $CONFIGCFG
 	echo '</textarea>'
 }
 
-pcp_show_config_txt() {
+xxx_pcp_show_config_txt() {
 	echo '<h1>[ INFO ] Current config.txt</h1>'
 	echo '<textarea name="TextBox" rows="15">'
 	cat $CONFIGTXT
 	echo '</textarea>'
 }
 
-pcp_show_cmdline_txt() {
+xxx_pcp_show_cmdline_txt() {
 	echo '<h1>[ INFO ] Current cmdline.txt</h1>'
 	echo '<textarea name="myTextBox" rows="5">'
 	cat $CMDLINETXT
 	echo '</textarea>'
 }
 
-pcp_show_bootlocal_sh() {
+xxx_pcp_show_bootlocal_sh() {
 	echo '<h1>[ INFO ] Current bootlocal.sh</h1>'
 	echo '<textarea name="TextBox" rows="15">'
 	cat $BOOTLOCAL
 	echo '</textarea>'
 }
 
-pcp_show_bootsync_sh() {
+xxx_pcp_show_bootsync_sh() {
 	echo '<h1>[ INFO ] Current bootsync.sh</h1>'
 	echo '<textarea name="TextBox" rows="8">'
 	cat $BOOTSYNC
@@ -972,7 +932,7 @@ pcp_squeezelite_start() {
 	if [ $AUDIO = HDMI ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
-	if [ SHAIRPORT = yes ]; then
+	if [ SHAIRPORT = yes ]; then									############# <---- GE 2016-03-03 This will not work. $SHAIRPORT
 		pcp_shairport_restart
 	fi
 	sudo /usr/local/etc/init.d/squeezelite start
@@ -1053,17 +1013,6 @@ pcp_uptime_days() {
 #=========================================================================================
 # Determine the IP addresses
 #-----------------------------------------------------------------------------------------
-pcp_lmsip_xxxx() {
-	if	[ x"" = x"$LMSWEBPORT" ]; then LMSPORT=9000
-		else LMSPORT="$LMSWEBPORT"
-	fi
-	if [ $(pcp_lms_status) = 0 ]; then
-		netstat -nt 2>&1 | awk '{ print $4 " " $6 }' | grep :"$LMSPORT" | grep ESTABLISHED  | sort -u | awk -F: '{ print $1 }'
-		else
-		netstat -nt 2>&1 | awk '{ print $5 " " $6 }' | grep :"$LMSPORT" | grep ESTABLISHED | sort -u | awk -F: '{ print $1 }'
-	fi
-}
-
 pcp_lmsip() {
 	IP=$(netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | grep :3483 | awk -F: '{ print $1 }')
 	if [ "$IP" = "127.0.0.1" ]; then
@@ -1094,17 +1043,17 @@ pcp_wlan0_ip() {
 #-----------------------------------------------------------------------------------------
 pcp_auto_start_lms() {
 	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
-		AUTOSTARTLMS=$(sudo $HTPPD -d $AUTOSTARTLMS)                                                              ######<---- 2015-11-23 GE
+		AUTOSTARTLMS=$(sudo $HTPPD -d $AUTOSTARTLMS)
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		for i in 1 2 3 4 5
 		do
 			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
 			if [ $RESULT = 1 ]; then
-				echo "$i. Connected..." >> /tmp/auto_start_lms.log
-				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $(pcp_lmsip) 9090 >> /tmp/auto_start_lms.log
+				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
+				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_lms.log
 				break
 			fi
-			echo "$i. Not connected..." >> /tmp/auto_start_lms.log
+			echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
 			sleep 1
 		done
 	fi
@@ -1150,11 +1099,11 @@ pcp_auto_start_fav() {
 		do
 			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
 			if [ $RESULT = 1 ]; then
-				echo "$i. Connected..." >> /tmp/auto_start_fav.log
-				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $(pcp_lmsip) 9090 >> /tmp/auto_start_fav.log
+				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
+				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
 				break
 			fi
-			echo "$i. Not connected..." >> /tmp/auto_start_fav.log
+			echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
 			sleep 1
 		done
 	fi
@@ -1165,11 +1114,11 @@ pcp_start_fav() {
 	for i in 1 2 3 4 5
 	do
 		if [ $(pcp_lms_connected) = 1 ]; then
-			echo "$i. Connected..." >> /tmp/auto_start_fav.log
-			(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $(pcp_lmsip) 9090 >> /tmp/auto_start_fav.log
+			echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
+			(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
 			break
 		fi
-		echo "$i. Not connected..." >> /tmp/auto_start_fav.log
+		echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
 	done
 }
 
@@ -1515,7 +1464,7 @@ EOF
 
 	# Remove timezone stuff
 	pcp_mount_mmcblk0p1_nohtml
-	sudo sed -i 's/\S*\(tz=\)\S*//g' /mnt/mmcblk0p1/cmdline.txt
+	sudo sed -i 's/\S*\(tz=\)\S*//g' $CMDLINETXT
 	pcp_umount_mmcblk0p1_nohtml
 	sudo rm -f /etc/sysconfig/timezone
 
@@ -1524,7 +1473,7 @@ EOF
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	sudo rm -rf /home/tc/.jivelite
 	sudo rm -rf /opt/jivelite
-	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 
 	# Remove VU_Meter stuff
@@ -1532,12 +1481,13 @@ EOF
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
 
 	# Remove wifi stuff
-	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-brcmwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-brcmfmac43430.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/wireless/d' $ONBOOTLST
+	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
 
 	# Remove cron stuff
 	( crontab -l | grep -v "reboot" ) | crontab -
@@ -1577,13 +1527,6 @@ pcp_disable_i2s() {
 	sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
 	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
 	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
-}
-
-#========================================================================================
-# Remove Device tree modules <==== DELETE ???
-#----------------------------------------------------------------------------------------
-pcp_remove_dt() {
-	sed -i '/dtoverlay=/d' $CONFIGTXT
 }
 
 #=========================================================================================
