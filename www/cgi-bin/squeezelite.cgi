@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.24 2016-03-28 PH
+# Version: 0.24 2016-03-29 PH
 #	Fixed $VISUALISER and $IR_LIRC.
-#
+#	Changed log location to /var/log.
+
 # Version: 0.23 2016-03-14 GE
 #	Updated -e option.
 #	Updated -U option.
@@ -131,7 +132,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$UPSAMPLE" ]     && STRING="$STRING -R $UPSAMPLE"
 [ x"" != x"$MAC_ADDRESS" ]  && STRING="$STRING -m $MAC_ADDRESS"
 [ x"" != x"$SERVER_IP" ]    && STRING="$STRING -s $SERVER_IP"
-[ x"" != x"$LOGLEVEL" ]     && STRING="$STRING -d $LOGLEVEL -f /tmp/pcp_squeezelite.log"
+[ x"" != x"$LOGLEVEL" ]     && STRING="$STRING -d $LOGLEVEL -f ${LOGDIR}/pcp_squeezelite.log"
 [ x"" != x"$DSDOUT" ]       && STRING="$STRING -D $DSDOUT"
 [ "$VISUALISER" = "yes" ]     && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]     && STRING="$STRING -C $CLOSEOUT"
@@ -141,7 +142,6 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
-#[ x"" != x"$LOGFILE" ]      && STRING="$STRING -f /tmp/$LOGFILE"
 STRING="$STRING &"
 
 #========================================================================================

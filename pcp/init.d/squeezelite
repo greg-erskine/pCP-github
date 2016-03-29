@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.07 2016-03-28 PH
+# Version: 0.07 2016-03-29 PH
 #	Fixed $VISUALISER and $IR_LIRC.
-#
+#	Changed log location to ${LOGDIR}.
+
 # Version: 0.06 2016-03-14 GE
 #	Updated -e option.
 #	Updated -U option.
@@ -39,6 +40,7 @@ PNAME=Squeezelite
 DESC="Squeezelite player"
 DAEMON=/mnt/mmcblk0p2/tce/squeezelite-armv6hf
 PIDFILE=/var/run/squeezelite.pid
+LOGDIR=/var/log
 
 # Read from config file
 . /usr/local/sbin/config.cfg
@@ -55,7 +57,7 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$UPSAMPLE" ]     && UPSAMPLE="-R $UPSAMPLE"
 [ x"" != x"$MAC_ADDRESS" ]  && MAC_ADDRESS="-m $MAC_ADDRESS"
 [ x"" != x"$SERVER_IP" ]    && SERVER_IP="-s $SERVER_IP"
-[ x"" != x"$LOGLEVEL" ]     && LOGLEVEL="-d $LOGLEVEL -f /tmp/pcp_squeezelite.log"
+[ x"" != x"$LOGLEVEL" ]     && LOGLEVEL="-d $LOGLEVEL -f ${LOGDIR}/pcp_squeezelite.log"
 [ x"" != x"$DSDOUT" ]       && DSDOUT="-D $DSDOUT"
 [ "$VISUALISER" = "yes" ]     && VIS="-v"
 [ x"" != x"$CLOSEOUT" ]     && CLOSEOUT="-C $CLOSEOUT"
@@ -65,7 +67,6 @@ PIDFILE=/var/run/squeezelite.pid
 [ x"" != x"$POWER_GPIO" ]   && POWER_GPIO="-G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && POWER_SCRIPT="-S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && OTHER="$OTHER"
-#[ x"" != x"$LOGFILE" ]      && LOGFILE="-f /tmp/$LOGFILE"
 
 case "$1" in
 	start)
