@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2016-03-29 GE
+# Version: 0.01 2016-03-30 GE
 #	Original.
 
 . pcp-lms-functions
@@ -15,8 +15,16 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-LOGS="$(cd ${LOGDIR}; ls pcp_*)"
-[ "x" = "x$LOGS" ] && FIRST="No log files found." || FIRST="All" 
+PCPLOGS=$(cd "${LOGDIR}"; ls pcp_*.log)
+[ x"" = x"$PCPLOGS" ] && FIRST="No log files found." || FIRST="All"
+
+LMSLOGS=$(cd "${LOGDIR}"; ls slimserver/*.log)
+[ x"" = x"$LMSLOGS" ] && LMSLOGS="No LMS log files found."
+
+LOGS=$PCPLOGS" "$LMSLOGS
+
+#/var/log/slimserver/server.log
+#/var/log/slimserver/scanner.log
 
 #========================================================================================
 # Selection form
@@ -37,10 +45,17 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column300">'
 echo '                <select class="large22" name="SELECTION">'
 echo '                  <option value="'$FIRST'">'$FIRST'</option>'
-	                      for LOG in $LOGS
-	                      do
-	                        echo '<option value="'$LOG'">'$LOG'</option>'
-	                      done
+
+	                    for LOG in $LOGS
+	                    do
+	                      echo '<option value="'$LOG'">'$LOG'</option>'
+	                    done
+
+#	                    for LOG in $LMSLOGS
+#	                    do
+#	                      echo '<option value="slimserver/'$LOG'">'$LOG'</option>'
+#	                    done
+
 echo '                </select>'
 echo '              </td>'
 echo '              <td>'
