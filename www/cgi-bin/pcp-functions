@@ -5,6 +5,7 @@
 # Version: 0.30 2016-03-30 GE
 #	Added log location $LOGDIR.
 #	Lots of minor tidy up of code.
+#	Added customizable confirmation pop-up box 
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -289,7 +290,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=30
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -923,6 +924,15 @@ pcp_restart_required() {
 	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
 	echo '</script>'
 }
+
+
+pcp_confirmation_required() {
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
+	echo '</script>'
+}
+
+
 
 #=========================================================================================
 # Start/stop Squeezelite

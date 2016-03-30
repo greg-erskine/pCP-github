@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2016-03-30 SBP
+#	Added warning pop-up box for setting a different output value when using ALSAeq.
+
 # Version: 0.06 2016-01-15 SBP
 #	Changed order of back button and reboot prompt.
 
@@ -71,6 +74,13 @@ case $SUBMIT in
 esac
 
 . $CONFIGCFG
+
+
+if [ $ALSAeq = yes ]  && [ $OUTPUT != equal ]; then
+STRING1='ALSA equalizer is enabled. In order to use it "equal" must be used in the OUTPUT box. Press OK to go back and change or Cancel to continue'
+SCRIPT1=squeezelite.cgi
+pcp_confirmation_required
+fi
 
 pcp_show_config_cfg
 pcp_backup

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.13 2016-03-30 SBP
+#	Added warning pop-up box for setting output value when removing ALSAeq.
+
 # Version: 0.12 2016-03-25 SBP
 #	Added 0xf FIQ-Split acceleration.
 
@@ -306,6 +309,9 @@ if [ $ORIG_ALSAeq != $ALSAeq ]; then
 			sudo sed -i '/alsaequal.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			sudo sed -i '/caps/d' /mnt/mmcblk0p2/tce/onboot.lst
 			pcp_remove_alsaequal
+			STRING1='You have removed ALSA equalizer. Please fill out the OUTPUT field on the Squeezelite page. Press OK to go back and change or Cancel to continue'
+			SCRIPT1=squeezelite.cgi
+			pcp_confirmation_required
 			;;
 		*)
 			echo '<p class="error">[ ERROR ] ALSA equalizer invalid: '$ALSAeq'</p>'
