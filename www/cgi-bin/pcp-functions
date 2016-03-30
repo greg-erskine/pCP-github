@@ -290,7 +290,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -362,6 +362,9 @@ pcp_sufficient_free_space() {
 	else
 		echo '<p class="error">[ ERROR ] Not enough space.</p>'
 		echo '<p class="info">[ INFO ] Try expanding your partition.</p>'
+		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
+		SCRIPT1=xtras_resize.cgi
+		pcp_confirmation_required
 		pcp_go_back_button
 		exit 1
 	fi
