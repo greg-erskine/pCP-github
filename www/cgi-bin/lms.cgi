@@ -184,6 +184,14 @@ case $ACTION in
 		pcp_backup
 		pcp_reboot_required
 		;;
+	Mount)
+		sudo rebuildfstab
+		sudo mount /mnt/sda1
+		sudo mount /mnt/sdb1
+		sudo mount /mnt/sdc1
+		sudo mount /mnt/sdd1
+		pcp_backup
+		;;
 	*)
 		pcp_warning_message
 		;;
@@ -421,6 +429,33 @@ pcp_lms_restart_lms() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
+
+#---------------------------------Mount USB drives--------------------------------------------
+pcp_mount() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Mount" />'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Scan and mount available USB drives&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Please attach your USB drive then pCP will scan and mount the drives so LMS can find your music.</p>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>For now only FAT32 and linux partitions are supported NTFS is work in progress.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_mount
+#----------------------------------------------------------------------------------------
+
+
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
 	pcp_incr_id
@@ -444,6 +479,8 @@ pcp_lms_show_logs() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
+
+
 
 #------------------------------------------Update LMS------------------------------------
 pcp_lms_update() {
