@@ -186,10 +186,11 @@ case $ACTION in
 		;;
 	Mount)
 		sudo rebuildfstab
-		sudo mount /mnt/sda1
-		sudo mount /mnt/sdb1
-		sudo mount /mnt/sdc1
-		sudo mount /mnt/sdd1
+		sleep 1
+		DRIVES=$(fdisk -l | grep '^/dev/s' | awk -F "/" {'print $3'} | awk {'print $1'})
+		for i in $(echo $DRIVES); do
+		pcp_mount_device $i
+		done
 		pcp_backup
 		;;
 	*)
