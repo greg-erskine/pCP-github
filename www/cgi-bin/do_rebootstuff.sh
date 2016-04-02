@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 0.27 2016-04-02 PH
+#	Added firmware-brcmfmac43430.tcz
+#	Added Mount of LMS Server Drive	
+#	Changed if LMS Server is Enabled, Start before Squeezelite
+
 # Version: 0.26 2016-02-26 GE
 #	Added firmware-brcmwifi.tcz.
 #	Added IR startup.
@@ -139,14 +144,18 @@ fi
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
-# Check if sda1 is mounted, otherwise mount it
+# Check if sda1 is mounted, otherwise mount it.
 MNTUSB=/mnt/sda1
 if mount | grep $MNTUSB; then
-	echo "${YELLOW}  sda1 mounted.${NORMAL}"
+	echo "${YELLOW}  /dev/sda1 already mounted.${NORMAL}"
 else
-	# FIX: check if sda1 is inserted before trying to mount it.
-	echo "${YELLOW}  Trying to mount sda1.${RED}"
-	sudo mount /dev/sda1 >/dev/null 2>&1
+	# Check if sda1 is inserted before trying to mount it.
+	if [ -e /dev/sda1 ]; then
+		[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
+		echo "${YELLOW}  Trying to mount /dev/sda1.${RED}"
+		sudo mount /dev/sda1 >/dev/null 2>&1
+	fi
+	echo "${YELLOW}  No USB Device detected in /dev/sda1${NORMAL}"
 fi
 
 # Check if newconfig.cfg is present
@@ -225,7 +234,8 @@ if [ $WIFI = "on" ]; then
 		[ $? = 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
-
+		sudo -u tc tce-load -i firmware-brcmfmac43430.tcz >/dev/null 2>&1
+		[ $? = 0 ] && echo "${YELLOW}  rpi3 Broadcom firmware loaded.${NORMAL}" || echo "${RED}  rpi3 Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? = 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"
@@ -331,12 +341,15 @@ fi
 echo "${GREEN}Done.${NORMAL}"
 
 # Unmute IQaudIO amplifier via GPIO pin 22
+# Only do this if not controlling amp via squeezelite.
 if [ $AUDIO = I2SpIQAMP ]; then
-	echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
-	sudo sh -c "echo 22 > /sys/class/gpio/export"
-	sudo sh -c "echo out >/sys/class/gpio/gpio22/direction"
-	sudo sh -c "echo 1 >/sys/class/gpio/gpio22/value"
-	echo "${GREEN}Done.${NORMAL}"
+	if [ "$POWER_GPIO" = "" ]; then
+		echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
+		sudo sh -c "echo 22 > /sys/class/gpio/export"
+		sudo sh -c "echo out >/sys/class/gpio/gpio22/direction"
+		sudo sh -c "echo 1 >/sys/class/gpio/gpio22/value"
+		echo "${GREEN}Done.${NORMAL}"
+	fi
 fi
 
 # Start the essential stuff for piCorePlayer
@@ -360,10 +373,25 @@ if [ $IR_LIRC = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $SQUEEZELITE = "yes" ]; then
-	echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
-	/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
+# Mount USB Disk Selected on LMS Page
+if [ "$MOUNTUUID" != "no" ]; then
+	blkid | grep -q $MOUNTUUID
+	if [ $? = 0 ]; then 
+		mkdir -p /mnt/$MOUNTPOINT
+		mount --uuid $MOUNTUUID /mnt/$MOUNTPOINT
+		[ $? = 0 ] && echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT." || echo "${RED}Disk Mount Error.${NORMAL}"
+	else
+		 echo "${RED}Disk ${MOUNTUUID} Not Found, Please insert drive and Reboot${NORMAL}"
+	fi
+fi
+
+# If running an LMS Server Locally, start squeezelite later
+if [ $LMSERVER != "yes" ]; then   
+	if [ $SQUEEZELITE = "yes" ]; then
+		echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+		echo "${GREEN}Done.${NORMAL}"
+	fi
 fi
 
 echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
@@ -434,6 +462,12 @@ if [ $LMSERVER = "yes" ]; then
 	echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
 	sudo /usr/local/etc/init.d/slimserver start
 	echo "${GREEN}Done.${NORMAL}"
+	if [ $SQUEEZELITE = "yes" ]; then
+		sleep 5    ###Wait for server to be responsive.   Need to fix this with a port check.
+		echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+		echo "${GREEN}Done.${NORMAL}"
+	fi
 fi
 
 # Save the parameters to the config file

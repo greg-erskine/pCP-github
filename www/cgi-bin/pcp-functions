@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-03-30 GE
+# Version: 0.30 2016-04-02 GE
 #	Added log location $LOGDIR.
 #	Lots of minor tidy up of code.
 #	Added customizable confirmation pop-up box 
+#	Added Disk Mounting Config variables
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -1385,6 +1386,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
+	sudo sed -i "s/\(MOUNTPOINT=\).*/\1\"$MOUNTPOINT\"/" $CONFIGCFG
+	sudo sed -i "s/\(MOUNTUUID=\).*/\1\"$MOUNTUUID\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
@@ -1463,6 +1466,8 @@ JIVELITE="NO"
 SCREENROTATE="NO"
 SHAIRPORT="no"
 LMSERVER="no"
+MOUNTPOINT=""
+MOUNTUUID="no"
 SQLT_VERSION="basic"
 SQUEEZELITE="yes"
 POWER_GPIO=""

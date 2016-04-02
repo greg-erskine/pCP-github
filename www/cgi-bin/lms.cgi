@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.03 2016-03-28 GE
+# Version: 0.03 2016-04-02 GE
 #	Updated warning message.
+#	Added Mounting of disks. PH
 
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
@@ -432,7 +433,7 @@ pcp_lms_restart_lms() {
 
 
 #---------------------------------Mount USB drives--------------------------------------------
-pcp_mount() {
+pcp_mount_all() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -453,7 +454,7 @@ pcp_mount() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_mount
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_mount_all
 #----------------------------------------------------------------------------------------
 
 
@@ -480,7 +481,6 @@ pcp_lms_show_logs() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
-
 
 
 #------------------------------------------Update LMS------------------------------------
@@ -515,6 +515,90 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Disk Mounting Operations 
+#----------------------------------------------------------------------------------------
+pcp_mount_drives() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Pick from the following detected disks to mount</legend>'
+	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
+	echo '          <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Mount Point /mnt/</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The below drive will be mountd by UUID to this path.</p>'
+	echo '                    <p>This drive will be automounted on startup</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '          </table>'
+	echo '          <table class="bggrey percent100">'
+	echo '          <tr><td class="column100 center">Enabled</td>'
+	echo '              <td class="column150">Device</td>'
+	echo '              <td class="column100">Label</td>'
+	echo '              <td class="column100">FS Type</td>'
+	echo '              <td class="column200">UUID</td>'
+	echo '              <td class="column100">Size</td></tr>'
+	DISKFOUND="no"
+	if [ "$MOUNTUUID" = "no" ]; then
+		UUIDyes="checked"
+		DISKFOUND="yes"
+	else
+		UUIDyes=""
+	fi
+	echo '           <tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="no" '$UUIDyes'></td>'
+	echo '               <td>Disk Mount Disabled</td></tr>'
+	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
+	for i in $ALLPARTS; do
+		if [ "$i" != "/dev/mmcblk0p1" -a "$i" != "/dev/mmcblk0p2" ]; then
+			PART=$i
+			LBL=$(blkid $i -s LABEL| awk -F"LABEL=" '{print $NF}' | tr -d "\"")
+			UUID=$(blkid $i -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
+			PTTYPE=$(blkid $i -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+			SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4)
+			SIZEMB=$(expr $SIZE / 1024)MB
+			if [ "$MOUNTUUID" = "$UUID" ]; then
+				UUIDyes="checked"
+				DISKFOUND="yes"
+			else
+				UUIDyes=""
+			fi
+			printf '<tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="%s" %s></td>' "$UUID" "$UUIDyes"
+			printf '<td>%-10s</td><td>%-10s</td><td>%-8s</td><td>%-32s</td><td>%8s<br></td></tr>\n' "$PART" "$LBL" "$PTTYPE" "$UUID" "$SIZEMB"
+		fi
+	done
+	if [ $DISKFOUND = "no" ]; then
+		echo '           <tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="no" checked></td>'
+		echo '               <td>Previously selected disk '$MOUNTUUID ' not Found.  Please Insert and Reboot system, or select a new Disk</td></tr>'
+	fi
+	echo '            </table>'
+	echo '            <input type="submit" value="Save">'
+	echo '            </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_mount_drives
+
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
