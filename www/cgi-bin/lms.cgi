@@ -572,7 +572,7 @@ pcp_mount_drives() {
 			LBL=$(blkid $i -s LABEL| awk -F"LABEL=" '{print $NF}' | tr -d "\"")
 			UUID=$(blkid $i -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $i -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
-			SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4)
+			SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
 			SIZEMB=$(expr $SIZE / 1024)MB
 			if [ "$MOUNTUUID" = "$UUID" ]; then
 				UUIDyes="checked"
