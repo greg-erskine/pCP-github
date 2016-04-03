@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 0.03 2016-04-02 GE
+# Version: 0.03 2016-04-03 GE
 #	Updated warning message.
 #	Added Mounting of disks. PH
+#	Added additional filesystem support PH
 
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
@@ -72,9 +73,11 @@ pcp_download_lms() {
 
 		echo -n '<p class="info">[ INFO ] '
 		sudo -u tc tce-load -w gcc_libs.tcz
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		echo '<p>'
 		echo -n '<p class="info">[ INFO ] '
 		sudo -u tc tce-load -w perl5.tcz
+		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
 		echo '<p>'
 
 		if [ $RESULT = 0 ]; then
@@ -117,6 +120,32 @@ pcp_lms_padding() {
 	echo '              <td></td>'
 	echo '              <td></td>'
 	echo '            </tr>'
+}
+
+pcp_install_fs() {
+	RESULT=0
+	echo -n '<p class="info">[ INFO ] '
+	sudo -u tc tce-load -w ntfs-3g.tcz
+	[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+	echo '<p>'
+	echo -n '<p class="info">[ INFO ] Loading'
+	sudo -u tc tce-load -i ntfs-3g.tcz
+	[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+	echo '<p>'
+	if [ $RESULT = 0 ]; then
+		echo "ntfs-3g.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo '<p class="info">[ INFO ] NTFS Support Loaded...</p>'
+	else
+		echo '<p class="error">[ ERROR ] ntfs-3g.tcz not loaded, try again later!</p>'
+	fi
+}
+
+pcp_remove_fs() {
+	echo '<p class="info">[ INFO ] Removing Extensions</p>'
+	rm -f /mnt/mmcblk0p2/tce/optional/ntfs-3g*
+	rm -f /mnt/mmcblk0p2/tce/optional/filesystems*
+	sed -i '/ntfs-3g.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	echo '<p class="info">[ INFO ] Extensions Removed, Reboot to Finish</p>'
 }
 
 #========================================================================================
@@ -193,6 +222,14 @@ case $ACTION in
 		pcp_mount_device $i
 		done
 		pcp_backup
+		;;
+	Install_FS)
+		pcp_sufficient_free_space 4000
+		pcp_install_fs
+		;;
+	Remove_FS)
+		pcp_remove_fs
+		pcp_reboot_required
 		;;
 	*)
 		pcp_warning_message
@@ -516,6 +553,60 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
+#========================================================================================
+# Extra File System Support
+#----------------------------------------------------------------------------------------
+pcp_extra_filesys() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Install and Enable additional FileSystems</legend>'
+	echo '          <b>FAT/vFAT/FAT32  ext2/3/4 are builtin to pCP by default</b>'
+	echo '          <form name="Start" action="'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	if [ ! -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
+		echo '                <button type="submit" name="ACTION" value="Install_FS">Install Filesystems</button>'
+		echo '            </td>'
+		echo '            <td>'
+		echo '               <p>Install additional Filesystems for pCP&nbsp;&nbsp;'
+		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '               </p>'
+		echo '               <div id="'$ID'" class="less">'
+		echo '                 <p>This will install Filesystem support for pCP.</p>'
+		echo '                 <p>Includes network and ntfs filesystems.</p>'
+		echo '               </div>'
+	else
+		echo '               <button type="submit" name="ACTION" value="Remove_FS">Remove Filesystems</button>'
+		echo '             </td>'
+		echo '             <td>'
+		echo '                <p>Remove additional Filesystems from pCP&nbsp;&nbsp;'
+		echo '                   <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                </p>'
+		echo '                <div id="'$ID'" class="less">'
+		echo '                  <p>This will remove all but the default Filesystem Support from pCP.</p>'
+		echo '                </div>'
+	fi
+	echo '                 </td>'
+	echo '              </tr>'
+	
+
+
+	echo '            </table>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_extra_filesys
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Disk Mounting Operations 
@@ -532,19 +623,19 @@ pcp_mount_drives() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p class="row">Mount Point /mnt/</p>'
+	echo '                <td class="column100">'
+	echo '                  <p class="row">Mount Point</p>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'">'
+	echo '                <td class="column250">'
+	echo '                  /mnt/ <input class="large15" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" pattern="^[a-zA-Z0-9_]{1,32}">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The below drive will be mountd by UUID to this path.</p>'
-	echo '                    <p>This drive will be automounted on startup</p>'
+	echo '                    <p>The drive will be mountd by UUID to this path and will be automounted on startup.</p>'
+	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -573,15 +664,15 @@ pcp_mount_drives() {
 			UUID=$(blkid $i -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $i -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
-			SIZEMB=$(expr $SIZE / 1024)MB
+			[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
 			if [ "$MOUNTUUID" = "$UUID" ]; then
 				UUIDyes="checked"
 				DISKFOUND="yes"
 			else
 				UUIDyes=""
 			fi
-			printf '<tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="%s" %s></td>' "$UUID" "$UUIDyes"
-			printf '<td>%-10s</td><td>%-10s</td><td>%-8s</td><td>%-32s</td><td>%8s<br></td></tr>\n' "$PART" "$LBL" "$PTTYPE" "$UUID" "$SIZE MB"
+			echo '    <tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes'></td>'
+			echo '    <td>'$PART'</td><td>'$LBL'</td><td>'$PTTYPE'</td><td>'$UUID'</td><td>'$SIZExB'<br></td></tr>'
 		fi
 	done
 	if [ $DISKFOUND = "no" ]; then
@@ -598,7 +689,6 @@ pcp_mount_drives() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_mount_drives
-
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
