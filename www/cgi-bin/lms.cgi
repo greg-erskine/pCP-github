@@ -581,7 +581,7 @@ pcp_mount_drives() {
 				UUIDyes=""
 			fi
 			printf '<tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="%s" %s></td>' "$UUID" "$UUIDyes"
-			printf '<td>%-10s</td><td>%-10s</td><td>%-8s</td><td>%-32s</td><td>%8s<br></td></tr>\n' "$PART" "$LBL" "$PTTYPE" "$UUID" "$SIZEMB"
+			printf '<td>%-10s</td><td>%-10s</td><td>%-8s</td><td>%-32s</td><td>%8s<br></td></tr>\n' "$PART" "$LBL" "$PTTYPE" "$UUID" "$SIZE MB"
 		fi
 	done
 	if [ $DISKFOUND = "no" ]; then
