@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.13 2016-04-02 PH
+	added .large8
+
 Version: 0.12 2016-03-16 GE
 	Added .column100, .column110, .column120.
 
@@ -178,6 +181,10 @@ input {
 
 .small3 {
 	width:2.8em; 
+}
+
+.large8 {
+	width:8em; 
 }
 
 .large12 {

@@ -1,9 +1,11 @@
 #!/bin/sh
 
-# Version: 0.27 2016-04-02 PH
+# Version: 0.27 2016-04-05 PH
 #	Added firmware-brcmfmac43430.tcz
-#	Added Mount of LMS Server Drive	
+#	Added Mount for LMS Server Drive
+#	Modified IQaudIO amp control
 #	Changed if LMS Server is Enabled, Start before Squeezelite
+#	Added Network Share Mount
 
 # Version: 0.26 2016-02-26 GE
 #	Added firmware-brcmwifi.tcz.
@@ -384,6 +386,16 @@ if [ "$MOUNTUUID" != "no" ]; then
 		 echo "${RED}Disk ${MOUNTUUID} Not Found, Please insert drive and Reboot${NORMAL}"
 	fi
 fi
+
+# Mount Network Disk Selected on LMS Page
+if [ "$NETMOUNT1" = "yes" ]; then
+	mkdir -p /mnt/$NETMOUNT1POINT
+	echo -n "{BLUE}"
+	mount -v -t $NETMOUNT1FSTYPE -o username=$NETMOUNT1USER,password=$NETMOUNT1PASS,$NETMOUNT1OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT
+	[ $? = 0 ] && echo "${NORMAL}" || echo "${RED}Disk Mount Error.${NORMAL}"
+fi
+
+
 
 # If running an LMS Server Locally, start squeezelite later
 if [ $LMSERVER != "yes" ]; then   

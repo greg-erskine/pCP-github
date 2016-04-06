@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.03 2016-04-03 GE
+# Version: 0.03 2016-04-05 GE
 #	Updated warning message.
 #	Added Mounting of disks. PH
 #	Added additional filesystem support PH
@@ -571,32 +571,29 @@ pcp_extra_filesys() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
-		echo '                <button type="submit" name="ACTION" value="Install_FS">Install Filesystems</button>'
-		echo '            </td>'
-		echo '            <td>'
-		echo '               <p>Install additional Filesystems for pCP&nbsp;&nbsp;'
-		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '               </p>'
-		echo '               <div id="'$ID'" class="less">'
-		echo '                 <p>This will install Filesystem support for pCP.</p>'
-		echo '                 <p>Includes network and ntfs filesystems.</p>'
-		echo '               </div>'
+		echo '                    <button type="submit" name="ACTION" value="Install_FS">Install Filesystems</button>'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Install additional Filesystems for pCP&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will install Filesystem support for pCP.</p>'
+		echo '                    <p>Includes network and ntfs filesystems.</p>'
+		echo '                  </div>'
 	else
-		echo '               <button type="submit" name="ACTION" value="Remove_FS">Remove Filesystems</button>'
-		echo '             </td>'
-		echo '             <td>'
-		echo '                <p>Remove additional Filesystems from pCP&nbsp;&nbsp;'
-		echo '                   <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                </p>'
-		echo '                <div id="'$ID'" class="less">'
-		echo '                  <p>This will remove all but the default Filesystem Support from pCP.</p>'
-		echo '                </div>'
+		echo '                  <button type="submit" name="ACTION" value="Remove_FS">Remove Filesystems</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Remove additional Filesystems from pCP&nbsp;&nbsp;'
+		echo '                     <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will remove all but the default Filesystem Support from pCP.</p>'
+		echo '                  </div>'
 	fi
-	echo '                 </td>'
+	echo '                </td>'
 	echo '              </tr>'
-	
-
-
 	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
@@ -611,7 +608,7 @@ pcp_extra_filesys() {
 #========================================================================================
 # Disk Mounting Operations 
 #----------------------------------------------------------------------------------------
-pcp_mount_drives() {
+pcp_mount_usbdrives() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -619,34 +616,37 @@ pcp_mount_drives() {
 	echo '        <fieldset>'
 	echo '          <legend>Pick from the following detected disks to mount</legend>'
 	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
-	echo '          <table class="bggrey percent100">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100">'
-	echo '                  <p class="row">Mount Point</p>'
+	echo '                  <input type="hidden" name="MOUNTTYPE" value="localdisk">'
+	echo '                    <p class="row">Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column250">'
-	echo '                  /mnt/ <input class="large15" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" pattern="^[a-zA-Z0-9_]{1,32}">'
+	echo '                  /mnt/ <input class="large15" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" pattern="^[a-zA-Z0-9_]{1,32}$">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The drive will be mountd by UUID to this path and will be automounted on startup.</p>'
+	echo '                    <p>The drive will be mounted by UUID to this path and will be automounted on startup.</p>'
 	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '          </table>'
-	echo '          <table class="bggrey percent100">'
-	echo '          <tr><td class="column100 center">Enabled</td>'
-	echo '              <td class="column150">Device</td>'
-	echo '              <td class="column100">Label</td>'
-	echo '              <td class="column100">FS Type</td>'
-	echo '              <td class="column200">UUID</td>'
-	echo '              <td class="column100">Size</td></tr>'
+	echo '            </table>'
+	echo '            <table class="bggrey percent100">'
+	echo '              <tr>'
+	echo '                <td class="column100 center">Enabled</td>'
+	echo '                <td class="column150">Device</td>'
+	echo '                <td class="column100">Label</td>'
+	echo '                <td class="column100">FS Type</td>'
+	echo '                <td class="column200">UUID</td>'
+	echo '                <td class="column100">Size</td>'
+	echo '              </tr>'
 	DISKFOUND="no"
 	if [ "$MOUNTUUID" = "no" ]; then
 		UUIDyes="checked"
@@ -654,8 +654,10 @@ pcp_mount_drives() {
 	else
 		UUIDyes=""
 	fi
-	echo '           <tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="no" '$UUIDyes'></td>'
-	echo '               <td>Disk Mount Disabled</td></tr>'
+	echo '              <tr>'
+	echo '                <td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="no" '$UUIDyes'></td>'
+	echo '                <td>Disk Mount Disabled</td>'
+	echo '              </tr>'
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
 	for i in $ALLPARTS; do
 		if [ "$i" != "/dev/mmcblk0p1" -a "$i" != "/dev/mmcblk0p2" ]; then
@@ -671,24 +673,103 @@ pcp_mount_drives() {
 			else
 				UUIDyes=""
 			fi
-			echo '    <tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes'></td>'
-			echo '    <td>'$PART'</td><td>'$LBL'</td><td>'$PTTYPE'</td><td>'$UUID'</td><td>'$SIZExB'<br></td></tr>'
+			echo '                <tr>'
+			echo '                  <td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes'></td>'
+			echo '                  <td>'$PART'</td>'
+			echo '                  <td>'$LBL'</td>'
+			echo '                  <td>'$PTTYPE'</td>'
+			echo '                  <td>'$UUID'</td>'
+			echo '                  <td>'$SIZExB'<br></td>'
+			echo '                </tr>'
 		fi
 	done
 	if [ $DISKFOUND = "no" ]; then
-		echo '           <tr><td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="no" checked></td>'
-		echo '               <td>Previously selected disk '$MOUNTUUID ' not Found.  Please Insert and Reboot system, or select a new Disk</td></tr>'
+		echo '                <tr>'
+		echo '                  <td class="column100 center"><input class="small1" type="radio" name="MOUNTUUID" value="no" checked></td>'
+		echo '                  <td>Previously selected disk '$MOUNTUUID ' not Found.  Please Insert and Reboot system, or select a new Disk</td>'
+		echo '                </tr>'
 	fi
 	echo '            </table>'
-	echo '            <input type="submit" value="Save">'
-	echo '            </form>'
+	echo '            <button type="submit" name="ACTION" value="Save">Mount USB</button>'
+	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_mount_drives
+[ $MODE -ge $MODE_BETA ] && pcp_mount_usbdrives
+#----------------------------------------------------------------------------------------
+pcp_mount_netdrives() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Setup Network Disk Mount</legend>'
+	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column100">'
+	echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+	echo '                <p class="row">Mount Point</p>'
+	echo '                </td>'
+	echo '                <td class="column250">'
+	echo '                  /mnt/ <input class="large15" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" pattern="^[a-zA-Z0-9_]{1,32}$">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>This is the mount point for the below network share.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The network share will be mounted by to this path and will be automounted on startup.</p>'
+	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	if [ "$NETMOUNT1" = "yes" ]; then
+		NETMOUNT1yes="checked"
+		NETMOUNT1no=""
+	else
+		NETMOUNT1yes=""
+		NETMOUNT1no="checked"
+	fi
+	echo '            <table class="bggrey percent100">'
+	echo '              <tr>'
+	echo '                <td class="column100 center">Enabled</td>'
+	echo '                <td class="column100">Server IP Address</td>'
+	echo '                <td class="column100">Server Share</td>'
+	echo '                <td class="column100">Share Type</td>'
+	echo '                <td class="column100">Username</td>'
+	echo '                <td class="column100">Password</td>'
+	echo '                <td class="column200">Options</td>'
+	echo '              </tr>'
+	echo '              <tr>'
+	echo '                <td class="column100 center"><input class="small1" type="radio" name="NETMOUNT1" value="no" '$NETMOUNT1no'></td>'
+	echo '                <td>Net Mount Disabled</td>'
+	echo '              </tr>'
+	echo ' 			    <tr>'
+	echo '                <td class="column100 center"><input class="small1" type="radio" name="NETMOUNT1" value="yes" '$NETMOUNT1yes'><br></td>'
+	echo '                <td class="column100"><input class="large12" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"></td>'
+	echo '                <td class="column100"><input class="large12" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" pattern="^[a-zA-Z0-9_]{1,32}$"></td>'
+	echo '                <td class="column50"><input class="large8" type="text" name="NETMOUNT1FSTYPE" value="'$NETMOUNT1FSTYPE'"></td>'
+	echo '                <td class="column50"><input class="large8" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'"></td>'
+	echo '                <td class="column50"><input class="large8" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'"></td>'
+	echo '                <td class="column200"><input class="large15" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'"></td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '            <button type="submit" name="ACTION" value="Save">Mount Net</button>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------

@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-04-02 GE
+# Version: 0.30 2016-04-05 GE
 #	Added log location $LOGDIR.
 #	Lots of minor tidy up of code.
 #	Added customizable confirmation pop-up box 
@@ -1318,9 +1318,15 @@ pcp_umount_device() {
 
 #=========================================================================================
 # Reboot/shutdown piCorePlayer
+# If reboot is issued with wifi and net mounted drive, the reboot will hang.
 #-----------------------------------------------------------------------------------------
 pcp_reboot() {
 	echo '<p class="info">[ INFO ] piCorePlayer is rebooting...</p>'
+	if [ "$NETMOUNT1" = "yes" ]; then
+		echo '<p class="info">[ INFO ] Unmounting Network Shared Drive...</p>'
+		mount | grep -q cifs
+		[ $? = 0 ] && umount /mnt/$NETMOUNT1POINT
+	fi
 	sudo reboot
 }
 
@@ -1388,6 +1394,14 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 	sudo sed -i "s/\(MOUNTPOINT=\).*/\1\"$MOUNTPOINT\"/" $CONFIGCFG
 	sudo sed -i "s/\(MOUNTUUID=\).*/\1\"$MOUNTUUID\"/" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1=\).*|\1\"$NETMOUNT1\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1POINT=\).*|\1\"$NETMOUNT1POINT\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1IP=\).*|\1\"$NETMOUNT1IP\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1SHARE=\).*|\1\"$NETMOUNT1SHARE\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1FSTYPE=\).*|\1\"$NETMOUNT1FSTYPE\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1USER=\).*|\1\"$NETMOUNT1USER\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1PASS=\).*|\1\"$NETMOUNT1PASS\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1OPTIONS=\).*|\1\"$NETMOUNT1OPTIONS\"|" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
@@ -1468,6 +1482,14 @@ SHAIRPORT="no"
 LMSERVER="no"
 MOUNTPOINT=""
 MOUNTUUID="no"
+NETMOUNT1POINT=""
+NETMOUNT1="no"
+NETMOUNT1IP=""
+NETMOUNT1SHARE=""
+NETMOUNT1FSTYPE=""
+NETMOUNT1USER=""
+NETMOUNT1PASS=""
+NETMOUNT1OPTIONS=""
 SQLT_VERSION="basic"
 SQUEEZELITE="yes"
 POWER_GPIO=""
