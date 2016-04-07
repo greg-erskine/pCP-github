@@ -163,7 +163,6 @@ pcp_warning_message() {
 	echo '              <td>'
 	echo '                <p style="color:white"><b>Note:</b> This is our first implementation of Logitech Media Server (LMS), so there are some limitations.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Support for USB drives only.</li>'
 	echo '                  <li style="color:white">LMS upgrade is via command line only.</li></br>'
 	echo '                  <li style="color:white">Many thanks to Paul123 and jgrulich.</li>'
 	echo '                </ul>'
@@ -214,14 +213,8 @@ case "$ACTION" in
 		pcp_backup
 		pcp_reboot_required
 		;;
-	Mount)
-		sudo rebuildfstab
-		sleep 1
-		DRIVES=$(fdisk -l | grep '^/dev/s' | awk -F "/" {'print $3'} | awk {'print $1'})
-		for i in $(echo $DRIVES); do
-		pcp_mount_device $i
-		done
-		pcp_backup
+	Update)
+		sudo lms-update.sh -r -m
 		;;
 	Install_FS)
 		pcp_sufficient_free_space 4000
@@ -469,29 +462,31 @@ pcp_lms_restart_lms() {
 #----------------------------------------------------------------------------------------
 
 
-#---------------------------------Mount USB drives--------------------------------------------
-pcp_mount_all() {
+#---------------------------------Update LMS--------------------------------------------
+pcp_update_LMS() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Mount" />'
+	echo '                  <input type="submit" name="ACTION" value="Update" />'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Scan and mount available USB drives&nbsp;&nbsp;'
+	echo '                  <p>Update LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Please attach your USB drive then pCP will scan and mount the drives so LMS can find your music.</p>'
+	echo '                    <p>This will download and build an updated LMS package.</p>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
-	echo '                      <li>For now only FAT32 and linux partitions are supported NTFS is work in progress.</li>'
+	echo '                      <li>Check on LMS webpage if a new LMS is available.</li>'
+	echo '                      <li>The update process will take some minutes and finally pCP will reboot.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_mount_all
+pcp_update_LMS
+#[ $MODE -ge $MODE_DEVELOPER ] && pcp_update_LMS
 #----------------------------------------------------------------------------------------
 
 
