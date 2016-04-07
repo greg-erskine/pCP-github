@@ -655,15 +655,7 @@ pcp_mount_usbdrives() {
 	else
 		UUIDyes=""
 	fi
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center">'
-	echo '                  <input class="small1" type="radio" name="MOUNTUUID" value="no" '$UUIDyes'>'
-	echo '                </td>'
-	echo '                <td colspan="5">'
-	echo '                  <p>Disk Mount Disabled</p>'
-	echo '                </td>'
-	echo '              </tr>'
+
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
 	for i in $ALLPARTS; do
 		if [ "$i" != "/dev/mmcblk0p1" -a "$i" != "/dev/mmcblk0p2" ]; then
@@ -702,6 +694,15 @@ pcp_toggle_row_shade
 			echo '                </tr>'
 		fi
 	done
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column100 center">'
+	echo '                  <input class="small1" type="radio" name="MOUNTUUID" value="no" '$UUIDyes'>'
+	echo '                </td>'
+	echo '                <td colspan="5">'
+	echo '                  <p>Disk Mount Disabled</p>'
+	echo '                </td>'
+	echo '              </tr>'
 	if [ "$DISKFOUND" = "no" ]; then
 		echo '                <tr>'
 		echo '                  <td class="column100 center">'
@@ -763,26 +764,48 @@ pcp_mount_netdrives() {
 	echo '            <table class="bggrey percent100">'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column100 center"><p><b>Enabled</b></p></td>'
+	echo '                <td class="column150"><p><b>Server IP Address</b></p></td>'
+	echo '                <td class="column150"><p><b>Server Share</b></p></td>'
+	echo '                <td class="column100"><p><b>Share Type</b></p></td>'
+	echo '                <td class="column100"><p><b>Username<b></p></td>'
+	echo '                <td class="column100"><p><b>Password</b></p></td>'
+	echo '                <td class="column50"><p><b>Options</b></p></td>'
+	echo '              </tr>'
+
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100 center">'
-	echo '                  <p>Enabled</p>'
+	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="yes" '$NETMOUNT1yes'>'
 	echo '                </td>'
 	echo '                <td class="column100">'
-	echo '                  <p>Server IP Address</p>'
+	echo '                  <input class="large12" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 	echo '                </td>'
 	echo '                <td class="column100">'
-	echo '                  <p>Server Share</p>'
+	echo '                  <input class="large12" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" pattern="^[a-zA-Z0-9_]{1,32}$">'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <p>Share Type</p>'
+	echo '                <td class="column50">'
+
+#--------------------
+	case "$NETMOUNT1FSTYPE" in
+		cifs) CIFSyes="selected" ;;
+		nfs) NFSyes="selected" ;;
+	esac
+#---------------------------------------
+
+	echo '                  <select class="large8" name="NETMOUNT1FSTYPE">'
+	echo '                    <option value="cifs" '$CIFSyes'>CIFS</option>'
+	echo '                    <option value="nfs" '$NFSyes'>NFS</option>'
+	echo '                  </select>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <p>Username</p>'
+	echo '                <td class="column50">'
+	echo '                  <input class="large8" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'">'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <p>Password</p>'
+	echo '                <td class="column50">'
+	echo '                  <input class="large8" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'">'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <p>Options</p>'
+	echo '                <td class="column200">'
+	echo '                  <input class="large15" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'">'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -792,30 +815,6 @@ pcp_mount_netdrives() {
 	echo '                </td>'
 	echo '                <td colspan="6">'
 	echo '                  <p>Net Mount Disabled</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center">'
-	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="yes" '$NETMOUNT1yes'>'
-	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
-	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" pattern="^[a-zA-Z0-9_]{1,32}$">'
-	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="text" name="NETMOUNT1FSTYPE" value="'$NETMOUNT1FSTYPE'">'
-	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'">'
-	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'">'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
