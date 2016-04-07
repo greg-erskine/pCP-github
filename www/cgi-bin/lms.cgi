@@ -645,10 +645,10 @@ pcp_mount_usbdrives() {
 	echo '              </tr>'
 	DISKFOUND="no"
 	if [ "$MOUNTUUID" = "no" ]; then
-		UUIDyes="checked"
+		NOUUIDyes="checked"
 		DISKFOUND="yes"
 	else
-		UUIDyes=""
+		NOUUIDyes=""
 	fi
 
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
@@ -692,7 +692,7 @@ pcp_toggle_row_shade
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100 center">'
-	echo '                  <input class="small1" type="radio" name="MOUNTUUID" value="no" '$UUIDyes'>'
+	echo '                  <input class="small1" type="radio" name="MOUNTUUID" value="no" '$NOUUIDyes'>'
 	echo '                </td>'
 	echo '                <td colspan="5">'
 	echo '                  <p>Disk Mount Disabled</p>'
@@ -774,10 +774,10 @@ pcp_mount_netdrives() {
 	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="yes" '$NETMOUNT1yes'>'
 	echo '                </td>'
 	echo '                <td class="column100">'
-	echo '                  <input class="large12" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
+	echo '                  <input class="large12" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" title="Enter the IP Address of the Remote Server" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 	echo '                </td>'
 	echo '                <td class="column100">'
-	echo '                  <input class="large12" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" pattern="^[a-zA-Z0-9_]{1,32}$">'
+	echo '                  <input class="large12" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" pattern="^[a-zA-Z0-9_]{1,32}$">'
 	echo '                </td>'
 	echo '                <td class="column50">'
 
@@ -788,19 +788,19 @@ pcp_mount_netdrives() {
 	esac
 #---------------------------------------
 
-	echo '                  <select class="large8" name="NETMOUNT1FSTYPE">'
+	echo '                  <select class="large8" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
 	echo '                    <option value="cifs" '$CIFSyes'>CIFS</option>'
 	echo '                    <option value="nfs" '$NFSyes'>NFS</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td class="column50">'
-	echo '                  <input class="large8" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'">'
+	echo '                  <input class="large8" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'" title="Enter the Username for the remote share.">'
 	echo '                </td>'
 	echo '                <td class="column50">'
-	echo '                  <input class="large8" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'">'
+	echo '                  <input class="large8" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'" title="Enter the Password for the remote share.">'
 	echo '                </td>'
 	echo '                <td class="column200">'
-	echo '                  <input class="large15" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'">'
+	echo '                  <input class="large15" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
