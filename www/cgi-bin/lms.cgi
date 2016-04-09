@@ -213,9 +213,6 @@ case "$ACTION" in
 		pcp_backup
 		pcp_reboot_required
 		;;
-	Update)
-		sudo lms-update.sh -r -m
-		;;
 	Install_FS)
 		pcp_sufficient_free_space 4000
 		pcp_install_fs
@@ -354,15 +351,14 @@ pcp_lms_configure_lms() {
 [ $MODE -ge $MODE_BETA ] && pcp_lms_configure_lms
 #----------------------------------------------------------------------------------------
 
-echo '            <form name="Start" action="'$0'" method="get">'
-
 #------------------------------------------Install/uninstall LMS-------------------------
 pcp_lms_install_lms() {
+
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-
+	echo '            <form name="Start" action="'$0'" method="get">'
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
@@ -384,7 +380,7 @@ pcp_lms_install_lms() {
 		echo '                    <p>This will remove LMS and all the extra packages that was added with LMS.</p>'
 		echo '                  </div>'
 	fi
-
+	echo '            </form>'
 	echo '                </td>'
 	echo '              </tr>'
 }
@@ -393,11 +389,14 @@ pcp_lms_install_lms() {
 
 #------------------------------------------Start LMS-------------------------------------
 pcp_lms_start_lms() {
+	echo '            <form name="Start" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
+	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" name="ACTION" value="Start" />'
+	echo '            </form>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Start LMS&nbsp;&nbsp;'
@@ -419,7 +418,10 @@ pcp_lms_stop_lms() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
+	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" name="ACTION" value="Stop" />'
+	echo '            </form>'
+
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Stop LMS&nbsp;&nbsp;'
@@ -431,6 +433,8 @@ pcp_lms_stop_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+
+
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_stop_lms
 #----------------------------------------------------------------------------------------
@@ -441,7 +445,9 @@ pcp_lms_restart_lms() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
+	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" name="ACTION" value="Restart" />'
+	echo '            </form>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart LMS&nbsp;&nbsp;'
@@ -461,42 +467,41 @@ pcp_lms_restart_lms() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
-
 #---------------------------------Update LMS--------------------------------------------
 pcp_update_LMS() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Update" />'
+	echo '            <form name="Update" action="writetolms.cgi" method="get">'
+	echo '                  <input type="submit" name="UPDATE" value="Update" />'
+	echo '                </form>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Update LMS&nbsp;&nbsp;'
+	echo '                  <p>This will download and update LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will download and build an updated LMS package.</p>'
-	echo '                    <p><b>Note:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>Check on LMS webpage if a new LMS is available.</li>'
-	echo '                      <li>The update process will take some minutes and finally pCP will reboot.</li>'
-	echo '                    </ul>'
+	echo '                    <p>Check on LMS webpage if a new LMS is available.</p>'
+	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </form>'
 }
-pcp_update_LMS
-#[ $MODE -ge $MODE_DEVELOPER ] && pcp_update_LMS
+[ $MODE -ge $MODE_NORMAL ] && pcp_update_LMS
 #----------------------------------------------------------------------------------------
-
 
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
+
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
+	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" value="Show Logs" />'
+	echo '            </form>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
@@ -512,31 +517,6 @@ pcp_lms_show_logs() {
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
-#----------------------------------------------------------------------------------------
-
-
-#------------------------------------------Update LMS------------------------------------
-pcp_lms_update() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Update LMS" />'
-	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Update LMS&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will update LMS.</p>'
-	echo '                    <p><b>Note:</b></p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_lms_update
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------

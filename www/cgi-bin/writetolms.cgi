@@ -23,6 +23,9 @@ pcp_httpd_query_string
 #LMS="slimserver*"
 SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
+LMSUPDATELOG=/tmp/update.txt
+
+
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -44,10 +47,15 @@ pcp_disable_lms() {
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
+
+pcp_lms_update() {
+		sudo lms-update.sh -r -m > \tmp\updateLMS.txt 2>&1
+}
+
 #========================================================================================
 # LMS section
 #----------------------------------------------------------------------------------------
- Only do something if variable is changed
+# Only do something if variable is changed
 if [ $ORIG_LMSERVER != $LMSERVER ]; then
 	echo '<p class="info">[ INFO ] LMS is set to: '$LMSERVER'</p>'
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMSERVER'</p>'
@@ -69,6 +77,21 @@ if [ $ORIG_LMSERVER != $LMSERVER ]; then
 else
 	echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
 fi
+
+
+#========================================================================================
+# Update of LMS section
+#----------------------------------------------------------------------------------------
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] UPDATE is: '$UPDATE'</p>'
+	case "$UPDATE" in
+		Update)
+			echo '<p class="info">[ INFO ] LMS is updating. It will take a few minutes.</p>'
+			pcp_lms_update
+			pcp_textarea "Log from latest LMS update $LMSUPDATELOG" "cat $LMSUPDATELOG" 150
+			;;
+	esac
+
+
 
 echo '<hr>'
 pcp_save_to_config
