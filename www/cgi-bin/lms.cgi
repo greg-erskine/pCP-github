@@ -708,8 +708,18 @@ pcp_toggle_row_shade
 		echo '                  </td>'
 		echo '                </tr>'
 	fi
+#--------------------------------------Submit button-------------------------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td  class="column150">'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                </td>'
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
 	echo '            </table>'
-	echo '            <button type="submit" name="ACTION" value="Save">Mount USB</button>'
+#	echo '            <button type="submit" name="ACTION" value="Save">Mount USB</button>'
 	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -812,8 +822,17 @@ pcp_mount_netdrives() {
 	echo '                  <p>Net Mount Disabled</p>'
 	echo '                </td>'
 	echo '              </tr>'
+#--------------------------------------Submit button-------------------------------------
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td  class="column150">'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                </td>'
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
 	echo '            </table>'
-	echo '            <button type="submit" name="ACTION" value="Save">Mount Net</button>'
 	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
