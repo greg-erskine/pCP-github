@@ -547,7 +547,7 @@ pcp_extra_filesys() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
-		echo '                    <button type="submit" name="ACTION" value="Install_FS">Install Filesystems</button>'
+		echo '                    <button type="submit" name="ACTION" value="Install_FS">Install</button>'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Install additional Filesystems for pCP&nbsp;&nbsp;'
@@ -558,7 +558,7 @@ pcp_extra_filesys() {
 		echo '                    <p>Includes network and ntfs filesystems.</p>'
 		echo '                  </div>'
 	else
-		echo '                  <button type="submit" name="ACTION" value="Remove_FS">Remove Filesystems</button>'
+		echo '                  <button type="submit" name="ACTION" value="Remove_FS">Remove</button>'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Remove additional Filesystems from pCP&nbsp;&nbsp;'
@@ -616,13 +616,19 @@ pcp_mount_usbdrives() {
 	echo '            </table>'
 	echo '            <table class="bggrey percent100">'
 	pcp_toggle_row_shade
+	COL1="100"
+	COL2="150"
+	COL3="100"
+	COL4="100"
+	COL5="300"
+	COL6="100"
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center"><p><b>Enabled</b></p></td>'
-	echo '                <td class="column150"><p><b>Device</b></p></td>'
-	echo '                <td class="column100"><p><b>Label</b></p></td>'
-	echo '                <td class="column100"><p><b>FS Type</b></p></td>'
-	echo '                <td class="column300"><p><b>UUID</b></p></td>'
-	echo '                <td class="column100"><p><b>Size</b></p></td>'
+	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
+	echo '                <td class="column'$COL2'"><p><b>Device</b></p></td>'
+	echo '                <td class="column'$COL3'"><p><b>Label</b></p></td>'
+	echo '                <td class="column'$COL4'"><p><b>FS Type</b></p></td>'
+	echo '                <td class="column'$COL5'"><p><b>UUID</b></p></td>'
+	echo '                <td class="column'$COL6'"><p><b>Size</b></p></td>'
 	echo '              </tr>'
 	DISKFOUND="no"
 	if [ "$MOUNTUUID" = "no" ]; then
@@ -649,22 +655,22 @@ pcp_mount_usbdrives() {
 			fi
 pcp_toggle_row_shade
 			echo '                <tr class="'$ROWSHADE'">'
-			echo '                  <td class="column100 center">'
+			echo '                  <td class="column'$COL1' center">'
 			echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes'>'
 			echo '                  </td>'
-			echo '                  <td class="column150">'
+			echo '                  <td class="column'$COL2'">'
 			echo '                    <p>'$PART'</p>'
 			echo '                  </td>'
-			echo '                  <td class="column100">'
+			echo '                  <td class="column'$COL3'">'
 			echo '                    <p>'$LBL'</p>'
 			echo '                  </td>'
-			echo '                  <td class="column100">'
+			echo '                  <td class="column'$COL4'">'
 			echo '                    <p>'$PTTYPE'</p>'
 			echo '                  </td>'
-			echo '                  <td class="column300">'
+			echo '                  <td class="column'$COL5'">'
 			echo '                    <p>'$UUID'</p>'
 			echo '                  </td>'
-			echo '                  <td class="column100">'
+			echo '                  <td class="column'$COL6'">'
 			echo '                    <p>'$SIZExB'</p>'
 			echo '                  </td>'
 			echo '                </tr>'
@@ -672,7 +678,7 @@ pcp_toggle_row_shade
 	done
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center">'
+	echo '                <td class="column'$COL1' center">'
 	echo '                  <input class="small1" type="radio" name="MOUNTUUID" value="no" '$NOUUIDyes'>'
 	echo '                </td>'
 	echo '                <td colspan="5">'
@@ -681,7 +687,7 @@ pcp_toggle_row_shade
 	echo '              </tr>'
 	if [ "$DISKFOUND" = "no" ]; then
 		echo '                <tr>'
-		echo '                  <td class="column100 center">'
+		echo '                  <td class="column'$COL1' center">'
 		echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="no" checked>'
 		echo '                  </td>'
 		echo '                  <td colspan="5">'
@@ -690,17 +696,16 @@ pcp_toggle_row_shade
 		echo '                </tr>'
 	fi
 #--------------------------------------Submit button-------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                </td>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '                <tr class="'$ROWSHADE'">'
+	echo '                  <td  class="column150 center">'
+	echo '                    <button type="submit" name="ACTION" value="Save">Mount USB</button>'
+	echo '                  </td>'
+	echo '                </td>'
+	echo '              </tr>'
 #----------------------------------------------------------------------------------------
 	echo '            </table>'
-#	echo '            <button type="submit" name="ACTION" value="Save">Mount USB</button>'
 	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -727,7 +732,7 @@ pcp_mount_netdrives() {
 	echo '                <p class="row">Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column250">'
-	echo '                  /mnt/ <input class="large15" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" pattern="^[a-zA-Z0-9_]{1,32}$">'
+	echo '                  /mnt/ <input class="large8" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" pattern="^[a-zA-Z0-9_]{1,32}$">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below network share.&nbsp;&nbsp;'
@@ -735,7 +740,9 @@ pcp_mount_netdrives() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>The network share will be mounted by to this path and will be automounted on startup.</p>'
+	echo '                    <p>IP addres is only the ip address.  Do not enter any / or :</p>'
 	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                    <p>Options is a comma delimited list of mount options.  Ref mount man pages</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -749,54 +756,61 @@ pcp_mount_netdrives() {
 	fi
 	echo '            <table class="bggrey percent100">'
 	pcp_toggle_row_shade
+	COL1="75"
+	COL2="150"
+	COL3="110"
+	COL4="100"
+	COL5="100"
+	COL6="100"
+	COL7="150"
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center"><p><b>Enabled</b></p></td>'
-	echo '                <td class="column150"><p><b>Server IP Address</b></p></td>'
-	echo '                <td class="column150"><p><b>Server Share</b></p></td>'
-	echo '                <td class="column100"><p><b>Share Type</b></p></td>'
-	echo '                <td class="column100"><p><b>Username<b></p></td>'
-	echo '                <td class="column100"><p><b>Password</b></p></td>'
-	echo '                <td class="column50"><p><b>Options</b></p></td>'
+	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
+	echo '                <td class="column'$COL2'"><p><b>Server IP Address</b></p></td>'
+	echo '                <td class="column'$COL3'"><p><b>Server Share</b></p></td>'
+	echo '                <td class="column'$COL4'"><p><b>Share Type</b></p></td>'
+	echo '                <td class="column'$COL5'"><p><b>Username<b></p></td>'
+	echo '                <td class="column'$COL6'"><p><b>Password</b></p></td>'
+	echo '                <td class="column'$COL7'"><p><b>Options</b></p></td>'
 	echo '              </tr>'
 
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center">'
+	echo '                <td class="column'$COL1' center">'
 	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="yes" '$NETMOUNT1yes'>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="large12" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" title="Enter the IP Address of the Remote Server" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <input class="large10" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" title="Enter the IP Address of the Remote Server" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="large12" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" pattern="^[a-zA-Z0-9_]{1,32}$">'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <input class="large8" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" pattern="^[a-zA-Z0-9_]{1,32}$">'
 	echo '                </td>'
-	echo '                <td class="column50">'
+	echo '                <td class="column'$COL4'">'
 
 #--------------------
 	case "$NETMOUNT1FSTYPE" in
-		cifs) CIFSyes="selected" ;;
-		nfs) NFSyes="selected" ;;
+		cifs) CIFS1yes="selected" ;;
+		nfs) NFS1yes="selected" ;;
 	esac
 #---------------------------------------
 
-	echo '                  <select class="large8" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
-	echo '                    <option value="cifs" '$CIFSyes'>CIFS</option>'
-	echo '                    <option value="nfs" '$NFSyes'>NFS</option>'
+	echo '                  <select class="large6" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
+	echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
+	echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
 	echo '                  </select>'
 	echo '                </td>'
-	echo '                <td class="column50">'
-	echo '                  <input class="large8" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'" title="Enter the Username for the remote share.">'
+	echo '                <td class="column'$COL5'">'
+	echo '                  <input class="large6" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'" title="Enter the Username for the remote share.">'
 	echo '                </td>'
-	echo '                <td class="column50">'
-	echo '                  <input class="large8" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'" title="Enter the Password for the remote share.">'
+	echo '                <td class="column'$COL6'">'
+	echo '                  <input class="large6" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'" title="Enter the Password for the remote share.">'
 	echo '                </td>'
-	echo '                <td class="column200">'
+	echo '                <td class="column'$COL7'">'
 	echo '                  <input class="large15" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100 center">'
+	echo '                <td class="column'$COL1' center">'
 	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="no" '$NETMOUNT1no'>'
 	echo '                </td>'
 	echo '                <td colspan="6">'
@@ -804,14 +818,14 @@ pcp_mount_netdrives() {
 	echo '                </td>'
 	echo '              </tr>'
 #--------------------------------------Submit button-------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                </td>'
-echo '                </td>'
-echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '                <tr class="'$ROWSHADE'">'
+	echo '                  <td class="column150 center">'
+	echo '                    <button type="submit" name="ACTION" value="Save">Mount NET</button>'
+	echo '                  </td>'
+	echo '                </td>'
+	echo '              </tr>'
 #----------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
