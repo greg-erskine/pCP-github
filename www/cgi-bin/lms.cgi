@@ -501,11 +501,11 @@ pcp_lms_show_logs() {
 	echo '                <td class="column150 center">'
 	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" value="Show Logs" />'
-	echo '            </form>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
 	echo '                </td>'
+	echo '            </form>'
 	echo '                <td>'
 	echo '                  <p>Show LMS logs&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -515,6 +515,7 @@ pcp_lms_show_logs() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
