@@ -3,6 +3,8 @@
 # Version: 0.02 2016-03-19 GE
 #	Fixed sourceforge redirection issue.
 #	Updated slimserver extension names   PH
+#	Added LMS update function   SBP
+
 
 # Version: 0.01 2016-01-30 SBP
 #	Original version.
@@ -14,7 +16,7 @@ pcp_variables
 ORIG_LMSERVER="$LMSERVER"
 ORIG_SAMBA="$SAMBA"
 
-pcp_html_head "Write to Audio Tweak" "SBP" "15" "tweaks.cgi"
+pcp_html_head "Write LMS settings" "SBP" "15" "lms.cgi"
 
 pcp_banner
 pcp_running_script
@@ -24,8 +26,6 @@ pcp_httpd_query_string
 SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
 LMSUPDATELOG=/tmp/updateLMS.txt
-
-
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -47,9 +47,8 @@ pcp_disable_lms() {
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
-
 pcp_lms_update() {
-	sudo lms-update.sh -r -m -u > '$LMSUPDATELOG' 2>&1
+	sudo lms-update.sh -r -m -u > "$LMSUPDATELOG" 2>&1
 }
 
 pcp_move_LMS_cache() {
