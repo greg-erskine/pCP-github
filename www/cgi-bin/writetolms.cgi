@@ -23,7 +23,7 @@ pcp_httpd_query_string
 #LMS="slimserver*"
 SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
-LMSUPDATELOG=/tmp/update.txt
+LMSUPDATELOG=/tmp/updateLMS.txt
 
 
 
@@ -49,8 +49,33 @@ pcp_disable_lms() {
 
 
 pcp_lms_update() {
-		sudo lms-update.sh -r -m > \tmp\updateLMS.txt 2>&1
+	sudo lms-update.sh -r -m -u > '$LMSUPDATELOG' 2>&1
 }
+
+pcp_move_LMS_cache() {
+	sudo /usr/local/etc/init.d/slimserver stop
+	sudo cp -avr /mnt/mmcblk0p2/tce/slimserver/Cache/ /mnt/$MOUNTPOINT/
+	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/Cache/
+	sudo ln -s /mnt/$MOUNTPOINT/Cache/ /mnt/mmcblk0p2/tce/slimserver/
+
+	sudo cp -avr /mnt/mmcblk0p2/tce/slimserver/prefs/ /mnt/$MOUNTPOINT/
+	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/prefs/
+	sudo ln -s /mnt/$MOUNTPOINT/prefs/ /mnt/mmcblk0p2/tce/slimserver/
+	echo '<p class="info">[ INFO ] LMS is now using the attached Media drive to store its values...</p>'
+	sudo /usr/local/etc/init.d/slimserver start
+}
+
+
+pcp_restore_LMS_cache() {
+	sudo /usr/local/etc/init.d/slimserver stop
+	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/Cache/
+	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/prefs/
+	echo '<p class="info">[ INFO ] LMS is now using SD-card to store its values...</p>'
+	echo '<p class="info">[ INFO ] LMS will automatically rescan your libaryis again...</p>'
+	sudo /usr/local/etc/init.d/slimserver start
+}
+
+
 
 #========================================================================================
 # LMS section
@@ -90,6 +115,25 @@ fi
 			pcp_textarea "Log from latest LMS update $LMSUPDATELOG" "cat $LMSUPDATELOG" 150
 			;;
 	esac
+
+
+#========================================================================================
+# Move LMS cache and prefs section
+#----------------------------------------------------------------------------------------
+	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] CACHE_SD is: '$CACHE_SDE'</p>'
+	case "$CACHE_SD" in
+		SDcard)
+			echo '<p class="info">[ INFO ] Moving LMS Cache and prefs to attached media drive.</p>'
+			pcp_move_LMS_cache
+			;;
+		Media)
+			echo '<p class="info">[ INFO ] Restoring LMS cache and prefs location to SD-card.</p>'
+			pcp_restore_LMS_cache
+			;;
+		
+	esac
+
+
 
 
 
