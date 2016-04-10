@@ -1,15 +1,15 @@
 /* piCorePlayer style sheet
 
-Version: 0.13 2016-04-09 PH
-	added .large6, .large8, .large10
-	added .column50, .column75
-	added button style
+Version: 0.13 2016-04-10 PH
+	Added .large6, .large8, .large10.
+	Added .column50, .column75.
+	Added button style.
 
 Version: 0.12 2016-03-16 GE
 	Added .column100, .column110, .column120.
 
 Version: 0.11 2016-02-23 GE
-	Added .large60, .large64, .indicator_green, .indicator_red
+	Added .large60, .large64, .indicator_green, .indicator_red.
 
 Version: 0.10 2016-02-01 SBP
 	Added a.nav6, a.nav6a.
@@ -169,11 +169,7 @@ div.row fieldset legend {
 }
 
 /* Define size input buttons and fields */
-input {
-	width:9em;
-}
-
-button {
+input, button {
 	width:9em;
 }
 
@@ -371,7 +367,7 @@ a.nav7:hover, a.nav7a:hover{
 	color:black;
 }
 
-a.nav5a, a.nav6a , a.nav7a{
+a.nav5a, a.nav6a, a.nav7a{
 	background:#d8d8d8;
 	color:black;
 }

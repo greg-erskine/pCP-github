@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 0.03 2016-04-05 GE
+# Version: 0.03 2016-04-10 PH
 #	Updated warning message.
-#	Added Mounting of disks. PH
-#	Added additional filesystem support PH
+#	Added Mounting of disks.
+#	Added additional filesystem support.
 
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
@@ -227,7 +227,7 @@ case "$ACTION" in
 esac
 
 #========================================================================================
-# Main piCorePlayer operations
+# Main table
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -332,11 +332,10 @@ pcp_lms_configure_lms() {
 
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <form name="Configure" action="'$LMS_SERVER_WEB_URL'" method="get" target="_blank">'
-	echo '                    <input type="submit" value="Configure LMS" />'
-	echo '                  </form>'
+	echo '                  <input type="submit" value="Configure LMS" />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Configure LMS&nbsp;&nbsp;'
@@ -347,18 +346,18 @@ pcp_lms_configure_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_lms_configure_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Install/uninstall LMS-------------------------
 pcp_lms_install_lms() {
-
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Install" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '            <form name="Start" action="'$0'" method="get">'
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
@@ -380,23 +379,21 @@ pcp_lms_install_lms() {
 		echo '                    <p>This will remove LMS and all the extra packages that was added with LMS.</p>'
 		echo '                  </div>'
 	fi
-	echo '            </form>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_install_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Start LMS-------------------------------------
 pcp_lms_start_lms() {
-	echo '            <form name="Start" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Start" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" name="ACTION" value="Start" />'
-	echo '            </form>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Start LMS&nbsp;&nbsp;'
@@ -408,6 +405,7 @@ pcp_lms_start_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_start_lms
 #----------------------------------------------------------------------------------------
@@ -416,12 +414,10 @@ pcp_lms_start_lms() {
 pcp_lms_stop_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Stop" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" name="ACTION" value="Stop" />'
-	echo '            </form>'
-
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Stop LMS&nbsp;&nbsp;'
@@ -433,8 +429,7 @@ pcp_lms_stop_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
-
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_stop_lms
 #----------------------------------------------------------------------------------------
@@ -443,11 +438,10 @@ pcp_lms_stop_lms() {
 pcp_lms_restart_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" name="ACTION" value="Restart" />'
-	echo '            </form>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart LMS&nbsp;&nbsp;'
@@ -463,19 +457,19 @@ pcp_lms_restart_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Update LMS--------------------------------------------
-pcp_update_LMS() {
+pcp_update_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Update" action="writetolms.cgi">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '            <form name="Update" action="writetolms.cgi" method="get">'
 	echo '                  <input type="submit" name="UPDATE" value="Update" />'
-	echo '                </form>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This will download and update LMS&nbsp;&nbsp;'
@@ -489,23 +483,22 @@ pcp_update_LMS() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_update_LMS
+[ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
-
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '            <form name="Show" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '            <form name="Start" action="'$0'" method="get">'
 	echo '                  <input type="submit" value="Show Logs" />'
+	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
 	echo '                </td>'
-	echo '            </form>'
 	echo '                <td>'
 	echo '                  <p>Show LMS logs&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -515,13 +508,12 @@ pcp_lms_show_logs() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-echo '            </form>'
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -529,6 +521,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
+
 #========================================================================================
 # Extra File System Support
 #----------------------------------------------------------------------------------------
@@ -539,7 +532,7 @@ pcp_extra_filesys() {
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Install and Enable additional FileSystems</legend>'
-	echo '          <b>FAT/vFAT/FAT32  ext2/3/4 are builtin to pCP by default</b>'
+	echo '          <p><b>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</b></p>'
 	echo '          <form name="Start" action="'$0'" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
@@ -582,7 +575,7 @@ pcp_extra_filesys() {
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Disk Mounting Operations 
+# USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_usbdrives() {
 	echo '<table class="bggrey">'
@@ -597,11 +590,11 @@ pcp_mount_usbdrives() {
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100">'
-	echo '                  <input type="hidden" name="MOUNTTYPE" value="localdisk">'
+	echo '                  <input type="hidden" name="MOUNTTYPE" value="localdisk">'		#<-- GE. We normally put this next to the related action button.
 	echo '                  <p>Mount Point</p>'
 	echo '                </td>'
-	echo '                <td class="column250">'
-	echo '                  <p>/mnt/ <input class="large15" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" pattern="^[a-zA-Z0-9_]{1,32}$"><p>'
+	echo '                <td class="column210">'
+	echo '                  <p>/mnt/ <input class="large12" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" pattern="^[a-zA-Z0-9_]{1,32}$"><p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
@@ -615,13 +608,13 @@ pcp_mount_usbdrives() {
 	echo '              </tr>'
 	echo '            </table>'
 	echo '            <table class="bggrey percent100">'
-	pcp_toggle_row_shade
-	COL1="100"
+	COL1="75"
 	COL2="150"
 	COL3="100"
 	COL4="100"
 	COL5="300"
 	COL6="100"
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
 	echo '                <td class="column'$COL2'"><p><b>Device</b></p></td>'
@@ -630,6 +623,7 @@ pcp_mount_usbdrives() {
 	echo '                <td class="column'$COL5'"><p><b>UUID</b></p></td>'
 	echo '                <td class="column'$COL6'"><p><b>Size</b></p></td>'
 	echo '              </tr>'
+
 	DISKFOUND="no"
 	if [ "$MOUNTUUID" = "no" ]; then
 		NOUUIDyes="checked"
@@ -653,7 +647,7 @@ pcp_mount_usbdrives() {
 			else
 				UUIDyes=""
 			fi
-pcp_toggle_row_shade
+			pcp_toggle_row_shade
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
 			echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes'>'
@@ -686,12 +680,13 @@ pcp_toggle_row_shade
 	echo '                </td>'
 	echo '              </tr>'
 	if [ "$DISKFOUND" = "no" ]; then
-		echo '                <tr>'
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column'$COL1' center">'
 		echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="no" checked>'
 		echo '                  </td>'
 		echo '                  <td colspan="5">'
-		echo '                    <p>Previously selected disk '$MOUNTUUID ' not Found. Please Insert and Reboot system, or select a new Disk</p>'
+		echo '                    <p>Previously selected disk '$MOUNTUUID' not Found. Please Insert and Reboot system, or select a new Disk</p>'
 		echo '                  </td>'
 		echo '                </tr>'
 	fi
@@ -702,8 +697,7 @@ pcp_toggle_row_shade
 	echo '                  <td  class="column150 center">'
 	echo '                    <button type="submit" name="ACTION" value="Save">Mount USB</button>'
 	echo '                  </td>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '                </tr>'
 #----------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
@@ -714,6 +708,9 @@ pcp_toggle_row_shade
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_mount_usbdrives
+
+#========================================================================================
+# Network Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_netdrives() {
 	echo '<table class="bggrey">'
@@ -728,11 +725,11 @@ pcp_mount_netdrives() {
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100">'
-	echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
-	echo '                <p class="row">Mount Point</p>'
+	echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'		#<-- GE. We normally put this next to the related action button.
+	echo '                  <p class="row">Mount Point</p>'
 	echo '                </td>'
-	echo '                <td class="column250">'
-	echo '                  /mnt/ <input class="large8" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" pattern="^[a-zA-Z0-9_]{1,32}$">'
+	echo '                <td class="column210">'
+	echo '                  <p>/mnt/ <input class="large12" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" pattern="^[a-zA-Z0-9_]{1,32}$"></p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below network share.&nbsp;&nbsp;'
@@ -740,13 +737,15 @@ pcp_mount_netdrives() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>The network share will be mounted by to this path and will be automounted on startup.</p>'
-	echo '                    <p>IP addres is only the ip address.  Do not enter any / or :</p>'
+	echo '                    <p>IP address is only the IP address.  Do not enter any / or :</p>'
 	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
-	echo '                    <p>Options is a comma delimited list of mount options.  Ref mount man pages</p>'
+	echo '                    <p>Options are a comma delimited list of mount options. Ref mount man pages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
+
+	# GE. We usually use a case command for this.
 	if [ "$NETMOUNT1" = "yes" ]; then
 		NETMOUNT1yes="checked"
 		NETMOUNT1no=""
@@ -754,8 +753,8 @@ pcp_mount_netdrives() {
 		NETMOUNT1yes=""
 		NETMOUNT1no="checked"
 	fi
+
 	echo '            <table class="bggrey percent100">'
-	pcp_toggle_row_shade
 	COL1="75"
 	COL2="150"
 	COL3="110"
@@ -763,6 +762,7 @@ pcp_mount_netdrives() {
 	COL5="100"
 	COL6="100"
 	COL7="150"
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
 	echo '                <td class="column'$COL2'"><p><b>Server IP Address</b></p></td>'
@@ -772,7 +772,6 @@ pcp_mount_netdrives() {
 	echo '                <td class="column'$COL6'"><p><b>Password</b></p></td>'
 	echo '                <td class="column'$COL7'"><p><b>Options</b></p></td>'
 	echo '              </tr>'
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
@@ -786,12 +785,10 @@ pcp_mount_netdrives() {
 	echo '                </td>'
 	echo '                <td class="column'$COL4'">'
 
-#--------------------
 	case "$NETMOUNT1FSTYPE" in
 		cifs) CIFS1yes="selected" ;;
 		nfs) NFS1yes="selected" ;;
 	esac
-#---------------------------------------
 
 	echo '                  <select class="large6" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
 	echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
@@ -820,10 +817,9 @@ pcp_mount_netdrives() {
 #--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150 center">'
-	echo '                    <button type="submit" name="ACTION" value="Save">Mount NET</button>'
-	echo '                  </td>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="Save">Mount NET</button>'
 	echo '                </td>'
 	echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -866,11 +862,20 @@ pcp_lms_logview() {
 }
 [ $LOGSHOW = yes ] && pcp_lms_logview
 #----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
 
+pcp_footer
+pcp_mode
+pcp_copyright
+
+echo '</body>'
+echo '</html>'
+exit
+
+#---------------------------------Delete This ????????????-------------------------------
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 #------------------------------------------SAMBA mode fieldset---------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'
@@ -1007,10 +1012,3 @@ pcp_samba_stop() {
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_stop
 #----------------------------------------------------------------------------------------
-
-pcp_footer
-pcp_mode
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
