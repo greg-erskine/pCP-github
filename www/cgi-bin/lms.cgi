@@ -148,35 +148,6 @@ pcp_remove_fs() {
 	echo '<p class="info">[ INFO ] Extensions Removed, Reboot to Finish</p>'
 }
 
-#========================================================================================
-# Warning message
-#----------------------------------------------------------------------------------------
-pcp_warning_message() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Warning</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
-	echo '              <td>'
-	echo '                <p style="color:white"><b>Note:</b> This is our first implementation of Logitech Media Server (LMS), so there are some limitations.</p>'
-	echo '                <ul>'
-	echo '                  <li style="color:white">LMS upgrade is via command line only.</li></br>'
-	echo '                  <li style="color:white">Many thanks to Paul123 and jgrulich.</li>'
-	echo '                </ul>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-}
-#----------------------------------------------------------------------------------------
-
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Start)
@@ -472,11 +443,10 @@ pcp_update_lms() {
 	echo '                  <input type="submit" name="UPDATE" value="Update" />'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>This will download and update LMS&nbsp;&nbsp;'
+	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Check on LMS webpage if a new LMS is available.</p>'
 	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
 	echo '                  </div>'
 	echo '                </td>'
