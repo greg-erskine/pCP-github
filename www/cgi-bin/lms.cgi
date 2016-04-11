@@ -3,7 +3,9 @@
 # Version: 0.03 2016-04-10 PH
 #	Updated warning message.
 #	Added Mounting of disks.
-#	Added additional filesystem support.
+#	Added additional file system support.
+#	Added Location for LMS Server Persistent Data.
+#	Added LMS Server Update Script.
 
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
@@ -110,7 +112,8 @@ pcp_remove_lms() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz.md5.txt
-	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
+#   Lets not remove the cache automatically......Todo....put a clear Cache Option on the page
+#	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 }
 
@@ -491,6 +494,117 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
+#========================================================================================
+# Slimserver Cache and Prefs to Mounted Drive
+#----------------------------------------------------------------------------------------
+pcp_slimserver_persistence() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Save LMS Server Cache and Preferences to Mounted Drive</legend>'
+	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	COL1="75"
+	COL2="150"
+	COL3="210"
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
+	echo '                <td class="column'$COL2'"><p><b>Mount Type</b></p></td>'
+	echo '                <td class="column'$COL3'"><p><b>LMS Data Storage Location</b></p></td>'
+	echo '                <td>'
+	echo '                    <p>This is the Location where LMS will save Data&nbsp;&nbsp;'
+	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Including Music Database, Artwork Cache.</p>'
+	echo '                    <p>and System Preferences</p>'
+	echo '                  </div>'
+	echo '              </tr>'
+	USByes=""
+	NETyes=""
+	DEFyes=""
+	case "$LMSDATA" in
+		usbmount) USByes="checked";;
+		netmount1) NETyes="checked";;
+		default) DEFyes="checked";;
+	esac
+	if [ "$MOUNTUUID" != "no" -o -n "$USByes" ]; then
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column'$COL1' center">'
+		echo '                  <input class="small1" type="radio" name="LMSDATA" value="usbmount" '$USByes'>'
+		echo '                </td>'
+		echo '                <td class="column'$COL2'">'
+		echo '                  <p>USB Disk</p>'
+		echo '                </td>'
+		echo '                <td class="column'$COL3'">'
+		if [ -n "$USByes" -a  ! -d /mnt/"$MOUNTPOINT"/slimserver ]; then
+			echo '                  <p>Disk Not Found, LMS Disabled</p>'
+		else
+			echo '                  <p>/mnt/'$MOUNTPOINT'/slimserver</p>'
+		fi
+		echo '                </td>'
+		echo '                <td></td>'
+		echo '              </tr>'
+	fi
+	if [ "$NETMOUNT1" = "yes" -o -n "$NETyes" ]; then
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column'$COL1' center">'
+		echo '                  <input class="small1" type="radio" name="LMSDATA" value="netmount1" '$NETyes'>'
+		echo '                </td>'
+		echo '                <td class="column'$COL2'">'
+		echo '                  <p>Network Disk</p>'
+		echo '                </td>'
+		echo '                <td class="column'$COL3'">'
+		if [ -n "$NETyes" -a  ! -d /mnt/"$NETMOUNT1POINT"/slimserver ]; then
+			echo '                  <p>Disk Not Found, LMS Disabled</p>'
+		else
+			echo '                  <p>/mnt/'$NETMOUNT1POINT'/slimserver</p>'
+		fi
+		echo '                </td>'
+		echo '                <td></td>'
+		echo '              </tr>'
+	fi
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Local SDCard</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>/mnt/mmcblk0p2/tce/slimserver</p>'
+	echo '                </td>'
+	echo '                <td></td>'
+	echo '              </tr>'
+	
+#--------------------------------------Submit button-------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '                <tr class="'$ROWSHADE'">'
+	echo '                  <td  class="column150 center">'
+	echo '                    <input type="hidden" name="MOUNTTYPE" value="slimconfig">'
+	echo '                    <button type="submit" name="ACTION" value="Save">Set LMS Data</button>'
+	echo '                  </td>'
+	echo '                </tr>'
+#----------------------------------------------------------------------------------------
+	echo '            </table>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_slimserver_persistence
+	
 
 #========================================================================================
 # Extra File System Support
@@ -502,7 +616,6 @@ pcp_extra_filesys() {
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Install and Enable additional FileSystems</legend>'
-	echo '          <p><b>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</b></p>'
 	echo '          <form name="Start" action="'$0'" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
@@ -518,7 +631,8 @@ pcp_extra_filesys() {
 		echo '                    </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will install Filesystem support for pCP.</p>'
-		echo '                    <p>Includes network and ntfs filesystems.</p>'
+		echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
+		echo '                    <p>These extra filesystems include network and ntfs filesystems.</p>'
 		echo '                  </div>'
 	else
 		echo '                  <button type="submit" name="ACTION" value="Remove_FS">Remove</button>'
@@ -529,6 +643,7 @@ pcp_extra_filesys() {
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will remove all but the default Filesystem Support from pCP.</p>'
+		echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
 		echo '                  </div>'
 	fi
 	echo '                </td>'
@@ -553,14 +668,13 @@ pcp_mount_usbdrives() {
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Pick from the following detected disks to mount</legend>'
+	echo '          <legend>Pick from the following detected USB disks to mount</legend>'
 	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100">'
-	echo '                  <input type="hidden" name="MOUNTTYPE" value="localdisk">'		#<-- GE. We normally put this next to the related action button.
 	echo '                  <p>Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
@@ -595,12 +709,15 @@ pcp_mount_usbdrives() {
 	echo '              </tr>'
 
 	DISKFOUND="no"
-	if [ "$MOUNTUUID" = "no" ]; then
-		NOUUIDyes="checked"
-		DISKFOUND="yes"
-	else
-		NOUUIDyes=""
-	fi
+	case "$MOUNTUUID" in
+		no)
+			NOUUIDyes="checked"
+			DISKFOUND="yes"
+		;;
+		*)  #the contents are a UUID
+			NOUUIDyes=""
+		;;
+	esac
 
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
 	for i in $ALLPARTS; do
@@ -611,12 +728,13 @@ pcp_mount_usbdrives() {
 			PTTYPE=$(blkid $i -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
 			[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
-			if [ "$MOUNTUUID" = "$UUID" ]; then
-				UUIDyes="checked"
-				DISKFOUND="yes"
-			else
-				UUIDyes=""
-			fi
+			case "$MOUNTUUID" in
+				"$UUID")
+					UUIDyes="checked"
+					DISKFOUND="yes"
+				;;
+				*) UUIDyes="" ;;
+			esac
 			pcp_toggle_row_shade
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
@@ -665,6 +783,7 @@ pcp_mount_usbdrives() {
 	pcp_toggle_row_shade
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td  class="column150 center">'
+	echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
 	echo '                    <button type="submit" name="ACTION" value="Save">Mount USB</button>'
 	echo '                  </td>'
 	echo '                </tr>'
@@ -695,7 +814,6 @@ pcp_mount_netdrives() {
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column100">'
-	echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'		#<-- GE. We normally put this next to the related action button.
 	echo '                  <p class="row">Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
@@ -715,14 +833,16 @@ pcp_mount_netdrives() {
 	echo '              </tr>'
 	echo '            </table>'
 
-	# GE. We usually use a case command for this.
-	if [ "$NETMOUNT1" = "yes" ]; then
-		NETMOUNT1yes="checked"
-		NETMOUNT1no=""
-	else
-		NETMOUNT1yes=""
-		NETMOUNT1no="checked"
-	fi
+	case "$NETMOUNT1" in
+		yes)
+			NETMOUNT1yes="checked"
+			NETMOUNT1no=""
+		;;
+		*)  
+			NETMOUNT1yes=""
+			NETMOUNT1no="checked"
+		;;
+	esac
 
 	echo '            <table class="bggrey percent100">'
 	COL1="75"
@@ -789,6 +909,7 @@ pcp_mount_netdrives() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
+	echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
 	echo '                  <button type="submit" name="ACTION" value="Save">Mount NET</button>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -841,11 +962,7 @@ echo '</body>'
 echo '</html>'
 exit
 
-#---------------------------------Delete This ????????????-------------------------------
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
+#-------------Steen Delete Samba Stuff???? - scp should be used to copy files to pCP -------------------------------
 #------------------------------------------SAMBA mode fieldset---------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'

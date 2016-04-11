@@ -4,6 +4,7 @@
 #	Original version.
 
 . pcp-functions
+. pcp-lms-functions
 pcp_variables
 
 # Store the original values so we can see if they are changed
@@ -17,7 +18,7 @@ ORIG_NETMOUNT1FSTYPE="$NETMOUNT1FSTYPE"
 ORIG_NETMOUNT1USER="$NETMOUNT1USER"
 ORIG_NETMOUNT1PASS="$NETMOUNT1PASS"
 ORIG_NETMOUNT1OPTIONS="$NETMOUNT1OPTIONS"
-
+ORIG_LMSDATA="$LMSDATA"
 
 pcp_html_head "Write to Disk Mounts" "PH" 
 
@@ -33,6 +34,25 @@ REBOOT_REQUIRED=0
 #========================================================================================================
 # Routines
 #--------------------------------------------------------------------------------------------------------
+
+pcp_set_slimconfig(){
+	CFG="/home/tc/.slimserver.cfg"
+	rm -rf $CFG
+	echo "CACHE=$1/Cache" >> $CFG
+	echo "PREFS=$1/prefs" >> $CFG
+}
+
+pcp_move_LMS_cache() {
+	sudo cp -avr $1 $2 >/dev/null 2>&1
+
+	[ $? = 0 ] && sudo rm -rf $1 || echo '<p class="error">[ ERROR ] File Copy Error.</p>'
+	
+	#Remove old Symlinks to the data location.  Will be recreated when LMS is started.
+	sudo rm -f /usr/local/slimserver/Cache
+	sudo rm -f /usr/local/slimserver/prefs
+	sync
+}
+
 
 DEBUG=0
 #========================================================================================
@@ -97,6 +117,45 @@ case "$MOUNTTYPE" in
 			pcp_save_to_config
 			pcp_backup
 		fi
+	;;
+	slimconfig)
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMSDATA is: '$ORIG_LMSDATA'</p>'
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMSDATA is: '$LMSDATA'</p>'
+		
+		if [ "$ORIG_LMSDATA" = "$LMSDATA" ]; then
+			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
+		else
+			case "$ORIG_LMSDATA" in
+				usbmount) ORIG_MNT="/mnt/$MOUNTPOINT/slimserver";;
+				netmount1) ORIG_MNT="/mnt/$NETMOUNT1POINT/slimserver";;
+				default) ORIG_MNT="/mnt/mmcblk0p2/tce/slimserver";;
+			esac
+			case "$LMSDATA" in
+				usbmount) MNT="/mnt/$MOUNTPOINT/slimserver";;
+				netmount1) MNT="/mnt/$NETMOUNT1POINT/slimserver";;
+				default) MNT="/mnt/mmcblk0p2/tce/slimserver";;
+			esac
+			echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
+			pcp_set_slimconfig $MNT
+			pcp_save_to_config
+			pcp_backup
+			echo ''
+			
+			#========================================================================================
+			# Move LMS cache and prefs section
+			#----------------------------------------------------------------------------------------
+			WASRUNNING=0
+			if [ $(pcp_lms_status) = 0 ]; then
+				WASRUNNING=1
+				echo '<p class="info">[ INFO ] Stopping LMS</p>'
+				/usr/local/etc/init.d/slimserver stop
+			fi
+			if [ -d $ORIG_MNT ]; then
+				echo '<p class="info">[ INFO ] Moving Data from '$ORIG_MNT' to '$MNT'</p>'
+				pcp_move_LMS_cache $ORIG_MNT $MNT
+			fi
+			[ $WASRUNNING = 1 ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
+		fi	
 	;;
 	*)
 		echo '<p class="error">[ERROR] No MountType Submitted</p>'

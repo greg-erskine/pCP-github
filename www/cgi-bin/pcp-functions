@@ -1392,6 +1392,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSDATA=\).*/\1\"$LMSDATA\"/" $CONFIGCFG
 	sudo sed -i "s/\(MOUNTPOINT=\).*/\1\"$MOUNTPOINT\"/" $CONFIGCFG
 	sudo sed -i "s/\(MOUNTUUID=\).*/\1\"$MOUNTUUID\"/" $CONFIGCFG
 	sudo sed -i "s|\(NETMOUNT1=\).*|\1\"$NETMOUNT1\"|" $CONFIGCFG
@@ -1480,6 +1481,7 @@ JIVELITE="NO"
 SCREENROTATE="NO"
 SHAIRPORT="no"
 LMSERVER="no"
+LMSDATA="default"
 MOUNTPOINT=""
 MOUNTUUID="no"
 NETMOUNT1POINT=""
