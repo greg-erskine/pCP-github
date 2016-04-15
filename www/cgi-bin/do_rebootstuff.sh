@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.27 2016-04-05 PH
+# Version: 0.27 2016-04-14 PH
 #	Added firmware-brcmfmac43430.tcz
 #	Added Mount for LMS Server Drive
 #	Modified IQaudIO amp control
@@ -376,14 +376,21 @@ if [ $IR_LIRC = "yes" ]; then
 fi
 
 # Mount USB Disk Selected on LMS Page
+LMSMOUNTFAIL="0"
 if [ "$MOUNTUUID" != "no" ]; then
 	blkid | grep -q $MOUNTUUID
-	if [ $? = 0 ]; then 
+	if [ "$?" = "0" ]; then 
 		mkdir -p /mnt/$MOUNTPOINT
 		mount --uuid $MOUNTUUID /mnt/$MOUNTPOINT
-		[ $? = 0 ] && echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT." || echo "${RED}Disk Mount Error.${NORMAL}"
+		if [ "$?" = "0" ]; then
+			echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT."
+		else
+			echo "${RED}Disk Mount Error.${NORMAL}"
+			LMSMOUNTFAIL="1"
+		fi
 	else
 		 echo "${RED}Disk ${MOUNTUUID} Not Found, Please insert drive and Reboot${NORMAL}"
+		 LMSMOUNTFAIL="1"
 	fi
 fi
 
@@ -392,10 +399,13 @@ if [ "$NETMOUNT1" = "yes" ]; then
 	mkdir -p /mnt/$NETMOUNT1POINT
 	echo -n "{BLUE}"
 	mount -v -t $NETMOUNT1FSTYPE -o username=$NETMOUNT1USER,password=$NETMOUNT1PASS,$NETMOUNT1OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT
-	[ $? = 0 ] && echo "${NORMAL}" || echo "${RED}Disk Mount Error.${NORMAL}"
+	if [ "$?" = "0" ]; then
+		echo "${NORMAL}"
+	else
+		echo "${RED}Disk Mount Error.${NORMAL}"
+		LMSMOUNTFAIL="1"
+	fi
 fi
-
-
 
 # If running an LMS Server Locally, start squeezelite later
 if [ $LMSERVER != "yes" ]; then   
@@ -471,14 +481,18 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 fi
 
 if [ $LMSERVER = "yes" ]; then
-	echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
-	sudo /usr/local/etc/init.d/slimserver start
-	echo "${GREEN}Done.${NORMAL}"
-	if [ $SQUEEZELITE = "yes" ]; then
-		sleep 5    ###Wait for server to be responsive.   Need to fix this with a port check.
-		echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
-		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+	if [ "$LMSDATA" = "default" -o "$LMSMOUNTFAIL" = "0" ]; then
+		echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
+		sudo /usr/local/etc/init.d/slimserver start
 		echo "${GREEN}Done.${NORMAL}"
+		if [ $SQUEEZELITE = "yes" ]; then
+			sleep 5    ###Wait for server to be responsive.   Need to fix this with a port check.
+			echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+			/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+			echo "${GREEN}Done.${NORMAL}"
+		fi
+	else
+		echo "${RED}LMS data disk failed mount, LMS and squeezelite will not start.${NORMAL}"
 	fi
 fi
 

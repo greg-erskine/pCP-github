@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.03 2016-04-10 PH
+# Version: 0.03 2016-04-14 PH
 #	Updated warning message.
 #	Added Mounting of disks.
 #	Added additional file system support.
@@ -46,6 +46,9 @@ LMS_SERV_LOG=${LOGS}/server.log
 LMS_SCAN_LOG=${LOGS}/scanner.log
 WGET="/bin/busybox wget"
 LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
+
+df | grep -qs ntfs
+[ "$?" = "0" ] && NTFS="yes" || NTFS="no"
 
 #---------------------------Routines-----------------------------------------------------
 pcp_download_lms() {
@@ -154,9 +157,19 @@ pcp_remove_fs() {
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Start)
-		echo '<p class="info">[ INFO ] Starting LMS...</p>'
-		echo -n '<p class="info">[ INFO ] '
-		sudo /usr/local/etc/init.d/slimserver start
+		case "$LMSDATA" in
+			usbmount) MNT="/mnt/$MOUNTPOINT";;
+			netmount1) MNT="/mnt/$NETMOUNT1POINT";;
+			default) MNT="/mnt/mmcblk0p2";;
+		esac
+		mount | grep -qs $MNT
+		if [ "$?" = "0" ]; then 
+			echo '<p class="info">[ INFO ] Starting LMS...</p>'
+			echo -n '<p class="info">[ INFO ] '
+			sudo /usr/local/etc/init.d/slimserver start
+		else
+			echo '<p class="error">[ ERROR ] LMS data disk failed mount, LMS will not start.'
+		fi
 		;;
 	Stop)
 		echo '<p class="info">[ INFO ] Stopping LMS...</p>'
@@ -591,7 +604,16 @@ pcp_slimserver_persistence() {
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td  class="column150 center">'
 	echo '                    <input type="hidden" name="MOUNTTYPE" value="slimconfig">'
-	echo '                    <button type="submit" name="ACTION" value="Save">Set LMS Data</button>'
+	echo '                    <button type="submit" name="ACTION" value="Set">Set LMS Data</button>'
+	echo '                  </td>'
+	echo '                  <td  class="column210">'
+	echo '                    <p>Set the Data Location Only.</p>'
+	echo '                  </td>'
+	echo '                  <td  class="column150 center">'
+	echo '                    <button type="submit" name="ACTION" value="Move">Move LMS Data</button>'
+	echo '                  </td>'
+	echo '                  <td  class="column380">'
+	echo '                    <p>Set the Data Location and Move Cache to that location</p>'
 	echo '                  </td>'
 	echo '                </tr>'
 #----------------------------------------------------------------------------------------
@@ -620,6 +642,13 @@ pcp_extra_filesys() {
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
+	DISABLE="0"
+	for i in `mount | awk '{print $5}'`; do
+		case "$i" in
+			*fat*|*squash*|proc|tmpfs|sysfs|devpts|ext*) ;;
+			*) DISABLE="1" ;;
+		esac
+	done
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
@@ -634,7 +663,7 @@ pcp_extra_filesys() {
 		echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
 		echo '                    <p>These extra filesystems include network and ntfs filesystems.</p>'
 		echo '                  </div>'
-	else
+	elif [ "$DISABLE" = "0" ]; then
 		echo '                  <button type="submit" name="ACTION" value="Remove_FS">Remove</button>'
 		echo '                </td>'
 		echo '                <td>'
@@ -644,6 +673,17 @@ pcp_extra_filesys() {
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will remove all but the default Filesystem Support from pCP.</p>'
 		echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
+		echo '                  </div>'
+	else
+		echo '                  <button type="submit" name="ACTION" value="Remove_FS" Disabled>Remove</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Additional Filesystems are in Use&nbsp;&nbsp;'
+		echo '                     <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Unable to remove additional Filesystem Support from pCP.</p>'
+		echo '                    <p>as there are currently active mounts using this support</p>'
 		echo '                  </div>'
 	fi
 	echo '                </td>'
@@ -678,7 +718,7 @@ pcp_mount_usbdrives() {
 	echo '                  <p>Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <p>/mnt/ <input class="large12" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" pattern="^[a-zA-Z0-9_]{1,32}$"><p>'
+	echo '                  <p>/mnt/ <input class="large12" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" required pattern="^[a-zA-Z0-9_]{1,32}$"><p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
@@ -736,9 +776,15 @@ pcp_mount_usbdrives() {
 				*) UUIDyes="" ;;
 			esac
 			pcp_toggle_row_shade
+			if [ "$NTFS" = "no" ]; then
+				case "$PTTYPE" in
+					*fat*|ext*) DISABLE="";;
+					*) DISABLE="Disabled"; UUID="Please install extra Filesystems" ;;
+				esac
+			fi
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
-			echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes'>'
+			echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes' '$DISABLE'>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL2'">'
 			echo '                    <p>'$PART'</p>'
@@ -783,8 +829,21 @@ pcp_mount_usbdrives() {
 	pcp_toggle_row_shade
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td  class="column150 center">'
-	echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
-	echo '                    <button type="submit" name="ACTION" value="Save">Mount USB</button>'
+	if [ "$LMSDATA" = "usbmount" ]; then
+		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set USB Mount</button>'
+		echo '                  </td>'
+		echo '                  <td  class="colspan5">'
+		echo '                    <p> LMS is currently using this disk for Data.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Must Move LMS Data to another disk (SDcard or Network Share).</p>'
+		echo '                      <p>in order to change this mount.</p>'
+		echo '                    </div>'
+	else
+		echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
+		echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
+	fi
 	echo '                  </td>'
 	echo '                </tr>'
 #----------------------------------------------------------------------------------------
@@ -817,7 +876,7 @@ pcp_mount_netdrives() {
 	echo '                  <p class="row">Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <p>/mnt/ <input class="large12" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" pattern="^[a-zA-Z0-9_]{1,32}$"></p>'
+	echo '                  <p>/mnt/ <input class="large12" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" required pattern="^[a-zA-Z0-9_]{1,32}$"></p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below network share.&nbsp;&nbsp;'
@@ -826,7 +885,9 @@ pcp_mount_netdrives() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>The network share will be mounted by to this path and will be automounted on startup.</p>'
 	echo '                    <p>IP address is only the IP address.  Do not enter any / or :</p>'
-	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                    <p>Share for CIFS is the share name only (DO not use /).</p>'
+#	echo '                    <p>Share for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
+	echo '                    <p>Share for NFS is not working yet.</p>'
 	echo '                    <p>Options are a comma delimited list of mount options. Ref mount man pages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -871,7 +932,7 @@ pcp_mount_netdrives() {
 	echo '                  <input class="large10" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" title="Enter the IP Address of the Remote Server" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <input class="large8" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" pattern="^[a-zA-Z0-9_]{1,32}$">'
+	echo '                  <input class="large8" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" pattern="^[a-zA-Z0-9_/]{1,32}$">'
 	echo '                </td>'
 	echo '                <td class="column'$COL4'">'
 
@@ -880,9 +941,10 @@ pcp_mount_netdrives() {
 		nfs) NFS1yes="selected" ;;
 	esac
 
-	echo '                  <select class="large6" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
+#	echo '                  <select class="large6" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
+	echo '                  <select class="large6" name="NETMOUNT1FSTYPE" title="Only cifs(samba) are supported at this time">'
 	echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
-	echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
+#	echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td class="column'$COL5'">'
@@ -909,8 +971,31 @@ pcp_mount_netdrives() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
-	echo '                  <button type="submit" name="ACTION" value="Save">Mount NET</button>'
+	if [ "$NTFS" = "no" ]; then
+		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
+		echo '                  </td>'
+		echo '                  <td  class="colspan5">'
+		echo '                    <p>Mounting network drives requires extra filesystem support.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Please add additional filesystems using the option above.</p>'
+		echo '                    </div>'
+	elif [ "$LMSDATA" = "netmount1" ]; then
+		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
+		echo '                  </td>'
+		echo '                  <td  class="colspan5">'
+		echo '                    <p>LMS is currently using this disk for Data.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Must Move LMS Data to another disk (SDcard or USB Disk).</p>'
+		echo '                      <p>in order to change this mount.</p>'
+		echo '                    </div>'
+	else
+		echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+		echo '                  <button type="submit" name="ACTION" value="Save">Set NET Mount</button>'
+	fi
 	echo '                </td>'
 	echo '              </tr>'
 #----------------------------------------------------------------------------------------

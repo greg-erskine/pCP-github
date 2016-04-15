@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 2.05 2016-04-12 PH
+#	Added pcp_set_slimconfig
+
 # Version: 0.06 2016-03-25 GE
 #	Added pcp_lms_connect.
 
@@ -476,4 +479,14 @@ pcp_lms_prev() {
 pcp_lms_randomplay() {
 	MODE=tracks
 	pcp_lms_send "randomplay $MODE"
+}
+
+#========================================================================================
+# Local LMS server related functions
+#----------------------------------------------------------------------------------------
+pcp_lms_set_slimconfig(){
+	CFG="/home/tc/.slimserver.cfg"
+	rm -rf $CFG
+	echo "CACHE=$1/Cache" >> $CFG
+	echo "PREFS=$1/prefs" >> $CFG
 }
