@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-03-19 GE
+# Version: 2.05 2016-04-15 GE
 #	Fixed sourceforge redirection issue.
 #	Updated slimserver extension names   PH
 #	Added LMS update function   SBP
@@ -50,7 +50,7 @@ pcp_disable_lms() {
 pcp_lms_update() {
 	# the -m option will force an update no matter what.  We need to remove that option after testing
 	# Update checks and frequency are set within LMS, and will write /tmp/slimupdate/update_url when there is an update to be done.
-	sudo lms-update.sh -r -m -u > "$LMSUPDATELOG" 2>&1  
+	sudo lms-update.sh -r -u > "$LMSUPDATELOG" 2>&1  
 }
 
 pcp_restore_LMS_cache() {

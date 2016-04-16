@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.03 2016-04-14 PH
+# Version: 2.05 2016-04-14 PH
 #	Updated warning message.
 #	Added Mounting of disks.
 #	Added additional file system support.
@@ -450,7 +450,7 @@ pcp_lms_restart_lms() {
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Update LMS--------------------------------------------
-pcp_update_lms() {
+pcp_old_update_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <form name="Update" action="writetolms.cgi">'
@@ -469,8 +469,33 @@ pcp_update_lms() {
 	echo '              </tr>'
 	echo '            </form>'
 }
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_old_update_lms
+#----------------------------------------------------------------------------------------
+
+#---------------------------------Update LMS--------------------------------------------
+pcp_update_lms() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Update" action="lms-update.cgi">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" value="LMS Update">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
 [ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
+
+
 
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
