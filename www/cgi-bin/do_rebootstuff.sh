@@ -156,8 +156,9 @@ else
 		[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
 		echo "${YELLOW}  Trying to mount /dev/sda1.${RED}"
 		sudo mount /dev/sda1 >/dev/null 2>&1
-	fi
+	else
 	echo "${YELLOW}  No USB Device detected in /dev/sda1${NORMAL}"
+	fi
 fi
 
 # Check if newconfig.cfg is present
@@ -383,7 +384,7 @@ if [ "$MOUNTUUID" != "no" ]; then
 		mkdir -p /mnt/$MOUNTPOINT
 		mount --uuid $MOUNTUUID /mnt/$MOUNTPOINT
 		if [ "$?" = "0" ]; then
-			echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT."
+			echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT.${NORMAL}"
 		else
 			echo "${RED}Disk Mount Error.${NORMAL}"
 			LMSMOUNTFAIL="1"
@@ -397,7 +398,7 @@ fi
 # Mount Network Disk Selected on LMS Page
 if [ "$NETMOUNT1" = "yes" ]; then
 	mkdir -p /mnt/$NETMOUNT1POINT
-	echo -n "{BLUE}"
+	echo -n "${BLUE}"
 	mount -v -t $NETMOUNT1FSTYPE -o username=$NETMOUNT1USER,password=$NETMOUNT1PASS,$NETMOUNT1OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT
 	if [ "$?" = "0" ]; then
 		echo "${NORMAL}"
