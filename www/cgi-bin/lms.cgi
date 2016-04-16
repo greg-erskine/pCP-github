@@ -47,9 +47,6 @@ LMS_SCAN_LOG=${LOGS}/scanner.log
 WGET="/bin/busybox wget"
 LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
-df | grep -qs ntfs
-[ "$?" = "0" ] && NTFS="yes" || NTFS="no"
-
 #---------------------------Routines-----------------------------------------------------
 pcp_download_lms() {
 	cd /tmp
@@ -212,6 +209,11 @@ case "$ACTION" in
 		pcp_warning_message
 		;;
 esac
+
+
+#--------Set Variables that need to be checked after the above Case Statement -----------
+df | grep -qs ntfs
+[ "$?" = "0" ] && NTFS="yes" || NTFS="no"
 
 #========================================================================================
 # Main table
