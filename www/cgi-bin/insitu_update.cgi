@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 2.05 2016-04-17 SBP
+#	Added popup menu to resize partition if too small
+
 # Version: 0.03 2016-02-19 SBP
 #	Added code to allow existing add-ons to remain functioning.
 #	Fixed sourceforge redirection issue.
@@ -357,7 +360,8 @@ pcp_html_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-
+	
+	pcp_sufficient_free_space "$SPACE_REQUIRED"
 	pcp_footer
 	pcp_copyright
 
@@ -439,7 +443,6 @@ if [ $ACTION = "install" ]; then
 fi
 #----------------------------------------------------------------------------------------
 echo '                  </textarea>'
-pcp_sufficient_free_space '$REQUIRED_SPACE'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
