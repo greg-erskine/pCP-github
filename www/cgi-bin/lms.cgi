@@ -551,12 +551,13 @@ pcp_slimserver_persistence() {
 	COL1="75"
 	COL2="150"
 	COL3="210"
+	COL4="380"
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
 	echo '                <td class="column'$COL2'"><p><b>Mount Type</b></p></td>'
 	echo '                <td class="column'$COL3'"><p><b>LMS Data Storage Location</b></p></td>'
-	echo '                <td>'
+	echo '                <td class="column'$COL4'">'
 	echo '                    <p>This is the Location where LMS will save Data&nbsp;&nbsp;'
 	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                    </p>'
@@ -589,7 +590,13 @@ pcp_slimserver_persistence() {
 			echo '                  <p>/mnt/'$MOUNTPOINT'/slimserver</p>'
 		fi
 		echo '                </td>'
-		echo '                <td></td>'
+		if [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ]; then
+			echo '                <td class="column'$COL4'">'
+			echo '                  <p>There is a Cache folder found on this drive</p>'
+			echo '                </td>'
+		else
+			echo '                <td></td>'
+		fi
 		echo '              </tr>'
 	fi
 	if [ "$NETMOUNT1" = "yes" -o -n "$NETyes" ]; then
@@ -608,7 +615,13 @@ pcp_slimserver_persistence() {
 			echo '                  <p>/mnt/'$NETMOUNT1POINT'/slimserver</p>'
 		fi
 		echo '                </td>'
-		echo '                <td></td>'
+		if [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
+			echo '                <td class="column'$COL4'">'
+			echo '                  <p>There is a Cache folder found on this drive</p>'
+			echo '                </td>'
+		else
+			echo '                <td></td>'
+		fi
 		echo '              </tr>'
 	fi
 	pcp_toggle_row_shade
@@ -622,7 +635,13 @@ pcp_slimserver_persistence() {
 	echo '                <td class="column'$COL3'">'
 	echo '                  <p>/mnt/mmcblk0p2/tce/slimserver</p>'
 	echo '                </td>'
-	echo '                <td></td>'
+	if [ -d /mnt/mmcblk0p2/tce/slimserver/Cache ]; then
+		echo '                <td class="column'$COL4'">'
+		echo '                  <p>There is a Cache folder found on this drive</p>'
+		echo '                </td>'
+	else
+		echo '                <td></td>'
+	fi
 	echo '              </tr>'
 	
 #--------------------------------------Submit button-------------------------------------
