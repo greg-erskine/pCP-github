@@ -26,7 +26,7 @@ FAIL_MSG="ok"
 
 # As all the insitu upgrade is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
+#INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
 
 #========================================================================================
 #      382 - insitu.cfg
