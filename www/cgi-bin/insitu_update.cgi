@@ -98,6 +98,7 @@ pcp_check_for_all_extensions() {
 # Check for free space - set FAIL_MSG if insufficient space is available
 #----------------------------------------------------------------------------------------
 pcp_enough_free_space() {
+	INITSPACE=0
 	REQUIRED_SPACE=$1
 	FREE_SPACE=$(pcp_free_space k)
 	if [ $FREE_SPACE -gt $REQUIRED_SPACE ]; then
@@ -106,6 +107,7 @@ pcp_enough_free_space() {
 		echo '[ ERROR ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k'
 		echo '[ ERROR ] Not enough free space - try expanding your partition.'
 		FAIL_MSG="Not enough free space - try expanding your partition."
+		INITSPACE=1
 	fi
 }
 
@@ -360,8 +362,11 @@ pcp_html_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	
-	pcp_sufficient_free_space "$SPACE_REQUIRED"
+	if [ $INITSPACE = 1 ]; then
+		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
+		SCRIPT1=xtras_resize.cgi
+		pcp_confirmation_required
+	fi
 	pcp_footer
 	pcp_copyright
 
