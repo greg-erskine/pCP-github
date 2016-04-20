@@ -697,7 +697,7 @@ pcp_extra_filesys() {
 	done
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
+	if [ "$NTFS" = "no" ]; then
 		echo '                    <button type="submit" name="ACTION" value="Install_FS">Install</button>'
 		echo '                  </td>'
 		echo '                  <td>'
