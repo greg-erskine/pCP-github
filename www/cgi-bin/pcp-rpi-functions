@@ -2,15 +2,18 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.11 2016-04-22 GE
+#	Updated pcp_rpi_shortname.
+
 # Version: 0.10 2016-03-01 GE
-#	Added support for Raspberry Pi 3B (not tested)
+#	Added support for Raspberry Pi 3B (not tested).
 
 # Version: 0.09 2016-02-14 GE
 #	Updated temperature function.
 #	Updated for Raspberry Pi Zero.
 
 # Version: 0.08 2015-11-27 GE
-#	Added Raspberry Pi Zero (not tested)
+#	Added Raspberry Pi Zero (not tested).
 
 # Version: 0.07 2015-09-19 GE
 #	Added pcp_rpi_shortname.
@@ -94,7 +97,7 @@ pcp_rpi_details() {
 		*0014)  MODEL=CM;   PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
 		*0015)  MODEL=A+;   PCBREV=1.1;  MEMORY=256;;
 		*041)   MODEL=2B;   PCBREV=1;    MEMORY=1024;;
-		*092)   MODEL=ZERO; PCBREV=1;    MEMORY=512;;		# Check PCBREV
+		*092)   MODEL=ZERO; PCBREV=1.2;  MEMORY=512;;
 		*082)   MODEL=3B;   PCBREV=1.2;  MEMORY=1024;;		# a22082
 		*)      MODEL=?;    PCBREV=?;    MEMORY=?;;
 	esac
@@ -131,12 +134,16 @@ pcp_rpi_model_unknown() {
 	[ $MODEL = ? ] && echo 0 || echo 1
 }
 
+# The shortname is a unique identifier intended to be used with pastebin uploading
 pcp_rpi_shortname() {
 	pcp_rpi_details
-	SHORTMAC=$(pcp_eth0_mac_address)
-	([ $MODEL = A ] || [ $MODEL = A+ ]) && SHORTMAC=$(pcp_wlan0_mac_address)
+	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ]; then
+		SHORTMAC=$(pcp_wlan0_mac_address)
+	else
+		SHORTMAC=$(pcp_eth0_mac_address)
+	fi
 	SHORTMAC=$(echo $SHORTMAC | sed 's/://g')
-	echo "RPi-$(pcp_rpi_model)-${SHORTMAC:6}"
+	echo "pCP-$(pcp_rpi_model)-${SHORTMAC:6}"
 }
 
 pcp_rpi_is_model_A() {
