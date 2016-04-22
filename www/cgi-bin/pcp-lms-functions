@@ -2,8 +2,10 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 2.05 2016-04-12 PH
-#	Added pcp_set_slimconfig
+# Version: 2.05 2016-04-12
+#	Added pcp_set_slimconfig. PH.
+#	Updated pcp_controls with symbols. GE.
+#	Updated pcp_lms_controls. GE.
 
 # Version: 0.06 2016-03-25 GE
 #	Added pcp_lms_connect.
@@ -44,12 +46,12 @@ pcp_controls() {
 	echo '    <td>'
 	echo '      <p>'
 	echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up '$BLACKTRIANGLE'</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down '$BLACKTRIANGLEDOWN'</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play '$BLACKTRIANGLERIGHT'</a>'
+	echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop '$FILLEDSAMLLSQUARE'</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -61,9 +63,10 @@ pcp_controls() {
 # LMS controls from LMS web interface
 #----------------------------------------------------------------------------------------
 pcp_lms_controls() {
+	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	MAC=$(pcp_controls_mac_address)
 	LMSIP=$(pcp_lmsip)
-	echo '<iframe src="http://'${LMSIP}':9000/status_header.html?player='${MAC}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
+	echo '<iframe src="http://'${LMSIP}':'${LMSPORT}'/status_header.html?player='${MAC}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
 }
 
 #========================================================================================
