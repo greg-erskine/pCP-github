@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 2.05 2016-04-12
+# Version: 2.05 2016-04-22
 #	Added pcp_set_slimconfig. PH.
 #	Updated pcp_controls with symbols. GE.
 #	Updated pcp_lms_controls. GE.
@@ -40,23 +40,27 @@ pcp_lms_status() {
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
 pcp_controls() {
-	echo '<!-- Start of pcp_lms_controls toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up '$BLACKTRIANGLE'</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down '$BLACKTRIANGLEDOWN'</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play '$BLACKTRIANGLERIGHT'</a>'
-	echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop '$FILLEDSAMLLSQUARE'</a>'
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<!-- End of pcp_lms_controls toolbar -->'
+	if [ "$LMSCONTROLS" = "yes" ]; then
+		echo '<!-- Start of pcp_lms_controls toolbar -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up '$BLACKTRIANGLE'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down '$BLACKTRIANGLEDOWN'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play '$BLACKTRIANGLERIGHT'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop '$FILLEDSAMLLSQUARE'</a>'
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_lms_controls toolbar -->'
+	else
+		echo '<!-- pcp_lms_controls toolbar set to no -->'
+	fi
 }
 
 #========================================================================================

@@ -8,7 +8,8 @@
 #	Added customizable confirmation pop-up box. SBP.
 #	Added Disk Mounting Config variables. PH.
 #	Added Logs option to pcp_diagnostics toolbar. GE.
-#	Added $FILLEDSAMLLSQUARE.
+#	Added $FILLEDSAMLLSQUARE. GE.
+#	Added LMSCONTROLS and PLAYERTABS. GE.
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -728,27 +729,31 @@ pcp_xtras() {
 }
 
 pcp_picoreplayers() {
-	echo '<!-- Start of picoreplayers toolbar -->'
-	echo '<p>'
+	if [ "$PLAYERTABS" = "yes" ]; then
+		echo '<!-- Start of pcp_picoreplayers toolbar -->'
+		echo '<p>'
 
-	TMP=$(mktemp)
-	pcp_lms_players squeezelite >$TMP
-	while read line
-	do
-		TITLE=$(echo $line | awk -F, '{ print $1 }')
-		URL=$(echo $line | awk -F, '{ print $2 }')
-		[ "$NAME" == "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
-		echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
-	done <$TMP
-	rm -r $TMP
-	LMSIP=$(pcp_lmsip)
-	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-	if [ $MODE -ge $MODE_BETA ]; then
-		echo '  <a class="tab7" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		TMP=$(mktemp)
+		pcp_lms_players squeezelite >$TMP
+		while read line
+		do
+			TITLE=$(echo $line | awk -F, '{ print $1 }')
+			URL=$(echo $line | awk -F, '{ print $2 }')
+			[ "$NAME" == "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
+			echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
+		done <$TMP
+		rm -r $TMP
+		LMSIP=$(pcp_lmsip)
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		if [ $MODE -ge $MODE_BETA ]; then
+			echo '  <a class="tab7" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		fi
+		echo '  <div class="tab7end">pCP</div>'
+		echo '</p>'
+		echo '<!-- End of pcp_picoreplayers toolbar -->'
+	else
+		echo '<!-- pcp_picoreplayers toolbar set to no -->'
 	fi
-	echo '  <div class="tab7end">pCP</div>'
-	echo '</p>'
-	echo '<!-- End of picoreplayers toolbar -->'
 }
 
 pcp_mode() {
@@ -1417,6 +1422,8 @@ pcp_save_to_config() {
 	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
 	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
+	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1506,6 +1513,8 @@ IR_GPIO=""
 IR_CONFIG=""
 LMSWEBPORT=""
 FSM="Default"
+LMSCONTROLS="yes"
+PLAYERTABS="yes"
 EOF
 
 	# Remove timezone stuff
