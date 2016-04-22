@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.25 2016-04-23 GE
+#	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
+
 # Version: 0.24 2016-03-27 SBP
 #	Added 0xf FIQ-Split acceleration.
 #	Changed LMS Web Port to Advanced mode.
@@ -567,6 +570,86 @@ pcp_tweaks_lmswebport() {
 	echo '          </table>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------------Player Tabs-------------------------------
+pcp_tweaks_playertabs() {
+	case "$PLAYERTABS" in
+		yes) PLAYERTABSyes="checked" ;;
+		no)  PLAYERTABSno="checked" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>piCorePlayer Tabs</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="PLAYERTABS" value="yes" '$PLAYERTABSyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="PLAYERTABS" value="no" '$PLAYERTABSno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Display piCorePlayer Tabs&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Sometimes it might be useful to turn off the piCorePlayer Tabs.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_playertabs
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------------LMS Control Toolbar-----------------------
+pcp_tweaks_lmscontrols() {
+	case "$LMSCONTROLS" in
+		yes) LMSCONTROLSyes="checked" ;;
+		no)  LMSCONTROLSno="checked" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>LMS Controls Toolbar</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="LMSCONTROLS" value="yes" '$LMSCONTROLSyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="LMSCONTROLS" value="no" '$LMSCONTROLSno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Display LMS Controls Toolbar&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Sometimes it might be useful to turn off the LMS Controls Toolbar.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_lmscontrols
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
