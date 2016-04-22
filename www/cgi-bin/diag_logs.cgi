@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.01 2016-04-22 GE
+# Version: 0.01 2016-04-23 GE
 #	Original.
 
 . pcp-functions
@@ -10,7 +10,7 @@ pcp_variables
 pcp_html_head "Show pCP log files" "GE"
 
 pcp_banner
-pcp_navigation
+pcp_diagnostics
 pcp_running_script
 pcp_httpd_query_string
 

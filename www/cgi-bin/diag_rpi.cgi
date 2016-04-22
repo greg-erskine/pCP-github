@@ -1,7 +1,7 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 0.10 2016-04-21 GE
+# Version: 0.10 2016-04-23 GE
 #	Minor enhancements.
 #	Changed log location to /var/log.
 
@@ -72,7 +72,7 @@ pcp_add_to_log() {
 	echo "Uptime: $(pcp_uptime_days)" >> $LOG
 	echo "Physical MAC: $(pcp_diag_rpi_eth0_mac_address)" >> $LOG
 	echo "Wireless MAC: $(pcp_diag_rpi_wlan0_mac_address)" >> $LOG
-	echo "Configuration MAC:$(pcp_diag_rpi_config_mac_address)" >> $LOG
+	echo "Configuration MAC: $(pcp_diag_rpi_config_mac_address)" >> $LOG
 	echo "Controls MAC: $(pcp_controls_mac_address)" >> $LOG
 	echo  >> $LOG
 

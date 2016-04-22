@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-04-22
+# Version: 0.30 2016-04-23
 #	Added log location $LOGDIR. GE.
 #	Lots of minor tidy up of code. GE.
 #	Added customizable confirmation pop-up box. SBP.
@@ -700,7 +700,7 @@ pcp_diagnostics() {
 	echo '        <a class="nav6" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
 	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
 	echo '        <a class="nav6" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-	echo '        <a class="nav6" href="xtras_logs.cgi" title="pCP - Logs">Logs</a>'
+	echo '        <a class="nav6" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
