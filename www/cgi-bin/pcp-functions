@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-04-05 GE
-#	Added log location $LOGDIR.
-#	Lots of minor tidy up of code.
-#	Added customizable confirmation pop-up box 
-#	Added Disk Mounting Config variables
+# Version: 0.30 2016-04-22
+#	Added log location $LOGDIR. GE.
+#	Lots of minor tidy up of code. GE.
+#	Added customizable confirmation pop-up box. SBP.
+#	Added Disk Mounting Config variables. PH.
+#	Added Logs option to pcp_diagnostics toolbar. GE.
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -691,11 +692,12 @@ pcp_diagnostics() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav5" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav5" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
-	echo '        <a class="nav5" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
-	echo '        <a class="nav5" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
-	echo '        <a class="nav5" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '        <a class="nav6" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav6" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
+	echo '        <a class="nav6" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
+	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
+	echo '        <a class="nav6" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '        <a class="nav6" href="xtras_logs.cgi" title="pCP - Logs">Logs</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
