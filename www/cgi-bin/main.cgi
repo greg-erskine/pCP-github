@@ -372,7 +372,11 @@ pcp_main_update_pcp() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
+if [ $TEST = 3 ]; then
+	echo '                <form name="InSitu" action="insitu_update_first.cgi" method="get">'
+else
 	echo '                <form name="InSitu" action="insitu_update.cgi" method="get">'
+fi
 	echo '                  <input type="submit" value="Update pCP" />'
 	echo '                  <input type="hidden" name="ACTION" value="initial" />'
 	echo '                </form>'

@@ -210,6 +210,13 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_timezone
 	pcp_write_to_host
 	pcp_save_to_config
+#-------New section that handle removal and update of packages after pCP insitu update----
+	$(uname -a | awk '{ print $3 }' | tr -d + | tr -d _v7 | tr -d piCore)
+
+	
+
+
+#------End of insitu update section-------------------------------------------------------
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
