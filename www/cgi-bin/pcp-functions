@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-04-22
+# Version: 0.30 2016-04-23
 #	Added log location $LOGDIR. GE.
 #	Lots of minor tidy up of code. GE.
 #	Added customizable confirmation pop-up box. SBP.
@@ -285,16 +285,16 @@ pcp_variables() {
 	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
 	# Set to 3 in order to use beta download page from sourceforge when testing beta versions.
 	# Default is 0.
-	TEST=1
+	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -700,7 +700,7 @@ pcp_diagnostics() {
 	echo '        <a class="nav6" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
 	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
 	echo '        <a class="nav6" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-	echo '        <a class="nav6" href="xtras_logs.cgi" title="pCP - Logs">Logs</a>'
+	echo '        <a class="nav6" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -1261,34 +1261,6 @@ pcp_backup_nohtml() {
 pcp_running_script() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
 }
-
-#=========================================================================================
-# Download with md5 check routine irda-4.1.13-piCore_v7+.tcz.md5.txt
-#-----------------------------------------------------------------------------------------
-pcp_download_package() {
-for PACKAGE in $packages
-do
-	$WGET -s ${REPRO}/${PACKAGE}
-	if [ $? = 0 ]; then
-		echo '<p class="info">[ INFO ] Downloading '${PACKAGE}'...'
-		echo '<p class="info">[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
-		$WGET ${REPRO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
-		$WGET ${REPRO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
-		md5sum -c /${TARGETDIR}/${PACKAGE}.md5.txt
-		if [ $? = 0 ]; then
-			echo '<p class="ok">[ OK ] '$PACKAGE' download successful.</p>'
-			echo '<p class="ok">[ OK ] '${PACKAGE}.md5.txt' download successful.</p>'
-			sudo chown tc:staff /${PCPHOME}/${PACKAGE}
-			sudo chown tc:staff /${PCPHOME}/${PACKAGE}.md5.txt
-		else
-			echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
-		fi
-	else
-		echo '<p class="error">[ ERROR ] '$PACKAGE' not available in repository, try again later!</p>'
-	fi
-done
-}
-
 
 #=========================================================================================
 # Mounting/unmounting devices
