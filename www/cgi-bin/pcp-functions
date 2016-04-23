@@ -2,7 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 0.30 2016-04-23
+# Version: 2.05 
+#	0.30 2016-04-23
+#	Added package location $PACKAGEDIR and download with md5 check function. SBP.
 #	Added log location $LOGDIR. GE.
 #	Lots of minor tidy up of code. GE.
 #	Added customizable confirmation pop-up box. SBP.
@@ -277,6 +279,7 @@ pcp_variables() {
 	UPD_PCP=/tmp/upd_picoreplayer
 	PCPHOME=/home/tc/www/cgi-bin
 	LOGDIR=/var/log
+	PACKAGEDIR=/mnt/mmcblk0p2/tce/optional
 
 	. $PCPHOME/pcp-rpi-functions
 
@@ -1260,6 +1263,35 @@ pcp_backup_nohtml() {
 #-----------------------------------------------------------------------------------------
 pcp_running_script() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
+}
+
+
+#=========================================================================================
+# Download with md5 check routine 
+#-----------------------------------------------------------------------------------------
+pcp_download_package() {
+for PACKAGE in $packages
+do
+	$WGET -s ${REPRO}/${PACKAGE}
+	if [ “$?” = “0” ]; then
+		echo '<p class="info">[ INFO ] Downloading '${PACKAGE}'...'
+		echo '<p class="info">[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
+		$WGET ${REPRO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
+		$WGET ${REPRO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
+		cd /${TARGETDIR}
+		md5sum -cs ${PACKAGE}.md5.txt 
+		if [ “$?” = “0” ]; then
+			echo '<p class="ok">[ OK ] '$PACKAGE' download successful.</p>'
+			echo '<p class="ok">[ OK ] '${PACKAGE}.md5.txt' download successful.</p>'
+			sudo chown tc:staff /${PCPHOME}/${PACKAGE}
+			sudo chown tc:staff /${PCPHOME}/${PACKAGE}.md5.txt
+		else
+			echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
+		fi
+	else
+		echo '<p class="error">[ ERROR ] '$PACKAGE' not available in repository, try again later!</p>'
+	fi
+done
 }
 
 #=========================================================================================
