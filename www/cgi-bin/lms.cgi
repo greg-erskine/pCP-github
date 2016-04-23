@@ -52,49 +52,9 @@ pcp_download_lms() {
 	cd /tmp
 	sudo rm -f /tmp/LMS
 	sudo mkdir /tmp/LMS
-	echo '<p class="info">[ INFO ] Downloading Logitech Media Server (LMS) from repository...</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Repo: '${LMSREPOSITORY}'</p>'
-	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${LMSREPOSITORY}/slimserver-CPAN.tcz
-	if [ $? = 0 ]; then
-		RESULT=0
-		echo '<p class="info">[ INFO ] Downloading LMS'
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz/download -O /tmp/LMS/slimserver-CPAN.tcz
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.dep/download -O /tmp/LMS/slimserver-CPAN.tcz.dep
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver-CPAN.tcz.md5.txt/download -O /tmp/LMS/slimserver-CPAN.tcz.md5.txt
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver.tcz.md5.txt/download -O /tmp/LMS/slimserver.tcz.md5.txt
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver.tcz.dep/download -O /tmp/LMS/slimserver.tcz.dep
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${LMSREPOSITORY}/slimserver.tcz/download -O /tmp/LMS/slimserver.tcz
-		[ $? = 0 ] && echo . || (echo $?; RESULT=1)
-
-		echo -n '<p class="info">[ INFO ] '
-		sudo -u tc tce-load -w gcc_libs.tcz
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		echo '<p>'
-		echo -n '<p class="info">[ INFO ] '
-		sudo -u tc tce-load -w perl5.tcz
-		[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
-		echo '<p>'
-
-		if [ $RESULT = 0 ]; then
-			echo '<p class="ok">[ OK ] Download successful.</p>'
-			sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
-			sudo chown -R tc:staff /tmp/LMS
-			sudo chmod 664 /tmp/LMS/*
-			sudo cp -a /tmp/LMS/* /mnt/mmcblk0p2/tce/optional/
-			sudo rm -f /tmp/LMS
-		else
-			echo '<p class="error">[ ERROR ] LMS download unsuccessful, try again!</p>'
-		fi
-	else
-		echo '<p class="error">[ ERROR ] LMS not available in repository, try again later!</p>'
-	fi
+	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz
+	return $?
 }
 
 pcp_install_lms() {
@@ -182,13 +142,31 @@ case "$ACTION" in
 		sudo /usr/local/etc/init.d/slimserver start
 		;;
 	Install)
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <div class="row">'
+		echo '        <fieldset>'
+		echo '          <legend>Downloading Logitech Media Server (LMS)</legend>'
+		echo '          <table class="bggrey percent100">'
 		pcp_sufficient_free_space 40000
 		pcp_download_lms
-		pcp_install_lms
-		LMSERVER="yes"
-		pcp_save_to_config
-		pcp_backup
-		pcp_reboot_required
+		if [ "$?" = "0" ]; then
+			pcp_install_lms
+			LMSERVER="yes"
+			pcp_save_to_config
+			pcp_backup
+			pcp_reboot_required
+		else
+			echo '<p class="error">[ ERROR ] Error Downloading LMS, please try again later.'
+		fi
+		echo '          </table>'
+		echo '        </fieldset>'
+		echo '      </div>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+
 		;;
 	Remove)
 		pcp_remove_lms
@@ -452,29 +430,6 @@ pcp_lms_restart_lms() {
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Update LMS--------------------------------------------
-pcp_old_update_lms() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Update" action="writetolms.cgi">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="UPDATE" value="Update" />'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_old_update_lms
-#----------------------------------------------------------------------------------------
-
-#---------------------------------Update LMS--------------------------------------------
 pcp_update_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -496,8 +451,6 @@ pcp_update_lms() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
-
-
 
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
@@ -673,7 +626,6 @@ pcp_slimserver_persistence() {
 }
 [ $MODE -ge $MODE_BETA ] && pcp_slimserver_persistence
 	
-
 #========================================================================================
 # Extra File System Support
 #----------------------------------------------------------------------------------------

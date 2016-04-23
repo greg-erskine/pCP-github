@@ -2,8 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.05 
-#	0.30 2016-04-23
+# Version: 2.05 2016-04-23
+#	Added PCP_REPO PH
 #	Added package location $PACKAGEDIR and download with md5 check function. SBP.
 #	Added log location $LOGDIR. GE.
 #	Lots of minor tidy up of code. GE.
@@ -284,9 +284,9 @@ pcp_variables() {
 	. $PCPHOME/pcp-rpi-functions
 
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
-
 	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
-
+	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
+	
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
 
