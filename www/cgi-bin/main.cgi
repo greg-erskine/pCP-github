@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.23 2016-04-23 GE
+# Version: 0.23 2016-04-24 GE
 #	Added double quotes when comparing strings.
 
 # Version: 0.22 2016-03-10 GE
@@ -375,6 +375,13 @@ pcp_main_update_pcp() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
+
+	if [ $TEST -eq 3 ]; then
+		echo '                <form name="InSitu" action="insitu_update_first.cgi" method="get">'
+	else
+		echo '                <form name="InSitu" action="insitu_update.cgi" method="get">'
+	fi
+
 	echo '                <form name="InSitu" action="insitu_update.cgi" method="get">'
 	echo '                  <input type="submit" value="Update pCP" />'
 	echo '                  <input type="hidden" name="ACTION" value="initial" />'
