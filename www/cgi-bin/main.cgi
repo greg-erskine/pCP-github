@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.23 2016-04-23 GE
+#	Added double quotes when comparing strings.
+
 # Version: 0.22 2016-03-10 GE
 #	Added squeezelite version to more> help.
 #	Added LMS indicator.
@@ -118,7 +121,7 @@ echo '          <table class="bggrey percent100">'
 #------------------------------------Squeezelite/Shairport Indication--------------------
 pcp_main_squeezelite_indication() {
 
-	if [ $(pcp_squeezelite_status) = 0 ]; then
+	if [ $(pcp_squeezelite_status) -eq 0 ]; then
 		INDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
 		STATUS="running"
@@ -135,8 +138,8 @@ pcp_main_squeezelite_indication() {
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Squeezelite is '$STATUS'.&nbsp;&nbsp;'
-	[ $SQUEEZELITE = no ] &&
+	echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+	[ "$SQUEEZELITE" = "no" ] &&
 	echo '                  And Squeezelite is disabled on Tweaks page.&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
@@ -159,7 +162,7 @@ pcp_main_squeezelite_indication && pcp_main_padding
 #------------------------------------LMS Indication--------------------------------------
 pcp_main_lms_indication() {
 
-	if [ $(pcp_lms_status) = 0 ]; then
+	if [ $(pcp_lms_status) -eq 0 ]; then
 		INDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
 		STATUS="running"
@@ -176,7 +179,7 @@ pcp_main_lms_indication() {
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>LMS is '$STATUS'.&nbsp;&nbsp;'
+	echo '                <p>LMS is '$STATUS'&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -188,13 +191,13 @@ pcp_main_lms_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $LMSERVER = yes ] && pcp_main_lms_indication && pcp_main_padding
+[ "$LMSERVER" = "yes" ] && pcp_main_lms_indication && pcp_main_padding
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Shairport Indication--------------------------------
 pcp_main_shairport_indication() {
 
-	if [ $(pcp_shairport_status) = 0 ]; then
+	if [ $(pcp_shairport_status) -eq 0 ]; then
 		INDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
 		STATUS="running"
@@ -227,7 +230,7 @@ pcp_main_shairport_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $SHAIRPORT = yes ] && pcp_main_shairport_indication && pcp_main_padding
+[ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication && pcp_main_padding
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
@@ -282,7 +285,7 @@ pcp_main_restart_shairport() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $SHAIRPORT = yes ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
+[ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Padding---------------------------------------
@@ -372,11 +375,7 @@ pcp_main_update_pcp() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-if [ $TEST = 3 ]; then
-	echo '                <form name="InSitu" action="insitu_update_first.cgi" method="get">'
-else
 	echo '                <form name="InSitu" action="insitu_update.cgi" method="get">'
-fi
 	echo '                  <input type="submit" value="Update pCP" />'
 	echo '                  <input type="hidden" name="ACTION" value="initial" />'
 	echo '                </form>'
@@ -625,6 +624,29 @@ pcp_main_restore_all() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_restore_all
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Update config---------------------------------
+pcp_main_update_config() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Update config" action="writetoconfig.cgi" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Update config" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update configuration file&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command will update your configuration file.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_config
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Resize FS-------------------------------------
