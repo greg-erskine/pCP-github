@@ -17,5 +17,6 @@ usr/local/sbin/config.cfg
 usr/local/sbin/piversion.cfg
 usr/local/sbin/setup
 usr/local/sbin/pcp
+usr/local/sbin/pcp-load
 var/lib/alsa/asound.state
 var/spool/cron/crontabs
