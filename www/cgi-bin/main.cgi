@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 0.23 2016-04-24 GE
+# Version: 0.23 2016-04-25 GE
 #	Added double quotes when comparing strings.
+#	Added pcp_main_update_config.
+#	Moved to developer mode: pcp_main_copy2fs, pcp_main_dosfsck, pcp_main_reset_all, pcp_main_restore_all.
 
 # Version: 0.22 2016-03-10 GE
 #	Added squeezelite version to more> help.
@@ -585,77 +587,6 @@ pcp_main_static_ip(){
 [ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Reset ALL-------------------------------------
-pcp_main_reset_all() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi?SUBMIT=Reset'\'')" method="get">'
-	echo '                  <input type="submit" name="SUBMIT" value="Reset ALL" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Reset all settings in configuration file&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command will reset all settings in the configuration file to the defaults that'
-	echo '                     are defined in pcp-functions. </p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_reset_all
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Restore ALL-----------------------------------
-pcp_main_restore_all() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Restore ALL" action="writetoconfig.cgi" method="get">'
-	echo '                  <input type="submit" name="SUBMIT" value="Restore ALL" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Restore all settings in configuration file&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command will restore all settings in the configuration file to those found in'
-	echo '                     newconfig.cfg on USB flash memory.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_restore_all
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Update config---------------------------------
-pcp_main_update_config() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Update config" action="writetoconfig.cgi" method="get">'
-	echo '                  <input type="submit" name="SUBMIT" value="Update config" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Update configuration file&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command will update your configuration file.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_config
-#----------------------------------------------------------------------------------------
-
 #------------------------------------------Resize FS-------------------------------------
 pcp_main_resize_fs() {
 	pcp_toggle_row_shade
@@ -701,29 +632,6 @@ pcp_main_extensions() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_extensions
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Dosfsck---------------------------------------
-pcp_main_dosfsck() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
-	echo '                  <input type="submit" value="DOS fsck" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>DOS file system check&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to run dosfsck on the SD card.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Diagnostics-----------------------------------
@@ -772,7 +680,142 @@ pcp_main_extras() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_extras
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------copy2fs----------------------------------------
+#------------------------------------------Developer mode fieldset-----------------------
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Developer mode operations</legend>'
+	echo '          <table class="bggrey percent100">'
+fi
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Reset ALL-------------------------------------
+pcp_main_reset_all() {
+	pcp_start_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi?SUBMIT=Reset'\'')" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Reset ALL" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Reset all settings in configuration file&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command will reset all settings in the configuration file to the defaults that'
+	echo '                     are defined in pcp-functions. </p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_reset_all
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Restore ALL-----------------------------------
+pcp_main_restore_all() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Restore ALL" action="writetoconfig.cgi" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Restore ALL" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Restore all settings in configuration file&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command will restore all settings in the configuration file to those found in'
+	echo '                     newconfig.cfg on USB flash memory.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_restore_all
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Update config---------------------------------
+pcp_main_update_config() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Update config" action="writetoconfig.cgi" method="get">'
+	echo '                  <input type="submit" name="SUBMIT" value="Update config" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update configuration file&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command will update your configuration file.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_config
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Dosfsck---------------------------------------
+pcp_main_dosfsck() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
+	echo '                  <input type="submit" value="DOS fsck" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>DOS file system check&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This option allows you to run dosfsck on the SD card.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_dosfsck
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Debug-----------------------------------------
+pcp_main_debug() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Debug" action="debug.cgi" method="get">'
+	echo '                  <input type="submit" value="Debug" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Go to Debug page&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will go to the Debug page.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_debug
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------copy2fs---------------------------------------
 pcp_main_copy2fs() {
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -792,48 +835,7 @@ pcp_main_copy2fs() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_main_copy2fs
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Developer mode fieldset-----------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Developer mode operations</legend>'
-	echo '          <table class="bggrey percent100">'
-fi
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Debug-----------------------------------------
-pcp_main_debug() {
-	pcp_start_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Debug" action="debug.cgi" method="get">'
-	echo '                  <input type="submit" value="Debug" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Go to Debug page&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will go to the Debug page.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_debug
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------

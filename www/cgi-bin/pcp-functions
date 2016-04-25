@@ -2,8 +2,8 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.05 2016-04-23
-#	Added PCP_REPO PH
+# Version: 2.05 2016-04-25
+#	Added PCP_REPO. PH.
 #	Added package location $PACKAGEDIR and download with md5 check function. SBP.
 #	Added log location $LOGDIR. GE.
 #	Lots of minor tidy up of code. GE.
@@ -12,6 +12,7 @@
 #	Added Logs option to pcp_diagnostics toolbar. GE.
 #	Added $FILLEDSAMLLSQUARE. GE.
 #	Added LMSCONTROLS and PLAYERTABS. GE.
+#	Added pcp_update_config_to_defaults. GE.
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -286,7 +287,7 @@ pcp_variables() {
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
 	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
 	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
-	
+
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
 
@@ -306,7 +307,7 @@ pcp_variables() {
 	MODE_DEVELOPER=100			# Beta and experiential options for developers only
 
 	# Use test download area
-	if [ $TEST = 3 ]; then
+	if [ $TEST -eq 3 ]; then
 		INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/beta"
 		REPOSITORY="https://sourceforge.net/projects/picoreplayer/files/beta"
 	fi
@@ -941,14 +942,11 @@ pcp_restart_required() {
 	echo '</script>'
 }
 
-
 pcp_confirmation_required() {
 	echo '<script language="javascript">'
 	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
 	echo '</script>'
 }
-
-
 
 #=========================================================================================
 # Start/stop Squeezelite
@@ -1265,7 +1263,6 @@ pcp_running_script() {
 	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
 }
 
-
 #=========================================================================================
 # Download with md5 check routine 
 #-----------------------------------------------------------------------------------------
@@ -1466,8 +1463,8 @@ pcp_save_to_config() {
 #
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
-pcp_reset_config_to_defaults() {
-sudo cat <<EOF > $CONFIGCFG
+pcp_update_config_to_defaults() {
+	sudo cat <<EOF > $CONFIGCFG
 #########################
 # Edit the variables below to setup a wifi based system without LAN access
 # Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN"
@@ -1548,6 +1545,10 @@ FSM="Default"
 LMSCONTROLS="yes"
 PLAYERTABS="yes"
 EOF
+}
+
+pcp_reset_config_to_defaults() {
+	pcp_update_config_to_defaults
 
 	# Remove timezone stuff
 	pcp_mount_mmcblk0p1_nohtml

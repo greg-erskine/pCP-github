@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.08 2016-04-25 GE
+#	Added pcp_update.
+
 # Version: 0.07 2016-03-30 SBP
 #	Added warning pop-up box for setting a different output value when using ALSAeq.
 
@@ -56,9 +59,27 @@ pcp_restore() {
 }
 
 #========================================================================================
+# Update config.cfg to the latest version
+#
+# This will first create the latest version of config.cfg with default values, then,
+# restore original values.
+#----------------------------------------------------------------------------------------
+pcp_update() {
+	echo '<p class="info">[ INFO ] Copying config.cfg to /tmp...</p>'
+	sudo cp $CONFIGCFG /tmp/config.cfg
+	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying config.cfg to /tmp...</p>'
+	echo '<p class="info">[ INFO ] Setting config.cfg to defaults...</p>'
+	pcp_update_config_to_defaults
+	echo '<p class="info">[ INFO ] Updating config.cfg with original values...</p>'
+	. $CONFIGCFG
+	. /tmp/config.cfg
+	pcp_save_to_config
+}
+
+#========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-case $SUBMIT in
+case "$SUBMIT" in
 	Save)
 		pcp_save_to_config
 		;;
@@ -68,6 +89,9 @@ case $SUBMIT in
 	Restore*)
 		pcp_restore
 		;;
+	Update*)
+		pcp_update
+		;;
 	*)
 		echo '<p class="error">[ ERROR ] Invalid case argument.</p>'
 		;;
@@ -75,11 +99,10 @@ esac
 
 . $CONFIGCFG
 
-
-if [ $ALSAeq = yes ]  && [ $OUTPUT != equal ]; then
-STRING1='ALSA equalizer is enabled. In order to use it "equal" must be used in the OUTPUT box. Press OK to go back and change or Cancel to continue'
-SCRIPT1=squeezelite.cgi
-pcp_confirmation_required
+if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
+	STRING1='ALSA equalizer is enabled. In order to use it "equal" must be used in the OUTPUT box. Press OK to go back and change or Cancel to continue'
+	SCRIPT1=squeezelite.cgi
+	pcp_confirmation_required
 fi
 
 pcp_show_config_cfg
