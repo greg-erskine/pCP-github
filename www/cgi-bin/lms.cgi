@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 2.05 2016-04-14 PH
+# Version: 2.05 2016-04-25 PH
 #	Updated warning message.
 #	Added Mounting of disks.
 #	Added additional file system support.
 #	Added Location for LMS Server Persistent Data.
 #	Added LMS Server Update Script.
+#	Turned off [Mode] Tabs in basic mode. GE.
 
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
@@ -1034,151 +1035,12 @@ pcp_lms_logview() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $LOGSHOW = yes ] && pcp_lms_logview
+[ "$LOGSHOW" = "yes" ] && pcp_lms_logview
 #----------------------------------------------------------------------------------------
 
 pcp_footer
-pcp_mode
+[ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
 
 echo '</body>'
 echo '</html>'
-exit
-
-#-------------Steen Delete Samba Stuff???? - scp should be used to copy files to pCP -------------------------------
-#------------------------------------------SAMBA mode fieldset---------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>SAMBA operations</legend>'
-	echo '          <table class="bggrey percent100">'
-fi
-
-#----------------------------------------------------------------------------------------
-
-pcp_samba_indication() {
-
-	if [ $(pcp_samba_status) = 0 ]; then
-		SB_IMAGE="green.png"
-		SB_STATUS="running"
-	else
-		SB_IMAGE="red.png"
-		SB_STATUS="not running"
-	fi
-
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p class="centre"><img src="../images/'$SB_IMAGE'" alt="'$SB_STATUS'"></p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Samba is '$SB_STATUS'&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <ul>'
-	echo '                    <li>GREEN = Samba running.</li>'
-	echo '                    <li>RED = Samba not running.</li>'
-	echo '                  </ul>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>Samba must be running to access music folder from computers on network.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_indication
-
-#------------------------------------------Enable/download Samba-------------------------
-pcp_samba_enable() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <form name="Enable" action="writetolms.cgi" method="get">'
-	echo '                    <input type="submit" value="Enable" />'
-	echo '                  </form>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="SAMBA" value="no" '$SAMBAno'>No'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Enable and download Samba file server  <a href="samba_conf.cgi" style="color: #FF0000;">Click to configure</a>&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Download Samba from repro.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_enable
-
-#------------------------------------------Start SAMBA-----------------------------------
-pcp_samba_start() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Stop" action="samba.cgi" method="get">'
-	echo '                  <input type="submit" value="Start" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Start Samba file server&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will start Samba file server.</p>'
-	echo '                  <p>Click [Start] to start Samba.</p>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>Samba running indicator will turn green.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_start
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Stop------------------------------------------
-pcp_samba_stop() {
-	pcp_incr_id
-	pcp_start_row_shade
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Stop" action="stop.cgi" method="get">'
-	echo '                  <input type="submit" value="Stop" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Stop Samba file server&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will stop Samba file server.</p>'
-	echo '                  <p>Click [Stop] to stop Samba file server.</p>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>Samba running indicator will turn red.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba_stop
-#----------------------------------------------------------------------------------------
