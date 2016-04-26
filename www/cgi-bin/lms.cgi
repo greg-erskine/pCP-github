@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 2.05 2016-04-25 PH
+# Version: 2.05 2016-04-26 PH
 #	Updated warning message.
 #	Added Mounting of disks.
 #	Added additional file system support.
 #	Added Location for LMS Server Persistent Data.
 #	Added LMS Server Update Script.
 #	Turned off [Mode] Tabs in basic mode. GE.
+#	Added LMS rescan in developer mode. GE.
 
 # Version: 0.02 2016-03-19 SBP
 #	Added LMS log view, space check and hide SAMBA and update LMS options.
@@ -184,11 +185,13 @@ case "$ACTION" in
 		pcp_remove_fs
 		pcp_reboot_required
 		;;
+	Rescan*)
+		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
+		;;
 	*)
 		pcp_warning_message
 		;;
 esac
-
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
 df | grep -qs ntfs
@@ -317,6 +320,35 @@ pcp_lms_configure_lms() {
 	echo '            </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_lms_configure_lms
+#----------------------------------------------------------------------------------------
+
+#-----------------------------------Rescan LMS-------------------------------------------
+pcp_rescan_lms() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Rescan" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Rescan LMS" />'
+	echo '                </td>'
+	echo '                <td class="column280">'
+	echo '                  <select class="large32" name="RESCAN">'
+	echo '                    <option value="rescan">Look for new and changed media files</option>'
+	echo '                    <option value="wipecache">Clear library and rescan everything</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Rescan LMS library&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Rescan the local LMS library.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_rescan_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Install/uninstall LMS-------------------------
