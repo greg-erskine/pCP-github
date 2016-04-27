@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.05 2016-04-25
+# Version: 2.05 2016-04-27
 #	Added PCP_REPO. PH.
 #	Added package location $PACKAGEDIR and download with md5 check function. SBP.
 #	Added log location $LOGDIR. GE.
@@ -13,6 +13,7 @@
 #	Added $FILLEDSAMLLSQUARE. GE.
 #	Added LMSCONTROLS and PLAYERTABS. GE.
 #	Added pcp_update_config_to_defaults. GE.
+#	Added hotspot to pCP logo.
 
 # Version: 0.29 2016-03-18 GE
 #	Added POWER_GPIO and POWER_SCRIPT.
@@ -546,7 +547,12 @@ pcp_banner() {
 	echo '  <tr>'
 	echo '    <td height="148">'
 	echo '      <p class="banner">'
-	echo '        <a href="about.cgi" title="pCP Logo"><img src="../images/banner.png" alt="piCorePlayer" /></a>'
+#	echo '        <a href="about.cgi" title="pCP Logo"><img src="../images/banner.png" alt="piCorePlayer" /></a>'
+	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
+	echo '        <map name="hotspot">'
+	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
+	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100">'
+	echo '        </map>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
