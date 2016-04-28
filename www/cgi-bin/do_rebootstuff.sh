@@ -146,6 +146,14 @@ else
 	break
 fi
 
+# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
+if [ -f "$PCPHOME/bootfix.sh" ]; then
+	echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
+	sudo "$PCPHOME/bootfix.sh"
+	sudo rm "$PCPHOME/bootfix.sh"
+fi
+
+
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
@@ -167,18 +175,19 @@ fi
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
+	pcp_update_config_to_defaults
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	# Read variables from newconfig and save to config.
 	. $MNTUSB/newconfig.cfg
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
+	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	pcp_read_chosen_audio
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
-	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
@@ -193,11 +202,12 @@ echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
-	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
+	pcp_update_config_to_defaults
 
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
+	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg	
 	. /mnt/mmcblk0p1/newconfig.cfg
-	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
+	pcp_save_to_config
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
@@ -212,28 +222,8 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
-	pcp_save_to_config
+	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 #-------New section that handle removal and update of kernel packages after pCP insitu update----
-#	$(uname -a | awk '{ print $3 }' | tr -d + | tr -d _v7 | tr -d piCore)   # Don't think we need only the kernel number.....
-#	CURRENTKERNEL=$(uname -r | cut -d '-' -f1)    # Don't think we need only the kernel number.....
-	CURRENTKERNEL=$(uname -r)
-	ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -q $CURRENTKERNEL   # Assume if one is present, then all should be good
-	if [ "$?" = "0" ]; then
-		echo "${BLUE}Kernel modules found matching current kernel version $(CURRENTKERNEL)${NORMAL}"
-	else
-		for EXT in `ls /mnt/mmcblk0p2/tce/optional/*piCore* | sed -e 's|[-][0-9].[0-9].*||' | sort -u`; do
-			sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
-			if [ "$?" != "0" ]; then
-				echo "${RED}[ ERROR ] Error downloading ${EXT}${NORMAL}"
-				###Not sure what to do yet.
-			fi
-		done
-		#delete the old files, just print out for testing
-		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} echo "Test....deleting {}"   
-		#ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
-		
-		# Also need a check just to be sure onboot.lst doesn't have hard kernel references.
-	fi
 
 #------End of insitu update section-------------------------------------------------------
 	pcp_backup_nohtml >/dev/null 2>&1
