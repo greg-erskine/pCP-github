@@ -147,12 +147,11 @@ else
 fi
 
 # Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-if [ -f "$PCPHOME/bootfix.sh" ]; then
+if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
 	echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-	sudo "$PCPHOME/bootfix.sh"
-	sudo rm "$PCPHOME/bootfix.sh"
+	/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
+	rm -rf /mnt/mmcblk0p2/tce/bootfix
 fi
-
 
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
@@ -224,7 +223,25 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_write_to_host
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 #-------New section that handle removal and update of kernel packages after pCP insitu update----
-
+#	CURRENTKERNEL=$(uname -r)
+#	ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -q $CURRENTKERNEL   # Assume if one is present, then all should be good
+#	if [ "$?" = "0" ]; then
+#		echo "${BLUE}Kernel modules found matching current kernel version $(CURRENTKERNEL)${NORMAL}"
+#	else
+#		for EXT in `ls /mnt/mmcblk0p2/tce/optional/*piCore* | sed -e 's|[-][0-9].[0-9].*||' | sort -u`; do
+#			sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
+#			if [ "$?" != "0" ]; then
+#				echo "${RED}[ ERROR ] Error downloading ${EXT}${NORMAL}"
+#				###Not sure what to do yet.
+#			fi
+#		done
+#		#delete the old files, just print out for testing
+#		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} echo "Test....deleting {}"   
+#		#ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
+#		
+#		# Also need a check just to be sure onboot.lst doesn't have hard kernel references.
+#	fi
+#
 #------End of insitu update section-------------------------------------------------------
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -535,5 +552,5 @@ if [ $JIVELITE = "YES" ]; then
 	fi
 	export HOME=/home/tc
 	echo "${GREEN}Done.${NORMAL}"
-	sudo -E -b /opt/jivelite/bin/jivelite.sh
+	sudo -E -b /opt/jivelite/bin/jivelite.sh  
 fi
