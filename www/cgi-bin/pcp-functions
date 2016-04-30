@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.05 2016-04-27
+# Version: 2.05 2016-04-30
 #	Added PCP_REPO. PH.
 #	Added package location $PACKAGEDIR and download with md5 check function. SBP.
 #	Added log location $LOGDIR. GE.
@@ -1273,28 +1273,49 @@ pcp_running_script() {
 # Download with md5 check routine 
 #-----------------------------------------------------------------------------------------
 pcp_download_package() {
-for PACKAGE in $packages
+#Usage set the following, then run pcp_download_package
+#    PACKAGES="list of files to download"
+#    DL_REPO=http://location
+#    TARGETDIR=location to save files.
+for PACKAGE in $PACKAGES
 do
-	$WGET -s ${REPRO}/${PACKAGE}
+	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] PACKAGE='$PACKAGE' DL_REPO='$DL_REPO' TARGETDIR='$TARGETDIR
+	$WGET -s ${DL_REPO}/${PACKAGE}
 	if [ “$?” = “0” ]; then
-		echo '<p class="info">[ INFO ] Downloading '${PACKAGE}'...'
-		echo '<p class="info">[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
-		$WGET ${REPRO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
-		$WGET ${REPRO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
-		cd /${TARGETDIR}
-		md5sum -cs ${PACKAGE}.md5.txt 
-		if [ “$?” = “0” ]; then
-			echo '<p class="ok">[ OK ] '$PACKAGE' download successful.</p>'
-			echo '<p class="ok">[ OK ] '${PACKAGE}.md5.txt' download successful.</p>'
-			sudo chown tc:staff /${PCPHOME}/${PACKAGE}
-			sudo chown tc:staff /${PCPHOME}/${PACKAGE}.md5.txt
-		else
-			echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
-		fi
+		RETRY=0
+		MAX_RETRIES=3
+
+		while [ $RETRY -lt $MAX_RETRIES ]
+		do
+			echo '[ INFO ] Downloading '${PACKAGE}'...'
+			$WGET ${DL_REPO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
+			echo '[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
+			$WGET ${DL_REPO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
+			cd /${TARGETDIR}
+			md5sum -cs ${PACKAGE}.md5.txt 
+			if [ “$?” = “0” ]; then
+				echo '[ OK ] '$PACKAGE' download successful.'
+				sudo chown tc:staff /${TARGETDIR}/${PACKAGE}
+				sudo chown tc:staff /${TARGETDIR}/${PACKAGE}.md5.txt
+				break
+			else
+				echo '[ ERROR ] Download unsuccessful, MD5 mismatch.'
+				RETRY=$((RETRY+1))
+				if [ $RETRY -lt $MAX_RETRIES ]; then
+					echo '[ INFO ] Retrying Download........in 5 seconds.'
+					sleep 5
+				else
+					echo '[ ERROR ] Max retries reached, please try again later'
+					return 1
+				fi
+			fi
+		done
 	else
-		echo '<p class="error">[ ERROR ] '$PACKAGE' not available in repository, try again later!</p>'
+		echo '[ ERROR ] '$PACKAGE' not available in repository, try again later!'
+		return 1
 	fi
 done
+return 0
 }
 
 #=========================================================================================

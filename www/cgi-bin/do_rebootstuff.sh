@@ -1,14 +1,13 @@
 #!/bin/sh
 
-# Version: 2.06 2016-04-23 SBP
-#	Added download of kernel modules during insitu upgrade.
-
-# Version: 0.27 2016-04-14 PH
+# Version: 2.05 2016-04-30 PH
 #	Added firmware-brcmfmac43430.tcz
 #	Added Mount for LMS Server Drive
 #	Modified IQaudIO amp control
 #	Changed if LMS Server is Enabled, Start before Squeezelite
 #	Added Network Share Mount
+#	Added download of kernel modules during insitu upgrade.   Currently inactive for 2.05
+#   Added bootfix routine to correct certain update issues during first boot.
 
 # Version: 0.26 2016-02-26 GE
 #	Added firmware-brcmwifi.tcz.
