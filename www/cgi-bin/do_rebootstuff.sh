@@ -552,5 +552,5 @@ if [ $JIVELITE = "YES" ]; then
 	fi
 	export HOME=/home/tc
 	echo "${GREEN}Done.${NORMAL}"
-	sudo -E -b /opt/jivelite/bin/jivelite.sh  
+	sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
 fi
