@@ -150,6 +150,10 @@ if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
 	echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
 	/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
 	rm -rf /mnt/mmcblk0p2/tce/bootfix
+	pcp_backup_nohtml >/dev/null 2>&1
+	echo "${RED}Rebooting needed after bootfix... ${NORMAL}"
+	sleep 3
+	sudo reboot
 fi
 
 # Mount USB stick if present
