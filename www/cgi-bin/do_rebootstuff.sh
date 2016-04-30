@@ -174,19 +174,21 @@ fi
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
+	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
-	sudo dos2unix -u $MNTUSB/newconfig.cfg
+	. $CONFIGCFG
 	# Read variables from newconfig and save to config.
+	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	. $MNTUSB/newconfig.cfg
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
-	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	pcp_read_chosen_audio
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
@@ -201,12 +203,13 @@ echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
+	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
-
+	. $CONFIGCFG
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg	
 	. /mnt/mmcblk0p1/newconfig.cfg
-	pcp_save_to_config
+
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
@@ -221,6 +224,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 #-------New section that handle removal and update of kernel packages after pCP insitu update----
 #	CURRENTKERNEL=$(uname -r)
