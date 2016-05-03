@@ -146,10 +146,10 @@ else
 fi
 
 # Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
+if [ -f /mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh ]; then
 	echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-	/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
-	rm -rf /mnt/mmcblk0p2/tce/bootfix
+	/mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh
+	rm -rf /mnt/mmcblk0p2/tce/optional/bootfix
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed after bootfix... ${NORMAL}"
 	sleep 3
