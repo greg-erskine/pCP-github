@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 2.06 2016-05-03 GE
+#	Added HDMIPOWER.
+
 # Version: 2.06 2016-04-23 SBP
 #	Added download of kernel modules during insitu upgrade.
 
@@ -527,6 +530,17 @@ if [ $LMSERVER = "yes" ]; then
 		fi
 	else
 		echo "${RED}LMS data disk failed mount, LMS and squeezelite will not start.${NORMAL}"
+	fi
+fi
+
+# Turn HDMI power off to save ~20ma
+if [ "$HDMIPOWER" = "off" ]; then
+	echo -n "${BLUE}Powering off HDMI... ${NORMAL}"
+	if which tvservice >/dev/null 2>&1; then
+		tvservice -o >/dev/null 2>&1
+		echo "${GREEN}Done.${NORMAL}"
+	else
+		echo "${RED}FAIL.${NORMAL}"
 	fi
 fi
 

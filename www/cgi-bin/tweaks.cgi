@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.26 2016-05-03 GE
+#	Added pcp_tweaks_hdmipower.
+
 # Version: 0.25 2016-04-23 GE
 #	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
 
@@ -214,7 +217,7 @@ pcp_tweaks_jivelite() {
 	echo '            </form>'
 	echo '          </table>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
 		echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
 		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
@@ -229,9 +232,9 @@ pcp_tweaks_vumeter() {
 
 	LOADED_VU_METER=$( cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
 
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -243,7 +246,7 @@ pcp_tweaks_vumeter() {
 	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter | grep .tcz$ )
 	                          for i in $VUMETERS
 	                          do
-	                            [ $i == $LOADED_VU_METER ] && SEL="selected" || SEL=""
+	                            [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
 	                            DISPLAY=$( echo $i | sed -e 's/^VU_Meter_//' -e 's/.tcz$//' -e 's/_/ /g' )
 	                            echo '                    <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
 	                          done
@@ -272,7 +275,7 @@ pcp_tweaks_vumeter() {
 	echo '            </form>'
 	echo '          </table>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		#========================================================================================
 		# Display debug information
 		#----------------------------------------------------------------------------------------
@@ -310,7 +313,7 @@ pcp_tweaks_vumeter() {
 		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
 	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && [ $JIVELITE == YES ] && pcp_tweaks_vumeter
+[ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "YES" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen rotate------------------------------------
@@ -322,9 +325,9 @@ pcp_tweaks_screenrotate() {
 		NO) SCREENno="selected" ;;
 	esac
 
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -360,7 +363,7 @@ pcp_tweaks_screenrotate() {
 	echo '            </form>'
 	echo '          </table>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
 		echo '                 [ DEBUG ] $SCREENyes: '$SCREENyes'<br />'
 		echo '                 [ DEBUG ] $SCREENno: '$SCREENno'</p>'
@@ -373,7 +376,7 @@ pcp_tweaks_screenrotate() {
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
 pcp_tweaks_overclock() {
-	if [ $(pcp_rpi_is_model_2B) = 1 ] || [ $MODE -ge $MODE_BETA ] ; then
+	if [ $(pcp_rpi_is_model_2B) -eq 1 ] || [ $MODE -ge $MODE_BETA ] ; then
 		case "$OVERCLOCK" in
 			NONE) OCnone="selected" ;;
 			MILD) OCmild="selected" ;;
@@ -381,9 +384,9 @@ pcp_tweaks_overclock() {
 		esac
 
 		#----------------------------------------------------------------------------------------
-		pcp_incr_id
 		echo '          <table class="bggrey percent100">'
 		echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+		pcp_incr_id
 		pcp_start_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column150">'
@@ -422,13 +425,13 @@ pcp_tweaks_overclock() {
 		echo '            </form>'
 		echo '          </table>'
 
-		if [ $DEBUG = 1 ]; then
+		if [ $DEBUG -eq 1 ]; then
 			echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
 			echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
 			echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
 			echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
 
-			case $OVERCLOCK in
+			case "$OVERCLOCK" in
 				NONE)
 					echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
 					echo '                 [ DEBUG ] core_freq=250<br />'
@@ -457,9 +460,9 @@ pcp_tweaks_overclock() {
 
 #----------------------------------------------Timezone----------------------------------
 pcp_tweaks_timezone() {
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Timezone</td>'
@@ -497,9 +500,9 @@ pcp_tweaks_timezone() {
 # Note: changing passwords through a script over html is not very secure.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_password() {
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="password" action="changepassword.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
@@ -539,9 +542,9 @@ pcp_tweaks_password() {
 
 #----------------------------------------------LMS Web Port------------------------------
 pcp_tweaks_lmswebport() {
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">LMS Web Port</td>'
@@ -652,6 +655,47 @@ pcp_tweaks_lmscontrols() {
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_lmscontrols
 #----------------------------------------------------------------------------------------
 
+#----------------------------------------------HDMI Power--------------------------------
+pcp_tweaks_hdmipower() {
+	case "$HDMIPOWER" in
+		on) HDMIPOWERyes="checked" ;;
+		off)  HDMIPOWERno="checked" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>HDMI power</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERyes'>On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERno'>Off'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>HDMI power&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Power off HDMI to save some power.</p>'
+	echo '                    <p>Using this option will download and install rpi-vc.tcz.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_hdmipower
+#----------------------------------------------------------------------------------------
+
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
 echo '      </div>'
@@ -688,9 +732,9 @@ pcp_tweaks_auto_start() {
 	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
 	#----------------------------------------------------------------------------------------------
 
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Auto start favorite</td>'
@@ -764,7 +808,7 @@ pcp_tweaks_auto_start() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -795,9 +839,9 @@ pcp_tweaks_auto_start() {
 	# Decode variables using httpd, no quotes
 	AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
 
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Auto start LMS</td>'
@@ -809,7 +853,6 @@ pcp_tweaks_auto_start() {
 	echo '                  <input class="small1" type="radio" name="A_S_LMS" value="Disabled" '$A_S_LMS_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
-
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                </td>'
@@ -838,7 +881,7 @@ pcp_tweaks_auto_start() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -870,7 +913,7 @@ pcp_tweaks_auto_start() {
 	echo '  </tr>'
 	echo '</table>'
 
-	[ $DEBUG = 1 ] && pcp_favorites
+	[ $DEBUG -eq 1 ] && pcp_favorites
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
 #----------------------------------------------------------------------------------------
@@ -926,7 +969,6 @@ pcp_tweaks_audio_tweaks() {
 		no) ALSAeqno="checked" ;;
 	esac
 
-	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -937,6 +979,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '            <table class="bggrey percent100">'
 
 	#-------------------------------------------Squeezelite--------------------------------
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -957,7 +1000,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -990,7 +1033,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1025,7 +1068,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1060,7 +1103,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1101,7 +1144,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1126,7 +1169,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '                <td>'
 
-	if [ $ALSAeq = "yes" ]; then
+	if [ "$ALSAeq" = "yes" ]; then
 		echo '                  <p><input type="button" name="CONFIG" onClick="location.href='\'''xtras_alsaequal.cgi''\''" value="Configure">&nbsp;'
 	else
 		echo '                  <p>'
@@ -1147,7 +1190,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
@@ -1196,7 +1239,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1218,7 +1261,6 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-
 	#----------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
@@ -1255,7 +1297,6 @@ pcp_tweaks_cron() {
 		Disabled) RESTART_N="checked" ;;
 	esac
 
-	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1264,6 +1305,7 @@ pcp_tweaks_cron() {
 	echo '          <fieldset>'
 	echo '            <legend>Schedule CRON jobs</legend>'
 	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
@@ -1359,7 +1401,7 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1399,7 +1441,6 @@ pcp_tweaks_user_commands() {
 	USER_COMMAND_2=$(sudo $HTPPD -d $USER_COMMAND_2)
 	USER_COMMAND_3=$(sudo $HTPPD -d $USER_COMMAND_3)
 
-	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1408,6 +1449,7 @@ pcp_tweaks_user_commands() {
 	echo '          <fieldset>'
 	echo '            <legend>User commands</legend>'
 	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #1</td>'
@@ -1458,7 +1500,7 @@ pcp_tweaks_user_commands() {
 	echo '                </td>'
 	echo '              </tr>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td  colspan="3">'
@@ -1482,7 +1524,7 @@ pcp_tweaks_user_commands() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+[ $DEBUG -eq 1 ] && pcp_show_config_cfg
 
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode

@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 2.06 2016-05-02
+#	Added HDMIPOWER.
+
 # Version: 2.05 2016-04-27
 #	Added PCP_REPO. PH.
 #	Added package location $PACKAGEDIR and download with md5 check function. SBP.
@@ -1459,6 +1462,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
+	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1550,6 +1554,7 @@ LMSWEBPORT=""
 FSM="Default"
 LMSCONTROLS="yes"
 PLAYERTABS="yes"
+HDMIPOWER="on"
 EOF
 }
 
