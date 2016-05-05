@@ -38,6 +38,9 @@ wait 8
 sudo rebuildfstab
 fi
 
+# Provide the KERNEL name like 4.1.20-piCore, then this script will automatically find the correct packages both for v6 and v7 boards.
+
+
 TMP=/tmp          # this is where you copy the files to
 
 PCP_HOME=/home/tc/www/cgi-bin   # Not used yet
@@ -83,27 +86,15 @@ getfile $TMP/pcp/conf          timezone             /etc/sysconfig
 chown root:root /etc/sysconfig/timezone
 chmod u=rw,g=rw,o=r /etc/sysconfig/timezone
 
-getfile $TMP/pcp/conf          config.cfg           $SBIN
-chown root:root $SBIN/config.cfg
-chmod u=rwx,g=rx,o=rx $SBIN/config.cfg
+#getfile $TMP/pcp/conf         wpa_supplicant.conf   /etc
 
-getfile $TMP/pcp/conf          piversion.cfg        $SBIN
-chown root:root $SBIN/piversion.cfg
-chmod u=rw,g=r,o=r $SBIN/piversion.cfg
-
-#getfile $TMP/pcp/conf         wpa_supplicant.conf /etc
-
-getfile $TMP/pcp/conf          asound.conf          /etc
+getfile $TMP/pcp/conf          asound.conf           /etc
 chown root:root /etc/asound.conf
 chmod u=rwx,g=rx,o=rx /etc/asound.conf
 
-getfile $TMP/pcp/conf          modprobe.conf        /etc
+getfile $TMP/pcp/conf          modprobe.conf         /etc
 chown root:root /etc/modprobe.conf
 chmod u=rwx,g=rx,o=rx /etc/modprobe.conf
-
-getfile $TMP/pcp/conf          piCorePlayer.dep     $STORAGE
-chown root:root $STORAGE/piCorePlayer.dep
-chmod u=rw,g=r,o=r $STORAGE/piCorePlayer.dep
 
 getfile $TMP/pcp/etc           motd                 /etc
 chown root:root /etc/motd
@@ -112,6 +103,10 @@ chmod u=rw,g=r,o=r /etc/motd
 getfile $TMP/pcp/init.d        squeezelite          $INITD
 chown root:root $INITD/squeezelite
 chmod u=rwx,g=rx,o=rx $INITD/squeezelite
+
+getfile $TMP/pcp/init.d        shairport-sync          $INITD
+chown root:root $INITD/shairport-sync
+chmod u=rwx,g=rx,o=rx $INITD/shairport-sync
 
 getfile $TMP/pcp/init.d        httpd                $INITD
 chown root:root $INITD/httpd
@@ -129,17 +124,66 @@ getfile $TMP/pcp/opt           bootsync.sh          /opt
 chown root:staff /opt/bootsync.sh
 chmod u=rwx,g=rwx,o= /opt/bootsync.sh
 
-getfile $TMP/pcp/sbin          webgui               $SBIN
-chown root:root $SBIN/webgui
-chmod u=rwx,g=rx,o=rx $SBIN/webgui
-
 getfile $TMP/pcp/sbin          setup                $SBIN
 chown root:root $SBIN/setup
 chmod u=rwx,g=rx,o=rx $SBIN/setup
 
+getfile $TMP/pcp/sbin          pcp-load             $SBIN
+chown root:root $SBIN/pcp-load
+chmod u=rwx,g=rx,o=rx $SBIN/pcp-load
+
+getfile $TMP/pcp/sbin          pcp                 $SBIN
+chown root:root $SBIN/pcp
+chmod u=rwx,g=rx,o=rx $SBIN/pcp
+
+getfile $TMP/pcp/conf          config.cfg           $SBIN
+chown root:root $SBIN/config.cfg
+chmod u=rwx,g=rx,o=rx $SBIN/config.cfg
+
+getfile $TMP/pcp/conf          piversion.cfg        $SBIN
+chown root:root $SBIN/piversion.cfg
+chmod u=rw,g=r,o=r $SBIN/piversion.cfg
+
 getfile $TMP/pcp/mmcblk0p2     onboot.lst            $STORAGE
 chown tc:staff $STORAGE/onboot.lst
 chmod u=rwx,g=rwx,o=rx $STORAGE/onboot.lst
+
+getfile $TMP/pcp/conf          piCorePlayer.dep     $STORAGE
+chown root:root $STORAGE/piCorePlayer.dep
+chmod u=rw,g=r,o=r $STORAGE/piCorePlayer.dep
+
+getfile $TMP/pcp/mmcblk0p2/optional      jivelite.tcz.dep    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/jivelite.tcz.dep
+chmod u=rw,g=r,o=r $TCZ_PLACE/jivelite.tcz.dep
+
+getfile $TMP/pcp/mmcblk0p2/libts-tcz      libts.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/libts.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/libts.tcz
+
+getfile $TMP/pcp/Touchscreen/backlight      backlight-$KERNEL+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/backlight-$KERNEL+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/backlight-$KERNEL+.tcz
+
+getfile $TMP/pcp/Touchscreen/backlight      backlight-$KERNEL_v7+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/backlight-$KERNEL_v7+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/backlight-$KERNEL_v7+.tcz
+
+getfile $TMP/pcp/Touchscreen/touch      touchscreen-$KERNEL+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/touchscreen-$KERNEL+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/touchscreen-$KERNEL+.tcz
+
+getfile $TMP/pcp/Touchscreen/touch      touchscreen-$KERNEL_v7+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/touchscreen-$KERNEL_v7+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/touchscreen-$KERNEL_v7+.tcz
+
+getfile $TMP/pcp/RTL_firmware      firmware-rtlwifi.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/firmware-rtlwifi.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/firmware-rtlwifi.tcz
+
+getfile $TMP/pcp/firmware-brcmwifi/repo      firmware-brcmwifi.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/firmware-brcmwifi.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/firmware-brcmwifi.tcz
+
 
 # Check if mmcblk0p1 is mounted otherwise mount it
 if mount | grep /mnt/mmcblk0p1; then
@@ -203,16 +247,17 @@ getpackage busybox-httpd.tcz
 getpackage dropbear.tcz
 getpackage alsa.tcz
 getpackage alsa-config.tcz
-getpackage flac.tcz
-getpackage libvorbis.tcz
-getpackage libmad.tcz
+getpackage dialog.tcz
 getpackage wifi.tcz
+getpackage alsa-modules-$KERNEL_v7+.tcz
+getpackage alsa-modules-$KERNEL+.tcz
+getpackage wireless-$KERNEL_v7+.tcz
+getpackage wireless-$KERNEL+.tcz
 getpackage firmware-atheros.tcz
 getpackage firmware-ralinkwifi.tcz
-getpackage firmware-rtlwifi.tcz
-#getpackage faad2.tcz
-#getpackage libsoxr.tcz
-#getpackage libffmpeg.tcz
+getpackage firmware-brcmfmac43430.tcz
+# getpackage firmware-rtlwifi.tcz - use the updated version Ralphy provided is in our Git
+
 
 
 #Download Ralphys files
@@ -220,18 +265,18 @@ rm -f /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 sudo wget -P /mnt/mmcblk0p2/tce/ http://ralph_irving.users.sourceforge.net/pico/squeezelite-armv6hf
 sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 
-getfile $TMP/pcp/Ralphys_files          libffmpeg.tcz     $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/libffmpeg.tcz
-chmod u=rw,g=rw,o=r $TCZ_PLACE/libffmpeg.tcz
+#getfile $TMP/pcp/Ralphys_files          libffmpeg.tcz     $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libffmpeg.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libffmpeg.tcz
 
-getfile $TMP/pcp/Ralphys_files          libsoxr.tcz     $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/libsoxr.tcz
-chmod u=rw,g=rw,o=r $TCZ_PLACE/libsoxr.tcz
+#getfile $TMP/pcp/Ralphys_files          libsoxr.tcz     $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libsoxr.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libsoxr.tcz
 
 #For now we use Ralphys instead of the official faad2.tcz package
-getfile $TMP/pcp/Ralphys_files          libfaad.tcz     $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/libfaad.tcz
-chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
+#getfile $TMP/pcp/Ralphys_files          libfaad.tcz     $TCZ_PLACE
+#chown tc:staff $TCZ_PLACE/libfaad.tcz
+#chmod u=rw,g=rw,o=r $TCZ_PLACE/libfaad.tcz
 
 
 # Make a backup
