@@ -195,29 +195,44 @@ case $OPTION in
 
 	JIVELITE)
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
-		case $JIVELITE in
-			YES)
-				pcp_download_jivelite
-				pcp_install_jivelite
-				pcp_download_vumeters
-				pcp_install_default_vumeter
-				pcp_remove_temp
+		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing with SUBMIT: '$SUBMIT'<br />'
+		case $SUBMIT in
+			Save)
+				case $JIVELITE in
+					YES)
+						pcp_download_jivelite
+						pcp_install_jivelite
+						pcp_download_vumeters
+						pcp_install_default_vumeter
+						pcp_remove_temp
+						;;
+					NO)
+						pcp_delete_jivelite
+						pcp_delete_vumeters
+						pcp_remove_temp
+						;;
+					*)
+						[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
+						;;
+				esac
+				pcp_backup
+				echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
+				pcp_reboot_required
 				;;
-			NO)
-				pcp_delete_jivelite
-				pcp_delete_vumeters
-				pcp_remove_temp
+			Reset)
+				echo '<p class="info">[ INFO ] Resetting Jivelite Configuration......</p>'
+				rm -f /home/tc/.jivelite/userpath/settings/*.lua
+				pcp_backup
+				pkill -SIGTERM jivelite
+				echo '<p class="info">[ INFO ] Jivelite has been reset and restarted. Reconfigure Jivelite and then Backup Changes !</p>'
 				;;
 			*)
-				[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
-				;;
+				echo '<p class="error">[ ERROR ] JIVELITE: '$JIVELITE', Bad SUBMIT:'$SUBMIT'<br />'
+			;;
 		esac
-
-		pcp_backup
-		echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
-		pcp_reboot_required
 		[ $DEBUG = 1 ] && pcp_show_config_cfg
 		;;
+		
 
 	VUMETER)
 		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'

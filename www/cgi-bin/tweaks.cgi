@@ -2,6 +2,7 @@
 
 # Version: 0.26 2016-05-03 GE
 #	Added pcp_tweaks_hdmipower.
+#	Added Reset Jivelite configuration
 
 # Version: 0.25 2016-04-23 GE
 #	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
@@ -210,8 +211,8 @@ pcp_tweaks_jivelite() {
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	[ $MODE -ge $MODE_DEVELOPER ] &&
-	echo '                  <input type="submit" name="SUBMIT" value="Restart">'
+	[ $MODE -ge $MODE_BETA -a "$JIVELITE" = "YES" ] &&
+	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
