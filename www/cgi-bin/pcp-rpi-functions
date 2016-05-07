@@ -191,6 +191,11 @@ pcp_rpi_is_model_zero() {
 	[ $MODEL = ZERO ] && echo 0 || echo 1
 }
 
+pcp_rpi_is_model_3B() {
+	pcp_rpi_details
+	[ "$MODEL" = "3B" ] && echo 0 || echo 1
+}
+
 PB101=$(cat $PB100)
 set -- $PB101
 PB102=$(pcp_pb_get $1)

@@ -4,6 +4,7 @@
 
 # Version: 2.06 2016-05-07
 #	Added HDMIPOWER.
+#	Added RPI3INTWIFI
 
 # Version: 2.05 2016-04-30
 #	Added PCP_REPO. PH.
@@ -1484,6 +1485,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
+	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1576,6 +1578,7 @@ FSM="Default"
 LMSCONTROLS="yes"
 PLAYERTABS="yes"
 HDMIPOWER="on"
+RPI3INTWIFI="on"
 EOF
 }
 

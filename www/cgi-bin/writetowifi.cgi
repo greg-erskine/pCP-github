@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 2.06 2016-05-07 PH
+#	Added Blacklist for RPi3 internal wifi
+
 # Version: 0.09 2016-03-25 PH
 #   Added firmware-brcmfmac43430.tcz
 
@@ -32,6 +35,8 @@
 pcp_variables
 . $CONFIGCFG
 
+ORIG_RPI3INTWIFI=$RPI3INTWIFI
+
 pcp_html_head "Write WIFI Settings" "SBP" "20" "wifi.cgi"
 
 pcp_banner
@@ -43,7 +48,8 @@ if [ $DEBUG = 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
 	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
 	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
-	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'</p>'
+	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'<br />'
+	echo '                 [ DEBUG ] $RPI3INTWIFI: '$RPI3INTWIFI'</p>'
 fi
 
 # Only add backslash if not empty
@@ -98,6 +104,20 @@ if [ $WIFI = off ]; then
 	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+fi
+
+if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
+	pcp_mount_mmcblk0p1
+	if [ "$RPI3INTWIFI" = "off" ]; then
+		#Add a blacklist for brcmfmac
+		sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	else
+		sed -i 's/blacklist=brcmfmac//g' $CMDLINETXT
+	fi
+	pcp_textarea "" "cat $CMDLINETXT" 100
+	pcp_umount_mmcblk0p1
+	pcp_backup
+	pcp_reboot_required
 fi
 
 pcp_textarea "" "cat $CONFIGCFG" 150
