@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 0.01 2016-05-06 GE
+# Version: 0.01 2016-05-07 GE
 #	Original.
 
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 TCELOAD="tce-load"
+REBOOT_REQUIRED=0
 
 pcp_html_head "Write to HDMI Power" "GE" "5" "tweaks.cgi"
 
@@ -15,7 +16,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
-# Check for rpi-vc.tcz. download and install
+# Check for rpi-vc.tcz, download and install.
 #----------------------------------------------------------------------------------------
 pcp_install_rpi_vc() {
 	which tvservice >/dev/null
@@ -50,13 +51,23 @@ echo -n '[ INFO ] '
 case "$HDMIPOWER" in
 	on)
 		tvservice -p
-		[ $? -eq 0 ] && echo '[  OK  ] Done.' || echo '[ ERROR ] Error.'
-		sed -i '/rpi-vc.tcz/d' $ONBOOTLST
+		if [ $? -eq 0 ]; then
+			echo '[  OK  ] Done.'
+			sed -i '/rpi-vc.tcz/d' $ONBOOTLST
+			REBOOT_REQUIRED=1
+		else
+			echo '[ ERROR ] Error.'
+		fi
 		;;
 	off)
 		tvservice -o
-		[ $? -eq 0 ] && echo '[  OK  ] Done.' || echo '[ ERROR ] Error.'
-		echo "rpi-vc.tcz" >> $ONBOOTLST
+		if [ $? -eq 0 ]; then
+			echo '[  OK  ] Done.'
+			echo "rpi-vc.tcz" >> $ONBOOTLST
+			REBOOT_REQUIRED=1
+		else
+			echo '[ ERROR ] Error.'
+		fi
 		;;
 	*)
 		echo '[ ERROR ] Invalid case argument.'
@@ -64,10 +75,13 @@ case "$HDMIPOWER" in
 esac
 
 pcp_backup_nohtml
+
 echo '</textarea>'
 
 pcp_footer
 pcp_copyright
+
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 echo '</body>'
 echo '</html>'
