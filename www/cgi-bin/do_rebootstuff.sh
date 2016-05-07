@@ -1,17 +1,16 @@
 #!/bin/sh
 
-# Version: 2.06 2016-05-03 GE
+# Version: 2.06 2016-05-07 GE
 #	Added HDMIPOWER.
 
-# Version: 2.06 2016-04-23 SBP
-#	Added download of kernel modules during insitu upgrade.
-
-# Version: 0.27 2016-04-14 PH
+# Version: 2.05 2016-04-30 PH
 #	Added firmware-brcmfmac43430.tcz
 #	Added Mount for LMS Server Drive
 #	Modified IQaudIO amp control
 #	Changed if LMS Server is Enabled, Start before Squeezelite
 #	Added Network Share Mount
+#	Added download of kernel modules during insitu upgrade. Currently inactive for 2.05
+#   Added bootfix routine to correct certain update issues during first boot.
 
 # Version: 0.26 2016-02-26 GE
 #	Added firmware-brcmwifi.tcz.
@@ -150,10 +149,14 @@ else
 fi
 
 # Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
+if [ -f /mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh ]; then
 	echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-	/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
-	rm -rf /mnt/mmcblk0p2/tce/bootfix
+	/mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh
+	rm -rf /mnt/mmcblk0p2/tce/optional/bootfix
+	pcp_backup_nohtml >/dev/null 2>&1
+	echo "${RED}Rebooting needed after bootfix... ${NORMAL}"
+	sleep 3
+	sudo reboot
 fi
 
 # Mount USB stick if present
@@ -177,19 +180,21 @@ fi
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
+	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
-	sudo dos2unix -u $MNTUSB/newconfig.cfg
+	. $CONFIGCFG
 	# Read variables from newconfig and save to config.
+	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	. $MNTUSB/newconfig.cfg
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
-	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	pcp_read_chosen_audio
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
@@ -204,12 +209,13 @@ echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
+	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
-
+	. $CONFIGCFG
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg	
 	. /mnt/mmcblk0p1/newconfig.cfg
-	pcp_save_to_config
+
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
@@ -224,6 +230,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 #-------New section that handle removal and update of kernel packages after pCP insitu update----
 #	CURRENTKERNEL=$(uname -r)
@@ -566,5 +573,5 @@ if [ $JIVELITE = "YES" ]; then
 	fi
 	export HOME=/home/tc
 	echo "${GREEN}Done.${NORMAL}"
-	sudo -E -b /opt/jivelite/bin/jivelite.sh  
+	sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
 fi

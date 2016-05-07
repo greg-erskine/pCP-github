@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Version 2.05 2016-04-17 SBP
-#	Added popup menu to resize partition if too small
+#	Currently a copy of the old insitu_update.cgi.  
 
 # Version: 0.03 2016-02-19 SBP
 #	Added code to allow existing add-ons to remain functioning.

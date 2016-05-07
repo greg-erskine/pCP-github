@@ -1,18 +1,8 @@
 #!/bin/sh
 
-# Version 2.05 2016-04-17 SBP
-#	Added popup menu to resize partition if too small
-
-# Version: 0.03 2016-02-19 SBP
-#	Added code to allow existing add-ons to remain functioning.
-#	Fixed sourceforge redirection issue.
-
-# Version: 0.02 2016-02-10 GE
-#	Added warning on each page.
-#	Added warnings for alsaequal and slimserver.
-
-# version: 0.01 2016-02-03 GE
-#	Original - Combined upd_picoreplayer.cgi, insitu.cgi and do_updatepicoreplayer.cgi
+# Version 2.05 2016-04-30 SBP
+#	Original version
+#	Split from insitu_update.cgi to download new updater before updates.
 
 . pcp-functions
 pcp_variables
@@ -137,21 +127,23 @@ pcp_create_download_directory() {
 
 pcp_get_newinstaller() {
 	echo '[ INFO ] Step 1. - Remove old Update script...'
-	sudo rm "${PCPHOME}/insitu_update_second.cgi"
+	sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
 	echo '[ INFO ] Step 2. - Downloading new Update script...'
-	$WGET ${INSITU_DOWNLOAD}/insitu_update_second.cgi/download -O ${PCPHOME}/insitu_update_second.cgi
-	sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_second.cgi"
-	
-	sudo dos2unix "${PCPHOME}/insitu_update_second.cgi"
-	sudo chown tc:staff "${PCPHOME}/insitu_update_second.cgi"
+
+	PACKAGES="insitu_update_stage2.cgi"
+	DL_REPO=${INSITU_DOWNLOAD}
+	TARGETDIR=${PCPHOME}
+	pcp_download_package
 	if [ $? = 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new Update script'
+		sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
+		sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
+		sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"
 	else
 		echo '[ ERROR ] Error downloading Update script'
 		FAIL_MSG="Error downloading Update script"
 	fi
 }
-
 
 
 #========================================================================================
@@ -185,7 +177,7 @@ pcp_warning_message() {
 }
 
 #========================================================================================
-# Generate staus message and finish html page
+# Generate status message and finish html page
 #----------------------------------------------------------------------------------------
 pcp_html_end() {
 	echo '<table class="bggrey">'
@@ -219,7 +211,7 @@ pcp_html_end() {
 #----------------------------------------------------------------------------------------
 case $ACTION in
 	initial)
-		STEP="Step 1 - Downloading available versions"
+		STEP="Step 1 - Checking Network"
 		pcp_warning_message
 		pcp_internet_indicator
 		[ $FAIL_MSG = "ok" ] || pcp_html_end
@@ -309,7 +301,7 @@ if [ $ACTION = "initial" ] && [ $FAIL_MSG = "ok" ] ; then
 	echo '                  <input type="hidden" name="ACTION" value="download">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to download upgrade script.</p>'
+	echo '                  <p>Press the [ Next ] button to download new upgrade script.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
@@ -333,7 +325,7 @@ if [ $ACTION = "download" ] && [ $FAIL_MSG = "ok" ] ; then
 	echo '        <fieldset>'
 	echo '          <legend>piCorePlayer insitu upgrade</legend>'
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="download" action= "insitu_update_second.cgi">'
+	echo '            <form name="download" action= "insitu_update_stage2.cgi">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="large18 center">'

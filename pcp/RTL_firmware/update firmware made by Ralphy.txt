@@ -1,0 +1,15 @@
+7 feb 2016
+Hi Steen,
+
+I was having problems with my r8712u based wireless usb failing to reconnect to the wireless network when I rebooted.  I had to pull the power before I could reconnect to wireless.
+
+I updated the rtlwifi/rtl8712u.bin firmware file to a newer 2011version and I can now reboot the player and it reconnects every time.
+
+I'd like to ask if you'd update the firmware-rtlwifi.tcz in the image for the next release?
+It should help anyone using a wireless dongle like mine.
+
+idVendor=0bda, idProduct=8172
+Product: RTL8191S WLAN Adapter 
+Manufacturer: Realtek 
+
+Thanks.
