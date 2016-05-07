@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 0.12 2016-05-08 GE
+#	Added Raspberry Pi TYPE.
+
 # Version: 0.11 2016-04-22 GE
 #	Updated pcp_rpi_shortname.
 
@@ -59,7 +62,7 @@
 #    MEMSIZE        20: 0=256M    1=512M    2=1G
 #    MANUFACTURER   16: 0=SONY    1=EGOMAN  2=EMBEST
 #    PROCESSOR      12: 0=2835    1=2836    
-#    TYPE           04: 0=MODELA  1=MODELB  2=MODELA+  3=MODELB+  4=MODEL 2B  5=ALPHA???
+#    TYPE           04: 0=MODELA  1=MODELB  2=MODELA+   3=MODELB+  4=MODEL 2B  5=ALPHA???
 #                       6=CM      7=???     8=MODEL 3B  9=ZERO
 #    REV            00: 0=REV0    1=REV1    2=REV2
 
@@ -78,28 +81,28 @@ pcp_rpi_revision() {
 
 pcp_rpi_details() {
 	case $(pcp_rpi_revision) in
-		*Beta)  MODEL=B;    PCBREV=Beta; MEMORY=256;;
-		*0002)  MODEL=B;    PCBREV=1;    MEMORY=256;;
-		*0003)  MODEL=B;    PCBREV=1+;   MEMORY=256;;
-		*0004)  MODEL=B;    PCBREV=2;    MEMORY=256;;
-		*0005)  MODEL=B;    PCBREV=2;    MEMORY=256;;
-		*0006)  MODEL=B;    PCBREV=2;    MEMORY=256;;
-		*0007)  MODEL=A;    PCBREV=2;    MEMORY=256;;
-		*0008)  MODEL=A;    PCBREV=2;    MEMORY=256;;
-		*0009)  MODEL=A;    PCBREV=2;    MEMORY=256;;
-		*000d)  MODEL=B;    PCBREV=2;    MEMORY=512;;
-		*000e)  MODEL=B;    PCBREV=2;    MEMORY=512;;
-		*000f)  MODEL=B;    PCBREV=2;    MEMORY=512;;
-		*0010)  MODEL=B+;   PCBREV=1.2;  MEMORY=512;;
-		*0011)  MODEL=CM;   PCBREV=1.0;  MEMORY=512;;
-		*0012)  MODEL=A+;   PCBREV=1;    MEMORY=256;;
-		*0013)  MODEL=B+;   PCBREV=1.2;  MEMORY=512;;
-		*0014)  MODEL=CM;   PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
-		*0015)  MODEL=A+;   PCBREV=1.1;  MEMORY=256;;
-		*041)   MODEL=2B;   PCBREV=1;    MEMORY=1024;;
-		*092)   MODEL=ZERO; PCBREV=1.2;  MEMORY=512;;
-		*082)   MODEL=3B;   PCBREV=1.2;  MEMORY=1024;;		# a22082
-		*)      MODEL=?;    PCBREV=?;    MEMORY=?;;
+		*Beta)  TYPE=1;  MODEL=B;    PCBREV=Beta; MEMORY=256;;
+		*0002)  TYPE=1;  MODEL=B;    PCBREV=1;    MEMORY=256;;
+		*0003)  TYPE=1;  MODEL=B;    PCBREV=1+;   MEMORY=256;;
+		*0004)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=256;;
+		*0005)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=256;;
+		*0006)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=256;;
+		*0007)  TYPE=1;  MODEL=A;    PCBREV=2;    MEMORY=256;;
+		*0008)  TYPE=1;  MODEL=A;    PCBREV=2;    MEMORY=256;;
+		*0009)  TYPE=1;  MODEL=A;    PCBREV=2;    MEMORY=256;;
+		*000d)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=512;;
+		*000e)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=512;;
+		*000f)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=512;;
+		*0010)  TYPE=1;  MODEL=B+;   PCBREV=1.2;  MEMORY=512;;
+		*0011)  TYPE=1;  MODEL=CM;   PCBREV=1.0;  MEMORY=512;;
+		*0012)  TYPE=1;  MODEL=A+;   PCBREV=1;    MEMORY=256;;
+		*0013)  TYPE=1;  MODEL=B+;   PCBREV=1.2;  MEMORY=512;;
+		*0014)  TYPE=1;  MODEL=CM;   PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
+		*0015)  TYPE=1;  MODEL=A+;   PCBREV=1.1;  MEMORY=256;;
+		*041)   TYPE=2;  MODEL=2B;   PCBREV=1;    MEMORY=1024;;
+		*092)   TYPE=0;  MODEL=ZERO; PCBREV=1.2;  MEMORY=512;;
+		*082)   TYPE=3;  MODEL=3B;   PCBREV=1.2;  MEMORY=1024;;		# a22082
+		*)      TYPE=99; MODEL=?;    PCBREV=?;    MEMORY=?;;
 	esac
 
 	case "${MODEL}${PCBREV}" in
@@ -122,6 +125,34 @@ pcp_pb_get() {
 }
 
 #=========================================================================================
+# Type
+#-----------------------------------------------------------------------------------------
+pcp_rpi_is_rpi0() {
+	pcp_rpi_details
+	[ $TYPE -eq 0 ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_rpi1() {
+	pcp_rpi_details
+	[ $TYPE -eq 1 ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_rpi2() {
+	pcp_rpi_details
+	[ $TYPE -eq 2 ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_rpi3() {
+	pcp_rpi_details
+	[ $TYPE -eq 3 ] && echo 0 || echo 1
+}
+
+pcp_rpi_type() {
+	pcp_rpi_details
+	echo $TYPE
+}
+
+#=========================================================================================
 # Model
 #-----------------------------------------------------------------------------------------
 pcp_rpi_model() {
@@ -131,7 +162,7 @@ pcp_rpi_model() {
 
 pcp_rpi_model_unknown() {
 	pcp_rpi_details
-	[ $MODEL = ? ] && echo 0 || echo 1
+	[ "$MODEL" = "?" ] && echo 0 || echo 1
 }
 
 # The shortname is a unique identifier intended to be used with pastebin uploading
@@ -148,47 +179,47 @@ pcp_rpi_shortname() {
 
 pcp_rpi_is_model_A() {
 	pcp_rpi_details
-	[ $MODEL = A ] && echo 0 || echo 1
+	[ "$MODEL" = "A" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_B() {
 	pcp_rpi_details
-	[ $MODEL = B ] && echo 0 || echo 1
+	[ "$MODEL" = "B" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_B_rev_1() {
 	pcp_rpi_details
-	([ $MODEL = B ] && [ $PCBREV = 1 ]) && echo 0 || echo 1
+	([ "$MODEL" = "B" ] && [ "$PCBREV" = "1" ]) && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_B_rev_2() {
 	pcp_rpi_details
-	([ $MODEL = B ] && [ $PCBREV = 2 ]) && echo 0 || echo 1
+	([ "$MODEL" = "B" ] && [ "$PCBREV" = "2" ]) && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_Bplus() {
 	pcp_rpi_details
-	[ $MODEL = B+ ] && echo 0 || echo 1
+	[ "$MODEL" = "B+" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_CM() {
 	pcp_rpi_details
-	[ $MODEL = CM ] && echo 0 || echo 1
+	[ "$MODEL" = "CM" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_Aplus() {
 	pcp_rpi_details
-	[ $MODEL = A+ ] && echo 0 || echo 1
+	[ "$MODEL" = "A+" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_2B() {
 	pcp_rpi_details
-	[ $MODEL = 2B ] && echo 0 || echo 1
+	[ "$MODEL" = "2B" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_zero() {
 	pcp_rpi_details
-	[ $MODEL = ZERO ] && echo 0 || echo 1
+	[ "$MODEL" = "ZERO" ] && echo 0 || echo 1
 }
 
 PB101=$(cat $PB100)
@@ -207,7 +238,7 @@ pcp_rpi_pcb_revision() {
 
 pcp_rpi_is_hat() {
 	pcp_rpi_details
-	[ $HOLES = "4" ] && echo 0 || echo 1
+	[ "$HOLES" = "4" ] && echo 0 || echo 1
 }
 
 pcp_rpi_warranty() {
@@ -231,17 +262,17 @@ pcp_rpi_memory() {
 
 pcp_rpi_is_memory_256() {
 	pcp_rpi_details
-	[ $MEMORY = 256 ] && echo 0 || echo 1
+	[ "$MEMORY" = "256" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_memory_512() {
 	pcp_rpi_details
-	[ $MEMORY = 512 ] && echo 0 || echo 1
+	[ "$MEMORY" = "512" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_memory_1024() {
 	pcp_rpi_details
-	[ $MEMORY = 1024 ] && echo 0 || echo 1
+	[ "$MEMORY" = "1024" ] && echo 0 || echo 1
 }
 
 API_DEV_KEY=$PB102
@@ -260,7 +291,6 @@ API_USER_PASSWORD=$PB104
 #	trip_point_0_type
 #	type
 #	uevent
-
 #-----------------------------------------------------------------------------------------
 pcp_rpi_thermal() {
 	cat /sys/devices/virtual/thermal/thermal_zone0/$1
@@ -268,7 +298,7 @@ pcp_rpi_thermal() {
 
 pcp_rpi_thermal_temp() {
 	TEMP_IN_DEGRESS=$(pcp_rpi_thermal "temp")
-	if [ $1 == "degrees" ]; then
+	if [ "$1" = "degrees" ]; then
 		printf "%.f" $((($TEMP_IN_DEGRESS+500)/1000))
 	else
 		printf "%s" $TEMP_IN_DEGRESS

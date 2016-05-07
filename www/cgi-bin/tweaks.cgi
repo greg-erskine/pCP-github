@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.26 2016-05-03 GE
+# Version: 0.26 2016-05-08 GE
 #	Added pcp_tweaks_hdmipower.
+#	Changed overclock to enable only for RPi1.
 
 # Version: 0.25 2016-04-23 GE
 #	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
@@ -130,9 +131,9 @@ echo '          <legend>General tweaks</legend>'
 
 #----------------------------------------------Hostname---------------------------------
 pcp_tweaks_hostname() {
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="squeeze" action="writetohost.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Host name</td>'
@@ -173,9 +174,9 @@ pcp_tweaks_jivelite() {
 		NO) JIVEno="selected" ;;
 	esac
 
-	pcp_incr_id
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
+	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -376,84 +377,86 @@ pcp_tweaks_screenrotate() {
 # Function to check the radio button according to config.cfg file
 #----------------------------------------------------------------------------------------
 pcp_tweaks_overclock() {
-	if [ $(pcp_rpi_is_model_2B) -eq 1 ] || [ $MODE -ge $MODE_BETA ] ; then
+	case "$OVERCLOCK" in
+		NONE) OCnone="selected" ;;
+		MILD) OCmild="selected" ;;
+		MODERATE) OCmoderate="selected" ;;
+	esac
+
+	case "$(pcp_rpi_type)" in
+		1)     DISABLED="" ;;
+		0|2|3) DISABLED="disabled" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Overclock</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="OVERCLOCK" '$DISABLED'>'
+	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
+	echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
+	echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
+	echo '                    <p><b>Note:</b> Only suitable for Raspberry Pi Model 1.</p>'	
+	echo '                    <p>Reboot is needed.<p>'
+	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
+	echo '                    <ul>'
+	echo '                      <li>hold down the shift key during booting, or</li>'
+	echo '                      <li>edit the config.txt file manually</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save" '$DISABLED'>'
+	[ $MODE -ge $MODE_BETA ] &&
+	echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
+		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
+		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
+		echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
+
 		case "$OVERCLOCK" in
-			NONE) OCnone="selected" ;;
-			MILD) OCmild="selected" ;;
-			MODERATE) OCmoderate="selected" ;;
+			NONE)
+				echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
+				echo '                 [ DEBUG ] core_freq=250<br />'
+				echo '                 [ DEBUG ] sdram_freq=400<br />'
+				echo '                 [ DEBUG ] force_turbo=1</p>'
+				;;
+			MILD)
+				echo '<p class="debug">[ DEBUG ] arm_freq=800<br />'
+				echo '                 [ DEBUG ] core_freq=250<br />'
+				echo '                 [ DEBUG ] sdram_freq=400<br />'
+				echo '                 [ DEBUG ] force_turbo=1</p>'
+				;;
+			MODERATE)
+				echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
+				echo '                 [ DEBUG ] core_freq=333<br />'
+				echo '                 [ DEBUG ] sdram_freq=450<br />'
+				echo '                 [ DEBUG ] force_turbo=0</p>'
+				;;
 		esac
-
-		#----------------------------------------------------------------------------------------
-		echo '          <table class="bggrey percent100">'
-		echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
-		pcp_incr_id
-		pcp_start_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150">'
-		echo '                  <p>Overclock</p>'
-		echo '                </td>'
-		echo '                <td class="column210">'
-		echo '                  <select class="large16" name="OVERCLOCK">'
-		echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
-		echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
-		echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
-		echo '                  </select>'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
-		echo '                    <p>Reboot is needed.<p>'
-		echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
-		echo '                    <ul>'
-		echo '                      <li>hold down the shift key during booting, or</li>'
-		echo '                      <li>edit the config.txt file manually</li>'
-		echo '                    </ul>'
-		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td colspan="3">'
-		echo '                  <input type="submit" name="SUBMIT" value="Save">'
-		[ $MODE -ge $MODE_BETA ] &&
-		echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </form>'
-		echo '          </table>'
-
-		if [ $DEBUG -eq 1 ]; then
-			echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
-			echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
-			echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
-			echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
-
-			case "$OVERCLOCK" in
-				NONE)
-					echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
-					echo '                 [ DEBUG ] core_freq=250<br />'
-					echo '                 [ DEBUG ] sdram_freq=400<br />'
-					echo '                 [ DEBUG ] force_turbo=1</p>'
-					;;
-				MILD)
-					echo '<p class="debug">[ DEBUG ] arm_freq=800<br />'
-					echo '                 [ DEBUG ] core_freq=250<br />'
-					echo '                 [ DEBUG ] sdram_freq=400<br />'
-					echo '                 [ DEBUG ] force_turbo=1</p>'
-					;;
-				MODERATE)
-					echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
-					echo '                 [ DEBUG ] core_freq=333<br />'
-					echo '                 [ DEBUG ] sdram_freq=450<br />'
-					echo '                 [ DEBUG ] force_turbo=0</p>'
-					;;
-			esac
-		fi
 	fi
-
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_overclock
 #----------------------------------------------------------------------------------------
@@ -659,7 +662,7 @@ pcp_tweaks_lmscontrols() {
 pcp_tweaks_hdmipower() {
 	case "$HDMIPOWER" in
 		on) HDMIPOWERyes="checked" ;;
-		off)  HDMIPOWERno="checked" ;;
+		off) HDMIPOWERno="checked" ;;
 	esac
 
 	echo '          <table class="bggrey percent100">'
@@ -681,6 +684,7 @@ pcp_tweaks_hdmipower() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Power off HDMI to save some power.</p>'
 	echo '                    <p>Using this option will download and install rpi-vc.tcz.</p>'
+	echo '                    <p>Reboot required.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
