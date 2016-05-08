@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.05 2016-05-08 GE
+#	Started update for RPi0/RPi3.
+
 # Version: 0.04 2016-01-08 GE
 #	Fixed pcp_running_script.
 
@@ -29,27 +32,13 @@
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Overclocking data from raspi-config (Rasbian 2015-05-05)
-#----------------------------------------------------------------------------------------
-# "Default" "600MHz ARM,  x00MHz core, x00MHz SDRAM, x overvolt"
-# "None"    "700MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
-# "Modest"  "800MHz ARM,  250MHz core, 400MHz SDRAM, 0 overvolt"
-# "Medium"  "900MHz ARM,  250MHz core, 450MHz SDRAM, 2 overvolt"
-# "High"    "950MHz ARM,  250MHz core, 450MHz SDRAM, 6 overvolt"
-# "Turbo"   "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt"
-#
-# "Default" "900MHz ARM,  x00MHz core, x00MHz SDRAM, x overvolt"
-# "Pi2"     "1000MHz ARM, 500MHz core, 500MHz SDRAM, 2 overvolt"
-#----------------------------------------------------------------------------------------
-
-#========================================================================================
 # Userspace: /sys/devices/system/cpu/cpu0/cpufreq/
 #----------------------------------------------------------------------------------------
-# affected_cpus                related_cpus                    scaling_governor
-# cpuinfo_cur_freq             scaling_available_frequencies   scaling_max_freq
-# cpuinfo_max_freq             scaling_available_governors     scaling_min_freq
-# cpuinfo_min_freq             scaling_cur_freq                scaling_setspeed
-# cpuinfo_transition_latency   scaling_driver
+# affected_cpus                 related_cpus                      scaling_governor
+# cpuinfo_cur_freq              scaling_available_frequencies     scaling_max_freq
+# cpuinfo_max_freq              scaling_available_governors       scaling_min_freq
+# cpuinfo_min_freq              scaling_cur_freq                  scaling_setspeed
+# cpuinfo_transition_latency    scaling_driver                  
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
@@ -60,15 +49,15 @@ pcp_html_head "xtras overclocking" "GE"
 
 pcp_controls
 pcp_banner
-pcp_running_script
 pcp_xtras
+pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_set_overclock() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
+	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
 	sudo sed -i "/arm_freq=/c\arm_freq=$2" $CONFIGTXT
 	sudo sed -i "/core_freq=/c\core_freq=$3" $CONFIGTXT
 	sudo sed -i "/sdram_freq=/c\sdram_freq=$4" $CONFIGTXT
@@ -76,8 +65,7 @@ pcp_set_overclock() {
 }
 
 pcp_set_overclock_default() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to DEFAULT</p>'
-	pcp_set_overclock NONE 700 250 400 0
+	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to DEFAULT</p>'
 	sudo sed -i 's/^arm_freq=/#arm_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^core_freq=/#core_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^sdram_freq=/#sdram_freq=/g' $CONFIGTXT
@@ -86,23 +74,23 @@ pcp_set_overclock_default() {
 }
 
 pcp_set_force_turbo() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to '$1'</p>'
+	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to '$1'</p>'
 	sudo sed -i "/force_turbo=/c\force_turbo=$1" $CONFIGTXT
 }
 
 pcp_set_force_turbo_default() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to DEFAULT</p>'
+	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to DEFAULT</p>'
 	pcp_set_force_turbo 0
 	sudo sed -i 's/^force_turbo=/#force_turbo=/g' $CONFIGTXT
 }
 
 pcp_set_gpu_memory() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting GPU memory to '$1'</p>'
+	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting GPU memory to '$1'</p>'
 	sudo sed -i "/gpu_mem=/c\gpu_mem=$1" $CONFIGTXT
 }
 
 pcp_set_gpu_memory_default() {
-	[ $DEBUG = 1] && echo '<p class="info">[ INFO ] Setting GPU memory to DEFAULT</p>'
+	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting GPU memory to DEFAULT</p>'
 	sudo sed -i 's/^gpu_mem=/#gpu_mem=/g' $CONFIGTXT
 }
 
@@ -131,7 +119,7 @@ pcp_start_save() {
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 
 	if mount | grep $VOLUME >/dev/null 2>&1; then
-		[ $DEBUG = 1] && echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
+		[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
 	else
 		pcp_go_back_button
 		echo '</body>'
@@ -139,40 +127,81 @@ pcp_start_save() {
 	fi
 
 	. $CONFIGCFG
-	case $OVERCLOCK in
-		DEFAULT) pcp_set_overclock_default ;;
-		UNDER)   pcp_set_overclock UNDER 600 250 400 0 ;;
-		NONE)    pcp_set_overclock NONE 700 250 400 0 ;;
-		MODEST)  pcp_set_overclock MODEST 800 250 400 0 ;;
-		MEDIUM)  pcp_set_overclock MEDIUM 900 250 450 2 ;;
-		HIGH)    pcp_set_overclock HIGH 950 250 450 6 ;;
-		TURBO)   pcp_set_overclock TURBO 1000 500 600 6 ;;
-		PI2)     pcp_set_overclock PI2 1000 500 500 2 ;;
-		*)       [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid overclock option: '$OVERCLOCK'</p>' ;;
+
+	#========================================================================================
+	# Official overclocking data from raspi-config (Rasbian 2016-03-18)
+	#----------------------------------------------------------------------------------------
+	#  RPi0
+	#     "None"
+	#  RPi1
+	#     "None"   "700MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Modest" "800MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Medium" "900MHz ARM, 250MHz core, 450MHz SDRAM, 2 overvolt"
+	#     "High"   "950MHz ARM, 250MHz core, 450MHz SDRAM, 6 overvolt"
+	#     "Turbo" "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt"
+	#  RPi2
+	#     "None"   "900MHz ARM, 250MHz core, 450MHz SDRAM, 0 overvolt"
+	#     "High"  "1000MHz ARM, 500MHz core, 500MHz SDRAM, 2 overvolt"
+	#  RPi3
+	#     "None"
+	#----------------------------------------------------------------------------------------
+
+	case "$(pcp_rpi_type)" in
+		0)
+			case "$ADVOVERCLOCK" in
+				None) pcp_set_overclock_default ;;
+				*)    pcp_set_overclock_default ;;
+			esac
+		;;
+		1)
+			case "$ADVOVERCLOCK" in
+				None)   pcp_set_overclock_default ;;
+				Modest) pcp_set_overclock Modest 800 250 400 0 ;;
+				Medium) pcp_set_overclock Medium 900 250 450 2 ;;
+				High)   pcp_set_overclock High 950 250 450 6 ;;
+				Turbo)  pcp_set_overclock Turbo 1000 500 600 6 ;;
+				*)      pcp_set_overclock_default ;;
+			esac
+		;;
+		2)
+			case "$ADVOVERCLOCK" in
+				None) pcp_set_overclock_default ;;
+				High) pcp_set_overclock High 1000 500 500 2 ;;
+				*)    pcp_set_overclock_default ;;
+			esac
+		;;
+		3)
+			case "$ADVOVERCLOCK" in
+				None) pcp_set_overclock_default ;;
+				*)    pcp_set_overclock_default ;;
+			esac
+		;;
 	esac
 
-	case $FORCETURBO in
+	case "$FORCETURBO" in
 		DEFAULT) pcp_set_force_turbo_default ;;
 		0)       pcp_set_force_turbo 0 ;;
 		1)       pcp_set_force_turbo 1 ;;
-		*)       [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
+		*)       [ $DEBUG -eq 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
 	esac
 
-	case $GPUMEMORY in
+	case "$GPUMEMORY" in
 		DEFAULT) pcp_set_gpu_memory_default ;;
 		16)      pcp_set_gpu_memory 16 ;;
 		32)      pcp_set_gpu_memory 32 ;;
 		64)      pcp_set_gpu_memory 64 ;;
-		*)       [ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
+		128)     pcp_set_gpu_memory 128 ;;
+		256)     pcp_set_gpu_memory 256 ;;
+		*)       [ $DEBUG -eq 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
 	esac
 
-	[ $DEBUG = 1 ] && pcp_check_config_txt
-	[ $(pcp_check_force_turbo) = 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>' 
-	[ $(pcp_check_over_voltage) = 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
-	[ $(pcp_check_force_turbo) = 0 ] && [ $(pcp_check_over_voltage) = 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
+	[ $DEBUG -eq 1 ] && pcp_check_config_txt
+	[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>' 
+	[ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
+	[ $(pcp_check_force_turbo) -eq 0 ] && [ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
 
 	#echo '<p class="info">Revision: '$(pcp_rpi_revision)'</p>'
-	[ $(pcp_rpi_warranty) = 0 ] &&
+	[ $(pcp_rpi_warranty) -eq 0 ] &&
 	echo '<p class="error">[ ERROR ] Warranty bit is already set: '$(pcp_rpi_revision)'</p>' || echo '<p class="info">[ INFO ] Warranty bit is NOT set: '$(pcp_rpi_revision)'</p>'
 
 	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
@@ -206,30 +235,57 @@ pcp_check_over_voltage() {
 }
 
 #========================================================================================
+# Generate warning message
+#----------------------------------------------------------------------------------------
+pcp_warning_message() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Warning</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b> It can be dangerous to play with overclocking.</p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">Only suitable for Raspberry Pi Model 1 and Model 2.</li>'
+	echo '                  <li style="color:white">Do not use for Raspberry Pi Model 0 and Model 3.</li>'
+	echo '                  <li style="color:white">Excessive overclocking can cause your Raspberry Pi to become unstable.</li>'
+	echo '                  <li style="color:white">Setting force turbo may set warranty bit.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+
+#========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-case $SUBMIT in
+case "$SUBMIT" in
 	Save)
-		[ $DEBUG = 1] && echo '<p class="info">[ INFO ] SUBMIT='$SUBMIT' </p>'
+		[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] SUBMIT='$SUBMIT' </p>'
 		pcp_start_save
 		;;
 	*)
-		[ $DEBUG = 1] && echo '<p class="error">[ ERROR ] Invalid submit option: '$SUBMIT'</p>'
+		[ $DEBUG -eq 1] && echo '<p class="error">[ ERROR ] Invalid submit option: '$SUBMIT'</p>'
 		;;
 esac
 
 #----------------------------------------------------------------------------------------
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
-case $OVERCLOCK in
-	DEFAULT) OCdefault="selected" ;;
-	UNDER)   OCunder="selected" ;;
-	NONE)    OCnone="selected" ;;
-	MODEST)  OCmodest="selected" ;;
-	MEDIUM)  OCmedium="selected" ;;
-	HIGH)    OChigh="selected" ;;
-	TURBO)   OCturbo="selected" ;;
-	PI2)     OCpi2="selected" ;;
+case "$ADVOVERCLOCK" in
+	None)    OCnone="selected" ;;
+	Modest)  OCmodest="selected" ;;
+	Medium)  OCmedium="selected" ;;
+	High)    OChigh="selected" ;;
+	Turbo)   OCturbo="selected" ;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -238,22 +294,26 @@ esac
 pcp_mount_mmcblk0p1 >/dev/null 2>&1
 FORCETURBO=$(cat $CONFIGTXT | grep force_turbo)
 
-case $FORCETURBO in
+case "$FORCETURBO" in
 	\#force_turbo=0) FTdefault="selected" ;;
-	force_turbo=0)  FT0="selected" ;;
-	force_turbo=1)  FT1="selected" ;;
+	force_turbo=0)   FT0="selected" ;;
+	force_turbo=1)   FT1="selected" ;;
 esac
 
 GPUMEMORY=$(cat $CONFIGTXT | grep gpu_mem)
 
-case $GPUMEMORY in
-	\#gpu_mem=) GMdefault="selected" ;;
-	gpu_mem=16) GM16="selected" ;;
-	gpu_mem=32) GM32="selected" ;;
-	gpu_mem=64) GM64="selected" ;;
+case "$GPUMEMORY" in
+	\#gpu_mem=)  GMdefault="selected" ;;
+	gpu_mem=16)  GM16="selected" ;;
+	gpu_mem=32)  GM32="selected" ;;
+	gpu_mem=64)  GM64="selected" ;;
+	gpu_mem=128) GM128="selected" ;;
+	gpu_mem=256) GM256="selected" ;;
 esac
 
 pcp_umount_mmcblk0p1 >/dev/null 2>&1
+
+pcp_warning_message
 
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -263,11 +323,6 @@ echo '        <fieldset>'
 echo '          <legend>Overclocking</legend>'
 echo '          <table class="bggrey percent100">'
 echo '            <form name="overclock" action= "xtras_overclock.cgi" method="get">'
-echo '              <tr class="warning">'
-echo '                <td colspan="3">'
-echo '                  <p style="color:white"><b>Note:</b> Excessive overclocking can cause your Raspberry Pi to become unstable.</b></p>'
-echo '                </td>'
-echo '              </tr>'
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -275,23 +330,28 @@ echo '                <td class="column150">'
 echo '                  <p>Overclock</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select class="large16" name="OVERCLOCK">'
-if [ $(pcp_rpi_is_model_2B) = 1 ]; then
-	[ $MODE = $MODE_DEVELOPER ] &&
-	echo '                    <option value="DEFAULT" '$OCdefault'>Default</option>'
-	echo '                    <option value="UNDER" '$OCunder'>Under</option>'
-	echo '                    <option value="NONE" '$OCnone'>None</option>'
-	echo '                    <option value="MODEST" '$OCmodest'>Modest</option>'
-	echo '                    <option value="MEDIUM" '$OCmedium'>Moderate</option>'
-	if [ $MODE = $MODE_DEVELOPER ]; then
-		echo '                    <option value="HIGH" '$OChigh'>High</option>'
-		echo '                    <option value="TURBO" '$OCturbo'>Turbo</option>'
-	fi
-fi
-if [ $(pcp_rpi_is_model_2B) = 0 ]; then
-	echo '                    <option value="DEFAULT" '$OCdefault'>Default</option>'
-	echo '                    <option value="PI2" '$OCpi2'>Pi2</option>'
-fi
+echo '                  <select class="large16" name="ADVOVERCLOCK">'
+
+	case "$(pcp_rpi_type)" in
+		0)
+			echo '                    <option value="None" '$OCnone'>None</option>'
+		;;
+		1)
+			echo '                    <option value="None" '$OCnone'>None</option>'
+			echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
+			echo '                    <option value="Medium" '$OCmedium'>Moderate</option>'
+			echo '                    <option value="High" '$OChigh'>High</option>'
+			echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
+		;;
+		2)
+			echo '                    <option value="None" '$OCnone'>None</option>'
+			echo '                    <option value="High" '$OChigh'>High</option>'
+		;;
+		3)
+			echo '                    <option value="None" '$OCnone'>None</option>'
+		;;
+	esac
+
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
@@ -370,6 +430,8 @@ echo '                    <option value="DEFAULT" '$GMdefault'>Default</option>'
 echo '                    <option value="16" '$GM16'>16</option>'
 echo '                    <option value="32" '$GM32'>32</option>'
 echo '                    <option value="64" '$GM64'>64</option>'
+echo '                    <option value="128" '$GM128'>128</option>'
+echo '                    <option value="256" '$GM256'>256</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
@@ -377,7 +439,7 @@ echo '                  <p>Change GPU memory setting&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Default|16|32|64&gt;</p>'
+echo '                    <p>&lt;Default|16|32|64|128|256&gt;</p>'
 echo '                    <p>Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
@@ -407,7 +469,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	#========================================================================================
 	# Display debug information
 	#----------------------------------------------------------------------------------------
@@ -422,7 +484,7 @@ if [ $DEBUG = 1 ]; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	echo '                  <p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
+	echo '                  <p class="debug">[ DEBUG ] $ADVOVERCLOCK: '$ADVOVERCLOCK'<br />'
 	echo '                                   [ DEBUG ] $OCdefault: '$OCdefault'<br />'
 	echo '                                   [ DEBUG ] $OCunder: '$OCunder'<br />'
 	echo '                                   [ DEBUG ] $OCnone: '$OCnone'<br />'
@@ -440,7 +502,9 @@ if [ $DEBUG = 1 ]; then
 	echo '                                   [ DEBUG ] $GMdefault: '$GMdefault'<br />'
 	echo '                                   [ DEBUG ] $GM16: '$GM16'<br />'
 	echo '                                   [ DEBUG ] $GM32: '$GM32'<br />'
-	echo '                                   [ DEBUG ] $GM64: '$GM64'</p>'
+	echo '                                   [ DEBUG ] $GM64: '$GM64'<br />'
+	echo '                                   [ DEBUG ] $GM128: '$GM128'<br />'
+	echo '                                   [ DEBUG ] $GM256: '$GM256'</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
@@ -452,7 +516,7 @@ if [ $DEBUG = 1 ]; then
 	echo '</table>'
 fi
 
-if [ $MODE = $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_BETA ]; then
 	#========================================================================================
 	# Display current overclock settings
 	#----------------------------------------------------------------------------------------
