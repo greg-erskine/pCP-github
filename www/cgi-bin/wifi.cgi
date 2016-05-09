@@ -38,7 +38,7 @@
 #	HTML5 formatting.
 
 # Version: 0.07 2014-10-10 SBP
-#	Added if [ $WIFI = on ] condition.
+#	Added if [ "$WIFI" = "on" ] condition.
 
 # Version: 0.06 2014-09-30 GE
 #	Added footer when No wifi devices found!.
@@ -174,7 +174,7 @@ available_networks() {
 	(for i in `seq 5`
 	do
 		iwlist "$WIFI2" scanning
-		[ "$?" == 0 ] && break
+		[ $? -eq 0 ] && break
 		sleep 1
 	done ) | awk -v wifi=$WIFI2 '
 	BEGIN {
@@ -199,7 +199,7 @@ available_networks() {
 	# main ()
 	{
 		if ($1 ~ /Cell/) {
-			if ( i == 0  || sid[i] != "" ) i++
+			if ( i = 0  || sid[i] != "" ) i++
 			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
 			gsub(" ","",addr[i])
 		}
@@ -231,7 +231,7 @@ available_networks() {
 		if (enc[i] ~ /off/) type[i]="NONE"
 		if ($2 ~ /WPA/) type[i]="WPA"
 		if ($2 ~ /WPA2 /) type[i]="WPA2"
-		if (type[i] == "" ) type[i]="WEP"
+		if (type[i] = "" ) type[i]="WEP"
 	}
 	END {
 		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
@@ -249,7 +249,7 @@ available_networks() {
 }
 #----------------------------------------------------------------------------------------
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
 	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
 	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
@@ -396,9 +396,9 @@ echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
 
-if [ $WIFI = on ]; then
-	[ x"" == x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
-	[ x"" == x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
+if [ "$WIFI" = "on" ]; then
+	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
+	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
 
 	echo '      <form name="scan" action="wifi.cgi" method="get">'
 	echo '        <div class="row">'
@@ -423,7 +423,7 @@ if [ $WIFI = on ]; then
 	echo '      </form>'
 fi
 
-if [ $SUBMIT = Scan ] && [ $WIFI = on ]; then
+if [ "$SUBMIT" = "Scan" ] && [ "$WIFI" = "on" ]; then
 	echo '      <form name="wifi_networks" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'

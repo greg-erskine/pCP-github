@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2016-05-09 GE
+#	Renamed variable HTPPD to HTTPD.
+
 # Version: 0.01 2016-02-05 GE
 #	Original version.
 
@@ -15,15 +18,15 @@ pcp_navigation
 pcp_running_string
 
 pcp_httpd_query_string
-FILE=$($HTPPD -d $FILE)
-[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] File: '$FILE'</p>'
+FILE=$($HTTPD -d $FILE)
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] File: '$FILE'</p>'
 
 UPLOAD_FILE=/tmp/pcp_pastebin.txt
 
 #----------------------------------------------------------------------------------------
 # Submit actions
 #----------------------------------------------------------------------------------------
-case $SUBMIT in
+case "$SUBMIT" in
 	Upload)
 		cp $FILE $UPLOAD_FILE
 		case $FILE in
@@ -71,7 +74,7 @@ echo '</table>'
 #========================================================================================
 # Accept or reject paste text form
 #----------------------------------------------------------------------------------------
-if [ $SUBMIT = "Upload" ]; then
+if [ "$SUBMIT" = "Upload" ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -119,7 +122,7 @@ fi
 #========================================================================================
 # Results form
 #----------------------------------------------------------------------------------------
-if [ $SUBMIT = "Accept" ]; then
+if [ "$SUBMIT" = "Accept" ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'

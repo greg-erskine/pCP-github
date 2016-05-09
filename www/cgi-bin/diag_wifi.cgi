@@ -80,19 +80,19 @@ pcp_wifi_diag_lsmod() {
 pcp_install_lsusb() {
 	echo '<textarea class="inform" rows="4">'
 	which lsusb
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo 'usbutils.tcz already installed.'
 	else
 		if [ ! -f /mnt/mmcblk0p2/tce/optional/usbutils.tcz ]; then
 			echo 'usbutils.tcz downloading... '
 			sudo -u tc tce-load -w usbutils.tcz
-			[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 		else
 			echo 'usbutils.tcz downloaded.'
 		fi
 		echo 'usbutils.tcz installing... '
 		sudo -u tc tce-load -i usbutils.tcz
-		[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 	fi
 	echo '</textarea>'
 }

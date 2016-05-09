@@ -108,7 +108,7 @@ SPACE_REQUIRED=15
 # Check we have internet access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_internet_indicator() {
-	if [ $(pcp_internet_accessible) = 0 ]; then
+	if [ $(pcp_internet_accessible) -eq 0 ]; then
 		INTERNET_STATUS="Internet accessible."
 	else
 		INTERNET_STATUS="Internet not accessible!!"
@@ -120,7 +120,7 @@ pcp_internet_indicator() {
 # Check we have sourceforge access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) = 0 ]; then
+	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
 		SOURCEFORGE_STATUS="Sourceforge repository accessible."
 	else
 		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
@@ -149,10 +149,10 @@ pcp_enough_free_space() {
 pcp_create_download_directory() {
 	if [ -d $FIX_PCP ]; then
 		sudo rm -rf $FIX_PCP
-		[ $? != 0 ] && FAIL_MSG="Cannot remove directory $FIX_PCP"
+		[ $? -ne 0 ] && FAIL_MSG="Cannot remove directory $FIX_PCP"
 	fi
 	sudo mkdir -m 755 $FIX_PCP
-	[ $? != 0 ] && FAIL_MSG="Cannot make directory $FIX_PCP"
+	[ $? -ne 0 ] && FAIL_MSG="Cannot make directory $FIX_PCP"
 }
 
 #========================================================================================
@@ -161,16 +161,16 @@ pcp_create_download_directory() {
 pcp_get_fix_cgi_md5() {
 	echo '[ INFO ] Downloading fix.cgi.md5.txt...'
 	$WGET ${FIX_DOWNLOAD}/fix.cgi.md5.txt/download -O ${FIX_PCP}/fix.cgi.md5.txt
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded fix.cgi.md5.txt'
 	else
 		echo '[ ERROR ] Error downloading fix.cgi.md5.txt'
 		FAIL_MSG="Error downloading fix.cgi.md5.txt"
 	fi
-	if [ $FAIL_MSG = "ok" ]
+	if [ "$FAIL_MSG" = "ok" ]
 		then
 		cp ${FIX_PCP}/fix.cgi.md5.txt ${FIX_CGI}
-		if [ $? = 0 ]; then
+		if [ $? -eq 0 ]; then
 			echo '[  OK  ] Successfully copied fix.cgi.md5.txt to cgi-bin'
 		else
 			echo '[ ERROR ] Error copying fix.cgi.md5.txt to cgi-bin'
@@ -187,16 +187,16 @@ pcp_get_fix_cgi_md5() {
 pcp_get_fix_cgi() {
 	echo '[ INFO ] Downloading fix.cgi...'
 	$WGET ${FIX_DOWNLOAD}/fix.cgi/download -O ${FIX_PCP}/fix.cgi
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded fix.cgi'
 	else
 		echo '[ ERROR ] Error downloading fix.cgi'
 		FAIL_MSG="Error downloading fix.cgi"
 	fi
-	if [ $FAIL_MSG = "ok" ]
+	if [ "$FAIL_MSG" = "ok" ]
 		then
 		cp ${FIX_PCP}/fix.cgi ${FIX_CGI}
-		if [ $? = 0 ]; then
+		if [ $? -eq 0 ]; then
 			echo '[  OK  ] Successfully copied fix.cgi to cgi-bin'
 		else
 			echo '[ ERROR ] Error copying fix.cgi to cgi-bin'
@@ -213,7 +213,7 @@ pcp_get_fix_cgi() {
 pcp_check_fix_md5() {
 	cd ${FIX_CGI}
 	md5sum -sc fix.cgi.md5.txt
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] fix.cgi is up-to-date.'
 	else
 		echo '[ WARN ] fix.cgi is not up-to-date.'
@@ -277,7 +277,7 @@ pcp_html_end() {
 	pcp_footer
 	pcp_copyright
 
-	if [ $ACTION = "fix" ] && [ $FAIL_MSG = "ok" ] ; then
+	if [ "$ACTION" = "fix" ] && [ "$FAIL_MSG" = "ok" ] ; then
 		pcp_backup
 		sleep 1
 		pcp_reboot_required
@@ -291,7 +291,7 @@ pcp_html_end() {
 #========================================================================================
 # Main routine - this is done before any tables are generated
 #----------------------------------------------------------------------------------------
-case $ACTION in
+case "$ACTION" in
 	fix)
 		STEP="Step 2 - Do the fixes"
 		pcp_warning_message
@@ -301,11 +301,11 @@ case $ACTION in
 		STEP="Step 1 - Download latest fix.cgi"
 		pcp_warning_message
 		pcp_internet_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 #		pcp_sourceforge_indicator							#<--- Turn off atm as it may fail
-#		[ $FAIL_MSG = "ok" ] || pcp_html_end
+#		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		;;
 esac
 
@@ -325,24 +325,24 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "initial" ]; then
+if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
 	#echo '[ INFO ] '$SOURCEFORGE_STATUS					#<--- Turn off atm as it may fail
 	pcp_enough_free_space $SPACE_REQUIRED
-	[ $FAIL_MSG = "ok" ] && pcp_get_fix_cgi_md5
-	[ $FAIL_MSG = "ok" ] && pcp_check_fix_md5
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_fix_cgi_md5
+	[ "$FAIL_MSG" = "ok" ] && pcp_check_fix_md5
 fi
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "fix" ]; then
+if [ "$ACTION" = "fix" ]; then
 	echo '[ INFO ] You are applying the fixes.'
-	[ $FAIL_MSG = "ok" ] && pcp_do_fixes
+	[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes
 fi
 #----------------------------------------------------------------------------------------
 echo '                  </textarea>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -361,7 +361,7 @@ echo '</table>'
 #========================================================================================
 # initial screen with [ Next > ] button
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "initial" ] && [ $FAIL_MSG = "ok" ]; then
+if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ]; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'

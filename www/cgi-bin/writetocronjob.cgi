@@ -37,7 +37,7 @@ pcp_httpd_query_string
 #----------------------------------------------------------------------------------------
 # Reset section
 #----------------------------------------------------------------------------------------
-if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
+if [ "$SUBMIT" = "Reset" ] || [ "$SUBMIT" = "Clear" ]; then
 	echo '<p class="info">[ INFO ] Reset/Clear mode</p>'
 
 	REBOOT="Disabled"
@@ -55,7 +55,7 @@ if [ $SUBMIT = Reset ] || [ $SUBMIT = Clear ]; then
 	( crontab -l | grep -v "reboot" ) | crontab -
 	( crontab -l | grep -v "restart" ) | crontab -
 	( crontab -l | grep -v "Custom" ) | crontab -
-	[ $SUBMIT = Clear ] && crontab -r -u root
+	[ "$SUBMIT" = "Clear" ] && crontab -r -u root
 
 	pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
 	pcp_textarea "Current config.cfg" "grep -C 4 RESTART= /usr/local/sbin/config.cfg" 150
@@ -96,14 +96,14 @@ RB_CRON="0 $RB_H $RB_DMONTH * $RB_WD /sbin/reboot"
 RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD /usr/local/etc/init.d/squeezelite restart"
 
 # Add or remove reboot job
-if [ $REBOOT = Enabled ]; then
+if [ "$REBOOT" = "Enabled" ]; then
 	( crontab -l | grep -v "reboot" ; echo "$RB_CRON" ) | crontab -
 else
 	( crontab -l | grep -v "reboot" ) | crontab -
 fi
 
 # Add or remove restart job
-if [ $RESTART = Enabled ]; then
+if [ "$RESTART" = "Enabled" ]; then
 	( crontab -l | grep -v "restart" ; echo "$RS_CRON" ) | crontab -
 else
 	( crontab -l | grep -v "restart" ) | crontab -
@@ -116,7 +116,7 @@ else
 	( crontab -l | grep -v "Custom" ; echo "$CRON_COMMAND # Custom" ) | crontab -
 fi
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 	echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
 	echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'

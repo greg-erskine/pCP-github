@@ -51,7 +51,7 @@ pcp_running_script
 pcp_squeezelite_stop
 pcp_httpd_query_string
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
 	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
 	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'</p>'
@@ -182,13 +182,13 @@ echo '</textarea>'
 # Determination of the number of the current sound-card
 
 # If output is analog or HDMI then find the number of the used ALSA-card
-if [ $AUDIO = Analog ] || [ $AUDIO = HDMI ]; then
+if [ "$AUDIO" = "Analog" ] || [ "$AUDIO" = "HDMI" ]; then
 	CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
 fi
 
 # If output is different from analog or HDMI then find the number of the non-ALSA card
 # For now we simply set the card number to 1. The problem is that I2S cards needs a reboot to show up.
-if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
+if [ "$AUDIO" != "Analog" ] && [ "$AUDIO" != "HDMI" ]; then
 	CARDNO=1
 fi
 
@@ -220,7 +220,7 @@ fi
 sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
 # We might have an issue if both I2S DACS and USB DACs are attached at the same time..
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
 	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
 	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'

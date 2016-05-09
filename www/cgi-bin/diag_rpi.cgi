@@ -419,7 +419,7 @@ echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 
-                    if [ $(pcp_internet_accessible) = 0 ]; then
+                    if [ $(pcp_internet_accessible) -eq 0 ]; then
                       INDICATOR=$HEAVY_CHECK_MARK
                       CLASS="indicator_green"
                       STATUS="Internet found..."
@@ -436,7 +436,7 @@ echo '              <td class="column150">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
-                    if [ $(pcp_sourceforge_accessible) = 0 ]; then
+                    if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
                       INDICATOR=$HEAVY_CHECK_MARK
                       CLASS="indicator_green"
                       STATUS="Sourceforge accessible..."

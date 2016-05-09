@@ -67,7 +67,7 @@ DEBUG="0"
 #----------------------------------------------------------------------------------------
 #Only do something if variable is changed
 
-[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
 
 case "$MOUNTTYPE" in
 	localdisk)

@@ -41,7 +41,7 @@ fi
 
 # Set the overclock options in config.txt file
 . $CONFIGCFG
-case $OVERCLOCK in
+case "$OVERCLOCK" in
 	NONE)
 		echo '<p class="info">[ INFO ] Setting OVERCLOCK to NONE</p>' 
 		sudo sed -i "/arm_freq=/c\arm_freq=700" $CONFIGTXT
@@ -68,7 +68,7 @@ case $OVERCLOCK in
 		;;
 esac
 
-[ $DEBUG = 1 ] && pcp_show_config_txt
+[ $DEBUG -eq 1 ] && pcp_show_config_txt
 
 pcp_umount_mmcblk0p1
 
@@ -76,7 +76,7 @@ pcp_umount_mmcblk0p1
 
 echo '<p class="info">[ INFO ] Overclock is set to: '$OVERCLOCK'</p>'
 
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+[ $DEBUG -eq 1 ] && pcp_show_config_cfg
 
 pcp_go_back_button
 

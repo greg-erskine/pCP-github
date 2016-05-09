@@ -36,7 +36,6 @@ LMS_SCAN_LOG=${LOGS}/scanner.log
 WGET="/bin/busybox wget"
 LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
-
 #---------------------------Routines-----------------------------------------------------
 
 if [ -e /tmp/slimupdate/update_url ]; then
@@ -44,7 +43,6 @@ if [ -e /tmp/slimupdate/update_url ]; then
 else
 	UPDATEURL=""
 fi
-
 
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
@@ -67,7 +65,7 @@ echo '          <legend>Update the local Logitech Media Server (LMS)</legend>'
 echo '          <table class="bggrey percent100">'
 
 #------------------------------------LMS Indication--------------------------------------
-if [ $(pcp_lms_status) = 0 ]; then
+if [ $(pcp_lms_status) -eq 0 ]; then
 	INDICATOR=$HEAVY_CHECK_MARK
 	CLASS="indicator_green"
 	STATUS="running"
@@ -141,7 +139,6 @@ pcp_lms_update_url() {
 	echo '            </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_lms_update_url
-
 
 #-----------------------------------Configure LMS----------------------------------------
 pcp_lms_configure_lms() {

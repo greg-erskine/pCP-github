@@ -36,7 +36,7 @@ REBOOT_REQUIRED=0
 
 pcp_enable_lms() {
 	echo '<p class="info">[ INFO ] Enabling automatic start of LMS...</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
@@ -62,15 +62,14 @@ pcp_restore_LMS_cache() {
 	sudo /usr/local/etc/init.d/slimserver start
 }
 
-
 #========================================================================================
 # LMS section
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
-if [ $ORIG_LMSERVER != $LMSERVER ]; then
+if [ "$ORIG_LMSERVER" != "$LMSERVER" ]; then
 	echo '<p class="info">[ INFO ] LMS is set to: '$LMSERVER'</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMSERVER'</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is: '$LMSERVER'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMSERVER'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is: '$LMSERVER'</p>'
 
 	case "$LMSERVER" in
 		yes)
@@ -89,29 +88,26 @@ else
 	echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
 fi
 
-
 #========================================================================================
 # Update of LMS section
 #----------------------------------------------------------------------------------------
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] UPDATE is: '$UPDATE'</p>'
-	case "$UPDATE" in
-		Update)
-			echo '<p class="info">[ INFO ] LMS is updating. It will take a few minutes.</p>'
-			pcp_lms_update
-			pcp_textarea "Log from latest LMS update $LMSUPDATELOG" "cat $LMSUPDATELOG" 150
-			;;
-	esac
-
-
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] UPDATE is: '$UPDATE'</p>'
+case "$UPDATE" in
+	Update)
+		echo '<p class="info">[ INFO ] LMS is updating. It will take a few minutes.</p>'
+		pcp_lms_update
+		pcp_textarea "Log from latest LMS update $LMSUPDATELOG" "cat $LMSUPDATELOG" 150
+		;;
+esac
 
 echo '<hr>'
 pcp_save_to_config
 pcp_backup
 
-[ $DEBUG = 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
-[ $DEBUG = 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
-[ $REBOOT_REQUIRED = 1 ] && pcp_reboot_required
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 pcp_go_back_button
 

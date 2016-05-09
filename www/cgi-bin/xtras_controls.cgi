@@ -35,7 +35,6 @@ pcp_refresh_button
 
 echo ' <embed width="15%" height="15%" src="../images/controls.svg" type="image/svg+xml" style="margin:0;"/>'
 
-
 echo '<script>'
 
 echo "window.open('http://${LMSIP}:9000/status_header.html?player=${MAC}', 'playerControl', 'width=400,height=150,status=no,menubar=no,location=no,resizable=yes');"

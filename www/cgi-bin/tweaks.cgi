@@ -1,9 +1,11 @@
 #!/bin/sh
 
-# Version: 0.26 2016-05-08
+# Version: 0.26 2016-05-09
 #	Added pcp_tweaks_hdmipower. GE.
 #	Added Reset Jivelite configuration. PH.
 #	Changed overclock to enable only for RPi1. GE.
+#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
+#	Renamed variable HTPPD to HTTPD.
 
 # Version: 0.25 2016-04-23 GE
 #	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
@@ -35,7 +37,7 @@
 #	Added Shairport-sync.
 
 # Version: 0.18 2015-11-23 GE
-#	Fixed auto favorites for decode $HTPPD change and LMS 7.9
+#	Fixed auto favorites for decode $HTTPD change and LMS 7.9
 #	Fixed Autostart LMS and User commands.
 #	Added VU Meters.
 
@@ -171,8 +173,8 @@ pcp_tweaks_hostname() {
 #----------------------------------------------------------------------------------------
 pcp_tweaks_jivelite() {
 	case "$JIVELITE" in
-		YES) JIVEyes="selected" ;;
-		NO) JIVEno="selected" ;;
+		yes) JIVEyes="selected" ;;
+		no) JIVEno="selected" ;;
 	esac
 
 	echo '          <table class="bggrey percent100">'
@@ -185,8 +187,8 @@ pcp_tweaks_jivelite() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="JIVELITE">'
-	echo '                    <option value="YES" '$JIVEyes'>Jivelite enabled</option>'
-	echo '                    <option value="NO" '$JIVEno'>Jivelite disabled</option>'
+	echo '                    <option value="yes" '$JIVEyes'>Jivelite enabled</option>'
+	echo '                    <option value="no" '$JIVEno'>Jivelite disabled</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
@@ -212,7 +214,7 @@ pcp_tweaks_jivelite() {
 	echo '                <td colspan="3">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	[ $MODE -ge $MODE_BETA -a "$JIVELITE" = "YES" ] &&
+	[ $MODE -ge $MODE_BETA -a "$JIVELITE" = "yes" ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -315,7 +317,7 @@ pcp_tweaks_vumeter() {
 		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
 	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "YES" ] && pcp_tweaks_vumeter
+[ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen rotate------------------------------------
@@ -323,8 +325,8 @@ pcp_tweaks_vumeter() {
 #----------------------------------------------------------------------------------------
 pcp_tweaks_screenrotate() {
 	case "$SCREENROTATE" in
-		YES) SCREENyes="selected" ;;
-		NO) SCREENno="selected" ;;
+		yes) SCREENyes="selected" ;;
+		no) SCREENno="selected" ;;
 	esac
 
 	echo '          <table class="bggrey percent100">'
@@ -337,8 +339,8 @@ pcp_tweaks_screenrotate() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="SCREENROTATE">'
-	echo '                    <option value="YES" '$SCREENyes'>Rotate screen</option>'
-	echo '                    <option value="NO" '$SCREENno'>Default screen rotation</option>'
+	echo '                    <option value="yes" '$SCREENyes'>Rotate screen</option>'
+	echo '                    <option value="no" '$SCREENno'>Default screen rotation</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
@@ -410,7 +412,7 @@ pcp_tweaks_overclock() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
-	echo '                    <p><b>Note:</b> Only suitable for Raspberry Pi Model 1.</p>'	
+	echo '                    <p><b>Note:</b> Only suitable for Raspberry Pi Model 1.</p>'
 	echo '                    <p>Reboot is needed.<p>'
 	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
 	echo '                    <ul>'
@@ -748,7 +750,7 @@ pcp_tweaks_auto_start() {
 
 	# Generate a list of options
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=$(sudo $HTPPD -d $FAVLIST)
+	FAVLIST=$(sudo $HTTPD -d $FAVLIST)
 	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
 	BEGIN {
 		RS="id:"
@@ -761,17 +763,17 @@ pcp_tweaks_auto_start() {
 		name[i]=$2
 		gsub(" type","",name[i])
 		sel[i]=""
-		if ( name[i] == autostartfav ) {
+		if ( name[i] = autostartfav ) {
 			sel[i]="selected"
 		}
 		isaudio[i]=$3
 		gsub(" hasitems","",isaudio[i])
-		if ( isaudio[i] == "0" ) {
+		if ( isaudio[i] = "0" ) {
 			i--
 		}
 		isfavorite[i]=$6
 		gsub(" title","",isfavorite[i])
-		if ( isfavorite[i] == "33 favorites items 0 100" ) {
+		if ( isfavorite[i] = "33 favorites items 0 100" ) {
 			i--
 		}
 	}
@@ -842,7 +844,7 @@ pcp_tweaks_auto_start() {
 
 	#----------------------------------------------Autostart LMS-----------------------------
 	# Decode variables using httpd, no quotes
-	AUTOSTARTLMS=`sudo $HTPPD -d $AUTOSTARTLMS`
+	AUTOSTARTLMS=`sudo $HTTPD -d $AUTOSTARTLMS`
 
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
@@ -1442,9 +1444,9 @@ pcp_tweaks_cron() {
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
 	# Decode variables using httpd, no quotes
-	USER_COMMAND_1=$(sudo $HTPPD -d $USER_COMMAND_1)
-	USER_COMMAND_2=$(sudo $HTPPD -d $USER_COMMAND_2)
-	USER_COMMAND_3=$(sudo $HTPPD -d $USER_COMMAND_3)
+	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
+	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
+	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
 
 	echo '<table class="bggrey">'
 	echo '  <tr>'

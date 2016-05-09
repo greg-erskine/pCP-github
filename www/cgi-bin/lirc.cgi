@@ -36,7 +36,7 @@ SPACE_REQUIRED=600
 # Check we have internet access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_internet_indicator() {
-	if [ $(pcp_internet_accessible) = 0 ]; then
+	if [ $(pcp_internet_accessible) -eq 0 ]; then
 		INTERNET_STATUS="Internet accessible."
 	else
 		INTERNET_STATUS="Internet not accessible!!"
@@ -48,7 +48,7 @@ pcp_internet_indicator() {
 # Check we have sourceforge access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) = 0 ]; then
+	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
 		SOURCEFORGE_STATUS="Sourceforge repository accessible."
 	else
 		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
@@ -100,7 +100,7 @@ pcp_html_end() {
 
 	echo '</body>'
 	echo '</html>'
-	[ $ACTION != "Initial" ] && pcp_reboot_required
+	[ "$ACTION" != "Initial" ] && pcp_reboot_required
 	exit
 }
 
@@ -108,11 +108,11 @@ pcp_html_end() {
 # Get a file from a remote repository
 #----------------------------------------------------------------------------------------
 pcp_get_file() {
-	[ $1 == "lirc" ] && REPOSITORY=${LIRC_REPOSITORY}
-	[ $1 == "pico" ] && REPOSITORY=${PICO_REPOSITORY}
+	[ $1 = "lirc" ] && REPOSITORY=${LIRC_REPOSITORY}
+	[ $1 = "pico" ] && REPOSITORY=${PICO_REPOSITORY}
 	echo -n '[ INFO ] Downloading '$2'... '
 	$WGET --no-check-certificate ${REPOSITORY}/$2 -O ${IR_DOWNLOAD}/$2
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo "OK"
 	else
 		echo "FAILED"
@@ -126,8 +126,8 @@ pcp_get_file() {
 pcp_delete_file() {
 	echo -n '[ INFO ] Deleting '$1'... '
 	rm -f /mnt/mmcblk0p2/tce/optional/${1}
-	[ $? = 0 ] || FAIL_MSG="Cannot delete ${1}."
-	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
+	[ $? -eq 0 ] || FAIL_MSG="Cannot delete ${1}."
+	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
@@ -137,30 +137,30 @@ pcp_lirc_install() {
 	echo '[ INFO ] Preparing download directory...'
 	if [ -d $IR_DOWNLOAD ]; then
 		sudo rm -rf $IR_DOWNLOAD
-		[ $? != 0 ] && FAIL_MSG="Can not remove directory $IR_DOWNLOAD"
+		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $IR_DOWNLOAD"
 	fi
 	sudo mkdir -m 755 $IR_DOWNLOAD
-	[ $? != 0 ] && FAIL_MSG="Can not make directory $IR_DOWNLOAD"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory $IR_DOWNLOAD"
 
-	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz
-	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz.md5.txt
-	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz
- 	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz.dep
- 	[ $FAIL_MSG = "ok" ] && pcp_get_file lirc lirc.tcz.md5.txt
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz.md5.txt
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc lirc.tcz
+ 	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc lirc.tcz.dep
+ 	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc lirc.tcz.md5.txt
 
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz ]; then
-		[ $FAIL_MSG = "ok" ] && pcp_get_file pico libcofi.tcz
-		[ $FAIL_MSG = "ok" ] && pcp_get_file pico libcofi.tcz.md5.txt
+		[ "$FAIL_MSG" = "ok" ] && pcp_get_file pico libcofi.tcz
+		[ "$FAIL_MSG" = "ok" ] && pcp_get_file pico libcofi.tcz.md5.txt
 	fi
 
 	echo -n '[ INFO ] Installing files... '
-	[ $FAIL_MSG = "ok" ] && sudo chown tc:staff $IR_DOWNLOAD/*
-	[ $? = 0 ] || FAIL_MSG="Can not change ownership."
-	[ $FAIL_MSG = "ok" ] && sudo chmod u=rw,g=rw,o=r $IR_DOWNLOAD/*
-	[ $? = 0 ] || FAIL_MSG="Can not change permissions."
-	[ $FAIL_MSG = "ok" ] && sudo cp -af $IR_DOWNLOAD/* /mnt/mmcblk0p2/tce/optional/
-	[ $? = 0 ] || FAIL_MSG="Can not copy to tce/optional."
-	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
+	[ "$FAIL_MSG" = "ok" ] && sudo chown tc:staff $IR_DOWNLOAD/*
+	[ $? -eq 0 ] || FAIL_MSG="Can not change ownership."
+	[ "$FAIL_MSG" = "ok" ] && sudo chmod u=rw,g=rw,o=r $IR_DOWNLOAD/*
+	[ $? -eq 0 ] || FAIL_MSG="Can not change permissions."
+	[ "$FAIL_MSG" = "ok" ] && sudo cp -af $IR_DOWNLOAD/* /mnt/mmcblk0p2/tce/optional/
+	[ $? -eq 0 ] || FAIL_MSG="Can not copy to tce/optional."
+	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 
 	echo '[ INFO ] Updating configuration files... '
 
@@ -175,23 +175,23 @@ pcp_lirc_install() {
 	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
 	sudo echo "lirc.tcz" >> $ONBOOTLST
 
-	[ $FAIL_MSG = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
-	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
+	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
+	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
 # LIRC uninstall
 #----------------------------------------------------------------------------------------
 pcp_lirc_uninstall() {
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz.dep
-	[ $FAIL_MSG = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
 
 	if [ $SHAIRPORT = "no" ]; then
-		[ $FAIL_MSG = "ok" ] && pcp_delete_file libcofi.tcz
-		[ $FAIL_MSG = "ok" ] && pcp_delete_file libcofi.tcz.md5.txt
+		[ "$FAIL_MSG" = "ok" ] && pcp_delete_file libcofi.tcz
+		[ "$FAIL_MSG" = "ok" ] && pcp_delete_file libcofi.tcz.md5.txt
 	fi
 
 	echo '[ INFO ] Removing configuration files... '
@@ -204,14 +204,14 @@ pcp_lirc_uninstall() {
 
 	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
 
-	[ $FAIL_MSG = "ok" ] && IR_LIRC="no" && pcp_save_to_config
-	[ $FAIL_MSG = "ok" ] && echo "OK" || echo "FAILED"
+	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="no" && pcp_save_to_config
+	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-case $ACTION in
+case "$ACTION" in
 	Install)
 		ACTION=$ACTION
 		;;
@@ -229,7 +229,7 @@ esac
 #========================================================================================
 # Start Initial table
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
+if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Change" ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -244,7 +244,7 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 
-	if [ $IR_LIRC = "no" ]; then
+	if [ "$IR_LIRC" = "no" ]; then
 		echo '                <td class="column150 center">'
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
@@ -312,7 +312,7 @@ if [ $ACTION = "Initial" -o $ACTION = "Change" ]; then
 	#----------------------------------------------------------------------------------------
 
 	#------------------------------------------Change----------------------------------------
-	if [ $IR_LIRC = "yes" ]; then
+	if [ "$IR_LIRC" = "yes" ]; then
 		pcp_incr_id
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
@@ -347,7 +347,7 @@ fi
 #========================================================================================
 # Installing table
 #----------------------------------------------------------------------------------------
-if [ $ACTION != "Initial" ]; then
+if [ "$ACTION" != "Initial" ]; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -360,26 +360,26 @@ if [ $ACTION != "Initial" ]; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	#---------------------------------------Install------------------------------------------
-	if [ $ACTION = "Install" ]; then
+	if [ "$ACTION" = "Install" ]; then
 		echo '                  <textarea class="inform" style="height:240px">'
 		pcp_internet_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$INTERNET_STATUS
 		pcp_sourceforge_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$SOURCEFORGE_STATUS
 		pcp_enough_free_space $SPACE_REQUIRED
-		[ $FAIL_MSG = "ok" ] && pcp_lirc_install
+		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_install
 	fi
 	#---------------------------------------Uninstall----------------------------------------
-	if [ $ACTION = "Uninstall" ]; then
+	if [ "$ACTION" = "Uninstall" ]; then
 		echo '                  <textarea class="inform" style="height:200px">'
-		[ $FAIL_MSG = "ok" ] && pcp_lirc_uninstall
+		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_uninstall
 	fi
 	#---------------------------------------Change-------------------------------------------
-	if [ $ACTION = "Change" ]; then
+	if [ "$ACTION" = "Change" ]; then
 		echo '                  <textarea class="inform" style="height:100px">'
-		[ $FAIL_MSG = "ok" ] && pcp_save_to_config
+		[ "$FAIL_MSG" = "ok" ] && pcp_save_to_config
 		pcp_mount_mmcblk0p1_nohtml
 		echo '[ INFO ] Changing '$CONFIGTXT'... '
 		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT

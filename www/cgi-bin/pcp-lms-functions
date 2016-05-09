@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 2.06 2016-05-09
+#	Renamed variable HTPPD to HTTPD.
+
 # Version: 2.05 2016-04-22
 #	Added pcp_set_slimconfig. PH.
 #	Updated pcp_controls with symbols. GE.
@@ -81,7 +84,7 @@ pcp_lms_request() {
 	set -- $1
 	NUM=$(($#+1))
 	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | awk '{ print $'$NUM' }'`
-	echo `sudo $HTPPD -d $RESULT`
+	echo `sudo $HTTPD -d $RESULT`
 }
 
 pcp_lms_request_list() {
@@ -89,7 +92,7 @@ pcp_lms_request_list() {
 	set -- $1
 	NUM=$(($#+2))
 	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | sed 's/ /\+/g' `
-	echo `sudo $HTPPD -d $RESULT`
+	echo `sudo $HTTPD -d $RESULT`
 }
 
 pcp_lms_request_debug() {
@@ -239,7 +242,7 @@ pcp_lms_players() {
 	}
 	END {
 		for (y=2; y<2+no_of_players; y++) {
-			if ( model[y] == search ) {
+			if ( model[y] = search ) {
 				#printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
 				#,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
 				#printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]

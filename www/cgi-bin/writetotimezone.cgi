@@ -34,7 +34,7 @@ pcp_mount_mmcblk0p1
 pcp_set_timezone
 pcp_umount_mmcblk0p1
 
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
 
 pcp_backup
 pcp_go_back_button
