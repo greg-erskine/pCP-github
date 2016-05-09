@@ -358,7 +358,7 @@ echo '                    <p>Recommended: WPA or WPA2</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-if [ pcp_rpi_is_model_3B ]; then
+if [ $(pcp_rpi_is_model_3B) -eq 0 ]; then
 	case "$RPI3INTWIFI" in
 		on) RPI3WIFIyes="checked" ;;
 		off) RPI3WIFIno="checked" ;;
