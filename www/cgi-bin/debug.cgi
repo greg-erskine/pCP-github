@@ -70,21 +70,21 @@ pcp_debug_cli() {
 		case "$QUERY_STRING" in
 			d=[01])
 				sed -i "s/\(\\tDEBUG=\).*/\1$d/" ${PCPHOME}/pcp-functions
-				;;
+			;;
 			t=[0-9])
 				sed -i "s/\(\\tTEST=\).*/\1$t/" ${PCPHOME}/pcp-functions
-				;;
+			;;
 			m=100|m=[0-9][0-9]|m=[0-9]) 
 				sed -i "s/\(\\tMODE=\).*/\1$m/" ${PCPHOME}/pcp-functions
-				;;
+			;;
 			a=[01])
 				sed -i "s/\(\\tDEBUG=\).*/\1$a/" ${PCPHOME}/pcp-functions
 				sed -i "s/\(\\tTEST=\).*/\1$a/" ${PCPHOME}/pcp-functions
 				sed -i "s/\(\\tMODE=\).*/\1$a/" ${PCPHOME}/pcp-functions
-				;;
+			;;
 			*)
 				[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] XX Invalid option: '$QUERY_STRING'</p>'
-				;;
+			;;
 		esac
 	fi
 }

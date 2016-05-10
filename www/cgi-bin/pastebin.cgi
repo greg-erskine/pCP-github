@@ -33,7 +33,7 @@ case "$SUBMIT" in
 			*config.cfg)
 				sed -i 1i"$(date)" $UPLOAD_FILE
 				sed -i s/^PASSWORD=.*/PASSWORD=\"******\"/ $UPLOAD_FILE
-				;;
+			;;
 		esac
 	;;
 	Accept)

@@ -167,7 +167,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=snd-rpi-dac"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	*)
 		echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
 	;;

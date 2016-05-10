@@ -159,7 +159,7 @@ pcp_set_defaults() {
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	if [ $DEBUG -eq 1 ]; then 
+	if [ $DEBUG -eq 1 ]; then
 		echo '<p class="debug">[ DEBUG ] $IP: '$IP'<br />'
 		echo '                 [ DEBUG ] $NETMASK: '$NETMASK'<br />'
 		echo '                 [ DEBUG ] $BROADCAST: '$BROADCAST'<br />'
@@ -211,7 +211,7 @@ pcp_read_script
 pcp_mount_mmcblk0p1_nohtml >/dev/null
 if mount | grep $VOLUME >/dev/null; then
 	cat /mnt/mmcblk0p1/cmdline.txt | grep nodhcp >/dev/null
-	case $? in 
+	case $? in
 		0)
 			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code found in /mnt/mmcblk0p1/cmdline.txt.</p>'
 			NODHCPYES="checked"
