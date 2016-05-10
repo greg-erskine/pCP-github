@@ -25,7 +25,7 @@ pcp_httpd_query_string
 #LMS="slimserver*"
 SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
-LMSUPDATELOG=/tmp/updateLMS.txt
+LMSUPDATELOG="/tmp/updateLMS.txt"			#<---- MAKE RIGHT DIRECTORY???
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -33,7 +33,6 @@ REBOOT_REQUIRED=0
 #========================================================================================================
 # Routines
 #--------------------------------------------------------------------------------------------------------
-
 pcp_enable_lms() {
 	echo '<p class="info">[ INFO ] Enabling automatic start of LMS...</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
@@ -75,14 +74,14 @@ if [ "$ORIG_LMSERVER" != "$LMSERVER" ]; then
 		yes)
 			echo '<p class="info">[ INFO ] Automatic start of LMS is enabled.</p>'
 			pcp_enable_lms
-			;;
+		;;
 		no)
 			echo '<p class="info">[ INFO ] Automatic start of LMS is disabled</p>'
 			pcp_disable_lms
-			;;
+		;;
 		*)
 			echo '<p class="error">[ ERROR ] LMS selection invalid: '$LMSERVER'</p>'
-			;;
+		;;
 	esac
 else
 	echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
@@ -97,7 +96,7 @@ case "$UPDATE" in
 		echo '<p class="info">[ INFO ] LMS is updating. It will take a few minutes.</p>'
 		pcp_lms_update
 		pcp_textarea "Log from latest LMS update $LMSUPDATELOG" "cat $LMSUPDATELOG" 150
-		;;
+	;;
 esac
 
 echo '<hr>'

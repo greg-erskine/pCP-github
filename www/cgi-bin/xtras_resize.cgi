@@ -134,7 +134,7 @@ case "$SUBMIT" in
 		touch /home/tc/fdisk_required
 		pcp_backup
 		sudo reboot
-		;;
+	;;
 esac
 
 exit

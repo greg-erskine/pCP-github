@@ -293,22 +293,22 @@ case "$SUBMIT" in
 	Initial)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Initial pass. Get extension...</p>'
 		EXTN=""
-		;;
+	;;
 	Search)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Searching for '$EXTN'...</p>'
 		[ "$EXTN" = "" ] || [ "$EXTN" = ".tcz" ] || pcp_search_extn
-		;;
+	;;
 	Load)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Loading '$EXTN'...</p>'
 		pcp_load_extn
-		;;
+	;;
 	Delete)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Marking '$EXTN' for deletion...</p>'
 		pcp_delete_extn
-		;;
+	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
-		;;
+	;;
 esac
 
 echo '    </td>'

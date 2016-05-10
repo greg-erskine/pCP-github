@@ -120,18 +120,18 @@ case "$AUTOSTART" in
 	FAV)
 		pcp_httpd_query_string
 		pcp_set_austostart_fav
-		;;
+	;;
 	LMS)
 		pcp_httpd_query_string_no_decode
 		pcp_set_austostart_lms
-		;;
+	;;
 	CMD)
 		pcp_httpd_query_string_no_decode
 		pcp_set_user_commands
-		;;
+	;;
 	*)
 		echo '<p class="error">[ ERROR ] Invalid AUTOSTART option: '$AUTOSTART'</p>'
-		;;
+	;;
 esac
 
 #----------------------------------------------------------------------------------------

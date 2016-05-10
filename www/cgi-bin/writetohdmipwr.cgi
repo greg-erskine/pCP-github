@@ -58,7 +58,7 @@ case "$HDMIPOWER" in
 		else
 			echo '[ ERROR ] Error.'
 		fi
-		;;
+	;;
 	off)
 		tvservice -o
 		if [ $? -eq 0 ]; then
@@ -68,10 +68,10 @@ case "$HDMIPOWER" in
 		else
 			echo '[ ERROR ] Error.'
 		fi
-		;;
+	;;
 	*)
 		echo '[ ERROR ] Invalid case argument.'
-		;;
+	;;
 esac
 
 pcp_backup_nohtml

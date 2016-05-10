@@ -190,7 +190,7 @@ available_networks() {
 	(for i in `seq 5`
 	do
 		iwlist "$WIFI2" scanning
-		[ "$?" == 0 ] && break
+		[ $? -eq 0 ] && break
 		sleep 1
 	done ) | awk -v wifi=$WIFI2 '
 	BEGIN {

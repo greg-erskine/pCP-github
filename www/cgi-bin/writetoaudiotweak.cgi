@@ -184,7 +184,7 @@ pcp_remove_shairport() {
 # ALSA output level section
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
-if [ $ORIG_ALSAlevelout != $ALSAlevelout ]; then
+if [ "$ORIG_ALSAlevelout" != "$ALSAlevelout" ]; then
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'</p>'
@@ -232,11 +232,9 @@ pcp_download_alsaequal() {
 			sudo rm -f /tmp/caps*
 		else
 			echo '<p class="error">[ ERROR ] Alsaequalizer download unsuccessful, try again!</p>'
-			#ALSAeq=$ORIG_ALSAeq
 		fi
 	else
 		echo '<p class="error">[ ERROR ] Alsaequalizer not available in repository, try again later!</p>'
-		#ALSAeq=$ORIG_ALSAeq
 	fi
 
 	SPACE=$(pcp_free_space k)
@@ -302,7 +300,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 				OUTPUT="equal"
 			fi
 			sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
-			;;
+		;;
 		no)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
 			OUTPUT=""
@@ -312,10 +310,10 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 			STRING1='You have removed ALSA equalizer. Please fill out the OUTPUT field on the Squeezelite page. Press OK to go back and change or Cancel to continue'
 			SCRIPT1=squeezelite.cgi
 			pcp_confirmation_required
-			;;
+		;;
 		*)
 			echo '<p class="error">[ ERROR ] ALSA equalizer invalid: '$ALSAeq'</p>'
-			;;
+		;;
 	esac
 	echo '<hr>'
 else
@@ -334,7 +332,7 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] CMD is: '$CMD'</p>'
 
 	case "$CMD" in
-		"Default")
+		Default)
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 			#sudo ./disableotg.sh
 
@@ -347,8 +345,8 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
-			;;
-		"Slow")
+		;;
+		Slow)
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 			#sudo ./enableotg.sh
 
@@ -364,10 +362,10 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
-			;;
+		;;
 		*)
 			echo '<p class="error">[ ERROR ] CMD invalid: '$CMD'</p>'
-			;;
+		;;
 	esac
 	echo '<hr>'
 else
@@ -386,7 +384,7 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] FSM is: '$FSM'</p>'
 
 	case "$FSM" in
-		"Default")
+		Default)
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
 
 			pcp_mount_mmcblk0p1
@@ -399,8 +397,8 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
-			;;
-		"Disabled")
+		;;
+		Disabled)
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
 
 			pcp_mount_mmcblk0p1
@@ -416,7 +414,7 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
-			;;
+		;;
 	esac
 else
 	echo '<p class="info">[ INFO ] USB FSM FIQ variable unchanged.</p>'
@@ -438,14 +436,14 @@ if [ "$ORIG_SQUEEZELITE" != "$SQUEEZELITE" ]; then
 		yes)
 			echo '<p class="info">[ INFO ] Squeezelite will be enabled and start automatically when pCP is started.</p>'
 			CLOSEOUT="15"
-			;;
+		;;
 		no)
 			echo '<p class="info">[ INFO ] Squeezelite will be disabled and will not start after a reboot.</p>'
 			CLOSEOUT=""
-			;;
+		;;
 		*)
 			echo '<p class="error">[ ERROR ] Squeezelite selection invalid: '$SHAIRPORT'</p>'
-			;;
+		;;
 	esac
 	echo '<hr>'
 else
@@ -473,16 +471,16 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 				pcp_download_shairport
 			fi
 			CLOSEOUT="15"
-			;;
+		;;
 		no)
 			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
 			pcp_remove_shairport
 			sudo sed -i '/avahi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			CLOSEOUT=""
-			;;
+		;;
 		*)
 			echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'
-			;;
+		;;
 	esac
 	echo '<hr>'
 else

@@ -80,21 +80,21 @@ pcp_update() {
 # Main
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
-	Save)
+	Save) 
 		pcp_save_to_config
-		;;
+	;;
 	Reset*)
 		pcp_reset
-		;;
+	;;
 	Restore*)
 		pcp_restore
-		;;
+	;;
 	Update*)
 		pcp_update
-		;;
+	;;
 	*)
 		echo '<p class="error">[ ERROR ] Invalid case argument.</p>'
-		;;
+	;;
 esac
 
 . $CONFIGCFG

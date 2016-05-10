@@ -108,8 +108,8 @@ pcp_html_end() {
 # Get a file from a remote repository
 #----------------------------------------------------------------------------------------
 pcp_get_file() {
-	[ $1 = "lirc" ] && REPOSITORY=${LIRC_REPOSITORY}
-	[ $1 = "pico" ] && REPOSITORY=${PICO_REPOSITORY}
+	[ "$1" = "lirc" ] && REPOSITORY=${LIRC_REPOSITORY}
+	[ "$1" = "pico" ] && REPOSITORY=${PICO_REPOSITORY}
 	echo -n '[ INFO ] Downloading '$2'... '
 	$WGET --no-check-certificate ${REPOSITORY}/$2 -O ${IR_DOWNLOAD}/$2
 	if [ $? -eq 0 ]; then
@@ -214,16 +214,16 @@ pcp_lirc_uninstall() {
 case "$ACTION" in
 	Install)
 		ACTION=$ACTION
-		;;
+	;;
 	Uninstall)
 		ACTION=$ACTION
-		;;
+	;;
 	Change)
 		ACTION=$ACTION
-		;;
+	;;
 	*)
 		ACTION=Initial
-		;;
+	;;
 esac
 
 #========================================================================================

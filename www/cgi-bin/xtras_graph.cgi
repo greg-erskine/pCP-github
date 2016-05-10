@@ -64,25 +64,25 @@ case "$OPTION" in
 		pcp_write_cputemp_sh
 		killall cputemp.sh
 		/tmp/cputemp.sh >/tmp/data.txt &
-		;;
+	;;
 	Stop)
 		killall cputemp.sh
-		;;
+	;;
 	Clean)
 		killall cputemp.sh
 		rm -f /tmp/data.txt
 		rm -f /tmp/cputemp.sh
-		;;
+	;;
 	Refresh)
 		COUNTER=0
-		;;
+	;;
 	Previous)
 		COUNTER=$(($COUNTER - 10))
-		;;
+	;;
 	Next)
 		COUNTER=$(($COUNTER + 10))
 		[ $COUNTER -ge 0 ] && COUNTER=0
-		;;
+	;;
 esac
 
 #========================================================================================
@@ -175,7 +175,7 @@ echo ''
 #----------------------------------------------------------------------------------------
 # Test data if data.txt doesn't exist
 
-[ "x" = "x"$COUNTER ] && COUNTER=0
+[ x"" = x"$COUNTER" ] && COUNTER=0
 
 DATA1="06:25 06:26 06:27 06:28 06:29 06:30 06:31 06:32 06:33 06:34 06:35 06:36 06:37 06:38 06:39 06:40 06:41 06:42 06:43 06:44 06:45"
 DATA2="100 90 80 70 60 50 40 30 20 10 0 10 20 30 40 55 60 70 80 90 100"

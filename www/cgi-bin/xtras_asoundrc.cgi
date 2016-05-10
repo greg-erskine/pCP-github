@@ -36,7 +36,7 @@ pcp_write_asound_conf() {
 		default)
 			echo '	type plug'                    >>$ASOUNDCONF
 			echo '	slave.pcm "'$PCMTYPE'"'       >>$ASOUNDCONF
-			;;
+		;;
 		stereo)
 			echo '	type route'                   >>$ASOUNDCONF
 			echo '	slave.pcm "'$PCMTYPE'"'       >>$ASOUNDCONF
@@ -44,7 +44,7 @@ pcp_write_asound_conf() {
 			echo '		0.0 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.1 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;
+		;;
 		mono)
 			echo '	type route'                   >>$ASOUNDCONF
 			echo '	slave.pcm "'$PCMTYPE'"'       >>$ASOUNDCONF
@@ -54,7 +54,7 @@ pcp_write_asound_conf() {
 			echo '		1.0 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '		1.1 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;
+		;;
 		swap)
 			echo '	type route'                   >>$ASOUNDCONF
 			echo '	slave.pcm "'$PCMTYPE'"'       >>$ASOUNDCONF
@@ -62,7 +62,7 @@ pcp_write_asound_conf() {
 			echo '		0.1 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.0 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;
+		;;
 		left)
 			echo '	type route'                   >>$ASOUNDCONF
 			echo '	slave.pcm "'$PCMTYPE'"'       >>$ASOUNDCONF
@@ -70,7 +70,7 @@ pcp_write_asound_conf() {
 			echo '		0.0 '$VOLLEFT             >>$ASOUNDCONF
 			echo '		1.1 0'                    >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;
+		;;
 		right)
 			echo '	type route'                   >>$ASOUNDCONF
 			echo '	slave.pcm "'$PCMTYPE'"'       >>$ASOUNDCONF
@@ -78,11 +78,11 @@ pcp_write_asound_conf() {
 			echo '		0.0 0'                    >>$ASOUNDCONF
 			echo '		1.1 '$VOLRIGHT            >>$ASOUNDCONF
 			echo '	}'                            >>$ASOUNDCONF
-			;;
+		;;
 	esac
 	echo '}'                                      >>$ASOUNDCONF
 
-pcp_backup >/dev/null 2>&1
+	pcp_backup >/dev/null 2>&1
 }
 
 pcp_httpd_query_string
@@ -109,10 +109,10 @@ case "$SUBMIT" in
 	Write)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing asound.conf...</p>'
 		pcp_write_asound_conf
-		;;
+	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
-		;;
+	;;
 esac
 
 TYPE=$(cat $ASOUNDCONF)

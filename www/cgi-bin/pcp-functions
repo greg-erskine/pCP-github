@@ -672,12 +672,12 @@ pcp_favorites() {
 
 		isaudio[i]=$3
 		gsub(" hasitems","",isaudio[i])
-		if ( isaudio[i] = "0" ) {
+		if ( isaudio[i] == "0" ) {
 			i--
 		}
 		isfavorite[i]=$6
 		gsub(" title","",isfavorite[i])
-		if ( isfavorite[i] = "33 favorites items 0 100" ) {
+		if ( isfavorite[i] == "33 favorites items 0 100" ) {
 			i--
 		}
 
@@ -1065,7 +1065,7 @@ pcp_autofav_id() {
 		id[i]=a[1]
 		name[i]=$2
 		gsub(" type","",name[i])
-		if ( name[i] = autostartfav ) {
+		if ( name[i] == autostartfav ) {
 			result=id[i]
 		}
 		hasitems[i]=$5

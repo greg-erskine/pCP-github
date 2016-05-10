@@ -36,25 +36,25 @@ case "$ACTION" in
 	Save)
 		sudo amixer -c $CARD -- sset PCM $UNMUTE $VOL >/dev/null 2>&1
 		sudo amixer -c ALSA cset name='PCM Playback Route' $HDMI >/dev/null 2>&1
-		;;
+	;;
 	Store)
 		sudo alsactl store
-		;;
+	;;
 	Restore)
 		sudo alsactl restore
-		;;
+	;;
 	Backup)
 		pcp_backup
-		;;
+	;;
 	Custom)
 		echo
-		;;
+	;;
 	View)
 		echo
-		;;
+	;;
 	Delete)
 		sudo mv /var/lib/alsa/asound.state /var/lib/alsa/asound.state~
-		;;
+	;;
 esac
 
 #----------------------------------------------------------------------------------------

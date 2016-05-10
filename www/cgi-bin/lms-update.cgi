@@ -31,13 +31,12 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 [ -n "$LMSUSER" ] || LMSUSER=tc
 [ -n "$LMSGROUP" ] || LMSGROUP=staff
 
-LMS_SERV_LOG=${LOGS}/server.log
-LMS_SCAN_LOG=${LOGS}/scanner.log
+LMS_SERV_LOG="${LOGS}/server.log"
+LMS_SCAN_LOG="${LOGS}/scanner.log"
 WGET="/bin/busybox wget"
 LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
 #---------------------------Routines-----------------------------------------------------
-
 if [ -e /tmp/slimupdate/update_url ]; then
 	UPDATEURL=$(cat "/tmp/slimupdate/update_url")
 else

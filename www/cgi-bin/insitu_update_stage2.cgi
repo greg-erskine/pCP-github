@@ -220,7 +220,6 @@ pcp_install_tce_files() {
 	#sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
 	#[ $? -eq 0 ] || FAIL_MSG="Error removing kernel specific files."
 
-
 	# Untar and update the tzc packages files to optional
 	echo '[ INFO ] Untarring '${VERSION}'_tce.tar.gz...'
 	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
@@ -362,7 +361,7 @@ pcp_html_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	if [ $INITSPACE = 1 ]; then
+	if [ $INITSPACE -eq 1 ]; then
 		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required
@@ -468,7 +467,7 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
-# initial
+# Initial
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
@@ -511,7 +510,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 fi
 
 #========================================================================================
-# download
+# Download
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
@@ -544,7 +543,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 fi
 
 #========================================================================================
-# install
+# Install
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id

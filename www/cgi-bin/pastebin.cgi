@@ -21,7 +21,7 @@ pcp_httpd_query_string
 FILE=$($HTTPD -d $FILE)
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] File: '$FILE'</p>'
 
-UPLOAD_FILE=/tmp/pcp_pastebin.txt
+UPLOAD_FILE="/tmp/pcp_pastebin.txt"
 
 #----------------------------------------------------------------------------------------
 # Submit actions
@@ -35,16 +35,16 @@ case "$SUBMIT" in
 				sed -i s/^PASSWORD=.*/PASSWORD=\"******\"/ $UPLOAD_FILE
 				;;
 		esac
-		;;
+	;;
 	Accept)
 		pcp_pastebin_paste $UPLOAD_FILE $REPORT
-		;;
+	;;
 	Reject)
 		echo "DELETED - paste text was NOT uploaded." >$UPLOAD_FILE
-		;;
+	;;
 	*)
 		echo "Invalid submit option." >$UPLOAD_FILE
-		;;
+	;;
 esac
 
 #========================================================================================

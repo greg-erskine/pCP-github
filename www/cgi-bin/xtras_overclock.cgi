@@ -25,7 +25,7 @@
 # The following lines need to be included in config.txt:
 #arm_freq=
 #core_freq=
-#sdram_freq= 
+#sdram_freq=
 #over_voltage=
 #force_turbo=
 #gpu_mem=
@@ -38,7 +38,7 @@
 # cpuinfo_cur_freq              scaling_available_frequencies     scaling_max_freq
 # cpuinfo_max_freq              scaling_available_governors       scaling_min_freq
 # cpuinfo_min_freq              scaling_cur_freq                  scaling_setspeed
-# cpuinfo_transition_latency    scaling_driver                  
+# cpuinfo_transition_latency    scaling_driver
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
@@ -196,7 +196,7 @@ pcp_start_save() {
 	esac
 
 	[ $DEBUG -eq 1 ] && pcp_check_config_txt
-	[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>' 
+	[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>'
 	[ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
 	[ $(pcp_check_force_turbo) -eq 0 ] && [ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
 
@@ -271,10 +271,10 @@ case "$SUBMIT" in
 	Save)
 		[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] SUBMIT='$SUBMIT' </p>'
 		pcp_start_save
-		;;
+	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid submit option: '$SUBMIT'</p>'
-		;;
+	;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -332,25 +332,25 @@ echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select class="large16" name="ADVOVERCLOCK">'
 
-	case $(pcp_rpi_type) in
-		0)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-		;;
-		1)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-			echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
-			echo '                    <option value="Medium" '$OCmedium'>Moderate</option>'
-			echo '                    <option value="High" '$OChigh'>High</option>'
-			echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
-		;;
-		2)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-			echo '                    <option value="High" '$OChigh'>High</option>'
-		;;
-		3)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-		;;
-	esac
+case $(pcp_rpi_type) in
+	0)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+	;;
+	1)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+		echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
+		echo '                    <option value="Medium" '$OCmedium'>Moderate</option>'
+		echo '                    <option value="High" '$OChigh'>High</option>'
+		echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
+	;;
+	2)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+		echo '                    <option value="High" '$OChigh'>High</option>'
+	;;
+	3)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+	;;
+esac
 
 echo '                  </select>'
 echo '                </td>'

@@ -445,19 +445,19 @@ pcp_tweaks_overclock() {
 				echo '                 [ DEBUG ] core_freq=250<br />'
 				echo '                 [ DEBUG ] sdram_freq=400<br />'
 				echo '                 [ DEBUG ] force_turbo=1</p>'
-				;;
+			;;
 			MILD)
 				echo '<p class="debug">[ DEBUG ] arm_freq=800<br />'
 				echo '                 [ DEBUG ] core_freq=250<br />'
 				echo '                 [ DEBUG ] sdram_freq=400<br />'
 				echo '                 [ DEBUG ] force_turbo=1</p>'
-				;;
+			;;
 			MODERATE)
 				echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
 				echo '                 [ DEBUG ] core_freq=333<br />'
 				echo '                 [ DEBUG ] sdram_freq=450<br />'
 				echo '                 [ DEBUG ] force_turbo=0</p>'
-				;;
+			;;
 		esac
 	fi
 }
@@ -763,17 +763,17 @@ pcp_tweaks_auto_start() {
 		name[i]=$2
 		gsub(" type","",name[i])
 		sel[i]=""
-		if ( name[i] = autostartfav ) {
+		if ( name[i] == autostartfav ) {
 			sel[i]="selected"
 		}
 		isaudio[i]=$3
 		gsub(" hasitems","",isaudio[i])
-		if ( isaudio[i] = "0" ) {
+		if ( isaudio[i] == "0" ) {
 			i--
 		}
 		isfavorite[i]=$6
 		gsub(" title","",isfavorite[i])
-		if ( isfavorite[i] = "33 favorites items 0 100" ) {
+		if ( isfavorite[i] == "33 favorites items 0 100" ) {
 			i--
 		}
 	}

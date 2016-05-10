@@ -26,15 +26,15 @@ case "$SCREENROTATE" in
 		sed -i '/lcd_rotate=2/d' $CONFIGTXT
 		sudo echo 'lcd_rotate=2' >> $CONFIGTXT
 		pcp_umount_mmcblk0p1
-		;;
+	;;
 	no)
 		pcp_mount_mmcblk0p1
 		sed -i '/lcd_rotate=2/d' $CONFIGTXT
 		pcp_umount_mmcblk0p1
-		;;
+	;;
 	*)
 		echo '[ ERROR ] Error setting $SCREENROTATE to '$SCREENROTATE
-		;;
+	;;
 esac
 
 . $CONFIGCFG

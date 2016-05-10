@@ -152,7 +152,7 @@ case "$MOUNTTYPE" in
 	slimconfig)
 		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_LMSDATA is: '$ORIG_LMSDATA'</p>'
 		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] LMSDATA is: '$LMSDATA'</p>'
-		
+
 		if [ "$ORIG_LMSDATA" = "$LMSDATA" ]; then
 			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
 		else

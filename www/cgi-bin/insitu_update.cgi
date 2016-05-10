@@ -364,7 +364,7 @@ pcp_html_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	if [ $INITSPACE = 1 ]; then
+	if [ $INITSPACE -eq 1 ]; then
 		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required

@@ -199,7 +199,7 @@ available_networks() {
 	# main ()
 	{
 		if ($1 ~ /Cell/) {
-			if ( i = 0  || sid[i] != "" ) i++
+			if ( i == 0 || sid[i] != "" ) i++
 			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
 			gsub(" ","",addr[i])
 		}
@@ -231,7 +231,7 @@ available_networks() {
 		if (enc[i] ~ /off/) type[i]="NONE"
 		if ($2 ~ /WPA/) type[i]="WPA"
 		if ($2 ~ /WPA2 /) type[i]="WPA2"
-		if (type[i] = "" ) type[i]="WEP"
+		if (type[i] == "" ) type[i]="WEP"
 	}
 	END {
 		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)

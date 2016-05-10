@@ -69,7 +69,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=ALSA"
 		ALSA_PARAMS="80:::0"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	HDMI*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_disable_i2s
@@ -79,7 +79,7 @@ case "$AUDIO" in
 		ALSA_PARAMS="::32:0"
 		pcp_umount_mmcblk0p1_nohtml
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
-		;;
+	;;
 	USB*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_disable_i2s
@@ -87,7 +87,7 @@ case "$AUDIO" in
 		OUTPUT=""
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	I2SDAC*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_dac
@@ -95,7 +95,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	I2SDIG*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_digi
@@ -103,7 +103,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	I2SAMP*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_amp
@@ -111,7 +111,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	IQaudio*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_dac
@@ -119,7 +119,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	I2SpIQAMP*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_amp
@@ -127,7 +127,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	I2SpDAC*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_hifiberry_dac_p
@@ -135,7 +135,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;	
+	;;
 	I2SpDIG*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_i2s_digi
@@ -143,7 +143,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=sndrpihifiberry"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	I2SpIQaudIO*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_dac_p
@@ -151,7 +151,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=IQaudIODAC"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	raspidac3*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_raspidac3
@@ -159,7 +159,7 @@ case "$AUDIO" in
 		OUTPUT="hw:CARD=Card"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
-		;;
+	;;
 	rpi_dac*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_rpi_dac
@@ -170,15 +170,15 @@ case "$AUDIO" in
 		;;
 	*)
 		echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
-		;;
+	;;
 esac
 
 echo '</textarea>'
 
 #----If ALSA equalizer is chosen output should always be equal----
-[ $ALSAeq = yes ] && OUTPUT="equal"
+[ "$ALSAeq" = "yes" ] && OUTPUT="equal"
 
-#----If ALSA equalizer is chosen then the card number in alsa equalizer part of asound.conf should be updated if another card is chosen----  
+#----If ALSA equalizer is chosen then the card number in alsa equalizer part of asound.conf should be updated if another card is chosen----
 # Determination of the number of the current sound-card
 
 # If output is analog or HDMI then find the number of the used ALSA-card
@@ -205,15 +205,15 @@ fi
 #case $AUDIO in
 #	Analog|HDMI)
 #		CARDNO=$(cat /proc/asound/cards | grep ': bcm2835' | grep 'ALSA' | awk '{print $1}')
-#		;;
+#	;;
 #	USB*)
 #		# Do USB cards always have USB in description?
 #		CARDNO=$(cat /proc/asound/cards | grep '\]:' | grep 'USB' | awk '{print $1}')
-#		;;
+#	;;
 #	*)
 #		#CARDNO=$(cat /proc/asound/cards | grep '\]:' | grep -v 'ALSA' | grep -v 'USB' | awk '{print $1}')
 #		CARDNO=1
-#		;;
+#	;;
 #esac
 #========================================================================================
 

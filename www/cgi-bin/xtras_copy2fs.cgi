@@ -21,10 +21,10 @@ pcp_httpd_query_string
 case "$COPY2FS" in
 	yes)
 		touch /mnt/mmcblk0p2/tce/copy2fs.flg
-		;;
+	;;
 	no)
 		rm -f /mnt/mmcblk0p2/tce/copy2fs.flg
-		;;
+	;;
 esac
 
 [ -f /mnt/mmcblk0p2/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"

@@ -207,33 +207,33 @@ case "$OPTION" in
 						pcp_download_vumeters
 						pcp_install_default_vumeter
 						pcp_remove_temp
-						;;
+					;;
 					no)
 						pcp_delete_jivelite
 						pcp_delete_vumeters
 						pcp_remove_temp
-						;;
+					;;
 					*)
 						[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
-						;;
+					;;
 				esac
 				pcp_backup
 				echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
 				pcp_reboot_required
-				;;
+			;;
 			Reset)
 				echo '<p class="info">[ INFO ] Resetting Jivelite Configuration......</p>'
 				rm -f /home/tc/.jivelite/userpath/settings/*.lua
 				pcp_backup
 				pkill -SIGTERM jivelite
 				echo '<p class="info">[ INFO ] Jivelite has been reset and restarted. Reconfigure Jivelite and then Backup Changes !</p>'
-				;;
+			;;
 			*)
 				echo '<p class="error">[ ERROR ] JIVELITE: '$JIVELITE', Bad SUBMIT:'$SUBMIT'<br />'
 			;;
 		esac
 		[ $DEBUG -eq 1 ] && pcp_show_config_cfg
-		;;
+	;;
 	VUMETER)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
 		case "$SUBMIT" in
@@ -242,11 +242,12 @@ case "$OPTION" in
 				echo '<p class="info">[ INFO ] A restart of Jivelite is needed in order to finalize!</p>'
 				echo '<p class="info">[ INFO ] Jivelite will now restart!</p>'
 				sudo killall jivelite
-				;;
+			;;
 			Download)
 				pcp_download_vumeters
-				;;
+			;;
 		esac
+	;;
 esac
 
 pcp_go_back_button

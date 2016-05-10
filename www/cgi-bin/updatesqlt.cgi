@@ -64,13 +64,13 @@ case "$VERSION" in
 		DOWNLOAD="squeezelite-armv6hf-noffmpeg"
 		SQLT_VERSION="basic"
 		SPACE_REQUIRED=1100
-		;;
+	;;
 	Large*)
 		MESSAGE="Updating Squeezelite to Ralphy ffmpeg version (will take a few minutes)..."
 		DOWNLOAD="squeezelite-armv6hf-ffmpeg"
 		SQLT_VERSION="ffmpeg"
 		SPACE_REQUIRED=13000
-		;;
+	;;
 esac
 
 echo '<p>[ INFO ] '${MESSAGE}'</p>'
