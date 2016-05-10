@@ -67,7 +67,7 @@ DEBUG="0"
 #----------------------------------------------------------------------------------------
 #Only do something if variable is changed
 
-[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
 
 case "$MOUNTTYPE" in
 	localdisk)
@@ -152,7 +152,7 @@ case "$MOUNTTYPE" in
 	slimconfig)
 		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_LMSDATA is: '$ORIG_LMSDATA'</p>'
 		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] LMSDATA is: '$LMSDATA'</p>'
-		
+
 		if [ "$ORIG_LMSDATA" = "$LMSDATA" ]; then
 			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
 		else

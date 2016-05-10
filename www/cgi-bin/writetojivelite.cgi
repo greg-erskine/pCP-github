@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.07 2016-05-09 GE
+#	Fixed JIVELITE variable (YES/NO).
+
 # Version: 0.06 2016-02-20 GE
 #	Fixed sourceforge redirection issue.
 
@@ -30,7 +33,7 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-[ $JIVELITE = YES ] && VISUALISER="yes"
+[ "$JIVELITE" = "yes" ] && VISUALISER="yes"
 pcp_save_to_config
 
 WGET="/bin/busybox wget"
@@ -39,7 +42,7 @@ JIVELITE_MD5="jivelite_touch.tcz.md5.txt"
 DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
 AVAILABLE_VUMETERS=$($WGET $REPOSITORY -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] SUBMIT: '$SUBMIT'<br />'
 	echo '                 [ DEBUG ] OPTION: '$OPTION'<br />'
 	echo '                 [ DEBUG ] JIVELITE: '$JIVELITE'<br />'
@@ -63,12 +66,12 @@ pcp_download_jivelite() {
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
 	$WGET -s ${REPOSITORY}/${JIVELITE_TCZ}
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '<p class="info">[ INFO ] Downloading '$JIVELITE_TCZ'...'
 		$WGET ${REPOSITORY}/${JIVELITE_TCZ} -O /tmp/${JIVELITE_TCZ}
 		$WGET ${REPOSITORY}/${JIVELITE_MD5} -O /tmp/${JIVELITE_MD5}
 		md5sum -c ${JIVELITE_MD5}
-		if [ $? = 0 ]; then
+		if [ $? -eq 0 ]; then
 			echo '<p class="ok">[ OK ] '$JIVELITE_TCZ' download successful.</p>'
 			sudo cp /tmp/$JIVELITE_TCZ /mnt/mmcblk0p2/tce/optional/jivelite.tcz             #<-------------why do we rename jivelite extension????
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
@@ -85,11 +88,11 @@ pcp_download_jivelite() {
 pcp_install_jivelite() {
 	echo '<p class="info">[ INFO ] Jivelite is installed.</p>'
 	sudo -u tc tce-load -i jivelite.tcz                                            #<--------------if doing a reboot is this necessary???
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to onboot.lst</p>'
-	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo 'jivelite.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to onboot.lst</p>'
+	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
+	sudo echo 'jivelite.tcz' >> $ONBOOTLST
 
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to .xfiletool.lst</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to .xfiletool.lst</p>'
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 	sudo echo 'opt/jivelite' >> /opt/.xfiletool.lst
 
@@ -103,18 +106,18 @@ pcp_delete_jivelite() {
 	sudo rm -rf /home/tc/.jivelite
 ###	sudo rm -rf /opt/jivelite
 
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from onboot.lst</p>'
-	sudo sed -i '/jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from onboot.lst</p>'
+	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
 
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from .xfiletool.lst</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from .xfiletool.lst</p>'
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 
-	[ $JIVELITE = NO ] && VISUALISER="no"
+	[ "$JIVELITE" = "no" ] && VISUALISER="no"
 	pcp_save_to_config
 }
 
 pcp_remove_temp() {
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous Jivelite downloads from /tmp directory.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Removing previous Jivelite downloads from /tmp directory.</p>'
 	sudo rm -f /tmp/$JIVELITE_TCZ
 	sudo rm -f /tmp/$JIVELITE_MD5
 	sudo rm -f /tmp/VU_Meter*
@@ -131,12 +134,12 @@ pcp_download_vumeters() {
 		MD5=${i}.md5.txt
 
 		$WGET -s ${REPOSITORY}/${TCZ}
-		if [ $? = 0 ]; then
+		if [ $? -eq 0 ]; then
 			echo '<p class="info">[ INFO ] Downloading '$TCZ'...'
 			$WGET ${REPOSITORY}/${TCZ} -O /tmp/${TCZ}
 			$WGET ${REPOSITORY}/${MD5} -O /tmp/${MD5}
 			md5sum -c ${MD5}
-			if [ $? = 0 ]; then
+			if [ $? -eq 0 ]; then
 				echo '<p class="ok">[ OK ] '$TCZ' download successful.</p>'
 				sudo cp /tmp/${TCZ} /mnt/mmcblk0p2/tce/optional/
 				sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/${TCZ}
@@ -154,9 +157,9 @@ pcp_download_vumeters() {
 pcp_install_default_vumeter() {
 	echo '<p class="info">[ INFO ] Installing default VU Meter...</p>'
 	sudo -u tc tce-load -i $DEFAULT_VUMETER
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Adding default VU Meter to onboot.lst...</p>'
-	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo $DEFAULT_VUMETER >> /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Adding default VU Meter to onboot.lst...</p>'
+	sudo sed -i '/VU_Meter/d' $ONBOOTLST
+	sudo echo $DEFAULT_VUMETER >> $ONBOOTLST
 }
 
 pcp_install_vumeter() {
@@ -164,7 +167,7 @@ pcp_install_vumeter() {
 
 	# Unmount all loop mounted VU_Meters (Note: should be only zero or one)
 	MOUNTED_METERS=$(df | grep VU_Meter | awk '{print $6}' )
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] '$MOUNTED_METERS'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] '$MOUNTED_METERS'</p>'
 
 	for i in $MOUNTED_METERS
 	do
@@ -174,9 +177,9 @@ pcp_install_vumeter() {
 	rm -f /usr/local/tce.installed/VU_Meter*
 	sudo rm /opt/jivelite/share/jive/applets/JogglerSkin/images/UNOFFICIAL/VUMeter/vu_analog_25seq_w.png
 	sudo -u tc tce-load -i $VUMETER >/dev/null 2>&1
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] VU Meter is added to onboot.lst</p>'
-	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo $VUMETER >> /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] VU Meter is added to onboot.lst</p>'
+	sudo sed -i '/VU_Meter/d' $ONBOOTLST
+	sudo echo $VUMETER >> $ONBOOTLST
 }
 
 pcp_delete_vumeters() {
@@ -184,69 +187,67 @@ pcp_delete_vumeters() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
 
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meter from onboot.lst...</p>'
-	sudo sed -i '/VU_Meter/d' /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meter from onboot.lst...</p>'
+	sudo sed -i '/VU_Meter/d' $ONBOOTLST
 }
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-case $OPTION in
-
+case "$OPTION" in
 	JIVELITE)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing with SUBMIT: '$SUBMIT'<br />'
-		case $SUBMIT in
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Doing with SUBMIT: '$SUBMIT'<br />'
+		case "$SUBMIT" in
 			Save)
-				case $JIVELITE in
-					YES)
+				case "$JIVELITE" in
+					yes)
 						pcp_download_jivelite
 						pcp_install_jivelite
 						pcp_download_vumeters
 						pcp_install_default_vumeter
 						pcp_remove_temp
-						;;
-					NO)
+					;;
+					no)
 						pcp_delete_jivelite
 						pcp_delete_vumeters
 						pcp_remove_temp
-						;;
+					;;
 					*)
-						[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
-						;;
+						[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
+					;;
 				esac
 				pcp_backup
 				echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
 				pcp_reboot_required
-				;;
+			;;
 			Reset)
 				echo '<p class="info">[ INFO ] Resetting Jivelite Configuration......</p>'
 				rm -f /home/tc/.jivelite/userpath/settings/*.lua
 				pcp_backup
 				pkill -SIGTERM jivelite
 				echo '<p class="info">[ INFO ] Jivelite has been reset and restarted. Reconfigure Jivelite and then Backup Changes !</p>'
-				;;
+			;;
 			*)
 				echo '<p class="error">[ ERROR ] JIVELITE: '$JIVELITE', Bad SUBMIT:'$SUBMIT'<br />'
 			;;
 		esac
-		[ $DEBUG = 1 ] && pcp_show_config_cfg
-		;;
-		
-
+		[ $DEBUG -eq 1 ] && pcp_show_config_cfg
+	;;
 	VUMETER)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
-		case $SUBMIT in
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
+		case "$SUBMIT" in
 			Save)
 				pcp_install_vumeter
 				echo '<p class="info">[ INFO ] A restart of Jivelite is needed in order to finalize!</p>'
 				echo '<p class="info">[ INFO ] Jivelite will now restart!</p>'
 				sudo killall jivelite
-				;;
+			;;
 			Download)
 				pcp_download_vumeters
-				;;
+			;;
 		esac
+	;;
 esac
 
 pcp_go_back_button

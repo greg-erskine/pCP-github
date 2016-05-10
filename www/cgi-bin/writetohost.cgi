@@ -47,12 +47,12 @@ pcp_httpd_query_string
 echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
 pcp_mount_mmcblk0p1
 pcp_write_to_host
-[ $DEBUG = 1 ] && pcp_textarea "Current /mnt/mmcblk0p1/cmdline.txt" "cat /mnt/mmcblk0p1/cmdline.txt" 100
+[ $DEBUG -eq 1 ] && pcp_textarea "Current /mnt/mmcblk0p1/cmdline.txt" "cat /mnt/mmcblk0p1/cmdline.txt" 100
 pcp_umount_mmcblk0p1
 pcp_save_to_config
 pcp_backup
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	pcp_textarea "Current hostname" "hostname" 50
 	pcp_textarea "Current /proc/cmdline" "cat /proc/cmdline" 100
 	pcp_textarea "Current /etc/hostname" "cat /etc/hostname" 50

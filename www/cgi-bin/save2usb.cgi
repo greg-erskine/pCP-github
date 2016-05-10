@@ -87,15 +87,15 @@ if mount | grep $MNT_SDA1 >/dev/null 2>&1; then
 else
 	echo -n '[ INFO ] Mounting USB device...'
 	sudo mount $DEV_SDA1
-	[ $? = 0 ] && IS_MOUNTED=1 && echo " OK" || echo ""
+	[ $? -eq 0 ] && IS_MOUNTED=1 && echo " OK" || echo ""
 	sleep 1
 fi
 
-if [ $IS_MOUNTED = 1 ]; then
+if [ $IS_MOUNTED -eq 1 ]; then
 	echo -n '[ INFO ] Copying configuration file to USB device...'
 	[ -f ${MNT_SDA1}/newconfig.cfg ] && sudo mv ${MNT_SDA1}/newconfig.cfg ${MNT_SDA1}/newconfig.cfg~
 	sudo /bin/cp -f /usr/local/sbin/config.cfg ${MNT_SDA1}/newconfig.cfg
-	[ $? = 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
+	[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
 	if [ -f ${MNT_SDA1}/newconfig.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'
 		FAIL_MSG="OK - Your configuration file has been saved to your USB device."
@@ -106,10 +106,10 @@ if [ $IS_MOUNTED = 1 ]; then
 		FAIL_MSG='Your configuration file was not saved.'
 	fi
 	sync
-	if [ $WAS_MOUNTED = 0 ]; then
+	if [ $WAS_MOUNTED -eq 0 ]; then
 		echo -n '[ INFO ] Unmounting USB device...'
 		sudo umount $DEV_SDA1
-		[ $? = 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed unmount USB device."
+		[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed unmount USB device."
 	else
 		echo '[  OK  ] Leaving USB device mounted.'
 	fi

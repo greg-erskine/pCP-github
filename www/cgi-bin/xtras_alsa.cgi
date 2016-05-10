@@ -32,29 +32,29 @@ pcp_view_asound_state() {
 	fi
 }
 
-case $ACTION in
+case "$ACTION" in
 	Save)
 		sudo amixer -c $CARD -- sset PCM $UNMUTE $VOL >/dev/null 2>&1
 		sudo amixer -c ALSA cset name='PCM Playback Route' $HDMI >/dev/null 2>&1
-		;;
+	;;
 	Store)
 		sudo alsactl store
-		;;
+	;;
 	Restore)
 		sudo alsactl restore
-		;;
+	;;
 	Backup)
 		pcp_backup
-		;;
+	;;
 	Custom)
 		echo
-		;;
+	;;
 	View)
 		echo
-		;;
+	;;
 	Delete)
 		sudo mv /var/lib/alsa/asound.state /var/lib/alsa/asound.state~
-		;;
+	;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -193,7 +193,7 @@ echo '                  <input type="submit" name="ACTION" value="Delete">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "View" ] || [ $ACTION = "Delete" ]; then
+if [ "$ACTION" = "View" ] || [ "$ACTION" = "Delete" ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'

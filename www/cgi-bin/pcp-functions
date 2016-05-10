@@ -2,9 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.06 2016-05-08
+# Version: 2.06 2016-05-09
 #	Added HDMIPOWER, ADVOVERCLOCK.
-#	Added RPI3INTWIFI,
+#	Added RPI3INTWIFI.
+#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
+#	Renamed variable HTPPD to HTTPD.
 
 # Version: 2.05 2016-04-30
 #	Added PCP_REPO. PH.
@@ -259,33 +261,24 @@
 #-----------------------------------------------------------------------------------------
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
-
-	########################################################## Is this needed anymore? GE 2016-03-30
-	# Set the correct path to HTTPD
-	if [ -f /usr/local/sbin/httpd ]; then
-		HTPPD=/usr/local/sbin/httpd
-	else
-		HTPPD=/usr/local/sbin/busybox-httpd
-	fi
-	##########################################################
-
-	CONFIGCFG=/usr/local/sbin/config.cfg
-	CONFIGTXT=/mnt/mmcblk0p1/config.txt
-	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
-	BOOTLOCAL=/opt/bootlocal.sh
-	BOOTSYNC=/opt/bootsync.sh
-	SHUTDOWN=/opt/shutdown.sh
-	PB100=/home/tc/.local/bin/.pbtemp
-	HTTPDCONF=/home/tc/httpd.conf
-	ASOUNDCONF=/etc/asound.conf
-	WIFIDB=/home/tc/wifi.db
-	ONBOOTLST=/mnt/mmcblk0p2/tce/onboot.lst
-	VOLUME=/mnt/mmcblk0p1
-	DEVICE=/dev/mmcblk0p1
-	UPD_PCP=/tmp/upd_picoreplayer
-	PCPHOME=/home/tc/www/cgi-bin
-	LOGDIR=/var/log
-	PACKAGEDIR=/mnt/mmcblk0p2/tce/optional
+	CONFIGCFG="/usr/local/sbin/config.cfg"
+	CONFIGTXT="/mnt/mmcblk0p1/config.txt"
+	CMDLINETXT="/mnt/mmcblk0p1/cmdline.txt"
+	BOOTLOCAL="/opt/bootlocal.sh"
+	BOOTSYNC="/opt/bootsync.sh"
+	SHUTDOWN="/opt/shutdown.sh"
+	PB100="/home/tc/.local/bin/.pbtemp"
+	HTTPDCONF="/home/tc/httpd.conf"
+	HTTPD="/usr/local/sbin/busybox-httpd"
+	ASOUNDCONF="/etc/asound.conf"
+	WIFIDB="/home/tc/wifi.db"
+	ONBOOTLST="/mnt/mmcblk0p2/tce/onboot.lst"
+	VOLUME="/mnt/mmcblk0p1"
+	DEVICE="/dev/mmcblk0p1"
+	UPD_PCP="/tmp/upd_picoreplayer"
+	PCPHOME="/home/tc/www/cgi-bin"
+	LOGDIR="/var/log"
+	PACKAGEDIR="/mnt/mmcblk0p2/tce/optional"
 
 	. $PCPHOME/pcp-rpi-functions
 
@@ -303,7 +296,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=40
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -359,7 +352,7 @@ FILLEDSAMLLSQUARE="&#9724;"
 #  - p = percentage free
 #-----------------------------------------------------------------------------------------
 pcp_free_space() {
-	case $1 in
+	case "$1" in
 		k) set -- $(/bin/busybox df -k | grep mmcblk0p2); echo $4 ;;
 		m) set -- $(/bin/busybox df -m | grep mmcblk0p2); echo $4 ;;
 		p) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $5 | sed 's/%//' ;;
@@ -370,9 +363,9 @@ pcp_free_space() {
 pcp_sufficient_free_space() {
 	REQUIRED=$1
 	SPACE=$(pcp_free_space k)
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
 	if [ $REQUIRED -lt $SPACE ]; then
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
 	else
 		echo '<p class="error">[ ERROR ] Not enough space.</p>'
 		echo '<p class="info">[ INFO ] Try expanding your partition.</p>'
@@ -385,20 +378,20 @@ pcp_sufficient_free_space() {
 }
 
 #=========================================================================================
-# Row shading
+# Row shading and help ID numbering.
 #-----------------------------------------------------------------------------------------
 pcp_start_row_shade() {
 	SHADE=0
-	ROWSHADE=even
+	ROWSHADE="even"
 }
 
 pcp_toggle_row_shade() {
-	if [ $SHADE == 1 ]; then
+	if [ $SHADE -eq 1 ]; then
 		SHADE=0
-		ROWSHADE=even
+		ROWSHADE="even"
 	else
 		SHADE=1
-		ROWSHADE=odd
+		ROWSHADE="odd"
 	fi
 }
 
@@ -496,11 +489,11 @@ pcp_controls_mac_address() {
 	ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1
 	wlan0_IP=$?
 	PLAYER_MAC=$(pcp_eth0_mac_address)
-	if [ $WIFI = "on" ]; then
-		if [ $wlan0_IP = 0 ]; then
+	if [ "$WIFI" = "on" ]; then
+		if [ $wlan0_IP -eq 0 ]; then
 			PLAYER_MAC=$(pcp_wlan0_mac_address)
 		fi
-		if [ $eth0_IP = 0 ]; then
+		if [ $eth0_IP -eq 0 ]; then
 			PLAYER_MAC=$(pcp_eth0_mac_address)
 		fi
 	fi
@@ -528,7 +521,7 @@ pcp_html_head() {
 	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
 	echo '  <meta http-equiv="Pragma" content="no-cache">'
 	echo '  <meta http-equiv="Expires" content="0">'
-	if [ $DEBUG = 0 ]; then
+	if [ $DEBUG -eq 0 ]; then
 		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
 			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
 		fi
@@ -551,7 +544,6 @@ pcp_banner() {
 	echo '  <tr>'
 	echo '    <td height="148">'
 	echo '      <p class="banner">'
-#	echo '        <a href="about.cgi" title="pCP Logo"><img src="../images/banner.png" alt="piCorePlayer" /></a>'
 	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
 	echo '        <map name="hotspot">'
 	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
@@ -565,20 +557,20 @@ pcp_banner() {
 }
 
 pcp_navigation() {
-	TAB_STYLE_MODE_MAIN=nav6
-	TAB_STYLE_MODE_SQUEEZELITE=nav6
-	TAB_STYLE_MODE_WIFI=nav6
-	TAB_STYLE_MODE_TWEAKS=nav6
-	TAB_STYLE_MODE_LMS=nav6
-	TAB_STYLE_MODE_ABOUT=nav6
+	TAB_STYLE_MODE_MAIN="nav6"
+	TAB_STYLE_MODE_SQUEEZELITE="nav6"
+	TAB_STYLE_MODE_WIFI="nav6"
+	TAB_STYLE_MODE_TWEAKS="nav6"
+	TAB_STYLE_MODE_LMS="nav6"
+	TAB_STYLE_MODE_ABOUT="nav6"
 
-	case $0 in
-		main.cgi)        TAB_STYLE_MODE_MAIN=nav6a ;;
-		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE=nav6a ;;
-		wifi.cgi)        TAB_STYLE_MODE_WIFI=nav6a ;;
-		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS=nav6a ;;
-		lms.cgi)         TAB_STYLE_MODE_LMS=nav6a ;;
-		about.cgi)       TAB_STYLE_MODE_ABOUT=nav6a ;;
+	case "$0" in
+		main.cgi)        TAB_STYLE_MODE_MAIN="nav6a" ;;
+		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE="nav6a" ;;
+		wifi.cgi)        TAB_STYLE_MODE_WIFI="nav6a" ;;
+		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS="nav6a" ;;
+		lms.cgi)         TAB_STYLE_MODE_LMS="nav6a" ;;
+		about.cgi)       TAB_STYLE_MODE_ABOUT="nav6a" ;;
 	esac
 
 	echo '<!-- Start of pcp_navigation toolbar -->'
@@ -607,7 +599,7 @@ pcp_footer() {
 		TIMESTAMP="No Timezone"
 	fi
 
-	[ $(pcp_squeezelite_status) = 0 ] && STYLE="ok" || STYLE="error"
+	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
 	SQUEEZELITE='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
 
 	echo '<!-- Start of pcp_footer -->'
@@ -649,7 +641,7 @@ pcp_copyright() {
 # Broken 2015-11-23 GE
 pcp_favorites() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=`sudo $HTPPD -d $FAVLIST`
+	FAVLIST=`sudo $HTTPD -d $FAVLIST`
 
 	echo '<!-- Start of favorites toolbar -->'
 	echo '<table class="bgblack">'
@@ -753,7 +745,7 @@ pcp_picoreplayers() {
 		do
 			TITLE=$(echo $line | awk -F, '{ print $1 }')
 			URL=$(echo $line | awk -F, '{ print $2 }')
-			[ "$NAME" == "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
+			[ "$NAME" = "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
 			echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
 		done <$TMP
 		rm -r $TMP
@@ -771,20 +763,20 @@ pcp_picoreplayers() {
 }
 
 pcp_mode() {
-	TAB_STYLE_MODE_INITIAL=tab14
-	TAB_STYLE_MODE_BASIC=tab14
-	TAB_STYLE_MODE_NORMAL=tab14
-	TAB_STYLE_MODE_ADVANCED=tab14
-	TAB_STYLE_MODE_BETA=tab14
-	TAB_STYLE_MODE_DEVELOPER=tab14
+	TAB_STYLE_MODE_INITIAL="tab14"
+	TAB_STYLE_MODE_BASIC="tab14"
+	TAB_STYLE_MODE_NORMAL="tab14"
+	TAB_STYLE_MODE_ADVANCED="tab14"
+	TAB_STYLE_MODE_BETA="tab14"
+	TAB_STYLE_MODE_DEVELOPER="tab14"
 
 	case $MODE in
-		$MODE_INITIAL)   TAB_STYLE_MODE_INITIAL=tab14a ;;
-		$MODE_BASIC)     TAB_STYLE_MODE_BASIC=tab14a ;;
-		$MODE_NORMAL)    TAB_STYLE_MODE_NORMAL=tab14a ;;
-		$MODE_ADVANCED)  TAB_STYLE_MODE_ADVANCED=tab14a ;;
-		$MODE_BETA)      TAB_STYLE_MODE_BETA=tab14a ;;
-		$MODE_DEVELOPER) TAB_STYLE_MODE_DEVELOPER=tab14a ;;
+		$MODE_INITIAL)   TAB_STYLE_MODE_INITIAL="tab14a" ;;
+		$MODE_BASIC)     TAB_STYLE_MODE_BASIC="tab14a" ;;
+		$MODE_NORMAL)    TAB_STYLE_MODE_NORMAL="tab14a" ;;
+		$MODE_ADVANCED)  TAB_STYLE_MODE_ADVANCED="tab14a" ;;
+		$MODE_BETA)      TAB_STYLE_MODE_BETA="tab14a" ;;
+		$MODE_DEVELOPER) TAB_STYLE_MODE_DEVELOPER="tab14a" ;;
 	esac
 
 	echo '<!-- Start of mode toolbar -->'
@@ -808,7 +800,7 @@ pcp_mode() {
 # Versions
 #-----------------------------------------------------------------------------------------
 pcp_picore_version() {
-	echo `version`
+	echo $(version)
 }
 
 pcp_picoreplayer_version() {
@@ -820,10 +812,10 @@ pcp_squeezelite_version() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
 }
 
-pcp_which_squeezelite() {
-	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep FFMPEG > /dev/null
-	[ $? = 0 ] && echo "Ralphy" || echo "Triode"
-}
+#pcp_which_squeezelite() {
+#	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep FFMPEG > /dev/null
+#	[ $? -eq 0 ] && echo "Ralphy" || echo "Triode"
+#}
 
 pcp_squeezelite_build_option() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep $1 > /dev/null
@@ -846,11 +838,11 @@ pcp_tc_user() {
 # $1 = title, $2 = command, $3 = height, $4 = write to log
 #-----------------------------------------------------------------------------------------
 pcp_textarea() {
-	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
-	[ "$TITLE" == "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
+	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
+	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea style="height:'$3'px">'
 	echo $START
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		echo '$1: '$1' $2: '$2' $3: '$3' $4: '$4
 	fi
 	eval $2
@@ -860,8 +852,8 @@ pcp_textarea() {
 }
 
 pcp_textarea_inform() {
-	[ "$1" == "" ] && TITLE="$2" || TITLE="$1"
-	[ "$TITLE" == "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
+	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
+	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea class="inform" style="height:'$3'px">'
 	eval $2
 	echo '</textarea>'
@@ -883,58 +875,20 @@ pcp_write_to_host() {
 	sudo sed -i "1 s/$/ host=$HOST/" $CMDLINETXT
 }
 
-##################################################
-# NOTE: Below routines are obsolete - DELETE
-##################################################
-xxx_pcp_show_config_cfg() {
-	echo '<h1>[ INFO ] Current config.cfg</h1>'
-	echo '<textarea name="TextBox" rows="26">'
-	cat $CONFIGCFG
-	echo '</textarea>'
-}
-
-xxx_pcp_show_config_txt() {
-	echo '<h1>[ INFO ] Current config.txt</h1>'
-	echo '<textarea name="TextBox" rows="15">'
-	cat $CONFIGTXT
-	echo '</textarea>'
-}
-
-xxx_pcp_show_cmdline_txt() {
-	echo '<h1>[ INFO ] Current cmdline.txt</h1>'
-	echo '<textarea name="myTextBox" rows="5">'
-	cat $CMDLINETXT
-	echo '</textarea>'
-}
-
-xxx_pcp_show_bootlocal_sh() {
-	echo '<h1>[ INFO ] Current bootlocal.sh</h1>'
-	echo '<textarea name="TextBox" rows="15">'
-	cat $BOOTLOCAL
-	echo '</textarea>'
-}
-
-xxx_pcp_show_bootsync_sh() {
-	echo '<h1>[ INFO ] Current bootsync.sh</h1>'
-	echo '<textarea name="TextBox" rows="8">'
-	cat $BOOTSYNC
-	echo '</textarea>'
-}
-
 #=========================================================================================
 # Busybox httpd
 #-----------------------------------------------------------------------------------------
 pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
-	eval $($HTPPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
 # Needed when we want to store an encoded string in config.cfg
 pcp_httpd_query_string_no_decode() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
 #=========================================================================================
@@ -963,10 +917,10 @@ pcp_confirmation_required() {
 #-----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
-	if [ $AUDIO = HDMI ]; then
+	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
-	if [ SHAIRPORT = yes ]; then									############# <---- GE 2016-03-03 This will not work. $SHAIRPORT
+	if [ "$SHAIRPORT" = "yes" ]; then
 		pcp_shairport_restart
 	fi
 	sudo /usr/local/etc/init.d/squeezelite start
@@ -981,7 +935,7 @@ pcp_squeezelite_stop() {
 
 pcp_squeezelite_restart() {
 	echo '<p class="info">[ INFO ] '
-	if [ $AUDIO = HDMI ]; then
+	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	sudo /usr/local/etc/init.d/squeezelite restart
@@ -1076,13 +1030,13 @@ pcp_wlan0_ip() {
 #	playlist play http://radioparadise.com/m3u/aac-128.m3u
 #-----------------------------------------------------------------------------------------
 pcp_auto_start_lms() {
-	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" == "Enabled" ]; then
-		AUTOSTARTLMS=$(sudo $HTPPD -d $AUTOSTARTLMS)
+	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" = "Enabled" ]; then
+		AUTOSTARTLMS=$(sudo $HTTPD -d $AUTOSTARTLMS)
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		for i in 1 2 3 4 5
 		do
 			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
-			if [ $RESULT = 1 ]; then
+			if [ $RESULT -eq 1 ]; then
 				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
 				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_lms.log
 				break
@@ -1096,7 +1050,7 @@ pcp_auto_start_lms() {
 pcp_autofav_id() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
 	# Decode variable using httpd, no quotes
-	FAVLIST=`sudo $HTPPD -d $FAVLIST`
+	FAVLIST=`sudo $HTTPD -d $FAVLIST`
 	#------------------------------------------awk---------------------------------------
 	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
 	BEGIN {
@@ -1127,12 +1081,12 @@ pcp_autofav_id() {
 }
 
 pcp_auto_start_fav() {
-	if [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" == "Enabled" ]; then
+	if [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" = "Enabled" ]; then
 		PLAYER_MAC=$(pcp_controls_mac_address)
 		for i in 1 2 3 4 5
 		do
 			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
-			if [ $RESULT = 1 ]; then
+			if [ $RESULT -eq 1 ]; then
 				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
 				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
 				break
@@ -1147,7 +1101,7 @@ pcp_start_fav() {
 	PLAYER_MAC=$(pcp_controls_mac_address)
 	for i in 1 2 3 4 5
 	do
-		if [ $(pcp_lms_connected) = 1 ]; then
+		if [ $(pcp_lms_connected) -eq 1 ]; then
 			echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
 			(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
 			break
@@ -1158,15 +1112,15 @@ pcp_start_fav() {
 
 pcp_user_commands() {
 	if [ x"" != x"$USER_COMMAND_1" ]; then
-		USER_COMMAND_1=`sudo $HTPPD -d $USER_COMMAND_1`
+		USER_COMMAND_1=`sudo $HTTPD -d $USER_COMMAND_1`
 		eval "$USER_COMMAND_1"
 	fi
 	if [ x"" != x"$USER_COMMAND_2" ]; then
-		USER_COMMAND_2=`sudo $HTPPD -d $USER_COMMAND_2`
+		USER_COMMAND_2=`sudo $HTTPD -d $USER_COMMAND_2`
 		eval "$USER_COMMAND_2"
 	fi
 	if [ x"" != x"$USER_COMMAND_3" ]; then
-		USER_COMMAND_3=`sudo $HTPPD -d $USER_COMMAND_3`
+		USER_COMMAND_3=`sudo $HTTPD -d $USER_COMMAND_3`
 		eval "$USER_COMMAND_3"
 	fi
 }
@@ -1217,7 +1171,7 @@ pcp_backup() {
 	sync
 	echo '</p>'
 
-	# If backup_status file exists and is non-zero in size then an error has occurred
+	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
 		echo '<p class="error">[ ERROR ] Backup status</p>'
 		echo '<pre>'
@@ -1225,7 +1179,7 @@ pcp_backup() {
 		echo '</pre>'
 	fi
 
-	# If backup_done exists then the backup was successful
+	# If backup_done exists, then the backup was successful
 	if [ -f /tmp/backup_done ]; then
 		echo '<p class="ok">[ OK ] Backup successful.</p>'
 	else
@@ -1243,7 +1197,7 @@ pcp_backup_nohtml() {
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
 	# Do a backup - filetool.sh backs up files in .filetool.lst
-	echo -n "[ INFO ] "
+	echo -n '[ INFO ] '
 	sudo filetool.sh -b
 	sync
 
@@ -1270,56 +1224,56 @@ pcp_backup_nohtml() {
 # Display which script is running
 #-----------------------------------------------------------------------------------------
 pcp_running_script() {
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
 }
 
 #=========================================================================================
-# Download with md5 check routine 
+# Download with md5 check routine
 #-----------------------------------------------------------------------------------------
 pcp_download_package() {
-#Usage set the following, then run pcp_download_package
-#    PACKAGES="list of files to download"
-#    DL_REPO=http://location
-#    TARGETDIR=location to save files.
-for PACKAGE in $PACKAGES
-do
-	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] PACKAGE='$PACKAGE' DL_REPO='$DL_REPO' TARGETDIR='$TARGETDIR
-	$WGET -s ${DL_REPO}/${PACKAGE}
-	if [ “$?” = “0” ]; then
-		RETRY=0
-		MAX_RETRIES=3
+	#Usage set the following, then run pcp_download_package
+	#    PACKAGES="list of files to download"
+	#    DL_REPO=http://location
+	#    TARGETDIR=location to save files.
+	for PACKAGE in $PACKAGES
+	do
+		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] PACKAGE='$PACKAGE' DL_REPO='$DL_REPO' TARGETDIR='$TARGETDIR
+		$WGET -s ${DL_REPO}/${PACKAGE}
+		if [ $? -eq 0 ]; then
+			RETRY=0
+			MAX_RETRIES=3
 
-		while [ $RETRY -lt $MAX_RETRIES ]
-		do
-			echo '[ INFO ] Downloading '${PACKAGE}'...'
-			$WGET ${DL_REPO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
-			echo '[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
-			$WGET ${DL_REPO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
-			cd /${TARGETDIR}
-			md5sum -cs ${PACKAGE}.md5.txt 
-			if [ “$?” = “0” ]; then
-				echo '[ OK ] '$PACKAGE' download successful.'
-				sudo chown tc:staff /${TARGETDIR}/${PACKAGE}
-				sudo chown tc:staff /${TARGETDIR}/${PACKAGE}.md5.txt
-				break
-			else
-				echo '[ ERROR ] Download unsuccessful, MD5 mismatch.'
-				RETRY=$((RETRY+1))
-				if [ $RETRY -lt $MAX_RETRIES ]; then
-					echo '[ INFO ] Retrying Download........in 5 seconds.'
-					sleep 5
+			while [ $RETRY -lt $MAX_RETRIES ]
+			do
+				echo '[ INFO ] Downloading '${PACKAGE}'...'
+				$WGET ${DL_REPO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
+				echo '[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
+				$WGET ${DL_REPO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
+				cd /${TARGETDIR}
+				md5sum -cs ${PACKAGE}.md5.txt
+				if [ $? -eq 0 ]; then
+					echo '[ OK ] '$PACKAGE' download successful.'
+					sudo chown tc:staff /${TARGETDIR}/${PACKAGE}
+					sudo chown tc:staff /${TARGETDIR}/${PACKAGE}.md5.txt
+					break
 				else
-					echo '[ ERROR ] Max retries reached, please try again later'
-					return 1
+					echo '[ ERROR ] Download unsuccessful, MD5 mismatch.'
+					RETRY=$((RETRY+1))
+					if [ $RETRY -lt $MAX_RETRIES ]; then
+						echo '[ INFO ] Retrying download........in 5 seconds.'
+						sleep 5
+					else
+						echo '[ ERROR ] Max retries reached, please try again later.'
+						return 1
+					fi
 				fi
-			fi
-		done
-	else
-		echo '[ ERROR ] '$PACKAGE' not available in repository, try again later!'
-		return 1
-	fi
-done
-return 0
+			done
+		else
+			echo '[ ERROR ] '$PACKAGE' not available in repository, try again later!'
+			return 1
+		fi
+	done
+	return 0
 }
 
 #=========================================================================================
@@ -1394,7 +1348,7 @@ pcp_reboot() {
 	if [ "$NETMOUNT1" = "yes" ]; then
 		echo '<p class="info">[ INFO ] Unmounting Network Shared Drive...</p>'
 		mount | grep -q cifs
-		[ $? = 0 ] && umount /mnt/$NETMOUNT1POINT
+		[ $? -eq 0 ] && umount /mnt/$NETMOUNT1POINT
 	fi
 	sudo reboot
 }
@@ -1552,8 +1506,8 @@ A_S_FAV="Disabled"
 USER_COMMAND_1=""
 USER_COMMAND_2=""
 USER_COMMAND_3=""
-JIVELITE="NO"
-SCREENROTATE="NO"
+JIVELITE="no"
+SCREENROTATE="no"
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"
@@ -1627,17 +1581,19 @@ pcp_reset_config_to_defaults() {
 # Read which output to use then add/remove modules
 #-----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
-	[ $AUDIO = Analog ] &&      pcp_disable_i2s
-	[ $AUDIO = USB ] &&         pcp_disable_i2s
-	[ $AUDIO = I2SDAC ] &&      pcp_enable_i2s_dac
-	[ $AUDIO = I2SDIG ] &&      pcp_enable_i2s_digi
-	[ $AUDIO = I2SpDAC ] &&     pcp_enable_hifiberry_dac_p
-	[ $AUDIO = I2SpDIG ] &&     pcp_enable_i2s_digi
-	[ $AUDIO = I2SpIQaudIO ] && pcp_enable_iqaudio_dac_p
-	[ $AUDIO = IQaudio ] &&     pcp_enable_iqaudio_dac
-	[ $AUDIO = I2SpIQAMP ] &&   pcp_enable_iqaudio_amp
-	[ $AUDIO = I2SAMP ] &&      pcp_enable_i2s_amp
-	[ $AUDIO = HDMI ] &&        pcp_enable_HDMI
+	case "$AUDIO" in
+		Analog)      pcp_disable_i2s ;;
+		USB)         pcp_disable_i2s ;;
+		I2SDAC)      pcp_enable_i2s_dac ;;
+		I2SDIG)      pcp_enable_i2s_digi ;;
+		I2SpDAC)     pcp_enable_hifiberry_dac_p ;;
+		I2SpDIG)     pcp_enable_i2s_digi ;;
+		I2SpIQaudIO) pcp_enable_iqaudio_dac_p ;;
+		IQaudi)      pcp_enable_iqaudio_dac ;;
+		I2SpIQAMP)   pcp_enable_iqaudio_amp ;;
+		I2SAMP)      pcp_enable_i2s_amp ;;
+		HDMI)        pcp_enable_HDMI ;;
+	esac
 }
 
 #========================================================================================
@@ -1661,14 +1617,12 @@ pcp_disable_HDMI() {
 	sed -i '/hdmi_drive=2/d' $CONFIGTXT
 	sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
 	sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
-	# sed -i '/hdmi_ignore_edid=0xa5000080/d' $CONFIGTXT
 }
 
 pcp_enable_HDMI() {
 	sudo echo hdmi_drive=2 >> $CONFIGTXT
 	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
 	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
-	# sudo echo hdmi_ignore_edid=0xa5000080 >> $CONFIGTXT
 }
 
 #========================================================================================

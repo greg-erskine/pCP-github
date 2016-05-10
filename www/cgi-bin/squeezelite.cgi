@@ -134,11 +134,11 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$SERVER_IP" ]    && STRING="$STRING -s $SERVER_IP"
 [ x"" != x"$LOGLEVEL" ]     && STRING="$STRING -d $LOGLEVEL -f ${LOGDIR}/pcp_squeezelite.log"
 [ x"" != x"$DSDOUT" ]       && STRING="$STRING -D $DSDOUT"
-[ "$VISUALISER" = "yes" ]     && STRING="$STRING -v"
+[ "$VISUALISER" = "yes" ]   && STRING="$STRING -v"
 [ x"" != x"$CLOSEOUT" ]     && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$UNMUTE" ]       && STRING="$STRING -U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && STRING="$STRING -V $ALSAVOLUME"
-[ "$IR_LIRC" = "yes" ]        && STRING="$STRING -i $IR_CONFIG"
+[ "$IR_LIRC" = "yes" ]      && STRING="$STRING -i $IR_CONFIG"
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
@@ -176,10 +176,8 @@ case "$AUDIO" in
 	I2SpDIG*) I2SDIGpCHECKED="selected" ;;
 	I2SpIQaudIO*) IQaudIOpCHECKED="selected" ;;
 	I2SpIQAMP*) IQAMPCHECKED="selected" ;;
-
 	raspidac3*) raspidac3CHECKED="selected" ;;
 	rpi_dac*) rpi_dacCHECKED="selected" ;;
-
 	*) CHECKED="Not set" ;;
 esac
 
@@ -194,16 +192,14 @@ echo '                    <option value="Analog" '$ANCHECKED'>Analog audio:</opt
 echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</option>'
 echo '                    <option value="USB" '$USBCHECKED'>USB audio:</option>'
 
-#if [ $(pcp_rpi_is_model_B_rev_2) = 0 ] || [ $(pcp_rpi_is_model_A) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
-if [ $(pcp_rpi_is_hat) != 0 ] || [ $(pcp_rpi_model_unknown) = 0 ] || [ $MODE -ge $MODE_BETA ]; then
+if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
 	echo '                    <option value="I2SDIG" '$I2DIGCHECKED'>I2S audio: HiFiBerry Digi</option>'
 	echo '                    <option value="IQaudio" '$IQaudioCHECKED'>I2S audio: IQaudIO Pi-DAC</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP</option>'
 fi
 
-#if [ $(pcp_rpi_is_model_Bplus) = 0 ] || [ $(pcp_rpi_is_model_Aplus) = 0 ] || [ $(pcp_rpi_is_model_2B) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ]; then
-if [ $(pcp_rpi_is_hat) = 0 ] || [ $(pcp_rpi_model_unknown) = 0 ] || [ $MODE -ge $MODE_BETA ]; then
+if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: generic</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
@@ -275,7 +271,7 @@ echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Output settings-----------------------------------
-if [ $ALSAeq = yes ]; then
+if [ "$ALSAeq" = "yes" ]; then
 	READONLY="readonly"
 else
 	READONLY=""
@@ -292,7 +288,7 @@ echo '                  <input class="large15" type="text" name="OUTPUT" value="
 echo '                </td>'
 echo '                <td>'
 
-if [ $ALSAeq = yes ]; then
+if [ "$ALSAeq" = "yes" ]; then
 	echo '                  <p><b>NOTE:</b> ALSA equalizer has set the output to "equal".</p>'
 else
 	echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'
@@ -937,7 +933,7 @@ pcp_squeezelite_power_gpio() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_gpio
+[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) -eq 0 ] && pcp_squeezelite_power_gpio
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off Script-------------------------------
@@ -965,7 +961,7 @@ pcp_squeezelite_power_script() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) = 0 ] && pcp_squeezelite_power_script
+[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) -eq 0 ] && pcp_squeezelite_power_script
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------
@@ -1024,7 +1020,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+[ $DEBUG -eq 1 ] && pcp_show_config_cfg
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright

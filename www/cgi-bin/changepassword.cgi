@@ -19,8 +19,8 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-if [ $NEWPASSWORD = $CONFIRMPASSWORD ]; then
-	[ $DEBUG = 1 ] && echo '<p class="info">[ INFO ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'
+if [ "$NEWPASSWORD" = "$CONFIRMPASSWORD" ]; then
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'
 	echo '<p class="info">[ INFO ] '
 	echo "tc:"$NEWPASSWORD | sudo chpasswd
 	echo '</p>'

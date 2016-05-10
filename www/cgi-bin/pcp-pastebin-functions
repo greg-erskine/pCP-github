@@ -60,19 +60,19 @@ pcp_pastebin_encoding() {
 pcp_install_wget() {
 	echo '<textarea class="inform" rows="4">'
 	ls /usr/local/tce.installed/wget
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo 'wget.tcz already installed.'
 	else
 		if [ ! -f /mnt/mmcblk0p2/tce/optional/wget.tcz ]; then
 			echo 'wget.tcz downloading... '
 			sudo -u tc tce-load -w wget.tcz
-			[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 		else
 			echo 'wget.tcz downloaded.'
 		fi
 		echo 'wget.tcz installing... '
 		sudo -u tc tce-load -i wget.tcz
-		[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 	fi
 	echo '</textarea>'
 }
@@ -121,9 +121,9 @@ pcp_pastebin_get_api_user_key() {
 	POST_DATA=$POST_DATA"&api_user_name=$API_USER_NAME"
 	POST_DATA=$POST_DATA"&api_user_password=$API_USER_PASSWORD"
 
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
 	API_USER_KEY=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_login.php')
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] api_user_key: '$API_USER_KEY'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] api_user_key: '$API_USER_KEY'</p>'
 }
 
 #========================================================================================
@@ -132,7 +132,7 @@ pcp_pastebin_get_api_user_key() {
 pcp_pastebin_paste() {
 	pcp_pastebin_get_api_user_key
 
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Encoding '$1', please wait...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Encoding '$1', please wait...</p>'
 	API_POST_CODE=$(cat ${1})
 	API_POST_CODE=$(pcp_pastebin_encoding "$API_POST_CODE")
 	API_PASTE_NAME="${API_PASTE_NAME}-${2}"
@@ -145,10 +145,10 @@ pcp_pastebin_paste() {
 	POST_DATA=$POST_DATA"&api_paste_name=$API_PASTE_NAME"
 	POST_DATA=$POST_DATA"&api_user_key=$API_USER_KEY"
 
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] Uploading '$1', please wait...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Uploading '$1', please wait...</p>'
 	PASTEBIN_URL=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'http://pastebin.com/api/api_post.php')
-	[ $DEBUG = "1" ] && echo '<p class="debug">[ DEBUG ] url: '$PASTEBIN_URL'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] url: '$PASTEBIN_URL'</p>'
 }
 
 #========================================================================================

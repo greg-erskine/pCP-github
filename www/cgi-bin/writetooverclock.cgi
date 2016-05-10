@@ -41,7 +41,7 @@ fi
 
 # Set the overclock options in config.txt file
 . $CONFIGCFG
-case $OVERCLOCK in
+case "$OVERCLOCK" in
 	NONE)
 		echo '<p class="info">[ INFO ] Setting OVERCLOCK to NONE</p>' 
 		sudo sed -i "/arm_freq=/c\arm_freq=700" $CONFIGTXT
@@ -49,7 +49,7 @@ case $OVERCLOCK in
 		sudo sed -i "/sdram_freq=/c\sdram_freq=400" $CONFIGTXT
 		sudo sed -i "/over_voltage=/c\over_voltage=0" $CONFIGTXT
 		sudo sed -i "/force_turbo=/c\force_turbo=1" $CONFIGTXT
-		;;
+	;;
 	MILD)
 		echo '<p class="info">[ INFO ] Setting OVERCLOCK to MILD</p>' 
 		sudo sed -i "/arm_freq=/c\arm_freq=800" $CONFIGTXT
@@ -57,7 +57,7 @@ case $OVERCLOCK in
 		sudo sed -i "/sdram_freq=/c\sdram_freq=400" $CONFIGTXT
 		sudo sed -i "/over_voltage=/c\over_voltage=0" $CONFIGTXT
 		sudo sed -i "/force_turbo=/c\force_turbo=1" $CONFIGTXT
-		;;
+	;;
 	MODERATE)
 		echo '<p class="info">[ INFO ] Setting OVERCLOCK to MODERATE</p>'
 		sudo sed -i "/arm_freq=/c\arm_freq=900" $CONFIGTXT
@@ -65,10 +65,10 @@ case $OVERCLOCK in
 		sudo sed -i "/sdram_freq=/c\sdram_freq=450" $CONFIGTXT
 		sudo sed -i "/over_voltage=/c\over_voltage=2" $CONFIGTXT
 		sudo sed -i "/force_turbo=/c\force_turbo=0" $CONFIGTXT
-		;;
+	;;
 esac
 
-[ $DEBUG = 1 ] && pcp_show_config_txt
+[ $DEBUG -eq 1 ] && pcp_show_config_txt
 
 pcp_umount_mmcblk0p1
 
@@ -76,7 +76,7 @@ pcp_umount_mmcblk0p1
 
 echo '<p class="info">[ INFO ] Overclock is set to: '$OVERCLOCK'</p>'
 
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+[ $DEBUG -eq 1 ] && pcp_show_config_cfg
 
 pcp_go_back_button
 

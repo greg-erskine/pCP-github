@@ -23,13 +23,13 @@ pcp_squeezelite_stop
 sleep 2
 pcp_squeezelite_start
 
-if [ $SHAIRPORT = yes ]; then
+if [ "$SHAIRPORT" = "yes" ]; then
 	pcp_shairport_stop
 	sleep 2
 	pcp_shairport_start
 fi
 
-[ $DEBUG = 1 ] && pcp_go_main_button
+[ $DEBUG -eq 1 ] && pcp_go_main_button
 
 echo '</body>'
 echo '</html>'

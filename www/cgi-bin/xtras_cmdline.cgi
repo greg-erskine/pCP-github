@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# Version: 0.02 2016-05-09 GE
+#	Renamed variable HTPPD to HTTPD.
+
 # Version: 0.01 2016-02-19 GE
-#   Original version.
+#	Original version.
 
 . pcp-lms-functions
 . pcp-functions
@@ -15,7 +18,7 @@ pcp_running_string
 pcp_xtras
 
 pcp_httpd_query_string_no_decode
-LINUXCMD=$(sudo $HTPPD -d $LINUXCMD)
+LINUXCMD=$(sudo $HTTPD -d $LINUXCMD)
 
 #========================================================================================
 # Start table

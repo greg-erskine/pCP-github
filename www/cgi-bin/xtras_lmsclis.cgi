@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.04 2016-05-09 GE
+#	Renamed variable HTPPD to HTTPD.
+
 # Version: 0.03 2016-03-25 GE
 #	Updated.
 
@@ -22,7 +25,7 @@ pcp_xtras
 pcp_running_script
 pcp_httpd_query_string
 
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
 	echo '                 [ DEBUG ] MAC: '$(pcp_controls_mac_address)'</p>'
 fi
@@ -237,7 +240,7 @@ echo '#1<br />'
 echo $PLAYLISTS
 echo '<br /><br />'
 
-PLAYLISTS=`sudo $HTPPD -d $PLAYLISTS`
+PLAYLISTS=`sudo $HTTPD -d $PLAYLISTS`
 
 echo '#2<br />'
 echo $PLAYLISTS
@@ -246,7 +249,6 @@ echo '<br /><br />'
 echo '#3<br />'
 echo '<br />'
 echo '<select name="PLAYLISTS">'
-
 
 SEARCH="Affirmation"
 
@@ -272,7 +274,6 @@ END {
 
 echo $PLAYLISTS
 echo '</select>'
-
 
 echo '<br /><br />'
 

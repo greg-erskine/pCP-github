@@ -64,7 +64,7 @@ echo '</table>'
 #========================================================================================
 # Resize or watiing tables
 #----------------------------------------------------------------------------------------
-if [ $SUBMIT = Resize ]; then
+if [ "$SUBMIT" = "Resize" ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -129,12 +129,12 @@ pcp_copyright
 echo '</body>'
 echo '</html>'
 
-case $SUBMIT in
+case "$SUBMIT" in
 	Resize)
 		touch /home/tc/fdisk_required
 		pcp_backup
 		sudo reboot
-		;;
+	;;
 esac
 
 exit

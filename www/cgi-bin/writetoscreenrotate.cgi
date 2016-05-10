@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.02 2016-05-09 GE
+#	Fixed SCREENROTATE variable (YES/NO).
+
 # Version: 0.01 2015-10-06 SBP
 #	Original.
 
@@ -15,23 +18,23 @@ pcp_httpd_query_string
 pcp_save_to_config
 
 #========================================================================================
-# write to mmcblk0p1/config.txt
+# Write to mmcblk0p1/config.txt
 #----------------------------------------------------------------------------------------
 case "$SCREENROTATE" in
-	YES*)
+	yes)
 		pcp_mount_mmcblk0p1
 		sed -i '/lcd_rotate=2/d' $CONFIGTXT
 		sudo echo 'lcd_rotate=2' >> $CONFIGTXT
 		pcp_umount_mmcblk0p1
-		;;
-	NO*)
+	;;
+	no)
 		pcp_mount_mmcblk0p1
 		sed -i '/lcd_rotate=2/d' $CONFIGTXT
 		pcp_umount_mmcblk0p1
-		;;
+	;;
 	*)
 		echo '[ ERROR ] Error setting $SCREENROTATE to '$SCREENROTATE
-		;;
+	;;
 esac
 
 . $CONFIGCFG

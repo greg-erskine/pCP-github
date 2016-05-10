@@ -250,10 +250,10 @@ pcp_rpi_warranty() {
 	case $(pcp_rpi_revision) in
 		100* | 2*)
 			echo 0
-			;;
+		;;
 		*)
 			echo 1
-			;;
+		;;
 	esac
 }
 

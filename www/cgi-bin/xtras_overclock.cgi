@@ -25,7 +25,7 @@
 # The following lines need to be included in config.txt:
 #arm_freq=
 #core_freq=
-#sdram_freq= 
+#sdram_freq=
 #over_voltage=
 #force_turbo=
 #gpu_mem=
@@ -38,7 +38,7 @@
 # cpuinfo_cur_freq              scaling_available_frequencies     scaling_max_freq
 # cpuinfo_max_freq              scaling_available_governors       scaling_min_freq
 # cpuinfo_min_freq              scaling_cur_freq                  scaling_setspeed
-# cpuinfo_transition_latency    scaling_driver                  
+# cpuinfo_transition_latency    scaling_driver
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
@@ -57,7 +57,7 @@ pcp_httpd_query_string
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_set_overclock() {
-	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
 	sudo sed -i "/arm_freq=/c\arm_freq=$2" $CONFIGTXT
 	sudo sed -i "/core_freq=/c\core_freq=$3" $CONFIGTXT
 	sudo sed -i "/sdram_freq=/c\sdram_freq=$4" $CONFIGTXT
@@ -65,7 +65,7 @@ pcp_set_overclock() {
 }
 
 pcp_set_overclock_default() {
-	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to DEFAULT</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to DEFAULT</p>'
 	sudo sed -i 's/^arm_freq=/#arm_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^core_freq=/#core_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^sdram_freq=/#sdram_freq=/g' $CONFIGTXT
@@ -74,23 +74,23 @@ pcp_set_overclock_default() {
 }
 
 pcp_set_force_turbo() {
-	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to '$1'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to '$1'</p>'
 	sudo sed -i "/force_turbo=/c\force_turbo=$1" $CONFIGTXT
 }
 
 pcp_set_force_turbo_default() {
-	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to DEFAULT</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting FORCE_TURBO to DEFAULT</p>'
 	pcp_set_force_turbo 0
 	sudo sed -i 's/^force_turbo=/#force_turbo=/g' $CONFIGTXT
 }
 
 pcp_set_gpu_memory() {
-	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting GPU memory to '$1'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting GPU memory to '$1'</p>'
 	sudo sed -i "/gpu_mem=/c\gpu_mem=$1" $CONFIGTXT
 }
 
 pcp_set_gpu_memory_default() {
-	[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] Setting GPU memory to DEFAULT</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting GPU memory to DEFAULT</p>'
 	sudo sed -i 's/^gpu_mem=/#gpu_mem=/g' $CONFIGTXT
 }
 
@@ -119,7 +119,7 @@ pcp_start_save() {
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 
 	if mount | grep $VOLUME >/dev/null 2>&1; then
-		[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
+		[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
 	else
 		pcp_go_back_button
 		echo '</body>'
@@ -146,7 +146,7 @@ pcp_start_save() {
 	#     "None"
 	#----------------------------------------------------------------------------------------
 
-	case "$(pcp_rpi_type)" in
+	case $(pcp_rpi_type) in
 		0)
 			case "$ADVOVERCLOCK" in
 				None) pcp_set_overclock_default ;;
@@ -182,7 +182,7 @@ pcp_start_save() {
 		DEFAULT) pcp_set_force_turbo_default ;;
 		0)       pcp_set_force_turbo 0 ;;
 		1)       pcp_set_force_turbo 1 ;;
-		*)       [ $DEBUG -eq 1] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
+		*)       [ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid force option: '$FORCETURBO'</p>' ;;
 	esac
 
 	case "$GPUMEMORY" in
@@ -192,11 +192,11 @@ pcp_start_save() {
 		64)      pcp_set_gpu_memory 64 ;;
 		128)     pcp_set_gpu_memory 128 ;;
 		256)     pcp_set_gpu_memory 256 ;;
-		*)       [ $DEBUG -eq 1] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
+		*)       [ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
 	esac
 
 	[ $DEBUG -eq 1 ] && pcp_check_config_txt
-	[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>' 
+	[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>'
 	[ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
 	[ $(pcp_check_force_turbo) -eq 0 ] && [ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
 
@@ -220,7 +220,7 @@ pcp_check_config_txt() {
 
 pcp_check_force_turbo() {
 	FTSET=$(cat $CONFIGTXT | grep force_turbo=)
-	case $FTSET in
+	case "$FTSET" in
 		force_turbo=1) echo 0 ;;
 		*) echo 1 ;;
 	esac
@@ -228,7 +228,7 @@ pcp_check_force_turbo() {
 
 pcp_check_over_voltage() {
 	OVSET=$( cat $CONFIGTXT | grep over_voltage= )
-	case $OVSET in
+	case "$OVSET" in
 		over_voltage=0 | \#over_voltage=*) echo 1 ;;
 		over_voltage=*) echo 0 ;;
 	esac
@@ -269,12 +269,12 @@ pcp_warning_message() {
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Save)
-		[ $DEBUG -eq 1] && echo '<p class="info">[ INFO ] SUBMIT='$SUBMIT' </p>'
+		[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] SUBMIT='$SUBMIT' </p>'
 		pcp_start_save
-		;;
+	;;
 	*)
-		[ $DEBUG -eq 1] && echo '<p class="error">[ ERROR ] Invalid submit option: '$SUBMIT'</p>'
-		;;
+		[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid submit option: '$SUBMIT'</p>'
+	;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -332,25 +332,25 @@ echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select class="large16" name="ADVOVERCLOCK">'
 
-	case "$(pcp_rpi_type)" in
-		0)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-		;;
-		1)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-			echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
-			echo '                    <option value="Medium" '$OCmedium'>Moderate</option>'
-			echo '                    <option value="High" '$OChigh'>High</option>'
-			echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
-		;;
-		2)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-			echo '                    <option value="High" '$OChigh'>High</option>'
-		;;
-		3)
-			echo '                    <option value="None" '$OCnone'>None</option>'
-		;;
-	esac
+case $(pcp_rpi_type) in
+	0)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+	;;
+	1)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+		echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
+		echo '                    <option value="Medium" '$OCmedium'>Moderate</option>'
+		echo '                    <option value="High" '$OChigh'>High</option>'
+		echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
+	;;
+	2)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+		echo '                    <option value="High" '$OChigh'>High</option>'
+	;;
+	3)
+		echo '                    <option value="None" '$OCnone'>None</option>'
+	;;
+esac
 
 echo '                  </select>'
 echo '                </td>'

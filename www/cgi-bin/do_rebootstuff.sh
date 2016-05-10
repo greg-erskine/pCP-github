@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 2.06 2016-05-07 GE
+# Version: 2.06 2016-05-09 GE
 #	Added HDMIPOWER.
+#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
 
 # Version: 2.05 2016-04-30 PH
 #	Added firmware-brcmfmac43430.tcz
@@ -132,17 +133,17 @@ echo "${GREEN}Done.${NORMAL}"
 # in the future this check is not needed
 
 # Check for pCP installed via pCP.tcz and pCP.tcz not present any more
-if [ PCP_SOURCE == "tcz" ]; then
+if [ "PCP_SOURCE" = "tcz" ]; then
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/pCP.tcz ]; then
-			echo "${YELLOW} Removing all traces of piCorePlayer... ${NORMAL}"
-			sudo sed -i "/do_rebootstuff.sh/d" /opt/bootlocal.sh
-			sudo sed -i "/usr\/local\/sbin\/config.cfg/d" /opt/.filetool.lst
-#			sudo filetool.sh -b						# should be enabled later but not while testing
-			echo "${GREEN} Done. will reboot in 5 sec. ${NORMAL}"
-			wait 5
-#			sudo reboot								# should be enabled later but not while testing
-		else
-			break
+		echo "${YELLOW} Removing all traces of piCorePlayer... ${NORMAL}"
+		sudo sed -i "/do_rebootstuff.sh/d" /opt/bootlocal.sh
+		sudo sed -i "/usr\/local\/sbin\/config.cfg/d" /opt/.filetool.lst
+#		sudo filetool.sh -b						# should be enabled later but not while testing
+		echo "${GREEN} Done. will reboot in 5 sec. ${NORMAL}"
+		wait 5
+#		sudo reboot								# should be enabled later but not while testing
+	else
+		break
 	fi
 else
 	break
@@ -213,7 +214,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_update_config_to_defaults
 	. $CONFIGCFG
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
-	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg	
+	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	. /mnt/mmcblk0p1/newconfig.cfg
 
 	#=========================================================================================
@@ -264,7 +265,7 @@ pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
-if [ $WIFI = "on" ]; then
+if [ "$WIFI" = "on" ]; then
 	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
 		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
 	else
@@ -273,22 +274,22 @@ if [ $WIFI = "on" ]; then
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-brcmwifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  Broadcom firmware loaded.${NORMAL}" || echo "${RED}  Broadcom firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  Broadcom firmware loaded.${NORMAL}" || echo "${RED}  Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-brcmfmac43430.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  rpi3 Broadcom firmware loaded.${NORMAL}" || echo "${RED}  rpi3 Broadcom firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  rpi3 Broadcom firmware loaded.${NORMAL}" || echo "${RED}  rpi3 Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
-		[ $? = 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"
 	fi
 fi
 
-if [ $WIFI = "on" ]; then
+if [ "$WIFI" = "on" ]; then
 	# Save the parameters to the wifi.db
 	echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
 	. /usr/local/sbin/config.cfg
@@ -314,7 +315,7 @@ echo "${GREEN}Done.${NORMAL}"
 
 # Connect wifi if WIFI is on
 echo -n "${BLUE}Checking wifi... ${NORMAL}"
-if [ $WIFI = on ]; then
+if [ "$WIFI" = "on" ]; then
 	echo "${YELLOW}  wifi is on.${NORMAL}"
 	sleep 1
 	sudo ifconfig wlan0 down
@@ -361,24 +362,24 @@ echo "${GREEN} Done ($CNT).${NORMAL}"
 
 # If Custom ALSA settings are used, then restore the settings
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
-if [ $ALSAlevelout = Custom ]; then
+if [ "$ALSAlevelout" = "Custom" ]; then
 	alsactl restore
 fi
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-if [ $? == 0 ] && [ $AUDIO = Analog ]; then
+if [ $? -eq 0 ] && [ "$AUDIO" = "Analog" ]; then
 	# Set the analog output via audio jack
 	sudo amixer cset numid=3 1 >/dev/null 2>&1
-	if [ $ALSAlevelout = Default ]; then
+	if [ "$ALSAlevelout" = "Default" ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi
 
 # Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-if [ $? == 0 ] && [ $AUDIO = HDMI ]; then
-	if [ $ALSAlevelout = Default ]; then
+if [ $? -eq 0 ] && [ "$AUDIO" = "HDMI" ]; then
+	if [ "$ALSAlevelout" = "Default" ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 	# Set the analog output via HDMI out
@@ -388,7 +389,7 @@ echo "${GREEN}Done.${NORMAL}"
 
 # Unmute IQaudIO amplifier via GPIO pin 22
 # Only do this if not controlling amp via squeezelite.
-if [ $AUDIO = I2SpIQAMP ]; then
+if [ "$AUDIO" = "I2SpIQAMP" ]; then
 	if [ "$POWER_GPIO" = "" ]; then
 		echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
 		sudo sh -c "echo 22 > /sys/class/gpio/export"
@@ -412,7 +413,7 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-if [ $IR_LIRC = "yes" ]; then
+if [ "$IR_LIRC" = "yes" ]; then
 	echo -n "${BLUE}Starting lirc... ${NORMAL}"
 	/usr/local/sbin/lircd --device=/dev/lirc0
 #	/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
@@ -452,8 +453,8 @@ if [ "$NETMOUNT1" = "yes" ]; then
 fi
 
 # If running an LMS Server Locally, start squeezelite later
-if [ $LMSERVER != "yes" ]; then   
-	if [ $SQUEEZELITE = "yes" ]; then
+if [ "$LMSERVER" != "yes" ]; then   
+	if [ "$SQUEEZELITE" = "yes" ]; then
 		echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
 		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
 		echo "${GREEN}Done.${NORMAL}"
@@ -472,7 +473,7 @@ if [ ! -e /usr/bin/dbclient ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $SHAIRPORT = "yes" ]; then
+if [ "$SHAIRPORT" = "yes" ]; then
 	echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
 	/usr/local/etc/init.d/dbus start >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
@@ -490,13 +491,13 @@ echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
-if [ $A_S_LMS = "Enabled" ]; then
+if [ "$A_S_LMS" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
 	pcp_auto_start_lms
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $A_S_FAV = "Enabled" ]; then
+if [ "$A_S_FAV" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
 	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
@@ -524,12 +525,12 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ $LMSERVER = "yes" ]; then
+if [ "$LMSERVER" = "yes" ]; then
 	if [ "$LMSDATA" = "default" -o "$LMSMOUNTFAIL" = "0" ]; then
 		echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
 		sudo /usr/local/etc/init.d/slimserver start
 		echo "${GREEN}Done.${NORMAL}"
-		if [ $SQUEEZELITE = "yes" ]; then
+		if [ "$SQUEEZELITE" = "yes" ]; then
 			sleep 5    ###Wait for server to be responsive.   Need to fix this with a port check.
 			echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
 			/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
@@ -562,10 +563,10 @@ ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
 
-if [ $JIVELITE = "YES" ]; then
+if [ "$JIVELITE" = "yes" ]; then
 	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
 	eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
-	if [ x"" != x$eventno ];then
+	if [ x"" != x"$eventno" ];then
 		export JIVE_NOCURSOR=1
 		export TSLIB_TSDEVICE=/dev/input/$eventno
 		export SDL_MOUSEDRV=TSLIB

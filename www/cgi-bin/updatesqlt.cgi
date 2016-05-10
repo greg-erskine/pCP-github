@@ -56,38 +56,38 @@ pcp_end() {
 }
 #----------------------------------------------------------------------------------------
 
-[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Version: '$VERSION'</p>'
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Version: '$VERSION'</p>'
 
-case $VERSION in
+case "$VERSION" in
 	Small*)
 		MESSAGE="Updating Squeezelite to Ralphy basic version..."
 		DOWNLOAD="squeezelite-armv6hf-noffmpeg"
 		SQLT_VERSION="basic"
 		SPACE_REQUIRED=1100
-		;;
+	;;
 	Large*)
 		MESSAGE="Updating Squeezelite to Ralphy ffmpeg version (will take a few minutes)..."
 		DOWNLOAD="squeezelite-armv6hf-ffmpeg"
 		SQLT_VERSION="ffmpeg"
 		SPACE_REQUIRED=13000
-		;;
+	;;
 esac
 
 echo '<p>[ INFO ] '${MESSAGE}'</p>'
 echo '<p class="info">[ INFO ] Current Squeezelite '$OLD_SQLT_VERSION' version: '$(pcp_squeezelite_version)'</p>'
 
 pcp_enough_free_space $SPACE_REQUIRED
-[ $? = 0 ] || pcp_end
+[ $? -eq 0 ] || pcp_end
 
 # Remove Squeezelite from /tmp
 if [ -e /tmp/squeezelite-armv6hf ]; then
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Removing /tmp/squeezelite-armv6hf...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Removing /tmp/squeezelite-armv6hf...</p>'
 	sudo rm -f /tmp/squeezelite-armv6hf*
 fi
 
 $WGET ${REPOSITORY}/$DOWNLOAD -O /tmp/squeezelite-armv6hf
 result=$?
-if [ $result -ne "0" ]; then
+if [ $result -ne 0 ]; then
 	echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
 else
 	echo '<p class="ok">[ OK ] Download successful'
@@ -96,7 +96,7 @@ else
 	sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
 fi
 
-[ $DEBUG = 1 ] && (echo '<p class="ok">[ OK ] '; ls -al /mnt/mmcblk0p2/tce/squeezelite-armv6hf)
+[ $DEBUG -eq 1 ] && (echo '<p class="ok">[ OK ] '; ls -al /mnt/mmcblk0p2/tce/squeezelite-armv6hf)
 
 pcp_save_to_config
 echo '<p class="ok">[ OK ] Upgraded Squeezelite '$SQLT_VERSION' version: '$(pcp_squeezelite_version)'</p>'

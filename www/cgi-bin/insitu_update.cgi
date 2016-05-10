@@ -59,7 +59,7 @@ pcp_debug_info() {
 # Check we have internet access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_internet_indicator() {
-	if [ $(pcp_internet_accessible) = 0 ]; then
+	if [ $(pcp_internet_accessible) -eq 0 ]; then
 		INTERNET_STATUS="Internet accessible."
 	else
 		INTERNET_STATUS="Internet not accessible!!"
@@ -71,7 +71,7 @@ pcp_internet_indicator() {
 # Check we have sourceforge access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) = 0 ]; then
+	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
 		SOURCEFORGE_STATUS="Sourceforge repository accessible."
 	else
 		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
@@ -119,16 +119,16 @@ pcp_enough_free_space() {
 pcp_create_download_directory() {
 	if [ -d $UPD_PCP ]; then
 		sudo rm -rf $UPD_PCP
-		[ $? != 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
+		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
 	fi
 	sudo mkdir -m 755 $UPD_PCP
-	[ $? != 0 ] && FAIL_MSG="Can not make directory $UPD_PCP"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory $UPD_PCP"
 	sudo mkdir ${UPD_PCP}/boot
-	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/boot"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/boot"
 	sudo mkdir ${UPD_PCP}/tce
-	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/tce"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/tce"
 	sudo mkdir ${UPD_PCP}/mydata
-	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/mydata"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/mydata"
 }
 
 #========================================================================================
@@ -137,7 +137,7 @@ pcp_create_download_directory() {
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 1. - Downloading insitu.cfg...'
 	$WGET ${INSITU_DOWNLOAD}/insitu.cfg/download -O ${UPD_PCP}/insitu.cfg
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded insitu.cfg'
 	else
 		echo '[ ERROR ] Error downloading insitu.cfg'
@@ -152,7 +152,7 @@ pcp_get_boot_files() {
 	echo '[ INFO ] Step 2A. - Downloading '$VERSION'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
 	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz/download -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
 		echo '[ ERROR ] Error downloading boot files.'
@@ -169,14 +169,14 @@ pcp_install_boot_files() {
 
 	# Delete all files from the boot partition
 	sudo rm -rf /mnt/mmcblk0p1/*
-	[ $? = 0 ] || FAIL_MSG="Error deleting files /mnt/mmcblk0p1/*"
+	[ $? -eq 0 ] || FAIL_MSG="Error deleting files /mnt/mmcblk0p1/*"
 
 	pcp_save_configuration
 
 	# Untar the boot files
 	echo '[ INFO ] Untarring '${VERSION}'_boot.tar.gz...'
-	[ $FAIL_MSG = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}_boot.tar.gz -C /
-	if [ $? = 0 ]; then
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}_boot.tar.gz -C /
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully untarred boot tar.'
 	else
 		echo '[ ERROR ] Error untarring boot tar. Result: '$?
@@ -192,11 +192,11 @@ pcp_install_boot_files() {
 pcp_save_configuration() {
 	echo '[ INFO ] Saving configuration files.'
 	sudo cp -f /usr/local/sbin/config.cfg /mnt/mmcblk0p1/newconfig.cfg
-	[ $? = 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
+	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
-	[ $? = 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
+	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 
-	[ $FAIL_MSG = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
+	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
 #========================================================================================
@@ -206,7 +206,7 @@ pcp_get_tce_files() {
 	echo '[ INFO ] Step 2B. - Downloading '$VERSION'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
 	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz/download -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
 		echo '[ ERROR ] Error downloading tce files.'
@@ -220,15 +220,15 @@ pcp_get_tce_files() {
 pcp_install_tce_files() {
 	# Delete all the kernel specific files in the optional directory - so no stray files are left    <------------Now we need to add a check which kernel-specific files we can delete during the first boot. When the new kernel is in use.
 	#sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
-	#[ $? = 0 ] || FAIL_MSG="Error removing kernel specific files."
+	#[ $? -eq 0 ] || FAIL_MSG="Error removing kernel specific files."
 
 
 	# Untar and update the tzc packages files to optional
 	echo '[ INFO ] Untarring '${VERSION}'_tce.tar.gz...'
-	[ $FAIL_MSG = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
 
-	if [ $? = 0 ]; then
-		[ $DEBUG = 1 ] && echo '[ DEBUG ] tce tar result: '$?
+	if [ $? -eq 0 ]; then
+		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] tce tar result: '$?
 		echo '[  OK  ] Successfully untarred tce tar.'
 	else
 		echo '[ ERROR ] Error untarring tce tar. Result: '$?
@@ -364,7 +364,7 @@ pcp_html_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	if [ $INITSPACE = 1 ]; then
+	if [ $INITSPACE -eq 1 ]; then
 		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required
@@ -372,7 +372,7 @@ pcp_html_end() {
 	pcp_footer
 	pcp_copyright
 
-	if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
+	if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
 		#pcp_finish_install
 		pcp_reboot_required
 	fi
@@ -385,16 +385,16 @@ pcp_html_end() {
 #========================================================================================
 # Main routine - this is done before any tables are generated
 #----------------------------------------------------------------------------------------
-case $ACTION in
+case "$ACTION" in
 	initial)
 		STEP="Step 1 - Downloading available versions"
 		pcp_warning_message
 		pcp_internet_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_sourceforge_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		;;
 	download)
 		STEP="Step 2 - Downloading files"
@@ -426,25 +426,25 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "initial" ]; then
+if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
 	echo '[ INFO ] '$SOURCEFORGE_STATUS
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 	pcp_enough_free_space $SPACE_REQUIRED
 	pcp_check_for_all_extensions
-	[ $FAIL_MSG = "ok" ] && pcp_get_insitu_cfg
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
 fi
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "download" ]; then
+if [ "$ACTION" = "download" ]; then
 	echo '[ INFO ] You are downloading '$VERSION
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 	pcp_enough_free_space $SPACE_REQUIRED
-	[ $FAIL_MSG = "ok" ] && pcp_get_boot_files
-	[ $FAIL_MSG = "ok" ] && pcp_get_tce_files
-	[ $FAIL_MSG = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_boot_files
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_tce_files
+	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
 fi
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "install" ]; then
+if [ "$ACTION" = "install" ]; then
 	echo '[ INFO ] You are installing '$VERSION
 	pcp_enough_free_space $SPACE_REQUIRED
 fi
@@ -453,7 +453,7 @@ echo '                  </textarea>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -472,7 +472,7 @@ echo '</table>'
 #========================================================================================
 # initial
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "initial" ] && [ $FAIL_MSG = "ok" ] ; then
+if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -515,7 +515,7 @@ fi
 #========================================================================================
 # download
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "download" ] && [ $FAIL_MSG = "ok" ] ; then
+if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -548,7 +548,7 @@ fi
 #========================================================================================
 # install
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
+if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -562,7 +562,7 @@ if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <textarea class="inform" style="height:130px">'
-	                          [ $FAIL_MSG = "ok" ] && pcp_install_boot_files
+	                          [ "$FAIL_MSG" = "ok" ] && pcp_install_boot_files
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -577,7 +577,7 @@ if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
 	echo '                <td>'
 	echo '                  <textarea class="inform" style="height:130px">'
 	echo                      '[ INFO ] Installing tce files...'
-	                          [ $FAIL_MSG = "ok" ] && pcp_install_tce_files
+	                          [ "$FAIL_MSG" = "ok" ] && pcp_install_tce_files
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -592,7 +592,7 @@ if [ $ACTION = "install" ] && [ $FAIL_MSG = "ok" ] ; then
 	echo '                <td>'
 	echo '                  <textarea class="inform" style="height:130px">'
 	echo                      '[ INFO ] Installing tce files...'
-	                          [ $FAIL_MSG = "ok" ] && pcp_finish_install
+	                          [ "$FAIL_MSG" = "ok" ] && pcp_finish_install
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'

@@ -23,13 +23,13 @@ pcp_httpd_query_string
 case "$SUBMIT" in
 	dosfsck)
 		OPT=1
-		;;
+	;;
 	delete)
 		OPT=2
-		;;
+	;;
 	*)
 		OPT=0
-		;;
+	;;
 esac
 
 #========================================================================================
@@ -39,19 +39,19 @@ pcp_check_dosfsck() {
 	echo '<textarea class="inform" rows="6">'
 	echo 'Note: Requires dosfstools.tcz'
 	which dosfsck
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo 'dosfstools.tcz already installed.'
 	else
 		if [ ! -f /mnt/mmcblk0p2/tce/optional/dosfstools.tcz ]; then
 			echo 'dosfstools.tcz downloading... '
 			sudo -u tc tce-load -w dosfstools.tcz
-			[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 		else
 			echo 'dosfstools.tcz downloaded.'
 		fi
 		echo 'dosfstools.tcz installing... '
 		sudo -u tc tce-load -i dosfstools.tcz
-		[ $? = 0 ] && echo 'Done.' || echo 'Error.'
+		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 	fi
 	echo '</textarea>'
 }
@@ -59,7 +59,7 @@ pcp_check_dosfsck() {
 #========================================================================================
 # Delete dosfstools.tcz
 #========================================================================================
-if [ $OPT == 1 ]; then
+if [ $OPT -eq 1 ]; then
 	rm -f /mnt/mmcblk0p2/tce/optional/dosfstools.*
 fi
 
@@ -98,7 +98,7 @@ echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="even">'
 echo '                <td>'
-                        [ $OPT == 1 ] && pcp_dosfsck
+                        [ $OPT -eq 1 ] && pcp_dosfsck
 echo '                </td>'
 echo '              </tr>'
 echo '            </form>'

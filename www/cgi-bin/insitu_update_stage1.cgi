@@ -49,7 +49,7 @@ pcp_debug_info() {
 # Check we have internet access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_internet_indicator() {
-	if [ $(pcp_internet_accessible) = 0 ]; then
+	if [ $(pcp_internet_accessible) -eq 0 ]; then
 		INTERNET_STATUS="Internet accessible."
 	else
 		INTERNET_STATUS="Internet not accessible!!"
@@ -61,7 +61,7 @@ pcp_internet_indicator() {
 # Check we have sourceforge access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) = 0 ]; then
+	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
 		SOURCEFORGE_STATUS="Sourceforge repository accessible."
 	else
 		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
@@ -109,16 +109,16 @@ pcp_enough_free_space() {
 pcp_create_download_directory() {
 	if [ -d $UPD_PCP ]; then
 		sudo rm -rf $UPD_PCP
-		[ $? != 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
+		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
 	fi
 	sudo mkdir -m 755 $UPD_PCP
-	[ $? != 0 ] && FAIL_MSG="Can not make directory $UPD_PCP"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory $UPD_PCP"
 	sudo mkdir ${UPD_PCP}/boot
-	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/boot"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/boot"
 	sudo mkdir ${UPD_PCP}/tce
-	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/tce"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/tce"
 	sudo mkdir ${UPD_PCP}/mydata
-	[ $? != 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/mydata"
+	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/mydata"
 }
 
 #========================================================================================
@@ -134,7 +134,7 @@ pcp_get_newinstaller() {
 	DL_REPO=${INSITU_DOWNLOAD}
 	TARGETDIR=${PCPHOME}
 	pcp_download_package
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new Update script'
 		sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
 		sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
@@ -144,7 +144,6 @@ pcp_get_newinstaller() {
 		FAIL_MSG="Error downloading Update script"
 	fi
 }
-
 
 #========================================================================================
 # Generate warning message
@@ -209,16 +208,16 @@ pcp_html_end() {
 #========================================================================================
 # Main routine - this is done before any tables are generated
 #----------------------------------------------------------------------------------------
-case $ACTION in
+case "$ACTION" in
 	initial)
 		STEP="Step 1 - Checking Network"
 		pcp_warning_message
 		pcp_internet_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_sourceforge_indicator
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
-		[ $FAIL_MSG = "ok" ] || pcp_html_end
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		;;
 	download)
 		STEP="Step 2 - Downloading files"
@@ -250,22 +249,22 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "initial" ]; then
+if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
 	echo '[ INFO ] '$SOURCEFORGE_STATUS
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 fi
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "download" ]; then
+if [ "$ACTION" = "download" ]; then
 	echo '[ INFO ] You are downloading Update script '
-	[ $FAIL_MSG = "ok" ] && pcp_get_newinstaller
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_newinstaller
 fi
 #----------------------------------------------------------------------------------------
 echo '                  </textarea>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -282,9 +281,9 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
-# initial
+# Initial
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "initial" ] && [ $FAIL_MSG = "ok" ] ; then
+if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -314,9 +313,9 @@ if [ $ACTION = "initial" ] && [ $FAIL_MSG = "ok" ] ; then
 fi
 
 #========================================================================================
-# download
+# Download
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "download" ] && [ $FAIL_MSG = "ok" ] ; then
+if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
 	echo '  <tr>'

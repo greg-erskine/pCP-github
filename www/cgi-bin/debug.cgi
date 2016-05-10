@@ -45,21 +45,21 @@ pcp_httpd_query_string
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_debug_save() {
-	sed -i "s/\(\\tDEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
-	sed -i "s/\(\\tTEST=\).*/\1$t/" $PCPHOME/pcp-functions
-	sed -i "s/\(\\tMODE=\).*/\1$m/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tDEBUG=\).*/\1$d/" ${PCPHOME}/pcp-functions
+	sed -i "s/\(\\tTEST=\).*/\1$t/" ${PCPHOME}/pcp-functions
+	sed -i "s/\(\\tMODE=\).*/\1$m/" ${PCPHOME}/pcp-functions
 } 
 
 pcp_debug_reset() {
-	sed -i "s/\(\\tDEBUG=\).*/\10/" $PCPHOME/pcp-functions
-	sed -i "s/\(\\tTEST=\).*/\10/" $PCPHOME/pcp-functions
-	sed -i "s/\(\\tMODE=\).*/\10/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
+	sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
+	sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
 }
 
 pcp_debug_set() {
-	sed -i "s/\(\\tDEBUG=\).*/\11/" $PCPHOME/pcp-functions
-	sed -i "s/\(\\tTEST=\).*/\11/" $PCPHOME/pcp-functions
-	sed -i "s/\(\\tMODE=\).*/\11/" $PCPHOME/pcp-functions
+	sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
+	sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
+	sed -i "s/\(\\tMODE=\).*/\11/" ${PCPHOME}/pcp-functions
 }
 
 #========================================================================================
@@ -67,24 +67,24 @@ pcp_debug_set() {
 #----------------------------------------------------------------------------------------
 pcp_debug_cli() {
 	if [ x"" != x"$QUERY_STRING" ]; then
-		case $QUERY_STRING in
+		case "$QUERY_STRING" in
 			d=[01])
-				sed -i "s/\(\\tDEBUG=\).*/\1$d/" $PCPHOME/pcp-functions
-				;;
+				sed -i "s/\(\\tDEBUG=\).*/\1$d/" ${PCPHOME}/pcp-functions
+			;;
 			t=[0-9])
-				sed -i "s/\(\\tTEST=\).*/\1$t/" $PCPHOME/pcp-functions
-				;;
+				sed -i "s/\(\\tTEST=\).*/\1$t/" ${PCPHOME}/pcp-functions
+			;;
 			m=100|m=[0-9][0-9]|m=[0-9]) 
-				sed -i "s/\(\\tMODE=\).*/\1$m/" $PCPHOME/pcp-functions
-				;;
+				sed -i "s/\(\\tMODE=\).*/\1$m/" ${PCPHOME}/pcp-functions
+			;;
 			a=[01])
-				sed -i "s/\(\\tDEBUG=\).*/\1$a/" $PCPHOME/pcp-functions
-				sed -i "s/\(\\tTEST=\).*/\1$a/" $PCPHOME/pcp-functions
-				sed -i "s/\(\\tMODE=\).*/\1$a/" $PCPHOME/pcp-functions
-				;;
+				sed -i "s/\(\\tDEBUG=\).*/\1$a/" ${PCPHOME}/pcp-functions
+				sed -i "s/\(\\tTEST=\).*/\1$a/" ${PCPHOME}/pcp-functions
+				sed -i "s/\(\\tMODE=\).*/\1$a/" ${PCPHOME}/pcp-functions
+			;;
 			*)
-				[ $DEBUG = 1 ] && echo '<p class="error">[ ERROR ] XX Invalid option: '$QUERY_STRING'</p>'
-				;;
+				[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] XX Invalid option: '$QUERY_STRING'</p>'
+			;;
 		esac
 	fi
 }
@@ -92,7 +92,7 @@ pcp_debug_cli() {
 #========================================================================================
 # Respond to interactive Save, Set all and Reset all buttons
 #----------------------------------------------------------------------------------------
-case $SUBMIT in
+case "$SUBMIT" in
 	Save) pcp_debug_save ;;
 	Set*) pcp_debug_set ;;
 	Res*) pcp_debug_reset ;;
@@ -101,15 +101,14 @@ esac
 sync
 . pcp-functions
 
-case $DEBUG in
+case "$DEBUG" in
 	0) D0SELECTED=checked ;;
 	1) D1SELECTED=checked ;;
 esac
 
 pcp_html_head "Debug" "GE"
 
-
-if [ x"" != x"$QUERY_STRING" ] && [ x"" == x"$SUBMIT" ] ; then
+if [ x"" != x"$QUERY_STRING" ] && [ x"" = x"$SUBMIT" ]; then
 	echo '<body onload="javascript:location.href=document.referrer;">'
 	pcp_debug_cli
 	exit 0
@@ -123,7 +122,7 @@ pcp_running_script
 #========================================================================================
 # Debug info
 #----------------------------------------------------------------------------------------
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] DEBUG: '$DEBUG' d: '$d'<br />'
 	echo '                 [ DEBUG ] TEST: '$TEST' t: '$t'<br />'
 	echo '                 [ DEBUG ] MODE: '$MODE' m: '$m'<br />'

@@ -44,8 +44,8 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 [ -n "$LMSUSER" ] || LMSUSER=tc
 [ -n "$LMSGROUP" ] || LMSGROUP=staff
 
-LMS_SERV_LOG=${LOGS}/server.log
-LMS_SCAN_LOG=${LOGS}/scanner.log
+LMS_SERV_LOG="${LOGS}/server.log"
+LMS_SCAN_LOG="${LOGS}/scanner.log"
 WGET="/bin/busybox wget"
 LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
@@ -61,7 +61,7 @@ pcp_download_lms() {
 
 pcp_install_lms() {
 	echo '<p class="info">[ INFO ] Installing LMS...</p>'
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
 }
@@ -91,13 +91,13 @@ pcp_install_fs() {
 	RESULT=0
 	echo -n '<p class="info">[ INFO ] '
 	sudo -u tc tce-load -w ntfs-3g.tcz
-	[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	echo '<p>'
 	echo -n '<p class="info">[ INFO ] Loading'
 	sudo -u tc tce-load -i ntfs-3g.tcz
-	[ $? = 0 ] && echo -n . || (echo $?; RESULT=1)
+	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	echo '<p>'
-	if [ $RESULT = 0 ]; then
+	if [ $RESULT -eq 0 ]; then
 		echo "ntfs-3g.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 		echo '<p class="info">[ INFO ] NTFS Support Loaded...</p>'
 	else
@@ -122,27 +122,27 @@ case "$ACTION" in
 			default) MNT="/mnt/mmcblk0p2";;
 		esac
 		mount | grep -qs $MNT
-		if [ "$?" = "0" ]; then 
+		if [ "$?" = "0" ]; then
 			echo '<p class="info">[ INFO ] Starting LMS...</p>'
 			echo -n '<p class="info">[ INFO ] '
 			sudo /usr/local/etc/init.d/slimserver start
 		else
 			echo '<p class="error">[ ERROR ] LMS data disk failed mount, LMS will not start.'
 		fi
-		;;
+	;;
 	Stop)
 		echo '<p class="info">[ INFO ] Stopping LMS...</p>'
 		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
 		sleep 2
-		;;
+	;;
 	Restart)
 		echo '<p class="info">[ INFO ] Restarting LMS...</p>'
 		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
 		echo -n '<p class="info">[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver start
-		;;
+	;;
 	Install)
 		echo '<table class="bggrey">'
 		echo '  <tr>'
@@ -168,29 +168,28 @@ case "$ACTION" in
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-
-		;;
+	;;
 	Remove)
 		pcp_remove_lms
 		LMSERVER="no"
 		pcp_save_to_config
 		pcp_backup
 		pcp_reboot_required
-		;;
+	;;
 	Install_FS)
 		pcp_sufficient_free_space 4000
 		pcp_install_fs
-		;;
+	;;
 	Remove_FS)
 		pcp_remove_fs
 		pcp_reboot_required
-		;;
+	;;
 	Rescan*)
 		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
-		;;
+	;;
 	*)
 		pcp_warning_message
-		;;
+	;;
 esac
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
@@ -209,7 +208,7 @@ echo '          <legend>Logitech Media Server (LMS) operations</legend>'
 echo '          <table class="bggrey percent100">'
 
 #------------------------------------LMS Indication--------------------------------------
-if [ $(pcp_lms_status) = 0 ]; then
+if [ $(pcp_lms_status) -eq 0 ]; then
 	INDICATOR=$HEAVY_CHECK_MARK
 	CLASS="indicator_green"
 	STATUS="running"
@@ -520,6 +519,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
+
 #========================================================================================
 # Slimserver Cache and Prefs to Mounted Drive
 #----------------------------------------------------------------------------------------
@@ -629,7 +629,7 @@ pcp_slimserver_persistence() {
 		echo '                <td></td>'
 	fi
 	echo '              </tr>'
-	
+
 #--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -658,7 +658,7 @@ pcp_slimserver_persistence() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_slimserver_persistence
-	
+
 #========================================================================================
 # Extra File System Support
 #----------------------------------------------------------------------------------------
@@ -804,7 +804,8 @@ pcp_mount_usbdrives() {
 					UUIDyes="checked"
 					DISKFOUND="yes"
 				;;
-				*) UUIDyes="" ;;
+				*) UUIDyes=""
+				;;
 			esac
 			pcp_toggle_row_shade
 			if [ "$NTFS" = "no" ]; then
@@ -930,7 +931,7 @@ pcp_mount_netdrives() {
 			NETMOUNT1yes="checked"
 			NETMOUNT1no=""
 		;;
-		*)  
+		*)
 			NETMOUNT1yes=""
 			NETMOUNT1no="checked"
 		;;

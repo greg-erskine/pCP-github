@@ -18,13 +18,13 @@ pcp_httpd_query_string
 #----------------------------------------------------------------------------------------
 # copy2fs actions
 #----------------------------------------------------------------------------------------
-case $COPY2FS in
-	Yes)
+case "$COPY2FS" in
+	yes)
 		touch /mnt/mmcblk0p2/tce/copy2fs.flg
-		;;
-	No)
+	;;
+	no)
 		rm -f /mnt/mmcblk0p2/tce/copy2fs.flg
-		;;
+	;;
 esac
 
 [ -f /mnt/mmcblk0p2/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
@@ -47,8 +47,8 @@ echo '                  <td class="column150">'
 echo '                    <p>copy2fs flag set</p>'
 echo '                  </td>'
 echo '                  <td class="column210">'
-echo '                    <input class="small1" type="radio" name="COPY2FS" id="COPY2FS" value="Yes" '$COPY2FSyes'>Yes'
-echo '                    <input class="small1" type="radio" name="COPY2FS" id="COPY2FS" value="No" '$COPY2FSno'>No'
+echo '                    <input class="small1" type="radio" name="COPY2FS" id="COPY2FS" value="yes" '$COPY2FSyes'>Yes'
+echo '                    <input class="small1" type="radio" name="COPY2FS" id="COPY2FS" value="no" '$COPY2FSno'>No'
 echo '                  </td>'
 echo '                  <td>'
 echo '                    <p>Set the copy2fs flag&nbsp;&nbsp;'

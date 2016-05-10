@@ -56,10 +56,10 @@ EXTNFOUND=0
 #----------------------------------------------------------------------------------------
 pcp_search_extn() {
 	echo $EXTN | grep .tcz$ >/dev/null
-	[ $? != 0  ] && EXTN=$EXTN.tcz
+	[ $? -ne 0  ] && EXTN=$EXTN.tcz
 	pcp_init_search
 	grep "$EXTN" /tmp/tags.db >/dev/null
-	[ $? = 0 ] && EXTNFOUND=1
+	[ $? -eq 0 ] && EXTNFOUND=1
 }
 
 pcp_load_extn() {
@@ -110,7 +110,7 @@ pcp_init_search() {
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	if [ $DEBUG = 1 ]; then 
+	if [ $DEBUG -eq 1 ]; then 
 		echo '<p class="debug">[ DEBUG ] $EXTN: '$EXTN'<br />'
 		echo '                 [ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
 		echo '                 [ DEBUG ] $MIRROR: '$MIRROR'</p>'
@@ -123,7 +123,7 @@ pcp_debug_info() {
 displayInfo() {
 	if [ -n "$EXTN" ]; then
 		sudo -u tc tce-fetch.sh "$EXTN".info
-		if [ "$?" == 0 ]; then
+		if [ $? -eq 0 ]; then
 			less "$EXTN".info
 			rm "$EXTN".info
 		else
@@ -134,7 +134,7 @@ displayInfo() {
 
 displayDepends() {
 	sudo -u tc tce-fetch.sh "$EXTN".dep
-	if [ "$?" == 0 ]; then
+	if [ $? -eq 0 ]; then
 		less "$EXTN".dep
 		rm "$EXTN".dep
 	else
@@ -144,7 +144,7 @@ displayDepends() {
 
 displayTree() {
 	sudo -u tc tce-fetch.sh "$EXTN".tree
-	if [ "$?" == 0 ]; then
+	if [ $? -eq 0 ]; then
 		less "$EXTN".tree
 		rm "$EXTN".tree
 	else
@@ -158,7 +158,7 @@ displaySize() {
 
 displayFiles() {
 	sudo -u tc tce-fetch.sh "$EXTN".list
-	if [ "$?" == 0 ]; then
+	if [ $? -eq 0 ]; then
 		less "$EXTN".list
 		rm "$EXTN".list
 	else
@@ -291,24 +291,24 @@ pcp_debug_info
 
 case "$SUBMIT" in
 	Initial)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Initial pass. Get extension...</p>'
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Initial pass. Get extension...</p>'
 		EXTN=""
-		;;
+	;;
 	Search)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Searching for '$EXTN'...</p>'
-		[ "$EXTN" == "" ] || [ "$EXTN" == ".tcz" ] || pcp_search_extn
-		;;
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Searching for '$EXTN'...</p>'
+		[ "$EXTN" = "" ] || [ "$EXTN" = ".tcz" ] || pcp_search_extn
+	;;
 	Load)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Loading '$EXTN'...</p>'
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Loading '$EXTN'...</p>'
 		pcp_load_extn
-		;;
+	;;
 	Delete)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Marking '$EXTN' for deletion...</p>'
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Marking '$EXTN' for deletion...</p>'
 		pcp_delete_extn
-		;;
+	;;
 	*)
-		[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
-		;;
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
+	;;
 esac
 
 echo '    </td>'
@@ -355,7 +355,7 @@ echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
 
-if [ $EXTNFOUND = 0 ] && [ $SUBMIT = "Search" ]; then 
+if [ $EXTNFOUND -eq 0 ] && [ "$SUBMIT" = "Search" ]; then 
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p></p>'
@@ -369,7 +369,7 @@ fi
 echo '              <tr>'
 echo '                <td colspan="3">'
 
-if [ $EXTNFOUND = 1 ]; then 
+if [ $EXTNFOUND -eq 1 ]; then 
 	echo '                  <input type="submit" name="SUBMIT" value="Load">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 fi
@@ -396,7 +396,7 @@ echo '</table>'
 #========================================================================================
 # Check for internet and piCore repository access
 #----------------------------------------------------------------------------------------
-if [ $SUBMIT = "Initial" ]; then
+if [ "$SUBMIT" = "Initial" ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -407,7 +407,7 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
 
-	                  if [ $(pcp_internet_accessible) = 0 ]; then
+	                  if [ $(pcp_internet_accessible) -eq 0 ]; then
 	                      INDICATOR=$HEAVY_CHECK_MARK
 	                      CLASS="indicator_green"
 	                      STATUS="Internet accessible..."
@@ -430,7 +430,7 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '                <p></p>'
 	echo '              </td>'
 
-	                    if [ $(pcp_picore_accessible) = 0 ]; then
+	                    if [ $(pcp_picore_accessible) -eq 0 ]; then
 	                        INDICATOR=$HEAVY_CHECK_MARK
 	                        CLASS="indicator_green"
 	                        STATUS="piCore repository accessible..."
@@ -455,7 +455,7 @@ if [ $SUBMIT = "Initial" ]; then
 	echo '</table>'
 fi
 
-if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; then
+if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" ]; then
 	#========================================================================================
 	# Display disk space using df
 	#----------------------------------------------------------------------------------------
@@ -481,7 +481,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND = 1 ] && [ $SUBMIT != "Initial" ]; t
 	echo '  </tr>'
 	echo '</table>'
 
-	if [ $DEBUG = 1 ]; then
+	if [ $DEBUG -eq 1 ]; then
 		#========================================================================================
 		# Display tce mirror using 
 		#----------------------------------------------------------------------------------------
