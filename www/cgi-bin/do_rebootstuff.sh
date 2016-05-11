@@ -2,6 +2,8 @@
 
 # Version: 2.06 2016-05-09 GE
 #	Added HDMIPOWER.
+#	Moved bootfix script so it only starts after an insitu update.
+#	Changed script so backup is only initiated when somthing needs saving
 #	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
 
 # Version: 2.05 2016-04-30 PH
@@ -115,6 +117,7 @@
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
+BACKUP=0
 . /home/tc/www/cgi-bin/pcp-functions
 
 # Read from pcp-functions file
@@ -147,17 +150,6 @@ if [ "PCP_SOURCE" = "tcz" ]; then
 	fi
 else
 	break
-fi
-
-# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-if [ -f /mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh ]; then
-	echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-	/mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh
-	rm -rf /mnt/mmcblk0p2/tce/optional/bootfix
-	pcp_backup_nohtml >/dev/null 2>&1
-	echo "${RED}Rebooting needed after bootfix... ${NORMAL}"
-	sleep 3
-	sudo reboot
 fi
 
 # Mount USB stick if present
@@ -209,6 +201,15 @@ echo "${GREEN} Done.${NORMAL}"
 echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
+
+	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
+	if [ -f /mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh ]; then
+		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
+		/mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh
+		rm -rf /mnt/mmcblk0p2/tce/optional/bootfix
+		pcp_backup_nohtml >/dev/null 2>&1
+	fi
+
 	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
@@ -271,6 +272,7 @@ if [ "$WIFI" = "on" ]; then
 	else
 		# Add wifi related modules back
 		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
+		BACKUP=1
 		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
 
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
@@ -295,16 +297,30 @@ if [ "$WIFI" = "on" ]; then
 	. /usr/local/sbin/config.cfg
 	echo "${GREEN}Done.${NORMAL}"
 
-	# Only add backslash if not empty
-	echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
+	#Check if wifi variables already are up-to-date in wifi.db so we don't need to update wifi.db and do an unwanted backup
 	if [ x"" = x"$SSID" ]; then
 		break
-	else
+		else
+		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
+		# Change SSSID back to SSID
+		SSID=$SSSID
+		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /tmp/wifi.db
+	fi
+if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
+		echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
+		else
+		BACKUP=1
+		# Only add backslash if not empty
+		echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
+	if [ x"" = x"$SSID" ]; then
+		break
+		else
 		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
 		# Change SSSID back to SSID
 		SSID=$SSSID
 		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
 	fi
+fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
@@ -522,6 +538,7 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	pcp_set_timezone >/dev/null 2>&1
 	pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	TZ=$TIMEZONE
+	BACKUP=1
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
@@ -553,9 +570,11 @@ if [ "$HDMIPOWER" = "off" ]; then
 fi
 
 # Save the parameters to the config file
-echo -n "${BLUE}Updating configuration... ${NORMAL}"
+if [ "$BACKUP" = "1" ]; then
+echo -n "${BLUE}Saving the changes... ${NORMAL}"
 pcp_backup_nohtml >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
+fi
 
 # Display the IP address
 ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_eth0_ip)${NORMAL}"
