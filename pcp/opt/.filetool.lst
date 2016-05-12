@@ -7,6 +7,8 @@ etc/gshadow
 etc/motd
 etc/modprobe.conf
 etc/asound.conf
+usr/bin/scp
+usr/bin/dbclient
 usr/local/etc/pointercal
 usr/local/etc/dropbear/dropbear_dss_host_key
 usr/local/etc/dropbear/dropbear_rsa_host_key
