@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.15 2016-05-16 GE
+	Added .column350.
+
 Version: 0.14 2016-04-27 GE
 	Added .column280.
 	Changed .indicator_green, .indicator_red.
@@ -284,6 +287,9 @@ input, button {
 	width:300px;
 }
 
+.column350 {
+	width:350px;
+}
 .column380 {
 	width:380px;
 }

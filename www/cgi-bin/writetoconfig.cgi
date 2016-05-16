@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.09 2016-05-17 GE
+#	Added multi ALSA_PARAMS and FROM_PAGE.
+#	Added MMAP configuration.
+
 # Version: 0.08 2016-04-25 GE
 #	Added pcp_update.
 
@@ -32,6 +36,9 @@
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
+
+RESTART=1
+REBOOT=0
 
 pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
@@ -76,11 +83,28 @@ pcp_update() {
 	pcp_save_to_config
 }
 
+pcp_multi_alsa_mmap() {
+	ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
+	pcp_mount_mmcblk0p1
+	if [ $ALSA_PARAMS4 -eq 1 ]; then
+		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
+		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
+		[ $? -eq 1 ] && REBOOT=1 && RESTART=0
+		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
+	else
+		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
+		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+	fi
+	pcp_umount_mmcblk0p1
+}
+
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
-	Save) 
+	Save)
+		[ "$FROM_PAGE" = "squeezelite" ] && pcp_multi_alsa_mmap
 		pcp_save_to_config
 	;;
 	Reset*)
@@ -108,7 +132,8 @@ fi
 pcp_show_config_cfg
 pcp_backup
 sleep 1
-pcp_restart_required
+[ $REBOOT -eq 1 ] && pcp_reboot_required
+[ $RESTART -eq 1 ] && pcp_restart_required
 pcp_go_back_button
 
 echo '</body>'

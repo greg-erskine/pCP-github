@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.25 2016-05-17 GE
+#	Added multi ALSA_PARAMS.
+
 # Version: 0.24 2016-03-29 PH
 #	Fixed $VISUALISER and $IR_LIRC.
 #	Changed log location to /var/log.
@@ -154,7 +157,6 @@ STRING="$STRING &"
 #========================================================================================
 # Start table
 #----------------------------------------------------------------------------------------
-pcp_incr_id
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -165,28 +167,29 @@ echo '            <legend>Choose audio output</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Audio output-------------------------------
 case "$AUDIO" in
-	Analog*) ANCHECKED="selected" ;;
-	HDMI*) HDMICHECKED="selected" ;;
-	USB*) USBCHECKED="selected" ;;
-	I2SDAC*) I2DACCHECKED="selected";;
-	I2SDIG*) I2DIGCHECKED="selected" ;;
-	I2SAMP*) I2AMPCHECKED="selected" ;;
-	IQaudio*) IQaudioCHECKED="selected" ;;
-	I2SpDAC*) I2SDACpCHECKED="selected" ;;
-	I2SpDIG*) I2SDIGpCHECKED="selected" ;;
-	I2SpIQaudIO*) IQaudIOpCHECKED="selected" ;;
-	I2SpIQAMP*) IQAMPCHECKED="selected" ;;
-	raspidac3*) raspidac3CHECKED="selected" ;;
-	rpi_dac*) rpi_dacCHECKED="selected" ;;
-	*) CHECKED="Not set" ;;
+	Analog)      ANCHECKED="selected" ;;
+	HDMI)        HDMICHECKED="selected" ;;
+	USB)         USBCHECKED="selected" ;;
+	I2SDAC)      I2DACCHECKED="selected";;
+	I2SDIG)      I2DIGCHECKED="selected" ;;
+	I2SAMP)      I2AMPCHECKED="selected" ;;
+	IQaudio)     IQaudioCHECKED="selected" ;;
+	I2SpDAC)     I2SDACpCHECKED="selected" ;;
+	I2SpDIG)     I2SDIGpCHECKED="selected" ;;
+	I2SpIQaudIO) IQaudIOpCHECKED="selected" ;;
+	I2SpIQAMP)   IQAMPCHECKED="selected" ;;
+	raspidac3)   raspidac3CHECKED="selected" ;;
+	rpi_dac)     rpi_dacCHECKED="selected" ;;
+	*)           CHECKED="Not set" ;;
 esac
 
+pcp_incr_id
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>Audio output</p>'
 echo '                </td>'
-echo '                <td>'
+echo '                <td class="column350">'
 echo '                  <select name="AUDIO">'
 echo '                    <option value="Analog" '$ANCHECKED'>Analog audio:</option>'
 echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</option>'
@@ -213,6 +216,17 @@ echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: R
 
 echo '                  </select>'
 echo '                </td>'
+
+echo '                <td>'
+echo '                  <p>Select Audio output&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Set Audio output before changing Squeezelite settings below.</p>'
+echo '                    <p>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
+echo '                  </div>'
+echo '                </td>'
+
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="2">'
@@ -271,11 +285,10 @@ echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Output settings-----------------------------------
-if [ "$ALSAeq" = "yes" ]; then
-	READONLY="readonly"
-else
-	READONLY=""
-fi
+case "$ALSAeq" in
+	yes) READONLY="readonly" ;;
+	*)   READONLY="" ;;
+esac
 
 pcp_incr_id
 pcp_toggle_row_shade
@@ -289,7 +302,7 @@ echo '                </td>'
 echo '                <td>'
 
 if [ "$ALSAeq" = "yes" ]; then
-	echo '                  <p><b>NOTE:</b> ALSA equalizer has set the output to "equal".</p>'
+	echo '                  <p><b>Note:</b> ALSA equalizer has set the output to "equal".</p>'
 else
 	echo '                  <p>Specify the output device (-o)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -306,8 +319,8 @@ else
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
-	echo '                      <li>Using ALSA equalizer will set the output to "equal".</li>'
 	echo '                      <li>Sometimes clearing this field completely may help. This forces the default ALSA setting to be used.</li>'
+	echo '                      <li>Using ALSA equalizer will set the output to "equal".</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 fi
@@ -316,13 +329,15 @@ echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------ALSA settings-------------------------------------
-pcp_squeezelite_alsa() {
+#--------------------------------------OLD ALSA settings---------------------------------
+##### GE - OBSOLETE - DELETE ####
+#----------------------------------------------------------------------------------------
+pcp_old_squeezelite_alsa() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>ALSA setting</p>'
+	echo '                  <p>OLD ALSA setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
@@ -342,6 +357,7 @@ pcp_squeezelite_alsa() {
 	echo '                    </ul>'
 	echo '                    <p>Buffer value &lt; 500 treated as buffer time in ms, otherwise size in bytes.</p>'
 	echo '                    <p>Period value &lt; 50 treated as period count, otherwise size in bytes.</p>'
+	echo '                    <p>mmap = memory map<p>'
 	echo '                    <p>Sample format:<p>'
 	echo '                    <ul>'
 	echo '                      <li>16 = Signed 16 bit Little Endian</li>'
@@ -349,16 +365,15 @@ pcp_squeezelite_alsa() {
 	echo '                      <li>24_3 = Signed 24 bit Little Endian in 3bytes format</li>'
 	echo '                      <li>32 = Signed 32 bit Big Endian</li>'
 	echo '                    </ul>'
-	echo '                    <p>mmap = memory map<p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BASIC ] && pcp_squeezelite_alsa
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_old_squeezelite_alsa
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------NEW ALSA settings-------------------------------------
-pcp_squeezelite_new_alsa() {
+#--------------------------------------ALSA settings-------------------------------------
+pcp_squeezelite_alsa() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -367,17 +382,17 @@ pcp_squeezelite_new_alsa() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 
-							ALSA_PARAMS1=$(echo $ALSA_PARAMS | cut -d: -f1 ) # b = buffer time in ms or size in bytes
-							ALSA_PARAMS2=$(echo $ALSA_PARAMS | cut -d: -f2 ) # p = period count or size in bytes
-							ALSA_PARAMS3=$(echo $ALSA_PARAMS | cut -d: -f3 ) # f = sample format (16|24|24_3|32)
-							ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 ) # m = use mmap (0|1)
-							ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 ) # d = opens ALSA twice
+	                        ALSA_PARAMS1=$(echo $ALSA_PARAMS | cut -d: -f1 ) # b = buffer time in ms or size in bytes
+	                        ALSA_PARAMS2=$(echo $ALSA_PARAMS | cut -d: -f2 ) # p = period count or size in bytes
+	                        ALSA_PARAMS3=$(echo $ALSA_PARAMS | cut -d: -f3 ) # f = sample format (16|24|24_3|32)
+	                        ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 ) # m = use mmap (0|1)
+	                        ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 ) # d = opens ALSA twice
 
-	echo '                  <input class="small3" type="text" name="ALSA_PARAMS1" value="'$ALSA_PARAMS1'">:'
-	echo '                  <input class="small3" type="text" name="ALSA_PARAMS2" value="'$ALSA_PARAMS2'">:'
-	echo '                  <input class="small3" type="text" name="ALSA_PARAMS3" value="'$ALSA_PARAMS3'" pattern="^(16|24|24_3|32)$">:'
-	echo '                  <input class="small1" type="text" name="ALSA_PARAMS4" value="'$ALSA_PARAMS4'" pattern="^[0-1]$">:'
-	echo '                  <input class="small1" type="text" name="ALSA_PARAMS5" value="'$ALSA_PARAMS5'" pattern="^[d]$">'
+	echo '                  <input class="small3" type="text" name="ALSA_PARAMS1" value="'$ALSA_PARAMS1'" title="buffer time">'
+	echo '                  <input class="small3" type="text" name="ALSA_PARAMS2" value="'$ALSA_PARAMS2'" title="period count">'
+	echo '                  <input class="small3" type="text" name="ALSA_PARAMS3" value="'$ALSA_PARAMS3'" pattern="^(16|24|24_3|32)$" title="sample format ( 16 | 24 | 24_3 | 32 )">'
+	echo '                  <input class="small1" type="text" name="ALSA_PARAMS4" value="'$ALSA_PARAMS4'" pattern="^[0-1]$" title="mmap ( 0 | 1 )">'
+	echo '                  <input class="small1" type="text" name="ALSA_PARAMS5" value="'$ALSA_PARAMS5'" pattern="^[d]$" title="ALSA twice (d)">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
@@ -392,31 +407,34 @@ pcp_squeezelite_new_alsa() {
 	echo '                      <li>m = use mmap (0|1)</li>'
 	echo '                      <li>d = opens ALSA twice (undocumented) i.e. ::::d</li>'
 	echo '                    </ul>'
+	echo '                    <p><b>Note:</b></p>'
 	echo '                    <p>Buffer value &lt; 500 treated as buffer time in ms, otherwise size in bytes.</p>'
 	echo '                    <p>Period value &lt; 50 treated as period count, otherwise size in bytes.</p>'
-	echo '                    <p>Sample format:<p>'
+	echo '                    <p>mmap = memory map<p>'
+	echo '                    <p><b>Sample format:</b><p>'
 	echo '                    <ul>'
 	echo '                      <li>16 = Signed 16 bit Little Endian</li>'
-	echo '                      <li>24 = Signed 24 bit Little Endian using low three bytes in 32-bit word</li>'
-	echo '                      <li>24_3 = Signed 24 bit Little Endian in 3bytes format</li>'
+	echo '                      <li>24 = Signed 24 bit Little Endian using low 3 bytes in 32 bit word</li>'
+	echo '                      <li>24_3 = Signed 24 bit Little Endian in 3 bytes format</li>'
 	echo '                      <li>32 = Signed 32 bit Big Endian</li>'
 	echo '                    </ul>'
-	echo '                    <p>mmap = memory map<p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'" readonly>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                </td>'
-	echo '              </tr>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150">'
+		echo '                </td>'
+		echo '                <td class="column210">'
+		echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'" readonly>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_new_alsa
+[ $MODE -ge $MODE_BASIC ] && pcp_squeezelite_alsa
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Buffer size settings------------------------------
@@ -490,7 +508,7 @@ pcp_squeezelite_xcodec() {
 	echo '                  <input class="large15" type="text" name="XCODEC" value="'$XCODEC'">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Explicitly exclude native support of one or more codecs (-e)&nbsp;&nbsp;'
+	echo '                  <p>Explicitly exclude native support for one or more codecs (-e)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -659,7 +677,7 @@ pcp_squeezelite_server_ip() {
 	echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
 	echo '                    <p>Default port: 3483</p>'
 	echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port number.</p>'
-	                          if [ $LMSERVER = no ]; then
+	                          if [ "$LMSERVER" = "no" ]; then
 	echo   '                    <p>Current LMS IP is:</p>'
 	echo   '                    <ul>'
 	echo   '                      <li>'$(pcp_lmsip)'</li>'
@@ -680,22 +698,22 @@ pcp_squeezelite_server_ip() {
 #--------------------------------------Log level setting---------------------------------
 pcp_squeezelite_log_level() {
 	case "$LOGLEVEL" in
-		all=info) LOGLEVEL1="selected" ;;
-		all=debug) LOGLEVEL2="selected" ;;
-		all=sdebug) LOGLEVEL3="selected" ;;
-		slimproto=info) LOGLEVEL4="selected" ;;
-		slimproto=debug) LOGLEVEL5="selected" ;;
+		all=info)         LOGLEVEL1="selected" ;;
+		all=debug)        LOGLEVEL2="selected" ;;
+		all=sdebug)       LOGLEVEL3="selected" ;;
+		slimproto=info)   LOGLEVEL4="selected" ;;
+		slimproto=debug)  LOGLEVEL5="selected" ;;
 		slimproto=sdebug) LOGLEVEL6="selected" ;;
-		stream=info) LOGLEVEL7="selected" ;;
-		stream=debug) LOGLEVEL8="selected" ;;
-		stream=sdebug) LOGLEVEL9="selected" ;;
-		decode=info) LOGLEVEL10="selected" ;;
-		decode=debug) LOGLEVEL11="selected" ;;
-		decode=sdebug) LOGLEVEL12="selected" ;;
-		output=info) LOGLEVEL13="selected" ;;
-		output=debug) LOGLEVEL14="selected" ;;
-		output=sdebug) LOGLEVEL15="selected" ;;
-		*) LOGLEVEL0="selected" ;;
+		stream=info)      LOGLEVEL7="selected" ;;
+		stream=debug)     LOGLEVEL8="selected" ;;
+		stream=sdebug)    LOGLEVEL9="selected" ;;
+		decode=info)      LOGLEVEL10="selected" ;;
+		decode=debug)     LOGLEVEL11="selected" ;;
+		decode=sdebug)    LOGLEVEL12="selected" ;;
+		output=info)      LOGLEVEL13="selected" ;;
+		output=debug)     LOGLEVEL14="selected" ;;
+		output=sdebug)    LOGLEVEL15="selected" ;;
+		*)                LOGLEVEL0="selected" ;;
 	esac
 
 	pcp_incr_id
@@ -734,39 +752,12 @@ pcp_squeezelite_log_level() {
 	echo '                      <li>log: all|slimproto|stream|decode|output</li>'
 	echo '                      <li>level: info|debug|sdebug</li>'
 	echo '                    </ul>'
-	echo '                    <p><b>Note:</b> Log file is /tmp/pcp_squeezelite.log</p>'
+	echo '                    <p><b>Note:</b> Log file is /var/log/pcp_squeezelite.log</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
-#----------------------------------------------------------------------------------------
-
-#--------------------------------------Log file name-------------------------------------OBSOLETE
-pcp_squeezelite_log_file() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p class="row">Log file name</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="LOGFILE" value="'$LOGFILE'">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Write debug logfile to /tmp directory (-f)&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;logfile&gt;</p>'
-	echo '                    <ul>'
-	echo '                      <li>Log level settings needs to be set.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_squeezelite_log_file
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Device supports DoP-------------------------------
@@ -847,10 +838,10 @@ pcp_squeezelite_unmute() {
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -V option.</p>'
 
-	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print "Card: "$1 " "  $4}')'</p>'
-	echo '                    <p><b>For card 0 controls found:</b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 1 controls found:</b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 2 controls found:</b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
+	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	echo '                  </div>'
 	echo '                </td>'
@@ -886,10 +877,10 @@ pcp_squeezelite_volume() {
 
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -U option.</p>'
-	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print "Card: "$1 " "  $4}')'</p>'
-	echo '                    <p><b>For card 0 controls found:</b>' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 1 controls found:</b>' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p><b>For card 2 controls found:</b>' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
+	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
+	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	echo '                  </div>'
 	echo '                </td>'
@@ -900,14 +891,15 @@ pcp_squeezelite_volume() {
 
 #--------------------------------------Power On/Off GPIO---------------------------------
 pcp_squeezelite_power_gpio() {
-	pcp_incr_id
-	pcp_toggle_row_shade
 	if [ -n "$POWER_GPIO" ]; then
 		case "$POWER_OUTPUT" in
 			H) POH="checked" ;;
 			L) POL="checked" ;;
 		esac
 	fi
+
+	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p class="row">Power On/Off GPIO</p>'
@@ -961,7 +953,7 @@ pcp_squeezelite_power_script() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) -eq 0 ] && pcp_squeezelite_power_script
+[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO) -eq 0 ] && pcp_squeezelite_power_script
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------
@@ -996,18 +988,23 @@ pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td  class="column150">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
 echo '                </td>'
-echo '                <td colspan="2">'
-echo '                  <p>Squeezelite command string&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p><b>Warning: </b>For advanced users only!</p>'
-echo '                    <p>'$STRING'</p>'
-echo '                    <p><b>Hint: </b>Triple click on command then press [Ctrl]+[c] to copy.</p>'
-echo '                    <p><b>Note: </b>Maximum length is 512 characters.</p>'
-echo '                  </div>'
-echo '                </td>'
+
+if [ $MODE -ge $MODE_ADVANCED ]; then
+	echo '                <td colspan="2">'
+	echo '                  <p>Squeezelite command string&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Warning: </b>For advanced users only!</p>'
+	echo '                    <p>'$STRING'</p>'
+	echo '                    <p><b>Hint: </b>Triple click on command then press [Ctrl]+[c] to copy.</p>'
+	echo '                    <p><b>Note: </b>Maximum length is 512 characters.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+fi
+
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
 
