@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Version: 2.06 2016-05-09 GE
+#	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
 #	Added HDMIPOWER.
 #	Moved bootfix script so it only starts after an insitu update.
 #	Changed script so backup is only initiated when somthing needs saving
@@ -130,27 +131,6 @@ echo "${GREEN}Done.${NORMAL}"
 echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
-
-# Remove all traces of pCP if pCP.tcz is deleted
-# for now we need to check if pCP is installed via pCP.tcz or via the old piCorePlayer
-# in the future this check is not needed
-
-# Check for pCP installed via pCP.tcz and pCP.tcz not present any more
-if [ "PCP_SOURCE" = "tcz" ]; then
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/pCP.tcz ]; then
-		echo "${YELLOW} Removing all traces of piCorePlayer... ${NORMAL}"
-		sudo sed -i "/do_rebootstuff.sh/d" /opt/bootlocal.sh
-		sudo sed -i "/usr\/local\/sbin\/config.cfg/d" /opt/.filetool.lst
-#		sudo filetool.sh -b						# should be enabled later but not while testing
-		echo "${GREEN} Done. will reboot in 5 sec. ${NORMAL}"
-		wait 5
-#		sudo reboot								# should be enabled later but not while testing
-	else
-		break
-	fi
-else
-	break
-fi
 
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
@@ -503,10 +483,6 @@ if [ "$SHAIRPORT" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
-/usr/local/etc/init.d/httpd start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
-
 if [ "$A_S_LMS" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
 	pcp_auto_start_lms
@@ -548,7 +524,22 @@ if [ "$LMSERVER" = "yes" ]; then
 		sudo /usr/local/etc/init.d/slimserver start
 		echo "${GREEN}Done.${NORMAL}"
 		if [ "$SQUEEZELITE" = "yes" ]; then
-			sleep 5    ###Wait for server to be responsive.   Need to fix this with a port check.
+
+			#Wait for server to be responsive.
+			echo -n "${YELLOW}Waiting for LMS to initiate."
+			CNT=1
+			until sudo /usr/local/etc/init.d/slimserver status | grep -q pid 2>&1
+			do
+				if [ $((CNT++)) -gt 20 ]; then
+					echo "${RED} LMS not running ($CNT).${NORMAL}"
+					break
+				else
+					echo -n "."
+					sleep 1
+				fi
+			done
+			echo "${GREEN} Done ($CNT).${NORMAL}"
+
 			echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
 			/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
 			echo "${GREEN}Done.${NORMAL}"
@@ -568,6 +559,10 @@ if [ "$HDMIPOWER" = "off" ]; then
 		echo "${RED}FAIL.${NORMAL}"
 	fi
 fi
+
+echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
+/usr/local/etc/init.d/httpd start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
 
 # Save the parameters to the config file
 if [ "$BACKUP" = "1" ]; then
