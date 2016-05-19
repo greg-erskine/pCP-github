@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-05-17 GE
+# Version: 0.02 2016-05-20 GE
 #	Major revision.
 
 # Version: 0.01 2015-02-15 GE
@@ -12,6 +12,11 @@ pcp_variables
 
 USER=""
 TZ=""
+
+RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
+RED=""
+GREEN='&nbsp;<span class="indicator_green">&#x2714;</span>'
+
 CMDLINETXT=/mnt/mmcblk0p1/xxxcmdline.txt
 DEBUG=1
 
@@ -25,19 +30,86 @@ pcp_httpd_query_string
 
 pcp_mount_mmcblk0p1
 
-echo '<p><b>Note: </b>At the moment this page simply displays the contents of cmdline.txt and cmdline.'
-echo '   In the future, it is intended to be able to modify the contents of cmdline.txt.</p>'
+#========================================================================================
+# Routines
+#----------------------------------------------------------------------------------------
+pcp_add_space_end() {
+	sed -i 's/  / /g' $CMDLINETXT
+	sed -i '$s/$/ /' $CMDLINETXT
+}
 
 pcp_bootcode_add() {
+	pcp_add_space_end
 	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
 	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
 }
 
 pcp_bootcode_equal_add() {
+	pcp_add_space_end
 	STR="$1=$2"
 	sed -i 's/'${VARIABLE}'[\=a-zA-Z0-9]* //g' $CMDLINETXT
 	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
 }
+
+#========================================================================================
+# Generate warning message
+#----------------------------------------------------------------------------------------
+pcp_warning_message() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Warning</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b> It can be dangerous to play with bootcodes.</p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">Only suitable for Advanced users.</li>'
+	echo '                  <li style="color:white">A reboot is required to make bootcode active.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+#========================================================================================
+# Missing bootcodes
+#----------------------------------------------------------------------------------------
+# tce={hda1|sda1}            Specify Restore TCE apps directory
+# restore={hda1|sda1|floppy} Specify saved configuration location
+# local={hda1|sda1}          Specify PPI directory or loopback file
+# lst=yyy.lst                Load alternate static yyy.lst on boot
+# safebackup                 Saves a backup copy (mydatabk.tgz)
+# vga=7xx                    7xx from table above
+# settime                    Set UTC time at boot, internet required
+# desktop=yyy                Specify alternate window manager
+# embed                      Stay on initramfs
+# xvesa=800x600x32           Set Xvesa default screen resolution
+# bkg=image.{jpg|png|gif}    Set background from /opt/backgrounds
+# multivt                    Allows for multiple virtual terminals
+
+# console=ttyAMA0,115200
+# console=tty1
+# consoleblank=0
+# dwc_otg.fiq_fsm_mask=0x7
+# dwc_otg.lpm_enable=0
+# elevator=deadline
+# noembed
+# root=/dev/ram0
+
+# root                       Specify the root filesystem to boot from.
+#                            <device>
+#                            Tell the kernel which disk device the root filesystem image is on.
+
+# rootwait
+# smsc95xx.turbo_mode=N
+#----------------------------------------------------------------------------------------
 
 if [ "$SUBMIT" = "Save" ]; then
 	case $VARIABLE in
@@ -71,9 +143,13 @@ if [ "$SUBMIT" = "Save" ]; then
 		waitusb)     pcp_bootcode_equal_add waitusb "$WAITUSB" ;;
 		xvesa)       pcp_bootcode_equal_add xvesa "$XVESA";;
 		#--------------------------------------------------------------------------------
+		# Kernel bootcodes ( VARIABLE=value )
+		#--------------------------------------------------------------------------------
+		loglevel)    pcp_bootcode_equal_add loglevel "$LOGLEVEL" ;;
+		#--------------------------------------------------------------------------------
 		# Standard Tiny Core bootcodes ( VARIABLE )
 		#--------------------------------------------------------------------------------
-		base)        pcp_bootcode_add base $BASE ;;
+		base)        pcp_bootcode_add base $ONLYBASE ;;
 		cron)        pcp_bootcode_add cron $CRON ;;
 		laptop)      pcp_bootcode_add laptop $LAPTOP ;;
 		noautologin) pcp_bootcode_add noautologin $NOAUTOLOGIN ;;
@@ -95,8 +171,9 @@ if [ "$SUBMIT" = "Save" ]; then
 		xonly)       pcp_bootcode_add xonly $XONLY ;;
 		xsetup)      pcp_bootcode_add xsetup $XSETUP ;;
 		#--------------------------------------------------------------------------------
-		#
+		# Kernel bootcodes ( VARIABLE )
 		#--------------------------------------------------------------------------------
+		quiet)       pcp_bootcode_add quiet $QUIET ;;
 	esac
 fi
 
@@ -111,7 +188,7 @@ for i in `cat $CMDLINETXT`; do
 				blacklist*) BLACKLIST="$BLACKLIST ${i#*=}" ;;
 				desktop*) DESKTOP=${i#*=} ;;
 				home*) MYHOME=${i#*=} ;;
-				host*) HOST=1; HOSTNAME=${i#*=} ;;
+				host*) HOSTNAME=${i#*=}; HOST=1 ;;
 				httplist*) HTTPLIST=${i#*=} ;;
 				icons*) ICONS=${i#*=} ;;
 				iso*) ISOFILE=${i#*=} ;;
@@ -134,6 +211,9 @@ for i in `cat $CMDLINETXT`; do
 				waitusb*) WAITUSB=${i#*=} ;;
 				xvesa*) XVESA=${i#*=} ;;
 				#---------------------------------------------------
+				# Kernel bootcodes ( VARIABLE=value )
+				#---------------------------------------------------
+				loglevel*) LOGLEVEL=${i#*=} ;;
 			esac
 		;;
 		*)
@@ -163,10 +243,15 @@ for i in `cat $CMDLINETXT`; do
 				xonly) XONLY=1 ;;
 				xsetup) XSETUP=1 ;;
 				#---------------------------------------------------
+				# Kernel bootcodes
+				#---------------------------------------------------
+				quiet) QUIET=1 ;;
 			esac
 		;;
 	esac
 done
+
+pcp_warning_message
 
 #----------------------------------------------------------------------------------------
 pcp_start_row_shade
@@ -179,7 +264,7 @@ echo '          <legend>piCore bootcodes ( VARIABLE=value )</legend>'
 echo '          <table class="bggrey percent100">'
 #--------------------------------------Heading-------------------------------------------
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <th class="column150">'
+echo '              <th class="column100">'
 echo '                <p>Bootcode</p>'
 echo '              </th>'
 echo '              <th class="column210">'
@@ -188,23 +273,24 @@ echo '              </th>'
 echo '              <th class="column150">'
 echo '                <p>Save</p>'
 echo '              </th>'
-echo '              <th>'
+echo '              <th class="column210">'
 echo '                <p>Description/Help</p>'
 echo '              </th>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------aoe-----------------------------------------
+#--------------------------------------aoe-----------------------------------------------
 pcp_bootcode_aoe() {
+	[ x"" = x"$AOE" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="aoe" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>aoe</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>aoe=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="AOE" value="'$AOE'">'
+	echo '                  <input class="large15" type="text" name="AOE" value="'$AOE'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -226,15 +312,16 @@ pcp_bootcode_aoe() {
 
 #--------------------------------------blacklist-----------------------------------------
 pcp_bootcode_blacklist() {
+	[ x"" = x"$BLACKLIST" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="blacklist" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>blacklist</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>blacklist=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="BLACKLIST" value="'$BLACKLIST'">'
+	echo '                  <input class="large15" type="text" name="BLACKLIST" value="'$BLACKLIST'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -255,28 +342,30 @@ pcp_bootcode_blacklist() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_blacklist
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------desktop----------------------------------------------
+#--------------------------------------desktop-------------------------------------------
 pcp_bootcode_desktop() {
+	[ x"" = x"$DESKTOP" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="desktop" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>desktop</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>desktop=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="DESKTOP" value="'$DESKTOP'">'
+	echo '                  <input class="large15" type="text" name="DESKTOP" value="'$DESKTOP'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="desktop">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for desktop&nbsp;&nbsp;'
+	echo '                  <p>Specify alternate window manager&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;desktop=yyy&gt;</p>'
+	echo '                    <p>Specify alternate window manager yyy.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -285,28 +374,30 @@ pcp_bootcode_desktop() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_desktop
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------home-----------------------------------------
+#--------------------------------------home----------------------------------------------
 pcp_bootcode_home() {
+	[ x"" = x"$MYHOME" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="home" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>home</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>home=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="MYHOME" value="'$MYHOME'">'
+	echo '                  <input class="large15" type="text" name="MYHOME" value="'$MYHOME'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="home">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for home&nbsp;&nbsp;'
+	echo '                  <p>Specify persistent home directory&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;home=hda1|sda1&gt;</p>'
+	echo '                    <p>Specify persistent home directory.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -315,28 +406,30 @@ pcp_bootcode_home() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_home
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------host-----------------------------------------
+#--------------------------------------host----------------------------------------------
 pcp_bootcode_host() {
+	[ x"" = x"$HOSTNAME" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="host" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>host</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>host=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="HOSTNAME" value="'$HOSTNAME'">'
+	echo '                  <input class="large15" type="text" name="HOSTNAME" value="'$HOSTNAME'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="host">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for host&nbsp;&nbsp;'
+	echo '                  <p>Set hostname to xxxx&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;host=xxxx&gt;</p>'
+	echo '                    <p>Set hostname to xxxx.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -345,17 +438,18 @@ pcp_bootcode_host() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_host
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------httplist-----------------------------------------
+#--------------------------------------httplist------------------------------------------
 pcp_bootcode_httplist() {
+	[ x"" = x"$HTTPLIST" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="httplist" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>httplist</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>httplist=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="HTTPLIST" value="'$HTTPLIST'">'
+	echo '                  <input class="large15" type="text" name="HTTPLIST" value="'$HTTPLIST'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -375,17 +469,18 @@ pcp_bootcode_httplist() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_httplist
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------icons-----------------------------------------
+#--------------------------------------icons---------------------------------------------
 pcp_bootcode_icons() {
+	[ x"" = x"$ICONS" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="icons" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>icons</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>icons=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="ICONS" value="'$ICONS'">'
+	echo '                  <input class="large15" type="text" name="ICONS" value="'$ICONS'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -405,28 +500,30 @@ pcp_bootcode_icons() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_icons
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------iso-----------------------------------------
+#--------------------------------------iso-----------------------------------------------
 pcp_bootcode_iso() {
+	[ x"" = x"$ISOFILE" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="iso" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>iso</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>iso=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="ISOFILE" value="'$ISOFILE'">'
+	echo '                  <input class="large15" type="text" name="ISOFILE" value="'$ISOFILE'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="iso">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for iso&nbsp;&nbsp;'
+	echo '                  <p>Specify device to search and boot an iso&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;iso=hda1|sda1&gt;</p>'
+	echo '                    <p>Specify device to search and boot an iso.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -437,26 +534,28 @@ pcp_bootcode_iso() {
 
 #--------------------------------------kmap----------------------------------------------
 pcp_bootcode_kmap() {
+	[ x"" = x"$KEYMAP" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="kmap" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>kmap</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>kmap=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="KEYMAP" value="'$KEYMAP'">'
+	echo '                  <input class="large15" type="text" name="KEYMAP" value="'$KEYMAP'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="kmap">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for kmap&nbsp;&nbsp;'
+	echo '                  <p>US only unless kmaps.tcz is installed&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;kmap=us&gt;</p>'
+	echo '                    <p>US only unless kmaps.tcz is installed.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -467,26 +566,28 @@ pcp_bootcode_kmap() {
 
 #--------------------------------------lang----------------------------------------------
 pcp_bootcode_lang() {
+	[ x"" = x"$LANGUAGE" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="lang" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>lang</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>lang=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="LANGUAGE" value="'$LANGUAGE'">'
+	echo '                  <input class="large15" type="text" name="LANGUAGE" value="'$LANGUAGE'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="lang">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for lang&nbsp;&nbsp;'
+	echo '                  <p>C only unless getlocale.tcz is installed&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;lang=en&gt;</p>'
+	echo '                    <p>C only unless getlocale.tcz is installed.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -495,17 +596,18 @@ pcp_bootcode_lang() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_lang
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------mydata-----------------------------------------
+#--------------------------------------mydata--------------------------------------------
 pcp_bootcode_mydata() {
+	[ x"" = x"$MYDATA" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="mydata" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>mydata</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>mydata=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="MYDATA" value="'$MYDATA'">'
+	echo '                  <input class="large15" type="text" name="MYDATA" value="'$MYDATA'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -525,17 +627,18 @@ pcp_bootcode_mydata() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_mydata
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------nbd-----------------------------------------
+#--------------------------------------nbd-----------------------------------------------
 pcp_bootcode_nbd() {
+	[ x"" = x"$NBD" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="nbd" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>nbd</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>nbd=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="NBD" value="'$NBD'">'
+	echo '                  <input class="large15" type="text" name="NBD" value="'$NBD'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -555,17 +658,18 @@ pcp_bootcode_nbd() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nbd
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------nfsmount-----------------------------------------
+#--------------------------------------nfsmount------------------------------------------
 pcp_bootcode_nfsmount() {
+	[ x"" = x"$NFSMOUNT" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="nfsmount" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>nfsmount</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>nfsmount=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="NFSMOUNT" value="'$NFSMOUNT'">'
+	echo '                  <input class="large15" type="text" name="NFSMOUNT" value="'$NFSMOUNT'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -585,28 +689,29 @@ pcp_bootcode_nfsmount() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nfsmount
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------noicons-----------------------------------------
+#--------------------------------------noicons-------------------------------------------
 pcp_bootcode_noicons() {
+	[ x"" = x"$NOICONS" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="noicons" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>noicons</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>noicons=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="NOICONS" value="'$NOICONS'">'
+	echo '                  <input class="large15" type="text" name="NOICONS" value="'$NOICONS'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="noicons">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for noicons&nbsp;&nbsp;'
+	echo '                  <p>Do not use icons&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Do not use icons.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -617,15 +722,16 @@ pcp_bootcode_noicons() {
 
 #--------------------------------------ntpserver-----------------------------------------
 pcp_bootcode_ntpserver() {
+	[ x"" = x"$NTPSERVER" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="ntpserver" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>ntpserver</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>ntpserver=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="NTPSERVER" value="'$NTPSERVER'">'
+	echo '                  <input class="large15" type="text" name="NTPSERVER" value="'$NTPSERVER'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -645,28 +751,30 @@ pcp_bootcode_ntpserver() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_ntpserver
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------opt-----------------------------------------
+#--------------------------------------opt-----------------------------------------------
 pcp_bootcode_opt() {
+	[ x"" = x"$MYOPT" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="opt" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>opt</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>opt=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="MYOPT" value="'$MYOPT'">'
+	echo '                  <input class="large15" type="text" name="MYOPT" value="'$MYOPT'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="opt">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for opt&nbsp;&nbsp;'
+	echo '                  <p>Specify persistent opt directory&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;opt=hda1|sda1&gt;</p>'
+	echo '                    <p>Specify persistent opt directory.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -675,17 +783,18 @@ pcp_bootcode_opt() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_opt
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------pretce-----------------------------------------
+#--------------------------------------pretce--------------------------------------------
 pcp_bootcode_pretce() {
+	[ x"" = x"$PRETCE" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="pretce" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>pretce</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>pretce=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="PRETCE" value="'$PRETCE'">'
+	echo '                  <input class="large15" type="text" name="PRETCE" value="'$PRETCE'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -705,17 +814,18 @@ pcp_bootcode_pretce() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_pretce
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------resume-----------------------------------------
+#--------------------------------------resume--------------------------------------------
 pcp_bootcode_resume() {
+	[ x"" = x"$RESUME" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="resume" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>resume</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>resume=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="RESUME" value="'$RESUME'">'
+	echo '                  <input class="large15" type="text" name="RESUME" value="'$RESUME'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -735,17 +845,18 @@ pcp_bootcode_resume() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_resume
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------rsyslog-----------------------------------------
+#--------------------------------------rsyslog-------------------------------------------
 pcp_bootcode_rsyslog() {
+	[ x"" = x"$RSYSLOG" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="rsyslog" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>rsyslog</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>rsyslog=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="RSYSLOG" value="'$RSYSLOG'">'
+	echo '                  <input class="large15" type="text" name="RSYSLOG" value="'$RSYSLOG'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -765,28 +876,30 @@ pcp_bootcode_rsyslog() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_rsyslog
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------swapfile-----------------------------------------
+#--------------------------------------swapfile------------------------------------------
 pcp_bootcode_swapfile() {
+	[ x"" = x"$SWAPFILE" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="swapfile" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>swapfile</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>swapfile=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="SWAPFILE" value="'$SWAPFILE'">'
+	echo '                  <input class="large15" type="text" name="SWAPFILE" value="'$SWAPFILE'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="swapfile">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for swapfile&nbsp;&nbsp;'
+	echo '                  <p>Specify swapfile&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;swapfile=hda1&gt;</p>'
+	echo '                    <p>Scan or Specify swapfile.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -795,28 +908,29 @@ pcp_bootcode_swapfile() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_swapfile
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------tcvd-----------------------------------------
+#--------------------------------------tcvd----------------------------------------------
 pcp_bootcode_tcvd() {
+	[ x"" = x"$TCVD" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="tcvd" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>tcvd</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>tcvd=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="TCVD" value="'$TCVD'">'
+	echo '                  <input class="large15" type="text" name="TCVD" value="'$TCVD'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="tcvd">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for tcvd&nbsp;&nbsp;'
+	echo '                  <p>Virtual disk support&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Virtual disk support (tcvd, tiny core virtual disk).</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -825,17 +939,18 @@ pcp_bootcode_tcvd() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tcvd
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------tftplist-----------------------------------------
+#--------------------------------------tftplist------------------------------------------
 pcp_bootcode_tftplist() {
+	[ x"" = x"$TFTPLIST" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="tftplist" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>tftplist</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>tftplist=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="TFTPLIST" value="'$TFTPLIST'">'
+	echo '                  <input class="large15" type="text" name="TFTPLIST" value="'$TFTPLIST'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -855,28 +970,30 @@ pcp_bootcode_tftplist() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tftplist
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------tz----------------------------------------------
+#--------------------------------------tz------------------------------------------------
 pcp_bootcode_tz() {
+	[ x"" = x"$TZ" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="tz" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>tz</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>tz=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="TZ" value="'$TZ'">'
+	echo '                  <input class="large15" type="text" name="TZ" value="'$TZ'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="tz">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for tz&nbsp;&nbsp;'
+	echo '                  <p>Specify Timezone&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;tz=GMT+8&gt;</p>'
+	echo '                    <p>Timezone tz=PST+8PDT,M3.2.0/2,M11.1.0/2</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -885,28 +1002,30 @@ pcp_bootcode_tz() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tz
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------user-----------------------------------------
+#--------------------------------------user----------------------------------------------
 pcp_bootcode_user() {
+	[ x"" = x"$USER" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="user" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>user</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>user=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="USER" value="'$USER'">'
+	echo '                  <input class="large15" type="text" name="USER" value="'$USER'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="user">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for user&nbsp;&nbsp;'
+	echo '                  <p>Specify alternate user&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;user=xxx&gt;</p>'
+	echo '                    <p>Specify alternate user xxx.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -917,15 +1036,16 @@ pcp_bootcode_user() {
 
 #--------------------------------------waitusb-------------------------------------------
 pcp_bootcode_waitusb() {
+	[ x"" = x"$WAITUSB" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="waitusb" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>waitusb</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>waitusb=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="WAITUSB" value="'$WAITUSB'">'
+	echo '                  <input class="large15" type="text" name="WAITUSB" value="'$WAITUSB'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -946,28 +1066,29 @@ pcp_bootcode_waitusb() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_waitusb
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------xvesa-----------------------------------------
+#--------------------------------------xvesa---------------------------------------------
 pcp_bootcode_xvesa() {
+	[ x"" = x"$XVESA" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="xvesa" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>xvesa</p>'
+	echo '                <td class="column100 right">'
+	echo '                  <p>xvesa=</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="XVESA" value="'$XVESA'">'
+	echo '                  <input class="large15" type="text" name="XVESA" value="'$XVESA'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="xvesa">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for xvesa&nbsp;&nbsp;'
+	echo '                  <p>Prompt user for Xvesa setup&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Prompt user for Xvesa setup.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -999,43 +1120,38 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <th class="column150">'
 echo '                <p>Bootcode</p>'
 echo '              </th>'
-echo '              <th class="column210">'
-echo '                <p>Set</p>'
-echo '              </th>'
-echo '              <th class="column150">'
+echo '              <th class="column100">'
 echo '                <p>Save</p>'
 echo '              </th>'
-echo '              <th>'
+echo '              <th class="column210">'
 echo '                <p>Description/Help</p>'
 echo '              </th>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------base-------------------------------------------
+#--------------------------------------base----------------------------------------------
 pcp_bootcode_base() {
-	[ $ONLYBASE -eq 1 ] && ONLYBASEyes="checked" || ONLYBASEno="checked"
-
+	if [ $ONLYBASE -eq 1 ]; then ONLYBASEyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="base" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>base</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="ONLYBASE" value="1" '$ONLYBASEyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ONLYBASE" value="1" '$ONLYBASEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="ONLYBASE" value="0" '$ONLYBASEno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>base&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="base">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set base&nbsp;&nbsp;'
+	echo '                  <p>Skip TCE load only the base system&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Skip TCE load only the base system.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1044,31 +1160,29 @@ pcp_bootcode_base() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_base
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------cron-------------------------------------------
+#--------------------------------------cron----------------------------------------------
 pcp_bootcode_cron() {
-	[ $CRON -eq 1 ] && CRONyes="checked" || CRONno="checked"
-
+	if [ $CRON -eq 1 ]; then CRONyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="cron" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>cron</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="CRON" value="1" '$CRONyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="CRON" value="1" '$CRONyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="CRON" value="0" '$CRONno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>cron&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="cron">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set cron&nbsp;&nbsp;'
+	echo '                  <p>Start cron daemon at boot&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Start cron daemon at boot.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1077,31 +1191,29 @@ pcp_bootcode_cron() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_cron
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------laptop-------------------------------------------
+#--------------------------------------laptop--------------------------------------------
 pcp_bootcode_laptop() {
-	[ $LAPTOP -eq 1 ] && LAPTOPyes="checked" || LAPTOPno="checked"
-
+	if [ $LAPTOP -eq 1 ]; then LAPTOPyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="laptop" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>laptop</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="LAPTOP" value="1" '$LAPTOPyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="LAPTOP" value="1" '$LAPTOPyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="LAPTOP" value="0" '$LAPTOPno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>laptop&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="laptop">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set laptop&nbsp;&nbsp;'
+	echo '                  <p>Force load laptop related modules&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Force load laptop related modules.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1110,31 +1222,29 @@ pcp_bootcode_laptop() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_laptop
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------noautologin-------------------------------------------
+#--------------------------------------noautologin---------------------------------------
 pcp_bootcode_noautologin() {
-	[ $NOAUTOLOGIN -eq 1 ] && NOAUTOLOGINyes="checked" || NOAUTOLOGINno="checked"
-
+	if [ $NOAUTOLOGIN -eq 1 ]; then NOAUTOLOGINyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="noautologin" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>noautologin</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NOAUTOLOGIN" value="1" '$NOAUTOLOGINyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NOAUTOLOGIN" value="1" '$NOAUTOLOGINyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NOAUTOLOGIN" value="0" '$NOAUTOLOGINno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>noautologin&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="noautologin">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set noautologin&nbsp;&nbsp;'
+	echo '                  <p>Skip automatic login&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Skip automatic login.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1143,31 +1253,29 @@ pcp_bootcode_noautologin() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noautologin
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------nodhcp-------------------------------------------
+#--------------------------------------nodhcp--------------------------------------------
 pcp_bootcode_nodhcp() {
-	[ $NODHCP -eq 1 ] && NODHCPyes="checked" || NODHCPno="checked"
-
+	if [ $NODHCP -eq 1 ]; then NODHCPyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="nodhcp" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>nodhcp</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NODHCP" value="1" '$NODHCPyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NODHCP" value="1" '$NODHCPyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NODHCP" value="0" '$NODHCPno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>nodhcp&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="nodhcp">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set nodhcp&nbsp;&nbsp;'
+	echo '                  <p>Skip the dhcp request at boot&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Skip the dhcp request at boot.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1178,18 +1286,16 @@ pcp_bootcode_nodhcp() {
 
 #--------------------------------------nofstab-------------------------------------------
 pcp_bootcode_nofstab() {
-	[ $NOFSTAB -eq 1 ] && NOFSTAByes="checked" || NOFSTABno="checked"
-
+	if [ $NOFSTAB -eq 1 ]; then NOFSTAByes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="nofstab" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>nofstab</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NOFSTAB" value="1" '$NOFSTAByes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NOFSTAB" value="1" '$NOFSTAByes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NOFSTAB" value="0" '$NOFSTABno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>nofstab&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1211,29 +1317,27 @@ pcp_bootcode_nofstab() {
 
 #--------------------------------------noicons-------------------------------------------
 pcp_bootcode_noicons() {
-	[ $NOICONS -eq 1 ] && NOICONSyes="checked" || NOICONSno="checked"
-
+	if [ $NOICONS -eq 1 ]; then NOICONSyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="noicons" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>noicons</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NOICONS" value="1" '$NOICONSyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NOICONS" value="1" '$NOICONSyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NOICONS" value="0" '$NOICONSno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>noicons&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="noicons">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set noicons&nbsp;&nbsp;'
+	echo '                  <p>Do not use icons&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Do not use icons.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1242,31 +1346,29 @@ pcp_bootcode_noicons() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noicons
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------norestore-------------------------------------------
+#--------------------------------------norestore-----------------------------------------
 pcp_bootcode_norestore() {
-	[ $NORESTORE -eq 1 ] && NORESTOREyes="checked" || NORESTOREno="checked"
-
+	if [ $NORESTORE -eq 1 ]; then NORESTOREyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="norestore" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>norestore</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NORESTORE" value="1" '$NORESTOREyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NORESTORE" value="1" '$NORESTOREyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NORESTORE" value="0" '$NORESTOREno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>norestore&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="norestore">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set norestore&nbsp;&nbsp;'
+	echo '                  <p>Turn off the automatic restore&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Turn off the automatic restore.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1275,20 +1377,18 @@ pcp_bootcode_norestore() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_norestore
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------nortc-------------------------------------------
+#--------------------------------------nortc---------------------------------------------
 pcp_bootcode_nortc() {
-	[ $NORTC -eq 1 ] && NORTCyes="checked" || NORTCno="checked"
-
+	if [ $NORTC -eq 1 ]; then NORTCyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="nortc" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>nortc</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NORTC" value="1" '$NORTCyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NORTC" value="1" '$NORTCyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NORTC" value="0" '$NORTCno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>nortc&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1308,31 +1408,29 @@ pcp_bootcode_nortc() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nortc
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------noswap-------------------------------------------
+#--------------------------------------noswap--------------------------------------------
 pcp_bootcode_noswap() {
-	[ $NOSWAP -eq 1 ] && NOSWAPyes="checked" || NOSWAPno="checked"
-
+	if [ $NOSWAP -eq 1 ]; then NOSWAPyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="noswap" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>noswap</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NOSWAP" value="1" '$NOSWAPyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NOSWAP" value="1" '$NOSWAPyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NOSWAP" value="0" '$NOSWAPno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>noswap&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="noswap">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set noswap&nbsp;&nbsp;'
+	echo '                  <p>Do not use swap partition&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Do not use swap partition.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1341,31 +1439,29 @@ pcp_bootcode_noswap() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noswap
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------noutc-------------------------------------------
+#--------------------------------------noutc---------------------------------------------
 pcp_bootcode_noutc() {
-	[ $NOUTC -eq 1 ] && NOUTCyes="checked" || NOUTCno="checked"
-
+	if [ $NOUTC -eq 1 ]; then NOUTCyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="noutc" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>noutc</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NOUTC" value="1" '$NOUTCyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NOUTC" value="1" '$NOUTCyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NOUTC" value="0" '$NOUTCno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>noutc&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="noutc">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set noutc&nbsp;&nbsp;'
+	echo '                  <p>BIOS is using localtime&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>BIOS is using localtime.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1376,29 +1472,27 @@ pcp_bootcode_noutc() {
 
 #--------------------------------------nozswap-------------------------------------------
 pcp_bootcode_nozswap() {
-	[ $NOZSWAP -eq 1 ] && NOZSWAPyes="checked" || NOZSWAPno="checked"
-
+	if [ $NOZSWAP -eq 1 ]; then NOZSWAPyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="nozswap" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>nozswap</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="NOZSWAP" value="1" '$NOZSWAPyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="NOZSWAP" value="1" '$NOZSWAPyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="NOZSWAP" value="0" '$NOZSWAPno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>nozswap&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="nozswap">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set nozswap&nbsp;&nbsp;'
+	echo '                  <p>Skip compressed swap in ram&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Skip compressed swap in ram.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1407,31 +1501,29 @@ pcp_bootcode_nozswap() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nozswap
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------pause-------------------------------------------
+#--------------------------------------pause---------------------------------------------
 pcp_bootcode_pause() {
-	[ $PAUSE -eq 1 ] && PAUSEyes="checked" || PAUSEno="checked"
-
+	if [ $PAUSE -eq 1 ]; then PAUSEyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="pause" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>pause</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="PAUSE" value="1" '$PAUSEyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="PAUSE" value="1" '$PAUSEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="PAUSE" value="0" '$PAUSEno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>pause&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="pause">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set pause&nbsp;&nbsp;'
+	echo '                  <p>Pause at completion of boot messages&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Pause at completion of boot messages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1442,29 +1534,27 @@ pcp_bootcode_pause() {
 
 #--------------------------------------protect-------------------------------------------
 pcp_bootcode_protect() {
-	[ $PROTECT -eq 1 ] && PROTECTyes="checked" || PROTECTno="checked"
-
+	if [ $PROTECT -eq 1 ]; then PROTECTyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="protect" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>protect</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="PROTECT" value="1" '$PROTECTyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="PROTECT" value="1" '$PROTECTyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="PROTECT" value="0" '$PROTECTno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>protect&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="protect">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set protect&nbsp;&nbsp;'
+	echo '                  <p>Password Encrypted Backup.&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Password Encrypted Backup.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1473,31 +1563,29 @@ pcp_bootcode_protect() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_protect
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------secure-------------------------------------------
+#--------------------------------------secure--------------------------------------------
 pcp_bootcode_secure() {
-	[ $SECURE -eq 1 ] && SECUREyes="checked" || SECUREno="checked"
-
+	if [ $SECURE -eq 1 ]; then SECUREyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="secure" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>secure</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="SECURE" value="1" '$SECUREyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SECURE" value="1" '$SECUREyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SECURE" value="0" '$SECUREno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>secure&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="secure">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set secure&nbsp;&nbsp;'
+	echo '                  <p>Set password&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Set password.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1506,31 +1594,29 @@ pcp_bootcode_secure() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_secure
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------showapps-------------------------------------------
+#--------------------------------------showapps------------------------------------------
 pcp_bootcode_showapps() {
-	[ $SHOWAPPS -eq 1 ] && SHOWAPPSyes="checked" || SHOWAPPSno="checked"
-
+	if [ $SHOWAPPS -eq 1 ]; then SHOWAPPSyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="showapps" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>showapps</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="SHOWAPPS" value="1" '$SHOWAPPSyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SHOWAPPS" value="1" '$SHOWAPPSyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SHOWAPPS" value="0" '$SHOWAPPSno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>showapps&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="showapps">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set showapps&nbsp;&nbsp;'
+	echo '                  <p>Display application names when booting&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Display application names when booting.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1539,31 +1625,29 @@ pcp_bootcode_showapps() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_showapps
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------superuser-------------------------------------------
+#--------------------------------------superuser-----------------------------------------
 pcp_bootcode_superuser() {
-	[ $SUPERUSER -eq 1 ] && SUPERUSERyes="checked" || SUPERUSERno="checked"
-
+	if [ $SUPERUSER -eq 1 ]; then SUPERUSERyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="superuser" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>superuser</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="SUPERUSER" value="1" '$SUPERUSERyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SUPERUSER" value="1" '$SUPERUSERyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SUPERUSER" value="0" '$SUPERUSERno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>superuser&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="superuser">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set superuser&nbsp;&nbsp;'
+	echo '                  <p>Textmode as user root&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Textmode as user root.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1572,31 +1656,29 @@ pcp_bootcode_superuser() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_superuser
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------syslog-------------------------------------------
+#--------------------------------------syslog--------------------------------------------
 pcp_bootcode_syslog() {
-	[ $SYSLOG -eq 1 ] && SYSLOGyes="checked" || SYSLOGno="checked"
-
+	if [ $SYSLOG -eq 1 ]; then SYSLOGyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="syslog" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>syslog</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="SYSLOG" value="1" '$SYSLOGyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SYSLOG" value="1" '$SYSLOGyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SYSLOG" value="0" '$SYSLOGno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>syslog&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="syslog">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set syslog&nbsp;&nbsp;'
+	echo '                  <p>Start syslog daemon at boot&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Start syslog daemon at boot.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1605,31 +1687,29 @@ pcp_bootcode_syslog() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_syslog
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------text-------------------------------------------
+#--------------------------------------text----------------------------------------------
 pcp_bootcode_text() {
-	[ $TEXT -eq 1 ] && TEXTyes="checked" || TEXTno="checked"
-
+	if [ $TEXT -eq 1 ]; then TEXTyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="text" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>text</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="TEXT" value="1" '$TEXTyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="TEXT" value="1" '$TEXTyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="TEXT" value="0" '$TEXTno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>text&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="hidden" name="VARIABLE" value="text">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set text&nbsp;&nbsp;'
+	echo '                  <p>Textmode&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>Textmode.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1638,20 +1718,18 @@ pcp_bootcode_text() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_text
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------xonly-------------------------------------------
+#--------------------------------------xonly---------------------------------------------
 pcp_bootcode_xonly() {
-	[ $XONLY -eq 1 ] && XONLYyes="checked" || XONLYno="checked"
-
+	if [ $XONLY -eq 1 ]; then XONLYyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="xonly" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>xonly</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="XONLY" value="1" '$XONLYyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="XONLY" value="1" '$XONLYyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="XONLY" value="0" '$XONLYno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>xonly&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1671,20 +1749,18 @@ pcp_bootcode_xonly() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_xonly
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------xsetup-------------------------------------------
+#--------------------------------------xsetup--------------------------------------------
 pcp_bootcode_xsetup() {
-	[ $XSETUP -eq 1 ] && XSETUPyes="checked" || XSETUPno="checked"
-
+	if [ $XSETUP -eq 1 ]; then XSETUPyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="xsetup" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>xsetup</p>'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="XSETUP" value="1" '$XSETUPyes'>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="XSETUP" value="1" '$XSETUPyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="XSETUP" value="0" '$XSETUPno'>No'
+	echo '                <td class="column100">'
+	echo '                  <p>xsetup&nbsp;&nbsp;'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1695,7 +1771,7 @@ pcp_bootcode_xsetup() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>...</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1713,10 +1789,170 @@ echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------
+pcp_start_row_shade
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Kernel bootcodes ( VARIABLE=value )</legend>'
+echo '          <table class="bggrey percent100">'
+#--------------------------------------Heading-------------------------------------------
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <th class="column150">'
+echo '                <p>Bootcode</p>'
+echo '              </th>'
+echo '              <th class="column210">'
+echo '                <p>Set</p>'
+echo '              </th>'
+echo '              <th class="column150">'
+echo '                <p>Save</p>'
+echo '              </th>'
+echo '              <th>'
+echo '                <p>Description/Help</p>'
+echo '              </th>'
+echo '            </tr>'
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------loglevel------------------------------------------------
+pcp_bootcode_loglevel() {
+	[ x"" = x"$LOGLEVEL" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	echo '            <form name="loglevel" action="'$0'" method="get">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 right">'
+	echo '                  <p>loglevel=</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="text" name="LOGLEVEL" value="'$LOGLEVEL'">'$INDICATOR
+	echo '                </td>'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="hidden" name="VARIABLE" value="loglevel">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set the default console log level&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;loglevel=x&gt;</p>'
+	echo '                    <p>Specify the initial console log level:</p>'
+	echo '                    <p>Specify the initial console log level:</p>'
+	echo '                    <ul>'
+	echo '                      <li>0 (KERN_EMERG) The system is unusable.</li>'
+	echo '                      <li>1 (KERN_ALERT) Actions that must be taken care of immediately.</li>'
+	echo '                      <li>2 (KERN_CRIT) Critical conditions.</li>'
+	echo '                      <li>3 (KERN_ERR) Noncritical error conditions.</li>'
+	echo '                      <li>4 (KERN_WARNING) Warning conditions that should be taken care of.</li>'
+	echo '                      <li>5 (KERN_NOTICE) Normal, but significant events.</li>'
+	echo '                      <li>6 (KERN_INFO) Informational messages that require no action.</li>'
+	echo '                      <li>7 (KERN_DEBUG) Kernel debugging messages, output by the kernel
+                                    if the developer enabled debugging at compile time.</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Default:</b> 3</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_loglevel
+#----------------------------------------------------------------------------------------
+
+
+
+
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------
+pcp_start_row_shade
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Kernel bootcodes ( VARIABLE )</legend>'
+echo '          <table class="bggrey percent100">'
+#--------------------------------------Heading-------------------------------------------
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <th class="column150">'
+echo '                <p>Bootcode</p>'
+echo '              </th>'
+echo '              <th class="column100">'
+echo '                <p>Save</p>'
+echo '              </th>'
+echo '              <th class="column210">'
+echo '                <p>Description/Help</p>'
+echo '              </th>'
+echo '            </tr>'
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------quiet----------------------------------------------
+pcp_bootcode_quiet() {
+	if [ $QUIET -eq 1 ]; then QUIETyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
+	echo '            <form name="quiet" action="'$0'" method="get">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column20">'
+	echo '                  <input class="small1" type="checkbox" name="QUIET" value="1" '$QUIETyes'>'
+	echo '                </td>'
+	echo '                <td class="column100">'
+	echo '                  <p>quiet&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '                </td>'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="hidden" name="VARIABLE" value="quiet">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Disable all log messages&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Set the default kernel log level to KERN_WARNING (4),
+                                 which suppresses all messages during boot except extremely serious ones.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_quiet
+#----------------------------------------------------------------------------------------
+
+
+
+
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
 #========================================================================================
 # $CMDLINETXT - /mnt/mmcblkop1/cmdline.txt
 #----------------------------------------------------------------------------------------
-pcp_textarea "" "cat $CMDLINETXT" 50
+pcp_start_row_shade
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Current: '$CMDLINETXT'</legend>'
+echo '          <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
+
+pcp_textarea_inform "" "cat $CMDLINETXT" 60
 
 echo '<h1>Bootcodes:</h1>'
 
@@ -1737,12 +1973,33 @@ cat $CMDLINETXT | awk '
 		}
 	} '
 
-pcp_umount_mmcblk0p1
+
+echo '<br />'
+pcp_umount_mmcblk0p1_nohtml
+
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # /proc/cmdline
 #----------------------------------------------------------------------------------------
-pcp_textarea "" "cat /proc/cmdline" 100
+pcp_start_row_shade
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Current: /proc/cmdline</legend>'
+echo '          <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
+
+pcp_textarea_inform "" "cat /proc/cmdline" 100
 
 echo '<h1>Bootcodes:</h1>'
 
@@ -1764,8 +2021,13 @@ cat /proc/cmdline | sed 's/  / /g' | awk '
 	} '
 
 #----------------------------------------------------------------------------------------
-
-echo '<br />'
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
 
 pcp_footer
 pcp_copyright

@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 0.15 2016-05-20 GE
+	Added .column350, .right, .column20.
+
 Version: 0.14 2016-04-27 GE
 	Added .column280.
 	Changed .indicator_green, .indicator_red.
@@ -168,6 +171,10 @@ h2 {
 	text-align:center;
 }
 
+.right {
+	text-align:right;
+}
+
 /* fieldset formatting */
 div.row {
 	margin:5px 0 5px 0;
@@ -248,6 +255,10 @@ input, button {
 }
 
 /* Define columns widths */
+.column20 {
+	width:20px;
+}
+
 .column50 {
 	width:50px;
 }
@@ -282,6 +293,10 @@ input, button {
 
 .column300 {
 	width:300px;
+}
+
+.column350 {
+	width:350px;
 }
 
 .column380 {
