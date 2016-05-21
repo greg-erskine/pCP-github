@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-05-21 GE
+# Version: 0.02 2016-05-22 GE
 #	Major revision.
 
 # Version: 0.01 2015-02-15 GE
@@ -17,8 +17,8 @@ RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
 RED=""
 GREEN='&nbsp;<span class="indicator_green">&#x2714;</span>'
 
-CMDLINETXT=/mnt/mmcblk0p1/xxxcmdline.txt
-DEBUG=1
+#CMDLINETXT=/mnt/mmcblk0p1/xxxcmdline.txt
+#DEBUG=1
 
 pcp_html_head "xtras_bootcodes" "GE"
 
@@ -28,13 +28,13 @@ pcp_xtras
 pcp_running_script
 pcp_httpd_query_string
 
-pcp_mount_mmcblk0p1
+pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 [ ! -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT} ${CMDLINETXT}.bak
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_add_space_end() {
-	# Clean up stray spaces, add space to end of file.
+	# Clean up stray spaces and add a space to end of file.
 	sed -i 's/  / /g' $CMDLINETXT
 	sed -i '$s/$/ /' $CMDLINETXT
 	sed -i 's/  / /g' $CMDLINETXT
@@ -93,7 +93,6 @@ pcp_warning_message() {
 #                            in $DRIVE/tce where $DRIVE is the drive specified by the tce= bootcode.  
 # console=ttyAMA0,115200
 # console=tty1
-
 #----------------------------------------------------------------------------------------
 
 if [ "$SUBMIT" = "Save" ]; then
@@ -105,7 +104,7 @@ if [ "$SUBMIT" = "Save" ]; then
 		blacklist)   pcp_bootcode_equal_add blacklist "$BLACKLIST" ;;
 		desktop)     pcp_bootcode_equal_add desktop "$DESKTOP" ;;
 		home)        pcp_bootcode_equal_add home "$MYHOME" ;;
-		host)        pcp_bootcode_equal_add host "$HOSTNAME" ;;
+		host)        pcp_bootcode_equal_add host "$MYHOST" ;;
 		httplist)    pcp_bootcode_equal_add httplist "$HTTPLIST" ;;
 		icons)       pcp_bootcode_equal_add icons "$ICONS" ;;
 		iso)         pcp_bootcode_equal_add iso "$ISO" ;;
@@ -184,7 +183,7 @@ for i in `cat $CMDLINETXT`; do
 				blacklist*) BLACKLIST="$BLACKLIST ${i#*=}" ;;
 				desktop*)   DESKTOP=${i#*=} ;;
 				home*)      MYHOME=${i#*=} ;;
-				host*)      HOSTNAME=${i#*=}; HOST=1 ;;
+				host*)      MYHOST=${i#*=}; HOST=1 ;;
 				httplist*)  HTTPLIST=${i#*=} ;;
 				icons*)     ICONS=${i#*=} ;;
 				iso*)       ISOFILE=${i#*=} ;;
@@ -321,7 +320,7 @@ pcp_bootcode_aoe() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_aoe
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_aoe
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------blacklist-----------------------------------------
@@ -353,7 +352,7 @@ pcp_bootcode_blacklist() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_blacklist
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_blacklist
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------desktop-------------------------------------------
@@ -385,7 +384,7 @@ pcp_bootcode_desktop() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_desktop
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_desktop
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------home----------------------------------------------
@@ -417,12 +416,12 @@ pcp_bootcode_home() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_home
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_home
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------host----------------------------------------------
 pcp_bootcode_host() {
-	[ x"" = x"$HOSTNAME" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYHOST" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="host" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -431,7 +430,7 @@ pcp_bootcode_host() {
 	echo '                  <p>host=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="HOSTNAME" value="'$HOSTNAME'">'$INDICATOR
+	echo '                  <input class="large15" type="text" name="MYHOST" value="'$MYHOST'">'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -480,7 +479,7 @@ pcp_bootcode_httplist() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_httplist
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_httplist
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------icons---------------------------------------------
@@ -511,7 +510,7 @@ pcp_bootcode_icons() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_icons
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_icons
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------iso-----------------------------------------------
@@ -543,7 +542,7 @@ pcp_bootcode_iso() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_iso
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_iso
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------kmap----------------------------------------------
@@ -669,7 +668,7 @@ pcp_bootcode_nbd() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nbd
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_nbd
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nfsmount------------------------------------------
@@ -700,7 +699,7 @@ pcp_bootcode_nfsmount() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nfsmount
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_nfsmount
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------noicons-------------------------------------------
@@ -731,7 +730,7 @@ pcp_bootcode_noicons() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noicons
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_noicons
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------ntpserver-----------------------------------------
@@ -762,7 +761,7 @@ pcp_bootcode_ntpserver() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_ntpserver
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_ntpserver
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------opt-----------------------------------------------
@@ -794,7 +793,7 @@ pcp_bootcode_opt() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_opt
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_opt
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------pretce--------------------------------------------
@@ -825,7 +824,7 @@ pcp_bootcode_pretce() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_pretce
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_pretce
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------restore-------------------------------------------
@@ -859,7 +858,7 @@ pcp_bootcode_restore() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_restore
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_restore
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------resume--------------------------------------------
@@ -890,7 +889,7 @@ pcp_bootcode_resume() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_resume
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_resume
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------rsyslog-------------------------------------------
@@ -921,7 +920,7 @@ pcp_bootcode_rsyslog() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_rsyslog
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_rsyslog
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------swapfile------------------------------------------
@@ -953,7 +952,7 @@ pcp_bootcode_swapfile() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_swapfile
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_swapfile
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------tce-----------------------------------------------
@@ -992,7 +991,7 @@ pcp_bootcode_tce() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tce
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_tce
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------tcvd----------------------------------------------
@@ -1023,7 +1022,7 @@ pcp_bootcode_tcvd() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tcvd
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_tcvd
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------tftplist------------------------------------------
@@ -1054,7 +1053,7 @@ pcp_bootcode_tftplist() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tftplist
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_tftplist
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------tz------------------------------------------------
@@ -1118,7 +1117,7 @@ pcp_bootcode_user() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_user
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_user
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------waitusb-------------------------------------------
@@ -1181,7 +1180,7 @@ pcp_bootcode_xvesa() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_xvesa
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_xvesa
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
@@ -1251,7 +1250,7 @@ pcp_bootcode_base() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_base
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_base
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------cron----------------------------------------------
@@ -1313,7 +1312,7 @@ pcp_bootcode_laptop() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_laptop
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_laptop
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------noautologin---------------------------------------
@@ -1344,7 +1343,7 @@ pcp_bootcode_noautologin() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noautologin
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_noautologin
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nodhcp--------------------------------------------
@@ -1376,7 +1375,7 @@ pcp_bootcode_nodhcp() {
 	echo '            </form>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nodhcp
-#----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 #--------------------------------------noembed--------------------------------------------
 pcp_bootcode_noembed() {
@@ -1437,7 +1436,7 @@ pcp_bootcode_nofstab() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nofstab
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_nofstab
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------noicons-------------------------------------------
@@ -1468,7 +1467,7 @@ pcp_bootcode_noicons() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noicons
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_noicons
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------norestore-----------------------------------------
@@ -1499,7 +1498,7 @@ pcp_bootcode_norestore() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_norestore
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_norestore
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nortc---------------------------------------------
@@ -1592,7 +1591,7 @@ pcp_bootcode_noutc() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noutc
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_noutc
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nozswap-------------------------------------------
@@ -1685,10 +1684,10 @@ pcp_bootcode_protect() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_protect
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_protect
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------safebackup-------------------------------------------
+#--------------------------------------safebackup----------------------------------------
 pcp_bootcode_safebackup() {
 	if [ $SAFEBACKUP -eq 1 ]; then SAFEBACKUPyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="safebackup" action="'$0'" method="get">'
@@ -1716,7 +1715,7 @@ pcp_bootcode_safebackup() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_safebackup
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_safebackup
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------secure--------------------------------------------
@@ -1747,7 +1746,7 @@ pcp_bootcode_secure() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_secure
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_secure
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------showapps------------------------------------------
@@ -1809,7 +1808,7 @@ pcp_bootcode_superuser() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_superuser
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_superuser
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------syslog--------------------------------------------
@@ -1840,7 +1839,7 @@ pcp_bootcode_syslog() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_syslog
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_syslog
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------text----------------------------------------------
@@ -1871,7 +1870,7 @@ pcp_bootcode_text() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_text
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_text
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------xonly---------------------------------------------
@@ -1902,7 +1901,7 @@ pcp_bootcode_xonly() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_xonly
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_xonly
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------xsetup--------------------------------------------
@@ -1933,7 +1932,7 @@ pcp_bootcode_xsetup() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_xsetup
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_xsetup
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
@@ -1973,7 +1972,7 @@ echo '              </th>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------consoleblank------------------------------
+#--------------------------------------consoleblank--------------------------------------
 pcp_bootcode_consoleblank() {
 	[ x"" = x"$CONSOLEBLANK" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="consoleblank" action="'$0'" method="get">'
@@ -2174,7 +2173,7 @@ pcp_bootcode_root() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_root
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------smsc95xx.turbo_mode--------------------------------------
+#--------------------------------------smsc95xx.turbo_mode-------------------------------
 pcp_bootcode_turbo_mode() {
 	[ x"" = x"$TURBO_MODE" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="turbo_mode" action="'$0'" method="get">'
@@ -2239,7 +2238,7 @@ echo '              </th>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------quiet----------------------------------------------
+#--------------------------------------quiet---------------------------------------------
 pcp_bootcode_quiet() {
 	if [ $QUIET -eq 1 ]; then QUIETyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="quiet" action="'$0'" method="get">'
@@ -2271,7 +2270,7 @@ pcp_bootcode_quiet() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_quiet
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------rootwait----------------------------------------------
+#--------------------------------------rootwait------------------------------------------
 pcp_bootcode_rootwait() {
 	if [ $ROOTWAIT -eq 1 ]; then ROOTWAITyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
 	echo '            <form name="rootwait" action="'$0'" method="get">'
@@ -2347,7 +2346,8 @@ cat $CMDLINETXT | awk '
 	} '
 
 echo '<br />'
-pcp_umount_mmcblk0p1_nohtml
+
+pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 
 #----------------------------------------------------------------------------------------
 echo '          </table>'
@@ -2361,44 +2361,47 @@ echo '</table>'
 #========================================================================================
 # /proc/cmdline
 #----------------------------------------------------------------------------------------
-pcp_start_row_shade
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Current: /proc/cmdline</legend>'
-echo '          <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
+pcp_proc_cmdline() {
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Current: /proc/cmdline</legend>'
+	echo '          <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 
-pcp_textarea_inform "" "cat /proc/cmdline" 100
+	pcp_textarea_inform "" "cat /proc/cmdline" 100
 
-echo '<h1>Bootcodes:</h1>'
+	echo '<h1>Bootcodes:</h1>'
 
-cat /proc/cmdline | sed 's/  / /g' | awk '
-	BEGIN {
-		RS=" "
-		FS="="
-		i = 0
-	}
-	# main
-	{
-		bootcode[i]=$0
-		i++
-	}
-	END {
-		for (j=0; j<i; j++) {
-			printf "%s. %s<br />\n",j+1,bootcode[j]
+	cat /proc/cmdline | sed 's/  / /g' | awk '
+		BEGIN {
+			RS=" "
+			FS="="
+			i = 0
 		}
-	} '
+		# main
+		{
+			bootcode[i]=$0
+			i++
+		}
+		END {
+			for (j=0; j<i; j++) {
+				printf "%s. %s<br />\n",j+1,bootcode[j]
+			}
+		} '
 
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+	#------------------------------------------------------------------------------------
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_proc_cmdline
 #----------------------------------------------------------------------------------------
 
 pcp_footer
