@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.06 2016-05-09
-#	Added HDMIPOWER, ADVOVERCLOCK.
-#	Added RPI3INTWIFI.
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
-#	Renamed variable HTPPD to HTTPD.
+# Version: 2.06 2016-05-17
+#	Added HDMIPOWER, ADVOVERCLOCK. GE.
+#	Added RPI3INTWIFI. pH.
+#	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
+#	Renamed variable HTPPD to HTTPD. GE.
+#	Added a couple more hotspots to debug in pCP logo.
 
 # Version: 2.05 2016-04-30
 #	Added PCP_REPO. PH.
@@ -296,7 +297,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -548,6 +549,8 @@ pcp_banner() {
 	echo '        <map name="hotspot">'
 	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
 	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100">'
+	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0">'
+	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi">'
 	echo '        </map>'
 	echo '      </p>'
 	echo '    </td>'

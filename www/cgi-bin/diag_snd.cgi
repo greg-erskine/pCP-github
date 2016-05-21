@@ -1,6 +1,10 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 0.09 2016-05-16 GE
+#	Fixed card1 pcm0p sub0.
+#	Changed name of log file.
+
 # Version: 0.08 2016-03-28 GE
 #	Changed log location to /var/log.
 
@@ -34,7 +38,7 @@ pcp_variables
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
-LOG="${LOGDIR}/pcp_diagsnd.log"
+LOG="${LOGDIR}/pcp_sound.log"
 (echo $0; date) > $LOG
 cat /etc/motd >> $LOG
 
@@ -60,7 +64,7 @@ pcp_textarea "Sound devices" "aplay -L" 100 log
 
 pcp_textarea "Current card0 pcm0p sub0" "cat /proc/asound/card0/pcm0p/sub0/hw_params" 130 log
 pcp_textarea "Current card0 pcm0p sub1" "cat /proc/asound/card0/pcm0p/sub1/hw_params" 130 log
-pcp_textarea "Current card0 pcm1p sub0" "cat /proc/asound/card0/pcm1p/sub0/hw_params" 130 log
+pcp_textarea "Current card1 pcm0p sub0" "cat /proc/asound/card1/pcm0p/sub0/hw_params" 130 log
 
 pcp_textarea "amixer" "amixer" 100 log
 pcp_textarea "Play" "aplay -v -D hw:0,0 -f S16_LE -r 96000 -c 2 -t raw -d 1" 150 log
