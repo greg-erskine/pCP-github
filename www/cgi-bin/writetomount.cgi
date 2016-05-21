@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 2.06 2016-05-21 PH
+#	Made CIFS User and Password Optional
+
 # Version: 0.01 2016-04-14 PH
 #	Original version.
 
@@ -128,7 +131,11 @@ case "$MOUNTTYPE" in
 					[ ! -d /mnt/$NETMOUNT1POINT ] && mkdir -p /mnt/$NETMOUNT1POINT
 					case "$NETMOUNT1FSTYPE" in
 						cifs)
-							MNTCMD="-v -t $NETMOUNT1FSTYPE -o username=$NETMOUNT1USER,password=$NETMOUNT1PASS,$NETMOUNT1OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
+							OPTIONS=""
+							[ "$NETMOUNT1USER" != "" ] && OPTIONS="${OPTIONS}username=${NETMOUNT1USER},"
+							[ "$NETMOUNT1PASS" != "" ] && OPTIONS="${OPTIONS}password=${NETMOUNT1PASS},"
+							OPTIONS="${OPTIONS}${NETMOUNT1OPTIONS}"
+							MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
 						;;
 						nfs)
 							OPTIONS="addr=${NETMOUNT1IP},nolock,${NETMOUNT1OPTIONS}"

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 2.06 2016-05-07 PH
+#	Cleanup
+
 # Version: 2.05 2016-04-26 PH
 #	Updated warning message.
 #	Added Mounting of disks.
@@ -47,7 +50,6 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
 WGET="/bin/busybox wget"
-LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
 #---------------------------Routines-----------------------------------------------------
 pcp_download_lms() {
@@ -919,7 +921,6 @@ pcp_mount_netdrives() {
 	echo '                    <p>IP address is only the IP address.  Do not enter any / or :</p>'
 	echo '                    <p>Share for CIFS is the share name only (DO not use /).</p>'
 	echo '                    <p>Share for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
-	echo '                    <p>Share for NFS is not working yet.</p>'
 	echo '                    <p>Options are a comma delimited list of mount options. Ref mount man pages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
