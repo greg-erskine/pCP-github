@@ -524,18 +524,20 @@ if [ "$LMSERVER" = "yes" ]; then
 		sudo /usr/local/etc/init.d/slimserver start
 		echo "${GREEN}Done.${NORMAL}"
 		if [ "$SQUEEZELITE" = "yes" ]; then
-
 			#Wait for server to be responsive.
 			echo -n "${YELLOW}Waiting for LMS to initiate."
+			#Check response from port 3483 for Player Connects.
 			CNT=1
-			until sudo /usr/local/etc/init.d/slimserver status | grep -q pid 2>&1
+			TEST=""
+			while [ "$TEST" != "E" ];
 			do
+				TEST=$(echo "e" | nc -w 1 -u 127.0.0.1 3483)
 				if [ $((CNT++)) -gt 20 ]; then
 					echo "${RED} LMS not running ($CNT).${NORMAL}"
 					break
 				else
 					echo -n "."
-					sleep 1
+					[ "$TEST" != "E" ] && sleep 1
 				fi
 			done
 			echo "${GREEN} Done ($CNT).${NORMAL}"
