@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 0.25 2016-05-17 GE
-#	Added multi ALSA_PARAMS.
+# Version: 0.25 2016-05-23
+#	Added multi ALSA_PARAMS. GE.
+#	Added 0 value for Priority, Close output and Power On/Off GPIO settings. SBP.
 
-# Version: 0.24 2016-03-29 PH
-#	Fixed $VISUALISER and $IR_LIRC.
-#	Changed log location to /var/log.
+# Version: 0.24 2016-03-29
+#	Fixed $VISUALISER and $IR_LIRC. PH.
+#	Changed log location to /var/log. GE.
 
 # Version: 0.23 2016-03-14 GE
 #	Updated -e option.
@@ -487,7 +488,7 @@ pcp_squeezelite_codec() {
 	echo '                      <li>aac</li>'
 	echo '                      <li>wma</li>'
 	echo '                      <li>alac</li>'
-	echo '                      <li>mad, mpg for specific mp3 codec</li>'
+	echo '                      <li>mad, mpg for specific mp3 codec.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -533,7 +534,7 @@ pcp_squeezelite_xcodec() {
 [ $MODE -ge $MODE_BETA ] && pcp_squeezelite_xcodec
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Priority settings---------------------------------
+#--------------------------------------Priority setting----------------------------------
 pcp_squeezelite_priority() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -552,7 +553,7 @@ pcp_squeezelite_priority() {
 	echo '                    <p>&lt;priority&gt;</p>'
 	echo '                    <p>Range: 0-99</p>'
 	echo '                    <p>Default: 45</p>'
-	echo '                    <p>Select 0 to let pCP determine the priority</p>'
+	echo '                    <p>Select 0 to let Squeezelite determine the priority.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -920,7 +921,7 @@ pcp_squeezelite_power_gpio() {
 	echo '                    <p>&lt;gpio&gt;:&lt;H|L&gt;</p>'
 	echo '                    <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
 	echo '                    <p>H or L to tell Squeezlite if the output should be active High or Low.</p>'
-	echo '                    <p>Select 0 to tell Squeezlite not to toggle any GPIO pin.</p>'
+	echo '                    <p>Select 0 to tell Squeezlite not to toggle any GPIO.</p>'
 	echo '                    <p class="error"><b>WARNING:</b></p>'
 	echo '                    <p class="error">Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
 	echo '                    <p class="error">If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'

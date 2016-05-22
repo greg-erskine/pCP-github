@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# Version 2.06: 0.09 2016-05-17 GE
-#	Added multi ALSA_PARAMS and FROM_PAGE.
-#	Added MMAP configuration.
+# Version: 2.06 2016-05-23
+#	Added multi ALSA_PARAMS and FROM_PAGE. GE.
+#	Added MMAP configuration. GE.
+#	Added $ORG_ALSA_PARAMS4. SBP.
+#	Added $CLOSEOUT $PRIORITY $POWER_GPIO check for 0. SBP.
 
 # Version: 0.08 2016-04-25 GE
 #	Added pcp_update.
@@ -37,8 +39,8 @@
 pcp_variables
 . $CONFIGCFG
 
-#Read original mmap value, so we only do something if value is changed
-ORG_ALSA_PARAMS4=$(cat "$CONFIGCFG" | grep ALSA_PARAMS | awk -F':' '{ print $4}')
+# Read original mmap value, so we only do something if value is changed
+ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 
 RESTART=1
 REBOOT=0
@@ -88,7 +90,6 @@ pcp_update() {
 
 pcp_multi_alsa_mmap() {
 	ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
-if [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ]; then
 	pcp_mount_mmcblk0p1
 	if [ $ALSA_PARAMS4 -eq 1 ]; then
 		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
@@ -99,9 +100,8 @@ if [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ]; then
 	else
 		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
 		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+		pcp_umount_mmcblk0p1
 	fi
-	pcp_umount_mmcblk0p1
-fi
 }
 
 #========================================================================================
@@ -109,10 +109,10 @@ fi
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Save)
-		[ "$FROM_PAGE" = "squeezelite" ] && pcp_multi_alsa_mmap
-		[ "$CLOSEOUT" = "0" ] && CLOSEOUT=""
-		[ "$PRIORITY" = "0" ] && PRIORITY=""
-		[ "$POWER_GPIO" = 0 ] && POWER_GPIO=""
+		[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
+		[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
+		[ $PRIORITY -eq 0 ] && PRIORITY=""
+		[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
 		pcp_save_to_config
 	;;
 	Reset*)
@@ -137,7 +137,6 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	pcp_confirmation_required
 fi
 
-pcp_show_config_cfg
 pcp_backup
 sleep 1
 [ $REBOOT -eq 1 ] && pcp_reboot_required
