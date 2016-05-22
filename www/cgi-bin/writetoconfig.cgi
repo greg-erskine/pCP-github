@@ -37,6 +37,9 @@
 pcp_variables
 . $CONFIGCFG
 
+#Read original mmap value, so we only do something if value is changed
+ORG_ALSA_PARAMS4=$(cat "$CONFIGCFG" | grep ALSA_PARAMS | awk -F':' '{ print $4}')
+
 RESTART=1
 REBOOT=0
 
@@ -85,6 +88,7 @@ pcp_update() {
 
 pcp_multi_alsa_mmap() {
 	ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
+if [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ]; then
 	pcp_mount_mmcblk0p1
 	if [ $ALSA_PARAMS4 -eq 1 ]; then
 		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
@@ -97,6 +101,7 @@ pcp_multi_alsa_mmap() {
 		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
 	fi
 	pcp_umount_mmcblk0p1
+fi
 }
 
 #========================================================================================
