@@ -1,18 +1,10 @@
 #!/bin/sh
 
+# Version 2.06 2016-05-22 PH
+#	Added Copy entire update /sbin directory to location (pcp-load), Bootfix, and changed bootlocal.sh processing.
+
 # Version 2.05 2016-04-17 SBP
 #	Currently a copy of the old insitu_update.cgi.  
-
-# Version: 0.03 2016-02-19 SBP
-#	Added code to allow existing add-ons to remain functioning.
-#	Fixed sourceforge redirection issue.
-
-# Version: 0.02 2016-02-10 GE
-#	Added warning on each page.
-#	Added warnings for alsaequal and slimserver.
-
-# version: 0.01 2016-02-03 GE
-#	Original - Combined upd_picoreplayer.cgi, insitu.cgi and do_updatepicoreplayer.cgi
 
 . pcp-functions
 pcp_variables
@@ -237,10 +229,15 @@ pcp_install_tce_files() {
 # Finish the install process
 #----------------------------------------------------------------------------------------
 pcp_finish_install() {
-	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct loactions
+	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct locations
 	sudo mkdir ${UPD_PCP}/mydata
 	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz -C ${UPD_PCP}/mydata
 	sudo tar zxvf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
+	
+	# Move Bootfix into location if it is present
+	if [ -f "${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/bootfix.sh" ]; then
+		sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/ /mnt/mmcblk0p2/tce/bootfix/
+	fi
 
 	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
 	# So check that the final onboot contains all from the new version and add eventual extra from the old
@@ -270,9 +267,36 @@ pcp_finish_install() {
 	sudo chmod u=rw,g=rw,o=r /opt/.xfiletool.lst
 
 	# Track and include user made changes to bootlocal.sh. It is important as user might have modified bootlocal.sh.
-	# So check that the final bootlocal.sh contains all from the new version and add eventual extra from the old
+	# We don't make changes to bootlocal.sh that much, so make changes here if needed
+	# Do not change indentation.
+/usr/bin/micropython -c '
+import os
+import sys
+infile = open("/opt/bootlocal.sh", "r")
+outfile = open ("/tmp/bootlocal.sh", "w")
+CUT=0
+while True:
+    ln = infile.readline()
+    if ln == "":
+        break
+    if CUT == 0:
+        if "#pCPstart------" in ln:
+            CUT=1
+            outfile.write("#pCPstart------\n")
+            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh | tee -a /var/log/pcp_boot.log\n")
+            outfile.write("#pCPstop------\n")
+        else:
+            if not "#pCPstop------" in ln:
+                outfile.write(ln)
+    else:
+        if "#pCPstop------" in ln:
+            CUT=0
+infile.close
+outfile.close
+'
+	mv -f /tmp/bootlocal.sh /opt/bootlocal.sh
 	sudo chown root:staff /opt/bootlocal.sh
-	grep -Fxv -f /opt/bootlocal.sh ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh >> /opt/bootlocal.sh
+	chmod 775 /opt/bootlocal.sh
 
 #	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh
 #	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh > /opt/bootlocal.sh
@@ -281,7 +305,7 @@ pcp_finish_install() {
 
 	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot as it always have been done
 
-	# Update pCP by copying the content from the new version to the correct loaction followed by a backup 
+	# Update pCP by copying the content from the new version to the correct location followed by a backup 
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 
@@ -289,9 +313,7 @@ pcp_finish_install() {
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/init.d/
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/pcp /usr/local/sbin/pcp
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/piversion.cfg /usr/local/sbin/piversion.cfg
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/setup /usr/local/sbin/setup
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/sbin/
 
 	# Copy possible new content from the new untarred tce directory except directories.
 	# sudo cp /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/* /mnt/mmcblk0p2/tce

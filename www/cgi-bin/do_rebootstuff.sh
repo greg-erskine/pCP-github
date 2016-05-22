@@ -6,6 +6,9 @@
 #	Moved bootfix script so it only starts after an insitu update.
 #	Changed script so backup is only initiated when somthing needs saving
 #	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
+#	Changed location of Bootfix
+#	Activated Kernel Module Updates during insitu update.
+
 
 # Version: 2.05 2016-04-30 PH
 #	Added firmware-brcmfmac43430.tcz
@@ -183,10 +186,10 @@ pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 
 	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-	if [ -f /mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh ]; then
+	if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
 		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-		/mnt/mmcblk0p2/tce/optional/bootfix/bootfix.sh
-		rm -rf /mnt/mmcblk0p2/tce/optional/bootfix
+		/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
+		rm -rf /mnt/mmcblk0p2/tce/bootfix
 		pcp_backup_nohtml >/dev/null 2>&1
 	fi
 
@@ -215,26 +218,31 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 #-------New section that handle removal and update of kernel packages after pCP insitu update----
-#	CURRENTKERNEL=$(uname -r)
-#	ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -q $CURRENTKERNEL   # Assume if one is present, then all should be good
-#	if [ "$?" = "0" ]; then
-#		echo "${BLUE}Kernel modules found matching current kernel version $(CURRENTKERNEL)${NORMAL}"
-#	else
-#		for EXT in `ls /mnt/mmcblk0p2/tce/optional/*piCore* | sed -e 's|[-][0-9].[0-9].*||' | sort -u`; do
-#			sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
-#			if [ "$?" != "0" ]; then
-#				echo "${RED}[ ERROR ] Error downloading ${EXT}${NORMAL}"
-#				###Not sure what to do yet.
-#			fi
-#		done
-#		#delete the old files, just print out for testing
-#		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} echo "Test....deleting {}"   
-#		#ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
-#		
-#		# Also need a check just to be sure onboot.lst doesn't have hard kernel references.
-#	fi
+	CURRENTKERNEL=$(uname -r)
+	ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -q $CURRENTKERNEL   # Assume if one is present, then all should be good
+	if [ $? -eq 0 ]; then
+		echo "${BLUE}Kernel modules found matching current kernel version $(CURRENTKERNEL)${NORMAL}"
+	else
+		for EXT in `ls /mnt/mmcblk0p2/tce/optional/*piCore* | sed -e 's|[-][0-9].[0-9].*||' | sort -u`; do
+			sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
+			if [ $? -ne 0 ]; then
+				echo "${RED}[ ERROR ] Error downloading ${EXT} from pCP repo. Checking TC repo${NORMAL}"
+				###file may not be in our REPO, check the TC repo
+				sudo -u tc tce-load -w ${EXT}-KERNEL
+				if [ $? -ne 0 ]; then
+					echo "${RED}[ ERROR ] Error downloading ${EXT}${NORMAL}"
+				fi
+			fi
+		done
+		#delete the kernel files not matching current kernel. If running on an armv7 board, all armv6 kernel modules will be deleted too.
+		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
+
+		# Check onboot to be sure there are no hard kernel references.
+		sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
+	fi
 #
-#------End of insitu update section-------------------------------------------------------
+#------End of kernel modules update section-------------------------------------------------------
+	# should we put a copy of bootlog in the home directory???????
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3

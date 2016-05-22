@@ -4,24 +4,27 @@
 # Version: pCP2.05 0.01 2014-06-25 SBP 
 
 . /home/tc/www/cgi-bin/pcp-functions
+. /usr/local/sbin/piversion.cfg
 
-#--------------------------------------------------------------
-# Fixes needed in order to update to pCP2.05
-# Files that need to be in this folder are
-#    bootfix.sh
-#    fix_bootlocal.py
-#    pcp-load
-#
-mv /mnt/mmcblk0p2/tce/optional/bootfix/pcp-load /usr/local/sbin/
+# Mark with Version for the update, incase we accidentally include it in an update package when not needed for that version
+if [ "$PIVERS" = "piCorePlayer 2.05" ]; then 
+	#--------------------------------------------------------------
+	# Fixes needed in order to update to pCP2.05
+	# Files that need to be in this folder are
+	#    bootfix.sh
+	#    fix_bootlocal.py
+	#    pcp-load
+	#
+	mv /mnt/mmcblk0p2/tce/optional/bootfix/pcp-load /usr/local/sbin/
 
-#micropython......some things are just easier outside of shell
-#    Adds Trim Tags for later use
-#    Removes the extra do_rebootstuff line added by insitu_update.cgi v2.04
-/usr/bin/micropython /mnt/mmcblk0p2/tce/optional/bootfix/fix_bootlocal.py
-mv -f /opt/bootlocal.sh /opt/bootlocal.sh.bak
-mv -f /tmp/bootlocal.sh /opt/bootlocal.sh
-chmod 775 /opt/bootlocal.sh
-chown tc:staff /opt/bootlocal.sh
-
+	#micropython......some things are just easier outside of shell
+	#    Adds Trim Tags for later use
+	#    Removes the extra do_rebootstuff line added by insitu_update.cgi v2.04
+	/usr/bin/micropython /mnt/mmcblk0p2/tce/optional/bootfix/fix_bootlocal.py
+	mv -f /opt/bootlocal.sh /opt/bootlocal.sh.bak
+	mv -f /tmp/bootlocal.sh /opt/bootlocal.sh
+	chmod 775 /opt/bootlocal.sh
+	chown tc:staff /opt/bootlocal.sh
+fi
 #--------------------------------------------------------------
 #fixes needed in order to update to pCPversion - add below
