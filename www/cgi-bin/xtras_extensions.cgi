@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.06 2016-05-23 GE
+#	Updated.
+
 # Version: 0.05 2016-03-05 GE
 #	Changed indicators to tick and cross.
 
@@ -167,24 +170,61 @@ displayFiles() {
 }
 
 #========================================================================================
-# Loaded extensions on /mnt/mmcblk0p2/tce/optional/
+# Installed extensions - tce-status -i
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_BETA ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Loaded Extensions</legend>'
+	echo '          <legend>Locally Installed Extensions</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
-	echo '                <p>Loaded extensions</p>'
+	echo '                <p>Installed extensions</p>'
 	echo '              </td>'
 	echo '              <td class="column300">'
-	echo '                <select class="large22" name="XXXX">'
-	                        EXTNLST=$(ls /usr/local/tce.installed/ | sed 's/\/usr\/local\/tce.installed\///g')
+	echo '                <select class="large22" name="installed">'
+	                        EXTNLST=$(tce-status -i)
+	                        for i in $EXTNLST
+	                        do
+	                          echo '<option value="'$i'.tcz">'$i'.tcz</option>'
+	                        done
+	echo '                </select>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>List of installed extensions.</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+#========================================================================================
+# Uninstalled extensions - tce-status -u
+#----------------------------------------------------------------------------------------
+if [ $MODE -ge $MODE_BETA ]; then
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Locally Uninstalled Extensions</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p>Uninstalled extensions</p>'
+	echo '              </td>'
+	echo '              <td class="column300">'
+	echo '                <select class="large22" name="uninstalled">'
+	                        EXTNLST=$(tce-status -u)
 	                        for i in $EXTNLST
 	                        do
 	                          echo '<option value="'$i'">'$i'</option>'
@@ -192,7 +232,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '                </select>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>List of loaded extensions in /usr/local/tce.installed/</p>'
+	echo '                <p>List of uninstalled extensions.</p>'
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -206,21 +246,21 @@ fi
 #========================================================================================
 # Downloaded extensions on /mnt/mmcblk0p2/tce/optional/
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_BETA ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Downloaded Extensions</legend>'
+	echo '          <legend>Locally Downloaded Extensions</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
 	echo '                <p>Downloaded extensions</p>'
 	echo '              </td>'
 	echo '              <td class="column300">'
-	echo '                <select class="large22" name="XXXXX">'
+	echo '                <select class="large22" name="downloaded">'
 	                        EXTNLST=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
 	                        for i in $EXTNLST
 	                        do
@@ -229,7 +269,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '                </select>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>List of downloaded extensions in /mnt/mmcblk0p2/tce/optional/</p>'
+	echo '                <p>List of downloaded extensions.</p>'
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -243,7 +283,7 @@ fi
 #========================================================================================
 # Available extensions from tags.db
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_BETA ]; then
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
 	echo '  <tr>'
