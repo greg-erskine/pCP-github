@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.09 2016-05-17 GE
+# Version 2.06: 0.09 2016-05-17 GE
 #	Added multi ALSA_PARAMS and FROM_PAGE.
 #	Added MMAP configuration.
 
@@ -105,6 +105,9 @@ pcp_multi_alsa_mmap() {
 case "$SUBMIT" in
 	Save)
 		[ "$FROM_PAGE" = "squeezelite" ] && pcp_multi_alsa_mmap
+		[ "$CLOSEOUT" = "0" ] && CLOSEOUT=""
+		[ "$PRIORITY" = "0" ] && PRIORITY=""
+		[ "$POWER_GPIO" = 0 ] && POWER_GPIO=""
 		pcp_save_to_config
 	;;
 	Reset*)
