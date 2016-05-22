@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 2.06 2016-05-22 GE
+#	Fixed a few typos.
+
 # Version: 2.05 2016-04-30 GE
 #	Added double quotes when comparing strings.
 #	Added pcp_main_update_config.
@@ -362,8 +365,8 @@ pcp_main_reboot() {
 	echo '                  <p>This will reboot piCorePlayer.</p>'
 	echo '                  <p><b>Note: </b>This will do the following:</p>'
 	echo '                  <ul>'
-	echo '                    <li>Shutdown piCore gracefully.</li>'
-	echo '                    <li>Boot piCorePlayer from scratch using the latest settings.</li>'
+	echo '                    <li>Shutdown piCorePlayer gracefully.</li>'
+	echo '                    <li>Boot piCorePlayer using the latest settings.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -393,11 +396,12 @@ pcp_main_update_pcp() {
 	echo '                  <ul>'
 	echo '                    <li>Internet access is required.</li>'
 	echo '                    <li>The current version of piCorePlayer will be completely overwritten.</li>'
-	echo '                    <li>Additional extensions (ie. Jivelite, Shairport) will need to be reloaded.</li>'
+	echo '                    <li>Additional extensions (ie. Jivelite, Shairport) may need to be reloaded.</li>'
 	echo '                    <li>When the update has completed:</li>'
 	echo '                    <ol>'
-	echo '                      <li>select [SqueezeLite Settings] and confirm your "Audio output" settings.</li>'
-	echo '                      <li>click [Save] and [Reboot].</li>'
+	echo '                      <li>Select [Squeezelite Settings].</li>'
+	echo '                      <li>Confirm your "Audio output" settings.</li>'
+	echo '                      <li>Click [Save] and [Reboot].</li>'
 	echo '                    </ol>'
 	echo '                  </ul>'
 	echo '                </div>'

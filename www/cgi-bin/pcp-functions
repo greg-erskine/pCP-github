@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 2.06 2016-05-17
+# Version: 2.06 2016-05-22
 #	Added HDMIPOWER, ADVOVERCLOCK. GE.
-#	Added RPI3INTWIFI. pH.
+#	Added RPI3INTWIFI. PH.
 #	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
 #	Renamed variable HTPPD to HTTPD. GE.
-#	Added a couple more hotspots to debug in pCP logo.
+#	Added a couple more hotspots to debug in pCP logo. GE.
+#	Fixed a typo. GE.
 
 # Version: 2.05 2016-04-30
 #	Added PCP_REPO. PH.
@@ -583,9 +584,9 @@ pcp_navigation() {
 	echo '      <p>'
 	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS Server">LMS</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
 	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
