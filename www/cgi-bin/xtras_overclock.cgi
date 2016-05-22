@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.05 2016-05-08 GE
+# Version: 0.05 2016-05-22 GE
 #	Started update for RPi0/RPi3.
 
 # Version: 0.04 2016-01-08 GE
@@ -359,7 +359,6 @@ echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;Default|None|Under|Modest|Medium|High|Turbo|Pi2&gt;</p>'
 echo '                    <p>Reboot is required.<p>'
 echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
 echo '                    <ul>'
