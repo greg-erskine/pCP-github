@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.06 2016-05-23 GE
+# Version: 0.06 2016-05-24 GE
 #	Updated.
 
 # Version: 0.05 2016-03-05 GE
@@ -51,8 +51,11 @@ pcp_navigation
 pcp_mode_lt_beta
 
 # Set variables
-SUBMIT=Initial
+TCELOAD="tce-load"
+SUBMIT="Initial"
 EXTNFOUND=0
+
+#DEBUG=1
 
 #========================================================================================
 # Search, load and delete extension routines
@@ -66,14 +69,30 @@ pcp_search_extn() {
 }
 
 pcp_load_extn() {
-	pcp_start_row_shade
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Installing '$EXTN' . . . </legend>'
 	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td>'
-	                      pcp_textarea_inform "none" "sudo -u tc tce-load -iw $EXTN" 50
+	                      pcp_textarea_inform "none" "sudo -u tc $TCELOAD -iw $EXTN" 50
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+}
+
+pcp_install_extn() {
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Installing '$EXTN' . . . </legend>'
+	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -82,11 +101,11 @@ pcp_load_extn() {
 }
 
 pcp_delete_extn() {
-	pcp_start_row_shade
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Marking '$EXTN' and dependencies for deletion . . . </legend>'
 	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td>'
 	echo '                <textarea class="inform" style="height:80px">'
@@ -123,7 +142,7 @@ pcp_debug_info() {
 #========================================================================================
 # The following section of code is based on piCore tce-ab script
 #----------------------------------------------------------------------------------------
-displayInfo() {
+pcp_display_info() {
 	if [ -n "$EXTN" ]; then
 		sudo -u tc tce-fetch.sh "$EXTN".info
 		if [ $? -eq 0 ]; then
@@ -135,7 +154,7 @@ displayInfo() {
 	fi
 }
 
-displayDepends() {
+pcp_display_depends() {
 	sudo -u tc tce-fetch.sh "$EXTN".dep
 	if [ $? -eq 0 ]; then
 		less "$EXTN".dep
@@ -145,7 +164,7 @@ displayDepends() {
 	fi
 }
 
-displayTree() {
+pcp_display_tree() {
 	sudo -u tc tce-fetch.sh "$EXTN".tree
 	if [ $? -eq 0 ]; then
 		less "$EXTN".tree
@@ -155,11 +174,11 @@ displayTree() {
 	fi
 }
 
-displaySize() {
+pcp_display_size() {
 	sudo -u tc tce-size "$EXTN"
 }
 
-displayFiles() {
+pcp_display_files() {
 	sudo -u tc tce-fetch.sh "$EXTN".list
 	if [ $? -eq 0 ]; then
 		less "$EXTN".list
@@ -168,155 +187,6 @@ displayFiles() {
 		echo "$EXTN.list not found!"
 	fi
 }
-
-#========================================================================================
-# Installed extensions - tce-status -i
-#----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_BETA ]; then
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Locally Installed Extensions</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p>Installed extensions</p>'
-	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <select class="large22" name="installed">'
-	                        EXTNLST=$(tce-status -i)
-	                        for i in $EXTNLST
-	                        do
-	                          echo '<option value="'$i'.tcz">'$i'.tcz</option>'
-	                        done
-	echo '                </select>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>List of installed extensions.</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
-
-#========================================================================================
-# Uninstalled extensions - tce-status -u
-#----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_BETA ]; then
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Locally Uninstalled Extensions</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p>Uninstalled extensions</p>'
-	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <select class="large22" name="uninstalled">'
-	                        EXTNLST=$(tce-status -u)
-	                        for i in $EXTNLST
-	                        do
-	                          echo '<option value="'$i'">'$i'</option>'
-	                        done
-	echo '                </select>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>List of uninstalled extensions.</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
-
-#========================================================================================
-# Downloaded extensions on /mnt/mmcblk0p2/tce/optional/
-#----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_BETA ]; then
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Locally Downloaded Extensions</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p>Downloaded extensions</p>'
-	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <select class="large22" name="downloaded">'
-	                        EXTNLST=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
-	                        for i in $EXTNLST
-	                        do
-	                          echo '<option value="'$i'">'$i'</option>'
-	                        done
-	echo '                </select>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>List of downloaded extensions.</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
-
-#========================================================================================
-# Available extensions from tags.db
-#----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_BETA ]; then
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Available Extensions</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p>Available extensions</p>'
-	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <select class="large22" name="XXXXXX">'
-	                        [ -f /tmp/tags.db ] || pcp_init_search
-	                        EXTNLST=$(cat /tmp/tags.db | awk '{print $1}')
-	                        for i in $EXTNLST
-	                        do
-	                          echo '<option value="'$i'">'$i'</option>'
-	                        done
-	echo '                </select>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>List of extensions available for download from the piCore repository.</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
 
 #========================================================================================
 # Main
@@ -356,10 +226,216 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
-# Start table
+# Installed extensions - tce-status -i
 #----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="extension" action="xtras_extensions.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Locally Installed Extensions</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
 pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Installed extensions</p>'
+echo '                </td>'
+echo '                <td class="column300">'
+echo '                  <select class="large22" name="EXTN">'
+	                      for i in $(tce-status -i)
+	                      do
+	                        echo '<option value="'$i'.tcz">'$i'.tcz</option>'
+	                      done
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>List of installed extensions&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>This pulldown will show all piCore extensions that are currently installed on SD card.</li>'
+echo '                      <li>These extensions are usually loaded via /mnt/mmcblk0p2/tce/onboot.lst.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
 pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <input type="submit" name="SUBMIT" value="Search">'
+echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# Uninstalled extensions - tce-status -u
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="extension" action="xtras_extensions.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Locally Uninstalled Extensions</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Uninstalled extensions</p>'
+echo '                </td>'
+echo '                <td class="column300">'
+echo '                  <select class="large22" name="EXTN">'
+                          for i in $(tce-status -u)
+                          do
+                            echo '<option value="'$i'">'$i'</option>'
+                          done
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>List of uninstalled extensions&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>This pulldown will show all piCore extensions that are currently loaded but not installed on SD card.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <input type="submit" name="SUBMIT" value="Search">'
+echo '                  <input type="submit" name="SUBMIT" value="Install">'
+echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# Downloaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="extension" action="xtras_extensions.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Locally Downloaded Extensions</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Downloaded extensions</p>'
+echo '                </td>'
+echo '                <td class="column300">'
+echo '                  <select class="large22" name="EXTN">'
+                          for i in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+                          do
+                            echo '<option value="'$i'">'$i'</option>'
+                          done
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>List of downloaded extensions&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>This pulldown will show all piCore extensions that are currently downloaded on SD card.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <input type="submit" name="SUBMIT" value="Search">'
+echo '                  <input type="submit" name="SUBMIT" value="Install">'
+echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# Available extensions from tags.db
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="extension" action="xtras_extensions.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Available Extensions</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Available extensions</p>'
+echo '                </td>'
+echo '                <td class="column300">'
+echo '                  <select class="large22" name="EXTN">'
+                          [ -f /tmp/tags.db ] || pcp_init_search
+                          for i in $(cat /tmp/tags.db | awk '{print $1}')
+                          do
+                            echo '<option value="'$i'">'$i'</option>'
+                          done
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>List of extensions available for download from the piCore repository.&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>This pulldown will show all piCore extensions that are currently available for downloaded from the piCore repository.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <input type="submit" name="SUBMIT" value="Search">'
+echo '                  <input type="submit" name="SUBMIT" value="Load">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# 
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -369,7 +445,7 @@ echo '          <fieldset>'
 echo '            <legend>Extension '$EXTN'</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
-pcp_toggle_row_shade
+pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p class="row">Extension name</p>'
@@ -417,14 +493,6 @@ fi
 echo '                  <input type="submit" name="SUBMIT" value="Search">'
 echo '                </td>'
 echo '              </tr>'
-
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-                        pcp_textarea_inform "none" "pcp_free_space" 20
-echo '                </td>'
-echo '              </tr>'
-
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
@@ -525,8 +593,6 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 		#========================================================================================
 		# Display tce mirror using 
 		#----------------------------------------------------------------------------------------
-		pcp_start_row_shade
-		pcp_toggle_row_shade
 		echo '<table class="bggrey">'
 		echo '  <tr>'
 		echo '    <td>'
@@ -540,7 +606,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 		                        pcp_textarea_inform "none" "cat /opt/tcemirror" 20
 		echo '                </td>'
 		echo '              </tr>'
-		pcp_toggle_row_shade
+		pcp_start_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
 		                        RESULT=$(ls -al /etc/sysconfig | grep tcedir)
@@ -560,7 +626,6 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 	# Display Extension size using tce-size
 	#----------------------------------------------------------------------------------------
 	pcp_start_row_shade
-
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -578,7 +643,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "displayInfo" 200
+	                        pcp_textarea_inform "none" "pcp_display_info" 200
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -590,7 +655,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "displayDepends" 100
+	                        pcp_textarea_inform "none" "pcp_display_depends" 100
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -602,7 +667,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "displayTree" 100
+	                        pcp_textarea_inform "none" "pcp_display_tree" 100
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -614,7 +679,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "displaySize" 100
+	                        pcp_textarea_inform "none" "pcp_display_size" 100
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -626,7 +691,7 @@ if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" 
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "displayFiles" 100
+	                        pcp_textarea_inform "none" "pcp_display_files" 100
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
