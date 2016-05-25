@@ -9,6 +9,7 @@
 #	Renamed variable HTPPD to HTTPD. GE.
 #	Added a couple more hotspots to debug in pCP logo. GE.
 #	Fixed a typo. GE.
+#	Added pcp_extn_is_installed. GE.
 
 # Version: 2.05 2016-04-30
 #	Added PCP_REPO. PH.
@@ -399,6 +400,14 @@ pcp_toggle_row_shade() {
 
 pcp_incr_id() {
 	ID=$(($ID + 1))
+}
+
+#=========================================================================================
+# Extension installed.
+#-----------------------------------------------------------------------------------------
+pcp_extn_is_installed() {
+	tce-status -i | grep $1 >/dev/null 2>&1
+	echo $?
 }
 
 #=========================================================================================

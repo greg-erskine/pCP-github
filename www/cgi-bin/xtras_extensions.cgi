@@ -53,12 +53,13 @@ pcp_mode_lt_beta
 # Set variables
 TCELOAD="tce-load"
 SUBMIT="Initial"
+ORPHAN=""
 EXTNFOUND=0
 
 #DEBUG=1
 
 #========================================================================================
-# Search, load and delete extension routines
+# Search, load, install and delete extension routines
 #----------------------------------------------------------------------------------------
 pcp_search_extn() {
 	echo $EXTN | grep .tcz$ >/dev/null
@@ -122,7 +123,7 @@ pcp_delete_extn() {
 }
 
 #========================================================================================
-# This routine uses the piCore search.sh script to update /tmp/tags.db
+# This routine uses the piCore's search.sh script to update /tmp/tags.db
 #----------------------------------------------------------------------------------------
 pcp_init_search() {
 	search.sh picoreplayer
@@ -146,7 +147,7 @@ pcp_display_info() {
 	if [ -n "$EXTN" ]; then
 		sudo -u tc tce-fetch.sh "$EXTN".info
 		if [ $? -eq 0 ]; then
-			less "$EXTN".info
+			cat "$EXTN".info
 			rm "$EXTN".info
 		else
 			echo "$EXTN.info not found!"
@@ -157,7 +158,7 @@ pcp_display_info() {
 pcp_display_depends() {
 	sudo -u tc tce-fetch.sh "$EXTN".dep
 	if [ $? -eq 0 ]; then
-		less "$EXTN".dep
+		cat "$EXTN".dep
 		rm "$EXTN".dep
 	else
 		echo "$EXTN.dep not found!"
@@ -167,7 +168,7 @@ pcp_display_depends() {
 pcp_display_tree() {
 	sudo -u tc tce-fetch.sh "$EXTN".tree
 	if [ $? -eq 0 ]; then
-		less "$EXTN".tree
+		cat "$EXTN".tree
 		rm "$EXTN".tree
 	else
 		echo "$EXTN.tree not found!"
@@ -181,7 +182,7 @@ pcp_display_size() {
 pcp_display_files() {
 	sudo -u tc tce-fetch.sh "$EXTN".list
 	if [ $? -eq 0 ]; then
-		less "$EXTN".list
+		cat "$EXTN".list
 		rm "$EXTN".list
 	else
 		echo "$EXTN.list not found!"
@@ -221,6 +222,175 @@ case "$SUBMIT" in
 	;;
 esac
 
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# Show available piCore mirrors
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="mirrors" action="xtras_extensions.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Remote piCore Mirrors</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Remote Mirrors</p>'
+echo '                </td>'
+echo '                <td class="column300">'
+echo '                  <select class="large22" name="MIRROR">'
+
+                          if [ $(pcp_extn_is_installed mirrors) -eq 0 ]; then
+                            for M in $(cat "/usr/local/share/mirrors")
+                            do
+                              echo '                    <option value="'$M'">'$M'</option>'
+                            done
+                          else
+                            echo '                    <option value="none">'mirrors.tcz not installed!'</option>'
+                          fi
+
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Remote Mirrors&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Remote Mirrors</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+[ $(pcp_extn_is_installed mirrors) -eq 0 ] &&
+echo '                  <input type="submit" name="SUBMIT" value="Set">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# Show local mirrors
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="mirrors" action="xtras_extensions.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Local piCore Mirrors</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Remote Mirrors</p>'
+echo '                </td>'
+echo '                <td class="column300">'
+echo '                  <select class="large22" name="MIRROR">'
+
+                          if [ -f /opt/localmirrors ]; then
+                            for LM in $(cat "/opt/localmirrors")
+                            do
+                              echo '                    <option value="'$LM'">'$LM'</option>'
+                            done
+                          else
+                            echo '                    <option value="none">'/opt/localmirrors not found!'</option>'
+                          fi
+
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Local Mirrors&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Local Mirrors</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+[ -f /opt/localmirrors ] &&
+echo '                  <input type="submit" name="SUBMIT" value="Set">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+#========================================================================================
+# Display tce mirror using 
+#----------------------------------------------------------------------------------------
+if [ $DEBUG -eq 1 ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="tce_mirror" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Current tcemirror/tcedir</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	                        RESULT=$(cat /opt/tcemirror)
+	                        pcp_textarea_inform "none" 'echo "$RESULT"' 15
+	                        RESULT=$(ls -al /etc/sysconfig | grep tcedir)
+	                        pcp_textarea_inform "none" 'echo "$RESULT"' 15
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+#========================================================================================
+# Display disk space using df
+#----------------------------------------------------------------------------------------
+pcp_toggle_row_shade
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="diskspace" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Free space</legend>'
+echo '            <table class="bggrey percent100">'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+                        pcp_textarea_inform "none" "pcp_free_space" 20
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
@@ -330,6 +500,58 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
+# Orphaned extensions - tce-status -o  WARNING: very slow!
+#----------------------------------------------------------------------------------------
+if [ "$ORPHAN" = "yes" ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="extension" action="xtras_extensions.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Locally Orphaned Extensions</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Orphaned extensions</p>'
+	echo '                </td>'
+	echo '                <td class="column300">'
+	echo '                  <select class="large22" name="EXTN">'
+	                          for i in $(tce-status -o | grep '.tcz ' | sed 's/ not found!//' )
+	                          do
+	                            echo '<option value="'$i'">'$i'</option>'
+	                          done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>List of Orphaned extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li>This pulldown will show orphaned extensions installed on SD card.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <input type="submit" name="SUBMIT" value="Search">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
+
+#========================================================================================
 # Downloaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
@@ -408,7 +630,7 @@ echo '                  <select class="large22" name="EXTN">'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>List of extensions available for download from the piCore repository.&nbsp;&nbsp;'
+echo '                  <p>List of extensions available for download from the piCore repository&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
@@ -564,64 +786,6 @@ if [ "$SUBMIT" = "Initial" ]; then
 fi
 
 if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" ]; then
-	#========================================================================================
-	# Display disk space using df
-	#----------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="diskspace" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Free space</legend>'
-	echo '            <table class="bggrey percent100">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_textarea_inform "none" "pcp_free_space" 20
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-
-	if [ $DEBUG -eq 1 ]; then
-		#========================================================================================
-		# Display tce mirror using 
-		#----------------------------------------------------------------------------------------
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <form name="tce_mirror" method="get">'
-		echo '        <div class="row">'
-		echo '          <fieldset>'
-		echo '            <legend>Current tce mirror</legend>'
-		echo '            <table class="bggrey percent100">'
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea_inform "none" "cat /opt/tcemirror" 20
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_start_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        RESULT=$(ls -al /etc/sysconfig | grep tcedir)
-		                        pcp_textarea_inform "none" "echo $RESULT" 25
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </table>'
-		echo '          </fieldset>'
-		echo '        </div>'
-		echo '      </form>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-	fi
-
 	#========================================================================================
 	# Display Extension size using tce-size
 	#----------------------------------------------------------------------------------------
