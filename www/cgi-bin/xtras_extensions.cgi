@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 0.06 2016-05-26 GE
-#	Updated.
+# Version: 0.06 2016-05-27 GE
+#	Major update.
 
 # Version: 0.05 2016-03-05 GE
 #	Changed indicators to tick and cross.
@@ -20,12 +20,6 @@
 
 #========================================================================================
 # This script installs piCore extensions. ie. nano.tcz, wget.tcz, dialog.tcz
-#
-#   1. Type extension name
-#   2. Search for extension
-#   3. Check disk space
-#   4. Check internet connection
-#   5. Load/delete extension
 #
 # Complications:
 #   1. Sufficient space, need to expand file system
@@ -133,9 +127,9 @@ pcp_set_mirror() {
 }
 
 pcp_cleanup() {
-	sudo rm -f /tmp/tags.db
-	sudo -u tc rm -f *.tree		# FIX
-	sudo -u tc rm -f sizelist	# FIX
+	rm -f /tmp/tags.db
+	rm -f /tmp/*.tree
+	rm -f /tmp/sizelist
 }
 
 pcp_create_localmirrors() {
@@ -147,7 +141,7 @@ pcp_create_localmirrors() {
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	if [ $DEBUG -eq 1 ]; then 
+	if [ $DEBUG -eq 1 ]; then
 		echo '<p class="debug">[ DEBUG ] $EXTN: '$EXTN'<br />'
 		echo '                 [ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
 		echo '                 [ DEBUG ] $MIRROR: '$MIRROR'</p>'
@@ -156,37 +150,33 @@ pcp_debug_info() {
 
 #========================================================================================
 # The following section of code is based on piCore tce-ab script
-# FIX - Do the following rm's work???
 #----------------------------------------------------------------------------------------
 pcp_display_info() {
 	if [ -n "$EXTN" ]; then
-		sudo -u tc tce-fetch.sh "$EXTN".info
+		sudo -u tc tce-fetch.sh "${EXTN}.info"
 		if [ $? -eq 0 ]; then
-			cat "$EXTN".info
-			rm -f "$EXTN".info	# FIX
+			cat "${EXTN}.info"
 		else
-			echo "$EXTN.info not found!"
+			echo "${EXTN}.info not found!"
 		fi
 	fi
 }
 
 pcp_display_depends() {
-	sudo -u tc tce-fetch.sh "$EXTN".dep
+	sudo -u tc tce-fetch.sh "${EXTN}.dep"
 	if [ $? -eq 0 ]; then
-		cat "$EXTN".dep
-		rm -f "$EXTN".dep	# FIX
+		cat "${EXTN}.dep"
 	else
-		echo "$EXTN.dep not found!"
+		echo "${EXTN}.dep not found!"
 	fi
 }
 
 pcp_display_tree() {
-	sudo -u tc tce-fetch.sh "$EXTN".tree
+	sudo -u tc tce-fetch.sh "${EXTN}.tree"
 	if [ $? -eq 0 ]; then
-		cat "$EXTN".tree
-		rm -f "$EXTN".tree	# FIX
+		cat "${EXTN}.tree"
 	else
-		echo "$EXTN.tree not found!"
+		echo "${EXTN}.tree not found!"
 	fi
 }
 
@@ -195,12 +185,11 @@ pcp_display_size() {
 }
 
 pcp_display_files() {
-	sudo -u tc tce-fetch.sh "$EXTN".list
+	sudo -u tc tce-fetch.sh "${EXTN}.list"
 	if [ $? -eq 0 ]; then
-		cat "$EXTN".list
-		rm -f "$EXTN".list	# FIX
+		cat "${EXTN}.list"
 	else
-		echo "$EXTN.list not found!"
+		echo "${EXTN}.list not found!"
 	fi
 }
 
@@ -282,7 +271,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '</table>'
 
 	#========================================================================================
-	# Display tce mirror using 
+	# Display tce mirror using
 	#----------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -593,6 +582,8 @@ if [ "$ORPHAN" = "yes" ]; then
 	echo '</table>'
 fi
 
+fi
+
 #========================================================================================
 # Downloaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
 #----------------------------------------------------------------------------------------
@@ -612,9 +603,10 @@ echo '                  <p>Downloaded extensions</p>'
 echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="EXTN">'
-                          for i in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+                          for E in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
                           do
-                            echo '<option value="'$i'">'$i'</option>'
+                            [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
+                            echo '<option value="'$E'" '$SELECTED'>'$E'</option>'
                           done
 echo '                  </select>'
 echo '                </td>'
@@ -633,7 +625,6 @@ pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <input type="submit" name="SUBMIT" value="Info">'
-echo '                  <input type="submit" name="SUBMIT" value="Install">'
 echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 echo '                </td>'
 echo '              </tr>'
@@ -644,8 +635,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-fi
 
 #========================================================================================
 # Available extensions from tags.db
@@ -667,9 +656,10 @@ echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="EXTN">'
                           [ -f /tmp/tags.db ] || pcp_init_search
-                          for i in $(cat /tmp/tags.db | awk '{print $1}')
+                          for E in $(cat /tmp/tags.db | awk '{print $1}')
                           do
-                            echo '<option value="'$i'">'$i'</option>'
+                            [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
+                            echo '<option value="'$E'" '$SELECTED'>'$E'</option>'
                           done
 echo '                  </select>'
 echo '                </td>'
@@ -699,75 +689,75 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-if [ $MODE -eq $MODE_DEVELOPER ]; then
-#========================================================================================
-# 
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="extension" action="'$0'" method="get">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Extension '$EXTN'</legend>'
-echo '            <table class="bggrey percent100">'
-pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Extension name</p>'
-echo '                </td>'
-echo '                <td class="column300">'
-echo '                  <input class="large22" type="text" name="EXTN" value="'$EXTN'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Search, load or delete piCore extension&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>This option will load or delete a piCore extension and dependencies.</p>'
-echo '                    <p><b>Step:</b></p>'
-echo '                    <ol>'
-echo '                      <li>Search for extension - this ensures you have selected a valid extension.</li>'
-echo '                      <li>Check free space and download size before loading.</li>'
-echo '                      <li>Load or delete - this loads or marks for deletion extensions and dependencies.</li>'
-echo '                    </ol>'
-echo '                    <p>For more information - see <a href="http://packages.tinycorelinux.net/" target="_new">Tiny Core Linux Repository browser</a>.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
 
-if [ $EXTNFOUND -eq 0 ] && [ "$SUBMIT" = "Info" ]; then 
+#========================================================================================
+# Manual search for extension
+#----------------------------------------------------------------------------------------
+if [ $MODE -eq $MODE_DEVELOPER ] && [ $DEBUG -eq 1 ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="extension" action="'$0'" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Extension '$EXTN'</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p></p>'
+	echo '                  <p class="row">Extension name</p>'
+	echo '                </td>'
+	echo '                <td class="column300">'
+	echo '                  <input class="large22" type="text" name="EXTN" value="'$EXTN'">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p class="error">Extension not found!</p>'
+	echo '                  <p>Search, load or delete piCore extension&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This option will load or delete a piCore extension and dependencies.</p>'
+	echo '                    <p><b>Step:</b></p>'
+	echo '                    <ol>'
+	echo '                      <li>Search for extension - this ensures you have selected a valid extension.</li>'
+	echo '                      <li>Check free space and download size before loading.</li>'
+	echo '                      <li>Load or delete - this loads or marks for deletion extensions and dependencies.</li>'
+	echo '                    </ol>'
+	echo '                    <p>For more information - see <a href="http://packages.tinycorelinux.net/" target="_new">Tiny Core Linux Repository browser</a>.</p>'
+	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-fi
+	pcp_toggle_row_shade
 
-echo '              <tr>'
-echo '                <td colspan="3">'
+	if [ $EXTNFOUND -eq 0 ] && [ "$SUBMIT" = "Info" ]; then
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150">'
+		echo '                  <p></p>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p class="error">Extension not found!</p>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
 
-if [ $EXTNFOUND -eq 1 ]; then 
-	echo '                  <input type="submit" name="SUBMIT" value="Load">'
-	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-fi
+	echo '              <tr>'
+	echo '                <td colspan="3">'
 
-echo '                  <input type="submit" name="SUBMIT" value="Info">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+	if [ $EXTNFOUND -eq 1 ]; then
+		echo '                  <input type="submit" name="SUBMIT" value="Load">'
+		echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+	fi
 
+	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 fi
 
 #========================================================================================
@@ -834,7 +824,7 @@ fi
 
 if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" ]; then
 	#========================================================================================
-	# Display Extension size using tce-size
+	# Display Extension information
 	#----------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
