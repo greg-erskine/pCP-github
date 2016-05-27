@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.09 2016-05-28 GE
+#	Updated link to forum thread.
+
 # Version: 0.08 2016-02-03 GE
 #	Changed upload to Beta mode.
 
@@ -71,7 +74,7 @@ echo '                   <a href="http://www.busybox.net/">HTTPD</a>.</p>'
 echo '                <p>The official piCorePlayer web page can be found here '
 echo '                   <a href="https://sites.google.com/site/picoreplayer/home/news">piCorePlayer web page</a>. '
 echo '                   A forum discussion can be found '
-echo '                   <a href="http://forums.slimdevices.com/showthread.php?97803-piCoPlayer-Squeezelite-on-Microcore-linux-An-embedded-OS-in-RAM-with-Squeezelite">here</a>.</p>'
+echo '                   <a href="http://forums.slimdevices.com/showthread.php?105018-Announce-piCorePlayer-2-00">here</a>.</p>'
 echo '                <h2>Please donate if you like piCorePlayer</h2>'
 echo '                <p class="centre"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;'
 echo 'lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">'
