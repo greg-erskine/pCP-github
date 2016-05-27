@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.06 2016-05-27 GE
+# Version: 0.06 2016-05-28 GE
 #	Major update.
 
 # Version: 0.05 2016-03-05 GE
@@ -19,16 +19,14 @@
 #	Original version.
 
 #========================================================================================
-# This script installs piCore extensions. ie. nano.tcz, wget.tcz, dialog.tcz
+# This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
 #
 # Complications:
-#   1. Sufficient space, need to expand file system
+#   1. Sufficient space, need to expand file system.
 #
 # Future enhancements:
-#   1. Search all 3.x, 4.x, 5.x, 6.x, 7.x, arm6 and arm7 extension repositories
-#   2. Pull-down list of all available extensions
-#   3. Check for fastest repository mirror
-#
+#   1. Search all 3.x, 4.x, 5.x, 6.x, 7.x, arm6 and arm7 extension repositories.
+#   2. Check for fastest repository mirror.
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
@@ -49,9 +47,6 @@ TCELOAD="tce-load"
 SUBMIT="Initial"
 ORPHAN=""
 EXTNFOUND=0
-
-#DEBUG=1
-#MODE=100
 
 #========================================================================================
 # Search, load, install and delete extension routines
@@ -156,6 +151,7 @@ pcp_display_info() {
 		sudo -u tc tce-fetch.sh "${EXTN}.info"
 		if [ $? -eq 0 ]; then
 			cat "${EXTN}.info"
+			rm -f "${EXTN}.info"
 		else
 			echo "${EXTN}.info not found!"
 		fi
@@ -166,6 +162,7 @@ pcp_display_depends() {
 	sudo -u tc tce-fetch.sh "${EXTN}.dep"
 	if [ $? -eq 0 ]; then
 		cat "${EXTN}.dep"
+		rm -f "${EXTN}.dep"
 	else
 		echo "${EXTN}.dep not found!"
 	fi
@@ -175,6 +172,7 @@ pcp_display_tree() {
 	sudo -u tc tce-fetch.sh "${EXTN}.tree"
 	if [ $? -eq 0 ]; then
 		cat "${EXTN}.tree"
+		rm -f "${EXTN}.tree"
 	else
 		echo "${EXTN}.tree not found!"
 	fi
@@ -188,6 +186,7 @@ pcp_display_files() {
 	sudo -u tc tce-fetch.sh "${EXTN}.list"
 	if [ $? -eq 0 ]; then
 		cat "${EXTN}.list"
+		rm -f "${EXTN}.list"
 	else
 		echo "${EXTN}.list not found!"
 	fi
@@ -301,7 +300,7 @@ fi
 
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 #========================================================================================
-# Show available piCore mirrors
+# Show available piCore remote mirrors
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -309,13 +308,13 @@ echo '    <td>'
 echo '      <form name="remote_mirrors" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Remote piCore Mirrors</legend>'
+echo '            <legend>Remote piCore repository</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Remote Mirrors</p>'
+echo '                  <p>Remote mirror</p>'
 echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="MYMIRROR">'
@@ -334,12 +333,14 @@ echo '                  <select class="large22" name="MYMIRROR">'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Remote Mirrors&nbsp;&nbsp;'
+echo '                  <p>Select remote mirror repository&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>Remote Mirrors</li>'
+echo '                      <li>Remote mirrors are only available if mirrors.tcz is loaded.</li>'
+echo '                      <li>Remote mirrors are listed in /usr/local/share/mirrors.</li>'
+echo '                      <li><b>Note:</b> Not all remote mirrors are are up to date.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -365,7 +366,7 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
-# Show local mirrors
+# Show piCore local mirrors
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -373,13 +374,13 @@ echo '    <td>'
 echo '      <form name="local_mirrors" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Local piCore Mirrors</legend>'
+echo '            <legend>Local piCore repository</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Remote Mirrors</p>'
+echo '                  <p>Local mirror</p>'
 echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="MYMIRROR">'
@@ -396,12 +397,12 @@ echo '                  <select class="large22" name="MYMIRROR">'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Local Mirrors&nbsp;&nbsp;'
+echo '                  <p>Select local mirror repository&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>Local Mirrors</li>'
+echo '                      <li>Local mirrors are only available if /opt/localmirrors is found.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -435,7 +436,7 @@ echo '    <td>'
 echo '      <form name="installed" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Locally Installed Extensions</legend>'
+echo '            <legend>Locally installed extensions</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
@@ -457,8 +458,8 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>This pulldown will show all piCore extensions that are currently installed on SD card.</li>'
-echo '                      <li>These extensions are usually loaded via /mnt/mmcblk0p2/tce/onboot.lst.</li>'
+echo '                      <li>Lists all piCore extensions that are currently installed.</li>'
+echo '                      <li>These extensions are loaded at boot via /mnt/mmcblk0p2/tce/onboot.lst.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -487,7 +488,7 @@ echo '    <td>'
 echo '      <form name="uninstalled" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Locally Uninstalled Extensions</legend>'
+echo '            <legend>Locally uninstalled extensions</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
@@ -509,7 +510,7 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>This pulldown will show all piCore extensions that are currently loaded but not installed on SD card.</li>'
+echo '                      <li>Lists all piCore extensions that are currently loaded but not installed.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -540,7 +541,7 @@ if [ "$ORPHAN" = "yes" ]; then
 	echo '      <form name="orphan" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
-	echo '            <legend>Locally Orphaned Extensions</legend>'
+	echo '            <legend>Locally orphaned extensions</legend>'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
@@ -562,7 +563,7 @@ if [ "$ORPHAN" = "yes" ]; then
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
-	echo '                      <li>This pulldown will show orphaned extensions installed on SD card.</li>'
+	echo '                      <li>Lists all orphaned extensions installed.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -585,21 +586,21 @@ fi
 fi
 
 #========================================================================================
-# Downloaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
+# Loaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
-echo '      <form name="downloaded" action="'$0'" method="get">'
+echo '      <form name="loaded" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Locally Downloaded Extensions</legend>'
+echo '            <legend>Locally loaded extensions</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Downloaded extensions</p>'
+echo '                  <p>Loaded extensions</p>'
 echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="EXTN">'
@@ -611,12 +612,13 @@ echo '                  <select class="large22" name="EXTN">'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>List of downloaded extensions&nbsp;&nbsp;'
+echo '                  <p>List of loaded extensions&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>This pulldown will show all piCore extensions that are currently downloaded on SD card.</li>'
+echo '                      <li>Lists all piCore extensions that are currently loaded.</li>'
+echo '                      <li>These extensions may be installed or uninstalled.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -645,7 +647,7 @@ echo '    <td>'
 echo '      <form name="available" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Available Extensions</legend>'
+echo '            <legend>Available extensions</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
@@ -669,7 +671,7 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>This pulldown will show all piCore extensions that are currently available for downloaded from the piCore repository.</li>'
+echo '                      <li>Lists all piCore extensions that are currently available for download from the piCore repository.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
