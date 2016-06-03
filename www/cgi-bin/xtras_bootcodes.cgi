@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 0.02 2016-05-22 GE
+# Version: 0.02 2016-06-03 GE
 #	Major revision.
 
 # Version: 0.01 2015-02-15 GE
@@ -17,9 +17,6 @@ RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
 RED=""
 GREEN='&nbsp;<span class="indicator_green">&#x2714;</span>'
 
-#CMDLINETXT=/mnt/mmcblk0p1/xxxcmdline.txt
-#DEBUG=1
-
 pcp_html_head "xtras_bootcodes" "GE"
 
 pcp_controls
@@ -30,6 +27,22 @@ pcp_httpd_query_string
 
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 [ ! -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT} ${CMDLINETXT}.bak
+
+#========================================================================================
+# Missing bootcodes - add these sometime in the future.
+#----------------------------------------------------------------------------------------
+# local={hda1|sda1}          Specify PPI directory or loopback file
+# vga=7xx                    7xx from table above
+# settime                    Set UTC time at boot, internet required
+# embed                      Stay on initramfs
+# bkg=image.{jpg|png|gif}    Set background from /opt/backgrounds
+# multivt                    Allows for multiple virtual terminals
+# lst=yyy.lst                Load alternate yyy.lst on boot. yyy.lst is expected to reside
+#                            in $DRIVE/tce where $DRIVE is the drive specified by the tce= bootcode.  
+# console=ttyAMA0,115200
+# console=tty1
+#----------------------------------------------------------------------------------------
+
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
@@ -68,7 +81,11 @@ pcp_warning_message() {
 	echo '              <td>'
 	echo '                <p style="color:white"><b>Warning:</b> It can be dangerous to play with bootcodes.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Only suitable for Advanced users.</li>'
+	echo '                  <li style="color:white">Only suitable for Advanced users who want to experiment with bootcodes.</li>'
+	echo '                  <li style="color:white">Use at your own risk.</li>'
+	echo '                  <li style="color:white">Some of the bootcodes may not work with piCorePlayer.</li>'
+	echo '                  <li style="color:white">Only a small subset of bootcodes are available on this page.</li>'
+	echo '                  <li style="color:white">Requests for activating additional bootcodes welcome.</li>'
 	echo '                  <li style="color:white">A reboot is required to make bootcode active.</li>'
 	echo '                </ul>'
 	echo '              </td>'
@@ -80,21 +97,10 @@ pcp_warning_message() {
 	echo '  </tr>'
 	echo '</table>'
 }
-#========================================================================================
-# Missing bootcodes
-#----------------------------------------------------------------------------------------
-# local={hda1|sda1}          Specify PPI directory or loopback file
-# vga=7xx                    7xx from table above
-# settime                    Set UTC time at boot, internet required
-# embed                      Stay on initramfs
-# bkg=image.{jpg|png|gif}    Set background from /opt/backgrounds
-# multivt                    Allows for multiple virtual terminals
-# lst=yyy.lst                Load alternate yyy.lst on boot. yyy.lst is expected to reside
-#                            in $DRIVE/tce where $DRIVE is the drive specified by the tce= bootcode.  
-# console=ttyAMA0,115200
-# console=tty1
-#----------------------------------------------------------------------------------------
 
+#========================================================================================
+# Process bootcodes in cmdline.txt
+#----------------------------------------------------------------------------------------
 if [ "$SUBMIT" = "Save" ]; then
 	case $VARIABLE in
 		#--------------------------------------------------------------------------------
@@ -314,7 +320,7 @@ pcp_bootcode_aoe() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -430,19 +436,20 @@ pcp_bootcode_host() {
 	echo '                  <p>host=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="MYHOST" value="'$MYHOST'">'$INDICATOR
+	echo '                  <input class="large15" type="text" name="MYHOST" value="'$MYHOST'" readonly>'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
 	echo '                  <input type="hidden" name="VARIABLE" value="host">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set hostname to xxxx&nbsp;&nbsp;'
+	echo '                  <p>Set hostname&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;host=xxxx&gt;</p>'
 	echo '                    <p>Set hostname to xxxx.</p>'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to set.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -473,7 +480,7 @@ pcp_bootcode_httplist() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -504,7 +511,7 @@ pcp_bootcode_icons() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -563,12 +570,13 @@ pcp_bootcode_kmap() {
 	echo '                  <input type="hidden" name="VARIABLE" value="kmap">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>US only unless kmaps.tcz is installed&nbsp;&nbsp;'
+	echo '                  <p>Set the default console keymap&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;kmap=us&gt;</p>'
-	echo '                    <p>US only unless kmaps.tcz is installed.</p>'
+	echo '                    <p>If you have kmaps.tcz installed, you can use this bootcode to set the default console keymap.</p>'
+	echo '                    <p><b>Default:</b> US.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -595,12 +603,13 @@ pcp_bootcode_lang() {
 	echo '                  <input type="hidden" name="VARIABLE" value="lang">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>C only unless getlocale.tcz is installed&nbsp;&nbsp;'
+	echo '                  <p>Use the preferred locale&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;lang=en&gt;</p>'
-	echo '                    <p>C only unless getlocale.tcz is installed.</p>'
+	echo '                    <p>You need to generate your preferred locale using the getlocale.tcz extension.</p>'
+	echo '                    <p><b>Default:</b> C locale is used (US English, ASCII)</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -627,11 +636,13 @@ pcp_bootcode_mydata() {
 	echo '                  <input type="hidden" name="VARIABLE" value="mydata">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for mydata&nbsp;&nbsp;'
+	echo '                  <p>Specify alternative name for mydata&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;mydata=configuration&gt;</p>'
+	echo '                    <p>Defines an alternative saved configation name.</p>'
+	echo '                    <p><b>Default:</b> mydata.tgz</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -662,7 +673,7 @@ pcp_bootcode_nbd() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -689,11 +700,11 @@ pcp_bootcode_nfsmount() {
 	echo '                  <input type="hidden" name="VARIABLE" value="nfsmount">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for nfsmount&nbsp;&nbsp;'
+	echo '                  <p>Define nfsmount&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -751,17 +762,19 @@ pcp_bootcode_ntpserver() {
 	echo '                  <input type="hidden" name="VARIABLE" value="ntpserver">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter value for ntpserver&nbsp;&nbsp;'
+	echo '                  <p>Define alternative Network Time Protocol (ntp) server&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>&lt;ntpserver=xxx.xxx.xxx.xxx&gt; or &lt;ntpserver=FQDN&gt;</p>'
+	echo '                    <p><b>Default:</b> pool.ntp.org</p>'
+	echo '                    <p><b>Hint:</b> Use "ntpdc -c monlist" on ntp server to confirm bootcode is working.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_ntpserver
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_ntpserver
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------opt-----------------------------------------------
@@ -818,7 +831,7 @@ pcp_bootcode_pretce() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -883,7 +896,7 @@ pcp_bootcode_resume() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -914,7 +927,7 @@ pcp_bootcode_rsyslog() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -946,7 +959,7 @@ pcp_bootcode_swapfile() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;swapfile=hda1&gt;</p>'
-	echo '                    <p>Scan or Specify swapfile.</p>'
+	echo '                    <p>Scan for or Specify swapfile.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1047,7 +1060,7 @@ pcp_bootcode_tftplist() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1067,10 +1080,10 @@ pcp_bootcode_tz() {
 	echo '                  <p>tz=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="TZ" value="'$TZ'">'$INDICATOR
+	echo '                  <input class="large15" type="text" name="TZ" value="'$TZ'" readonly>'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
 	echo '                  <input type="hidden" name="VARIABLE" value="tz">'
 	echo '                </td>'
 	echo '                <td>'
@@ -1080,6 +1093,8 @@ pcp_bootcode_tz() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;tz=GMT+8&gt;</p>'
 	echo '                    <p>Timezone tz=PST+8PDT,M3.2.0/2,M11.1.0/2</p>'
+	echo '                    <p>Timezone is automatically set during the first boot.</p>'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to modify or delete.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1117,7 +1132,7 @@ pcp_bootcode_user() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bootcode_user
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_user
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------waitusb-------------------------------------------
@@ -1142,8 +1157,8 @@ pcp_bootcode_waitusb() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;waitusb=X&gt;</p>'
-	echo '                    <p>Wait X seconds for slow USB devices.</p>'
+	echo '                    <p>&lt;waitusb=x&gt;</p>'
+	echo '                    <p>During boot process, wait x seconds for slow USB devices.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1240,11 +1255,12 @@ pcp_bootcode_base() {
 	echo '                  <input type="hidden" name="VARIABLE" value="base">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Skip TCE load only the base system&nbsp;&nbsp;'
+	echo '                  <p>Only load base system&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Skip TCE load only the base system.</p>'
+	echo '                    <p>Skip loading extensions, only load the base system.</p>'
+	echo '                    <p><b>Note:</b> Can also be used with norestore bootcode to load a base system with no configuration.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1271,11 +1287,11 @@ pcp_bootcode_cron() {
 	echo '                  <input type="hidden" name="VARIABLE" value="cron">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Start cron daemon at boot&nbsp;&nbsp;'
+	echo '                  <p>Start cron daemon&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Start cron daemon at boot.</p>'
+	echo '                    <p>Start the cron daemon at boot.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1333,11 +1349,11 @@ pcp_bootcode_noautologin() {
 	echo '                  <input type="hidden" name="VARIABLE" value="noautologin">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Skip automatic login&nbsp;&nbsp;'
+	echo '                  <p>No automatic login&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Skip automatic login.</p>'
+	echo '                    <p>Skip automatic login at boot.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1364,11 +1380,12 @@ pcp_bootcode_nodhcp() {
 	echo '                  <input type="hidden" name="VARIABLE" value="nodhcp">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Skip the dhcp request at boot&nbsp;&nbsp;'
+	echo '                  <p>No dhcp request&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Skip the dhcp request at boot.</p>'
+	echo '                    <p>This is used when a static IP is set.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1395,11 +1412,12 @@ pcp_bootcode_noembed() {
 	echo '                  <input type="hidden" name="VARIABLE" value="noembed">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>noembed&nbsp;&nbsp;'
+	echo '                  <p>Use a separate tmpfs&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>noembed</p>'
+	echo '                    <p>This is an advanced option that changes where in RAM Core is run from.</p>'
+	echo '                    <p><b>Default:</b> Core uses the tmpfs setup by the kernel; with this bootcode, Core will setup a new tmpfs file system, and use that instead.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1430,7 +1448,7 @@ pcp_bootcode_nofstab() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1488,17 +1506,17 @@ pcp_bootcode_norestore() {
 	echo '                  <input type="hidden" name="VARIABLE" value="norestore">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Turn off the automatic restore&nbsp;&nbsp;'
+	echo '                  <p>Turn off the restoring the configuration file&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Turn off the automatic restore.</p>'
+	echo '                    <p>Prevent the loading of the configuration file (mydata.tgz)</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_norestore
+[ $MODE -ge $MODE_BETA ] && pcp_bootcode_norestore
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nortc---------------------------------------------
@@ -1519,11 +1537,12 @@ pcp_bootcode_nortc() {
 	echo '                  <input type="hidden" name="VARIABLE" value="nortc">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set nortc&nbsp;&nbsp;'
+	echo '                  <p>Set no Real Time Clock (nortc)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p>The Raspberry Pi does not have a Real Time Clock.</p>'
+	echo '                    <p>The time is set during each boot from a ntp server.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1554,7 +1573,7 @@ pcp_bootcode_noswap() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Do not use swap partition.</p>'
+	echo '                    <p><b>Default:</b> The system will use all Linux swap partitions automatically.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1612,11 +1631,11 @@ pcp_bootcode_nozswap() {
 	echo '                  <input type="hidden" name="VARIABLE" value="nozswap">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Skip compressed swap in ram&nbsp;&nbsp;'
+	echo '                  <p>Disable compressed swap in RAM&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Skip compressed swap in ram.</p>'
+	echo '                    <p><b>Default:</b> Core uses a RAM compression technique allowing you to use more RAM than you actually have.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1643,11 +1662,11 @@ pcp_bootcode_pause() {
 	echo '                  <input type="hidden" name="VARIABLE" value="pause">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Pause at completion of boot messages&nbsp;&nbsp;'
+	echo '                  <p>Wait for a keypress before completing boot&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Pause at completion of boot messages.</p>'
+	echo '                    <p>By waiting for an enter key press before completing the boot, this bootcode lets you view the system boot messages more easily.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1674,11 +1693,11 @@ pcp_bootcode_protect() {
 	echo '                  <input type="hidden" name="VARIABLE" value="protect">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Password Encrypted Backup.&nbsp;&nbsp;'
+	echo '                  <p>Use password encrypted backup&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Password Encrypted Backup.</p>'
+	echo '                    <p>For added security, use a password encrypted backup.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1705,11 +1724,11 @@ pcp_bootcode_safebackup() {
 	echo '                  <input type="hidden" name="VARIABLE" value="safebackup">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Saves a backup copy (mydatabk.tgz)&nbsp;&nbsp;'
+	echo '                  <p>Enable safe backup (mydatabk.tgz)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Saves a backup copy (mydatabk.tgz).</p>'
+	echo '                    <p>A copy of your previous backup is made before doing a new backup (mydatabk.tgz).</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1736,11 +1755,11 @@ pcp_bootcode_secure() {
 	echo '                  <input type="hidden" name="VARIABLE" value="secure">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set password&nbsp;&nbsp;'
+	echo '                  <p>Set password on boot&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Set password.</p>'
+	echo '                    <p>If you need to set the password on boot, for example on a first run.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1771,7 +1790,8 @@ pcp_bootcode_showapps() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Display application names when booting.</p>'
+	echo '                    <p>Show each extension by name when loading it.'
+	echo '                       It slightly delays the boot, but it’s useful to find which extension has trouble loading.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1829,7 +1849,7 @@ pcp_bootcode_syslog() {
 	echo '                  <input type="hidden" name="VARIABLE" value="syslog">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Start syslog daemon at boot&nbsp;&nbsp;'
+	echo '                  <p>Start syslog daemon&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -1860,11 +1880,12 @@ pcp_bootcode_text() {
 	echo '                  <input type="hidden" name="VARIABLE" value="text">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Textmode&nbsp;&nbsp;'
+	echo '                  <p>Boot to text mode&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Textmode.</p>'
+	echo '                    <p>In case an X server is installed, do not boot to graphical mode.'
+	echo '                       If an X server is not installed, the system will always boot to text mode.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1895,7 +1916,7 @@ pcp_bootcode_xonly() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> </p>'
+	echo '                    <p></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1994,7 +2015,7 @@ pcp_bootcode_consoleblank() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note:</b> Use tweaks pages to set.</p>'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to set.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2025,7 +2046,7 @@ pcp_bootcode_fiq_fsm_mask() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note:</b> Use tweaks pages to set.</p>'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to set.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2056,7 +2077,7 @@ pcp_bootcode_lpm_enable() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note:</b> Use tweaks pages to set.</p>'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to set.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2087,7 +2108,9 @@ pcp_bootcode_elevator() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>elevator</p>'
+	echo '                    <p>&lt;elevator=cfq|deadline|noop&gt;</p>'
+	echo '                    <p>See https://www.kernel.org/doc/Documentation/block/deadline-iosched.txt and'
+	echo '                       https://www.kernel.org/doc/Documentation/block/deadline-iosched.txt for details.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2195,7 +2218,7 @@ pcp_bootcode_turbo_mode() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note:</b> Use tweaks pages to set.</p>'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to set.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2288,11 +2311,12 @@ pcp_bootcode_rootwait() {
 	echo '                  <input type="hidden" name="VARIABLE" value="rootwait">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>rootwait&nbsp;&nbsp;'
+	echo '                  <p>Wait for root device&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>rootwait.</p>'
+	echo '                    <p>Wait (indefinitely) for root device to show up.'
+	echo '                       Useful for devices that are detected asynchronously (e.g. USB and MMC devices)</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2300,7 +2324,6 @@ pcp_bootcode_rootwait() {
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_rootwait
 #----------------------------------------------------------------------------------------
-
 
 #----------------------------------------------------------------------------------------
 echo '          </table>'
