@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 2.06 2016-05-23
+# Version: 2.06 2016-06-04
 #	Added multi ALSA_PARAMS and FROM_PAGE. GE.
 #	Added MMAP configuration. GE.
 #	Added $ORG_ALSA_PARAMS4. SBP.
@@ -89,7 +89,6 @@ pcp_update() {
 }
 
 pcp_multi_alsa_mmap() {
-	ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
 	pcp_mount_mmcblk0p1
 	if [ $ALSA_PARAMS4 -eq 1 ]; then
 		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
@@ -109,6 +108,7 @@ pcp_multi_alsa_mmap() {
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Save)
+		ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
 		[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
 		[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
 		[ $PRIORITY -eq 0 ] && PRIORITY=""
