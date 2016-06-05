@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 2.06 2016-05-09 GE
+# Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
 #	Added HDMIPOWER.
 #	Moved bootfix script so it only starts after an insitu update.
@@ -8,6 +8,7 @@
 #	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
 #	Changed location of Bootfix
 #	Activated Kernel Module Updates during insitu update.
+#	Updated Mount lines
 
 
 # Version: 2.05 2016-04-30 PH
@@ -428,10 +429,19 @@ fi
 LMSMOUNTFAIL="0"
 if [ "$MOUNTUUID" != "no" ]; then
 	blkid | grep -q $MOUNTUUID
-	if [ "$?" = "0" ]; then 
+	if [ $? -eq 0 ]; then 
 		mkdir -p /mnt/$MOUNTPOINT
-		mount --uuid $MOUNTUUID /mnt/$MOUNTPOINT
-		if [ "$?" = "0" ]; then
+		DEVICE=$(blkid -U $MOUNTUUID)
+		FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+		case "$FSTYPE" in
+			ntfs)
+				umount $DEVICE  #ntfs cannot be dual mounted
+				OPTIONS="-v -t ntfs-3g -o permissions"
+				;;
+			*) OPTIONS="-v";;
+		esac
+		mount $OPTIONS --uuid $MOUNTUUID /mnt/$MOUNTPOINT
+		if [ $? -eq 0 ]; then
 			echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT.${NORMAL}"
 		else
 			echo "${RED}Disk Mount Error.${NORMAL}"
@@ -447,8 +457,21 @@ fi
 if [ "$NETMOUNT1" = "yes" ]; then
 	mkdir -p /mnt/$NETMOUNT1POINT
 	echo -n "${BLUE}"
-	mount -v -t $NETMOUNT1FSTYPE -o username=$NETMOUNT1USER,password=$NETMOUNT1PASS,$NETMOUNT1OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT
-	if [ "$?" = "0" ]; then
+	case "$NETMOUNT1FSTYPE" in
+		cifs)
+			OPTIONS=""
+			[ "$NETMOUNT1USER" != "" ] && OPTIONS="${OPTIONS}username=${NETMOUNT1USER},"
+			[ "$NETMOUNT1PASS" != "" ] && OPTIONS="${OPTIONS}password=${NETMOUNT1PASS},"
+			OPTIONS="${OPTIONS}${NETMOUNT1OPTIONS}"
+			MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
+		;;
+		nfs)
+			OPTIONS="addr=${NETMOUNT1IP},nolock,${NETMOUNT1OPTIONS}"
+			MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS $NETMOUNT1IP:$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
+		;;
+	esac
+	mount $MNTCMD
+	if [ $? -eq 0 ]; then
 		echo "${NORMAL}"
 	else
 		echo "${RED}Disk Mount Error.${NORMAL}"

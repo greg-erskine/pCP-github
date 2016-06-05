@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 2.06 2016-05-21 PH
+# Version: 2.06 2016-06-04 PH
 #	Made CIFS User and Password Optional
+#	Error trap on setting LMS Cache to a fat based device.
 
 # Version: 0.01 2016-04-14 PH
 #	Original version.
@@ -63,8 +64,7 @@ pcp_do_umount () {
 		fi
 	fi
 }
-
-DEBUG="0"
+	
 #========================================================================================
 # Mounts section
 #----------------------------------------------------------------------------------------
@@ -93,10 +93,21 @@ case "$MOUNTTYPE" in
 				pcp_do_umount /mnt/$MOUNTPOINT 
 
 				if [ "$REBOOT_REQUIRED" = "0" ]; then
-					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
 					[ ! -d /mnt/$MOUNTPOINT ] && mkdir -p /mnt/$MOUNTPOINT
-					mount --uuid $MOUNTUUID /mnt/$MOUNTPOINT
-					if [ "$?" = "0" ]; then
+					DEVICE=$(blkid -U $MOUNTUUID)
+					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+					case "$FSTYPE" in
+						ntfs) 
+							echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
+							umount $DEVICE
+							OPTIONS="-v -t ntfs-3g -o permissions"
+							;;
+						*)	OPTIONS="-v";;
+					esac
+					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$MOUNTUUID' /mnt/'$MOUNTPOINT'</p>'
+					mount $OPTIONS --uuid $MOUNTUUID /mnt/$MOUNTPOINT
+					if [ $? -eq 0 ]; then
 						echo '<p class="info">[ INFO ] Disk Mounted Successfully.</p>'
 					else
 						echo '<p class="error">[ERROR] Disk Mount Error, Try to Reboot.</p>'
@@ -144,7 +155,7 @@ case "$MOUNTTYPE" in
 					esac
 					echo '<p class="info">[INFO] mount '$MNTCMD'</p>'
 					mount $MNTCMD
-					if [ "$?" = "0" ]; then
+					if [ $? -eq 0 ]; then
 						echo '<p class="info">[ INFO ] Disk Mounted Successfully.</p>'
 					else
 						echo '<p class="error">[ERROR] Disk Mount Error, Try to Reboot.</p>'
@@ -168,32 +179,52 @@ case "$MOUNTTYPE" in
 				netmount1) ORIG_MNT="/mnt/$NETMOUNT1POINT/slimserver";;
 				default) ORIG_MNT="/mnt/mmcblk0p2/tce/slimserver";;
 			esac
+			BADFORMAT="no"
 			case "$LMSDATA" in
-				usbmount) MNT="/mnt/$MOUNTPOINT/slimserver";;
-				netmount1) MNT="/mnt/$NETMOUNT1POINT/slimserver";;
+				usbmount) 
+					MNT="/mnt/$MOUNTPOINT/slimserver"
+					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+					case $FSTYPE in
+						msdos|fat|vfat|fat32)BADFORMAT="yes";;
+						*)BADFORMAT="no";;
+					esac
+					;;
+				netmount1)
+					MNT="/mnt/$NETMOUNT1POINT/slimserver"
+					FSTYPE=$NETMOUNT1FSTYPE
+					case "$FSTYPE" in
+						cifs)echo '<p class="warn">[ WARN ] CIFS partitions may not work with LMS Cache.</p>';;
+						*);;
+					esac
+					;;
 				default) MNT="/mnt/mmcblk0p2/tce/slimserver";;
 			esac
-			echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
-			pcp_lms_set_slimconfig $MNT
-			pcp_save_to_config
-			pcp_backup
-			echo ''
 
-			if [ "$ACTION" = "Move" ]; then
-				#========================================================================================
-				# Move LMS cache and prefs section
-				#----------------------------------------------------------------------------------------
-				WASRUNNING="0"
-				if [ "$(pcp_lms_status)" = "0" ]; then
-					WASRUNNING="1"
-					echo '<p class="info">[ INFO ] Stopping LMS</p>'
-					/usr/local/etc/init.d/slimserver stop
+			if [ "$BADFORMAT" = "no" ]; then
+				echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
+				pcp_lms_set_slimconfig $MNT
+				pcp_save_to_config
+				pcp_backup
+				echo ''
+				
+				if [ "$ACTION" = "Move" ]; then
+					#========================================================================================
+					# Move LMS cache and prefs section
+					#----------------------------------------------------------------------------------------
+					WASRUNNING="0"
+					if [ "$(pcp_lms_status)" = "0" ]; then
+						WASRUNNING="1"
+						echo '<p class="info">[ INFO ] Stopping LMS</p>'
+						/usr/local/etc/init.d/slimserver stop
+					fi
+					if [ -d $ORIG_MNT ]; then
+						echo '<p class="info">[ INFO ] Moving Data from '$ORIG_MNT' to '$MNT'</p>'
+						pcp_move_LMS_cache $ORIG_MNT $MNT
+					fi
+					[ "$WASRUNNING" = "1" ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
 				fi
-				if [ -d $ORIG_MNT ]; then
-					echo '<p class="info">[ INFO ] Moving Data from '$ORIG_MNT' to '$MNT'</p>'
-					pcp_move_LMS_cache $ORIG_MNT $MNT
-				fi
-				[ "$WASRUNNING" = "1" ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
+			else
+				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storate. (i.e. ext4)</p>'
 			fi
 		fi	
 	;;
