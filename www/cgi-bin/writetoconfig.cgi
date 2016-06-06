@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 2.06 2016-06-04
+# Version: 2.06 2016-06-07
 #	Added multi ALSA_PARAMS and FROM_PAGE. GE.
 #	Added MMAP configuration. GE.
 #	Added $ORG_ALSA_PARAMS4. SBP.
@@ -42,8 +42,8 @@ pcp_variables
 # Read original mmap value, so we only do something if value is changed
 ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 
-RESTART=1
-REBOOT=0
+RESTART_REQUIRED=1
+REBOOT_REQUIRED=0
 
 pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
@@ -93,7 +93,7 @@ pcp_multi_alsa_mmap() {
 	if [ $ALSA_PARAMS4 -eq 1 ]; then
 		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
 		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
-		[ $? -eq 1 ] && REBOOT=1 && RESTART=0
+		[ $? -eq 1 ] && REBOOT_REQUIRED=1 && RESTART_REQUIRED=0
 		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
 		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
 	else
@@ -139,8 +139,8 @@ fi
 
 pcp_backup
 sleep 1
-[ $REBOOT -eq 1 ] && pcp_reboot_required
-[ $RESTART -eq 1 ] && pcp_restart_required
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
+[ $RESTART_REQUIRED -eq 1 ] && pcp_restart_required
 pcp_go_back_button
 
 echo '</body>'
