@@ -34,7 +34,7 @@ if [ $OLDMAJOR -le 2 -a $OLDMINOR -lt 5 ]; then
 	#    bootfix.sh
 	#    pcp-load
 	#
-	mv /mnt/mmcblk0p2/tce/bootfix/optional/pcp-load /usr/local/sbin/
+	mv /mnt/mmcblk0p2/tce/optional/pcp-load /usr/local/sbin/
 
 	#micropython inline code, do not change indentation.
 	#    Adds Trim Tags for later use
@@ -71,6 +71,7 @@ if [ $OLDMAJOR -le 2 -a $OLDMINOR -le 5 ]; then
 	[ "$SCREENROTATE" = "NO" ] && SCREENROTATE="no"
 	[ "$SCREENROTATE" = "YES" ] && SCREENROTATE="yes"
 	pcp_save_to_config
+	[ -e /mnt/mmcblk0p2/tce/optional/pcp-load ] && rm -f /mnt/mmcblk0p2/tce/optional/pcp-load
 fi
 #--------------------------------------------------------------
 #fixes needed in order to update to pCPversion - add below
