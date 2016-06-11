@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version 2.06 2016-05-22 PH
+# Version 2.06 2016-06-11 PH
 #	Added Copy entire update /sbin directory to location (pcp-load), Bootfix, and changed bootlocal.sh processing.
+#	Added oldpiversion.cfg to allow bootfix to know what the old version was.
 
 # Version 2.05 2016-04-17 SBP
 #	Currently a copy of the old insitu_update.cgi.  
@@ -185,7 +186,12 @@ pcp_save_configuration() {
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
-
+	#save the current piversion to determine potential bootfix(es) later
+	. /usr/local/sbin/piversion.cfg
+	[ -e /mnt/mmcblk0p1/oldpiversion.cfg ] && rm -f /mnt/mmcblk0p1/oldpiversion.cfg
+	echo "OLDPIVERS=\"$PIVERS\"" > /mnt/mmcblk0p1/oldpiversion.cfg
+	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
+	
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
