@@ -66,11 +66,13 @@ fi
 #--------------------------------------------------------------
 # Fixes needed for pCP2.06  All versions <= 2.05 need this fix
 if [ $OLDMAJOR -le 2 -a $OLDMINOR -le 5 ]; then 
+	. /mnt/mmcblk0p1/newconfig.cfg
 	[ "$JIVELITE" = "NO" ] && JIVELITE="no"
 	[ "$JIVELITE" = "YES" ] && JIVELITE="yes"
 	[ "$SCREENROTATE" = "NO" ] && SCREENROTATE="no"
 	[ "$SCREENROTATE" = "YES" ] && SCREENROTATE="yes"
-	pcp_save_to_config
+	sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" /mnt/mmcblk0p1/newconfig.cfg
+	sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" /mnt/mmcblk0p1/newconfig.cfg
 	[ -e /mnt/mmcblk0p2/tce/optional/pcp-load ] && rm -f /mnt/mmcblk0p2/tce/optional/pcp-load
 fi
 #--------------------------------------------------------------

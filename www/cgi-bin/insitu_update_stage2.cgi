@@ -242,7 +242,8 @@ pcp_finish_install() {
 	
 	# Move Bootfix into location if it is present
 	if [ -f "${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/bootfix.sh" ]; then
-		sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/ /mnt/mmcblk0p2/tce/bootfix/
+		sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/ /mnt/mmcblk0p2/tce/
+		chmod 755 /mnt/mmcblk0p2/tce/bootfix/*
 	fi
 
 	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
@@ -318,8 +319,8 @@ outfile.close
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
-	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/init.d/
-	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/sbin/
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/
 
 	# Copy possible new content from the new untarred tce directory except directories.
 	# sudo cp /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/* /mnt/mmcblk0p2/tce

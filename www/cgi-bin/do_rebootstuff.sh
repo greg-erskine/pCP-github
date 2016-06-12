@@ -222,7 +222,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	CURRENTKERNEL=$(uname -r)
 	ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -q $CURRENTKERNEL   # Assume if one is present, then all should be good
 	if [ $? -eq 0 ]; then
-		echo "${BLUE}Kernel modules found matching current kernel version $(CURRENTKERNEL)${NORMAL}"
+		echo "${BLUE}Kernel modules found matching current kernel version ${CURRENTKERNEL}${NORMAL}"
 	else
 		for EXT in `ls /mnt/mmcblk0p2/tce/optional/*piCore* | sed -e 's|[-][0-9].[0-9].*||' | sort -u`; do
 			sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
