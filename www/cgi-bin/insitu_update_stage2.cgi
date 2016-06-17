@@ -20,7 +20,7 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 
-# As all the insitu upgrade is done in one file, it may be better to define this here
+# As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
 
@@ -505,7 +505,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu upgrade</legend>'
+	echo '          <legend>piCorePlayer insitu update</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="initial" action= "'$0'" method="get">'
 	pcp_start_row_shade
@@ -516,7 +516,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Select the upgrade version of piCorePlayer required.</p>'
+	echo '                  <p>Select the update version of piCorePlayer required.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -526,7 +526,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input type="hidden" name="ACTION" value="download">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to download upgrade files.</p>'
+	echo '                  <p>Press the [ Next ] button to download update files.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
@@ -548,7 +548,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu upgrade</legend>'
+	echo '          <legend>piCorePlayer insitu update</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="download" action= "'$0'" method="get">'
 	pcp_start_row_shade
@@ -559,7 +559,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input type="hidden" name="VERSION" value="'$VERSION'">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to install the upgrade files.</p>'
+	echo '                  <p>Press the [ Next ] button to install the update files.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
@@ -581,7 +581,7 @@ if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu upgrade</legend>'
+	echo '          <legend>piCorePlayer insitu update</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="install" action= "'$0'" method="get">'
 	pcp_start_row_shade
