@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 2.05 2016-04-30 SBP
+# Version 2.05 2016-06-17 SBP
 #	Original version
 #	Split from insitu_update.cgi to download new updater before updates.
 
@@ -17,11 +17,9 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 
-# As all the insitu upgrade is done in one file, it may be better to define this here
+# As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
-
-
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -122,26 +120,25 @@ pcp_create_download_directory() {
 }
 
 #========================================================================================
-# Download the new update script from Sourceforge - insitu_update_second.cgi
+# Download the new update script from Sourceforge - insitu_update_stage2.cgi
 #----------------------------------------------------------------------------------------
-
 pcp_get_newinstaller() {
-	echo '[ INFO ] Step 1. - Remove old Update script...'
+	echo '[ INFO ] Step 2A. - Removing the old Update script...'
 	sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
-	echo '[ INFO ] Step 2. - Downloading new Update script...'
+	echo '[ INFO ] Step 2B. - Downloading the new Update script...'
 
 	PACKAGES="insitu_update_stage2.cgi"
 	DL_REPO=${INSITU_DOWNLOAD}
 	TARGETDIR=${PCPHOME}
-	pcp_download_package
+	pcp_download_package >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded the new Update script'
+		echo '[  OK  ] Successfully downloaded the new Update script.'
 		sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
 		sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
 		sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"
 	else
-		echo '[ ERROR ] Error downloading Update script'
-		FAIL_MSG="Error downloading Update script"
+		echo '[ ERROR ] Error downloading the Update script.'
+		FAIL_MSG="Error downloading the Update script"
 	fi
 }
 
@@ -158,11 +155,11 @@ pcp_warning_message() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> An insitu upgrade will overwrite ALL data on your SD card.</p>'
+	echo '                <p style="color:white"><b>Warning:</b> Assume an insitu update will overwrite ALL the data on your SD card.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Any addtional extensions will need to be reinstalled i.e. jivelite, shairport-sync, alsaequal.</li>'
-	echo '                  <li style="color:white">Any modified or additional files will be lost.</li>'
-	echo '                  <li style="color:white">An insitu upgrade requires about 50% free space.</li>'
+	echo '                  <li style="color:white">Any additional extensions may need to be reinstalled i.e. LMS, jivelite, shairport-sync, alsaequal.</li>'
+	echo '                  <li style="color:white">Any user modified or added files may be lost.</li>'
+	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
 	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
 	echo '                </ul>'
 	echo '              </td>'
@@ -256,7 +253,7 @@ if [ "$ACTION" = "initial" ]; then
 fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
-	echo '[ INFO ] You are downloading Update script '
+	echo '[ INFO ] You are downloading the Update script.'
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_newinstaller
 fi
 #----------------------------------------------------------------------------------------
@@ -290,7 +287,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu upgrade</legend>'
+	echo '          <legend>piCorePlayer insitu update</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="initial" action= "'$0'" method="get">'
 	pcp_toggle_row_shade
@@ -300,7 +297,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input type="hidden" name="ACTION" value="download">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to download new upgrade script.</p>'
+	echo '                  <p>Press the [ Next ] button to download new update script.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
@@ -322,7 +319,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu upgrade</legend>'
+	echo '          <legend>piCorePlayer insitu update</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="download" action= "insitu_update_stage2.cgi">'
 	pcp_start_row_shade
@@ -332,7 +329,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input type="hidden" name="ACTION" value="initial" />'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to install start the upgrade process.</p>'
+	echo '                  <p>Press the [ Next ] button to start the update process.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
