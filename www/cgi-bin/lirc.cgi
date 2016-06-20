@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version pCP2.07 2016-06-12 SBP
+# Using pcp-load to fetch the packages
+
 # Version: 0.01 2016-03-15 GE
 #	Original.
 
@@ -8,12 +11,20 @@
 pcp_variables
 . $CONFIGCFG
 
+ORIG_IR_LIRC=$IR_LIRC
+
+
 pcp_html_head "LIRC" "GE"
 
 pcp_banner
 pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
+
+
+need_backup=no
+
+
 
 WGET="/bin/busybox wget"
 LIRC_REPOSITORY="https://raw.github.com/ralph-irving/tcz-lirc/master"
@@ -31,6 +42,19 @@ KERNEL=$(uname -r)
 #  565248
 #----------------------------------------------------------------------------------------
 SPACE_REQUIRED=600
+
+#========================================================================================
+# Only save IR_LIRC variable from tweaks page if it is changed
+pcp_var_different() {
+if [ "$ORIG_IR_LIRC" != "$IR_LIRC" ]; then
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_IR_LIRC is: '$ORIG_IR_LIRC'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] IR_LIRC is: '$IR_LIRC'</p>'
+	pcp_save_to_config
+	need_backup=yes
+fi
+}
+
+
 
 #========================================================================================
 # Check we have internet access - set FAIL_MSG if not accessible
@@ -86,6 +110,7 @@ pcp_html_end() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td>'
 	echo '                <p>'$FAIL_MSG'</p>'
+	[ "$need_backup" = "yes" ] && pcp_backup_nohtml
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -100,6 +125,8 @@ pcp_html_end() {
 
 	echo '</body>'
 	echo '</html>'
+	pcp_var_different
+#	[ "$need_backup" = "yes" ] && pcp_backup_nohtml
 	[ "$ACTION" != "Initial" ] && pcp_reboot_required
 	exit
 }
@@ -107,7 +134,7 @@ pcp_html_end() {
 #========================================================================================
 # Get a file from a remote repository
 #----------------------------------------------------------------------------------------
-pcp_get_file() {
+old_pcp_get_file() {
 	[ "$1" = "lirc" ] && REPOSITORY=${LIRC_REPOSITORY}
 	[ "$1" = "pico" ] && REPOSITORY=${PICO_REPOSITORY}
 	echo -n '[ INFO ] Downloading '$2'... '
@@ -119,6 +146,21 @@ pcp_get_file() {
 		FAIL_MSG="Failed to download $1"
 	fi
 }
+
+pcp_get_file() {
+	echo '[ INFO ] Installing packages for IR remote control...'
+	sudo -u tc pcp-load -r $PCP_REPO -wf lirc.tcz
+
+
+if [ ! -f ${PACKAGEDIR}/libcofi.tcz ]; then
+	PACKAGES='libcofi.tcz'
+	DL_REPO=${REPOSITORY}
+	TARGETDIR=${PACKAGEDIR}
+	pcp_download_package
+fi
+}
+
+
 
 #========================================================================================
 # Delete a file from the local repository
@@ -133,7 +175,7 @@ pcp_delete_file() {
 #========================================================================================
 # LIRC install
 #----------------------------------------------------------------------------------------
-pcp_lirc_install() {
+old_pcp_lirc_install() {
 	echo '[ INFO ] Preparing download directory...'
 	if [ -d $IR_DOWNLOAD ]; then
 		sudo rm -rf $IR_DOWNLOAD
@@ -178,6 +220,38 @@ pcp_lirc_install() {
 	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
 	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }
+
+pcp_lirc_install() {
+	echo '[ INFO ] Updating configuration files... '
+	
+	# lircrc is from Gregs inital setup       <------------------ I dont know if this is needed? 
+	touch /home/tc/.lircrc
+	sudo chown tc:staff /home/tc/.lircrc
+
+	#add lirc-dtoverlay to config.txt
+	pcp_mount_mmcblk0p1_nohtml
+	echo '<p class="info">[ INFO ] Adding lirc overlay to config.txt...</p>'
+	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+	pcp_umount_mmcblk0p1_nohtml
+
+	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
+	sudo echo "lirc.tcz" >> $ONBOOTLST
+
+	#add lirc conf to the filetool.lst
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] lirc configuration is added to .filetool.lst</p>'
+	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
+	sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
+
+	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
+	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
+	need_backup=yes
+}
+
+
+
+
+
 
 #========================================================================================
 # LIRC uninstall
@@ -361,33 +435,37 @@ if [ "$ACTION" != "Initial" ]; then
 	echo '                <td>'
 	#---------------------------------------Install------------------------------------------
 	if [ "$ACTION" = "Install" ]; then
-		echo '                  <textarea class="inform" style="height:240px">'
+#		echo '                  <textarea class="inform" style="height:240px">'
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		echo '[ INFO ] '$INTERNET_STATUS
+		echo '[ INFO ] '$INTERNET_STATUS'<br>'
 		pcp_sourceforge_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		echo '[ INFO ] '$SOURCEFORGE_STATUS
-		pcp_enough_free_space $SPACE_REQUIRED
-		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_install
+		echo '[ INFO ] '$SOURCEFORGE_STATUS'<br>'
+		pcp_sufficient_free_space $SPACE_REQUIRED
+		pcp_get_file
+		pcp_lirc_install
+		need_backup=yes
 	fi
 	#---------------------------------------Uninstall----------------------------------------
 	if [ "$ACTION" = "Uninstall" ]; then
 		echo '                  <textarea class="inform" style="height:200px">'
 		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_uninstall
+		need_backup=yes
 	fi
 	#---------------------------------------Change-------------------------------------------
 	if [ "$ACTION" = "Change" ]; then
 		echo '                  <textarea class="inform" style="height:100px">'
-		[ "$FAIL_MSG" = "ok" ] && pcp_save_to_config
+		[ "$FAIL_MSG" = "ok" ] && pcp_save_to_config 
 		pcp_mount_mmcblk0p1_nohtml
 		echo '[ INFO ] Changing '$CONFIGTXT'... '
 		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
 		pcp_umount_mmcblk0p1_nohtml
+		need_backup=yes
 	fi
 	#----------------------------------------------------------------------------------------
-	pcp_backup_nohtml
+	
 
 	echo '                  </textarea>'
 	echo '                </td>'
@@ -401,4 +479,9 @@ if [ "$ACTION" != "Initial" ]; then
 	echo '</table>'
 fi
 
+
+
 pcp_html_end
+
+#pcp_var_different
+#[ "$need_backup" = "yes" ] && pcp_backup_nohtml

@@ -604,6 +604,12 @@ pcp_backup_nohtml >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 fi
 
+if [ "$IR_LIRC" = "yes" ]; then
+	echo -n "${BLUE}Starting LIRC IR-remote control... ${NORMAL}"
+	sudo /usr/local/sbin/lircd --device=/dev/lirc0 --uinput
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
 # Display the IP address
 ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_eth0_ip)${NORMAL}"
 ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_wlan0_ip)${NORMAL}"
