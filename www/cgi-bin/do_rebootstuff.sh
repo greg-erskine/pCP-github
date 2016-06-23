@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-06-21 SBP
+#	Changed ssh server to Openssh 
+
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
 #	Added HDMIPOWER.
@@ -425,6 +428,7 @@ if [ "$IR_LIRC" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
 if [ "$MOUNTUUID" != "no" ]; then
@@ -488,17 +492,10 @@ if [ "$LMSERVER" != "yes" ]; then
 	fi
 fi
 
-echo -n "${BLUE}Starting Dropbear SSH server... ${NORMAL}"
-/usr/local/etc/init.d/dropbear start >/dev/null 2>&1
+echo -n "${BLUE}Starting Openssh server... ${NORMAL}"
+/usr/local/etc/init.d/openssh start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
-# Dropbear fix to allow scp to work
-if [ ! -e /usr/bin/dbclient ]; then
-	echo -n "${BLUE}Fixing Dropbear symbolic links... ${NORMAL}"
-	ln -s /usr/local/bin/dropbearmulti /usr/bin/dbclient
-	ln -s /usr/local/bin/scp /usr/bin/scp
-	echo "${GREEN}Done.${NORMAL}"
-fi
 
 if [ "$SHAIRPORT" = "yes" ]; then
 	echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
@@ -602,12 +599,6 @@ if [ "$BACKUP" = "1" ]; then
 echo -n "${BLUE}Saving the changes... ${NORMAL}"
 pcp_backup_nohtml >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
-fi
-
-if [ "$IR_LIRC" = "yes" ]; then
-	echo -n "${BLUE}Starting LIRC IR-remote control... ${NORMAL}"
-	sudo /usr/local/sbin/lircd --device=/dev/lirc0 --uinput
-	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Display the IP address

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version pCP2.07 2016-06-12 SBP
-# Using pcp-load to fetch the packages
+# Version pCP3.00 2016-06-12 SBP
+#	Changed to pcp-load to fetch the packages
 
 # Version: 0.01 2016-03-15 GE
 #	Original.
@@ -42,19 +42,6 @@ KERNEL=$(uname -r)
 #  565248
 #----------------------------------------------------------------------------------------
 SPACE_REQUIRED=600
-
-#========================================================================================
-# Only save IR_LIRC variable from tweaks page if it is changed
-pcp_var_different() {
-if [ "$ORIG_IR_LIRC" != "$IR_LIRC" ]; then
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_IR_LIRC is: '$ORIG_IR_LIRC'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] IR_LIRC is: '$IR_LIRC'</p>'
-	pcp_save_to_config
-	need_backup=yes
-fi
-}
-
-
 
 #========================================================================================
 # Check we have internet access - set FAIL_MSG if not accessible
@@ -125,8 +112,6 @@ pcp_html_end() {
 
 	echo '</body>'
 	echo '</html>'
-	pcp_var_different
-#	[ "$need_backup" = "yes" ] && pcp_backup_nohtml
 	[ "$ACTION" != "Initial" ] && pcp_reboot_required
 	exit
 }
@@ -247,11 +232,6 @@ pcp_lirc_install() {
 	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 	need_backup=yes
 }
-
-
-
-
-
 
 #========================================================================================
 # LIRC uninstall
@@ -482,6 +462,3 @@ fi
 
 
 pcp_html_end
-
-#pcp_var_different
-#[ "$need_backup" = "yes" ] && pcp_backup_nohtml

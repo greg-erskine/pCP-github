@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: pCP3.00 2016-06-21 SBP
+#	Added LIRC IR remote controls. SBP
+
 # Version: 0.26 2016-05-30
 #	Added pcp_tweaks_hdmipower. GE.
 #	Added Reset Jivelite configuration. PH.
@@ -663,7 +666,7 @@ pcp_tweaks_lmscontrols() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------HDMI Power--------------------------------
-pcp_tweaks_xxxx() {
+pcp_tweaks_hdmipower() {
 	case "$HDMIPOWER" in
 		on) HDMIPOWERyes="checked" ;;
 		off) HDMIPOWERno="checked" ;;
@@ -701,7 +704,7 @@ pcp_tweaks_xxxx() {
 	echo '            </form>'
 	echo '          </table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_hdmipower
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
@@ -713,57 +716,6 @@ echo '</table>'
 
 
 #========================================================================================
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>General tweaks</legend>'
-
-#----------------------------------------------HDMI Power--------------------------------
-pcp_tweaks_hdmipower() {
-	[ "$HDMIPOWER" = "on" ] && HDMIPOWERon="checked" || HDMIPOWERon=""
-
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column20">'
-	echo '                  <input class="small1" type="checkbox" name="HDMIPOWER" value="on" '$HDMIPOWERon'>'
-	echo '                </td>'
-	echo '                <td class="column150">'
-	echo '                  <p>HDMI power on</p>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>HDMI power&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Power off HDMI to save some power.</p>'
-	echo '                    <p>Using this option will download and install rpi-vc.tcz.</p>'
-	echo '                    <p>Reboot required.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_hdmipower
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
 #========================================================================================
 # Auto start tweaks
@@ -1011,19 +963,12 @@ echo '        <fieldset>'
 echo '          <legend>LIRC remote control</legend>'
 #----------------------------------------------IR remote--------------------------------
 
-
-
-
-
-pcp_lirc() {
+pcp_tweaks_lirc() {
 	# Function to check the IR_LIRC radio button according to config file
 	case "$IR_LIRC" in
 		yes) IR_LIRC_Y="checked" ;;
 		no) IR_LIRC_N="checked" ;;
 	esac
-
-
-
 
 
 	echo '          <table class="bggrey percent100">'
@@ -1059,7 +1004,7 @@ pcp_lirc() {
 	echo '            </form>'
 	echo '          </table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_lirc
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_lirc
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
 echo '      </div>'
