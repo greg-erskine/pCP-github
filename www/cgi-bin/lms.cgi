@@ -51,6 +51,14 @@ LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
 WGET="/bin/busybox wget"
 
+# logic to activate/inactivate buttons depending upon whether LMS is installed or not 
+if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+DISABLED=""
+else
+DISABLED="disabled"
+fi
+
+
 #---------------------------Routines-----------------------------------------------------
 pcp_download_lms() {
 	cd /tmp
@@ -274,7 +282,7 @@ pcp_lms_enable_lms() {
 	echo '            <form name="Select" action="writetolms.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS autostart" />'
+	echo '                  <input type="submit" value="LMS autostart" '$DISABLED' />'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
@@ -307,7 +315,7 @@ pcp_lms_configure_lms() {
 	echo '            <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Configure LMS" />'
+	echo '                  <input type="submit" value="Configure LMS" '$DISABLED' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Configure LMS&nbsp;&nbsp;'
@@ -394,7 +402,7 @@ pcp_lms_start_lms() {
 	echo '            <form name="Start" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Start" />'
+	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLED' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Start LMS&nbsp;&nbsp;'
@@ -418,7 +426,7 @@ pcp_lms_stop_lms() {
 	echo '            <form name="Stop" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Stop" />'
+	echo '                  <input type="submit" name="ACTION" value="Stop" '$DISABLED' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Stop LMS&nbsp;&nbsp;'
@@ -442,7 +450,7 @@ pcp_lms_restart_lms() {
 	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Restart" />'
+	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLED' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart LMS&nbsp;&nbsp;'
@@ -470,7 +478,7 @@ pcp_update_lms() {
 	echo '            <form name="Update" action="lms-update.cgi">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS Update">'
+	echo '                  <input type="submit" value="LMS Update" '$DISABLED'>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
