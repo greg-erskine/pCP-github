@@ -33,13 +33,13 @@ alias c1='cd /mnt/mmcblk0p1'
 alias c2='cd /mnt/mmcblk0p2'
 
 # Mount partition
-alias m1='sudo mount /mnt/mmcblk0p1'
-alias m2='sudo mount /mnt/mmcblk0p2'
+alias m1='mount /mnt/mmcblk0p1'
+alias m2='mount /mnt/mmcblk0p2'
 
 # Unmount partition
-alias u1='sudo umount /mnt/mmcblk0p1'
-alias u2='sudo umount /mnt/mmcblk0p2'
+alias u1='umount /mnt/mmcblk0p1'
+alias u2='umount /mnt/mmcblk0p2'
 
 # Edit config files
-alias vicfg='vi config.txt'
-alias vicmd='vi cmdline.txt'
+alias vicfg='vi /mnt/mmcblk0p1/config.txt'
+alias vicmd='vi /mnt/mmcblk0p1/cmdline.txt'

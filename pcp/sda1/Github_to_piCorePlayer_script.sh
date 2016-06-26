@@ -40,6 +40,7 @@ fi
 
 # Provide the KERNEL name like 4.1.20-piCore, then this script will automatically find the correct packages both for v6 and v7 boards.
 
+KERNEL=4.4.13-piCore
 
 TMP=/tmp          # this is where you copy the files to
 
@@ -60,9 +61,9 @@ sudo find /tmp/pcp -type f ! -name "*.tcz" ! -name "*.png" ! -name "*.gif" -prin
 
 
 # Remove any tcz package from piCore first
-rm -f $TCZ_PLACE/*.*
-rm -f /usr/local/tce.installed/*
-tce-audit builddb
+#rm -f $TCZ_PLACE/*.*
+#rm -f /usr/local/tce.installed/*
+#tce-audit builddb
 
 #=========================================================================================
 # Get file routine
@@ -82,11 +83,23 @@ getfile $TMP/pcp/conf          wifi.db              /home/tc
 chown root:root /home/tc/wifi.db
 chmod u=rw,g=rw,o=r /home/tc/wifi.db
 
+getfile $TMP/pcp/tc/.local/bin          .pbtemp              /home/tc/.local/bin
+chown root:root /home/tc/.local/bin/.pbtemp
+chmod u=rw,g=rw,o=r /home/tc/.local/bin/.pbtemp
+
+getfile $TMP/pcp/tc          .ashrc           /home/tc
+chown tc:staff /home/tc/.ashrc
+chmod u=rw,g=rw,o=r /home/tc/.ashrc
+
 getfile $TMP/pcp/conf          timezone             /etc/sysconfig
 chown root:root /etc/sysconfig/timezone
 chmod u=rw,g=rw,o=r /etc/sysconfig/timezone
 
 #getfile $TMP/pcp/conf         wpa_supplicant.conf   /etc
+
+#getfile $TMP/pcp/conf          asound.conf           /var/lib/alsa
+#chown root:root /var/lib/alsa/asound.state
+#chmod u=rwx,g=rx,o=rx /var/lib/alsa/asound.state
 
 getfile $TMP/pcp/conf          asound.conf           /etc
 chown root:root /etc/asound.conf
@@ -99,6 +112,10 @@ chmod u=rwx,g=rx,o=rx /etc/modprobe.conf
 getfile $TMP/pcp/etc           motd                 /etc
 chown root:root /etc/motd
 chmod u=rw,g=r,o=r /etc/motd
+
+getfile $TMP/pcp/etc           pointercal                 /usr/local/etc
+chown root:root usr/local/etc/pointercal
+chmod u=rw,g=r,o=r usr/local/etc/pointercal
 
 getfile $TMP/pcp/init.d        squeezelite          $INITD
 chown root:root $INITD/squeezelite
@@ -156,25 +173,29 @@ getfile $TMP/pcp/mmcblk0p2/optional      jivelite.tcz.dep    $TCZ_PLACE
 chown tc:staff $TCZ_PLACE/jivelite.tcz.dep
 chmod u=rw,g=r,o=r $TCZ_PLACE/jivelite.tcz.dep
 
-getfile $TMP/pcp/mmcblk0p2/libts-tcz      libts.tcz    $TCZ_PLACE
+getfile $TMP/pcp/lirc      lirc.tcz.dep    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/lirc.tcz.dep
+chmod u=rw,g=r,o=r $TCZ_PLACE/lirc.tcz.dep
+
+getfile $TMP/pcp/libts-tcz      libts.tcz    $TCZ_PLACE
 chown tc:staff $TCZ_PLACE/libts.tcz
 chmod u=rw,g=r,o=r $TCZ_PLACE/libts.tcz
 
-getfile $TMP/pcp/Touchscreen/backlight      backlight-$KERNEL+.tcz    $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/backlight-$KERNEL+.tcz
-chmod u=rw,g=r,o=r $TCZ_PLACE/backlight-$KERNEL+.tcz
+getfile $TMP/pcp/Touchscreen/backlight      backlight-"$KERNEL"+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/backlight-"$KERNEL"+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/backlight-"$KERNEL"+.tcz
 
-getfile $TMP/pcp/Touchscreen/backlight      backlight-$KERNEL_v7+.tcz    $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/backlight-$KERNEL_v7+.tcz
-chmod u=rw,g=r,o=r $TCZ_PLACE/backlight-$KERNEL_v7+.tcz
+getfile $TMP/pcp/Touchscreen/backlight      backlight-"$KERNEL"_v7+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/backlight-"$KERNEL"_v7+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/backlight-"$KERNEL"_v7+.tcz
 
-getfile $TMP/pcp/Touchscreen/touch      touchscreen-$KERNEL+.tcz    $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/touchscreen-$KERNEL+.tcz
-chmod u=rw,g=r,o=r $TCZ_PLACE/touchscreen-$KERNEL+.tcz
+getfile $TMP/pcp/Touchscreen/touch      touchscreen-"$KERNEL"+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/touchscreen-"$KERNEL"+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/touchscreen-"$KERNEL"+.tcz
 
-getfile $TMP/pcp/Touchscreen/touch      touchscreen-$KERNEL_v7+.tcz    $TCZ_PLACE
-chown tc:staff $TCZ_PLACE/touchscreen-$KERNEL_v7+.tcz
-chmod u=rw,g=r,o=r $TCZ_PLACE/touchscreen-$KERNEL_v7+.tcz
+getfile $TMP/pcp/Touchscreen/touch      touchscreen-"$KERNEL"_v7+.tcz    $TCZ_PLACE
+chown tc:staff $TCZ_PLACE/touchscreen-"$KERNEL"_v7+.tcz
+chmod u=rw,g=r,o=r $TCZ_PLACE/touchscreen-"$KERNEL"_v7+.tcz
 
 getfile $TMP/pcp/RTL_firmware      firmware-rtlwifi.tcz    $TCZ_PLACE
 chown tc:staff $TCZ_PLACE/firmware-rtlwifi.tcz
@@ -198,16 +219,24 @@ sleep 2
 #getfile $TMP/pcp/mmcblk0p1     config.txt            /mnt/mmcblk0p1
 getfile $TMP/pcp/mmcblk0p1      LICENCE.piCorePlayer  /mnt/mmcblk0p1
 
+
 echo smsc95xx.turbo_mode=N noswap showapps cron >> /mnt/mmcblk0p1/cmdline.txt
 sed -i '/current/d' /mnt/mmcblk0p1/config.txt
 echo '#Force max current to USB' >> /mnt/mmcblk0p1/config.txt
 echo max_usb_current=1 >> /mnt/mmcblk0p1/config.txt
+
+sed -i '/piCorePlayer/d' /mnt/mmcblk0p1/config.txt
+echo '#Add piCorePlayer specific settings below' >> /mnt/mmcblk0p1/config.txt
+
 
 sed -i '/hiss/d' /mnt/mmcblk0p1/config.txt
 echo '#remove audio hiss' >> /mnt/mmcblk0p1/config.txt
 sed -i '/disable_audio_dither=1/d' /mnt/mmcblk0p1/config.txt
 echo disable_audio_dither=1 >> /mnt/mmcblk0p1/config.txt
 
+echo '#use new audio driver' >> /mnt/mmcblk0p1/config.txt
+sed -i '/audio_pwm_mode=2/d' /mnt/mmcblk0p1/config.txt
+echo audio_pwm_mode=2 >> /mnt/mmcblk0p1/config.txt
 
 
 # Unmount mmcblk0p1
@@ -216,7 +245,8 @@ sync
 echo '[ INFO ] Unmounting /mnt/mmcblk0p1...'
 sudo umount /dev/mmcblk0p1
 
-
+# make alsa storage directory
+sudo mkdir /var/lib/alsa
 
 
 #Copy www directory and set permissions
@@ -244,20 +274,29 @@ getpackage() {
 
 wait 2
 getpackage busybox-httpd.tcz
-getpackage dropbear.tcz
+#getpackage dropbear.tcz
+getpackage openssh.tcz
 getpackage alsa.tcz
-getpackage alsa-config.tcz
+getpackage alsa-utils.tcz
 getpackage dialog.tcz
 getpackage wifi.tcz
-getpackage alsa-modules-$KERNEL_v7+.tcz
-getpackage alsa-modules-$KERNEL+.tcz
-getpackage wireless-$KERNEL_v7+.tcz
-getpackage wireless-$KERNEL+.tcz
 getpackage firmware-atheros.tcz
 getpackage firmware-ralinkwifi.tcz
 getpackage firmware-brcmfmac43430.tcz
-# getpackage firmware-rtlwifi.tcz - use the updated version Ralphy provided is in our Git
+# getpackage firmware-rtlwifi.tcz - use the updated version Ralphy provided us in our Git
 
+
+
+#Download both KERNEL versions of tcz packages
+sudo wget -O /mnt/mmcblk0p2/tce/optional/alsa-modules-"$KERNEL"+.tcz http://tinycorelinux.net/8.x/armv6/tcz/alsa-modules-"$KERNEL"+.tcz
+sudo chmod u+x /mnt/mmcblk0p2/tce/optional/alsa-modules-"$KERNEL"+.tcz
+sudo wget -O /mnt/mmcblk0p2/tce/optional/wireless-"$KERNEL"+.tcz http://tinycorelinux.net/8.x/armv6/tcz/wireless-"$KERNEL"+.tcz
+sudo chmod u+x /mnt/mmcblk0p2/tce/optional/wireless-"$KERNEL"+.tcz
+
+sudo wget -O /mnt/mmcblk0p2/tce/optional/alsa-modules-"$KERNEL"_v7+.tcz http://tinycorelinux.net/8.x/armv7/tcz/alsa-modules-"$KERNEL"_v7+.tcz
+sudo chmod u+x /mnt/mmcblk0p2/tce/optional/alsa-modules-"$KERNEL"_v7+.tcz
+sudo wget -O /mnt/mmcblk0p2/tce/optional/wireless-"$KERNEL"_v7+.tcz http://tinycorelinux.net/8.x/armv7/tcz/wireless-"$KERNEL"_v7+.tcz
+sudo chmod u+x /mnt/mmcblk0p2/tce/optional/wireless-"$KERNEL"_v7+.tcz
 
 
 #Download Ralphys files

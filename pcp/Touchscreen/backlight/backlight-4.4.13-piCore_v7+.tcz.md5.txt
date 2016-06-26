@@ -1,1 +1,1 @@
-6265d30259a1f1d6f6d8e4177a64cec7  backlight-4.4.13-piCore_v7+.tcz
+f0517aae337669b1a4ff664517b9c478  backlight-4.4.13-piCore_v7+.tcz

@@ -1,5 +1,6 @@
-alsa.tcz
-alsa-config.tcz
-dropbear.tcz
 busybox-httpd.tcz
-openssl.tcz
+alsa.tcz
+openssh.tcz
+dialog.tcz
+
+

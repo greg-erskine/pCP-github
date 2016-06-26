@@ -135,14 +135,6 @@ old_pcp_get_file() {
 pcp_get_file() {
 	echo '[ INFO ] Installing packages for IR remote control...'
 	sudo -u tc pcp-load -r $PCP_REPO -wf lirc.tcz
-
-
-if [ ! -f ${PACKAGEDIR}/libcofi.tcz ]; then
-	PACKAGES='libcofi.tcz'
-	DL_REPO=${REPOSITORY}
-	TARGETDIR=${PACKAGEDIR}
-	pcp_download_package
-fi
 }
 
 
