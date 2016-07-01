@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Version: 3.00 2016-06-21 SBP
-#	Changed ssh server to Openssh 
+#	Changed ssh server to Openssh
+#	Changed rpi3 firmware extension name
 
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
@@ -275,7 +276,7 @@ if [ "$WIFI" = "on" ]; then
 		[ $? -eq 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i firmware-brcmfmac43430.tcz >/dev/null 2>&1
+		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  rpi3 Broadcom firmware loaded.${NORMAL}" || echo "${RED}  rpi3 Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"

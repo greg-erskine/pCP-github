@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-01 PH
+#	Changed name for RPi3 internal wifi firmware extension
+
 # Version: 2.06 2016-05-07 PH
 #	Added Blacklist for RPi3 internal wifi
 
@@ -83,7 +86,7 @@ if [ "$WIFI" = "on" ]; then
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-brcmwifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Broadcom firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Broadcom USB firmware load error.</p>'
-		sudo -u tc tce-load -i firmware-brcmfmac43430.tcz >/dev/null 2>&1
+		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Broadcom firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Broadcom RPi3 firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Ralink firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Ralink firmware load error.</p>'
@@ -99,7 +102,7 @@ if [ "$WIFI" = "off" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] wifi is off. Removing wifi extensions...</p>'
 	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-brcmwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-brcmfmac43430.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-rpi3-wireless.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
