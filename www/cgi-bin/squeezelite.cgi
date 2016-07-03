@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-02 
+#	Added note regaring hw: option for output. PH
+
 # Version: 0.25 2016-05-23
 #	Added multi ALSA_PARAMS. GE.
 #	Added 0 value for Priority, Close output and Power On/Off GPIO settings. SBP.
@@ -320,6 +323,7 @@ else
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
+	echo '                      <li>Some hardware requires the use of "hw", rather than "sysdefault"  i.e. hw:CARD=DAC</li>'
 	echo '                      <li>Sometimes clearing this field completely may help. This forces the default ALSA setting to be used.</li>'
 	echo '                      <li>Using ALSA equalizer will set the output to "equal".</li>'
 	echo '                    </ul>'

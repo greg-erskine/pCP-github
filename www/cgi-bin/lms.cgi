@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-01 PH
+#	Mode Changes
+
 # Version: 2.06 2016-05-07 PH
 #	Cleanup
 
@@ -667,7 +670,7 @@ pcp_slimserver_persistence() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_slimserver_persistence
+[ $MODE -ge $MODE_ADVANCED ] && pcp_slimserver_persistence
 
 #========================================================================================
 # Extra File System Support
@@ -737,7 +740,7 @@ pcp_extra_filesys() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_extra_filesys
+[ $MODE -ge $MODE_ADVANCED ] && pcp_extra_filesys
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -897,7 +900,7 @@ pcp_mount_usbdrives() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_mount_usbdrives
+[ $MODE -ge $MODE_ADVANCED ] && pcp_mount_usbdrives
 
 #========================================================================================
 # Network Disk Mounting Operations
@@ -1047,7 +1050,7 @@ pcp_mount_netdrives() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_mount_netdrives
+[ $MODE -ge $MODE_ADVANCED ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
