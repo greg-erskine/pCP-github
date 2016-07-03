@@ -2,6 +2,7 @@
 
 # Version: pCP3.00 2016-06-21 SBP
 #	Added LIRC IR remote controls. SBP
+#   Reoganized
 
 # Version: 0.26 2016-05-30
 #	Added pcp_tweaks_hdmipower. GE.
@@ -134,7 +135,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>General tweaks</legend>'
+echo '          <legend>pCP System Tweaks</legend>'
 
 #----------------------------------------------Hostname---------------------------------
 pcp_tweaks_hostname() {
@@ -172,212 +173,86 @@ pcp_tweaks_hostname() {
 [ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_hostname
 #----------------------------------------------------------------------------------------
 
-#---------------------------------------Jivelite-----------------------------------------
-# Function to download/install/delete Jivelite
-#----------------------------------------------------------------------------------------
-pcp_tweaks_jivelite() {
-	case "$JIVELITE" in
-		yes) JIVEyes="selected" ;;
-		no) JIVEno="selected" ;;
-	esac
-
+#----------------------------------------------Timezone----------------------------------
+pcp_tweaks_timezone() {
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
+	echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Jivelite</p>'
-	echo '                </td>'
+	echo '                <td class="column150">Timezone</td>'
 	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="JIVELITE">'
-	echo '                    <option value="yes" '$JIVEyes'>Jivelite enabled</option>'
-	echo '                    <option value="no" '$JIVEno'>Jivelite disabled</option>'
-	echo '                  </select>'
+	echo '                  <input class="large16" type="text" name="TIMEZONE" value="'$TIMEZONE'" maxlength="28" pattern="^[a-zA-Z0-9-,./]*$">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enable/disable Jivelite&nbsp;&nbsp;'
+	echo '                  <p>Add or change your timezone&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
-	echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
-	echo '                    <p>A reboot after installation is needed.<p>'
-	echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
+	echo '                    <p>Format: EST-10EST,M10.1.0,M4.1.0/3</p>'
+	echo '                    <p>Your timezone should be automatically populated.</p>'
+	echo '                    <p>If not, cut and paste your timezone from your favourite timezone location.</p>'
+	echo '                    <p>Example:</p>'
 	echo '                    <ul>'
-	echo '                      <li>Jivelite enabled - Downloads and installs Jivelite.</li>'
-	echo '                      <li>Jivelite disabled - Removes all traces of Jivelite.</li>'
-	echo '                    </ul>'
-	echo '                    <p>Jivelite may use all the free space which will prevent insitu upgrade from working.<p>'
-	echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	[ $MODE -ge $MODE_BETA -a "$JIVELITE" = "yes" ] &&
-	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
-		echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
-		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
-	fi
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
-
-#---------------------------------------VU Meters----------------------------------------
-# Function to download/install/delete Jivelite VU Meters
-#----------------------------------------------------------------------------------------
-pcp_tweaks_vumeter() {
-
-	LOADED_VU_METER=$( cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
-
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Jivelite VU Meter</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="VUMETER">'
-
-	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter | grep .tcz$ )
-	                          for i in $VUMETERS
-	                          do
-	                            [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
-	                            DISPLAY=$( echo $i | sed -e 's/^VU_Meter_//' -e 's/.tcz$//' -e 's/_/ /g' )
-	                            echo '                    <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
-	                          done
-
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Select Jivelite VU Meter (Joggler Skin only)&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows you to select VU Meters from a dropdown list.</p>'
-	echo '                    <p>Jivelite will restart after changing VU Meter.<p>'
-	echo '                    <p>VU Meters have been sourced from various community members. Thank you.<p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                  <input type="submit" name="SUBMIT" value="Download">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-
-	if [ $DEBUG -eq 1 ]; then
-		#========================================================================================
-		# Display debug information
-		#----------------------------------------------------------------------------------------
-		pcp_start_row_shade
-		pcp_toggle_row_shade
-		echo '           <table class="bggrey percent100">'
-		echo '             <tr class="'$ROWSHADE'">'
-		echo '               <td>'
-		echo '                 <p>[ DEBUG ] Loop mounted extensions</p>'
-		echo '               </td>'
-		echo '             </tr>'
-		pcp_toggle_row_shade
-		echo '             <tr class="'$ROWSHADE'">'
-		echo '               <td>'
-		                       pcp_textarea_inform "none" "df | grep /dev/loop " 200
-		echo '               </td>'
-		echo '             </tr>'
-		pcp_toggle_row_shade
-		echo '             <tr class="'$ROWSHADE'">'
-		echo '               <td>'
-		echo '                 <p>[ DEBUG ] Installed extensions</p>'
-		echo '               <td>'
-		echo '             </tr>'
-		pcp_toggle_row_shade
-		echo '             <tr class="'$ROWSHADE'">'
-		echo '               <td>'
-		                       ls /usr/local/tce.installed >/tmp/installed.lst
-		                       pcp_textarea_inform "none" "cat /tmp/installed.lst" 100
-		echo '               </td>'
-		echo '             </tr>'
-		echo '           </table>'
-
-		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
-		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
-		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
-	fi
-}
-[ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
-#----------------------------------------------------------------------------------------
-
-#---------------------------------------Screen rotate------------------------------------
-# Function to check the radio button according to config.cfg file
-#----------------------------------------------------------------------------------------
-pcp_tweaks_screenrotate() {
-	case "$SCREENROTATE" in
-		yes) SCREENyes="selected" ;;
-		no) SCREENno="selected" ;;
-	esac
-
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Rotate screen</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="SCREENROTATE">'
-	echo '                    <option value="yes" '$SCREENyes'>Rotate screen</option>'
-	echo '                    <option value="no" '$SCREENno'>Default screen rotation</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Rotate screen if upside down&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows to rotate piCorePlayer if upside down.</p>'
-	echo '                    <p>A reboot after any change is needed.<p>'
-	echo '                    <p><b>Note:</b> For some screen mounts piCorePlayer is shown upside down.</p>'
-	echo '                    <ul>'
-	echo '                      <li>Rotate screen - will flip the view 180 degrees.</li>'
-	echo '                      <li>Default screen orientation.</li>'
+	echo '                      <li><a href="http://wiki.openwrt.org/doc/uci/system#time.zones" target="_blank">Openwrt</a></li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="2">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_timezone
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------------Password----------------------------------
+# Note: changing passwords through a script over html is not very secure.
+#----------------------------------------------------------------------------------------
+pcp_tweaks_password() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="password" action="changepassword.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16" type="password" name="NEWPASSWORD" maxlength="26">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enter new password&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Default: piCore</p>'
+	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150"></td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16" type="password" name="CONFIRMPASSWORD" maxlength="26">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Confirm new password.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'" >'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
 	echo '          </table>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
-		echo '                 [ DEBUG ] $SCREENyes: '$SCREENyes'<br />'
-		echo '                 [ DEBUG ] $SCREENno: '$SCREENno'</p>'
-	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+[ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Overclock----------------------------------------
@@ -466,123 +341,6 @@ pcp_tweaks_overclock() {
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_overclock
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------Timezone----------------------------------
-pcp_tweaks_timezone() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">Timezone</td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="text" name="TIMEZONE" value="'$TIMEZONE'" maxlength="28" pattern="^[a-zA-Z0-9-,./]*$">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Add or change your timezone&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Format: EST-10EST,M10.1.0,M4.1.0/3</p>'
-	echo '                    <p>Your timezone should be automatically populated.</p>'
-	echo '                    <p>If not, cut and paste your timezone from your favourite timezone location.</p>'
-	echo '                    <p>Example:</p>'
-	echo '                    <ul>'
-	echo '                      <li><a href="http://wiki.openwrt.org/doc/uci/system#time.zones" target="_blank">Openwrt</a></li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="2">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-}
-[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_timezone
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------Password----------------------------------
-# Note: changing passwords through a script over html is not very secure.
-#----------------------------------------------------------------------------------------
-pcp_tweaks_password() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="password" action="changepassword.cgi" method="get">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="password" name="NEWPASSWORD" maxlength="26">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Enter new password&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Default: piCore</p>'
-	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150"></td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="password" name="CONFIRMPASSWORD" maxlength="26">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Confirm new password.</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'" >'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-}
-[ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------LMS Web Port------------------------------
-pcp_tweaks_lmswebport() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">LMS Web Port</td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="number" name="LMSWEBPORT" value="'$LMSWEBPORT'" min="9001" max="9999">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Enter non-default LMS Web Port number&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;number&gt;</p>'
-	echo '                    <p><b>Default:</b> 9000</p>'
-	echo '                    <p><b>Range:</b> 9001:9999</p>'
-	echo '                    <p><b>Note:</b> Only add this if you have changed from the default LMS Web Port value.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="2">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-}
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Player Tabs-------------------------------
@@ -707,15 +465,45 @@ pcp_tweaks_hdmipower() {
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_hdmipower
 #----------------------------------------------------------------------------------------
 
+#----------------------------------------------LMS Web Port------------------------------
+pcp_tweaks_lmswebport() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">LMS Web Port</td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16" type="number" name="LMSWEBPORT" value="'$LMSWEBPORT'" min="9001" max="9999">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enter non-default LMS Web Port number&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;number&gt;</p>'
+	echo '                    <p><b>Default:</b> 9000</p>'
+	echo '                    <p><b>Range:</b> 9001:9999</p>'
+	echo '                    <p><b>Note:</b> Only add this if you have changed from the default LMS Web Port value.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="2">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-
-#========================================================================================
 
 #========================================================================================
 # Auto start tweaks
@@ -930,10 +718,236 @@ pcp_tweaks_auto_start() {
 	[ $DEBUG -eq 1 ] && pcp_favorites
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
+#=========================================================================================
+
+
+#=========================================================================================
+#---------------------------------------Jivelite-----------------------------------------
+# Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
+pcp_tweaks_jivelite() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Jivelite Setup</legend>'
+	case "$JIVELITE" in
+		yes) JIVEyes="selected" ;;
+		no) JIVEno="selected" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Jivelite</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="JIVELITE">'
+	echo '                    <option value="yes" '$JIVEyes'>Jivelite enabled</option>'
+	echo '                    <option value="no" '$JIVEno'>Jivelite disabled</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enable/disable Jivelite&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
+	echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
+	echo '                    <p>A reboot after installation is needed.<p>'
+	echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
+	echo '                    <ul>'
+	echo '                      <li>Jivelite enabled - Downloads and installs Jivelite.</li>'
+	echo '                      <li>Jivelite disabled - Removes all traces of Jivelite.</li>'
+	echo '                    </ul>'
+	echo '                    <p>Jivelite may use all the free space which will prevent insitu upgrade from working.<p>'
+	echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	[ $MODE -ge $MODE_ADVANCED -a "$JIVELITE" = "yes" ] &&
+	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
+		echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
+		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
+	fi
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
+
+#---------------------------------------VU Meters----------------------------------------
+# Function to download/install/delete Jivelite VU Meters
+#----------------------------------------------------------------------------------------
+pcp_tweaks_vumeter() {
+
+	LOADED_VU_METER=$( cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Jivelite VU Meter</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="VUMETER">'
+
+	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter | grep .tcz$ )
+	                          for i in $VUMETERS
+	                          do
+	                            [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
+	                            DISPLAY=$( echo $i | sed -e 's/^VU_Meter_//' -e 's/.tcz$//' -e 's/_/ /g' )
+	                            echo '                    <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
+	                          done
+
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Select Jivelite VU Meter (Joggler Skin only)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows you to select VU Meters from a dropdown list.</p>'
+	echo '                    <p>Jivelite will restart after changing VU Meter.<p>'
+	echo '                    <p>VU Meters have been sourced from various community members. Thank you.<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Download">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG -eq 1 ]; then
+		#========================================================================================
+		# Display debug information
+		#----------------------------------------------------------------------------------------
+		pcp_start_row_shade
+		pcp_toggle_row_shade
+		echo '           <table class="bggrey percent100">'
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		echo '                 <p>[ DEBUG ] Loop mounted extensions</p>'
+		echo '               </td>'
+		echo '             </tr>'
+		pcp_toggle_row_shade
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		                       pcp_textarea_inform "none" "df | grep /dev/loop " 200
+		echo '               </td>'
+		echo '             </tr>'
+		pcp_toggle_row_shade
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		echo '                 <p>[ DEBUG ] Installed extensions</p>'
+		echo '               <td>'
+		echo '             </tr>'
+		pcp_toggle_row_shade
+		echo '             <tr class="'$ROWSHADE'">'
+		echo '               <td>'
+		                       ls /usr/local/tce.installed >/tmp/installed.lst
+		                       pcp_textarea_inform "none" "cat /tmp/installed.lst" 100
+		echo '               </td>'
+		echo '             </tr>'
+		echo '           </table>'
+
+		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
+		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
+		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
+	fi
+}
+[ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
+#----------------------------------------------------------------------------------------
+
+#---------------------------------------Screen rotate------------------------------------
+# Function to check the radio button according to config.cfg file
+#----------------------------------------------------------------------------------------
+pcp_tweaks_screenrotate() {
+	case "$SCREENROTATE" in
+		yes) SCREENyes="selected" ;;
+		no) SCREENno="selected" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Rotate screen</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="SCREENROTATE">'
+	echo '                    <option value="yes" '$SCREENyes'>Rotate screen</option>'
+	echo '                    <option value="no" '$SCREENno'>Default screen rotation</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Rotate screen if upside down&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows to rotate piCorePlayer if upside down.</p>'
+	echo '                    <p>A reboot after any change is needed.<p>'
+	echo '                    <p><b>Note:</b> For some screen mounts piCorePlayer is shown upside down.</p>'
+	echo '                    <ul>'
+	echo '                      <li>Rotate screen - will flip the view 180 degrees.</li>'
+	echo '                      <li>Default screen orientation.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
+		echo '                 [ DEBUG ] $SCREENyes: '$SCREENyes'<br />'
+		echo '                 [ DEBUG ] $SCREENno: '$SCREENno'</p>'
+	fi
+#----------------------------------------------------------------------------------------
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+#----------------------------------------------------------------------------------------
+#========================================================================================
+
+
+#========================================================================================
 pcp_lirc_status() {
-pgrep lircd > /dev/null && IR_RUN=0
-pgrep lircd > /dev/null || IR_RUN=1
+	pgrep lircd > /dev/null && IR_RUN=0
+	pgrep lircd > /dev/null || IR_RUN=1
 }
 pcp_lirc_status
 
@@ -953,17 +967,16 @@ pcp_main_lirc_indication() {
 pcp_main_lirc_indication
 
 
-
 #==============================================IR Remote table ==========================================
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>LIRC remote control</legend>'
+pcp_tweaks_lirc() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>LIRC remote control</legend>'
 #----------------------------------------------IR remote--------------------------------
 
-pcp_tweaks_lirc() {
 	# Function to check the IR_LIRC radio button according to config file
 	case "$IR_LIRC" in
 		yes) IR_LIRC_Y="checked" ;;
@@ -1003,14 +1016,14 @@ pcp_tweaks_lirc() {
 	echo '              </tr>'
 	echo '            </form>'
 	echo '          </table>'
+#----------------------------------------------------------------------------------------
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_lirc
-#----------------------------------------------------------------------------------------
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
 #========================================================================================
 
