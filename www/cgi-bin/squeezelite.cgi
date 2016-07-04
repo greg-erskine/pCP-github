@@ -2,6 +2,7 @@
 
 # Version: 3.00 2016-07-02 
 #	Added note regaring hw: option for output. PH
+#	Added new DACs. SBP
 
 # Version: 0.25 2016-05-23
 #	Added multi ALSA_PARAMS. GE.
@@ -171,20 +172,22 @@ echo '            <legend>Choose audio output</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Audio output-------------------------------
 case "$AUDIO" in
-	Analog)      ANCHECKED="selected" ;;
-	HDMI)        HDMICHECKED="selected" ;;
-	USB)         USBCHECKED="selected" ;;
-	I2SDAC)      I2DACCHECKED="selected";;
-	I2SDIG)      I2DIGCHECKED="selected" ;;
-	I2SAMP)      I2AMPCHECKED="selected" ;;
-	IQaudio)     IQaudioCHECKED="selected" ;;
-	I2SpDAC)     I2SDACpCHECKED="selected" ;;
-	I2SpDIG)     I2SDIGpCHECKED="selected" ;;
-	I2SpIQaudIO) IQaudIOpCHECKED="selected" ;;
-	I2SpIQAMP)   IQAMPCHECKED="selected" ;;
-	raspidac3)   raspidac3CHECKED="selected" ;;
-	rpi_dac)     rpi_dacCHECKED="selected" ;;
-	*)           CHECKED="Not set" ;;
+	Analog)          ANCHECKED="selected" ;;
+	HDMI)            HDMICHECKED="selected" ;;
+	USB)             USBCHECKED="selected" ;;
+	I2SDAC)          I2DACCHECKED="selected";;
+	I2SDIG)          I2DIGCHECKED="selected" ;;
+	I2SAMP)          I2AMPCHECKED="selected" ;;
+	IQaudio)         IQaudioCHECKED="selected" ;;
+	I2SpDAC)         I2SDACpCHECKED="selected" ;;
+	I2SpDIG)         I2SDIGpCHECKED="selected" ;;
+	I2SpIQaudIO)     IQaudIOpCHECKED="selected" ;;
+	I2SpIQAMP)       IQAMPCHECKED="selected" ;;
+	I2SpIQaudIOdigi) IQaudIOdigipCHECKED="selected" ;;
+	justboomdac)     justboomdacCHECKED="selected" ;;
+	justboomdigi)    justboomdigiCHECKED="selected" ;;
+	rpi_dac)         rpi_dacCHECKED="selected" ;;
+	*)               CHECKED="Not set" ;;
 esac
 
 pcp_incr_id
@@ -210,11 +213,15 @@ if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: generic</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
-	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio: IQaudIO Pi-DAC+</option>'
-	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi)AMP+</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
+	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio: IQaudIO Pi-DAC+</option>'
+	echo '                    <option value="I2SpIQaudIOdigi" '$IQaudIOdigipCHECKED'>I2S audio: IQaudIO Pi-Digi+</option>'
+	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi)AMP+</option>'
+
 fi
 
+echo '                    <option value="justboomdac" '$justboomdacCHECKED'>I2S audio: JustBoom DAC</option>'
+echo '                    <option value="justboomdigi" '$justboomdigiCHECKED'>I2S audio: JustBoom Digi</option>'
 echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
 echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: RPi DAC</option>'
 

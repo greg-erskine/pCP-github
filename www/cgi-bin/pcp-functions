@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.00 2016-07-04
+#	Added new DACs. SBP.
+
 # Version: 2.06 2016-05-22
 #	Added HDMIPOWER, ADVOVERCLOCK. GE.
 #	Added RPI3INTWIFI. PH.
@@ -299,7 +302,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=30
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1619,8 +1622,11 @@ pcp_disable_i2s() {
 	sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
 	sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
 	sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
+	sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
 	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
 	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboomdigi/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboomdac/d' $CONFIGTXT
 }
 
 #=========================================================================================
@@ -1695,6 +1701,15 @@ pcp_enable_iqaudio_amp() {
 }
 
 #========================================================================================
+# Load the correct modules for IQaudIO AMP+ and digiAMP+
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_digi() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
+}
+
+
+#========================================================================================
 # Load the correct modules for raspidac3
 #----------------------------------------------------------------------------------------
 pcp_enable_raspidac3() {
@@ -1709,3 +1724,23 @@ pcp_enable_rpi_dac() {
 	pcp_disable_i2s
 	sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
 }
+
+#========================================================================================
+# Load the correct modules for justboomdac
+#----------------------------------------------------------------------------------------
+pcp_enable_justboomdac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for justboomdigi
+#----------------------------------------------------------------------------------------
+pcp_enable_justboomdigi() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
+}
+
+
+
+

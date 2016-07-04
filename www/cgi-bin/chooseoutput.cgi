@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-04 SBP.
+#	Added support for new DACs.
+
 # Version: 0.11 2016-03-25 GE
 #	Updated raspidac3 settings, CARD=Card.
 
@@ -149,6 +152,30 @@ case "$AUDIO" in
 		pcp_enable_iqaudio_dac_p
 		pcp_disable_HDMI
 		OUTPUT="hw:CARD=IQaudIODAC"
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+	;;
+	I2SpIQaudIOdigi*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_iqaudio_digi
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=IQaudIODIGI"  #is this correct
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+	;;
+	justboomdac*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_justboomdac
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=Card"       #is this correct
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+	;;
+	justboomdigi*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_justboomdigi
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=Card"     #is this correct
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 	;;
