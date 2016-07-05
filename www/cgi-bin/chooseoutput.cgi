@@ -49,6 +49,11 @@ pcp_variables
 
 pcp_html_head "Choose output" "SBP" "10" "squeezelite.cgi"
 
+# Store the original values so we can see if they are changed
+ORIG_AUDIO=$AUDIO
+ORIG_DIGIGAIN=$DIGIGAIN
+CHANGED=0
+
 pcp_banner
 pcp_running_script
 pcp_squeezelite_stop
@@ -61,9 +66,10 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 echo '<textarea class="white" style="height: 80px;" >'
-echo '[ INFO ] Setting $AUDIO to '$AUDIO
-
 # Set the default settings
+# Only do something if variable is changed
+if [ "$ORIG_AUDIO" != "$AUDIO" ] || [ "$ORIG_DIGIGAIN" != "$DIGIGAIN" ] ; then
+echo '[ INFO ] Setting $AUDIO to '$AUDIO
 case "$AUDIO" in
 	Analog*)
 		pcp_mount_mmcblk0p1_nohtml
@@ -199,7 +205,10 @@ case "$AUDIO" in
 		echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
 	;;
 esac
-
+CHANGED=1
+else
+	echo '[ INFO ] AUDIO variable unchanged.'
+fi
 echo '</textarea>'
 
 #----If ALSA equalizer is chosen output should always be equal----
@@ -254,11 +263,28 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
 fi
 
+
+#============================ DACconfig section=========================================
+echo '<textarea class="white" style="height: 80px;" >'
+# Only do something if variable is changed
+if [ "$ORIG_DIGIGAIN" != "$DIGIGAIN" ]; then
+CHANGED=1
+echo '[ INFO ] Setting $DIGIGAIN to '$DIGIGAIN
+pcp_save_to_config
+else
+	echo '[ INFO ] DIGIGAIN variable unchanged.'
+fi
+echo '</textarea>'
+
+
+pcp_squeezelite_start
+
+if [ "$CHANGED" = "1" ]; then
 pcp_save_to_config
 pcp_textarea "" "cat $CONFIGCFG" 380
-pcp_squeezelite_start
 pcp_backup
 pcp_reboot_required
+fi
 pcp_go_back_button
 
 echo '</body>'

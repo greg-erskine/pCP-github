@@ -246,12 +246,54 @@ echo '                </td>'
 echo '              </tr>'
 
 #----------------------------------------------------------------------------------------
+
+
+#*************NEW START
+#----------------------------------------------Extra options for DACs-----------------------------
+
+pcp_tweaks_DACconfig() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="tzone" action="chooseoutput.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">Add gain in db (0-24db)</td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15" type="number" name="DIGIGAIN" value="'$DIGIGAIN'" min="0" max="24">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Allow gain to be applied to certain DACs&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;For IQaudIO, Akkordion, HifiBerry and JustBoom DAC&gt;</p>'
+	echo '                    <p><b>The default behaviour is that the Digital volume control is limited to a maximum of 0dB</b></p>'
+	echo '                    <p>ie. it can attenuate but not provide gain. This will be desired as it will prevent clipping.</p>'
+	echo '                    <p>If enabled you can apply up to 24db of gain.</p>'
+	echo '                    <p>If gain is applied, it is the responsibility of the user to ensure that the Digital volume control is set to a value
+that does not result in clipping/distortion!</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="2">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_DACconfig
+
+#**********NEW END
+
+#-----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
+
+
+
 echo '  <tr>'
 echo '    <td>'
 echo '      <form name="squeeze" action="writetoconfig.cgi" method="get">'
