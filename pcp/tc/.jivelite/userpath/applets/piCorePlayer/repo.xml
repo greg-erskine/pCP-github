@@ -5,14 +5,14 @@
    </details>
 
    <applets>
-     <applet name="piCorePlayer" version="1.2" minTarget="0.1" maxTarget="*" target="squeezeplay|jivelite" >
+     <applet name="piCorePlayer" version="1.5" minTarget="0.1" maxTarget="*" target="squeezeplay|jivelite" >
        <title lang="EN">piCorePlayer menu</title>
        <desc lang="EN">Access common piCorePlayer features from jive settings menu.</desc>
        <changes lang="EN">Initial Release.</changes>
        <creator>Kolossos</creator>
        <email>kolossos@gmail.com</email>
-       <url>http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.2.zip</url>
-       <sha>775300c4e04c8a17ed6a55c12786916057f79f43</sha>
+       <url>http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.5.zip</url>
+       <sha>fa93bd672beebe6e7dd0aabcf6d4b87e45b52b25</sha>
        <link>http://sourceforge.net/projects/picoreplayer</link>
      </applet>
      <applet name="Clock" version="1.1" minTarget="0.1" maxTarget="*" target="jivelite" >
