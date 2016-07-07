@@ -2,7 +2,8 @@
 -- v2 adds pcp command in os.execute, backlight off when shutting down and Dutch translation
 -- v3 adds version number checking
 -- v4 adds backlight brightness adjustment for the official Raspberry Pi display rev. 1.1
---
+-- v5 adds option to rescan LMS media library for pCP 2.x
+
 -- Lua/Jive/JiveLite bugs/problems encountered:
 --     - keyboard cursor key up moves volume slider down
 --     - keyboard cursor key down moves volume slider up
@@ -48,6 +49,8 @@ local pCP_default_reboot_cmd = "sudo reboot"
 local pCP_default_shutdown_cmd = "sudo poweroff"
 local pCP_default_save_cmd = "sudo filetool.sh -b"
 
+local pCP_2_0_rescan_LMS_media_library = "/usr/local/sbin/pcp rescan"
+
 function menu(self, menuItem)
 
 	local window = Window("text_list", "piCorePlayer")
@@ -61,6 +64,11 @@ function menu(self, menuItem)
 	menu:addItem({ text = self:string("MENU_SHUTDOWN"),
 			callback = function(event, menuItem)
 				self:shutdownPi(menuItem)
+			end })
+
+	menu:addItem({ text = self:string("MENU_RESCAN_LMS_MEDIA_LIBRARY"),
+			callback = function(event, menuItem)
+				self:rescanLMSMediaLibrary(menuItem)
 			end })
 
 	menu:addItem({ text = self:string("MENU_ADJUST_BRIGHTNESS"),
@@ -308,6 +316,43 @@ function shutdownPi(self, menuItem)
 	   end)
 
 	self:tieAndShowWindow(popup)
+	return popup
+end
+
+function rescanLMSMediaLibrary(self, menuItem)
+	local pcpVersion = tonumber(getpCPVersion())
+
+	local popup = Popup("toast_popup_text")
+
+	popup:setAllowScreensaver(false)
+	popup:setAutoHide(false)
+
+	-- don't allow any keypress/touch command so user cannot interrupt the save command
+	-- popup will hide when saving is done
+	popup:ignoreAllInputExcept({""})
+
+	local text = Label("text", tostring(self:string("LABEL_RESCAN_LMS_MEDIA_LIBRARY")))
+
+	popup:addWidget(text)
+
+	local state = "init"
+	popup:addTimer(1000, function()
+			if state == "init" then
+				if pcpVersion ~= nil then
+					-- pcpVersion is a number
+					if pcpVersion >= 2.00 then
+						os.execute(pCP_2_0_rescan_LMS_media_library)
+					end
+				end
+				state = "done"
+			elseif state == "done" then
+				state = "hide"
+			elseif state == "hide" then
+				popup:hide(Window.transitionFadeOut)
+			end
+		end)
+
+	self:tieAndShowWindow(popup, Window.transitionFadeIn)
 	return popup
 end
 

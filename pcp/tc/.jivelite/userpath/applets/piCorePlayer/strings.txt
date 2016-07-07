@@ -10,6 +10,9 @@ MENU_ADJUST_BRIGHTNESS
 MENU_SAVE_SETTINGS
 	EN	Save Settings to SD Card
 	NL	Instellingen opslaan op SD kaart
+MENU_RESCAN_LMS_MEDIA_LIBRARY
+	EN	Rescan LMS Media Library
+	NL	LMS media collectie opnieuw scannen 
 LABEL_ADJUST_BRIGHTNESS
 	EN	Backlight Brightness:
 	NL	Helderheid:
@@ -52,3 +55,6 @@ LABEL_SAVING_SETTINGS
 LABEL_SETTINGS_SAVED
 	EN	Settings saved to SD card!
 	NL	Instellingen opgeslagen op SD kaart!
+LABEL_RESCAN_LMS_MEDIA_LIBRARY
+	EN	LMS media rescan initiated
+	NL	LMS media collectie wordt opnieuw gescanned

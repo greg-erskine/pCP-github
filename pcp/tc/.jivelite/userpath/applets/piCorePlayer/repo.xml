@@ -15,6 +15,15 @@
        <sha>775300c4e04c8a17ed6a55c12786916057f79f43</sha>
        <link>http://sourceforge.net/projects/picoreplayer</link>
      </applet>
+     <applet name="Clock" version="1.1" minTarget="0.1" maxTarget="*" target="jivelite" >
+       <title lang="EN">Clock ScreenSaver</title>
+       <desc lang="EN">Updated clock applet with JogglerSkin support</desc>
+       <changes lang="EN">Tweaked position of digital clock.</changes>
+       <creator>Ralphy</creator>
+       <url>http://picoreplayer.sourceforge.net/repo/Clock-1.1.zip</url>
+       <sha>5e93914e9a594521efe5318443368a9f93607ac4</sha>
+       <link>http://sourceforge.net/projects/picoreplayer</link>
+     </applet>
    </applets>  
    
 </extensions>
