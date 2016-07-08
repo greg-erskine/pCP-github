@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.00 2016-07-04
+# Version: 3.00 2016-07-08
 #	Added new DACs. SBP.
+#	Removed MAC address from footer. GE.
 
 # Version: 2.06 2016-05-22
 #	Added HDMIPOWER, ADVOVERCLOCK. GE.
@@ -302,7 +303,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=100
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -624,7 +625,6 @@ pcp_footer() {
 	echo '    <td>'
 	echo '      <p class="footer">
 					'$NAME' |
-					'$(pcp_controls_mac_address)' |
 					piCorePlayer v'$(pcp_picoreplayer_version)' |
 					linux '$(pcp_linux_release)' |
 					piCore v'$(pcp_picore_version)' |

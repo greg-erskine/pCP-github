@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-08
+#	Removed pcp_mode_lt_beta. GE. 
+
 # Version: 0.04 2016-01-26 GE
 #	Removed manual resize option.
 
@@ -21,7 +24,6 @@ pcp_html_head "xtras_resize" "GE" "30" "main.cgi"
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_mode_lt_beta
 pcp_running_script
 pcp_httpd_query_string
 
@@ -99,7 +101,7 @@ else
 		echo '            <form name="auto" action="xtras_resize.cgi" method="get">'
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		echo '                  <p>Auto resizing the partition is an automatic process that will fully expand the partition:</p>'
+		echo '                  <p>Auto resizing is an automatic process that will fully expand the mmcblk0p2 partition in 2 steps:</p>'
 		echo '                  <ol>'
 		echo '                    <li>fdisk, then auto reboot</li>'
 		echo '                    <li>resize2fs, then auto reboot</li>'
@@ -109,7 +111,7 @@ else
 		echo '              <tr class="warning">'
 		echo '                <td>'
 		echo '                  <p style="color:white">'
-		echo '                    <input type="submit" name="SUBMIT" value="Resize" />&nbsp;&nbsp;Auto resize partition'
+		echo '                    <input type="submit" name="SUBMIT" value="Resize" />&nbsp;&nbsp;Start auto resize partition now.'
 		echo '                  </p>'
 		echo '                </td>'
 		echo '              </tr>'

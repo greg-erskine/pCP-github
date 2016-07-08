@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-08
+#	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
+
 # Version: 2.06 2016-05-22 GE
 #	Fixed a few typos.
 
@@ -544,6 +547,53 @@ pcp_main_shutdown() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_shutdown
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Resize FS-------------------------------------
+pcp_main_resize_fs() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Resize FS" action="xtras_resize.cgi" method="get">'
+	echo '                  <input type="submit" value="Resize FS" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Resize file system&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This command will resize the file system to fit the SD card.</p>'
+	echo '                  <p>Only required if you need to add extra extensions.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_resize_fs
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Extensions------------------------------------
+pcp_main_extensions() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Stop" action="xtras_extensions.cgi" method="get">'
+	echo '                  <input type="submit" value="Extensions" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Search, load or delete piCore extensions&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This page gives you the option to search, load or delete piCore extensions.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_extensions
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Beta mode fieldset----------------------------
 if [ $MODE -ge $MODE_BETA ]; then
 	echo '          </table>'
@@ -583,53 +633,6 @@ pcp_main_static_ip(){
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Resize FS-------------------------------------
-pcp_main_resize_fs() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Resize FS" action="xtras_resize.cgi" method="get">'
-	echo '                  <input type="submit" value="Resize FS" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Resize file system&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command will resize the file system to fit the SD card.</p>'
-	echo '                  <p>Only required if you need to add extra extensions.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_resize_fs
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Extensions------------------------------------
-pcp_main_extensions() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Stop" action="xtras_extensions.cgi" method="get">'
-	echo '                  <input type="submit" value="Extensions" />'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Search, load or delete piCore extensions&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This page gives you the option to search, load or delete piCore extensions.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Diagnostics-----------------------------------

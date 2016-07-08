@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.00 2016-07-08
+#	Removed pcp_mode_lt_beta. GE. 
+
 # Version: 0.06 2016-05-28 GE
 #	Major update.
 
@@ -40,7 +43,6 @@ pcp_html_head "Add piCore extension" "GE"
 
 pcp_banner
 pcp_navigation
-pcp_mode_lt_beta
 
 # Set variables
 TCELOAD="tce-load"
