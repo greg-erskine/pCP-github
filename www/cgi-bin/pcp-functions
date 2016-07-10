@@ -303,7 +303,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=100
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -1457,7 +1457,6 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
 	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(DIGIGAIN=\).*/\1\"$DIGIGAIN\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1552,7 +1551,6 @@ LMSCONTROLS="yes"
 PLAYERTABS="yes"
 HDMIPOWER="on"
 RPI3INTWIFI="on"
-DIGIGAIN="0"
 EOF
 }
 
@@ -1600,17 +1598,23 @@ pcp_reset_config_to_defaults() {
 #-----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
 	case "$AUDIO" in
-		Analog)      pcp_disable_i2s ;;
-		USB)         pcp_disable_i2s ;;
-		I2SDAC)      pcp_enable_i2s_dac ;;
-		I2SDIG)      pcp_enable_i2s_digi ;;
-		I2SpDAC)     pcp_enable_hifiberry_dac_p ;;
-		I2SpDIG)     pcp_enable_i2s_digi ;;
-		I2SpIQaudIO) pcp_enable_iqaudio_dac_p ;;
-		IQaudi)      pcp_enable_iqaudio_dac ;;
-		I2SpIQAMP)   pcp_enable_iqaudio_amp ;;
-		I2SAMP)      pcp_enable_i2s_amp ;;
-		HDMI)        pcp_enable_HDMI ;;
+		Analog)           pcp_disable_i2s ;;
+		HDMI)             pcp_enable_HDMI ;;
+		USB)              pcp_disable_i2s ;;
+		I2SDAC)           pcp_enable_i2s_dac ;;
+		I2SDIG)           pcp_enable_i2s_digi ;;
+		I2SAMP)           pcp_enable_i2s_amp ;;
+		IQaudio)          pcp_enable_iqaudio_dac ;;
+		I2SpIQAMP)        pcp_enable_iqaudio_amp ;;
+		I2SpDAC)          pcp_enable_hifiberry_dac_p ;;
+		I2SpDIG)          pcp_enable_i2s_digi ;;
+		I2SpIQaudIO)      pcp_enable_iqaudio_dac_p ;;
+		I2SpIQaudIOdigi)  pcp_enable_iqaudio_digi ;;
+		justboomdac)      pcp_enable_justboomdac ;;
+		justboomdigi)     pcp_enable_justboomdigi ;;
+		raspidac3)        pcp_enable_raspidac3 ;;
+		rpi_dac)          pcp_enable_rpi_dac ;;
+		LOCO_dac)         pcp_enable_LOCO_dac ;;
 	esac
 }
 
@@ -1629,6 +1633,7 @@ pcp_disable_i2s() {
 	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
 	sed -i '/dtoverlay=justboomdigi/d' $CONFIGTXT
 	sed -i '/dtoverlay=justboomdac/d' $CONFIGTXT
+	sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
 }
 
 #=========================================================================================
@@ -1667,11 +1672,7 @@ pcp_enable_i2s_digi() {
 #----------------------------------------------------------------------------------------
 pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
-if [ "$DIGIGAIN" = "0" ]; then
 	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
-else
-	sudo echo dtoverlay=hifiberry-dacplus,24db_digital_gain="$DIGIGAIN" >> $CONFIGTXT
-fi
 }
 
 #========================================================================================
@@ -1687,11 +1688,7 @@ pcp_enable_i2s_amp() {
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac() {
 	pcp_disable_i2s
-if [ "$DIGIGAIN" = "0" ]; then
 	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
-else
-	sudo echo dtoverlay=iqaudio-dac,24db_digital_gain="$DIGIGAIN" >> $CONFIGTXT
-fi
 }
 
 #========================================================================================
@@ -1699,11 +1696,7 @@ fi
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac_p() {
 	pcp_disable_i2s
-if [ "$DIGIGAIN" = "0" ]; then
 	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
-else
-	sudo echo dtoverlay=iqaudio-dacplus,24db_digital_gain="$DIGIGAIN" >> $CONFIGTXT
-fi
 }
 
 #========================================================================================
@@ -1715,7 +1708,7 @@ pcp_enable_iqaudio_amp() {
 }
 
 #========================================================================================
-# Load the correct modules for IQaudIO AMP+ and digiAMP+
+# Load the correct modules for IQaudIO digi
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_digi() {
 	pcp_disable_i2s
@@ -1744,11 +1737,7 @@ pcp_enable_rpi_dac() {
 #----------------------------------------------------------------------------------------
 pcp_enable_justboomdac() {
 	pcp_disable_i2s
-if [ "$DIGIGAIN" = "0" ]; then
 	sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
-else
-	sudo echo dtoverlay=justboom-dac,24db_digital_gain="$DIGIGAIN" >> $CONFIGTXT
-fi
 }
 
 #========================================================================================
@@ -1759,6 +1748,11 @@ pcp_enable_justboomdigi() {
 	sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
 }
 
-
-
+#========================================================================================
+# Load the correct modules for Dion Audio LOCO
+#----------------------------------------------------------------------------------------
+pcp_enable_LOCO_dac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
+}
 

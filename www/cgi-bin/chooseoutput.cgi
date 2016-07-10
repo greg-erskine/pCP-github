@@ -51,7 +51,6 @@ pcp_html_head "Choose output" "SBP" "10" "squeezelite.cgi"
 
 # Store the original values so we can see if they are changed
 ORIG_AUDIO=$AUDIO
-ORIG_DIGIGAIN=$DIGIGAIN
 CHANGED=0
 
 pcp_banner
@@ -68,7 +67,7 @@ fi
 echo '<textarea class="white" style="height: 80px;" >'
 # Set the default settings
 # Only do something if variable is changed
-if [ "$ORIG_AUDIO" != "$AUDIO" ] || [ "$ORIG_DIGIGAIN" != "$DIGIGAIN" ] ; then
+if [ "$ORIG_AUDIO" != "$AUDIO" ] ; then
 echo '[ INFO ] Setting $AUDIO to '$AUDIO
 case "$AUDIO" in
 	Analog*)
@@ -165,7 +164,7 @@ case "$AUDIO" in
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_digi
 		pcp_disable_HDMI
-		OUTPUT="hw:CARD=IQaudIODIGI"  #is this correct
+		OUTPUT="hw:CARD=IQaudIODigi"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 	;;
@@ -173,7 +172,7 @@ case "$AUDIO" in
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_justboomdac
 		pcp_disable_HDMI
-		OUTPUT="hw:CARD=Card"       #is this correct
+		OUTPUT="hw:CARD=sndrpijustboomd"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 	;;
@@ -181,7 +180,7 @@ case "$AUDIO" in
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_justboomdigi
 		pcp_disable_HDMI
-		OUTPUT="hw:CARD=Card"     #is this correct
+		OUTPUT="hw:CARD=sndrpijustboomd"
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 	;;
@@ -201,6 +200,15 @@ case "$AUDIO" in
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 	;;
+	LOCO_dac*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_LOCO_dac
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=sndrpidionaudio"
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+	;;
+
 	*)
 		echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
 	;;
@@ -263,18 +271,6 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
 fi
 
-
-#============================ DACconfig section=========================================
-echo '<textarea class="white" style="height: 80px;" >'
-# Only do something if variable is changed
-if [ "$ORIG_DIGIGAIN" != "$DIGIGAIN" ]; then
-CHANGED=1
-echo '[ INFO ] Setting $DIGIGAIN to '$DIGIGAIN
-pcp_save_to_config
-else
-	echo '[ INFO ] DIGIGAIN variable unchanged.'
-fi
-echo '</textarea>'
 
 
 pcp_squeezelite_start
