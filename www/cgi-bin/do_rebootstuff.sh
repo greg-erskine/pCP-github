@@ -423,9 +423,13 @@ done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
 if [ "$IR_LIRC" = "yes" ]; then
+	if [ "$JIVELITE" = "yes" ]; then
+	echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
+	/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
+	else
 	echo -n "${BLUE}Starting lirc... ${NORMAL}"
 	/usr/local/sbin/lircd --device=/dev/lirc0
-#	/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
+	fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
 

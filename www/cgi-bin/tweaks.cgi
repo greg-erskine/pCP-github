@@ -1546,14 +1546,14 @@ pcp_tweaks_cron() {
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
 	# Decode variables using httpd, no quotes
-	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
-	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
-	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
+#	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
+#	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
+#	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get">'
+	echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get" <form accept-charset="UTF-8"> >'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
 	echo '            <legend>User commands</legend>'

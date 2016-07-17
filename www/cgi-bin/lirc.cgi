@@ -26,12 +26,12 @@ need_backup=no
 
 
 
-WGET="/bin/busybox wget"
-LIRC_REPOSITORY="https://raw.github.com/ralph-irving/tcz-lirc/master"
-PICO_REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
-IR_DOWNLOAD="/tmp/LIRC"
+#WGET="/bin/busybox wget"
+#LIRC_REPOSITORY="https://raw.github.com/ralph-irving/tcz-lirc/master"
+#PICO_REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
+#IR_DOWNLOAD="/tmp/LIRC"
 FAIL_MSG="ok"
-RESULT=0
+#RESULT=0
 KERNEL=$(uname -r)
 
 #========================================================================================
@@ -68,18 +68,11 @@ pcp_sourceforge_indicator() {
 }
 
 #========================================================================================
-# Check for free space - set FAIL_MSG if insufficient space is available
+#Copy the correct LIRC config files dependent upon Jivelite is in use or not
 #----------------------------------------------------------------------------------------
-pcp_enough_free_space() {
-	REQUIRED_SPACE=$1
-	FREE_SPACE=$(pcp_free_space k)
-	if [ $FREE_SPACE -gt $REQUIRED_SPACE ]; then
-		echo '[  OK  ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k'
-	else
-		echo '[ ERROR ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k'
-		echo '[ ERROR ] Not enough free space - try expanding your partition.'
-		FAIL_MSG="Not enough free space - try expanding your partition."
-	fi
+pcp_lirc_configfiles() {
+[ "$JIVELITE" = "yes" ] && sudo cp -f /usr/local/share/lirc/files/lircd-jivelite  /usr/local/etc/lirc/lircd.conf
+[ "$JIVELITE" = "no" ] && sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
 }
 
 #========================================================================================
@@ -119,25 +112,10 @@ pcp_html_end() {
 #========================================================================================
 # Get a file from a remote repository
 #----------------------------------------------------------------------------------------
-old_pcp_get_file() {
-	[ "$1" = "lirc" ] && REPOSITORY=${LIRC_REPOSITORY}
-	[ "$1" = "pico" ] && REPOSITORY=${PICO_REPOSITORY}
-	echo -n '[ INFO ] Downloading '$2'... '
-	$WGET --no-check-certificate ${REPOSITORY}/$2 -O ${IR_DOWNLOAD}/$2
-	if [ $? -eq 0 ]; then
-		echo "OK"
-	else
-		echo "FAILED"
-		FAIL_MSG="Failed to download $1"
-	fi
-}
-
 pcp_get_file() {
 	echo '[ INFO ] Installing packages for IR remote control...'
-	sudo -u tc pcp-load -r $PCP_REPO -wf lirc.tcz
+	sudo -u tc pcp-load -r $PCP_REPO -wfi lirc.tcz
 }
-
-
 
 #========================================================================================
 # Delete a file from the local repository
@@ -152,56 +130,9 @@ pcp_delete_file() {
 #========================================================================================
 # LIRC install
 #----------------------------------------------------------------------------------------
-old_pcp_lirc_install() {
-	echo '[ INFO ] Preparing download directory...'
-	if [ -d $IR_DOWNLOAD ]; then
-		sudo rm -rf $IR_DOWNLOAD
-		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $IR_DOWNLOAD"
-	fi
-	sudo mkdir -m 755 $IR_DOWNLOAD
-	[ $? -ne 0 ] && FAIL_MSG="Can not make directory $IR_DOWNLOAD"
-
-	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz
-	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc irda-${KERNEL}.tcz.md5.txt
-	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc lirc.tcz
- 	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc lirc.tcz.dep
- 	[ "$FAIL_MSG" = "ok" ] && pcp_get_file lirc lirc.tcz.md5.txt
-
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz ]; then
-		[ "$FAIL_MSG" = "ok" ] && pcp_get_file pico libcofi.tcz
-		[ "$FAIL_MSG" = "ok" ] && pcp_get_file pico libcofi.tcz.md5.txt
-	fi
-
-	echo -n '[ INFO ] Installing files... '
-	[ "$FAIL_MSG" = "ok" ] && sudo chown tc:staff $IR_DOWNLOAD/*
-	[ $? -eq 0 ] || FAIL_MSG="Can not change ownership."
-	[ "$FAIL_MSG" = "ok" ] && sudo chmod u=rw,g=rw,o=r $IR_DOWNLOAD/*
-	[ $? -eq 0 ] || FAIL_MSG="Can not change permissions."
-	[ "$FAIL_MSG" = "ok" ] && sudo cp -af $IR_DOWNLOAD/* /mnt/mmcblk0p2/tce/optional/
-	[ $? -eq 0 ] || FAIL_MSG="Can not copy to tce/optional."
-	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
-
-	echo '[ INFO ] Updating configuration files... '
-
-	touch /home/tc/.lircrc
-	sudo chown tc:staff /home/tc/.lircrc
-
-	pcp_mount_mmcblk0p1_nohtml
-	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
-	pcp_umount_mmcblk0p1_nohtml
-
-	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
-	sudo echo "lirc.tcz" >> $ONBOOTLST
-
-	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
-	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
-}
-
 pcp_lirc_install() {
 	echo '[ INFO ] Updating configuration files... '
 	
-	# lircrc is from Gregs inital setup       <------------------ I dont know if this is needed? 
 	touch /home/tc/.lircrc
 	sudo chown tc:staff /home/tc/.lircrc
 
@@ -212,13 +143,19 @@ pcp_lirc_install() {
 	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
 	pcp_umount_mmcblk0p1_nohtml
 
-	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
-	sudo echo "lirc.tcz" >> $ONBOOTLST
 
 	#add lirc conf to the filetool.lst
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] lirc configuration is added to .filetool.lst</p>'
 	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
 	sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
+	sudo sed -i '/.lircrc/d' /opt/.filetool.lst
+	sudo echo 'home/tc/.lircrc' >> /opt/.filetool.lst
+
+	pcp_lirc_configfiles
+
+	# download lirc.dep file until the pcp-load script can handle this.
+	[ ! -f /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep ] && echo "[INFO] Downloading missing lirc.tcz.dep file"
+	[ ! -f /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep ] &&  sudo wget https://sourceforge.net/projects/picoreplayer/files/repo/8.x/armv7/tcz/lirc.tcz.dep/download -O /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep
 
 	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
 	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
@@ -232,7 +169,7 @@ pcp_lirc_uninstall() {
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz
-	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep
+#	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep         <----- this file is not downloaded by pcp-load so for now we supply it with the image
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
 
 	if [ $SHAIRPORT = "no" ]; then
@@ -249,6 +186,8 @@ pcp_lirc_uninstall() {
 	pcp_umount_mmcblk0p1_nohtml
 
 	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
+	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
+	sudo sed -i '/.lircrc/d' /opt/.filetool.lst
 
 	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="no" && pcp_save_to_config
 	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
@@ -260,8 +199,12 @@ pcp_lirc_uninstall() {
 case "$ACTION" in
 	Install)
 		ACTION=$ACTION
+		pcp_sufficient_free_space "$SPACE_REQUIRED"
 	;;
 	Uninstall)
+		ACTION=$ACTION
+	;;
+	Custom)
 		ACTION=$ACTION
 	;;
 	Change)
@@ -327,35 +270,55 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Change" ]; then
 	echo '                  <input class="input" type="number" name="IR_GPIO" value="'$IR_GPIO'">'  
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set LIRC GPIO&nbsp;&nbsp;'
+	echo '                  <p>Set LIRC GPIO number&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Set GPIO to the connected IR Receiver.</p>'
+	echo '                    <p>Default is using GPIO number 27, but change to match the GPIO you use for IR Receiver.</p>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	#----------------------------------------------------------------------------------------
 
-	#------------------------------------------LIRC Config-----------------------------------
+	#------------------------------------------Custom LIRC Config-----------------------------------
+if [ -f /usr/local/etc/lirc/lircd.conf ]; then
+DISABLED=""
+else
+DISABLED="disabled"
+fi
+
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input class="input" type="text" name="IR_CONFIG" value="'$IR_CONFIG'">'  
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Set alternative LIRC configuration file&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> ~/.licrc</p>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
+		echo '                <td class="column150 center">'
+		echo '                  <input type="submit" name="ACTION" value="Custom" '$DISABLED' />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Provide your own LIRC configuration file&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Default installation only supports Logitech Squeezebox remote, If you are using another remote controller you need to supply your own configuration files</p>'
+		echo '                    <p>To use your own configuration file please either: </p>'
+		echo '                  <ul>'
+		echo '                    <li>1. Copy the file(s) via shh to the /tmp directory.</li>'
+		echo '                  </ul>'
+		echo '                    <p>or</p>'
+		echo '                  <ul>'
+		echo '                    <li>2. Copy the file(s) to an attached USB stick.</li>'
+		echo '                  </ul>'
+		echo '                    <p>Then press the button "Custom" and your configuration file will be copied and used by pCP.</p>'
+		echo '                    <p>If you use <b>LIRC with Jivelite</b> the configuratio file should be named <b>"lircd.conf</b>".</p>'
+		echo '                    <p>If you use <b>LIRC on a headless system (no Jivelite)</b> you will need to provide both <b>"lircd.conf" and "lircrc"</b> configuration files.</p>'
+		echo '                  </div>'
+		echo '                </td>'
 	echo '              </tr>'
+
 	#----------------------------------------------------------------------------------------
+
+
 
 	#------------------------------------------Change----------------------------------------
 	if [ "$IR_LIRC" = "yes" ]; then
@@ -366,13 +329,12 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Change" ]; then
 		echo '                  <input type="submit" name="ACTION" value="Change" />'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Change LIRC GPIO and/or configuration file&nbsp;&nbsp;'
+		echo '                  <p>Change LIRC GPIO number&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <ul>'
 		echo '                      <li>Change LIRC GPIO to a new value.</li>'
-		echo '                      <li>Change LIRC configuration file.</li>'
 		echo '                    </ul>'
 		echo '                  </div>'
 		echo '                </td>'
@@ -425,6 +387,35 @@ if [ "$ACTION" != "Initial" ]; then
 		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_uninstall
 		need_backup=yes
 	fi
+	#---------------------------------------Custom-------------------------------------------
+	if [ "$ACTION" = "Custom" ]; then
+		echo '                  <textarea class="inform" style="height:100px">'
+		#Copy from tmp to correct location
+		[ -f /tmp/lircd.conf ] && sudo cp -f /tmp/lircd.conf /usr/local/etc/lirc/lircd.conf && sudo rm -f /tmp/lircd.conf
+		[ -f /tmp/lircrc ] && sudo cp -f /tmp/lircrc /home/tc/.lircrc && sudo rm -f /tmp/lircrc
+
+		#Copy from USB to correct location		
+		# Check if sda1 is mounted, otherwise mount it.
+		MNTUSB=/mnt/sda1
+		if mount | grep $MNTUSB; then
+		echo "/dev/sda1 already mounted."
+		else
+				# Check if sda1 is inserted before trying to mount it.
+				if [ -e /dev/sda1 ]; then
+				[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
+				echo "Trying to mount /dev/sda1."
+				sudo mount /dev/sda1 >/dev/null 2>&1
+				else
+				echo "No USB Device detected in /dev/sda1"
+				fi
+		fi
+
+	[ -f $MNTUSB/lircd.conf ] && sudo cp -f $MNTUSB/lircd.conf /home/tc/.lircrc && sudo mv $MNTUSB/lircd.conf $MNTUSB/used_lircd.conf
+	[ -f $MNTUSB/lircrc ] && sudo cp -f $MNTUSB/lircrc /home/tc/.lircrc && sudo mv $MNTUSB/lircrc $MNTUSB/used_lircrc
+
+	need_backup=yes
+	fi
+
 	#---------------------------------------Change-------------------------------------------
 	if [ "$ACTION" = "Change" ]; then
 		echo '                  <textarea class="inform" style="height:100px">'
@@ -438,7 +429,6 @@ if [ "$ACTION" != "Initial" ]; then
 	fi
 	#----------------------------------------------------------------------------------------
 	
-
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -450,7 +440,5 @@ if [ "$ACTION" != "Initial" ]; then
 	echo '  </tr>'
 	echo '</table>'
 fi
-
-
 
 pcp_html_end

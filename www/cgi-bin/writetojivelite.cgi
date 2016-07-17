@@ -191,6 +191,16 @@ pcp_delete_vumeters() {
 	sudo sed -i '/VU_Meter/d' $ONBOOTLST
 }
 
+pcp_lirc_popup() {
+	if [ "$IR_LIRC" = "yes" ]; then
+	STRING1='INFO: LIRC is enabled; you might need to remove/install LIRC again to fix problems. But first press Ok to reboot now'
+	SCRIPT1='reboot.cgi'
+	pcp_confirmation_required
+	else
+	pcp_reboot_required
+	fi
+	
+}
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
@@ -207,7 +217,7 @@ case "$OPTION" in
 						pcp_download_vumeters
 						pcp_install_default_vumeter
 						pcp_remove_temp
-					;;
+											;;
 					no)
 						pcp_delete_jivelite
 						pcp_delete_vumeters
@@ -219,7 +229,8 @@ case "$OPTION" in
 				esac
 				pcp_backup
 				echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
-				pcp_reboot_required
+				pcp_lirc_popup				
+#				pcp_reboot_required
 			;;
 			Reset)
 				echo '<p class="info">[ INFO ] Resetting Jivelite Configuration......</p>'
@@ -249,6 +260,8 @@ case "$OPTION" in
 		esac
 	;;
 esac
+
+
 
 pcp_go_back_button
 
