@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.00 2016-06-21 SBP
-#	Changed ssh server to Openssh
-#	Changed rpi3 firmware extension name
+# Version: 3.00 2016-07-19
+#	Changed ssh server to Openssh. SBP.
+#	Changed RPi3 wifi firmware extension name. SBP.
+#	Added "No network found!" message. GE.
 
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
@@ -277,7 +278,7 @@ if [ "$WIFI" = "on" ]; then
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  rpi3 Broadcom firmware loaded.${NORMAL}" || echo "${RED}  rpi3 Broadcom firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  RPi3B Broadcom firmware loaded.${NORMAL}" || echo "${RED}  RPi3B Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"
@@ -290,30 +291,30 @@ if [ "$WIFI" = "on" ]; then
 	. /usr/local/sbin/config.cfg
 	echo "${GREEN}Done.${NORMAL}"
 
-	#Check if wifi variables already are up-to-date in wifi.db so we don't need to update wifi.db and do an unwanted backup
+	# Check if wifi variables already are up-to-date in wifi.db so we don't need to update wifi.db and do an unwanted backup
 	if [ x"" = x"$SSID" ]; then
 		break
-		else
+	else
 		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
 		# Change SSSID back to SSID
 		SSID=$SSSID
 		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /tmp/wifi.db
 	fi
-if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
+	if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
 		echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
-		else
+	else
 		BACKUP=1
 		# Only add backslash if not empty
 		echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
-	if [ x"" = x"$SSID" ]; then
-		break
+		if [ x"" = x"$SSID" ]; then
+			break
 		else
-		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-		# Change SSSID back to SSID
-		SSID=$SSSID
-		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
+			SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
+			# Change SSSID back to SSID
+			SSID=$SSSID
+			sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
+		fi
 	fi
-fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
@@ -360,7 +361,7 @@ CNT=1
 until aplay -l | grep -q PLAYBACK 2>&1
 do
 	if [ $((CNT++)) -gt 20 ]; then
-	echo "${RED} Failed ($CNT).${NORMAL}"
+		echo "${RED} Failed ($CNT).${NORMAL}"
 		break
 	else
 		echo -n "."
@@ -413,32 +414,32 @@ echo -n "${YELLOW}Waiting for network."
 CNT=1
 until ifconfig | grep -q Bcast
 do
-	if [ $((CNT++)) -gt 20 ]; then
+	if [ $((CNT++)) -gt 40 ]; then
+		echo -n "${RED} No network found! ${NORMAL}"
 		break
 	else
 		echo -n "."
-		sleep 1
+		sleep 0.5
 	fi
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
 if [ "$IR_LIRC" = "yes" ]; then
 	if [ "$JIVELITE" = "yes" ]; then
-	echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
-	/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
+		echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
+		/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
 	else
-	echo -n "${BLUE}Starting lirc... ${NORMAL}"
-	/usr/local/sbin/lircd --device=/dev/lirc0
+		echo -n "${BLUE}Starting lirc... ${NORMAL}"
+		/usr/local/sbin/lircd --device=/dev/lirc0
 	fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
-
 
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
 if [ "$MOUNTUUID" != "no" ]; then
 	blkid | grep -q $MOUNTUUID
-	if [ $? -eq 0 ]; then 
+	if [ $? -eq 0 ]; then
 		mkdir -p /mnt/$MOUNTPOINT
 		DEVICE=$(blkid -U $MOUNTUUID)
 		FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
@@ -489,7 +490,7 @@ if [ "$NETMOUNT1" = "yes" ]; then
 fi
 
 # If running an LMS Server Locally, start squeezelite later
-if [ "$LMSERVER" != "yes" ]; then   
+if [ "$LMSERVER" != "yes" ]; then
 	if [ "$SQUEEZELITE" = "yes" ]; then
 		echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
 		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
@@ -600,10 +601,10 @@ echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 echo "${GREEN}Done.${NORMAL}"
 
 # Save the parameters to the config file
-if [ "$BACKUP" = "1" ]; then
-echo -n "${BLUE}Saving the changes... ${NORMAL}"
-pcp_backup_nohtml >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
+if [ $BACKUP -eq 1 ]; then
+	echo -n "${BLUE}Saving the changes... ${NORMAL}"
+	pcp_backup_nohtml >/dev/null 2>&1
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Display the IP address
