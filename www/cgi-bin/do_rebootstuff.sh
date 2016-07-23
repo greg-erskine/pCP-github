@@ -1,9 +1,11 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-19
+# Version: 3.00 2016-07-23
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
 #	Added "No network found!" message. GE.
+#	Adjusted Mount point permissions for SCP  PH
+#	Changed Kernel Module update to handle individual modules PH
 
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
@@ -14,7 +16,6 @@
 #	Changed location of Bootfix
 #	Activated Kernel Module Updates during insitu update.
 #	Updated Mount lines
-
 
 # Version: 2.05 2016-04-30 PH
 #	Added firmware-brcmfmac43430.tcz
@@ -225,27 +226,50 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 #-------New section that handle removal and update of kernel packages after pCP insitu update----
 	CURRENTKERNEL=$(uname -r)
-	ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -q $CURRENTKERNEL   # Assume if one is present, then all should be good
-	if [ $? -eq 0 ]; then
+	FAIL=0
+	#
+	# Get list of kernel modules matching current kernel
+	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
+	# Get list of kernel modules not matching current kernel
+	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep -v $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/previous
+	# Show the old modules that do not have a current kernel version.
+	MODULES=$(comm -1 -3 /tmp/current /tmp/previous)
+	if [ -z "$MODULES" ]; then
 		echo "${BLUE}Kernel modules found matching current kernel version ${CURRENTKERNEL}${NORMAL}"
 	else
-		for EXT in `ls /mnt/mmcblk0p2/tce/optional/*piCore* | sed -e 's|[-][0-9].[0-9].*||' | sort -u`; do
-			sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
-			if [ $? -ne 0 ]; then
-				echo "${RED}[ ERROR ] Error downloading ${EXT} from pCP repo. Checking TC repo${NORMAL}"
-				###file may not be in our REPO, check the TC repo
-				sudo -u tc tce-load -w ${EXT}-KERNEL
-				if [ $? -ne 0 ]; then
-					echo "${RED}[ ERROR ] Error downloading ${EXT}${NORMAL}"
-				fi
-			fi
+		for EXT in $MODULES; do
+			case $EXT in
+				irda|backlight|touchscreen) #These are the current PCP extra modules
+					sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
+					if [ $? -ne 0 ]; then
+						echo "${RED}[ ERROR ] Error downloading ${EXT}-${CURRENTKERNEL}.tcz from pCP repo. Will try on next reboot${NORMAL}"
+						FAIL=1
+					else
+						#remove single old Kernel Module
+						ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep $EXT | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
+					fi
+				;;
+				*) #Get file from the TC repo
+					sudo -u tc tce-load -w ${EXT}-KERNEL
+					if [ $? -ne 0 ]; then
+						echo "${RED}[ ERROR ] Error downloading ${EXT}-${CURRENTKERNEL}.tcz${NORMAL}"
+						FAIL=1
+					else
+						#remove single old Kernel Module
+						ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep $EXT | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
+					fi
+				;;
+			esac
 		done
-		#delete the kernel files not matching current kernel. If running on an armv7 board, all armv6 kernel modules will be deleted too.
-		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
-
-		# Check onboot to be sure there are no hard kernel references.
-		sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
 	fi
+	if [ $FAIL -eq 0 ]; then
+	#cleanup all old kernel modules
+		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} echo "Removing {}"
+	else
+		echo "${RED}[ ERROR ] There was an error downloading new kernel modules.  You will need to reinstall manually${NORMAL}"
+	fi
+	# Check onboot to be sure there are no hard kernel references.
+	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
 #
 #------End of kernel modules update section-------------------------------------------------------
 	# should we put a copy of bootlog in the home directory???????
@@ -441,6 +465,7 @@ if [ "$MOUNTUUID" != "no" ]; then
 	blkid | grep -q $MOUNTUUID
 	if [ $? -eq 0 ]; then
 		mkdir -p /mnt/$MOUNTPOINT
+		chown tc.staff /mnt/$MOUNTPOINT
 		DEVICE=$(blkid -U $MOUNTUUID)
 		FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 		case "$FSTYPE" in
@@ -466,6 +491,7 @@ fi
 # Mount Network Disk Selected on LMS Page
 if [ "$NETMOUNT1" = "yes" ]; then
 	mkdir -p /mnt/$NETMOUNT1POINT
+	chown tc.staff /mnt/$NETMOUNT1POINT
 	echo -n "${BLUE}"
 	case "$NETMOUNT1FSTYPE" in
 		cifs)
