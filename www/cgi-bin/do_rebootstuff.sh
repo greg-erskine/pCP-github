@@ -264,7 +264,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	fi
 	if [ $FAIL -eq 0 ]; then
 	#cleanup all old kernel modules
-		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} echo "Removing {}"
+		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
 	else
 		echo "${RED}[ ERROR ] There was an error downloading new kernel modules.  You will need to reinstall manually${NORMAL}"
 	fi
