@@ -1,16 +1,16 @@
 #!/bin/sh
 
-# Version: pCP3.00 2016-06-21 SBP
-#	Added LIRC IR remote controls. SBP
-#   Reoganized
+# Version: 3.00 2016-07-24
+#	Added LIRC IR remote controls. SBP.
+#	Reorganized order. PH.
+#	Modified User commands. GE.
 
 # Version: 0.26 2016-05-30
 #	Added pcp_tweaks_hdmipower. GE.
 #	Added Reset Jivelite configuration. PH.
 #	Changed overclock to enable only for RPi1. GE.
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
-#	Renamed variable HTPPD to HTTPD.
-#	Aded checkboexs for...
+#	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
+#	Renamed variable HTPPD to HTTPD. GE.
 
 # Version: 0.25 2016-04-23 GE
 #	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
@@ -313,6 +313,7 @@ pcp_tweaks_overclock() {
 	echo '          </table>'
 
 	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
 		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
 		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
@@ -338,6 +339,8 @@ pcp_tweaks_overclock() {
 				echo '                 [ DEBUG ] force_turbo=0</p>'
 			;;
 		esac
+
+		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_overclock
@@ -613,7 +616,7 @@ pcp_tweaks_auto_start() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
 		echo '                     [ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
 		echo '                     [ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
@@ -686,7 +689,7 @@ pcp_tweaks_auto_start() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
 		echo '                     [ DEBUG ] $A_S_LMS_Y: '$A_S_LMS_Y'<br />'
 		echo '                     [ DEBUG ] $A_S_LMS_N: '$A_S_LMS_N'</p>'
@@ -718,20 +721,22 @@ pcp_tweaks_auto_start() {
 	[ $DEBUG -eq 1 ] && pcp_favorites
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
-#=========================================================================================
 
-
-#=========================================================================================
-#---------------------------------------Jivelite-----------------------------------------
-# Function to download/install/delete Jivelite
+#========================================================================================
+# Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
-pcp_tweaks_jivelite() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Jivelite Setup</legend>'
+
+#---------------------------------------Jivelite-----------------------------------------
+# Function to download/install/delete Jivelite
+#----------------------------------------------------------------------------------------
+pcp_tweaks_jivelite() {
+
 	case "$JIVELITE" in
 		yes) JIVEyes="selected" ;;
 		no) JIVEno="selected" ;;
@@ -782,9 +787,11 @@ pcp_tweaks_jivelite() {
 	echo '          </table>'
 
 	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
 		echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
 		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
+		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
@@ -843,12 +850,13 @@ pcp_tweaks_vumeter() {
 		#========================================================================================
 		# Display debug information
 		#----------------------------------------------------------------------------------------
+		echo '<!-- Start of debug info -->'
 		pcp_start_row_shade
 		pcp_toggle_row_shade
 		echo '           <table class="bggrey percent100">'
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
-		echo '                 <p>[ DEBUG ] Loop mounted extensions</p>'
+		echo '                 <p class="debug">[ DEBUG ] Loop mounted extensions</p>'
 		echo '               </td>'
 		echo '             </tr>'
 		pcp_toggle_row_shade
@@ -860,7 +868,7 @@ pcp_tweaks_vumeter() {
 		pcp_toggle_row_shade
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
-		echo '                 <p>[ DEBUG ] Installed extensions</p>'
+		echo '                 <p class="debug">[ DEBUG ] Installed extensions</p>'
 		echo '               <td>'
 		echo '             </tr>'
 		pcp_toggle_row_shade
@@ -875,14 +883,13 @@ pcp_tweaks_vumeter() {
 		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
 		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
 		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
+		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen rotate------------------------------------
-# Function to check the radio button according to config.cfg file
-#----------------------------------------------------------------------------------------
 pcp_tweaks_screenrotate() {
 	case "$SCREENROTATE" in
 		yes) SCREENyes="selected" ;;
@@ -928,33 +935,29 @@ pcp_tweaks_screenrotate() {
 	echo '          </table>'
 
 	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
 		echo '                 [ DEBUG ] $SCREENyes: '$SCREENyes'<br />'
 		echo '                 [ DEBUG ] $SCREENno: '$SCREENno'</p>'
+		echo '<!-- End of debug info -->'
 	fi
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
 #----------------------------------------------------------------------------------------
+
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
 #----------------------------------------------------------------------------------------
-#========================================================================================
 
+#==========================================IR Remote table ==============================
+pcp_tweaks_lirc() {
 
-#========================================================================================
-pcp_lirc_status() {
-	pgrep lircd > /dev/null && IR_RUN=0
-	pgrep lircd > /dev/null || IR_RUN=1
-}
-pcp_lirc_status
+	pgrep lircd > /dev/null && IR_RUN=0 || IR_RUN=1
 
-
-
-pcp_main_lirc_indication() {
-	if [ "$IR_RUN" = "0" ]; then
+	if [ $IR_RUN -eq 0 ]; then
 		IR_INDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
 		STATUS="running"
@@ -963,26 +966,22 @@ pcp_main_lirc_indication() {
 		CLASS="indicator_red"
 		STATUS="not running"
 	fi
-}
-pcp_main_lirc_indication
 
-
-#==============================================IR Remote table ==========================================
-pcp_tweaks_lirc() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>LIRC remote control</legend>'
-#----------------------------------------------IR remote--------------------------------
 
+
+	#----------------------------------------------------------------------------------------
 	# Function to check the IR_LIRC radio button according to config file
+	#----------------------------------------------------------------------------------------
 	case "$IR_LIRC" in
 		yes) IR_LIRC_Y="checked" ;;
 		no) IR_LIRC_N="checked" ;;
 	esac
-
 
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="LIRC" action="lirc.cgi" method="get">'
@@ -997,7 +996,7 @@ pcp_tweaks_lirc() {
 
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>LIRC IR remote control is '$STATUS' &nbsp;&nbsp;&nbsp;' 
+	echo '                  <p>LIRC IR remote control is '$STATUS' &nbsp;&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -1016,7 +1015,7 @@ pcp_tweaks_lirc() {
 	echo '              </tr>'
 	echo '            </form>'
 	echo '          </table>'
-#----------------------------------------------------------------------------------------
+	#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -1024,8 +1023,7 @@ pcp_tweaks_lirc() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_lirc
-
-#========================================================================================
+#----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 # Determine state of check boxes.
@@ -1112,7 +1110,7 @@ pcp_tweaks_audio_tweaks() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $SQUEEZELITE: '$SQUEEZELITE'<br />'
 		echo '                     [ DEBUG ] $SQUEEZELITEyes: '$SQUEEZELITEyes'<br />'
 		echo '                     [ DEBUG ] $SQUEEZELITEno: '$SQUEEZELITEno'</p>'
@@ -1145,7 +1143,7 @@ pcp_tweaks_audio_tweaks() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
 		echo '                     [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
 		echo '                     [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
@@ -1180,7 +1178,7 @@ pcp_tweaks_audio_tweaks() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
 		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
 		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
@@ -1215,7 +1213,7 @@ pcp_tweaks_audio_tweaks() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $FSM: '$CMD'<br />'
 		echo '                     [ DEBUG ] $FSMdefault: '$FSMdefault'<br />'
 		echo '                     [ DEBUG ] $FSMdisabled: '$FSMdisabled'</p>'
@@ -1256,7 +1254,7 @@ pcp_tweaks_audio_tweaks() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $ALSAlevelout: '$ALSAlevelout'<br />'
 		echo '                     [ DEBUG ] $ALSAdefault: '$ALSAdefault'<br />'
 		echo '                     [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
@@ -1351,7 +1349,7 @@ pcp_tweaks_audio_tweaks() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $FIQ: '$FIQ'<br />'
 		echo '                     [ DEBUG ] $selected1: '$selected1'<br />'
 		echo '                     [ DEBUG ] $selected2: '$selected2'<br />'
@@ -1394,7 +1392,6 @@ pcp_tweaks_audio_tweaks() {
 #        +----------------------- min (0 - 59)
 #
 #----------------------------------------------------------------------------------------
-
 pcp_tweaks_cron() {
 	case "$REBOOT" in
 		Enabled) REBOOT_Y="checked" ;;
@@ -1444,7 +1441,7 @@ pcp_tweaks_cron() {
 	echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
 	echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" pattern="^([0-6]|\*)$" />'
 	echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-	echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"  />'
+	echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$" />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <input class="small1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
@@ -1513,7 +1510,7 @@ pcp_tweaks_cron() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
 		echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y'<br />'
 		echo '                     [ DEBUG ] $REBOOT_N: '$REBOOT_N'<br />'
@@ -1546,14 +1543,19 @@ pcp_tweaks_cron() {
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
 	# Decode variables using httpd, no quotes
-#	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
-#	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
-#	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
+	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
+	USER_COMMAND_1=$(echo $USER_COMMAND_1 | sed 's/"/\&quot;/g')
+
+	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
+	USER_COMMAND_2=$(echo $USER_COMMAND_2 | sed 's/"/\&quot;/g')
+
+	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
+	USER_COMMAND_3=$(echo $USER_COMMAND_3 | sed 's/"/\&quot;/g')
 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get" <form accept-charset="UTF-8"> >'
+	echo '      <form name="setusercommands" action="writetoautostart.cgi" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
 	echo '            <legend>User commands</legend>'
@@ -1563,21 +1565,42 @@ pcp_tweaks_user_commands() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #1</td>'
 	echo '                <td>'
-	echo '                  <input class="large60" type="text" name="USER_COMMAND_1" value="'$USER_COMMAND_1'" maxlength="254">'
+	echo '                  <input class="large60"'
+	echo '                         type="text"'
+	echo '                         name="USER_COMMAND_1"'
+	echo '                         value="'$USER_COMMAND_1'"'
+	echo '                         maxlength="254"'
+	echo '                         title="Invalid characters: &amp &quot"'
+	echo '                         pattern="[^\&\x22]+"'
+	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #2</td>'
 	echo '                <td>'
-	echo '                  <input class="large60" type="text" name="USER_COMMAND_2" value="'$USER_COMMAND_2'" maxlength="254">'
+	echo '                  <input class="large60"'
+	echo '                         type="text"'
+	echo '                         name="USER_COMMAND_2"'
+	echo '                         value="'$USER_COMMAND_2'"'
+	echo '                         maxlength="254"'
+	echo '                         title="Invalid characters: &amp &quot"'
+	echo '                         pattern="[^\&\x22]+"'
+	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #3</td>'
 	echo '                <td>'
-	echo '                  <input class="large60" type="text" name="USER_COMMAND_3" value="'$USER_COMMAND_3'" maxlength="254">'
+	echo '                  <input class="large60"'
+	echo '                         type="text"'
+	echo '                         name="USER_COMMAND_3"'
+	echo '                         value="'$USER_COMMAND_3'"'
+	echo '                         maxlength="254"'
+	echo '                         title="Invalid characters: &amp &quot"'
+	echo '                         pattern="[^\&\x22]+"'
+	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
 
@@ -1597,6 +1620,7 @@ pcp_tweaks_user_commands() {
 	echo '                    <ul>'
 	echo '                      <li>ls /tmp >> /tmp/directory.log</li>'
 	echo '                    </ul>'
+	echo '                    <p><b>Invalid characters:</b> &amp; &quot;</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1612,7 +1636,7 @@ pcp_tweaks_user_commands() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td  colspan="3">'
+		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
 		echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
 		echo '                     [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
@@ -1633,8 +1657,6 @@ pcp_tweaks_user_commands() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-[ $DEBUG -eq 1 ] && pcp_show_config_cfg
-
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
