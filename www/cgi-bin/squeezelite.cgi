@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-02 
-#	Added note regaring hw: option for output. PH
-#	Added new DACs. SBP
+# Version: 3.00 2016-07-25
+#	Added note regaring hw: option for output. PH.
+#	Added new DACs. SBP.
+#	Removed & from $STRING. GE.
+#	Standardised/expanded <input> tags. GE.
 
 # Version: 0.25 2016-05-23
 #	Added multi ALSA_PARAMS. GE.
@@ -131,7 +133,7 @@ pcp_navigation
 STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$NAME" ]         && STRING="$STRING -n \"$NAME\""
 [ x"" != x"$OUTPUT" ]       && STRING="$STRING -o $OUTPUT"
-[ x"" != x"$ALSA_PARAMS" ]  && STRING="$STRING -a "$ALSA_PARAMS""
+[ x"" != x"$ALSA_PARAMS" ]  && STRING="$STRING -a $ALSA_PARAMS"
 [ x"" != x"$BUFFER_SIZE" ]  && STRING="$STRING -b $BUFFER_SIZE"
 [ x"" != x"$_CODEC" ]       && STRING="$STRING -c $_CODEC"
 [ x"" != x"$XCODEC" ]       && STRING="$STRING -e $XCODEC"
@@ -150,17 +152,16 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
-STRING="$STRING &"
 
 #========================================================================================
 # Missing squeezelite options
 #----------------------------------------------------------------------------------------
-#  -M <modelname>		Set the squeezelite player model name sent to the server (default: SqueezeLite)
-#  -N <filename>		Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
-#  -P <filename>		Store the process id (PID) in filename
+#  -M <modelname>	Set the squeezelite player model name sent to the server (default: SqueezeLite)
+#  -N <filename>	Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
+#  -P <filename>	Store the process id (PID) in filename
 
 #========================================================================================
-# Start table
+# Start Audio output table
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -217,10 +218,8 @@ if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
 	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio: IQaudIO Pi-DAC+</option>'
 	echo '                    <option value="I2SpIQaudIOdigi" '$IQaudIOdigipCHECKED'>I2S audio: IQaudIO Pi-Digi+</option>'
-	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi)AMP+</option>'
-
+	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi) AMP+</option>'
 fi
-
 
 echo '                    <option value="LOCO_dac" '$LOCO_dacCHECKED'>I2S audio: Dion Audio LOCO AMP</option>'
 echo '                    <option value="justboomdac" '$justboomdacCHECKED'>I2S audio: JustBoom DAC</option>'
@@ -244,20 +243,21 @@ echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="2">'
-echo '                  <input type="submit" value="Save">'
+echo '                  <input type="submit" value="Save" title="Save &quot;Audio output&quot; to current selection">'
 echo '                </td>'
 echo '              </tr>'
-
-#-----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
+#----------------------------------------------------------------------------------------
 
-
-
+#========================================================================================
+# Start Squeezelite settings table
+#----------------------------------------------------------------------------------------
 echo '  <tr>'
 echo '    <td>'
 echo '      <form name="squeeze" action="writetoconfig.cgi" method="get">'
@@ -265,6 +265,7 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Change Squeezelite settings</legend>'
 echo '            <table class="bggrey percent100">'
+
 #--------------------------------------Name of your player-------------------------------
 pcp_incr_id
 pcp_start_row_shade
@@ -273,7 +274,14 @@ echo '                <td class="column150">'
 echo '                  <p>Name of your player</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="NAME" value="'$NAME'" required pattern="^[^$&`/]*$">'
+echo '                  <input class="large15"'
+echo '                         type="text"'
+echo '                         name="NAME"'
+echo '                         value="'$NAME'"'
+echo '                         required'
+echo '                         title="Invalid characters: $ &amp; ` / &quot;"'
+echo '                         pattern="[^$&`/\x22]+"'
+echo '                  >'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Specify the piCorePlayer name (-n)&nbsp;&nbsp;'
@@ -283,19 +291,13 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>&lt;name&gt;</p>'
 echo '                    <p>This is the player name that will be used by LMS, it will appear in the web interface and apps.'
 echo '                       It is recommended that you use standard alphanumeric characters for maximum compatibility.</p>'
-echo '                    <p>Invalid characters:</p>'
-echo '                    <ul>'
-echo '                      <li>`</li>'
-echo '                      <li>&</li>'
-echo '                      <li>$</li>'
-echo '                      <li>others</li>'
-echo '                    </ul>'
-echo '                    <p>Examples:</p>'
+echo '                    <p><b>Examples:</b></p>'
 echo '                    <ul>'
 echo '                      <li>piCorePlayer2</li>'
 echo '                      <li>Main Stereo</li>'
 echo '                      <li>Bed Room</li>'
 echo '                    </ul>'
+echo '                    <p><b>Invalid characters:</b> $ & ` / &quot;</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -314,7 +316,14 @@ echo '                <td class="column150">'
 echo '                  <p>Output setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" '$READONLY' pattern="^[a-zA-Z0-9:,=]*$">'
+echo '                  <input class="large15"'
+echo '                         type="text"'
+echo '                         name="OUTPUT"'
+echo '                         value="'$OUTPUT'"'
+echo '                         '$READONLY
+echo '                         title="Select from list of output devices"'
+echo '                         pattern="[a-zA-Z0-9:,=]*"'
+echo '                  >'
 echo '                </td>'
 echo '                <td>'
 
@@ -336,7 +345,7 @@ else
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
-	echo '                      <li>Some hardware requires the use of "hw", rather than "sysdefault"  i.e. hw:CARD=DAC</li>'
+	echo '                      <li>Some hardware requires the use of "hw", rather than "sysdefault" i.e. hw:CARD=DAC</li>'
 	echo '                      <li>Sometimes clearing this field completely may help. This forces the default ALSA setting to be used.</li>'
 	echo '                      <li>Using ALSA equalizer will set the output to "equal".</li>'
 	echo '                    </ul>'
@@ -345,49 +354,6 @@ fi
 
 echo '                </td>'
 echo '              </tr>'
-#----------------------------------------------------------------------------------------
-
-#--------------------------------------OLD ALSA settings---------------------------------
-##### GE - OBSOLETE - DELETE ####
-#----------------------------------------------------------------------------------------
-pcp_old_squeezelite_alsa() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>OLD ALSA setting</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;b&gt;:&lt;p&gt;:&lt;f&gt;:&lt;m&gt;:&lt;d&gt;</p>'
-	echo '                    <ul>'
-	echo '                      <li>b = buffer time in ms or size in bytes</li>'
-	echo '                      <li>p = period count or size in bytes</li>'
-	echo '                      <li>f = sample format (16|24|24_3|32)</li>'
-	echo '                      <li>m = use mmap (0|1)</li>'
-	echo '                      <li>d = opens ALSA twice (undocumented) i.e. ::::d</li>'
-	echo '                    </ul>'
-	echo '                    <p>Buffer value &lt; 500 treated as buffer time in ms, otherwise size in bytes.</p>'
-	echo '                    <p>Period value &lt; 50 treated as period count, otherwise size in bytes.</p>'
-	echo '                    <p>mmap = memory map<p>'
-	echo '                    <p>Sample format:<p>'
-	echo '                    <ul>'
-	echo '                      <li>16 = Signed 16 bit Little Endian</li>'
-	echo '                      <li>24 = Signed 24 bit Little Endian using low three bytes in 32-bit word</li>'
-	echo '                      <li>24_3 = Signed 24 bit Little Endian in 3bytes format</li>'
-	echo '                      <li>32 = Signed 32 bit Big Endian</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_old_squeezelite_alsa
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------ALSA settings-------------------------------------
@@ -400,17 +366,47 @@ pcp_squeezelite_alsa() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 
-	                        ALSA_PARAMS1=$(echo $ALSA_PARAMS | cut -d: -f1 ) # b = buffer time in ms or size in bytes
-	                        ALSA_PARAMS2=$(echo $ALSA_PARAMS | cut -d: -f2 ) # p = period count or size in bytes
-	                        ALSA_PARAMS3=$(echo $ALSA_PARAMS | cut -d: -f3 ) # f = sample format (16|24|24_3|32)
-	                        ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 ) # m = use mmap (0|1)
-	                        ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 ) # d = opens ALSA twice
+	                        ALSA_PARAMS1=$(echo $ALSA_PARAMS | cut -d: -f1 )		# b = buffer time in ms or size in bytes
+	                        ALSA_PARAMS2=$(echo $ALSA_PARAMS | cut -d: -f2 )		# p = period count or size in bytes
+	                        ALSA_PARAMS3=$(echo $ALSA_PARAMS | cut -d: -f3 )		# f = sample format (16|24|24_3|32)
+	                        ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 )		# m = use mmap (0|1)
+	                        ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 )		# d = opens ALSA twice
 
-	echo '                  <input class="small3" type="text" name="ALSA_PARAMS1" value="'$ALSA_PARAMS1'" title="buffer time">'
-	echo '                  <input class="small3" type="text" name="ALSA_PARAMS2" value="'$ALSA_PARAMS2'" title="period count">'
-	echo '                  <input class="small3" type="text" name="ALSA_PARAMS3" value="'$ALSA_PARAMS3'" pattern="^(16|24|24_3|32)$" title="sample format ( 16 | 24 | 24_3 | 32 )">'
-	echo '                  <input class="small1" type="text" name="ALSA_PARAMS4" value="'$ALSA_PARAMS4'" pattern="^[0-1]$" title="mmap ( 0 | 1 )">'
-	echo '                  <input class="small1" type="text" name="ALSA_PARAMS5" value="'$ALSA_PARAMS5'" pattern="^[d]$" title="ALSA twice (d)">'
+	echo '                  <input class="small3"'
+	echo '                         type="text"'
+	echo '                         name="ALSA_PARAMS1"'
+	echo '                         value="'$ALSA_PARAMS1'"'
+	echo '                         title="buffer time"'
+	echo '                         pattern="[\d]*"'
+	echo '                  >'
+	echo '                  <input class="small3"'
+	echo '                         type="text"'
+	echo '                         name="ALSA_PARAMS2"'
+	echo '                         value="'$ALSA_PARAMS2'"'
+	echo '                         title="period count"'
+	echo '                         pattern="[\d]*"'
+	echo '                  >'
+	echo '                  <input class="small3"'
+	echo '                         type="text"'
+	echo '                         name="ALSA_PARAMS3"'
+	echo '                         value="'$ALSA_PARAMS3'"'
+	echo '                         title="sample format ( 16 | 24 | 24_3 | 32 )"'
+	echo '                         pattern="(16|24|24_3|32)"'
+	echo '                  >'
+	echo '                  <input class="small1"'
+	echo '                         type="text"'
+	echo '                         name="ALSA_PARAMS4"'
+	echo '                         value="'$ALSA_PARAMS4'"'
+	echo '                         title="mmap ( 0 | 1 )"'
+	echo '                         pattern="[0-1]"'
+	echo '                  >'
+	echo '                  <input class="small1"'
+	echo '                         type="text"'
+	echo '                         name="ALSA_PARAMS5"'
+	echo '                         value="'$ALSA_PARAMS5'"'
+	echo '                         title="ALSA twice (d)"'
+	echo '                         pattern="[d]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
@@ -441,6 +437,7 @@ pcp_squeezelite_alsa() {
 	echo '              </tr>'
 
 	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column150">'
 		echo '                </td>'
@@ -450,6 +447,7 @@ pcp_squeezelite_alsa() {
 		echo '                <td>'
 		echo '                </td>'
 		echo '              </tr>'
+		echo '<!-- END of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_BASIC ] && pcp_squeezelite_alsa
@@ -464,7 +462,13 @@ pcp_squeezelite_buffer() {
 	echo '                  <p>Buffer size settings</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="BUFFER_SIZE" value="'$BUFFER_SIZE'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="BUFFER_SIZE"'
+	echo '                         value="'$BUFFER_SIZE'"'
+	echo '                         title="buffer size"'
+	echo '                         pattern="[\d]*"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Specify internal Stream and Output buffer sizes in Kb (-b)&nbsp;&nbsp;'
@@ -488,7 +492,12 @@ pcp_squeezelite_codec() {
 	echo '                  <p>Restrict codec setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="_CODEC" value="'$_CODEC'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="_CODEC"'
+	echo '                         value="'$_CODEC'"'
+	echo '                         title="Restrict codec"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restrict codecs to those specified, otherwise load all available codecs (-c)&nbsp;&nbsp;'
@@ -523,7 +532,12 @@ pcp_squeezelite_xcodec() {
 	echo '                  <p>Exclude codec setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="XCODEC" value="'$XCODEC'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="XCODEC"'
+	echo '                         value="'$XCODEC'"'
+	echo '                         title="Exclude codec"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Explicitly exclude native support for one or more codecs (-e)&nbsp;&nbsp;'
@@ -560,7 +574,14 @@ pcp_squeezelite_priority() {
 	echo '                  <p class="row">Priority setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="number" name="PRIORITY" value="'$PRIORITY'" min="0" max="99">'
+	echo '                  <input class="large15"'
+	echo '                         type="number"'
+	echo '                         name="PRIORITY"'
+	echo '                         value="'$PRIORITY'"'
+	echo '                         min="0"'
+	echo '                         max="99"'
+	echo '                         title="Priority ( 0 - 99 )"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set real time priority of output thread (-p)&nbsp;&nbsp;'
@@ -587,7 +608,13 @@ pcp_squeezelite_max_sample() {
 	echo '                  <p class="row">Max sample rate</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="MAX_RATE" value="'$MAX_RATE'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MAX_RATE"'
+	echo '                         value="'$MAX_RATE'"'
+	echo '                         title="Max sample rate"'
+#	echo '                         pattern="[xxx]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Sample rates supported, allows output to be off when Squeezelite is started (-r)&nbsp;&nbsp;'
@@ -615,7 +642,13 @@ pcp_squeezelite_upsample_settings() {
 	echo '                  <p class="row">Upsample setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="UPSAMPLE" value="'$UPSAMPLE'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="UPSAMPLE"'
+	echo '                         value="'$UPSAMPLE'"'
+	echo '                         title="Upsample settings"'
+#	echo '                         pattern="[xxx]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Resampling parameters (-R)&nbsp;&nbsp;'
@@ -653,7 +686,13 @@ pcp_squeezelite_mac_address() {
 	echo '                  <p class="row">MAC address</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="MAC_ADDRESS" value="'$MAC_ADDRESS'" pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MAC_ADDRESS"'
+	echo '                         value="'$MAC_ADDRESS'"'
+	echo '                         title="MAC address"'
+	echo '                         pattern="([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set MAC address (-m)&nbsp;&nbsp;'
@@ -686,7 +725,13 @@ pcp_squeezelite_server_ip() {
 	echo '                  <p class="row">LMS IP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="SERVER_IP" value="'$SERVER_IP'" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="SERVER_IP"'
+	echo '                         value="'$SERVER_IP'"'
+	echo '                         title="Logitech Media Server (LMS) IP"'
+#	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Connect to the specified LMS, otherwise autodiscovery will find the server (-s)&nbsp;&nbsp;'
@@ -742,7 +787,7 @@ pcp_squeezelite_log_level() {
 	echo '                  <p class="row">Log level setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <select class="large15" name="LOGLEVEL">'
+	echo '                  <select class="large15" name="LOGLEVEL" title="Log level setting">'
 	echo '                    <option value="" '$LOGLEVEL0'>none</option>'
 	echo '                    <option value="all=info" '$LOGLEVEL1'>all=info</option>'
 	echo '                    <option value="all=debug" '$LOGLEVEL2'>all=debug</option>'
@@ -788,7 +833,13 @@ pcp_squeezelite_dop() {
 	echo '                  <p class="row">Device supports DoP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="DSDOUT" value="'$DSDOUT'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="DSDOUT"'
+	echo '                         value="'$DSDOUT'"'
+	echo '                         title="DoP delay"'
+	echo '                         pattern="[\d]*"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Output device supports DSD over PCM (DoP) (-D)&nbsp;&nbsp;'
@@ -814,7 +865,14 @@ pcp_squeezelite_close_output() {
 	echo '                  <p class="row">Close output setting</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="number" name="CLOSEOUT" value="'$CLOSEOUT'" min="0" max="1000">'
+	echo '                  <input class="large15"'
+	echo '                         type="number"'
+	echo '                         name="CLOSEOUT"'
+	echo '                         value="'$CLOSEOUT'"'
+	echo '                         title="Close output delay"'
+	echo '                         min="0"'
+	echo '                         max="1000"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set idle time before Squeezelite closes output (-C)&nbsp;&nbsp;'
@@ -846,7 +904,13 @@ pcp_squeezelite_unmute() {
 	echo '                  <p class="row">Unmute ALSA control</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="txt" name="UNMUTE" value="'$UNMUTE'">'
+	echo '                  <input class="large15"'
+	echo '                         type="txt"'
+	echo '                         name="UNMUTE"'
+	echo '                         value="'$UNMUTE'"'
+	echo '                         title="Unmute ALSA control"'
+#	echo '                         pattern="[xxx]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
@@ -884,7 +948,13 @@ pcp_squeezelite_volume() {
 	echo '                  <p class="row">ALSA volume control</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="txt" name="ALSAVOLUME" value="'$ALSAVOLUME'">'
+	echo '                  <input class="large15"'
+	echo '                         type="txt"'
+	echo '                         name="ALSAVOLUME"'
+	echo '                         value="'$ALSAVOLUME'"'
+	echo '                         title="ALSA volume control"'
+#	echo '                         pattern="[xxx]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
@@ -923,12 +993,20 @@ pcp_squeezelite_power_gpio() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p class="row">Power On/Off GPIO</p>'
-	echo '                  <p class="row">Output is Active</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <p><input class="large15" type="number" name="POWER_GPIO" value="'$POWER_GPIO'" min="0"	max="40"></p>'
-	echo '                  <input class="small1" type="radio" name="POWER_OUTPUT" value="H" '$POH'>High&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="POWER_OUTPUT" value="L" '$POL'>Low'
+	echo '                  <p>'
+	echo '                    <input class="large15"'
+	echo '                           type="number"'
+	echo '                           name="POWER_GPIO"'
+	echo '                           value="'$POWER_GPIO'"'
+	echo '                           title="Power On/Off GPIO"'
+	echo '                           min="0"'
+	echo '                           max="40"'
+	echo '                    >'
+	echo '                  </p>'
+	echo '                  <input class="small1" type="radio" name="POWER_OUTPUT" value="H" title="Set GPIO active high" '$POH'>Active High&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="POWER_OUTPUT" value="L" '$POL'>Active Low'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Power On/Off GPIO (-G)&nbsp;&nbsp;'
@@ -958,7 +1036,13 @@ pcp_squeezelite_power_script() {
 	echo '                  <p class="row">Power On/Off Script</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="POWER_SCRIPT" value="'$POWER_SCRIPT'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="POWER_SCRIPT"'
+	echo '                         value="'$POWER_SCRIPT'"'
+	echo '                         title="Power On/Off script"'
+#	echo '                         pattern="[xxx]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Power On/Off Script (-S)&nbsp;&nbsp;'
@@ -986,7 +1070,13 @@ pcp_squeezelite_various_input() {
 	echo '                  <p class="row">Various input</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15" type="text" name="OTHER" value="'$OTHER'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="OTHER"'
+	echo '                         value="'$OTHER'"'
+	echo '                         title="Add your other input"'
+#	echo '                         pattern="[xxx]"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Add another option&nbsp;&nbsp;'
@@ -995,7 +1085,7 @@ pcp_squeezelite_various_input() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Use this field to add options that are supported by Squeezelite but unavailable in the piCorePlayer web interface.</p>'
 	echo '                    <p><b>Note: </b>Ensure to include the correct switch first, i.e. -n or -o etc</p>'
-	echo '                    <p><b>Example: </b>-e dsd</p>'
+	echo '                    <p><b>Example: </b>-e dsd, -z</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1008,7 +1098,7 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
+echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite setings&quot; to current selection">'
 echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
 echo '                </td>'
 
