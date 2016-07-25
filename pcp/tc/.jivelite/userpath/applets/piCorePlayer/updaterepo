@@ -9,7 +9,7 @@ fi
 # http://picoreplayer.sourceforge.net/repo.xml
 
 # package URL
-# http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.1.zip
+# http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.2.zip
 
 APPKG=$1
 
@@ -18,8 +18,5 @@ zip -9r $APPKG piCorePlayerApplet.lua piCorePlayerMeta.lua strings.txt install.x
 SHA=`shasum $APPKG | awk '{printf "%s", $1}'`
 sed -i -e "/<applet name=\"piCorePlayer\".*>/,/<\/applet>/ s|<sha>[0-9a-z]\{1,\}</sha>|<sha>$SHA</sha>|g" repo.xml
 cat repo.xml
-scp -p $APPKG $2@web.sourceforge.net:/home/project-web/picoreplayer/htdocs/repo
-scp -p repo.xml $2@web.sourceforge.net:/home/project-web/picoreplayer/htdocs
-
-
-
+scp $APPKG $2@web.sourceforge.net:/home/project-web/picoreplayer/htdocs/repo
+scp repo.xml $2@web.sourceforge.net:/home/project-web/picoreplayer/htdocs
