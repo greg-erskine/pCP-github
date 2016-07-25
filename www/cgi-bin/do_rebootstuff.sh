@@ -448,6 +448,22 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
+#==============================================================================
+# WOL="yes"|"no"
+# WOL_NIC="eth0"|"wlan0"|"wlan1"|... does wlan1 exist if e.g. user adds WiFi dongle on RPi3 with onboard WiFi enabled?
+# WOL_LMSMACADDRESS="11:22:33:44:55:66"
+# Only send LMS WOL command if LMS is not run locally
+if [ "$LMSERVER" != "yes" ]; then
+	if [ "$WOL" = "yes" ] && [ "$WOL_NIC" != "" ] && [ "$WOL_LMSMACADDRESS" != "" ]; then
+		#Should we check for valid MAC address or should we asume this is covered in the applet/web interface??
+		echo -n "${BLUE}Sending WOL magic packet ($WOL_LMSMACADDRESS)...${NORMAL}"
+		sudo ether-wake -i $WOL_NIC $WOL_LMSMACADDRESS
+		echo "${GREEN}Done.${NORMAL}"
+		# sleep 10
+	fi
+fi
+#==============================================================================
+
 if [ "$IR_LIRC" = "yes" ]; then
 	if [ "$JIVELITE" = "yes" ]; then
 		echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
