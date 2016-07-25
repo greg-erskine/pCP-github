@@ -159,6 +159,24 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 #  -M <modelname>	Set the squeezelite player model name sent to the server (default: SqueezeLite)
 #  -N <filename>	Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
 #  -P <filename>	Store the process id (PID) in filename
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Routines
+#----------------------------------------------------------------------------------------
+pcp_cards_controls() {
+	echo '                    <p><b>You have the following audio cards/controls:</b></p>'
+	echo '                    <ul>'
+
+	CARDNO=0
+	for CARD in $(cat /proc/asound/card[0-9]/id)
+	do
+		echo '                      <li>Card '$CARDNO': '$CARD' - Control: '$(amixer scontrols -c ${CARDNO} | awk -F"'" '{print $2}')'</li>'
+		CARDNO=$((CARDNO+1))
+	done
+
+	echo '                    </ul>'
+}
 
 #========================================================================================
 # Start Audio output table
@@ -924,10 +942,12 @@ pcp_squeezelite_unmute() {
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -V option.</p>'
 
-	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
-	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+#	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
+#	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
+#	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
+#	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+
+	pcp_cards_controls
 
 	echo '                  </div>'
 	echo '                </td>'
@@ -958,7 +978,6 @@ pcp_squeezelite_volume() {
 #	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
-	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -969,10 +988,13 @@ pcp_squeezelite_volume() {
 
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -U option.</p>'
-	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
-	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+
+#	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
+#	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
+#	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
+#	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
+
+	pcp_cards_controls
 
 	echo '                  </div>'
 	echo '                </td>'
