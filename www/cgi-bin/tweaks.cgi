@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-24
+# Version: 3.00 2016-07-26
 #	Added LIRC IR remote controls. SBP.
-#	Reorganized order. PH.
+#	Reorganized order. PH. GE.
+#	Created USB Audio tweaks fieldset. GE.
 #	Modified User commands. GE.
 
 # Version: 0.26 2016-05-30
@@ -129,7 +130,9 @@ pcp_html_head "Tweaks" "SBP"
 pcp_banner
 pcp_navigation
 
-#=========================================================================================
+#========================================================================================
+# pCP System Tweaks
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -146,14 +149,21 @@ pcp_tweaks_hostname() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Host name</td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="text" name="HOST" value="'$HOST'" maxlength="26" pattern="^[a-zA-Z0-9-]*$">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="HOST"'
+	echo '                         value="'$HOST'"'
+	echo '                         maxlength="26"'
+	echo '                         title="Only alphanumeric and hyphen allowed."'
+	echo '                         pattern="[a-zA-Z0-9-]*"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Provide a host name, so the player is easier to identify on your LAN&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note: </b>This is the linux hostname, not the piCorePlayer name used by LMS.</p>'
+	echo '                    <p><b>Note:</b> This is the linux hostname, not the piCorePlayer name used by LMS.</p>'
 	echo '                    <p>The Internet standards for protocols mandate that component hostname labels may '
 	echo '                       contain only the ASCII letters "a" through "z" (in a case-insensitive manner), '
 	echo '                       the digits "0" through "9", and the hyphen ("-"). No other symbols, punctuation '
@@ -182,17 +192,24 @@ pcp_tweaks_timezone() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Timezone</td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="text" name="TIMEZONE" value="'$TIMEZONE'" maxlength="28" pattern="^[a-zA-Z0-9-,./]*$">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="TIMEZONE"'
+	echo '                         value="'$TIMEZONE'"'
+	echo '                         maxlength="28"'
+	echo '                         pattern="[a-zA-Z0-9-,./]*"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Add or change your timezone&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Format: EST-10EST,M10.1.0,M4.1.0/3</p>'
+	echo '                    <p><b>Format:</b> EST-10EST,M10.1.0,M4.1.0/3</p>'
 	echo '                    <p>Your timezone should be automatically populated.</p>'
+	echo '                    <p>Delete and reboot to force piCorePlayer to automatically populate timezone.</p>'
 	echo '                    <p>If not, cut and paste your timezone from your favourite timezone location.</p>'
-	echo '                    <p>Example:</p>'
+	echo '                    <p><b>Examples here:</b></p>'
 	echo '                    <ul>'
 	echo '                      <li><a href="http://wiki.openwrt.org/doc/uci/system#time.zones" target="_blank">Openwrt</a></li>'
 	echo '                    </ul>'
@@ -229,7 +246,7 @@ pcp_tweaks_password() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Default: piCore</p>'
+	echo '                    <p><b>Default:</b> piCore</p>'
 	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure.</p>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -256,8 +273,6 @@ pcp_tweaks_password() {
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Overclock----------------------------------------
-# Function to check the radio button according to config.cfg file
-#----------------------------------------------------------------------------------------
 pcp_tweaks_overclock() {
 	case "$OVERCLOCK" in
 		NONE) OCnone="selected" ;;
@@ -265,6 +280,7 @@ pcp_tweaks_overclock() {
 		MODERATE) OCmoderate="selected" ;;
 	esac
 
+	# Only works for Raspberry Pi Model 1, disable for the others.
 	case "$(pcp_rpi_type)" in
 		1)     DISABLED="" ;;
 		0|2|3) DISABLED="disabled" ;;
@@ -318,28 +334,6 @@ pcp_tweaks_overclock() {
 		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
 		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
 		echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
-
-		case "$OVERCLOCK" in
-			NONE)
-				echo '<p class="debug">[ DEBUG ] arm_freq=700<br />'
-				echo '                 [ DEBUG ] core_freq=250<br />'
-				echo '                 [ DEBUG ] sdram_freq=400<br />'
-				echo '                 [ DEBUG ] force_turbo=1</p>'
-			;;
-			MILD)
-				echo '<p class="debug">[ DEBUG ] arm_freq=800<br />'
-				echo '                 [ DEBUG ] core_freq=250<br />'
-				echo '                 [ DEBUG ] sdram_freq=400<br />'
-				echo '                 [ DEBUG ] force_turbo=1</p>'
-			;;
-			MODERATE)
-				echo '<p class="debug">[ DEBUG ] arm_freq=900<br />'
-				echo '                 [ DEBUG ] core_freq=333<br />'
-				echo '                 [ DEBUG ] sdram_freq=450<br />'
-				echo '                 [ DEBUG ] force_turbo=0</p>'
-			;;
-		esac
-
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -725,18 +719,19 @@ pcp_tweaks_auto_start() {
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
+if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Jivelite Setup</legend>'
+fi
 
 #---------------------------------------Jivelite-----------------------------------------
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_jivelite() {
-
 	case "$JIVELITE" in
 		yes) JIVEyes="selected" ;;
 		no) JIVEno="selected" ;;
@@ -945,17 +940,20 @@ pcp_tweaks_screenrotate() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
 #----------------------------------------------------------------------------------------
 
+if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 
-#==========================================IR Remote table ==============================
+#========================================================================================
+# IR Remote table
+#----------------------------------------------------------------------------------------
 pcp_tweaks_lirc() {
-
-	pgrep lircd > /dev/null && IR_RUN=0 || IR_RUN=1
+	pgrep lircd > /dev/null && IR_RUN=0
 
 	if [ $IR_RUN -eq 0 ]; then
 		IR_INDICATOR=$HEAVY_CHECK_MARK
@@ -967,13 +965,13 @@ pcp_tweaks_lirc() {
 		STATUS="not running"
 	fi
 
+	#----------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>LIRC remote control</legend>'
-
 
 	#----------------------------------------------------------------------------------------
 	# Function to check the IR_LIRC radio button according to config file
@@ -992,8 +990,7 @@ pcp_tweaks_lirc() {
 	echo '                  <p>IR remote control</p>'
 	echo '                </td>'
 	echo '                <td class="column100">'
-	echo '                <p class="'$CLASS'">'$IR_INDICATOR'</p>'
-
+	echo '                 <p class="'$CLASS'">'$IR_INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>LIRC IR remote control is '$STATUS' &nbsp;&nbsp;&nbsp;'
@@ -1025,8 +1022,8 @@ pcp_tweaks_lirc() {
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_lirc
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------------------------------------------------
-# Determine state of check boxes.
+#========================================================================================
+# Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
 	# Function to check the SQUEEZELITE radio button according to config file
@@ -1039,29 +1036,6 @@ pcp_tweaks_audio_tweaks() {
 	case "$SHAIRPORT" in
 		yes) SHAIRPORTyes="checked" ;;
 		no) SHAIRPORTno="checked" ;;
-	esac
-
-	# Function to check the CMD radio button according to config file
-	case "$CMD" in
-		Default) CMDdefault="checked" ;;
-		Slow) CMDslow="checked" ;;
-	esac
-
-	# Function to check the FSM radio button according to config file
-	case "$FSM" in
-		Default) FSMdefault="checked" ;;
-		Disabled) FSMdisabled="checked" ;;
-	esac
-
-	# Function to select the FIQ-split radio button according to config file
-	case "$FIQ" in
-		0x1) selected1="selected" ;;
-		0x2) selected2="selected" ;;
-		0x3) selected3="selected" ;;
-		0x4) selected4="selected" ;;
-		0x7) selected5="selected" ;;
-		0x8) selected6="selected" ;;
-		0xf) selected7="selected" ;;
 	esac
 
 	# Function to check the ALSA radio button according to config file
@@ -1147,76 +1121,6 @@ pcp_tweaks_audio_tweaks() {
 		echo '    <p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
 		echo '                     [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
 		echo '                     [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
-		echo '  </td>'
-		echo '</tr>'
-		echo '<!-- End of debug info -->'
-	fi
-
-	#-------------------------------------------dwc_otg.speed--------------------------------
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>OTG-Speed</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="CMD" value="Default" '$CMDdefault'>Default'
-	echo '                  <input class="small1" type="radio" name="CMD" value="Slow" '$CMDslow'>dwc_otg.speed=1'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Fix C-Media based DACs by "dwc_otg.speed=1"&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
-	echo '                    <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
-	echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
-		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
-		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
-		echo '  </td>'
-		echo '</tr>'
-		echo '<!-- End of debug info -->'
-	fi
-
-	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 ----------------
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>USB-FSM driver</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="FSM" value="Default" '$FSMdefault'>Default'
-	echo '                  <input class="small1" type="radio" name="FSM" value="Disabled" '$FSMdisabled'>Disable USB-FSM'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Fix Emotiva XMC-1 DAC by "dwc_otg.fiq_fsm_enable=0"&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Adds "dwc_otg.fiq_fsm_enable=0" to /mnt/mmcblk0p1/cmdline.txt</p>'
-	echo '                    <p>The USB controller can have issues with external DACs. If set to 0 the new FIQ_FSM driver is disabled and the old NOP FIQ is used.</p>'
-	echo '                    <p>This is needed for Emotiva XMC-1 DAC.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $FSM: '$CMD'<br />'
-		echo '                     [ DEBUG ] $FSMdefault: '$FSMdefault'<br />'
-		echo '                     [ DEBUG ] $FSMdisabled: '$FSMdisabled'</p>'
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1309,6 +1213,132 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- End of debug info -->'
 	fi
 
+	#----------------------------------------------------------------------------------------
+	pcp_start_row_shade
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_audio_tweaks
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# USB audio tweaks
+#----------------------------------------------------------------------------------------
+pcp_tweaks_usb_audio_tweaks() {
+
+	# Function to check the CMD radio button according to config file
+	case "$CMD" in
+		Default) CMDdefault="checked" ;;
+		Slow) CMDslow="checked" ;;
+	esac
+
+	# Function to check the FSM radio button according to config file
+	case "$FSM" in
+		Default) FSMdefault="checked" ;;
+		Disabled) FSMdisabled="checked" ;;
+	esac
+
+	# Function to select the FIQ-split radio button according to config file
+	case "$FIQ" in
+		0x1) selected1="selected" ;;
+		0x2) selected2="selected" ;;
+		0x3) selected3="selected" ;;
+		0x4) selected4="selected" ;;
+		0x7) selected5="selected" ;;
+		0x8) selected6="selected" ;;
+		0xf) selected7="selected" ;;
+	esac
+
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>USB Audio tweaks</legend>'
+	echo '            <table class="bggrey percent100">'
+
+	#-------------------------------------------dwc_otg.speed--------------------------------
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>OTG-Speed</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="CMD" value="Default" '$CMDdefault'>Default'
+	echo '                  <input class="small1" type="radio" name="CMD" value="Slow" '$CMDslow'>dwc_otg.speed=1'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Fix C-Media based DACs by "dwc_otg.speed=1"&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
+	echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="'$ROWSHADE'">'
+		echo '  <td colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
+		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
+		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
+	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 ----------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>USB-FSM driver</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="FSM" value="Default" '$FSMdefault'>Default'
+	echo '                  <input class="small1" type="radio" name="FSM" value="Disabled" '$FSMdisabled'>Disable USB-FSM'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Fix Emotiva XMC-1 DAC by "dwc_otg.fiq_fsm_enable=0"&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Adds "dwc_otg.fiq_fsm_enable=0" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>The USB controller can have issues with external DACs. If set to 0 the new FIQ_FSM driver is disabled and the old NOP FIQ is used.</p>'
+	echo '                    <p>This is needed for Emotiva XMC-1 DAC.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<tr class="'$ROWSHADE'">'
+		echo '  <td colspan="3">'
+		echo '    <p class="debug">[ DEBUG ] $FSM: '$CMD'<br />'
+		echo '                     [ DEBUG ] $FSMdefault: '$FSMdefault'<br />'
+		echo '                     [ DEBUG ] $FSMdisabled: '$FSMdisabled'</p>'
+		echo '  </td>'
+		echo '</tr>'
+		echo '<!-- End of debug info -->'
+	fi
+
 	#-------------------------------------FIQ-Split acceleration-----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -1362,13 +1392,13 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- End of debug info -->'
 	fi
 
+	#----------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -1377,7 +1407,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_audio_tweaks
+[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_usb_audio_tweaks
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------------Schedule CRON jobs---------------------------

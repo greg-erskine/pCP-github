@@ -2,13 +2,14 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.00 2016-07-08
-#	Added new DACs. SBP.
+# Version: 3.00 2016-07-26
+#	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
 #	Removed MAC address from footer. GE.
+#	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
 
 # Version: 2.06 2016-05-22
-#	Added HDMIPOWER, ADVOVERCLOCK. GE.
-#	Added RPI3INTWIFI. PH.
+#	Added HDMIPOWER, ADVOVERCLOCK variables to config. GE.
+#	Added RPI3INTWIFI variable to config. PH.
 #	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
 #	Renamed variable HTPPD to HTTPD. GE.
 #	Added a couple more hotspots to debug in pCP logo. GE.
@@ -303,7 +304,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=100
+	MODE=0
 	MODE_INITIAL=0				# Not used at the moment
 	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
 	MODE_NORMAL=20				# This is the typical setting for normal users
@@ -827,11 +828,6 @@ pcp_picoreplayer_version() {
 pcp_squeezelite_version() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
 }
-
-#pcp_which_squeezelite() {
-#	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep FFMPEG > /dev/null
-#	[ $? -eq 0 ] && echo "Ralphy" || echo "Triode"
-#}
 
 pcp_squeezelite_build_option() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep $1 > /dev/null
@@ -1457,6 +1453,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
 	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
+	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
+	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1551,6 +1550,9 @@ LMSCONTROLS="yes"
 PLAYERTABS="yes"
 HDMIPOWER="on"
 RPI3INTWIFI="on"
+WOL="no"
+WOL_NIC=""
+WOL_LMSMACADDRESS=""
 EOF
 }
 
@@ -1715,7 +1717,6 @@ pcp_enable_iqaudio_digi() {
 	sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
 }
 
-
 #========================================================================================
 # Load the correct modules for raspidac3
 #----------------------------------------------------------------------------------------
@@ -1755,4 +1756,3 @@ pcp_enable_LOCO_dac() {
 	pcp_disable_i2s
 	sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
 }
-
