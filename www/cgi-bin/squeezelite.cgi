@@ -261,7 +261,7 @@ echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="2">'
-echo '                  <input type="submit" value="Save" title="Save &quot;Audio output&quot; to current selection">'
+echo '                  <input type="submit" value="Save" title="Save &quot;Audio output&quot; to configuration file">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -1122,7 +1122,7 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite setings&quot; to current selection">'
+echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file">'
 echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
 echo '                </td>'
 
