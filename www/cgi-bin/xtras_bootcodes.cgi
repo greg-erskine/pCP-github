@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 0.03 2016-07-26 GE
+#	Fixed issue with pcp_bootcode_equal_add.
+#	Revised handling of multiple spaces.
+
 # Version: 0.02 2016-06-03 GE
 #	Major revision.
 
@@ -12,9 +16,12 @@ pcp_variables
 
 USER=""
 TZ=""
+REBOOT_REQUIRED="no"
 
+# Define red cross
 RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
 RED=""
+# Define green tick
 GREEN='&nbsp;<span class="indicator_green">&#x2714;</span>'
 
 pcp_html_head "xtras_bootcodes" "GE"
@@ -25,11 +32,12 @@ pcp_xtras
 pcp_running_script
 pcp_httpd_query_string
 
+# Backup cmdline.txt if one does not exist. Use ssh to restore.
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 [ ! -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT} ${CMDLINETXT}.bak
 
 #========================================================================================
-# Missing bootcodes - add these sometime in the future.
+# Missing bootcodes - add these sometime in the future?
 #----------------------------------------------------------------------------------------
 # local={hda1|sda1}          Specify PPI directory or loopback file
 # vga=7xx                    7xx from table above
@@ -46,23 +54,24 @@ pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
-pcp_add_space_end() {
-	# Clean up stray spaces and add a space to end of file.
-	sed -i 's/  / /g' $CMDLINETXT
+pcp_add_space_to_end() {
+	# Add a space to end of file, then remove multiple spaces.
 	sed -i '$s/$/ /' $CMDLINETXT
-	sed -i 's/  / /g' $CMDLINETXT
+	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
 }
 
 pcp_bootcode_add() {
-	pcp_add_space_end
+	REBOOT_REQUIRED="yes"
+	pcp_add_space_to_end
 	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
 	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
 }
 
 pcp_bootcode_equal_add() {
-	pcp_add_space_end
+	REBOOT_REQUIRED="yes"
+	pcp_add_space_to_end
 	STR="$1=$2"
-	sed -i 's/'${VARIABLE}'[\=a-zA-Z0-9]* //g' $CMDLINETXT
+	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
 	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
 }
 
@@ -83,10 +92,10 @@ pcp_warning_message() {
 	echo '                <ul>'
 	echo '                  <li style="color:white">Only suitable for Advanced users who want to experiment with bootcodes.</li>'
 	echo '                  <li style="color:white">Use at your own risk.</li>'
-	echo '                  <li style="color:white">Some of the bootcodes may not work with piCorePlayer.</li>'
+	echo '                  <li style="color:white">Some of the tinycore bootcodes may not work with piCorePlayer.</li>'
 	echo '                  <li style="color:white">Only a small subset of bootcodes are available on this page.</li>'
 	echo '                  <li style="color:white">Requests for activating additional bootcodes welcome.</li>'
-	echo '                  <li style="color:white">A reboot is required to make bootcode active.</li>'
+	echo '                  <li style="color:white">A reboot is required to make changed bootcodes active.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -97,6 +106,24 @@ pcp_warning_message() {
 	echo '  </tr>'
 	echo '</table>'
 }
+
+#========================================================================================
+# Generate html end code
+#----------------------------------------------------------------------------------------
+pcp_html_end(){
+	pcp_footer
+	pcp_copyright
+
+	echo '</body>'
+	echo '</html>'
+}
+
+#========================================================================================
+# Restore cmdline.txt
+#----------------------------------------------------------------------------------------
+if [ "$SUBMIT" = "Restore" ]; then
+	[ -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT}.bak ${CMDLINETXT}
+fi
 
 #========================================================================================
 # Process bootcodes in cmdline.txt
@@ -115,7 +142,7 @@ if [ "$SUBMIT" = "Save" ]; then
 		icons)       pcp_bootcode_equal_add icons "$ICONS" ;;
 		iso)         pcp_bootcode_equal_add iso "$ISO" ;;
 		kmap)        pcp_bootcode_equal_add kmap "$KMAP" ;;
-		lang)        pcp_bootcode_equal_add lang "$LANGUAGE" ;;
+		lang)        pcp_bootcode_equal_add lang "$MYLANG" ;;
 		mydata)      pcp_bootcode_equal_add mydata "$MYDATA" ;;
 		nbd)         pcp_bootcode_equal_add nbd "$NBD" ;;
 		nfsmount)    pcp_bootcode_equal_add nfsmount "$NFSMOUNT" ;;
@@ -194,7 +221,7 @@ for i in `cat $CMDLINETXT`; do
 				icons*)     ICONS=${i#*=} ;;
 				iso*)       ISOFILE=${i#*=} ;;
 				kmap*)      KEYMAP=${i#*=} ;;
-				lang*)      LANGUAGE=${i#*=} ;;
+				lang*)      MYLANG=${i#*=} ;;
 				mydata*)    MYDATA=${i#*=} ;;
 				nbd*)       NBD=${i#*=} ;;
 				nfsmount*)  NFSMOUNT=${i#*=} ;;
@@ -264,6 +291,8 @@ for i in `cat $CMDLINETXT`; do
 done
 
 pcp_warning_message
+[ $MODE -le $MODE_NORMAL ] && pcp_html_end && exit
+[ $MODE -lt $MODE_DEVELOPER ] && [ "$REBOOT_REQUIRED" = "yes" ] && pcp_reboot_required
 
 COL1="column150"
 COL2="column210"
@@ -281,6 +310,7 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>piCore bootcodes ( VARIABLE=value )</legend>'
 echo '          <table class="bggrey percent100">'
+
 #--------------------------------------Heading-------------------------------------------
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <th class="'$COL1'">'
@@ -309,10 +339,16 @@ pcp_bootcode_aoe() {
 	echo '                  <p>aoe=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="AOE" value="'$AOE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="AOE"'
+	echo '                         value="'$AOE'"'
+	echo '                         title="No spaces"'
+	echo '                         pattern="[^\s]*"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save AOE">'
 	echo '                  <input type="hidden" name="VARIABLE" value="aoe">'
 	echo '                </td>'
 	echo '                <td>'
@@ -320,7 +356,7 @@ pcp_bootcode_aoe() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p></p>'
+	echo '                    <p>TODO</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -340,7 +376,11 @@ pcp_bootcode_blacklist() {
 	echo '                  <p>blacklist=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="BLACKLIST" value="'$BLACKLIST'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="BLACKLIST"'
+	echo '                         value="'$BLACKLIST'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -372,7 +412,11 @@ pcp_bootcode_desktop() {
 	echo '                  <p>desktop=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="DESKTOP" value="'$DESKTOP'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="DESKTOP"'
+	echo '                         value="'$DESKTOP'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -404,7 +448,11 @@ pcp_bootcode_home() {
 	echo '                  <p>home=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="MYHOME" value="'$MYHOME'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MYHOME"'
+	echo '                         value="'$MYHOME'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -436,7 +484,12 @@ pcp_bootcode_host() {
 	echo '                  <p>host=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="MYHOST" value="'$MYHOST'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MYHOST"'
+	echo '                         value="'$MYHOST'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -469,7 +522,11 @@ pcp_bootcode_httplist() {
 	echo '                  <p>httplist=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="HTTPLIST" value="'$HTTPLIST'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="HTTPLIST"'
+	echo '                         value="'$HTTPLIST'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -500,7 +557,11 @@ pcp_bootcode_icons() {
 	echo '                  <p>icons=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="ICONS" value="'$ICONS'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="ICONS"'
+	echo '                         value="'$ICONS'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -531,7 +592,11 @@ pcp_bootcode_iso() {
 	echo '                  <p>iso=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="ISOFILE" value="'$ISOFILE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="ISOFILE"'
+	echo '                         value="'$ISOFILE'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -563,7 +628,11 @@ pcp_bootcode_kmap() {
 	echo '                  <p>kmap=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="KEYMAP" value="'$KEYMAP'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="KEYMAP"'
+	echo '                         value="'$KEYMAP'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -587,7 +656,7 @@ pcp_bootcode_kmap() {
 
 #--------------------------------------lang----------------------------------------------
 pcp_bootcode_lang() {
-	[ x"" = x"$LANGUAGE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYLANG" ] && INDICATOR=$RED || INDICATOR=$GREEN
 	echo '            <form name="lang" action="'$0'" method="get">'
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -596,7 +665,11 @@ pcp_bootcode_lang() {
 	echo '                  <p>lang=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="LANGUAGE" value="'$LANGUAGE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MYLANG"'
+	echo '                         value="'$MYLANG'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -629,7 +702,11 @@ pcp_bootcode_mydata() {
 	echo '                  <p>mydata=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="MYDATA" value="'$MYDATA'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MYDATA"'
+	echo '                         value="'$MYDATA'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -662,7 +739,11 @@ pcp_bootcode_nbd() {
 	echo '                  <p>nbd=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="NBD" value="'$NBD'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NBD"'
+	echo '                         value="'$NBD'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -693,7 +774,11 @@ pcp_bootcode_nfsmount() {
 	echo '                  <p>nfsmount=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="NFSMOUNT" value="'$NFSMOUNT'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NFSMOUNT"'
+	echo '                         value="'$NFSMOUNT'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -724,7 +809,11 @@ pcp_bootcode_noicons() {
 	echo '                  <p>noicons=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="NOICONS" value="'$NOICONS'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NOICONS"'
+	echo '                         value="'$NOICONS'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -755,7 +844,11 @@ pcp_bootcode_ntpserver() {
 	echo '                  <p>ntpserver=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="NTPSERVER" value="'$NTPSERVER'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NTPSERVER"'
+	echo '                         value="'$NTPSERVER'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -788,7 +881,11 @@ pcp_bootcode_opt() {
 	echo '                  <p>opt=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="MYOPT" value="'$MYOPT'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MYOPT"'
+	echo '                         value="'$MYOPT'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -820,7 +917,11 @@ pcp_bootcode_pretce() {
 	echo '                  <p>pretce=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="PRETCE" value="'$PRETCE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="PRETCE"'
+	echo '                         value="'$PRETCE'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -851,7 +952,11 @@ pcp_bootcode_restore() {
 	echo '                  <p>restore=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="RESTORE" value="'$RESTORE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="RESTORE"'
+	echo '                         value="'$RESTORE'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -885,7 +990,11 @@ pcp_bootcode_resume() {
 	echo '                  <p>resume=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="RESUME" value="'$RESUME'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="RESUME"'
+	echo '                         value="'$RESUME'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -916,7 +1025,11 @@ pcp_bootcode_rsyslog() {
 	echo '                  <p>rsyslog=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="RSYSLOG" value="'$RSYSLOG'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="RSYSLOG"'
+	echo '                         value="'$RSYSLOG'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -947,7 +1060,11 @@ pcp_bootcode_swapfile() {
 	echo '                  <p>swapfile=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="SWAPFILE" value="'$SWAPFILE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="SWAPFILE"'
+	echo '                         value="'$SWAPFILE'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -979,7 +1096,11 @@ pcp_bootcode_tce() {
 	echo '                  <p>tce=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="MYTCE" value="'$MYTCE'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="MYTCE"'
+	echo '                         value="'$MYTCE'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1018,7 +1139,11 @@ pcp_bootcode_tcvd() {
 	echo '                  <p>tcvd=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="TCVD" value="'$TCVD'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="TCVD"'
+	echo '                         value="'$TCVD'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1049,7 +1174,11 @@ pcp_bootcode_tftplist() {
 	echo '                  <p>tftplist=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="TFTPLIST" value="'$TFTPLIST'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="TFTPLIST"'
+	echo '                         value="'$TFTPLIST'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1080,7 +1209,12 @@ pcp_bootcode_tz() {
 	echo '                  <p>tz=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="TZ" value="'$TZ'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="TZ"'
+	echo '                         value="'$TZ'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -1114,7 +1248,11 @@ pcp_bootcode_user() {
 	echo '                  <p>user=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="USER" value="'$USER'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="USER"'
+	echo '                         value="'$USER'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1146,7 +1284,14 @@ pcp_bootcode_waitusb() {
 	echo '                  <p>waitusb=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="WAITUSB" value="'$WAITUSB'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="number"'
+	echo '                         name="WAITUSB"'
+	echo '                         value="'$WAITUSB'"'
+	echo '                         min="1"'
+	echo '                         max="120"'
+	echo '                         title="waitsub ( 1 -120 )"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -1178,7 +1323,11 @@ pcp_bootcode_xvesa() {
 	echo '                  <p>xvesa=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="XVESA" value="'$XVESA'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="XVESA"'
+	echo '                         value="'$XVESA'"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -2004,7 +2153,12 @@ pcp_bootcode_consoleblank() {
 	echo '                  <p>consoleblank=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="CONSOLEBLANK" value="'$CONSOLEBLANK'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="CONSOLEBLANK"'
+	echo '                         value="'$CONSOLEBLANK'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -2035,7 +2189,12 @@ pcp_bootcode_fiq_fsm_mask() {
 	echo '                  <p>dwc_otg.fiq_fsm_mask=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="FIQ_FSM_MASK" value="'$FIQ_FSM_MASK'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="FIQ_FSM_MASK"'
+	echo '                         value="'$FIQ_FSM_MASK'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -2066,7 +2225,12 @@ pcp_bootcode_lpm_enable() {
 	echo '                  <p>dwc_otg.lpm_enable=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="LPM_ENABLE" value="'$LPM_ENABLE'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="LPM_ENABLE"'
+	echo '                         value="'$LPM_ENABLE'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -2097,7 +2261,12 @@ pcp_bootcode_elevator() {
 	echo '                  <p>elevator=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="ELEVATOR" value="'$ELEVATOR'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="ELEVATOR"'
+	echo '                         value="'$ELEVATOR'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -2130,7 +2299,14 @@ pcp_bootcode_loglevel() {
 	echo '                  <p>loglevel=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="LOGLEVEL" value="'$LOGLEVEL'">'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="number"'
+	echo '                         name="LOGLEVEL"'
+	echo '                         value="'$LOGLEVEL'"'
+	echo '                         min="0"'
+	echo '                         max="7"'
+	echo '                         title="logelevel ( 0 - 7 )"'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -2175,7 +2351,12 @@ pcp_bootcode_root() {
 	echo '                  <p>root=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="ROOT" value="'$ROOT'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="ROOT"'
+	echo '                         value="'$ROOT'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -2207,7 +2388,12 @@ pcp_bootcode_turbo_mode() {
 	echo '                  <p>smsc95xx.turbo_mode=</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="large15" type="text" name="TURBO_MODE" value="'$TURBO_MODE'" readonly>'$INDICATOR
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="TURBO_MODE"'
+	echo '                         value="'$TURBO_MODE'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
 	echo '                </td>'
 	echo '                <td class="'$COL3' center">'
 	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
@@ -2349,7 +2535,8 @@ echo '          <table class="bggrey percent100">'
 
 pcp_textarea_inform "" "cat $CMDLINETXT" 60
 
-echo '<h1>Bootcodes:</h1>'
+echo '<h1>[ INFO ] Bootcodes:</h1>'
+echo '<textarea class="inform" style="height:250px">'
 
 cat $CMDLINETXT | awk '
 	BEGIN {
@@ -2364,11 +2551,11 @@ cat $CMDLINETXT | awk '
 	}
 	END {
 		for (j=0; j<i; j++) {
-			printf "%s. %s<br />\n",j+1,bootcode[j]
+			printf "%s. %s\n",j+1,bootcode[j]
 		}
 	} '
 
-echo '<br />'
+echo '</textarea>'
 
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 
@@ -2397,7 +2584,8 @@ pcp_proc_cmdline() {
 
 	pcp_textarea_inform "" "cat /proc/cmdline" 100
 
-	echo '<h1>Bootcodes:</h1>'
+	echo '<h1>[ INFO ] Bootcodes:</h1>'
+	echo '<textarea class="inform" style="height:280px">'
 
 	cat /proc/cmdline | sed 's/  / /g' | awk '
 		BEGIN {
@@ -2412,9 +2600,11 @@ pcp_proc_cmdline() {
 		}
 		END {
 			for (j=0; j<i; j++) {
-				printf "%s. %s<br />\n",j+1,bootcode[j]
+				printf "%s. %s\n",j+1,bootcode[j]
 			}
 		} '
+
+	echo '</textarea>'
 
 	#------------------------------------------------------------------------------------
 	echo '          </table>'
@@ -2427,8 +2617,4 @@ pcp_proc_cmdline() {
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_proc_cmdline
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
