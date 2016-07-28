@@ -2,10 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.00 2016-07-26
+# Version: 3.00 2016-07-29
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
 #	Removed MAC address from footer. GE.
 #	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
+#	Added pcp_clean_cmdlinetxt. GE,
+#	Standardise $HOST and $TIMEZONE. GE.
 
 # Version: 2.06 2016-05-22
 #	Added HDMIPOWER, ADVOVERCLOCK variables to config. GE.
@@ -455,6 +457,25 @@ pcp_mode_lt_developer() {
 }
 
 #=========================================================================================
+# cmdline.txt routines
+#-----------------------------------------------------------------------------------------
+pcp_backup_cmdlinetxt() {
+	cp ${CMDLINETXT} ${CMDLINETXT}.bak
+}
+
+pcp_restore_cmdlinetxt() {
+	[ -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT}.bak ${CMDLINETXT}
+}
+
+pcp_clean_cmdlinetxt() {
+	# Remove carriage returns, add a space to end of file, then remove multiple spaces.
+	cat $CMDLINETXT | tr -d "\n" > /tmp/cmdline.txt
+	cp /tmp/cmdline.txt $CMDLINETXT
+	sed -i '$s/$/ /' $CMDLINETXT
+	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
+}
+
+#=========================================================================================
 # Update the Timezone routine
 #
 # Called from:
@@ -476,6 +497,7 @@ pcp_timezone() {
 		sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone
 		export TZ=$TIMEZONE
 	fi
+	pcp_clean_cmdlinetxt
 }
 
 #=========================================================================================
@@ -883,8 +905,12 @@ pcp_write_to_log() {
 
 pcp_write_to_host() {
 	# This will set the hostname next time pCP is rebooted.
-	sudo sed -i "s/\( host=\)[a-zA-Z0-9\-]*//g" $CMDLINETXT
-	sudo sed -i "1 s/$/ host=$HOST/" $CMDLINETXT
+	#sudo sed -i "s/\(host=\)[a-zA-Z0-9\-]*[ ]//g" $CMDLINETXT
+	#sudo sed -i "1 s/$/ host=$HOST/" $CMDLINETXT
+
+	pcp_clean_cmdlinetxt
+	sed -i 's/host[=][^ ]* //g' $CMDLINETXT
+	sed -i '1 s/^/host='${HOST}' /' $CMDLINETXT
 }
 
 #=========================================================================================
@@ -1561,7 +1587,7 @@ pcp_reset_config_to_defaults() {
 
 	# Remove timezone stuff
 	pcp_mount_mmcblk0p1_nohtml
-	sudo sed -i 's/\S*\(tz=\)\S*//g' $CMDLINETXT
+	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
 	pcp_umount_mmcblk0p1_nohtml
 	sudo rm -f /etc/sysconfig/timezone
 
@@ -1592,7 +1618,7 @@ pcp_reset_config_to_defaults() {
 	( crontab -l | grep -v "Custom" ) | crontab -
 
 	# Reset hostname to pCP default
-	sudo sed -i "s/\( host=\)[a-zA-Z0-9\-]*/ host=piCorePlayer/g" $CMDLINETXT
+	sudo sed -i "s/host[=][^ ]* /host=piCorePlayer /g" $CMDLINETXT
 }
 
 #=========================================================================================

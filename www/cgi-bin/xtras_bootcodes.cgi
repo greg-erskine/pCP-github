@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-28
+# Version: 3.00 2016-07-29
 #	Fixed issue with pcp_bootcode_equal_add. GE.
 #	Revised handling of multiple spaces. GE.
 #	Added cmdline.txt functions buttons. GE.
@@ -17,7 +17,6 @@ pcp_variables
 
 USER=""
 TZ=""
-REBOOT_REQUIRED="no"
 
 # Define red cross
 RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
@@ -51,31 +50,15 @@ pcp_httpd_query_string
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
-pcp_backup_cmdlinetxt() {
-	cp ${CMDLINETXT} ${CMDLINETXT}.bak
-}
-
-pcp_restore_cmdlinetxt() {
-	[ -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT}.bak ${CMDLINETXT}
-}
-
-pcp_clean_cmdlinetxt() {
-	# Remove carriage return, add a space to end of file, then remove multiple spaces.
-	cat $CMDLINETXT | tr -d "\n" > /tmp/cmdline.txt
-	cp /tmp/cmdline.txt $CMDLINETXT
-	sed -i '$s/$/ /' $CMDLINETXT
-	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
-}
-
 pcp_bootcode_add() {
-	REBOOT_REQUIRED="yes"
+	REBOOT_REQUIRED=TRUE
 	pcp_clean_cmdlinetxt
 	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
 	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
 }
 
 pcp_bootcode_equal_add() {
-	REBOOT_REQUIRED="yes"
+	REBOOT_REQUIRED=TRUE
 	pcp_clean_cmdlinetxt
 	STR="$1=$2"
 	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
@@ -125,7 +108,7 @@ pcp_html_end(){
 	echo '</html>'
 }
 
-# Backup cmdline.txt if one does not exist.
+# Backup cmdline.txt if one does not exist. Use ssh to restore.
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 [ ! -f ${CMDLINETXT}.bak ] && pcp_backup_cmdlinetxt
 
@@ -302,7 +285,7 @@ done
 
 pcp_warning_message
 [ $MODE -le $MODE_NORMAL ] && pcp_html_end && exit
-[ $MODE -lt $MODE_DEVELOPER ] && [ "$REBOOT_REQUIRED" = "yes" ] && pcp_reboot_required
+[ $MODE -lt $MODE_DEVELOPER ] && [ "$REBOOT_REQUIRED" ] && pcp_reboot_required
 
 #----------------------------------------------------------------------------------------
 # cmdline.txt functions
