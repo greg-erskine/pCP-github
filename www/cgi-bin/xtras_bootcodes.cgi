@@ -1,14 +1,15 @@
 #!/bin/sh
 
-# Version: 0.03 2016-07-26 GE
-#	Fixed issue with pcp_bootcode_equal_add.
-#	Revised handling of multiple spaces.
+# Version: 3.00 2016-07-28
+#	Fixed issue with pcp_bootcode_equal_add. GE.
+#	Revised handling of multiple spaces. GE.
+#	Added cmdline.txt functions buttons. GE.
 
-# Version: 0.02 2016-06-03 GE
-#	Major revision.
+# Version: 0.02 2016-06-03
+#	Major revision. GE.
 
-# Version: 0.01 2015-02-15 GE
-#	Original version.
+# Version: 0.01 2015-02-15
+#	Original version. GE.
 
 . pcp-functions
 pcp_variables
@@ -32,10 +33,6 @@ pcp_xtras
 pcp_running_script
 pcp_httpd_query_string
 
-# Backup cmdline.txt if one does not exist. Use ssh to restore.
-pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
-[ ! -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT} ${CMDLINETXT}.bak
-
 #========================================================================================
 # Missing bootcodes - add these sometime in the future?
 #----------------------------------------------------------------------------------------
@@ -54,22 +51,32 @@ pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
-pcp_add_space_to_end() {
-	# Add a space to end of file, then remove multiple spaces.
+pcp_backup_cmdlinetxt() {
+	cp ${CMDLINETXT} ${CMDLINETXT}.bak
+}
+
+pcp_restore_cmdlinetxt() {
+	[ -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT}.bak ${CMDLINETXT}
+}
+
+pcp_clean_cmdlinetxt() {
+	# Remove carriage return, add a space to end of file, then remove multiple spaces.
+	cat $CMDLINETXT | tr -d "\n" > /tmp/cmdline.txt
+	cp /tmp/cmdline.txt $CMDLINETXT
 	sed -i '$s/$/ /' $CMDLINETXT
 	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
 }
 
 pcp_bootcode_add() {
 	REBOOT_REQUIRED="yes"
-	pcp_add_space_to_end
+	pcp_clean_cmdlinetxt
 	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
 	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
 }
 
 pcp_bootcode_equal_add() {
 	REBOOT_REQUIRED="yes"
-	pcp_add_space_to_end
+	pcp_clean_cmdlinetxt
 	STR="$1=$2"
 	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
 	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
@@ -118,12 +125,15 @@ pcp_html_end(){
 	echo '</html>'
 }
 
-#========================================================================================
-# Restore cmdline.txt
-#----------------------------------------------------------------------------------------
-if [ "$SUBMIT" = "Restore" ]; then
-	[ -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT}.bak ${CMDLINETXT}
-fi
+# Backup cmdline.txt if one does not exist.
+pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+[ ! -f ${CMDLINETXT}.bak ] && pcp_backup_cmdlinetxt
+
+case "$SUBMIT" in
+	Restore) pcp_restore_cmdlinetxt ;;
+	Backup) pcp_backup_cmdlinetxt ;;
+	Clean) pcp_clean_cmdlinetxt ;;
+esac
 
 #========================================================================================
 # Process bootcodes in cmdline.txt
@@ -293,6 +303,34 @@ done
 pcp_warning_message
 [ $MODE -le $MODE_NORMAL ] && pcp_html_end && exit
 [ $MODE -lt $MODE_DEVELOPER ] && [ "$REBOOT_REQUIRED" = "yes" ] && pcp_reboot_required
+
+#----------------------------------------------------------------------------------------
+# cmdline.txt functions
+#----------------------------------------------------------------------------------------
+pcp_start_row_shade
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>cmdline.txt functions</legend>'
+echo '          <table class="bggrey percent100">'
+echo '            <form name="functions" action="'$0'" method="get">'
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="'$COL1' right">'
+echo '                <input type="submit" name="SUBMIT" value="Clean" title="Clean cmdline.txt">'
+echo '                <input type="submit" name="SUBMIT" value="Backup" title="Backup cmdline.txt">'
+echo '                <input type="submit" name="SUBMIT" value="Restore" title="Restore cmdline.txt">'
+echo '              </td>'
+echo '            </tr>'
+echo '            </form>'
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
 
 COL1="column150"
 COL2="column210"
