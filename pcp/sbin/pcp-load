@@ -39,6 +39,8 @@ abort(){
 	echo "   ${PROG_NAME} -w nano.tcz"
 	echo " Use alternative repository, root level"
 	echo "   ${PROG_NAME} -r https://sourceforge.net/projects/picoreplayer/files/repo"
+	echo " Use alternative repository, override absolute path."
+	echo "   ${PROG_NAME} -u https://sourceforge.net/projects/picoreplayer/files/repo/8.x/armv6/tcz"
 	exit 2
 }
 
@@ -47,6 +49,7 @@ getMirror() {
 BUILD=$(getBuild)
 [ -z $REPO ] && read MIRROR < /opt/tcemirror || MIRROR=$REPO
 MIRROR="${MIRROR%/}/$(getMajorVer).x/$BUILD/tcz"
+[ -z $REPO_ABS ] && read MIRROR < /opt/tcemirror || MIRROR=$REPO_ABS
 }
 
 abort_to_saved_dir(){
@@ -59,7 +62,7 @@ abort_to_saved_dir(){
 	fi
 }
 
-while getopts wilcbosfr:t: OPTION
+while getopts wilcbosfr:t:u: OPTION
 do
 	case ${OPTION} in
 		w) WGET=TRUE ;;
@@ -72,6 +75,7 @@ do
 		f) FORCE="y" ;;
 		r) REPO="$OPTARG" ;;
 		t) TCEDIR="$OPTARG" ;;
+		u) REPO_ABS="$OPTARG" ;;
 		*) abort ;;
 	esac
 done
