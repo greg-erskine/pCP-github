@@ -2,7 +2,9 @@
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
 #
-# pcp-load modified version for piCorePlayer 2016
+# Version 3.00 2016-07-29 PH
+# 	pcp-load modified version for piCorePlayer
+#	Options to specify REPO and Full Path on command line
 #
 . /etc/init.d/tc-functions
 useBusybox
