@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-26
+# Version: 3.00 2016-07-30
 #	Added LIRC IR remote controls. SBP.
 #	Reorganized order. PH. GE.
 #	Created USB Audio tweaks fieldset. GE.
 #	Modified User commands. GE.
+#	Added WOL interface. GE.
 
 # Version: 0.26 2016-05-30
 #	Added pcp_tweaks_hdmipower. GE.
@@ -469,7 +470,9 @@ pcp_tweaks_lmswebport() {
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">LMS Web Port</td>'
+	echo '                <td class="column150">'
+	echo '                  <p>LMS Web Port</p>'
+	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large16" type="number" name="LMSWEBPORT" value="'$LMSWEBPORT'" min="9001" max="9999">'
 	echo '                </td>'
@@ -501,6 +504,130 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Wake-on-LAN table
+#----------------------------------------------------------------------------------------
+pcp_tweaks_wol() {
+
+	case "$WOL" in
+		yes)
+			WOLyes="checked"
+		;;
+		no)
+			WOLno="checked"
+			WOLDISABLED="disabled"
+		;;
+	esac
+
+	set -- $(arp $LMSIP)
+
+	if [ $DEBUG -eq 1 ]; then
+		[ "$WOL_NIC" = "" ] && WOL_NIC=$7
+		[ "$WOL_LMSMACADDRESS" = "" ] && WOL_LMSMACADDRESS=$4
+	fi
+
+	#----------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Wake-on-LAN (WOL)</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	#----------------------------------------------------------------------------------------
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>WOL</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="WOL" value="yes" '$WOLyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="WOL" value="no" '$WOLno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>LMS Wake-on-LAN&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Transmits a Wake-On-LAN (WOL) "Magic Packet", used for restarting machines that have been soft-powered-down.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>LMS NIC</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="WOL_NIC"'
+	echo '                         value="'$WOL_NIC'"'
+	echo '                         title="LMS NIC: ( eth0 | eth1 | wlan0 | wlan1 )"'
+	echo '                         pattern="(eth0|eth1|wlan0|wlan1)"'
+	echo '                         '$WOLDISABLED
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>LMS Network Interface Card&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;eth0|eth1|wlan0|wlan1&gt;</p>'
+	echo '                    <p><b>Example:</b> '$7'</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>LMS MAC address</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="WOL_LMSMACADDRESS"'
+	echo '                         value="'$WOL_LMSMACADDRESS'"'
+	echo '                         title="01:23:45:67:ab:cd:ef"'
+	echo '                         pattern="([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})"'
+	echo '                         '$WOLDISABLED
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>LMS MAC address&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;01:23:45:67:ab:cd:ef&gt;</p>'
+	echo '                    <p><b>Example:</b> '$4'</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="2">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+	#----------------------------------------------------------------------------------------
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_wol
 
 #========================================================================================
 # Auto start tweaks
