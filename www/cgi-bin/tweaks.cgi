@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-30
+# Version: 3.00 2016-07-31
 #	Added LIRC IR remote controls. SBP.
 #	Reorganized order. PH. GE.
 #	Created USB Audio tweaks fieldset. GE.
@@ -565,7 +565,8 @@ pcp_tweaks_wol() {
 	echo '                  <p>LMS NIC</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large16"'
+	echo '                  <input id="input'$ID'"'
+	echo '                         class="large16"'
 	echo '                         type="text"'
 	echo '                         name="WOL_NIC"'
 	echo '                         value="'$WOL_NIC'"'
@@ -580,10 +581,15 @@ pcp_tweaks_wol() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;eth0|eth1|wlan0|wlan1&gt;</p>'
-	echo '                    <p><b>Example:</b> '$7'</p>'
+	echo '                    <p onclick="myFunction'$ID'()"><b>Example:</b> <span id="example'$ID'">'$7'</span></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '              <script>'
+	echo '                function myFunction'$ID'() {'
+	echo '                  document.getElementById("input'$ID'").value = document.getElementById("example'$ID'").innerHTML;'
+	echo '                }'
+	echo '              </script>'
 	#----------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -592,7 +598,8 @@ pcp_tweaks_wol() {
 	echo '                  <p>LMS MAC address</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large16"'
+	echo '                  <input id="input'$ID'"'
+	echo '                         class="large16"'
 	echo '                         type="text"'
 	echo '                         name="WOL_LMSMACADDRESS"'
 	echo '                         value="'$WOL_LMSMACADDRESS'"'
@@ -607,10 +614,15 @@ pcp_tweaks_wol() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;01:23:45:67:ab:cd:ef&gt;</p>'
-	echo '                    <p><b>Example:</b> '$4'</p>'
+	echo '                    <p onclick="pcpFunction'$ID'()"><b>Example:</b> <span id="example'$ID'">'$4'</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '              <script>'
+	echo '                function pcpFunction'$ID'() {'
+	echo '                  document.getElementById("input'$ID'").value = document.getElementById("example'$ID'").innerHTML;'
+	echo '                }'
+	echo '              </script>'
 	#----------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
