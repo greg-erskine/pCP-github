@@ -4,9 +4,9 @@
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
 #	Added "No network found!" message. GE.
-#	Adjusted Mount point permissions for SCP  PH
-#	Changed Kernel Module update to handle individual modules PH
-#	Updated LIRC section.
+#	Adjusted Mount point permissions for SCP. PH.
+#	Changed Kernel Module update to handle individual modules. PH.
+#	Updated LIRC section. GE.
 
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
@@ -225,54 +225,12 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_write_to_host
 	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
-#-------New section that handle removal and update of kernel packages after pCP insitu update----
-	CURRENTKERNEL=$(uname -r)
-	FAIL=0
-	#
-	# Get list of kernel modules matching current kernel
-	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
-	# Get list of kernel modules not matching current kernel
-	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep -v $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/previous
-	# Show the old modules that do not have a current kernel version.
-	MODULES=$(comm -1 -3 /tmp/current /tmp/previous)
-	if [ -z "$MODULES" ]; then
-		echo "${BLUE}Kernel modules found matching current kernel version ${CURRENTKERNEL}${NORMAL}"
-	else
-		for EXT in $MODULES; do
-			case $EXT in
-				irda|backlight|touchscreen) #These are the current PCP extra modules
-					sudo -u tc pcp-load -r ${PCP_REPO} -w ${EXT}-KERNEL
-					if [ $? -ne 0 ]; then
-						echo "${RED}[ ERROR ] Error downloading ${EXT}-${CURRENTKERNEL}.tcz from pCP repo. Will try on next reboot${NORMAL}"
-						FAIL=1
-					else
-						#remove single old Kernel Module
-						ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep $EXT | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
-					fi
-				;;
-				*) #Get file from the TC repo
-					sudo -u tc tce-load -w ${EXT}-KERNEL
-					if [ $? -ne 0 ]; then
-						echo "${RED}[ ERROR ] Error downloading ${EXT}-${CURRENTKERNEL}.tcz${NORMAL}"
-						FAIL=1
-					else
-						#remove single old Kernel Module
-						ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep $EXT | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
-					fi
-				;;
-			esac
-		done
-	fi
-	if [ $FAIL -eq 0 ]; then
 	#cleanup all old kernel modules
-		ls /mnt/mmcblk0p2/tce/optional/*piCore* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
-	else
-		echo "${RED}[ ERROR ] There was an error downloading new kernel modules.  You will need to reinstall manually${NORMAL}"
-	fi
-	# Check onboot to be sure there are no hard kernel references.
+	CURRENTKERNEL=$(uname -r)
+	# Get list of kernel modules not matching current kernel.  And remove them
+	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
+	# Check onboot to be sure there are no hard kernel references.   
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
-#
-#------End of kernel modules update section-------------------------------------------------------
 	# should we put a copy of bootlog in the home directory???????
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
