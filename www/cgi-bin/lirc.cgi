@@ -15,6 +15,8 @@ pcp_variables
 ORIG_IR_LIRC=$IR_LIRC			# <=== GE not implemented yet
 ORIG_IR_DEVICE=$IR_DEVICE		# <=== GE not implemented yet
 
+unset BACKUP_REQUIRED REBOOT_REQUIRED SDA1_MOUNTED CONFIG_FOUND
+
 pcp_html_head "LIRC" "GE"
 
 pcp_banner
@@ -117,7 +119,7 @@ pcp_html_end() {
 
 	echo '</body>'
 	echo '</html>'
-	[ "$ACTION" != "Initial" ] && pcp_reboot_required
+	[ "$REBOOT_REQUIRED" ] && pcp_reboot_required
 	exit
 }
 
@@ -136,7 +138,8 @@ pcp_delete_file() {
 #----------------------------------------------------------------------------------------
 pcp_lirc_install() {
 
-	echo '[ INFO ] Installing packages for IR remote control...'
+	echo '[ INFO ] Installing packages for IR remote control.'
+	echo '[ INFO ] This can take a couple of minutes. Please wait...'
 	sudo -u tc pcp-load -r $PCP_REPO -wfi lirc.tcz | sed 's|<p>||g' | sed 's|<\/p>||g'
 
 	echo '[ INFO ] Updating configuration files... '
@@ -144,14 +147,14 @@ pcp_lirc_install() {
 	touch /home/tc/.lircrc
 	sudo chown tc:staff /home/tc/.lircrc
 
-	# Add lirc-dtoverlay to config.txt
+	# Add lirc-rpi dtoverlay to config.txt
 	pcp_mount_mmcblk0p1_nohtml
-	echo '[ INFO ] Adding lirc overlay to config.txt... '
+	echo '[ INFO ] Adding lirc-rpi overlay to config.txt... '
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
 	pcp_umount_mmcblk0p1_nohtml
 
-	# Add lirc conf to the filetool.lst
+	# Add lirc conf to the .filetool.lst
 	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
 	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
 	sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
@@ -171,7 +174,6 @@ pcp_lirc_install() {
 	fi
 
 	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
-	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }
 
 #========================================================================================
@@ -195,19 +197,24 @@ pcp_lirc_uninstall() {
 
 	pcp_mount_mmcblk0p1_nohtml
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	#[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=lirc-rpi removed." || FAIL_MSG="Can not remove dtoverlay=lirc-rpi."
+	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=lirc-rpi removed." || FAIL_MSG="Can not remove dtoverlay=lirc-rpi."
 	pcp_umount_mmcblk0p1_nohtml
 
 	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
 	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
 	sudo sed -i '/.lircrc/d' /opt/.filetool.lst
 
-	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="no" && pcp_save_to_config
-	#[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
+	if [ "$FAIL_MSG" = "ok" ]; then
+		IR_LIRC="no"
+		IR_GPIO="27"
+		IR_DEVICE="lirc0"
+		IR_CONFIG=""
+		pcp_save_to_config
+	fi
 }
 
 #========================================================================================
-# Main
+# Main				<==== GE. This section is a little weird.
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Install)
@@ -291,9 +298,9 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Default installation only supports Logitech Squeezebox remote. If you are using another'
 	echo '                       remote controller you need to supply your own configuration file(s).</p>'
-	echo '                    <p>To use your own configuration file(s) either: </p>'
+	echo '                    <p>To use your own configuration file(s): </p>'
 	echo '                    <ol>'
-	echo '                      <li>Copy the file(s):</li>'
+	echo '                      <li>Copy the file(s) either:</li>'
 	echo '                        <ul>'
 	echo '                          <li>via ssh to the /tmp directory, <b>or</b></li>'
 	echo '                          <li>to an attached USB flash drive.</li>'
@@ -448,6 +455,7 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		pcp_lirc_install
 		BACKUP_REQUIRED=TRUE
+		REBOOT_REQUIRED=TRUE
 	fi
 	#----------------------------------------------------------------------------------------
 
@@ -456,35 +464,81 @@ if [ "$ACTION" != "Initial" ]; then
 		echo '                  <textarea class="inform" style="height:200px">'
 		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_uninstall
 		BACKUP_REQUIRED=TRUE
+		REBOOT_REQUIRED=TRUE
 	fi
+
 	#----------------------------------------------------------------------------------------
 
 	#---------------------------------------Custom-------------------------------------------
 	if [ "$ACTION" = "Custom" ]; then
 		echo '                  <textarea class="inform" style="height:100px">'
 		# Copy from tmp to correct location
-		[ -f /tmp/lircd.conf ] && sudo cp -f /tmp/lircd.conf /usr/local/etc/lirc/lircd.conf && sudo rm -f /tmp/lircd.conf
-		[ -f /tmp/lircrc ] && sudo cp -f /tmp/lircrc /home/tc/.lircrc && sudo rm -f /tmp/lircrc
-
-		# Copy from USB to correct location
-		# Check if sda1 is mounted, otherwise mount it.
-		MNTUSB=/mnt/sda1
-		if mount | grep $MNTUSB; then
-			echo "/dev/sda1 already mounted."
+		echo "[ INFO ] Looking for configuration file(s) in /tmp..."
+		if [ -f /tmp/lircd.conf ]; then
+			echo "[ INFO ] Copying /tmp/lircd.conf..."
+			sudo cp -f /tmp/lircd.conf /usr/local/etc/lirc/lircd.conf
+			sudo rm -f /tmp/lircd.conf
+			BACKUP_REQUIRED=TRUE
+			REBOOT_REQUIRED=TRUE
+			CONFIG_FOUND=TRUE
 		else
-			# Check if sda1 is inserted before trying to mount it.
-			if [ -e /dev/sda1 ]; then
-				[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
-				echo "Trying to mount /dev/sda1."
-				sudo mount /dev/sda1 >/dev/null 2>&1
-			else
-				echo "No USB Device detected in /dev/sda1"
-			fi
+			echo "[ INFO ] /tmp/lircd.conf not found."
+		fi
+		if [ -f /tmp/lircrc ]; then
+			echo "[ INFO ] Copying /tmp/lircrc..."
+			sudo cp -f /tmp/lircrc /home/tc/.lircrc
+			sudo rm -f /tmp/lircrc
+			BACKUP_REQUIRED=TRUE
+			REBOOT_REQUIRED=TRUE
+			CONFIG_FOUND=TRUE
+		else
+			echo "[ INFO ] /tmp/lircrc not found."
 		fi
 
-		[ -f $MNTUSB/lircd.conf ] && sudo cp -f $MNTUSB/lircd.conf /home/tc/.lircrc && sudo mv $MNTUSB/lircd.conf $MNTUSB/used_lircd.conf
-		[ -f $MNTUSB/lircrc ] && sudo cp -f $MNTUSB/lircrc /home/tc/.lircrc && sudo mv $MNTUSB/lircrc $MNTUSB/used_lircrc
-		BACKUP_REQUIRED=TRUE
+		if [ ! $CONFIG_FOUND ]; then
+			# Copy from USB to correct location
+			# Check if sda1 is mounted, otherwise mount it.
+			MNTUSB=/mnt/sda1
+			if mount >/dev/null | grep $MNTUSB; then
+				echo "[ WARN ] /dev/sda1 already mounted."
+				SDA1_MOUNTED=TRUE
+			else
+				# Check if sda1 is inserted before trying to mount it.
+				if [ -e /dev/sda1 ]; then
+					[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
+					sudo mount /dev/sda1 >/dev/null 2>&1
+					[ $? -eq 0 ] && echo "[ INFO ] Mounted /dev/sda1."
+					SDA1_MOUNTED=TRUE
+				else
+					echo "[ WARN ] No USB Device detected in /dev/sda1"
+				fi
+			fi
+
+			if [ "$SDA1_MOUNTED" ]; then
+				echo "[ INFO ] Looking for configuration file(s) on /mnt/sda1..."
+				if [ -f $MNTUSB/lircd.conf ]; then
+					echo "[ INFO ] Copying /tmp/lircd.conf..."
+					sudo cp -f $MNTUSB/lircd.conf /home/tc/.lircrc
+					sudo mv $MNTUSB/lircd.conf $MNTUSB/used_lircd.conf
+					BACKUP_REQUIRED=TRUE
+					REBOOT_REQUIRED=TRUE
+					CONFIG_FOUND=TRUE
+				else
+					echo "[ INFO ] /mnt/sda1/lircd.conf not found."
+				fi
+				if [ -f $MNTUSB/lircrc ]; then
+					echo "[ INFO ] Copying /mnt/sda1/lircrc..."
+					sudo cp -f $MNTUSB/lircrc /home/tc/.lircrc
+					sudo mv $MNTUSB/lircrc $MNTUSB/used_lircrc
+					BACKUP_REQUIRED=TRUE
+					REBOOT_REQUIRED=TRUE
+					CONFIG_FOUND=TRUE
+				else
+					echo "[ INFO ] /mnt/sda1/lircrc not found."
+				fi
+			fi
+		fi
+		[ $CONFIG_FOUND ] && echo "[ INFO ] Configuration file(s) found." || echo "[ WARN ] Configuration file(s) not found."
 	fi
 	#----------------------------------------------------------------------------------------
 
@@ -498,9 +552,10 @@ if [ "$ACTION" != "Initial" ]; then
 		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
 		pcp_umount_mmcblk0p1_nohtml
 		BACKUP_REQUIRED=TRUE
+		REBOOT_REQUIRED=TRUE
 	fi
 	#----------------------------------------------------------------------------------------
-	
+
 	#----------------------------------------------------------------------------------------
 	echo '                  </textarea>'
 	echo '                </td>'
