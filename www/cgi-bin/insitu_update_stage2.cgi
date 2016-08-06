@@ -228,7 +228,7 @@ pcp_get_kernel_modules() {
 			NEWKERNELVER=4.1.20
 			PICOREVERSION=7.x 
 			;;
-		piCorePlayer3.00)
+		piCorePlayer3.00*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			NEWKERNELVER=4.4.15
@@ -265,11 +265,11 @@ pcp_get_kernel_modules() {
 			for EXT in ${MODULES}; do
 				case $EXT in
 					irda|backlight|touchscreen) #These are the current PCP extra modules
-						sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz
+						sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz | sed -e 's/<[^>]*>//g'
 						[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
 					;;
 					*) #Get file from the TC repo
-						sudo -u tc pcp-load -w -u ${TCE_DL} ${EXT}-${KERNEL}.tcz
+						sudo -u tc pcp-load -w -u ${TCE_DL} ${EXT}-${KERNEL}.tcz | sed -e 's/<[^>]*>//g'
 						[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
 					;;
 				esac
