@@ -14,3 +14,7 @@ function more(elementID) {
 function setbg(elementID,color) {
 	document.getElementById(elementID).style.background=color;
 }
+
+function pcp_copy_click_to_input(inputID,clickID) {
+	document.getElementById(inputID).value = document.getElementById(clickID).innerHTML;
+}

@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.00 2016-07-29
+# Version: 3.00 2016-08-09
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
 #	Removed MAC address from footer. GE.
 #	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
-#	Added pcp_clean_cmdlinetxt. GE,
-#	Standardise $HOST and $TIMEZONE. GE.
+#	Added pcp_clean_cmdlinetxt. GE.
+#	Standardised $HOST and $TIMEZONE. GE.
+#	Added IR_DEVICE. GE.
 
 # Version: 2.06 2016-05-22
 #	Added HDMIPOWER, ADVOVERCLOCK variables to config. GE.
@@ -307,12 +308,12 @@ pcp_variables() {
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
 	MODE=0
-	MODE_INITIAL=0				# Not used at the moment
-	MODE_BASIC=10				# Just display enough options to get piCorePlayer going
-	MODE_NORMAL=20				# This is the typical setting for normal users
+	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
+	MODE_BASIC=10				# Display minimal settings for basic users
+	MODE_NORMAL=20				# Display typical settings for normal users
 	MODE_ADVANCED=30			# Add more options for advanced users
 	MODE_BETA=40				# Beta options that can be shared with beta testers
-	MODE_DEVELOPER=100			# Beta and experiential options for developers only
+	MODE_DEVELOPER=100			# Experiential options for developers only
 
 	# Use test download area
 	if [ $TEST -eq 3 ]; then
@@ -1472,6 +1473,7 @@ pcp_save_to_config() {
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
 	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $CONFIGCFG
 	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
 	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
@@ -1568,7 +1570,8 @@ POWER_GPIO=""
 POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
-IR_GPIO=""
+IR_GPIO="18"
+IR_DEVICE="lirc0"
 IR_CONFIG=""
 LMSWEBPORT=""
 FSM="Default"

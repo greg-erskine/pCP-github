@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-23
+# Version: 3.00 2016-08-04
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
 #	Added "No network found!" message. GE.
-#	Adjusted Mount point permissions for SCP  PH
-#	Changed Kernel Module update to handle individual modules PH
+#	Adjusted Mount point permissions for SCP. PH.
+#	Changed Kernel Module update to handle individual modules. PH.
+#	Updated LIRC section. GE.
 
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
@@ -427,10 +428,10 @@ fi
 if [ "$IR_LIRC" = "yes" ]; then
 	if [ "$JIVELITE" = "yes" ]; then
 		echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
-		/usr/local/sbin/lircd --device=/dev/lirc0 --uinput
+		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --uinput
 	else
 		echo -n "${BLUE}Starting lirc... ${NORMAL}"
-		/usr/local/sbin/lircd --device=/dev/lirc0
+		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE}
 	fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
