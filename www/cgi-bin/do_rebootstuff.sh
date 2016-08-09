@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.00 2016-08-04
+# Version: 3.00 2016-08-09
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
 #	Added "No network found!" message. GE.
