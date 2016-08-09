@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version pCP3.00 2016-08-04
+# Version pCP3.00 2016-08-09
 #	Changed to pcp-load to fetch the packages. SBP.
 #	Added PCremote support. GE.
 
@@ -361,7 +361,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;1-40&gt;</p>'
-	echo '                    <p><b>Default:</b> 27</p>'
+	echo '                    <p><b>Default:</b> 18</p>'
 	echo '                    <p>Set GPIO number to match the GPIO used to connect the IR Receiver.</p>'
 	echo '                    <p><b>Note:</b> Not used for USB PCRemote.</p>'
 	echo '                    </ul>'
@@ -375,7 +375,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input class="input"'
+	echo '                  <input id="input'$ID'"'
+	echo '                         class="input"'
 	echo '                         type="text"'
 	echo '                         name="IR_DEVICE"'
 	echo '                         value="'$IR_DEVICE'"'
@@ -391,8 +392,10 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                    <p>&lt;lirc0|hidraw1&gt;</p>'
 	echo '                    <p><b>Default:</b> lirc0</p>'
 	echo '                    <ul>'
-	echo '                      <li>lirc0 - GPIO IR Receiver.</li>'
-	echo '                      <li>hidraw1 - USB Remote control.</pli>'
+	echo '                      <li class="pointer" title="Click to use lirc0" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option1\'')">'
+	echo '                        <span id="option1">lirc0</span> - GPIO IR Receiver.</li>'
+	echo '                      <li class="pointer" title="Click to use hidraw1" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option2\'')">'
+	echo '                        <span id="option2">hidraw1</span> - USB Remote control.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'

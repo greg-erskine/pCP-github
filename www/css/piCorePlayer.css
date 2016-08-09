@@ -166,6 +166,10 @@ h2 {
 	background:red;
 }
 
+.pointer {
+	cursor: pointer;
+}
+
 /* Squeezelite running indicator */
 .centre {
 	text-align:center;

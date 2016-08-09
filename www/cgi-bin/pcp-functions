@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.00 2016-08-04
+# Version: 3.00 2016-08-09
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
 #	Removed MAC address from footer. GE.
 #	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
@@ -1570,7 +1570,7 @@ POWER_GPIO=""
 POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
-IR_GPIO="27"
+IR_GPIO="18"
 IR_DEVICE="lirc0"
 IR_CONFIG=""
 LMSWEBPORT=""
