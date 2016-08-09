@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.00 2016-08-9 PH
+# Version 3.00 2016-08-09 PH
 #	Add Download new Kernel modules, for all current existing Modules
 
 # Version 2.06 2016-06-17 PH
