@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.00 2016-08-09
+# Version: 3.00 2016-08-12
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
 #	Added "No network found!" message. GE.
@@ -428,10 +428,10 @@ fi
 if [ "$IR_LIRC" = "yes" ]; then
 	if [ "$JIVELITE" = "yes" ]; then
 		echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
-		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --uinput
+		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log --uinput
 	else
 		echo -n "${BLUE}Starting lirc... ${NORMAL}"
-		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE}
+		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log
 	fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
