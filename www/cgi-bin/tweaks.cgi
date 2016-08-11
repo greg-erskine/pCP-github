@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.00 2016-07-31
+# Version: 3.00 2016-08-10
 #	Added LIRC IR remote controls. SBP.
 #	Reorganized order. PH. GE.
 #	Created USB Audio tweaks fieldset. GE.
@@ -580,16 +580,17 @@ pcp_tweaks_wol() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;eth0|eth1|wlan0|wlan1&gt;</p>'
-	echo '                    <p onclick="myFunction'$ID'()"><b>Example:</b> <span id="example'$ID'">'$7'</span></p>'
+	echo '                    <p>&lt;'
+	echo '                      <span id="option'$ID'a" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}a\'')">eth0</span> |'
+	echo '                      <span id="option'$ID'b" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}b\'')">eth1</span> |'
+	echo '                      <span id="option'$ID'c" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}c\'')">wlan0</span> |'
+	echo '                      <span id="option'$ID'd" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}d\'')">wlan1</span> '
+	echo '                      &gt;</p>'
+	echo '                    <p class="pointer" title="Click to use '$7'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
+	echo '                      <b>Example:</b> <span id="example'$ID'">'$7'</span></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '              <script>'
-	echo '                function myFunction'$ID'() {'
-	echo '                  document.getElementById("input'$ID'").value = document.getElementById("example'$ID'").innerHTML;'
-	echo '                }'
-	echo '              </script>'
 	#----------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -604,7 +605,7 @@ pcp_tweaks_wol() {
 	echo '                         name="WOL_LMSMACADDRESS"'
 	echo '                         value="'$WOL_LMSMACADDRESS'"'
 	echo '                         title="01:23:45:67:ab:cd:ef"'
-	echo '                         pattern="([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})"'
+	echo '                         pattern="([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})"'
 	echo '                         '$WOLDISABLED
 	echo '                  >'
 	echo '                </td>'
@@ -614,15 +615,11 @@ pcp_tweaks_wol() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;01:23:45:67:ab:cd:ef&gt;</p>'
-	echo '                    <p onclick="pcpFunction'$ID'()"><b>Example:</b> <span id="example'$ID'">'$4'</p>'
+	echo '                    <p class="pointer" title="Click to use '$4'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
+	echo '                      <b>Example:</b> <span id="example'$ID'">'$4'</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '              <script>'
-	echo '                function pcpFunction'$ID'() {'
-	echo '                  document.getElementById("input'$ID'").value = document.getElementById("example'$ID'").innerHTML;'
-	echo '                }'
-	echo '              </script>'
 	#----------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'

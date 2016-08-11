@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 3.00 2016-08-09 GE
+	Added .pointer.
+
 Version: 0.15 2016-05-20 GE
 	Added .column350, .right, .column20.
 
@@ -143,6 +146,7 @@ h2 {
 
 .moreless {
 	color:#cc3300;
+	cursor:help;
 	font-size:10px;
 }
 
