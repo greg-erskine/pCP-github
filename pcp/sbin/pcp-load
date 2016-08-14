@@ -2,9 +2,10 @@
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
 #
-# Version 3.00 2016-07-29 PH
+# Version 3.00 2016-08-14 PH
 # 	pcp-load modified version for piCorePlayer
 #	Options to specify REPO and Full Path on command line
+#	Updated to latest code from tce-load
 #
 . /etc/init.d/tc-functions
 useBusybox
@@ -27,8 +28,6 @@ abort(){
 	echo "  -w   Download extension only"
 	echo "  -wi  Download and install extension"
 	echo "  -wo  Download and create an ondemand item"
-	echo "  Adding -f to -w will remove current extension and force redownload"
-	echo "  -r {server address of repo}"
 	echo "  Adding -c to any -i option will force a one time copy to file system"
 	echo "  Adding -l to any -i option indicates load only - do not update onboot or ondemand"
 	echo "  Adding -s to any option will suppress OK message used by apps GUI"
@@ -85,14 +84,7 @@ shift `expr $OPTIND - 1`
 [ -z "$1" ] || ( [ -z "$WGET" ] && [ -z "$INSTALL" ] ) && abort
 
 app_exists() {
-	if [ "$FORCE" = "y" ]; then
-		rm -f "$2/$1"
-		rm -f "$2/$1".md5.txt
-		rm -f "$2/$1".dep
-		return 1
-	else
-		[ -f "$2/$1" ] && [ -f "$2/$1".md5.txt ] && (cd "$2" && md5sum -cs "$1".md5.txt)
-	fi
+	[ -f "$2/$1" ] && [ -f "$2/$1".md5.txt ] && (cd "$2" && md5sum -cs "$1".md5.txt)
 }
 
 fetch_app() {
@@ -122,6 +114,7 @@ copyInstall() {
 		fi
 		sudo /bin/umount -d /mnt/test
 	fi
+	[ "$BOOTING" ] || rmdir /mnt/test
 }
 
 update_system() {
