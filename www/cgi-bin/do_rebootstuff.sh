@@ -228,11 +228,15 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel.  And remove them
-	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz* | grep -v $CURRENTKERNEL | xargs -I {} rm -f {}
+	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
 	# Check onboot to be sure there are no hard kernel references.   
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
 	# Remove Dropbear extension, we are now using openssh
-	rm -f /mnt/mmcblk0p2/tce/optional/dropbear.tcz*
+	ls -1 /mnt/mmcblk0p2/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
+	sed -i '/dropbear/d' .filetool.lst
+	sed -i '/dropbear/d' /mnt/mmcblk0p2/tce/onboot.lst
+	#Remove lines containing only white space
+	sed -i '/^\s*$/d' /mnt/mmcblk0p2/tce/onboot.lst
 	# should we put a copy of bootlog in the home directory???????
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
