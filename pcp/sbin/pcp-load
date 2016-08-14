@@ -51,7 +51,7 @@ getMirror() {
 BUILD=$(getBuild)
 [ -z $REPO ] && read MIRROR < /opt/tcemirror || MIRROR=$REPO
 MIRROR="${MIRROR%/}/$(getMajorVer).x/$BUILD/tcz"
-[ -z $REPO_ABS ] && read MIRROR < /opt/tcemirror || MIRROR=$REPO_ABS
+[ -z $REPO_ABS ] || MIRROR=$REPO_ABS
 }
 
 abort_to_saved_dir(){
