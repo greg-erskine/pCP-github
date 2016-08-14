@@ -232,7 +232,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	# Check onboot to be sure there are no hard kernel references.   
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
 	# Remove Dropbear extension, we are now using openssh
-	rm -f /mnt/mmcblk0p2/tce/optional/dropbear.tcz.*
+	rm -f /mnt/mmcblk0p2/tce/optional/dropbear.tcz*
 	# should we put a copy of bootlog in the home directory???????
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
