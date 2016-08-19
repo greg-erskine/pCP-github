@@ -485,7 +485,7 @@ pcp_squeezelite_buffer() {
 	echo '                         name="BUFFER_SIZE"'
 	echo '                         value="'$BUFFER_SIZE'"'
 	echo '                         title="buffer size"'
-	echo '                         pattern="\d*"'
+	echo '                         pattern="\d+:\d+"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
