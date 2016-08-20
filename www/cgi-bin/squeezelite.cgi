@@ -230,7 +230,7 @@ if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
-	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: generic</option>'
+	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: Generic</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
@@ -239,7 +239,7 @@ if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi) AMP+</option>'
 fi
 
-echo '                    <option value="LOCO_dac" '$LOCO_dacCHECKED'>I2S audio: Dion Audio LOCO AMP</option>'
+echo '                    <option value="LOCO_dac" '$rpi_LOCOCHECKED'>I2S audio: Dion Audio LOCO AMP</option>'
 echo '                    <option value="justboomdac" '$justboomdacCHECKED'>I2S audio: JustBoom DAC</option>'
 echo '                    <option value="justboomdigi" '$justboomdigiCHECKED'>I2S audio: JustBoom Digi</option>'
 echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
