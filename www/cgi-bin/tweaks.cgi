@@ -1710,13 +1710,13 @@ pcp_tweaks_cron() {
 
 pcp_tweaks_user_commands() {
 	# Decode variables using httpd, no quotes
-#	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
+	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
 	USER_COMMAND_1=$(echo $USER_COMMAND_1 | sed 's/"/\&quot;/g')
 
-#	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
+	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
 	USER_COMMAND_2=$(echo $USER_COMMAND_2 | sed 's/"/\&quot;/g')
 
-#	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
+	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
 	USER_COMMAND_3=$(echo $USER_COMMAND_3 | sed 's/"/\&quot;/g')
 
 	echo '<table class="bggrey">'
