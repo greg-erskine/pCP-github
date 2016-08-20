@@ -536,12 +536,6 @@ if [ "$A_S_FAV" = "Enabled" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
-	echo -n "${BLUE}Starting user commands... ${NORMAL}"
-	pcp_user_commands
-	echo "${GREEN}Done.${NORMAL}"
-fi
-
 # Automatically set the timezone
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page... ${NORMAL}"
@@ -606,6 +600,12 @@ fi
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
+
+if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
+	echo -n "${BLUE}Starting user commands... ${NORMAL}"
+	pcp_user_commands
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 # Save the parameters to the config file
 if [ $BACKUP -eq 1 ]; then
