@@ -1150,18 +1150,18 @@ pcp_start_fav() {
 }
 
 pcp_user_commands() {
-	if [ x"" != x"$USER_COMMAND_1" ]; then
-		USER_COMMAND_1=`sudo $HTTPD -d $USER_COMMAND_1`
-		eval "$USER_COMMAND_1"
-	fi
-	if [ x"" != x"$USER_COMMAND_2" ]; then
-		USER_COMMAND_2=`sudo $HTTPD -d $USER_COMMAND_2`
-		eval "$USER_COMMAND_2"
-	fi
-	if [ x"" != x"$USER_COMMAND_3" ]; then
-		USER_COMMAND_3=`sudo $HTTPD -d $USER_COMMAND_3`
-		eval "$USER_COMMAND_3"
-	fi
+    if [ x"" != x"$USER_COMMAND_1" ]; then
+        USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
+        eval "$USER_COMMAND_1" &
+    fi
+    if [ x"" != x"$USER_COMMAND_2" ]; then
+        USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
+        eval "$USER_COMMAND_2" &
+    fi
+    if [ x"" != x"$USER_COMMAND_3" ]; then
+        USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
+        eval "$USER_COMMAND_3" &
+    fi
 }
 
 #=========================================================================================
