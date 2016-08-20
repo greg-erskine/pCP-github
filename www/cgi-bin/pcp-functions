@@ -298,7 +298,7 @@ pcp_variables() {
 	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -307,7 +307,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
+	MODE=0
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1151,16 +1151,16 @@ pcp_start_fav() {
 
 pcp_user_commands() {
 	if [ x"" != x"$USER_COMMAND_1" ]; then
-#		USER_COMMAND_1=`sudo $HTTPD -d $USER_COMMAND_1`
-		eval "$USER_COMMAND_1" &
+		USER_COMMAND_1=`sudo $HTTPD -d $USER_COMMAND_1`
+		eval "$USER_COMMAND_1"
 	fi
 	if [ x"" != x"$USER_COMMAND_2" ]; then
-#		USER_COMMAND_2=`sudo $HTTPD -d $USER_COMMAND_2`
-		eval "$USER_COMMAND_2" &
+		USER_COMMAND_2=`sudo $HTTPD -d $USER_COMMAND_2`
+		eval "$USER_COMMAND_2"
 	fi
 	if [ x"" != x"$USER_COMMAND_3" ]; then
-#		USER_COMMAND_3=`sudo $HTTPD -d $USER_COMMAND_3`
-		eval "$USER_COMMAND_3" &
+		USER_COMMAND_3=`sudo $HTTPD -d $USER_COMMAND_3`
+		eval "$USER_COMMAND_3"
 	fi
 }
 
