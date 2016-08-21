@@ -1804,6 +1804,7 @@ pcp_tweaks_user_commands() {
 	echo '                      <li>ls /tmp >> /tmp/directory.log</li>'
 	echo '                    </ul>'
 	echo '                    <p><b>Invalid characters:</b> &amp; &quot;</p>'
+	echo '                    <p>If starting a second instance of squeezelite - please notice that we only accepts name without empty space. So please change <b>first floor</b> to <b>first_floor</b> etc.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'

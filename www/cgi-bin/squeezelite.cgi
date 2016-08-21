@@ -230,7 +230,7 @@ if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
-	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: Generic</option>'
+	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: Generic (HiFiBerry/ES9023/PCM5102A)</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
@@ -1136,6 +1136,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '                    <p>'$STRING'</p>'
 	echo '                    <p><b>Hint: </b>Triple click on command then press [Ctrl]+[c] to copy.</p>'
 	echo '                    <p><b>Note: </b>Maximum length is 512 characters.</p>'
+	echo '                    <p><b>Note: </b>"User commands" only accepts name without an empty space. So please change first floor to first_floor.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 fi
