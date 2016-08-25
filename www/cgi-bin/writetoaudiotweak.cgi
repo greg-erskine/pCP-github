@@ -470,12 +470,14 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 				sudo echo "avahi.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 				pcp_download_shairport
 			fi
+			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_disable_analog
 			CLOSEOUT="15"
 		;;
 		no)
 			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
 			pcp_remove_shairport
 			sudo sed -i '/avahi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_re_enable_analog
 			CLOSEOUT=""
 		;;
 		*)
