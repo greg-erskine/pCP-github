@@ -307,7 +307,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
