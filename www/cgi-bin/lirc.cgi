@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.01 2016-08-26
+# Version: 3.01 2016-08-27
 #	Changed default lirc GPIO to 25. GE.
 
 # Version: 3.00 2016-08-09
@@ -352,15 +352,15 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input class="input"'
-#	echo '                         type="number"'
-	echo '                         type="text"'
+	echo '                         type="number"'
+#	echo '                         type="text"'
 	echo '                         name="IR_GPIO"'
 	echo '                         value="'$IR_GPIO'"'
-#	echo '                         title="( 1 - 40 )"'
-	echo '                         title="( 4,5,6,12,13,16,17,20,22,23,24,25,26,27 )"'
-#	echo '                         min="1"'
-#	echo '                         max="40"'
-	echo '                         pattern="(4|5|6|12|13|16|17|20|22|23|24|25|26|27)"'
+	echo '                         title="( 0 - 31 )"'
+#	echo '                         title="( 4,5,6,12,13,16,17,20,22,23,24,25,26,27 )"'
+	echo '                         min="0"'
+	echo '                         max="31"'
+#	echo '                         pattern="(4|5|6|12|13|16|17|20|22|23|24|25|26|27)"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -368,7 +368,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;4,5,6,12,13,16,17,20,22,23,24,25,26,27&gt;</p>'
+	echo '                    <p>&lt;0 - 31&gt;</p>'
+#	echo '                    <p>&lt;4,5,6,12,13,16,17,20,22,23,24,25,26,27&gt;</p>'
 	echo '                    <p><b>Default:</b> '$DEFAULT_GPIO'</p>'
 	echo '                    <p>Set GPIO number to match the GPIO used to connect the IR Receiver.</p>'
 	echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
