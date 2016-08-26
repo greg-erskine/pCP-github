@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.01 2016-08-26
+#	Changed default lirc GPIO to 25. GE.
+
 # Version: 3.00 2016-08-09
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
 #	Removed MAC address from footer. GE.
@@ -1570,7 +1573,7 @@ POWER_GPIO=""
 POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
-IR_GPIO="18"
+IR_GPIO="25"
 IR_DEVICE="lirc0"
 IR_CONFIG=""
 LMSWEBPORT=""

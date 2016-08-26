@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version pCP3.00 2016-08-09
+# Version: 3.01 2016-08-26
+#	Changed default lirc GPIO to 25. GE.
+
+# Version: 3.00 2016-08-09
 #	Changed to pcp-load to fetch the packages. SBP.
 #	Added PCremote support. GE.
 
@@ -361,7 +364,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;1-40&gt;</p>'
-	echo '                    <p><b>Default:</b> 18</p>'
+	echo '                    <p><b>Default:</b> 25</p>'
 	echo '                    <p>Set GPIO number to match the GPIO used to connect the IR Receiver.</p>'
 	echo '                    <p><b>Note:</b> Not used for USB PCRemote.</p>'
 	echo '                    </ul>'
