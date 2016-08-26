@@ -29,6 +29,7 @@ pcp_httpd_query_string
 
 FAIL_MSG="ok"
 KERNEL=$(uname -r)
+DEFAULT_GPIO="25"
 
 #========================================================================================
 #  335872 irda-4.1.13-piCore+.tcz
@@ -209,7 +210,7 @@ pcp_lirc_uninstall() {
 
 	if [ "$FAIL_MSG" = "ok" ]; then
 		IR_LIRC="no"
-		IR_GPIO="27"
+		IR_GPIO=$DEFAULT_GPIO
 		IR_DEVICE="lirc0"
 		IR_CONFIG=""
 		pcp_save_to_config
@@ -232,6 +233,7 @@ case "$ACTION" in
 	;;
 	Save)
 		ACTION=$ACTION
+		[ "$IR_GPIO" = "" ] && IR_GPIO=$DEFAULT_GPIO
 	;;
 	*)
 		ACTION="Initial"
@@ -350,12 +352,15 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input class="input"'
-	echo '                         type="number"'
+#	echo '                         type="number"'
+	echo '                         type="text"'
 	echo '                         name="IR_GPIO"'
 	echo '                         value="'$IR_GPIO'"'
-	echo '                         title="( 1 - 40 )"'			# <==== GE Limit to valid GPIOs
-	echo '                         min="1"'
-	echo '                         max="40"'
+#	echo '                         title="( 1 - 40 )"'
+	echo '                         title="( 4,5,6,12,13,16,17,20,22,23,24,25,26,27 )"'
+#	echo '                         min="1"'
+#	echo '                         max="40"'
+	echo '                         pattern="(4|5|6|12|13|16|17|20|22|23|24|25|26|27)"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -363,9 +368,10 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;1-40&gt;</p>'
-	echo '                    <p><b>Default:</b> 25</p>'
+	echo '                    <p>&lt;4,5,6,12,13,16,17,20,22,23,24,25,26,27&gt;</p>'
+	echo '                    <p><b>Default:</b> '$DEFAULT_GPIO'</p>'
 	echo '                    <p>Set GPIO number to match the GPIO used to connect the IR Receiver.</p>'
+	echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
 	echo '                    <p><b>Note:</b> Not used for USB PCRemote.</p>'
 	echo '                    </ul>'
 	echo '                  </div>'
