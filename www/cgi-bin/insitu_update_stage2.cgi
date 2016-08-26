@@ -607,6 +607,17 @@ if [ "$ACTION" = "download" ]; then
 	echo '[ INFO ] You are downloading '$VERSION
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 	pcp_enough_free_space $SPACE_REQUIRED
+
+	case "${VERSION}" in
+		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
+			[ $(printf  "%.0f" $(pcp_picoreplayer_version)) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+		;;
+		*) ;;
+	esac
+
+	echo '[ INFO ] You are downloading '$VERSION
+	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
+	pcp_enough_free_space $SPACE_REQUIRED
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_kernel_modules
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_boot_files
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_tce_files
