@@ -1614,7 +1614,7 @@ pcp_reset_config_to_defaults() {
 	# Remove wifi stuff
 	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/wireless/d' $ONBOOTLST
