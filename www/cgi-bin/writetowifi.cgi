@@ -85,7 +85,7 @@ if [ "$WIFI" = "on" ]; then
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-brcmwifi.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Broadcom firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Broadcom USB firmware load error.</p>'
+		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Broadcom USB firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Broadcom USB firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Broadcom firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Broadcom RPi3 firmware load error.</p>'
 		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
