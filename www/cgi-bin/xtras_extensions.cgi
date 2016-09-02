@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-02
+#	Added default button. SBP.
+#	Added more help txt
+#	Added repo indicator
+
 # Version: 3.00 2016-07-08
 #	Removed pcp_mode_lt_beta. GE. 
 
@@ -236,6 +241,13 @@ case "$SUBMIT" in
 		pcp_set_mirror
 		pcp_cleanup
 	;;
+	Default)
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Setting repository to Default piCore repo...</p>'
+		MYMIRROR='http://repo.tinycorelinux.net/'
+		pcp_set_mirror
+		pcp_cleanup
+	;;
+
 	*)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
 	;;
@@ -300,7 +312,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '</table>'
 fi
 
-if [ $MODE -ge $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_BETA ]; then
 #========================================================================================
 # Show available piCore remote mirrors
 #----------------------------------------------------------------------------------------
@@ -310,7 +322,7 @@ echo '    <td>'
 echo '      <form name="remote_mirrors" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Remote piCore repository</legend>'
+echo '            <legend>Remote official piCore repository</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
@@ -341,6 +353,7 @@ echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
 echo '                      <li>Remote mirrors are only available if mirrors.tcz is loaded.</li>'
+echo '                      <li>To return from any repo to the default repo press the <b>"Default button"</b>.</li>'
 echo '                      <li>Remote mirrors are listed in /usr/local/share/mirrors.</li>'
 echo '                      <li><b>Note:</b> Not all remote mirrors are are up to date.</li>'
 echo '                    </ul>'
@@ -356,7 +369,7 @@ echo '                <td>'
                         else
                           echo '                  <input type="submit" name="SUBMIT" value="Get">'
                         fi
-
+                          echo '                  <input type="submit" name="SUBMIT" value="Default">'
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'
@@ -376,7 +389,7 @@ echo '    <td>'
 echo '      <form name="local_mirrors" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Local piCore repository</legend>'
+echo '            <legend>piCorePlayer Sourceforge repository</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
@@ -490,7 +503,7 @@ echo '    <td>'
 echo '      <form name="uninstalled" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Locally uninstalled extensions</legend>'
+echo '            <legend>Locally downloaded extensions</legend>'
 echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
@@ -512,7 +525,7 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>Lists all piCore extensions that are currently loaded but not installed.</li>'
+echo '                      <li>Lists all piCore extensions that are currently downloaded but not (yet) installed.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -643,6 +656,35 @@ echo '</table>'
 #========================================================================================
 # Available extensions from tags.db
 #----------------------------------------------------------------------------------------
+INDICATOR=$HEAVY_CHECK_MARK
+CLASS="indicator_green"
+echo "mymirror" "$MYMIRROR"
+
+#This will find the correct value of MYMIRROR if not set by this page
+if [ x"$MYMIRROR" = x"" ]; then
+MYMIRROR=$(cat /opt/tcemirror)
+fi
+
+echo "mymirror" "$MYMIRROR"
+case "$MYMIRROR" in
+	https://sourceforge.net/projects/picoreplayer/files/repo/*)
+		STATUS="<b>piCorePlayer Sourceforge repository is selected</b>"
+		;;
+	http://repo.tinycorelinux.net/*)
+		STATUS="<b>Officiel piCore repository is selected</b>"
+		;;
+#	http://repo.xxxx.xx/*)                                                   #<--- I don't know if it is possible to parse all official mirrors from the mirror.tcz and use them here?
+#		STATUS="<b>Officiel piCore mirror is selected</b>"
+#		;;	
+	none*)
+		STATUS="<b>No repository is selected</b>"             
+		;;
+		*)
+		STATUS="<b>Possibly you are using a mirrored repo</b>"           #<----For now used as a proxi for the use of mirrors. It is clearly not the correct way
+	;;
+esac	
+
+
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -668,12 +710,15 @@ echo '                  <select class="large22" name="EXTN">'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>List of extensions available from the piCore repository&nbsp;&nbsp;'
+echo '                  <p>List of extensions available from the selected piCore repository&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>Lists all piCore extensions that are currently available for download from the piCore repository.</li>'
+echo '                      <li>Lists all piCore extensions that are currently available for download from the selected piCore repository.</li>'
+echo '                      <li>If the <b>Remote official piCore repository</b> is selected official piCore packages are listed here.</li>'
+echo '                      <li>If the <b>piCorePlayer Sourceforge respository</b> is selected special piCorePlayer packages are listed here.</li>'
+echo '                      <li>Both sort of packages are fine, but sometime piCorePlayer needs a package not available at the official repo.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -681,10 +726,21 @@ echo '              </tr>'
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
+echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>&nbsp;&nbsp;'$STATUS'</p>'
+echo '                </td>'
+echo '              </tr>'
+
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
 echo '                  <input type="submit" name="SUBMIT" value="Info">'
 echo '                  <input type="submit" name="SUBMIT" value="Load">'
 echo '                </td>'
 echo '              </tr>'
+
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
