@@ -658,14 +658,12 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 INDICATOR=$HEAVY_CHECK_MARK
 CLASS="indicator_green"
-echo "mymirror" "$MYMIRROR"
 
 #This will find the correct value of MYMIRROR if not set by this page
 if [ x"$MYMIRROR" = x"" ]; then
 MYMIRROR=$(cat /opt/tcemirror)
 fi
 
-echo "mymirror" "$MYMIRROR"
 case "$MYMIRROR" in
 	https://sourceforge.net/projects/picoreplayer/files/repo/*)
 		STATUS="<b>piCorePlayer Sourceforge repository is selected</b>"
