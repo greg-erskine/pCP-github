@@ -2,6 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.03 2016-09-03
+#	Added JS function to remove query string from URL History   PH
+#	Initial Hifiberry Digi+ Pro support SBP
+
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
 #	Added enable/disable onboard sound for Hifiberry DAC+ in shairport. SBP.
@@ -933,6 +937,18 @@ pcp_httpd_query_string_no_decode() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+# This will remove the query string from the url, prevents page reloads and document.referrer from
+# reposting a command that we've already executed.  Once we test this more we might want to move this 
+# script to the piCorePlayer.js.
+pcp_remove_query_string() {
+	echo '<script type="text/javascript">'
+	echo '  if (history.pushState) {'
+	echo '    var newurl = window.location.origin + window.location.pathname;'
+	echo '    window.history.pushState({path:newurl},"",newurl);'
+	echo '  }'
+	echo '</script>'
 }
 
 #=========================================================================================
