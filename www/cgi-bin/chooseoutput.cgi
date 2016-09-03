@@ -152,6 +152,14 @@ case "$AUDIO" in
 		ALSA_PARAMS="80:4::"
 		pcp_umount_mmcblk0p1_nohtml
 	;;
+	I2SpDIGpro*)
+		pcp_mount_mmcblk0p1_nohtml
+		pcp_enable_hifiberry_digi_pro
+		pcp_disable_HDMI
+		OUTPUT="hw:CARD=sndrpihifiberrydigi"
+		ALSA_PARAMS="80:4::"
+		pcp_umount_mmcblk0p1_nohtml
+	;;
 	I2SpIQaudIO*)
 		pcp_mount_mmcblk0p1_nohtml
 		pcp_enable_iqaudio_dac_p

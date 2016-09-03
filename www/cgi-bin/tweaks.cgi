@@ -1396,7 +1396,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		0x4) selected4="selected" ;;
 		0x7) selected5="selected" ;;
 		0x8) selected6="selected" ;;
-		0xf) selected7="selected" ;;
+		0xF) selected7="selected" ;;
 	esac
 
 	echo '<table class="bggrey">'
@@ -1486,14 +1486,14 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                  <p>FIQ-Split acceleration</p>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <select class="large30" name="FIQ">'
+	echo '                  <select class="large50" name="FIQ">'
 	echo '                    <option value="0x1" '$selected1'>0x1 Accelerate non-periodic split transactions</option>'
 	echo '                    <option value="0x2" '$selected2'>0x2 Accelerate periodic split transactions</option>'
 	echo '                    <option value="0x3" '$selected3'>0x3 Accelerate all except high-speed isochronous transactions</option>'
 	echo '                    <option value="0x4" '$selected4'>0x4 Accelerate high-speed isochronous transactions</option>'
-	echo '                    <option value="0x7" '$selected5'>0x7 Accelerate all transactions [DEFAULT]</option>'
+	echo '                    <option value="0x7" '$selected5'>0x7 Accelerate all transactions</option>'
 	echo '                    <option value="0x8" '$selected6'>0x8 Enable Interrupt/Control Split Transaction hack</option>'
-	echo '                    <option value="0xf" '$selected7'>0xf Accelerate all transactions and Enable Interrupt/Control Split Transaction hack</option>'
+	echo '                    <option value="0xF" '$selected7'>0xF Accelerate all transactions and Enable Split Transaction hack [DEFAULT]</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '              </tr>'

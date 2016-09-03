@@ -1535,7 +1535,7 @@ TIMEZONE=""
 OVERCLOCK="NONE"
 ADVOVERCLOCK="None"
 CMD="Default"
-FIQ="0x7"
+FIQ="0xF"
 ALSAlevelout="Default"
 ALSAeq="no"
 REBOOT="Disabled"
@@ -1647,6 +1647,7 @@ pcp_read_chosen_audio() {
 		I2SpIQAMP)        pcp_enable_iqaudio_amp ;;
 		I2SpDAC)          pcp_enable_hifiberry_dac_p ;;
 		I2SpDIG)          pcp_enable_i2s_digi ;;
+		I2SpDIGpro)       pcp_enable_hifiberry_digi_pro ;;
 		I2SpIQaudIO)      pcp_enable_iqaudio_dac_p ;;
 		I2SpIQaudIOdigi)  pcp_enable_iqaudio_digi ;;
 		justboomdac)      pcp_enable_justboomdac ;;
@@ -1680,6 +1681,7 @@ pcp_disable_i2s() {
 	sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
 	sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
 	sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-digi-pro/d' $CONFIGTXT
 	sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
 	sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
 	sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
@@ -1728,6 +1730,14 @@ pcp_enable_i2s_digi() {
 pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
 	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for HiFiBerry Digi+ Pro
+#----------------------------------------------------------------------------------------
+pcp_enable_hifiberry_digi_pro() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
 }
 
 #========================================================================================

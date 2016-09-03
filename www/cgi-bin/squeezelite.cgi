@@ -199,6 +199,7 @@ case "$AUDIO" in
 	I2SAMP)          I2AMPCHECKED="selected" ;;
 	IQaudio)         IQaudioCHECKED="selected" ;;
 	I2SpDAC)         I2SDACpCHECKED="selected" ;;
+	I2SpDIGpro)      I2SDIGproCHECKED="selected" ;;
 	I2SpDIG)         I2SDIGpCHECKED="selected" ;;
 	I2SpIQaudIO)     IQaudIOpCHECKED="selected" ;;
 	I2SpIQAMP)       IQAMPCHECKED="selected" ;;
@@ -231,8 +232,9 @@ fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
 	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: Generic (HiFiBerry/ES9023/PCM5102A)</option>'
-	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+</option>'
+	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+ (and Pro)</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
+	echo '                    <option value="I2SpDIGpro" '$I2SDIGproCHECKED'>I2S audio: HiFiBerry Digi+ Pro</option>'
 	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
 	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio: IQaudIO Pi-DAC+</option>'
 	echo '                    <option value="I2SpIQaudIOdigi" '$IQaudIOdigipCHECKED'>I2S audio: IQaudIO Pi-Digi+</option>'
