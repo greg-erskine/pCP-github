@@ -2,6 +2,9 @@
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
 #
+# Version 3.03 2016-09-04 PH
+#	added requriement of .dep.pcp on pcp sourceforge repo.
+#
 # Version 3.00 2016-08-14 PH
 # 	pcp-load modified version for piCorePlayer
 #	Options to specify REPO and Full Path on command line
@@ -200,16 +203,24 @@ recursive_scan_dep() {
 				RESULT[IDX]=name
 				IRANGE[name"#1"]=IDX
 				depfile=optional"/"name".dep"
+				# If we are using the pcp repo on sourceforge, depfiles end in .dep.pcp and must exist
+				if ( mirror ~ /sourceforge/ ) {
+					pcpdep=".pcp"
+				} else {
+					pcpdep=""
+				}		
 				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0)) {
-					if (system("rm -f "depfile"; wget -c -P "optional" "mirror"/"name".dep 2>/dev/null") == 0 && ! SUPPRESS) {
+					if (system("rm -f "depfile"; wget -c -P "optional" "mirror"/"name".dep"pcpdep" 2>/dev/null") == 0 && ! SUPPRESS) {
 						system("echo -n \"<p>[ INFO ] "name".dep Downloaded.....\" 1>&2")
+						#If we downloaded a dep.pcp, rename it back to .dep
+						if (system("test -f "depfile".pcp") == 0) 
+							system("mv -f "depfile".pcp "depfile )
 					} else if ( mirror ~ /sourceforge/ ){
-						system("echo \"</p><p>[ ERROR ] "name" Missing DEP file</p>\" 1>&2")
+						# dep file was missing, this is a hard error
+						system("echo \"</p><p>[ ERROR ] "name" Missing PCP DEP file</p>\" 1>&2")
 						system ("echo \"1\" > /tmp/appserr")
 						system ("rm -f " depfile)
 						exit 1
-					} else {
-						system("echo \"sourceforge not detected\"")
 					}
 				}		
 				MARK[name]=2
@@ -224,7 +235,8 @@ recursive_scan_dep() {
 								system ("rm -f " depfile)
 								exit 1
 							}
-							if ( line == "BLANK.tcz"){
+							# if the depfile contains BOGUS, remove it, as this was just our download verification.
+							if ( line == "BOGUS.tcz"){
 								line=""
 								system("rm -f "depfile)
 							}
