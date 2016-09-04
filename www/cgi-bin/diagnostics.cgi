@@ -1,152 +1,98 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 0.13 2016-03-28 GE
+#	Changed log location to /var/log.
+
+# Version: 0.12 2016-02-03 GE
+#	Moved pcp_pastebin_button to Developer mode.
+
+# Version: 0.11 2015-12-24 GE
+#	Added Upload to pastebin feature.
+
+# Version: 0.10 2015-07-04 GE
+#	Minor updates.
+
+# Version: 0.09 2015-04-28 GE
+#	More minor updates.
+
+# Version: 0.08 2015-03-07 GE
+#	Minor updates.
+
+# Version: 0.07 2015-02-01 GE
+#	Added diagnostics toolbar. 
+
+# Version: 0.06 2014-12-11 GE
+#	Added logging to log file.
+
+# Version: 0.05 2014-10-22 GE
+#	Testing $LMSIP.
+#	Removed sound output to diag_snd.cgi
+#	Using pcp_html_head now.
+
+# Version: 0.04 2014-10-02 GE
+#	Added $MODE=5 requirement.
+#	Modified textarea behaviour.
+
+# Version: 0.03 2014-09-21 GE
+#	Added sound diagnostics output.
+
 # version: 0.02 2014-07-21 GE
 #	Added pcp_go_main_button.
-#
+
 # version: 0.01 2014-06-24 GE
-#	Orignal.
+#	Original.
 
 . pcp-functions
 pcp_variables
+. pcp-pastebin-functions
 
 # Local variables
 START="====================> Start <===================="
 END="=====================> End <====================="
+LOG="${LOGDIR}/pcp_diagnostics.log"
+(echo $0; date) > $LOG
+cat /etc/motd >>$LOG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Diagnostics</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Diagnostics" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Diagnostics" "GE"
 
 pcp_banner
-pcp_navigation
+pcp_diagnostics
 pcp_running_script
-pcp_go_main_button
 
-echo '<p style="debug">[ DEBUG ] wlan0: '$(pcp_wlan0_mac_address)'<br />'
-echo '                 [ DEBUG ] eth0: '$(pcp_eth0_mac_address)'<br />'
-echo '                 [ DEBUG ] config: '$(pcp_config_mac_address)'<br />'
-echo '                 [ DEBUG ] controls: '$(pcp_controls_mac_address)'</p>'
+pcp_textarea "piCore version: $(pcp_picore_version)" "version" 60 log
+pcp_textarea "piCorePlayer version: $(pcp_picoreplayer_version)" "cat /usr/local/sbin/piversion.cfg" 60 log
+pcp_textarea "Squeezelite version and license: $(pcp_squeezelite_version)" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 300 log
+pcp_textarea "Squeezelite help" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -h" 300 log
+pcp_textarea "Squeezelite Output devices" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l" 150 log
+pcp_textarea "Squeezelite Volume controls" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -L" 150 log
+pcp_textarea "Squeezelite process" 'ps -o args | grep -v grep | grep squeezelite' 60 log
 
-echo '<h2>[ INFO ] piCore version: '$(pcp_picore_version)'</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="2">'
-version
-echo '</textarea>'
-
-echo '<h2>[ INFO ] piCorePlayer version: '$(pcp_picoreplayer_version)'</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="5">'
-echo $START
-cat /usr/local/sbin/piversion.cfg
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Squeezelite version and license: '$(pcp_squeezelite_version)'</h2>'
-echo '<textarea name="TextBox" cols="120" rows="15">'
-echo $START
-/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] ALSA output devices</h2>'
-echo '<textarea name="TextBox" cols="120" rows="15">'
-echo $START
-/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Squeezelite help</h2>'
-#echo '<p style="font-size:10px">'
-echo '<textarea name="TextBox" cols="120" rows="20">'
-sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -h
-echo '</textarea>'
-
-# Check if mmcblk0p1 is mounted otherwise mount it
-
-pcp_mount_mmcblk0p1
-dmesg | tail -1
-
-if mount | grep $VOLUME; then
-	pcp_show_config_txt
-	pcp_show_cmdline_txt
-	pcp_umount_mmcblk0p1
-	sleep 2
-	dmesg | tail -1
+pcp_mount_mmcblk0p1 >/dev/null 2>&1
+if mount >/dev/null 2>&1 | grep $VOLUME; then
+	pcp_textarea "Current config.txt" "cat $CONFIGTXT" 150 log
+	pcp_textarea "Current cmdline.txt" "cat $CMDLINETXT" 150 log
+	pcp_umount_mmcblk0p1 >/dev/null 2>&1
 fi
 
-pcp_show_config_cfg
+pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 150 log
+pcp_textarea "Current bootsync.sh" "cat $BOOTSYNC" 150 log
+pcp_textarea "Current bootlocal.sh" "cat $BOOTLOCAL" 150 log
+pcp_textarea "Current shutdown.sh" "cat $SHUTDOWN" 150 log
+pcp_textarea "" "dmesg" 300 log
+pcp_textarea "Current /opt/.filetool.lst" "cat /opt/.filetool.lst" 300 log
+pcp_textarea "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
+pcp_textarea "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
+pcp_textarea "lsmod" "lsmod" 300 log
+pcp_textarea "Directory of www/cgi-bin" "ls -al" 300 log
 
-echo '<h2>[ INFO ] Current bootsync.sh</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="8">'
-echo $START
-cat $BOOTSYNC
-echo $END
-echo '</textarea>'
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
 
-echo '<h2>[ INFO ] Current bootlocal.sh</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-echo $START
-cat $BOOTLOCAL
-echo $END
-echo '</textarea>'
+echo '<br />'
+echo '<br />'
 
-echo '<h2>[ INFO ] Current shutdown.sh</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-echo $START
-cat $SHUTDOWN
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] dmesg</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-dmesg
-echo '</textarea>'
-
-# These files are created by the backup process
-#	/tmp/backup_done
-#	/tmp/backup_status
-
-echo '<h2>[ INFO ] Current /opt/.filetool.lst</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-echo $START
-cat /opt/.filetool.lst
-echo $END
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Current /opt/.xfiletool.lst</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-echo $START
-cat /opt/.xfiletool.lst
-echo $END
-echo '</textarea>'
- 
-echo '<h2>[ INFO ] Backup mydata</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-tar tzf /mnt/mmcblk0p2/tce/mydata.tgz
-echo '</textarea>'
-
-echo '<h2>[ INFO ] lsmod</h2>'
-echo '<textarea name="TextBox4" cols="120" rows="15">'
-lsmod
-echo '</textarea>'
-
-echo '<h2>[ INFO ] Directory of www/cgi-bin</h2>'
-echo '<pre>'
-ls -al
-echo '</pre>'
-
-pcp_refresh_button
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

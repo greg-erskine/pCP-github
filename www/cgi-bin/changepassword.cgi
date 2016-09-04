@@ -1,34 +1,26 @@
 #!/bin/sh
+
+# Version: 0.03 2015-09-19 SBP
+#	Removed httpd decoding.
+
+# Version: 0.02 2014-12-10 GE
+#	Using pcp_html_head now.
+#	HTML5 formatting.
+
+# Version: 0.01 2014-06-24 GE
+#	Original.
+
 . pcp-functions
 pcp_variables
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <meta http-equiv="Refresh" content="5; url=tweaks.cgi">'
-echo '  <title>pCP - Change Password</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Change Password" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Change Password" "GE" "5" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-# Decode variables using httpd
-NEWPASSWORD=`sudo /usr/local/sbin/httpd -d $NEWPASSWORD`
-CONFIRMPASSWORD=`sudo /usr/local/sbin/httpd -d $CONFIRMPASSWORD`
-
-if [ $NEWPASSWORD = $CONFIRMPASSWORD ]; then
-	[ $DEBUG = 1 ] && echo '<p class="info">[ INFO ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'
+if [ "$NEWPASSWORD" = "$CONFIRMPASSWORD" ]; then
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'
 	echo '<p class="info">[ INFO ] '
 	echo "tc:"$NEWPASSWORD | sudo chpasswd
 	echo '</p>'

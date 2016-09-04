@@ -1,9 +1,18 @@
-# kernel image
-kernel=zImage3163B.img
+# For more options and information see 
+# http://www.raspberrypi.org/documentation/configuration/config-txt.md
+# Some settings may impact device functionality. See link above for details
 
-# Specify initramfs
-ramfsfile=6.0alpha401.gz
-ramfsaddr=0x00a00000
+[PI1]
+initramfs 7.0beta1.gz followkernel
+kernel kernel4113.img
+cmdline cmdline.txt
+
+[PI2]
+initramfs 7.0beta1v7.gz followkernel
+kernel kernel4113v7.img
+cmdline cmdline.txt
+
+[ALL]
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
@@ -40,13 +49,27 @@ ramfsaddr=0x00a00000
 # uncomment for composite PAL
 #sdtv_mode=2
 
-#uncomment to overclock the arm. 700 MHz is the default.
-arm_freq=700
-core_freq=250
-sdram_freq=400
-force_turbo=1
+
+#----------------------------------------------------
+dtparam=i2c=on,spi=on,i2s=on
 
 
+#---pCP----------------------------------------------
+dtparam=audio=on
 
-# for more options see http://elinux.org/RPi_config.txt
-hdmi_force_mode=1
+
+# uncomment to overclock the arm. 700 MHz is the default.
+#arm_freq=
+#core_freq=
+#sdram_freq=
+#over_voltage=
+#force_turbo=
+#gpu_mem=
+
+# Force max current to USB
+max_usb_current=1
+
+# Remove audio hiss
+disable_audio_dither=1
+lcd_rotate=2
+

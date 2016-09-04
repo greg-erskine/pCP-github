@@ -1,11 +1,226 @@
 #!/bin/sh
 # pcp-functions
-# These are the common functions used by piCorePlayer
+# These are the common functions used by piCorePlayer.
 
-Version: 0.15 2014-09-25 SBP
-#	Added support for the hifiberry DAC+ and Digi+
-#   Added support for the IQaudIO+ DAC
+# Version: 3.03 2016-09-03
+#	Added JS function to remove query string from URL History   PH
+#	Initial Hifiberry Digi+ Pro support SBP
 
+# Version: 3.01 2016-08-26
+#	Changed default lirc GPIO to 25. GE.
+#	Added enable/disable onboard sound for Hifiberry DAC+ in shairport. SBP.
+#	Added clean-up of the sound drivers in the pcp_reset_config_to_defaults. SBP.
+
+# Version: 3.00 2016-08-09
+#	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
+#	Removed MAC address from footer. GE.
+#	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
+#	Added pcp_clean_cmdlinetxt. GE.
+#	Standardised $HOST and $TIMEZONE. GE.
+#	Added IR_DEVICE. GE.
+
+# Version: 2.06 2016-05-22
+#	Added HDMIPOWER, ADVOVERCLOCK variables to config. GE.
+#	Added RPI3INTWIFI variable to config. PH.
+#	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
+#	Renamed variable HTPPD to HTTPD. GE.
+#	Added a couple more hotspots to debug in pCP logo. GE.
+#	Fixed a typo. GE.
+#	Added pcp_extn_is_installed. GE.
+
+# Version: 2.05 2016-04-30
+#	Added PCP_REPO. PH.
+#	Added package location $PACKAGEDIR and download with md5 check function. SBP.
+#	Added log location $LOGDIR. GE.
+#	Lots of minor tidy up of code. GE.
+#	Added customizable confirmation pop-up box. SBP.
+#	Added Disk Mounting Config variables. PH.
+#	Added Logs option to pcp_diagnostics toolbar. GE.
+#	Added $FILLEDSAMLLSQUARE. GE.
+#	Added LMSCONTROLS and PLAYERTABS. GE.
+#	Added pcp_update_config_to_defaults. GE.
+#	Added hotspot to pCP logo.
+
+# Version: 0.29 2016-03-18 GE
+#	Added POWER_GPIO and POWER_SCRIPT.
+#	Updated pcp_enable_i2s_dac.
+#	Added LMSWEBPORT.
+#	Added FSM.
+#	Changed backup too big warning messages in pcp_backup and pcp_backup_nohtml.
+#	Added POWER_OUTPUT. PH.
+#	Added IR_CONFIG.
+
+# Version: 0.28 2016-02-26 GE
+#	Fixed sourceforge redirection issue.
+#	Fixed "other" in pcp_save_to_config.
+#	Added pcp_squeezelite_build_option.
+#	Added some UTF-8 Dingbats definitions.
+#	Added firmware-brcmwifi.tcz.
+#	Added backup too big warning message to pcp_backup and pcp_backup_nohtml.
+#	Added IR_LIRC, IR_GPIO and SQUEEZELITE.
+
+# Version: 0.27 2016-02-12 GE
+#	Added SQLT_VERSION.
+
+# Version: 0.26 2016-02-09 SBP
+#	Added busybox before wget.
+#	Added LMS tab.
+#	Updated pcp_lmsip.
+
+# Version: 0.25 2016-01-22 GE
+#	Updated pcp_mount_mmcblk0p1_nohtml.
+
+# Version: 0.24 2016-01-07 SBP
+#	Added ALSA Equalizer.
+#	Added Shairport-sync.
+#	Added pcp_free_space.
+
+# Version: 0.23 2015-12-05 GE
+#	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
+#	Added pcp_httpd_query_string_no_decode.
+#	Updated pcp_write_to_host.
+
+# Version: 0.22 2015-10-09 SBP
+#	Added #piCorePlayer I2S configuration to i2s configuration routines.
+#	Updated pcp_disable_i2s routine.
+
+# Version: 0.21 2015-09-21 GE
+#	Added -e option.
+#	Added -U option.
+#	Added -V option.
+#	Added pcp_reboot_required.
+#	Added pcp_restart_required.
+
+# Version: 0.40 2015-09-19 SBP
+#	Removed mount/umount functions from inside other pcp-functions.
+#	Updated pcp_write_to_host.
+#	Removed *=* from cron commands.
+#	Added pcp_html_head_no_content.
+#	Updated pcp_httpd_query_string to decode $QUERY_STRING.
+
+# Version: 0.39 2015-08-29 SBP
+#	Added support for device tree.
+#	Revised modes.
+#	Changed reboot message.
+#	Updated pcp_navigation.
+#	Updated cron defaults.
+#	Added warning message on beta mode tab.
+
+# Version: 0.38 2015-07-10 GE
+#	Updated pcp_picoreplayers.
+#	Added pcp_mode.
+#	Modified pcp_textarea and pcp_textarea_inform.
+
+# Version: 0.37 2015-06-25 SBP
+#	Changed timezone logic, so changes are immediately present (reboot not needed).
+#	Modified timezone resent, so that /etc/sysconfig/timezone file is also removed.
+
+# Version: 0.36 2015-06-11 SBP
+#	Added variable CRON_COMMAND to config.cfg
+
+# Version: 0.35 2015-06-06 GE
+#	Updated pcp_auto_start_lms, pcp_auto_start_fav to use pcp_lmsip.
+#	Added link to About page from pCP image.
+#	Renamed styles nav to nav5 and nav2 to nav7.
+#	Renamed $pCPHOME to $PCPHOME.
+#	Modified pcp_set_timezone to remove multiple spaces.
+
+# Version: 0.34 2015-05-22 SBP
+#	Add beta download page at SourceForge if "test = 3".
+
+# Version: 0.33 2015-05-10 SBP
+#	Changed the timezone settings to cmdline.txt file.
+
+# Version: 0.33 2015-05-10 GE
+#	Added pcp_picore_accessible and pcp_xtras tool bar.
+#	Added pcp_uptime_days.
+#	Added pcp_picoreplayers toolbar.
+#	Updated pcp_favorites toolbar.
+#	Tidyup - removed/added some comments.
+
+# Version: 0.32 2015-03-29 GE
+#	Added pcp_start_row_shade and pcp_toggle_row_shade.
+
+# Version: 0.31 2015-03-12 GE
+#	Updated and fixed spelling of the Visualiser option.
+#	Fixed User commands typo.
+
+# Version: 0.30 2015-03-10 GE
+#	Added pcp_internet_accessible.
+#	Added pcp_sourceforge_accessible.
+#	Added variable ASOUNDCONF.
+#	Added pcp_mode_lt_99 and pcp_mode_lt_5
+
+# Version: 0.29 2015-02-15 SBP
+#	Redirected errors for pcp_wlan0_mac_address, pcp_eth0_mac_address, pcp_controls_mac_address.
+#	Commented out sudo modprobe -q bcm2708_dmaengine.
+
+# Version: 0.28 2015-02-11 GE
+#	Fixed pcp_auto_start_lms and pcp_auto_start_fav.
+#	Added ANSI colours from tc-functions.
+
+# Version: 0.27 2015-02-08 SBP
+#	Modified pcp_html_head so no refresh if in debug mode.
+
+# Version: 0.26 2015-02-05 GE
+#	Modified pcp_lmsip.
+#	Improved pcp_reset_config_to_defaults.
+#	Added pcp_dianostics toolbar.
+#	Moved controls and LMS related items to pcp-lms-functions.
+#	Added pcp_which_squeezelite, pcp_eth0_ip, pcp_wlan0_ip.
+
+# Version: 0.25 2015-01-26 SBP
+#	Added CLOSEOUT.
+#	Added pcp_reset_config_to_defaults.
+#	Added pcp_mount_device, pcp_umount_device.
+#	Added pcp_user_commands.
+#	Updated pcp_banner.
+
+# Version: 0.24 2015-01-20 GE
+#	Added colour coding to Squeezelite in pcp_footer.
+#	Updated date display on pcp_footer.
+#	Updated Autostart LMS.
+#	Added pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
+#	Removed MODE = 5 for controls.
+
+# Version: 0.23 2014-12-20 GE
+#	Minor updates to modprode section.
+#	HTML5 format.
+#	Added pcp_textarea_inform.
+
+# Version: 0.22 2014-12-08 SBP
+#	Added support for the HiFiBerry AMP.
+
+# Version: 0.21 2014-10-22 GE
+#	Added new pcp_lmsip and pcp_lms_get.
+#	Added pcp_write_to_log and pcp_textarea.
+#	Added pcp_html_head.
+#	Updated useful buttons.
+
+# Version: 0.20 2014-10-09 SBP
+#	Clean up in the I2S section.
+
+# Version: 0.19 2014-10-09 GE
+#	Added pcp_uptime_seconds routine.
+#	Updated pcp_uptime_minutes routine.
+
+# Version: 0.18 2014-10-08 GE
+#	Updated pcp_uptime_minutes routine.
+
+# Version: 0.17 2014-10-04 GE
+#	Updated pcp_disable_i2s.
+#	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
+#	Added pcp_backup_nohtml.
+
+# Version: 0.16 2014-10-02 GE
+#	Added pcp_uptime_minutes routine.
+#	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
+#	Updated footer to use style footer.
+#	Activated $MODE = 5
+
+# Version: 0.15 2014-09-25 SBP
+#	Added support for the HiFiBerry DAC+ and Digi+.
+#	Added support for the IQaudIO+ DAC.
 
 # Version: 0.14 2014-09-20 GE
 #	Modified HTML to improve cross browser support.
@@ -25,7 +240,7 @@ Version: 0.15 2014-09-25 SBP
 
 # Version: 0.09 2014-09-04 GE
 #	Added timezone routine.
-#	Changed size of config.cfg textbox.
+#	Changed size of config.cfg textarea.
 
 # Version: 0.08 2014-08-31 GE
 #	Added /bin/sh to first line.
@@ -65,37 +280,210 @@ Version: 0.15 2014-09-25 SBP
 # System wide variables
 #-----------------------------------------------------------------------------------------
 pcp_variables() {
-	# The following variable are standard piCorePlayer variables, do not edit
-	CONFIGCFG=/usr/local/sbin/config.cfg
-	CONFIGTXT=/mnt/mmcblk0p1/config.txt
-	CMDLINETXT=/mnt/mmcblk0p1/cmdline.txt
-	BOOTLOCAL=/opt/bootlocal.sh
-	BOOTSYNC=/opt/bootsync.sh
-	SHUTDOWN=/opt/shutdown.sh
-	HTTPDCONF=/home/tc/httpd.conf
-	WIFIDB=/home/tc/wifi.db
-	VOLUME=/mnt/mmcblk0p1
-	DEVICE=/dev/mmcblk0p1
-	UPD_PCP=/tmp/upd_picoreplayer
-	pCPHOME=/home/tc/www/cgi-bin
+	# The following variables are standard piCorePlayer variables, do not edit!
+	CONFIGCFG="/usr/local/sbin/config.cfg"
+	CONFIGTXT="/mnt/mmcblk0p1/config.txt"
+	CMDLINETXT="/mnt/mmcblk0p1/cmdline.txt"
+	BOOTLOCAL="/opt/bootlocal.sh"
+	BOOTSYNC="/opt/bootsync.sh"
+	SHUTDOWN="/opt/shutdown.sh"
+	PB100="/home/tc/.local/bin/.pbtemp"
+	HTTPDCONF="/home/tc/httpd.conf"
+	HTTPD="/usr/local/sbin/busybox-httpd"
+	ASOUNDCONF="/etc/asound.conf"
+	WIFIDB="/home/tc/wifi.db"
+	ONBOOTLST="/mnt/mmcblk0p2/tce/onboot.lst"
+	VOLUME="/mnt/mmcblk0p1"
+	DEVICE="/dev/mmcblk0p1"
+	UPD_PCP="/tmp/upd_picoreplayer"
+	PCPHOME="/home/tc/www/cgi-bin"
+	LOGDIR="/var/log"
+	PACKAGEDIR="/mnt/mmcblk0p2/tce/optional"
 
-	INSITU_DOWNLOAD="http://sourceforge.net/projects/picoreplayer/files/insitu"
+	. $PCPHOME/pcp-rpi-functions
+
+	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
+	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
+	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
 
-	# Set $TEST to 1 to get features that are under test and set to 2 to show old features that might be on its way out (default=0)
+	# Set to 1 to get features that are under test.
+	# Set to 2 to show old features that might be on its way out.
+	# Set to 3 in order to use beta download page from sourceforge when testing beta versions.
+	# Default is 0.
 	TEST=0
 
-	# Set $MODE to the desired level (0-5) 1=basic -> 5=advanced (default=1) (NOT USED YET)
-	MODE=5
+	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
+	MODE=0
+	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
+	MODE_BASIC=10				# Display minimal settings for basic users
+	MODE_NORMAL=20				# Display typical settings for normal users
+	MODE_ADVANCED=30			# Add more options for advanced users
+	MODE_BETA=40				# Beta options that can be shared with beta testers
+	MODE_DEVELOPER=100			# Experiential options for developers only
 
 	# Use test download area
-	[ $DEBUG = 1 ] && [ $TEST = 1 ] && INSITU_DOWNLOAD="http://sourceforge.net/projects/pcpsl/files/insitu"
+	if [ $TEST -eq 3 ]; then
+		INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/beta"
+		REPOSITORY="https://sourceforge.net/projects/picoreplayer/files/beta"
+	fi
 }
 
 pcp_variables
 . $CONFIGCFG
+
+#=========================================================================================
+# ANSI colours
+#-----------------------------------------------------------------------------------------
+CRE="$(echo -e '\r\033[K')"
+RED="$(echo -e '\033[1;31m')"
+GREEN="$(echo -e '\033[1;32m')"
+YELLOW="$(echo -e '\033[1;33m')"
+BLUE="$(echo -e '\033[1;34m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+CYAN="$(echo -e '\033[1;36m')"
+WHITE="$(echo -e '\033[1;37m')"
+NORMAL="$(echo -e '\033[0;39m')"
+
+#=========================================================================================
+# UTF-8 Dingbats and other symbols
+#
+# References:
+#  - http://nealchester.com/special-characters/#crosses
+#  - http://www.w3schools.com/charsets/ref_utf_dingbats.asp
+#-----------------------------------------------------------------------------------------
+HEAVY_CHECK_MARK="&#10004;"
+HEAVY_BALLOT_X="&#10008;"
+DEGREE_SIGN="&deg;"
+
+# Used on LMS controls
+BLACKTRIANGLE="&#9650;"
+BLACKTRIANGLEDOWN="&#9660;"
+BLACKTRIANGLELEFT="&#9668;"
+BLACKTRIANGLERIGHT="&#9658;"
+FILLEDSAMLLSQUARE="&#9724;"
+
+#=========================================================================================
+# Free space on /mnt/mmcblk0p2
+#  - k = kilobytes free
+#  - m = megabytes free
+#  - p = percentage free
+#-----------------------------------------------------------------------------------------
+pcp_free_space() {
+	case "$1" in
+		k) set -- $(/bin/busybox df -k | grep mmcblk0p2); echo $4 ;;
+		m) set -- $(/bin/busybox df -m | grep mmcblk0p2); echo $4 ;;
+		p) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $5 | sed 's/%//' ;;
+		*) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $4 ;;
+	esac
+}
+
+pcp_sufficient_free_space() {
+	REQUIRED=$1
+	SPACE=$(pcp_free_space k)
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
+	if [ $REQUIRED -lt $SPACE ]; then
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
+	else
+		echo '<p class="error">[ ERROR ] Not enough space.</p>'
+		echo '<p class="info">[ INFO ] Try expanding your partition.</p>'
+		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
+		SCRIPT1=xtras_resize.cgi
+		pcp_confirmation_required
+		pcp_go_back_button
+		exit 1
+	fi
+}
+
+#=========================================================================================
+# Row shading and help ID numbering.
+#-----------------------------------------------------------------------------------------
+pcp_start_row_shade() {
+	SHADE=0
+	ROWSHADE="even"
+}
+
+pcp_toggle_row_shade() {
+	if [ $SHADE -eq 1 ]; then
+		SHADE=0
+		ROWSHADE="even"
+	else
+		SHADE=1
+		ROWSHADE="odd"
+	fi
+}
+
+pcp_incr_id() {
+	ID=$(($ID + 1))
+}
+
+#=========================================================================================
+# Extension installed.
+#-----------------------------------------------------------------------------------------
+pcp_extn_is_installed() {
+	tce-status -i | grep $1 >/dev/null 2>&1
+	echo $?
+}
+
+#=========================================================================================
+# Test if the internet is accessible.
+#-----------------------------------------------------------------------------------------
+pcp_internet_accessible() {
+	ping -w5 -c3 8.8.8.8 >/dev/null 2>&1
+	echo $?
+}
+
+pcp_sourceforge_accessible() {
+	/bin/busybox wget -s https://sourceforge.net/projects/picoreplayer/files/ >/dev/null 2>&1
+	echo $?
+}
+
+pcp_picore_accessible() {
+	/bin/busybox wget -s $MIRROR >/dev/null 2>&1
+	echo $?
+}
+
+#=========================================================================================
+# Test mode level.
+#-----------------------------------------------------------------------------------------
+pcp_mode_lt_beta() {
+	if [ $MODE -lt $MODE_BETA ]; then
+		echo '<p class="error">[ ERROR ] Wrong mode. Min: Beta</p>'
+		echo '</body>'
+		echo '</html>'
+		exit 1
+	fi
+}
+
+pcp_mode_lt_developer() {
+	if [ $MODE -lt $MODE_DEVELOPER ]; then
+		echo '<p class="error">[ ERROR ] Wrong mode. Min: Developer</p>'
+		echo '</body>'
+		echo '</html>'
+		exit 1
+	fi
+}
+
+#=========================================================================================
+# cmdline.txt routines
+#-----------------------------------------------------------------------------------------
+pcp_backup_cmdlinetxt() {
+	cp ${CMDLINETXT} ${CMDLINETXT}.bak
+}
+
+pcp_restore_cmdlinetxt() {
+	[ -f ${CMDLINETXT}.bak ] && cp ${CMDLINETXT}.bak ${CMDLINETXT}
+}
+
+pcp_clean_cmdlinetxt() {
+	# Remove carriage returns, add a space to end of file, then remove multiple spaces.
+	cat $CMDLINETXT | tr -d "\n" > /tmp/cmdline.txt
+	cp /tmp/cmdline.txt $CMDLINETXT
+	sed -i '$s/$/ /' $CMDLINETXT
+	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
+}
 
 #=========================================================================================
 # Update the Timezone routine
@@ -105,13 +493,21 @@ pcp_variables
 #			do_rebootstuff.sh
 #-----------------------------------------------------------------------------------------
 pcp_set_timezone() {
-	[ -f /etc/sysconfig/timezone ] && sudo rm -f /etc/sysconfig/timezone
-	TIMEZONE=`sudo /usr/local/sbin/httpd -d $TIMEZONE`
-	echo "TZ="$TIMEZONE > /etc/sysconfig/timezone
-	sudo chown root:root /etc/sysconfig/timezone
-	sudo chmod 644 /etc/sysconfig/timezone
-	unset TZ
-	export TZ=$TIMEZONE
+	. $CONFIGCFG
+	pcp_timezone
+}
+
+pcp_timezone() {
+	# Remove old timezone settings
+	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
+	sudo rm -f /etc/sysconfig/timezone
+	# Add new TIMEZONE settings if used
+	if [ x"" != x"$TIMEZONE" ]; then
+		sed -i '1 s@^@tz='$TIMEZONE' @' $CMDLINETXT
+		sudo echo "TZ=$TIMEZONE" > /etc/sysconfig/timezone
+		export TZ=$TIMEZONE
+	fi
+	pcp_clean_cmdlinetxt
 }
 
 #=========================================================================================
@@ -127,25 +523,25 @@ pcp_config_mac_address() {
 
 pcp_wlan0_mac_address() {
 	# The wireless MAC address (if installed)
-	ifconfig wlan0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+	ifconfig wlan0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
 }
 
 pcp_eth0_mac_address() {
 	# The physical MAC address of Raspberry Pi Model B
-	ifconfig eth0|grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'|tr '[A-Z]' '[a-z]'
+	ifconfig eth0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
 }
 
 pcp_controls_mac_address() {
-	ifconfig eth0 | grep inet &> /dev/null
+	ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1
 	eth0_IP=$?
-	ifconfig wlan0 | grep inet &> /dev/null
+	ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1
 	wlan0_IP=$?
 	PLAYER_MAC=$(pcp_eth0_mac_address)
-	if [ $WIFI = "on" ]; then
-		if [ $wlan0_IP = 0 ]; then
+	if [ "$WIFI" = "on" ]; then
+		if [ $wlan0_IP -eq 0 ]; then
 			PLAYER_MAC=$(pcp_wlan0_mac_address)
 		fi
-		if [ $eth0_IP = 0 ]; then
+		if [ $eth0_IP -eq 0 ]; then
 			PLAYER_MAC=$(pcp_eth0_mac_address)
 		fi
 	fi
@@ -158,12 +554,52 @@ pcp_controls_mac_address() {
 #=========================================================================================
 # Banner, navigation, footer and controls html
 #-----------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------
+# $1 = title, $2 = author, $3 = seconds, $4 = url
+#-----------------------------------------------------------------------------------------
+pcp_html_head() {
+	echo 'Content-Type: text/html'
+	echo ''
+	echo '<!DOCTYPE html>'
+	echo '<!-- Start of pcp_html_head -->'
+	echo '<html>'
+	echo '<head>'
+	echo '  <meta charset="UTF-8">'
+	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
+	echo '  <meta http-equiv="Pragma" content="no-cache">'
+	echo '  <meta http-equiv="Expires" content="0">'
+	if [ $DEBUG -eq 0 ]; then
+		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
+			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
+		fi
+	fi
+	echo '  <title>pCP - '$1'</title>'
+	echo '  <meta name="author" content="'$2'">'
+	echo '  <meta name="description" content="'$1'">'
+	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">'
+	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
+	echo '  <script src="../js/piCorePlayer.js"></script>'
+	echo '</head>'
+	echo ''
+	echo '<body>'
+	echo '<!-- End of pcp_html_head -->'
+}
+
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
-	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p><img src="../images/banner.jpg" alt="piCorePlayer" width="958" /></p>'
+	echo '    <td height="148">'
+	echo '      <p class="banner">'
+	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
+	echo '        <map name="hotspot">'
+	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
+	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100">'
+	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0">'
+	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi">'
+	echo '        </map>'
+	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -171,71 +607,249 @@ pcp_banner() {
 }
 
 pcp_navigation() {
-	echo '<!-- Start of pcp_navigation -->'
-	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	TAB_STYLE_MODE_MAIN="nav6"
+	TAB_STYLE_MODE_SQUEEZELITE="nav6"
+	TAB_STYLE_MODE_WIFI="nav6"
+	TAB_STYLE_MODE_TWEAKS="nav6"
+	TAB_STYLE_MODE_LMS="nav6"
+	TAB_STYLE_MODE_ABOUT="nav6"
+
+	case "$0" in
+		main.cgi)        TAB_STYLE_MODE_MAIN="nav6a" ;;
+		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE="nav6a" ;;
+		wifi.cgi)        TAB_STYLE_MODE_WIFI="nav6a" ;;
+		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS="nav6a" ;;
+		lms.cgi)         TAB_STYLE_MODE_LMS="nav6a" ;;
+		about.cgi)       TAB_STYLE_MODE_ABOUT="nav6a" ;;
+	esac
+
+	echo '<!-- Start of pcp_navigation toolbar -->'
+	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="nav" href="wifi.cgi" title="pCP - WIFI Settings">WIFI Settings</a>'
-	echo '        <a class="nav" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="nav" href="about.cgi" title="pCP - About">About&nbsp;&nbsp;&nbsp;</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-	echo '<!-- End of pcp_navigation -->'
+	echo '<!-- End of pcp_navigation toolbar -->'
 }
 
 pcp_footer() {
-	[ -f /etc/sysconfig/timezone ] && . /etc/sysconfig/timezone
+	if [ -f /etc/sysconfig/timezone ]; then
+		. /etc/sysconfig/timezone
+		TIMESTAMP=$(TZ=$TZ date)
+	else
+		TIMESTAMP="No Timezone"
+	fi
+
+	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
+	SQUEEZELITE='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
 
 	echo '<!-- Start of pcp_footer -->'
-	echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
+	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p><center><font color="ffffff">
+	echo '      <p class="footer">
 					'$NAME' |
-					'$(pcp_controls_mac_address)' | 
-					piCorePlayer v'$(pcp_picoreplayer_version)' | 
-					linux '$(pcp_linux_release)' | 
-					piCore v'$(pcp_picore_version)' | 
-					Squeezelite v'$(pcp_squeezelite_version)' | 
-					'`TZ=$TZ date`'</font></center></p>'
+					piCorePlayer v'$(pcp_picoreplayer_version)' |
+					linux '$(pcp_linux_release)' |
+					piCore v'$(pcp_picore_version)' |
+					'`echo $SQUEEZELITE`' |
+					'`echo $TIMESTAMP`'</p>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_footer -->'
 }
 
-pcp_controls() {
-	if [ X"" != X"$SERVER_IP" ]; then
-		echo '<!-- Start of pcp_controls -->'
-		echo '<table border="0" bgcolor="000000" cellspacing="0" cellpadding="0" width="960">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up ^</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down v</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_prev" title="Previous Track">&lt; Previous Track</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track &gt;</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=play" title="Play">Play</a>'
-		echo '        <a class="nav2" href="controls.cgi?COMMAND=stop" title="Stop">Stop</a>'
+pcp_copyright() {
+	echo '<!-- Start of pcp_copyright -->'
+	echo '<table class="bgwhite">'
+	echo '  <tr>'
+	echo '    <td class="column150">'
+	echo '    </td>'
+	echo '    <td>'
+	echo '      <p class="copyright">The Software is provided "as is" without warranty of any kind, either express or implied,'
+	echo '         including without limitation any implied warranties of condition, uninterrupted use,'
+	echo '         merchantability, fitness for a particular purpose, or non-infringement.</p>'
+	echo '    </td>'
+	echo '    <td class="column150">'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of pcp_copyright -->'
+}
+
+# Broken 2015-11-23 GE
+pcp_favorites() {
+	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	FAVLIST=`sudo $HTTPD -d $FAVLIST`
+
+	echo '<!-- Start of favorites toolbar -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+#------------------------------------------awk-------------------------------------------
+	echo $FAVLIST | awk '
+	BEGIN {
+		RS="id:"
+		FS=":"
+		i = 0
+	}
+	#main
+	{
+		i++
+		split($1,a," ")
+		id[i]=a[1]
+		split(id[i],b,".")
+		num[i]=b[2]
+		name[i]=$2
+		gsub(" type","",name[i])
+		hasitems[i]=$5
+		gsub("count","",hasitems[i])
+#		if ( hasitems[i] != "0 " ) {
+#			i--
+#		}
+
+		isaudio[i]=$3
+		gsub(" hasitems","",isaudio[i])
+		if ( isaudio[i] == "0" ) {
+			i--
+		}
+		isfavorite[i]=$6
+		gsub(" title","",isfavorite[i])
+		if ( isfavorite[i] == "33 favorites items 0 100" ) {
+			i--
+		}
+
+	}
+	END {
+		for (j=1; j<=7; j++) {
+			printf "        <a class=\"nav7\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
+		}
+	} '
+#----------------------------------------------------------------------------------------
 		echo '      </p>'
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		echo '<!-- End of pcp_controls -->'
+		echo '<!-- End of favorites toolbar -->'
+}
+
+pcp_diagnostics() {
+	echo '<!-- Start of diagnostics toolbar -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="nav6" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav6" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
+	echo '        <a class="nav6" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
+	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
+	echo '        <a class="nav6" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '        <a class="nav6" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of diagnostics toolbar -->'
+}
+
+pcp_xtras() {
+	echo '<!-- Start of xtras toolbar -->'
+	echo '<table class="bgblack">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <p>'
+	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Diag Test">Test</a>'
+	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Diag Asound">Asound</a>'
+	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Diag Bootcodes">Bootcodes</a>'
+	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Diag Controls">Controls</a>'
+	echo '        <a class="nav7" href="xtras_graph.cgi" title="pCP - Diag Graph">Graph</a>'
+	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Diag LMS CLI">LMS CLI</a>'
+	echo '      </p>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<!-- End of xtras toolbar -->'
+}
+
+pcp_picoreplayers() {
+	if [ "$PLAYERTABS" = "yes" ]; then
+		echo '<!-- Start of pcp_picoreplayers toolbar -->'
+		echo '<p>'
+
+		TMP=$(mktemp)
+		pcp_lms_players squeezelite >$TMP
+		while read line
+		do
+			TITLE=$(echo $line | awk -F, '{ print $1 }')
+			URL=$(echo $line | awk -F, '{ print $2 }')
+			[ "$NAME" = "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
+			echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
+		done <$TMP
+		rm -r $TMP
+		LMSIP=$(pcp_lmsip)
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		if [ $MODE -ge $MODE_BETA ]; then
+			echo '  <a class="tab7" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		fi
+		echo '  <div class="tab7end">pCP</div>'
+		echo '</p>'
+		echo '<!-- End of pcp_picoreplayers toolbar -->'
+	else
+		echo '<!-- pcp_picoreplayers toolbar set to no -->'
 	fi
+}
+
+pcp_mode() {
+	TAB_STYLE_MODE_INITIAL="tab14"
+	TAB_STYLE_MODE_BASIC="tab14"
+	TAB_STYLE_MODE_NORMAL="tab14"
+	TAB_STYLE_MODE_ADVANCED="tab14"
+	TAB_STYLE_MODE_BETA="tab14"
+	TAB_STYLE_MODE_DEVELOPER="tab14"
+
+	case $MODE in
+		$MODE_INITIAL)   TAB_STYLE_MODE_INITIAL="tab14a" ;;
+		$MODE_BASIC)     TAB_STYLE_MODE_BASIC="tab14a" ;;
+		$MODE_NORMAL)    TAB_STYLE_MODE_NORMAL="tab14a" ;;
+		$MODE_ADVANCED)  TAB_STYLE_MODE_ADVANCED="tab14a" ;;
+		$MODE_BETA)      TAB_STYLE_MODE_BETA="tab14a" ;;
+		$MODE_DEVELOPER) TAB_STYLE_MODE_DEVELOPER="tab14a" ;;
+	esac
+
+	echo '<!-- Start of mode toolbar -->'
+	echo '<p>'
+	[ $MODE -ge $MODE_DEVELOPER ] &&
+	echo '  <a class="'$TAB_STYLE_MODE_INITIAL'" href="debug.cgi?m='$MODE_INITIAL'" title="Initial mode">Initial</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_BETA'"'
+	echo '     onclick="javascript:pcp_confirm('\'WARNING:\\nBeta mode can be dangerous.\\nCorruption of SD card is possible.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
+	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
+	[ $MODE -ge $MODE_DEVELOPER ] &&
+	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
+	echo '  <div class="tab7end">pCP</div>'
+	echo '</p>'
+	echo '<!-- End of mode toolbar -->'
 }
 
 #=========================================================================================
 # Versions
 #-----------------------------------------------------------------------------------------
 pcp_picore_version() {
-	echo `version`
+	echo $(version)
 }
 
 pcp_picoreplayer_version() {
@@ -245,6 +859,11 @@ pcp_picoreplayer_version() {
 
 pcp_squeezelite_version() {
 	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
+}
+
+pcp_squeezelite_build_option() {
+	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep $1 > /dev/null
+	echo $?
 }
 
 pcp_linux_release() {
@@ -260,49 +879,97 @@ pcp_tc_user() {
 
 #=========================================================================================
 # Show various configuration and setup files
+# $1 = title, $2 = command, $3 = height, $4 = write to log
 #-----------------------------------------------------------------------------------------
-pcp_show_config_cfg() {
-	echo '<h2>[ INFO ] Current config.cfg</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="26">'
-	cat $CONFIGCFG
+pcp_textarea() {
+	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
+	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
+	echo '<textarea style="height:'$3'px">'
+	echo $START
+	if [ $DEBUG -eq 1 ]; then
+		echo '$1: '$1' $2: '$2' $3: '$3' $4: '$4
+	fi
+	eval $2
+	echo $END
+	echo '</textarea>'
+	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
+}
+
+pcp_textarea_inform() {
+	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
+	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
+	echo '<textarea class="inform" style="height:'$3'px">'
+	eval $2
 	echo '</textarea>'
 }
 
-pcp_show_config_txt() {
-	echo '<h2>[ INFO ] Current config.txt</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="15">'
-	cat $CONFIGTXT
-	echo '</textarea>'
-}	
-
-pcp_show_cmdline_txt() {
-	echo '<h2>[ INFO ] Current cmdline.txt</h2>'
-	echo '<textarea name="myTextBox" cols="120" rows="5">'
-	cat $CMDLINETXT
-	echo '</textarea>'
+pcp_write_to_log() {
+	# TODO Check if $LOG has been set.
+	echo ====================================================================================== >> $LOG
+	echo "$TITLE" >> $LOG
+	echo -------------------------------------------------------------------------------------- >> $LOG
+	eval $2 >> $LOG
+	echo ====================================================================================== >> $LOG
+	echo >> $LOG
 }
 
-pcp_show_bootlocal_sh() {
-	echo '<h2>[ INFO ] Current bootlocal.sh</h2>'
-	echo '<textarea name="TextBox" cols="120" rows="15">'
-	cat $BOOTLOCAL
-	echo '</textarea>'
-}
+pcp_write_to_host() {
+	# This will set the hostname next time pCP is rebooted.
+	#sudo sed -i "s/\(host=\)[a-zA-Z0-9\-]*[ ]//g" $CMDLINETXT
+	#sudo sed -i "1 s/$/ host=$HOST/" $CMDLINETXT
 
-pcp_show_bootsync_sh() {
-	echo '<h2>[ INFO ] Current bootsync.sh</h2>'
-	echo '<textarea name="TextBox4" cols="120" rows="8">'
-	cat $BOOTSYNC
-	echo '</textarea>'
+	pcp_clean_cmdlinetxt
+	sed -i 's/host[=][^ ]* //g' $CMDLINETXT
+	sed -i '1 s/^/host='${HOST}' /' $CMDLINETXT
 }
 
 #=========================================================================================
 # Busybox httpd
-#-----------------------------------------------------------------------------------------	
+#-----------------------------------------------------------------------------------------
 pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
-	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { print $i} }')
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+# Needed when we want to store an encoded string in config.cfg
+pcp_httpd_query_string_no_decode() {
+	# Process the $QUERY_STRING from httpd
+	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+# This will remove the query string from the url, prevents page reloads and document.referrer from
+# reposting a command that we've already executed.  Once we test this more we might want to move this 
+# script to the piCorePlayer.js.
+pcp_remove_query_string() {
+	echo '<script type="text/javascript">'
+	echo '  if (history.pushState) {'
+	echo '    var newurl = window.location.origin + window.location.pathname;'
+	echo '    window.history.pushState({path:newurl},"",newurl);'
+	echo '  }'
+	echo '</script>'
+}
+
+#=========================================================================================
+# Restart and Reboot popups
+#-----------------------------------------------------------------------------------------
+pcp_reboot_required() {
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')'
+	echo '</script>'
+}
+
+pcp_restart_required() {
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
+	echo '</script>'
+}
+
+pcp_confirmation_required() {
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
+	echo '</script>'
 }
 
 #=========================================================================================
@@ -310,21 +977,27 @@ pcp_httpd_query_string() {
 #-----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
 	echo '<p class="info">[ INFO ] '
-	#sudo /usr/local/etc/init.d/squeezelite_initd start
+	if [ "$AUDIO" = "HDMI" ]; then
+		sudo amixer cset numid=3 2 >/dev/null 2>&1
+	fi
+	if [ "$SHAIRPORT" = "yes" ]; then
+		pcp_shairport_restart
+	fi
 	sudo /usr/local/etc/init.d/squeezelite start
 	echo '</p>'
 }
 
 pcp_squeezelite_stop() {
 	echo '<p class="info">[ INFO ] '
-	#sudo /usr/local/etc/init.d/squeezelite_initd stop
 	sudo /usr/local/etc/init.d/squeezelite stop
 	echo '</p>'
 }
 
-# Not used yet.
 pcp_squeezelite_restart() {
 	echo '<p class="info">[ INFO ] '
+	if [ "$AUDIO" = "HDMI" ]; then
+		sudo amixer cset numid=3 2 >/dev/null 2>&1
+	fi
 	sudo /usr/local/etc/init.d/squeezelite restart
 	echo '</p>'
 }
@@ -335,11 +1008,81 @@ pcp_squeezelite_status() {
 }
 
 #=========================================================================================
+# Start/stop Shairport-sync
+#-----------------------------------------------------------------------------------------
+pcp_shairport_start() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/shairport-sync start
+	echo '</p>'
+}
+
+pcp_shairport_stop() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/shairport-sync stop
+	echo '</p>'
+}
+
+pcp_shairport_restart() {
+	echo '<p class="info">[ INFO ] '
+	sudo /usr/local/etc/init.d/shairport-sync restart
+	echo '</p>'
+}
+
+pcp_shairport_status() {
+	sudo /usr/local/etc/init.d/shairport-sync status > /dev/null 2>&1
+	echo $?
+}
+
+#=========================================================================================
+# Determine the system uptime in seconds or minutes
+#-----------------------------------------------------------------------------------------
+pcp_uptime_seconds() {
+	printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1 }')
+}
+
+pcp_uptime_minutes() {
+	printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1/60 }')
+}
+
+pcp_uptime_days() {
+	SECONDS=`printf "%.0f\n" $(cat /proc/uptime | awk '{ print $1 }')`
+	D=$((${SECONDS} / 86400))
+	H=$(((${SECONDS} % 86400) / 3600))
+	M=$(((${SECONDS} % 3600) / 60))
+	S=$((${SECONDS} % 60))
+	[ $D -eq 1 ] && DS="day" || DS="days"
+	[ $H -eq 1 ] && HS="hour" || HS="hours"
+	[ $M -eq 1 ] && MS="minute" || MS="minutes"
+	[ $S -eq 1 ] && SS="second" || SS="seconds"
+	# 2 days 8 hours 10 minutes 35 seconds
+	printf "%2d %s %2d %s %2d %s %2d %s" $D $DS $H $HS $M $MS $S $SS
+}
+
+#=========================================================================================
+# Determine the IP addresses
+#-----------------------------------------------------------------------------------------
+pcp_lmsip() {
+	IP=$(netstat -nt 2>&1 | grep :3483 | grep ESTABLISHED | uniq -f 4 | awk '{ print $5 }' | grep :3483 | awk -F: '{ print $1 }')
+	if [ "$IP" = "127.0.0.1" ]; then
+		[ x"" = x"$(pcp_eth0_ip)" ] && IP=$(pcp_wlan0_ip) || IP=$(pcp_eth0_ip)
+	fi
+	echo $IP
+}
+
+pcp_eth0_ip() {
+	ifconfig eth0 | grep inet | awk '{ print $2 }' | awk -F: ' { print $2 }'
+}
+
+pcp_wlan0_ip() {
+	ifconfig wlan0 | grep inet | awk '{ print $2 }' | awk -F: ' { print $2 }'
+}
+
+#=========================================================================================
 # Auto start LMS routine
 #	This routine will allow you to set a LMS command to auto start a LMS command after
 #	a "hard power on". This will be handy for people building pseudo radios. This routine
 #	is called from do_rebootstuff.sh.
-# 
+#
 # Example $AUTOSTARTLMS:
 #	randomplay tracks
 #	playlist play http://opml.radiotime.com/Tune.ashx?id=s99312&formats=aac,ogg,mp3&partnerId=16&serial=05edb36d50ac02d1d1eeaa23a487968a
@@ -347,37 +1090,137 @@ pcp_squeezelite_status() {
 #	playlist play http://radioparadise.com/m3u/aac-128.m3u
 #-----------------------------------------------------------------------------------------
 pcp_auto_start_lms() {
-	if [ X"" != X"$SERVER_IP" ] && [ X"" != X"$AUTOSTARTLMS" ]; then
+	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" = "Enabled" ]; then
+		AUTOSTARTLMS=$(sudo $HTTPD -d $AUTOSTARTLMS)
 		PLAYER_MAC=$(pcp_controls_mac_address)
-		# Decode variables using httpd, no quotes
-		AUTOSTARTLMS=`sudo /usr/local/sbin/httpd -d $AUTOSTARTLMS`
-		echo "$PLAYER_MAC $AUTOSTARTLMS" | telnet $SERVER_IP:9090
+		for i in 1 2 3 4 5
+		do
+			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
+			if [ $RESULT -eq 1 ]; then
+				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
+				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_lms.log
+				break
+			fi
+			echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
+			sleep 1
+		done
 	fi
+}
+
+pcp_autofav_id() {
+	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
+	# Decode variable using httpd, no quotes
+	FAVLIST=`sudo $HTTPD -d $FAVLIST`
+	#------------------------------------------awk---------------------------------------
+	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
+	BEGIN {
+		RS="id:"
+		FS=":"
+		i = 0
+	}
+	# main
+	{
+		i++
+		split($1,a," ")
+		id[i]=a[1]
+		name[i]=$2
+		gsub(" type","",name[i])
+		if ( name[i] == autostartfav ) {
+			result=id[i]
+		}
+		hasitems[i]=$5
+		gsub("count","",hasitems[i])
+		if ( hasitems[i] != "0 " ) {
+			i--
+		}
+	}
+	END {
+		printf "%s",result
+	} '
+	#------------------------------------------------------------------------------------
+}
+
+pcp_auto_start_fav() {
+	if [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" = "Enabled" ]; then
+		PLAYER_MAC=$(pcp_controls_mac_address)
+		for i in 1 2 3 4 5
+		do
+			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
+			if [ $RESULT -eq 1 ]; then
+				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
+				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
+				break
+			fi
+			echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
+			sleep 1
+		done
+	fi
+}
+
+pcp_start_fav() {
+	PLAYER_MAC=$(pcp_controls_mac_address)
+	for i in 1 2 3 4 5
+	do
+		if [ $(pcp_lms_connected) -eq 1 ]; then
+			echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
+			(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
+			break
+		fi
+		echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
+	done
+}
+
+pcp_user_commands() {
+    if [ x"" != x"$USER_COMMAND_1" ]; then
+        USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
+        eval "$USER_COMMAND_1" &
+    fi
+    if [ x"" != x"$USER_COMMAND_2" ]; then
+        USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
+        eval "$USER_COMMAND_2" &
+    fi
+    if [ x"" != x"$USER_COMMAND_3" ]; then
+        USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
+        eval "$USER_COMMAND_3" &
+    fi
 }
 
 #=========================================================================================
 # Useful buttons
 #-----------------------------------------------------------------------------------------
 pcp_go_main_button() {
+	echo '<!-- Start of pcp_go_main_button -->'
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
-	echo '<p><input type="submit" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<!-- End of pcp_go_main_button -->'
 }
 
 pcp_go_back_button() {
+	echo '<!-- Start of pcp_go_back_button -->'
 	echo '<p><input type="button" value="Go Back" onclick="javascript:location.href=document.referrer;" />&nbsp;&nbsp;Go back to previous page</p>'
+	echo '<!-- End of pcp_go_back_button -->'
 }
 
 pcp_refresh_button() {
+	echo '<!-- Start of pcp_refresh_button -->'
 	echo '<p><input type="button" value="Refresh" onClick="window.location.reload()" />&nbsp;&nbsp;Refresh this page</p>'
+	echo '<!-- End of pcp_refresh_button -->'
 }
 
 pcp_reboot_button() {
-	echo "<p><input type="button" value="Reboot" onClick=\"javascript:pcp_confirm('Reboot piCorePlayer?','reboot.cgi')\" />&nbsp;&nbsp;Reboot piCorePlayer</p>"
+	echo '<!-- Start of pcp_reboot_button -->'
+	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
+	echo '<!-- End of pcp_reboot_button -->'
 }
 
 #=========================================================================================
 # Backup mydata
 #-----------------------------------------------------------------------------------------
+pcp_check_mydata() {
+	SIZE=$(ls -l /mnt/mmcblk0p2/tce/mydata.tgz | awk '{print $5}')
+	echo $SIZE
+}
+
 pcp_backup() {
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
@@ -388,7 +1231,7 @@ pcp_backup() {
 	sync
 	echo '</p>'
 
-	# If backup_status file exists and is non-zero in size then an error has occurred
+	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
 		echo '<p class="error">[ ERROR ] Backup status</p>'
 		echo '<pre>'
@@ -396,11 +1239,44 @@ pcp_backup() {
 		echo '</pre>'
 	fi
 
-	# If backup_done exists then the backup was successful
+	# If backup_done exists, then the backup was successful
 	if [ -f /tmp/backup_done ]; then
 		echo '<p class="ok">[ OK ] Backup successful.</p>'
 	else
 		echo '<p class="error">[ ERROR ] Backup failed.</p>'
+	fi
+	if [ $(pcp_check_mydata) -gt 350000 ]; then
+		echo '<p class="warn">[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.</p>'
+		echo '<p class="info">[ INFO ] Be careful adding large files to /home/tc.</p>'
+		echo '<p class="info">[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.</p>'
+	fi
+}
+
+pcp_backup_nohtml() {
+	# Delete any previous backup_done file
+	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
+
+	# Do a backup - filetool.sh backs up files in .filetool.lst
+	echo -n '[ INFO ] '
+	sudo filetool.sh -b
+	sync
+
+	# If backup_status file exists and is non-zero in size then an error has occurred
+	if [ -s /tmp/backup_status ]; then
+		echo '[ ERROR ] Backup status.'
+		cat /tmp/backup_status
+	fi
+
+	# If backup_done exists then the backup was successful
+	if [ -f /tmp/backup_done ]; then
+		echo '[ OK ] Backup successful.'
+	else
+		echo '[ ERROR ] Backup failed.'
+	fi
+	if [ $(pcp_check_mydata) -gt 350000 ]; then
+		echo '[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.'
+		echo '[ INFO ] Be careful adding large files to /home/tc.'
+		echo '[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'
 	fi
 }
 
@@ -408,21 +1284,69 @@ pcp_backup() {
 # Display which script is running
 #-----------------------------------------------------------------------------------------
 pcp_running_script() {
-	[ $DEBUG = 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
 }
 
 #=========================================================================================
-# Mounting/unmounting mmcblk0p1 - boot partition
+# Download with md5 check routine
+#-----------------------------------------------------------------------------------------
+pcp_download_package() {
+	#Usage set the following, then run pcp_download_package
+	#    PACKAGES="list of files to download"
+	#    DL_REPO=http://location
+	#    TARGETDIR=location to save files.
+	for PACKAGE in $PACKAGES
+	do
+		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] PACKAGE='$PACKAGE' DL_REPO='$DL_REPO' TARGETDIR='$TARGETDIR
+		$WGET -s ${DL_REPO}/${PACKAGE}
+		if [ $? -eq 0 ]; then
+			RETRY=0
+			MAX_RETRIES=3
+
+			while [ $RETRY -lt $MAX_RETRIES ]
+			do
+				echo '[ INFO ] Downloading '${PACKAGE}'...'
+				$WGET ${DL_REPO}/${PACKAGE} -O /${TARGETDIR}/${PACKAGE}
+				echo '[ INFO ] Downloading '${PACKAGE}.md5.txt'...'
+				$WGET ${DL_REPO}/${PACKAGE}.md5.txt -O /${TARGETDIR}/${PACKAGE}.md5.txt
+				cd /${TARGETDIR}
+				md5sum -cs ${PACKAGE}.md5.txt
+				if [ $? -eq 0 ]; then
+					echo '[ OK ] '$PACKAGE' download successful.'
+					sudo chown tc:staff /${TARGETDIR}/${PACKAGE}
+					sudo chown tc:staff /${TARGETDIR}/${PACKAGE}.md5.txt
+					break
+				else
+					echo '[ ERROR ] Download unsuccessful, MD5 mismatch.'
+					RETRY=$((RETRY+1))
+					if [ $RETRY -lt $MAX_RETRIES ]; then
+						echo '[ INFO ] Retrying download........in 5 seconds.'
+						sleep 5
+					else
+						echo '[ ERROR ] Max retries reached, please try again later.'
+						return 1
+					fi
+				fi
+			done
+		else
+			echo '[ ERROR ] '$PACKAGE' not available in repository, try again later!'
+			return 1
+		fi
+	done
+	return 0
+}
+
+#=========================================================================================
+# Mounting/unmounting devices
 #-----------------------------------------------------------------------------------------
 pcp_mount_mmcblk0p1() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep $VOLUME; then
-		echo '<p class="error">[ ERROR ] '$VOLUME' already mounted</p>'
+		echo '<p class="error">[ WARN ] '$VOLUME' already mounted.</p>'
 	else
 		echo '<p class="info">[ INFO ] Mounting '$VOLUME'...</p>'
 		echo '<p style="font-size:10px">'
 		sudo mount $DEVICE;
-	#	echo '</p>'
 	fi
 }
 
@@ -434,11 +1358,58 @@ pcp_umount_mmcblk0p1() {
 	sudo umount $DEVICE
 }
 
+pcp_mount_mmcblk0p1_nohtml() {
+	# Check if mmcblk0p1 is mounted otherwise mount it
+	if mount | grep >/dev/null $VOLUME; then
+		echo '[ WARN ] '$VOLUME' already mounted.'
+	else
+		echo '[ INFO ] Mounting '$VOLUME'...'
+		sudo mount $DEVICE;
+	fi
+}
+
+pcp_umount_mmcblk0p1_nohtml() {
+	# Unmount mmcblk0p1
+	sync
+	sync
+	echo '[ INFO ] Unmounting '$VOLUME'...'
+	sudo umount $DEVICE
+}
+
+# CHECK:
+	VOLUME=/mnt/mmcblk0p1
+	DEVICE=/dev/mmcblk0p1
+
+pcp_mount_device() {
+	# Check if device is mounted otherwise mount it
+	if mount | grep "/mnt/$1"; then
+		echo '<p class="error">[ WARN ] /mnt/'$1' already mounted.</p>'
+	else
+		echo '<p class="info">[ INFO ] Mounting /dev/'$1'...</p>'
+		echo '<p style="font-size:10px">'
+		sudo mount /dev/$1;
+	fi
+}
+
+pcp_umount_device() {
+	# Unmount device
+	sync
+	sync
+	echo '<p class="info">[ INFO ] Unmounting /dev/'$1'...</p>'
+	sudo umount /dev/$1
+}
+
 #=========================================================================================
 # Reboot/shutdown piCorePlayer
+# If reboot is issued with wifi and net mounted drive, the reboot will hang.
 #-----------------------------------------------------------------------------------------
 pcp_reboot() {
 	echo '<p class="info">[ INFO ] piCorePlayer is rebooting...</p>'
+	if [ "$NETMOUNT1" = "yes" ]; then
+		echo '<p class="info">[ INFO ] Unmounting Network Shared Drive...</p>'
+		mount | grep -q cifs
+		[ $? -eq 0 ] && umount /mnt/$NETMOUNT1POINT
+	fi
 	sudo reboot
 }
 
@@ -448,75 +1419,419 @@ pcp_shutdown() {
 }
 
 #=========================================================================================
-# Add/remove modules
+# Save parameters to the config file - add double quotes
+#
+# Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
-pcp_disable_i2s() {
-	pcp_squeezelite_stop
-    sleep 1
-	# Remove HiFiBerry digi/DAC and IQaudIO DAC modules
-	sudo modprobe -qr snd_soc_wm8804
-	sudo modprobe -qr snd_soc_hifiberry_dac
-	sudo modprobe -qr snd_soc_hifiberry_digi
-	sudo modprobe -qr snd_soc_iqaudio_dac
-#	sudo modprobe -qr snd_soc_pcm5102a
-#	sudo modprobe -qr snd_soc_pcm512x
+pcp_save_to_config() {
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
+	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
+	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $CONFIGCFG
+	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $CONFIGCFG
+	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $CONFIGCFG
+	sudo sed -i "s/\(XCODEC=\).*/\1\"$XCODEC\"/" $CONFIGCFG
+	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $CONFIGCFG
+	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $CONFIGCFG
+	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $CONFIGCFG
+	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"$MAC_ADDRESS\"/" $CONFIGCFG
+	sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
+	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $CONFIGCFG
+	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $CONFIGCFG
+	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $CONFIGCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
+	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $CONFIGCFG
+	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
+	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
+	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $CONFIGCFG
+	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
+	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
+	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
+	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
+	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_WD=\).*/\1\"$RB_WD\"/" $CONFIGCFG
+	sudo sed -i "s/\(RB_DMONTH=\).*/\1\"$RB_DMONTH\"/" $CONFIGCFG
+	sudo sed -i "s/\(RESTART=\).*/\1\"$RESTART\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_H=\).*/\1\"$RS_H\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_WD=\).*/\1\"$RS_WD\"/" $CONFIGCFG
+	sudo sed -i "s/\(RS_DMONTH=\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
+	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
+	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
+	sudo sed -i "s@\(USER_COMMAND_1=\).*@\1\"$USER_COMMAND_1\"@" $CONFIGCFG
+	sudo sed -i "s@\(USER_COMMAND_2=\).*@\1\"$USER_COMMAND_2\"@" $CONFIGCFG
+	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $CONFIGCFG
+	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
+	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
+	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSDATA=\).*/\1\"$LMSDATA\"/" $CONFIGCFG
+	sudo sed -i "s/\(MOUNTPOINT=\).*/\1\"$MOUNTPOINT\"/" $CONFIGCFG
+	sudo sed -i "s/\(MOUNTUUID=\).*/\1\"$MOUNTUUID\"/" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1=\).*|\1\"$NETMOUNT1\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1POINT=\).*|\1\"$NETMOUNT1POINT\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1IP=\).*|\1\"$NETMOUNT1IP\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1SHARE=\).*|\1\"$NETMOUNT1SHARE\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1FSTYPE=\).*|\1\"$NETMOUNT1FSTYPE\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1USER=\).*|\1\"$NETMOUNT1USER\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1PASS=\).*|\1\"$NETMOUNT1PASS\"|" $CONFIGCFG
+	sudo sed -i "s|\(NETMOUNT1OPTIONS=\).*|\1\"$NETMOUNT1OPTIONS\"|" $CONFIGCFG
+	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
+	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
+	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
+	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
+	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $CONFIGCFG
+	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
+	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
+	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
+	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
+	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
+	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
+	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
+	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
+	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $CONFIGCFG
 }
 
+#=========================================================================================
+# Create a new config.cfg with defaults values.
+#
+# This routine will add new variables if missing in current config.cfg. The new variables
+# will have the default values loaded.
+#
+# Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
+#-----------------------------------------------------------------------------------------
+pcp_update_config_to_defaults() {
+	sudo cat <<EOF > $CONFIGCFG
+#########################
+# Edit the variables below to setup a wifi based system without LAN access
+# Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN"
+WIFI="off"
+SSID="wireless"
+PASSWORD="password"
+ENCRYPTION="WPA"
+# End Wifi setup
+##########################
+NAME="piCorePlayer"
+OUTPUT="sysdefault:CARD=ALSA"
+ALSA_PARAMS="80:::0"
+BUFFER_SIZE=""
+_CODEC=""
+XCODEC=""
+PRIORITY=""
+MAX_RATE=""
+UPSAMPLE=""
+MAC_ADDRESS=""
+SERVER_IP=""
+LOGLEVEL=""
+LOGFILE=""
+DSDOUT=""
+VISUALISER=""
+CLOSEOUT=""
+UNMUTE=""
+ALSAVOLUME=""
+OTHER=""
+AUDIO="Analog"
+HOST="piCorePlayer"
+TIMEZONE=""
+OVERCLOCK="NONE"
+ADVOVERCLOCK="None"
+CMD="Default"
+FIQ="0xF"
+ALSAlevelout="Default"
+ALSAeq="no"
+REBOOT="Disabled"
+RB_H="0"
+RB_WD="*"
+RB_DMONTH="*"
+RESTART="Disabled"
+RS_H="0"
+RS_WD="*"
+RS_DMONTH="*"
+CRON_COMMAND=""
+AUTOSTARTLMS=""
+A_S_LMS="Disabled"
+AUTOSTARTFAV=""
+A_S_FAV="Disabled"
+USER_COMMAND_1=""
+USER_COMMAND_2=""
+USER_COMMAND_3=""
+JIVELITE="no"
+SCREENROTATE="no"
+SHAIRPORT="no"
+LMSERVER="no"
+LMSDATA="default"
+MOUNTPOINT=""
+MOUNTUUID="no"
+NETMOUNT1POINT=""
+NETMOUNT1="no"
+NETMOUNT1IP=""
+NETMOUNT1SHARE=""
+NETMOUNT1FSTYPE=""
+NETMOUNT1USER=""
+NETMOUNT1PASS=""
+NETMOUNT1OPTIONS=""
+SQLT_VERSION="basic"
+SQUEEZELITE="yes"
+POWER_GPIO=""
+POWER_OUTPUT="L"
+POWER_SCRIPT=""
+IR_LIRC="no"
+IR_GPIO="25"
+IR_DEVICE="lirc0"
+IR_CONFIG=""
+LMSWEBPORT=""
+FSM="Default"
+LMSCONTROLS="yes"
+PLAYERTABS="yes"
+HDMIPOWER="on"
+RPI3INTWIFI="on"
+WOL="no"
+WOL_NIC=""
+WOL_LMSMACADDRESS=""
+EOF
+}
+
+pcp_reset_config_to_defaults() {
+	pcp_update_config_to_defaults
+
+	# Remove timezone stuff
+	pcp_mount_mmcblk0p1_nohtml
+	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
+	pcp_umount_mmcblk0p1_nohtml
+	sudo rm -f /etc/sysconfig/timezone
+
+	# Remove Jivelite stuff
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+	sudo rm -rf /home/tc/.jivelite
+	sudo rm -rf /opt/jivelite
+	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
+	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+
+	# Remove VU_Meter stuff
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
+
+	# Remove wifi stuff
+	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/wireless/d' $ONBOOTLST
+	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
+
+	# Remove cron stuff
+	( crontab -l | grep -v "reboot" ) | crontab -
+	( crontab -l | grep -v "restart" ) | crontab -
+	( crontab -l | grep -v "Custom" ) | crontab -
+
+	# Reset hostname to pCP default
+	sudo sed -i "s/host[=][^ ]* /host=piCorePlayer /g" $CMDLINETXT
+
+	# Make sure that onboard analog soundcard is enabled and i2s DAC overlays are removed
+	pcp_disable_i2s
+}
+
+#=========================================================================================
+# Read which output to use then add/remove modules
+#-----------------------------------------------------------------------------------------
+pcp_read_chosen_audio() {
+	case "$AUDIO" in
+		Analog)           pcp_disable_i2s ;;
+		HDMI)             pcp_enable_HDMI ;;
+		USB)              pcp_disable_i2s ;;
+		I2SDAC)           pcp_enable_i2s_dac ;;
+		I2SDIG)           pcp_enable_i2s_digi ;;
+		I2SAMP)           pcp_enable_i2s_amp ;;
+		IQaudio)          pcp_enable_iqaudio_dac ;;
+		I2SpIQAMP)        pcp_enable_iqaudio_amp ;;
+		I2SpDAC)          pcp_enable_hifiberry_dac_p ;;
+		I2SpDIG)          pcp_enable_i2s_digi ;;
+		I2SpDIGpro)       pcp_enable_hifiberry_digi_pro ;;
+		I2SpIQaudIO)      pcp_enable_iqaudio_dac_p ;;
+		I2SpIQaudIOdigi)  pcp_enable_iqaudio_digi ;;
+		justboomdac)      pcp_enable_justboomdac ;;
+		justboomdigi)     pcp_enable_justboomdigi ;;
+		raspidac3)        pcp_enable_raspidac3 ;;
+		rpi_dac)          pcp_enable_rpi_dac ;;
+		LOCO_dac)         pcp_enable_LOCO_dac ;;
+	esac
+}
+
+#========================================================================================
+# Disable/re_enable analog audio
+#----------------------------------------------------------------------------------------
+pcp_disable_analog() {
+	sudo sed -i 's/^dtparam=audio=on/#dtparam=audio=on/g' $CONFIGTXT
+	sudo sed -i 's/^audio_pwm_mode=2/#audio_pwm_mode=2/g' $CONFIGTXT
+}
+
+pcp_re_enable_analog() {
+	pcp_disable_analog
+	sudo sed -i "/dtparam=audio=on/c\dtparam=audio=on" $CONFIGTXT
+	sudo sed -i "/audio_pwm_mode=2/c\audio_pwm_mode=2" $CONFIGTXT
+}
+
+#========================================================================================
+# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+#----------------------------------------------------------------------------------------
+pcp_disable_i2s() {
+	pcp_re_enable_analog
+	sed -i '/dtoverlay=hifiberry-dac/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
+	sed -i '/dtoverlay=hifiberry-digi-pro/d' $CONFIGTXT
+	sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
+	sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
+	sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
+	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
+	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboomdigi/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboomdac/d' $CONFIGTXT
+	sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
+}
+
+#=========================================================================================
+# Enable/disable HDMI settings in config.txt
+#-----------------------------------------------------------------------------------------
+pcp_disable_HDMI() {
+	sed -i '/hdmi_drive=2/d' $CONFIGTXT
+	sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
+	sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
+}
+
+pcp_enable_HDMI() {
+	pcp_disable_i2s
+	sudo echo hdmi_drive=2 >> $CONFIGTXT
+	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for HiFiBerry DAC
+#----------------------------------------------------------------------------------------
 pcp_enable_i2s_dac() {
 	pcp_disable_i2s
-
-	# Load the correct modules for HiFiBerry DAC 
-	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_pcm5102a
-	sudo modprobe -q snd_soc_hifiberry_dac
+	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
 }
 
+#========================================================================================
+# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+#----------------------------------------------------------------------------------------
 pcp_enable_i2s_digi() {
 	pcp_disable_i2s
-
-	# Load the correct modules for HiFiBerry Digi and HifiBerry Digi+
-	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_wm8804
-	sleep 1
-	sudo modprobe -q snd_soc_hifiberry_digi
+	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
 }
 
-pcp_enable_iqaudio_dac() {
-	pcp_disable_i2s
-
-	# Load the correct modules for IQaudio DAC and I think IQaudIO DAC+ 
-	sudo modprobe -q snd_soc_bcm2708_i2s
-	sudo modprobe -q bcm2708_dmaengine
-	sudo modprobe -q snd_soc_pcm512x
-	sleep 1
-	sudo modprobe -q snd_soc_iqaudio_dac
-	sleep 1
-}
-
+#========================================================================================
+# Load the correct modules for HiFiBerry DAC+
+#----------------------------------------------------------------------------------------
 pcp_enable_hifiberry_dac_p() {
 	pcp_disable_i2s
-
-	# Load the correct modules for HiFiBerry DAC+ 
-	sudo modprobe snd_soc_pcm512x_i2c 
-	sudo modprobe snd_soc_pcm512x
-	sudo modprobe snd_soc_bcm2708_i2s
-	sudo modprobe bcm2708_dmaengine
-	sudo modprobe snd_pcm_dmaengine
-	sudo modprobe snd_soc_hifiberry_dacplus
+	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
 }
 
+#========================================================================================
+# Load the correct modules for HiFiBerry Digi+ Pro
+#----------------------------------------------------------------------------------------
+pcp_enable_hifiberry_digi_pro() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
+}
 
-	
+#========================================================================================
+# Load the correct modules for HiFiBerry AMP
+#----------------------------------------------------------------------------------------
+pcp_enable_i2s_amp() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for IQaudIO DAC
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_dac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for IQaudIO DAC+
+#----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_dac_p() {
 	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+}
 
-	# Load the correct modules for IQaudio DAC+ NOT FINISHED
-#	sudo modprobe -q snd_soc_bcm2708_i2s
-#	sudo modprobe -q bcm2708_dmaengine
-#	sudo modprobe -q snd_soc_pcm512x
-#	sleep 1
-#	sudo modprobe -q snd_soc_iqaudio_dac
-#	sleep 1
+#========================================================================================
+# Load the correct modules for IQaudIO AMP+ and digiAMP+
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_amp() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for IQaudIO digi
+#----------------------------------------------------------------------------------------
+pcp_enable_iqaudio_digi() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for raspidac3
+#----------------------------------------------------------------------------------------
+pcp_enable_raspidac3() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for rpi-dac
+#----------------------------------------------------------------------------------------
+pcp_enable_rpi_dac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for justboomdac
+#----------------------------------------------------------------------------------------
+pcp_enable_justboomdac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for justboomdigi
+#----------------------------------------------------------------------------------------
+pcp_enable_justboomdigi() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
+}
+
+#========================================================================================
+# Load the correct modules for Dion Audio LOCO
+#----------------------------------------------------------------------------------------
+pcp_enable_LOCO_dac() {
+	pcp_disable_i2s
+	sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
 }

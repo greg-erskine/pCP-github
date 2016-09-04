@@ -1,5 +1,48 @@
 #!/bin/sh
 
+# Version: 2.06 2016-04-27 PH
+#	Add ability to blacklist RPi3 builtin wifi
+
+# Version: 0.14 2015-09-08 GE
+#	Added diagnostics button (beta mode).
+#	Updated format of available networks.
+
+# Version: 0.13 2015-08-20 GE
+#	Revised modes.
+#	Updated javascript to have the correct ENCRYPTION "selected" in pulldown.
+#	Note: Javascript used here instead of shell script as per other pages.
+#	Turned pcp_picoreplayers tabs on in normal mode.
+
+# Version: 0.12 2015-07-01 GE
+#	Added pcp_mode tabs.
+#	Added pcp_picoreplayers tabs.
+
+# Version: 0.11 2015-06-10 GE
+#	0nly display "Available wifi networks" if Scan button pressed.
+#	Added wireless MAC and wireless IP.
+#	Tidy up of code.
+
+# Version: 0.10 2015-02-08 GE
+#	Only display "Available wifi networks" if $WIFI = on
+#	Added scanning message to give impression of reduced delay.
+#	Reduced "CNT -gt" from 10 to 5 to speed up display in WIFI2 loop.
+#	Fixed "Available wifi networks" format to work with 8192cu and rt2x00usb.
+#	Added copyright.
+
+# Version: 0.09 2015-01-25 SBP
+#	Added check for wifi adaptor present.
+#	Added descriptions and more/less help.
+
+# Version: 0.08 2014-12-20 GE
+#	Using pcp_html_head now.
+#	HTML5 formatting.
+
+# Version: 0.07 2014-10-10 SBP
+#	Added if [ "$WIFI" = "on" ] condition.
+
+# Version: 0.06 2014-09-30 GE
+#	Added footer when No wifi devices found!.
+
 # Version: 0.05 2014-09-13 GE
 #	Added new available networks routine.
 #	Added double quotes around $SSID to handle spaces in SSID.
@@ -24,26 +67,23 @@
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
+. pcp-rpi-functions
+. pcp-lms-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - WIFI Settings</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="WIFI Settings" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo ''
-echo '<script type="text/javascript">'
+pcp_html_head "WIFI Settings" "SBP"
 
+echo ''
+echo '<body onload=frmLoad()>'
+
+#========================================================================================
+# Javascript to disable form fields when wifi is off
+#----------------------------------------------------------------------------------------
+echo '<script type="text/javascript">'
 echo 'var enbl = "'$WIFI'";'
+echo 'var encr = "'$ENCRYPTION'";'
 echo ''
 echo 'function frmLoad() {'
 #echo '    document.forms[0].SAVE.disabled=true;'
@@ -55,6 +95,17 @@ echo '        document.forms[0].WIFI[1].checked=true;'
 echo '        document.forms[0].SSID.disabled=true;'
 echo '        document.forms[0].PASSWORD.disabled=true;'
 echo '        document.forms[0].ENCRYPTION.disabled=true;'
+echo '    }'
+echo '    switch(encr) {'
+echo '         case "WPA":'
+echo '            document.forms[0].ENCRYPTION[0].selected=true;'
+echo '            break;'
+echo '         case "WEP":'
+echo '            document.forms[0].ENCRYPTION[1].selected=true;'
+echo '            break;'
+echo '         case "OPEN":'
+echo '            document.forms[0].ENCRYPTION[2].selected=true;'
+echo '            break;'
 echo '    }'
 echo '}'
 echo ''
@@ -75,100 +126,61 @@ echo ''
 echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
-
 echo '</script>'
-echo '</head>'
-echo ''
-echo '<body onload=frmLoad()>'
 
-pcp_controls
+[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
+[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
+pcp_httpd_query_string
 
-if [ $DEBUG = 1 ]; then
-	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
-	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
-	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
-	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'</p>'
-fi
-
-echo '<form name="setwifi" action="writetowifi.cgi" method="get">'
-echo '  <table class="sframe" cellspacing="0" cellpadding="0" width="960">'
-echo '    <tr>'
-echo '      <td class="sframe">'
-echo '        <table class="cfgframe" cellspacing="2" cellpadding="0" width="100%" align="center">'
-echo '          <tr>'
-echo '            <td colspan="3" class="header"><nobr>Set Wireless configuration.</nobr></td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title" width=20%>Wireless</td>'
-echo '            <td class="content" width=40%>'
-echo '              <input type="radio" name="WIFI" id="WIFI" onclick=enableWL() value="on">On&nbsp;'
-echo '              <input type="radio" name="WIFI" id="WIFI" onclick=disableWL() value="off">Off'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title">SSID</td>'
-echo '            <td class="content">'
-echo '              <input type="text" name="SSID" id="SSID" onChange="enableSAVE();" maxlength="32" size="32" value='\"$SSID\"'>'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title">Password</td>'
-echo '            <td class="content">'
-echo '              <input type="password" name="PASSWORD" id="PASSWORD" onChange="enableSAVE();" maxlength="64" size="80" value='$PASSWORD'>'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td class="title">Security Mode</td>'
-echo '            <td class="content">'
-echo '              <select name="ENCRYPTION" id="ENCRYPTION" onChange="enableSAVE();">'
-echo '                <option value="WPA">WPA or WPA2</option>'
-echo '                <option value="WEP">WEP</option>'
-echo '                <option value="OPEN">Open (No Encyrption)</option>'
-echo '              </select>'
-echo '            </td>'
-echo '          </tr>'
-echo '          <tr>'
-echo '            <td colspan=2 class="btnline" >'
-echo '              <input type="submit" name="SAVE" value="Save">&nbsp;'
-echo '            </td>'
-echo '          </tr>'
-echo '        </table>'
-echo '      </td>'
-echo '    </tr>'
-echo '  </table>'
-echo '</form>'
-
-available_networks_1() {
+available_networks() {
 	#=========================================================================================
 	# (c) Robert Shingledecker 2011-2012 v1.4
 	# This routine has been based on code from the piCore script wifi.sh
 	# /usr/local/bin/wifi.sh
 	#-----------------------------------------------------------------------------------------
-
-	unset WIFI && CNT=0
-	until [ -n "$WIFI" ]
+	unset WIFI2 && CNT=0
+	echo -en "Scanning"
+	until [ -n "$WIFI2" ]
 	do
-		[ $((CNT++)) -gt 10 ] && break || sleep 1
-		WIFI="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
+		[ $((CNT++)) -gt 5 ] && break || sleep 1
+		echo -en "."
+		WIFI2="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
 	done
-	if [ -z "$WIFI" ]; then
-		echo "No wifi devices found!"
-		exit 1
+	if [ -z "$WIFI2" ]; then
+		echo -en "\n\nNo wifi devices found!\n\n"
+		echo -en "Possible error:\n\n"
+		echo -en "1. USB wifi adapter missing - insert adapter.\n"
+		echo -en "2. wifi drivers and firmware missing - reboot required."
+		echo '</textarea>'
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </table>'
+		echo '          </fieldset>'
+		echo '        </div>'
+		echo '      </form>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		pcp_refresh_button
+		pcp_footer
+		pcp_copyright
+		echo '</body>'
+		echo '</html>'
+		exit
 	fi
-	ifconfig "$WIFI" up 2>/dev/null
+	ifconfig "$WIFI2" up 2>/dev/null
 	(for i in `seq 5`
 	do
-		iwlist "$WIFI" scanning
-		[ "$?" == 0 ] && break
+		iwlist "$WIFI2" scanning
+		[ $? -eq 0 ] && break
 		sleep 1
-	done ) | awk -v wifi=$WIFI '
+	done ) | awk -v wifi=$WIFI2 '
 	BEGIN {
 		RS="\n"
 		FS=":"
 		i = 0
-		title = "Available Wifi Networks for "wifi":"
 	}
 	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
 		for (i = 2; i <= n; i++)
@@ -187,7 +199,7 @@ available_networks_1() {
 	# main ()
 	{
 		if ($1 ~ /Cell/) {
-			if ( i == 0  || sid[i] != "" ) i++
+			if ( i == 0 || sid[i] != "" ) i++
 			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
 			gsub(" ","",addr[i])
 		}
@@ -206,8 +218,8 @@ available_networks_1() {
 				level[i] = c[3]
 				gsub(" ","",level[i])
 			}
-			split(q,c," ")
-			qual[i] = c[1] * 10 / 7
+			split(q,c,"/")
+			qual[i] = c[1] * 100 / c[2]
 		}
 		if ($1 ~ /Encr/){
 			enc[i] = $2
@@ -223,96 +235,219 @@ available_networks_1() {
 	}
 	END {
 		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-		printf "%s\n", title
-		print "-------------------------------------------------------------------------------------------"
-		print "        SSID                 Quality  Level      Channel     Encryption       Address"
-		print "-------------------------------------------------------------------------------------------"
+		print ""
+		print "---------------------------------------------------------------------------------------------"
+		print "       SSID                 Quality   Level       Channel      Encryption       Address"
+		print "---------------------------------------------------------------------------------------------"
 		for (l=1; l<15; l++) {
 			++j
-			if ( j <= i ) printf "%2d. %-25s %3d%1s   %4s   %2d %8s   %-3s %-4s  %18s\n", j, sid[j], qual[j], "%", level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address      
+			if ( j <= i ) printf "%2d. %-25s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
 		}
-		print "-------------------------------------------------------------------------------------------"
+		print "---------------------------------------------------------------------------------------------"
 	} '
 }
+#----------------------------------------------------------------------------------------
 
-available_networks_2() {
-	#=========================================================================================
-	# Section added from old wifi page
-	#-----------------------------------------------------------------------------------------
-	#save scan results to a temp file
-	sudo iwlist wlan0 scanning > /tmp/wifiscan
-	#check if the scanning was ok with wlan0
-	scan_ok=$(grep "wlan" /tmp/wifiscan)
-	if [ -z "$scan_ok" ]; then
-		killall -9 wpa_supplicant
-		iwlist wlan0-1 scanning > /tmp/wifiscan
-	fi
-	#check if the scanning was ok
-	scan_ok=$(grep "wlan" /tmp/wifiscan)
-	#if scan was not ok, finish the script
-	if [ -z "$scan_ok" ]; then
-		echo '<p class="error">[ ERROR ] WIFI scanning failed.</p>'
-		pcp_footer
-		echo '</body>'
-		echo '</html>'
-		exit
-	fi
-	if [ -f /tmp/ssids ]; then
-		rm /tmp/ssids
-	fi
-	#save number of scanned cells
-	n_results=$(grep -c "ESSID:" /tmp/wifiscan)
-	i=1
-	while [ "$i" -le "$n_results" ]; do
-		if [ $i -lt 10 ]; then
-			cell=$(echo "Cell 0$i - Address:")
-		else
-			cell=$(echo "Cell $i - Address:")
-		fi
-		j=`expr $i + 1`
-		if [ $j -lt 10 ]; then
-			nextcell=$(echo "Cell 0$j - Address:")
-		else
-			nextcell=$(echo "Cell $j - Address:")
-		fi
-		#store only one cell info in a temp file
-		awk -v v1="$cell" '$0 ~ v1 {p=1}p' /tmp/wifiscan | awk -v v2="$nextcell" '$0 ~ v2 {exit}1' > /tmp/onecell
+if [ $DEBUG -eq 1 ]; then
+	echo '<p class="debug">[ DEBUG ] $WIFI: '$WIFI'<br />'
+	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
+	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
+	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'<br />'
+	echo '                 [ DEBUG ] $RPI3INTWIFI: '$RPI3INTWIFI'</p>'
+fi
 
-		oneaddress=$(grep " Address:" /tmp/onecell | awk '{print $5}')
-		onessid=$(grep "ESSID:" /tmp/onecell | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{gsub("ESSID:", "");print}')
-		oneencryption=$(grep "Encryption key:" /tmp/onecell | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{gsub("Encryption key:on", "(secure)");print}' | awk '{gsub("Encryption key:off", "(open)  ");print}')
-		onepower=$(grep "Quality=" /tmp/onecell | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{gsub("Quality=", "");print}' | awk -F '/70' '{print $1}')
-		onepower=$(awk -v v3=$onepower 'BEGIN{ print v3 * 10 / 7}')
-		onepower=${onepower%.*}
-		onepower="(Signal strength: $onepower%)"
-		if [ -n "$oneaddress" ]; then                                                                                                            
-			echo "$onessid  $oneaddress $oneencryption $onepower" >> /tmp/ssids                                                              
-		else                                                                                                                                     
-			echo "$onessid  $oneencryption $onepower" >> /tmp/ssids                                                                          
-		fi
-		i=`expr $i + 1`
-	done
-	rm /tmp/onecell
-	#add numbers at beginning of line
-	awk '{printf("%5d : %s\n", NR,$0)}' /tmp/ssids > /tmp/sec_ssids
-	#generate file with only numbers and names
-	grep ESSID /tmp/wifiscan | awk '{ sub(/^[ \t]+/, ""); print }' | awk '{printf("%5d : %s\n", NR,$0)}' | awk '{gsub("ESSID:", "");print}' > /tmp/ssids
+#========================================================================================
+# Main
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="setwifi" action="writetowifi.cgi" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Set wifi configuration</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_incr_id
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Wifi</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <input class="small1" type="radio" onclick=enableWL() name="WIFI" value="on">On&nbsp;'
+echo '                  <input class="small1" type="radio" onclick=disableWL() name="WIFI" value="off">Off'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Selecting wifi on will enable the remaining fields.</li>'
+echo '                      <li>A reboot is required when wifi is turned on.</li>'
+echo '                      <li>Turn wifi on if you have compatible USB wifi adaptor installed.</li>'
+echo '                      <li>Setting wifi to off will improve boot times.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>SSID</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <input class="large15" type="text" name="SSID" value="'$SSID'" onChange="enableSAVE();" maxlength="32" >'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Enter your wifi network SSID&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Service Set Identifier (SSID).</li>'
+echo '                      <li>Use valid alphanumeric characters only.</li>'
+echo '                      <li>Maximum length of 32 characters.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Password</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <input class="large30" type="password" name="PASSWORD" value='$PASSWORD' onChange="enableSAVE();" maxlength="64">'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Enter your wifi network password&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>Use valid alphanumeric characters only.</li>'
+echo '                      <li>Maximum length of 64 characters.</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>Security Mode</p>'
+echo '                </td>'
+echo '                <td class="column380">'
+echo '                  <select class="large15" name="ENCRYPTION" onChange="enableSAVE();">'
+echo '                    <option value="WPA">WPA or WPA2</option>'
+echo '                    <option value="WEP">WEP</option>'
+echo '                    <option value="OPEN">Open (No Encyrption)</option>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set to your wifi network security level&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>&lt;WPA|WEP|Open&gt;</p>'
+echo '                    <p>Recommended: WPA or WPA2</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+if [ $(pcp_rpi_is_model_3B) -eq 0 ]; then
+	case "$RPI3INTWIFI" in
+		on) RPI3WIFIyes="checked" ;;
+		off) RPI3WIFIno="checked" ;;
+		*);;
+	esac
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>RPi3B Builtin WIFI</p>'
+	echo '                </td>'
+	echo '                <td class="column380">'
+	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPI3WIFIyes'>On&nbsp;'
+	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPI3WIFIno'>Off'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Turn off Raspberry pi 3B builtin wifi card;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Will blacklist the driver in the commandline</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+fi
+echo '              <tr>'
+echo '                <td colspan=3>'
+echo '                  <input type="submit" name="SAVE" value="Save/Connect">'
+[ $MODE -ge $MODE_BETA ] &&
+echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
 
-	echo '<textarea name="TextBox" cols="118" rows="8">'
-	echo 'Available WIFI networks:'
-	cat /tmp/sec_ssids #show ssids list
-	echo '</textarea>'
-}
+if [ "$WIFI" = "on" ]; then
+	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
+	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
 
-echo '<textarea name="TextBox" cols="118" rows="12">'
-available_networks_1
-echo '</textarea>'
+	echo '      <form name="scan" action="wifi.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Wifi information</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <input type="submit" name="SUBMIT" value="Scan">'
+	echo '                </td>'
+	echo '                <td class="column380">'
+	echo '                  <p>Wifi MAC: '$WLANMAC'</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Wifi IP: '$WLANIP'</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+fi
 
-#echo '<p>&nbsp;</p>'
-#available_networks_2
+if [ "$SUBMIT" = "Scan" ] && [ "$WIFI" = "on" ]; then
+	echo '      <form name="wifi_networks" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Available wifi networks</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	                        pcp_textarea_inform "none" "available_networks" 110
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+fi
 
-pcp_refresh_button
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
 pcp_footer
+[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

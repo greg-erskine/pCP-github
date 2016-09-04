@@ -1,0 +1,14 @@
+Title:          libts.tcz
+Description:    Touchscreen access library
+Version:        1.0.0
+Author:         Russell King
+Original-site:  https://github.com/kergoth/tslib
+Copying-policy: GPLv2
+Size:           52kb
+Extension_by:   Ralphy: http://ralph_irving.users.sourceforge.net/pico/libts.tcz
+Tags:           Core library that provides standardized services for touchscreen interaction.
+		Required by jivelite.tcz
+                ----
+                Compiled for piCore 7.x
+                ----
+Change-log:     2015/11/28 First version, (Ralphy)

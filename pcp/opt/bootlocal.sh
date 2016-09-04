@@ -1,7 +1,8 @@
 #!/bin/sh
 # put other system startup commands here
-#amixer cset numid=3 2
 
-#mnt/mmcblk0p2/tce/OliWeb-master/ivySox/myweb/do_rebootstuff.sh
-/home/tc/www/cgi-bin/do_rebootstuff.sh
+GREEN="$(echo -e '\033[1;32m')"
 
+echo
+echo "${GREEN}Running bootlocal.sh..."
+/home/tc/www/cgi-bin/do_rebootstuff.sh | tee -a /var/log/pcp_boot.log

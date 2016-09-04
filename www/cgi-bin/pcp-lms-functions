@@ -1,0 +1,502 @@
+#!/bin/sh
+# pcp-lms-functions
+# These are the common functions used to interface with LMS.
+
+# Version: 2.06 2016-05-09
+#	Renamed variable HTPPD to HTTPD.
+
+# Version: 2.05 2016-04-22
+#	Added pcp_set_slimconfig. PH.
+#	Updated pcp_controls with symbols. GE.
+#	Updated pcp_lms_controls. GE.
+
+# Version: 0.06 2016-03-25 GE
+#	Added pcp_lms_connect.
+
+# Version: 0.05 2016-03-10 GE
+#	Added pcp_lms_status.
+
+# Version: 0.04 2016-02-01 GE
+#	Added pcp_lms_power and pcp_lms_volume_set.
+
+# Version: 0.03 2015-10-01 GE
+#	Added pcp_lms_controls.
+
+# Version: 0.02 2015-06-02 GE
+#	Modified pcp_controls.
+#	Renamed styles nav to nav5 and nav2 to nav7.
+
+# Version: 0.01 2015-02-03 GE
+#	Original.
+
+. /home/tc/www/cgi-bin/pcp-functions
+
+MAC=$(pcp_controls_mac_address)
+LMSIP=$(pcp_lmsip)
+
+pcp_lms_status() {
+	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
+	echo $?
+}
+
+#========================================================================================
+# LMS controls toolbar
+#----------------------------------------------------------------------------------------
+pcp_controls() {
+	if [ "$LMSCONTROLS" = "yes" ]; then
+		echo '<!-- Start of pcp_lms_controls toolbar -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up '$BLACKTRIANGLE'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down '$BLACKTRIANGLEDOWN'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play '$BLACKTRIANGLERIGHT'</a>'
+		echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop '$FILLEDSAMLLSQUARE'</a>'
+		echo '      </p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_lms_controls toolbar -->'
+	else
+		echo '<!-- pcp_lms_controls toolbar set to no -->'
+	fi
+}
+
+#========================================================================================
+# LMS controls from LMS web interface
+#----------------------------------------------------------------------------------------
+pcp_lms_controls() {
+	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+	MAC=$(pcp_controls_mac_address)
+	LMSIP=$(pcp_lmsip)
+	echo '<iframe src="http://'${LMSIP}':'${LMSPORT}'/status_header.html?player='${MAC}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
+}
+
+#========================================================================================
+# Get information from LMS
+#----------------------------------------------------------------------------------------
+pcp_lms_request() {
+	STRING=$1
+	set -- $1
+	NUM=$(($#+1))
+	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | awk '{ print $'$NUM' }'`
+	echo `sudo $HTTPD -d $RESULT`
+}
+
+pcp_lms_request_list() {
+	STRING=$1
+	set -- $1
+	NUM=$(($#+2))
+	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | sed 's/ /\+/g' `
+	echo `sudo $HTTPD -d $RESULT`
+}
+
+pcp_lms_request_debug() {
+	STRING=$1
+	set -- $1
+	NUM=$(($#+1))
+	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090
+}
+
+pcp_lms_send() {
+	STRING=$1
+	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 > /dev/null
+}
+
+#========================================================================================
+# Player commands and queries
+#----------------------------------------------------------------------------------------
+#	player count ?				Implemented
+#	player id ?					Implemented
+#	player uuid ?				Implemented
+#	player name ?				Implemented
+#	player ip ?					Implemented
+#	player model ?				Implemented
+#	player isplayer ?			Implemented
+#	player displaytype ?		Implemented
+#	player canpoweroff ?		Implemented
+#	signalstrength ?			implemented
+#	name						Implemented
+#	connected ?					Implemented
+#	sleep
+#	sync
+#	syncgroups
+#	power						Implemented
+#	mixer volume				Implemented
+#	mixer muting
+#	mixer bass
+#	mixer treble
+#	mixer pitch
+#	show
+#	display
+#	linesperscreen
+#	display ? ?
+#	displaynow ? ?
+#	playerpref
+#	button
+#	ir
+#	irenable
+#	connect						Implemented
+#	client forget
+#	disconnect
+#	players
+
+pcp_lms_player_count() {
+	pcp_lms_request "player count ?"
+}
+
+pcp_lms_player_id() {
+	pcp_lms_request "player id 0 ?"
+}
+
+pcp_lms_player_uuid() {
+	pcp_lms_request "player uuid 0 ?"
+}
+
+pcp_lms_player_name() {
+	pcp_lms_request "player name 0 ?"
+}
+
+pcp_lms_player_ip() {
+	pcp_lms_request "player ip 0 ?"
+}
+
+pcp_lms_player_model() {
+	pcp_lms_request "player model 0 ?"
+}
+
+pcp_lms_player_isplayer() {
+	pcp_lms_request "player isplayer 0 ?"
+}
+
+pcp_lms_player_displaytype() {
+	pcp_lms_request "player displaytype 0 ?"
+}
+
+pcp_lms_player_canpoweroff() {
+	pcp_lms_request "player canpoweroff 0 ?"
+}
+
+pcp_lms_signalstrength() {
+	pcp_lms_request "signalstrength 0 ?"
+}
+
+pcp_lms_name() {
+	pcp_lms_request "name 0 ?"
+}
+
+pcp_lms_connected() {
+	pcp_lms_request "connected ?"
+}
+
+pcp_lms_power() {
+	case $1 in
+		on) VALUE=1 ;;
+		off) VALUE=0 ;;
+	esac
+	pcp_lms_send "power $VALUE"
+}
+
+pcp_lms_players() {
+	SEARCH=$1
+	NO_OF_PLAYERS=$(pcp_lms_player_count)
+	RESULT=$(pcp_lms_request_list "players 0 $NO_OF_PLAYERS")
+	echo $RESULT | awk -v no_of_players="$NO_OF_PLAYERS" -v search="$SEARCH" '
+	BEGIN {
+		RS="playerindex:"
+		i = 0
+	}
+	# main
+	{
+		#0 playerid:b8:27:eb:c7:e0:61 uuid: ip:192.168.1.103:48826 name:123456789 model:squeezelite isplayer:1 displaytype:none canpoweroff:1 connected:1 
+		x++
+		line[x]=$0
+
+		a[x]=index($0, "playerid:")
+		b[x]=index($0, "uuid:")
+		c[x]=index($0, "ip:")
+		d[x]=index($0, "name:")
+		e[x]=index($0, "model:")
+		f[x]=index($0, "isplayer:")
+		g[x]=index($0, "displaytype:")
+		h[x]=index($0, "canpoweroff:")
+		i[x]=index($0, "connected:")
+
+		idx[x]=substr($0, 1, a[x]-2)
+		playerid[x]=substr($0, a[x]+9, b[x]-a[x]-10)
+		uuid[x]=substr($0, b[x]+5, c[x]-b[x]-6)
+		ip[x]=substr($0, c[x]+3, d[x]-c[x]-4)
+			split(ip[x],j,":")
+			ipaddr[x]=j[1]
+			ipport[x]=j[2]
+		name[x]=substr($0, d[x]+5, e[x]-d[x]-6)
+		model[x]=substr($0, e[x]+6, f[x]-e[x]-7)
+		isplayer[x]=substr($0, f[x]+9, g[x]-f[x]-10)
+		displaytype[x]=substr($0, g[x]+12, h[x]-g[x]-13)
+		canpoweroff[x]=substr($0, h[x]+12, i[x]-h[x]-13)
+		connected[x]=substr($0, i[x]+10, 1)
+	}
+	END {
+		for (y=2; y<2+no_of_players; y++) {
+			if ( model[y] == search ) {
+				#printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
+				#,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
+				#printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]
+				printf "%s,%s,%s\n",name[y],ipaddr[y],connected[y]
+			}
+		}
+	} '
+}
+
+pcp_lms_volume_up() {
+	AMOUNT=5
+	pcp_lms_send "mixer volume +$AMOUNT"
+}
+
+pcp_lms_volume_down() {
+	AMOUNT=5
+	pcp_lms_send "mixer volume -$AMOUNT"
+}
+
+pcp_lms_volume_set() {
+	AMOUNT=$1
+	pcp_lms_send "mixer volume $AMOUNT"
+}
+
+pcp_lms_player_status() {
+	PLAYERID=$(pcp_lms_player_id)
+	pcp_lms_request_list "status -"
+}
+
+pcp_lms_connect() {
+	NEWLMSIP=$1
+	pcp_lms_send "connect $NEWLMSIP"
+}
+
+#========================================================================================
+# Database commands and queries
+#----------------------------------------------------------------------------------------
+#	rescan							Implemented
+#	rescanprogress
+#	abortscan
+#	wipecache						Implemented
+#	info total genres ?				Implemented
+#	info total artists ?			Implemented
+#	info total albums ?				Implemented
+#	info total songs ?				Implemented
+#	genres
+#	artists							Implemented
+#	albums
+#	years
+#	mediafolder
+#	musicfolder
+#	playlists
+#	playlists tracks
+#	playlists new
+#	playlists rename
+#	playlists delete
+#	playlists edit
+#	songinfo
+#	titles
+#	search
+#	pragma
+
+pcp_lms_rescan() {
+	pcp_lms_send "rescan"
+}
+
+pcp_lms_wipecache() {
+	pcp_lms_send "wipecache"
+}
+
+pcp_lms_info_total_genres() {
+	pcp_lms_request "info total genres ?"
+}
+
+pcp_lms_info_total_artists() {
+	pcp_lms_request "info total artists ?"
+}
+
+pcp_lms_info_total_albums() {
+	pcp_lms_request "info total albums ?"
+}
+
+pcp_lms_info_total_songs() {
+	pcp_lms_request "info total songs ?"
+}
+
+pcp_lms_artists() {
+	RESULT=$(pcp_lms_request_list "artists 0 1000")
+	echo $RESULT | awk '
+	BEGIN {
+		RS="id:"
+		i = 0
+	}
+	# main
+	{
+		#8107 artist:Various Artists
+		#8106 artist:10cc
+		#0123456789012345678901234567890
+
+		x++
+		line[x]=$0
+
+		a[x]=index($0, "artist:")
+		b[x]=length($0)
+
+		id[x]=substr($0, 1, a[x]-1)
+		artist[x]=substr($0, a[x]+7, b[x]-a[x]-7)
+
+	}
+	END {
+		for (y=2; y<=20; y++) {
+			printf "<p>id(%s) artist(%s) - %s</p>\n",id[y],artist[y],line[y]
+		}
+	} '
+}
+
+#========================================================================================
+# Playlist commands and queries
+#----------------------------------------------------------------------------------------
+#	play						Implemented
+#	stop						Implemented
+#	pause						Implemented
+#	mode ?						Implemented
+#	time						Implemented
+#	genre ?						Implemented
+#	artist ?					Implemented
+#	album ?						Implemented
+#	title ?						Implemented
+#	duration ?					Implemented
+#	remote ?					Implemented
+#	current_title ?				Implemented
+#	path ?						Implemented
+#	playlist play
+#	playlist add
+#	playlist insert
+#	playlist deleteitem
+#	playlist move
+#	playlist delete
+#	playlist preview
+#	playlist resume
+#	playlist save
+#	playlist loadalbum
+#	playlist addalbum
+#	playlist loadtracks
+#	playlist addtracks
+#	playlist insertalbum
+#	playlist deletealbum
+#	playlist clear
+#	playlist zap
+#	playlist name ?
+#	playlist url ?
+#	playlist modified ?
+#	playlist playlistsinfo
+#	playlist index
+#	playlist genre ?
+#	playlist artist ?
+#	playlist album ?
+#	playlist title ?
+#	playlist path ?
+#	playlist remote ?
+#	playlist duration ?
+#	playlist tracks ?
+#	playlist shuffle
+#	playlist repeat
+#	playlistcontrol
+
+pcp_lms_play() {
+	pcp_lms_send "play"
+}
+
+pcp_lms_stop() {
+	pcp_lms_send "stop"
+}
+
+# Todo: pause, unpause, toggle
+pcp_lms_pause() {
+	pcp_lms_send "pause"
+}
+
+pcp_lms_mode() {
+	pcp_lms_request "mode ?"
+}
+
+# Todo: jump forward, jump back
+pcp_lms_time() {
+	pcp_lms_request "time ?"
+}
+
+pcp_lms_genre() {
+	pcp_lms_request "genre ?"
+}
+
+pcp_lms_artist() {
+	pcp_lms_request "artist ?"
+}
+
+pcp_lms_album() {
+	pcp_lms_request "album ?"
+}
+
+pcp_lms_title() {
+	pcp_lms_request "title ?"
+}
+
+pcp_lms_duration() {
+	pcp_lms_request "duration ?"
+}
+
+pcp_lms_remote() {
+	pcp_lms_request "remote ?"
+}
+
+pcp_lms_current_title() {
+	pcp_lms_request "current_title ?"
+}
+
+pcp_lms_path() {
+	pcp_lms_request "path ?"
+}
+
+pcp_lms_next() {
+	pcp_lms_send "playlist jump +1"
+}
+
+pcp_lms_prev() {
+	pcp_lms_send "playlist jump -1"
+}
+
+#========================================================================================
+# Plugins commands and queries 
+#---------------------------------------------------------------------------------------
+# The following command and queries are proposed by server plugins. The plugin must be
+# enabled in the server configuration for the commands and queries to be available to
+# the CLI client. Please use query "can" to determine if the given command or query
+# is available. Query "radios" can alternatively be used to get a list of available
+# radio station plugin CLI queries. 
+#	radios 
+#	apps 
+#	Live Music Archive, Live365, MP3tunes, Pandora, Podcasts, RadioIO, RadioTime, Rhapsody, Shoutcast, SIRIUS, Staff Picks, RSS 
+#	Favorites 
+#	RandomPlay 
+#	MusicIP 
+#---------------------------------------------------------------------------------------
+pcp_lms_randomplay() {
+	MODE=tracks
+	pcp_lms_send "randomplay $MODE"
+}
+
+#========================================================================================
+# Local LMS server related functions
+#----------------------------------------------------------------------------------------
+pcp_lms_set_slimconfig(){
+	CFG="/home/tc/.slimserver.cfg"
+	rm -rf $CFG
+	echo "CACHE=$1/Cache" >> $CFG
+	echo "PREFS=$1/prefs" >> $CFG
+}

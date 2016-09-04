@@ -1,0 +1,140 @@
+#!/bin/sh
+
+# Version: 0.03 2016-04-26 GE
+#	Added rescan (rs1) and wipecache (rs0).
+#	Revised pcp_cli_help.
+
+# Version: 0.02 2016-02-01 GE
+#	Added power and volume.
+
+# Version: 0.01 2015-12-02 GE
+#	Original.
+
+pcp_cli_help() {
+	echo "========================================================================================="
+	echo " Basic piCorePlayer CLI"
+	echo "-----------------------------------------------------------------------------------------"
+	echo " Squeezelite/LMS"
+	echo " ---------------"
+	echo " - pcp play           : play current track in playlist"
+	echo " - pcp stop           : stop"
+	echo " - pcp up             : volume up"
+	echo " - pcp down           : volume down"
+	echo " - pcp next           : next track"
+	echo " - pcp prev           : previous track"
+	echo " - pcp rand           : random track"
+	echo " - pcp power [on|off] : power on or off"
+	echo " - pcp volume [0-100] : set volume between 0 to 100"
+	echo " - pcp rescan         : Look for new and changed media files in connected LMS library"
+	echo " - pcp wipecache      : Clear connected LMS library and rescan everything"
+	echo "-----------------------------------------------------------------------------------------"
+	echo " piCore"
+	echo " ------"
+	echo " - pcp bu             : (b)ack(u)p"
+	echo " - pcp sd             : (s)hut(d)own"
+	echo " - pcp bs             : (b)ackup then (s)hutdown"
+	echo " - pcp rb             : (r)e(b)oot"
+	echo " - pcp br             : (b)ackup then (r)eboot"
+	echo "-----------------------------------------------------------------------------------------"
+	echo " piCorePlayer"
+	echo " ------------"
+	echo " - pcp d0             : debug off"
+	echo " - pcp d1             : debug on"
+#	echo " - pcp m0             : mode 0"
+#	echo " - pcp m100           : mode 100"
+#	echo " - pcp t0             : test 0"
+#	echo " - pcp t1             : test 1"
+#	echo " - pcp t3             : test 3"
+#	echo " - pcp a0             : all 0"
+#	echo " - pcp a1             : all 1"
+	echo "-----------------------------------------------------------------------------------------"
+}
+
+. /home/tc/www/cgi-bin/pcp-lms-functions
+
+case "$1" in
+	play)
+		pcp_lms_play
+		;;
+	stop)
+		pcp_lms_stop
+		;;
+	up)
+		pcp_lms_volume_up
+		;;
+	down)
+		pcp_lms_volume_down
+		;;
+	next)
+		pcp_lms_next
+		;;
+	prev)
+		pcp_lms_prev
+		;;
+	rand*)
+		pcp_lms_randomplay
+		;;
+	power)
+		pcp_lms_power $2
+		;;
+	volume)
+		pcp_lms_volume_set $2
+		;;
+	rs1|rescan)
+		pcp_lms_rescan
+		;;
+	rs0|wipecache)
+		pcp_lms_wipecache
+		;;
+	bu|backup)
+		pcp_backup_nohtml
+		;;
+	sd|shutdown)
+		exitcheck.sh
+		;;
+	bs|backdown)
+		pcp_backup_nohtml
+		exitcheck.sh
+		;;
+	rb|reboot)
+		sudo reboot
+		;;
+	br|backreboot)
+		pcp_backup_nohtml
+		sudo reboot
+		;;
+	d0)
+		sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
+		;;
+	d1)
+		sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
+		;;
+	m0)
+		sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
+		;;
+	m100)
+		sed -i "s/\(\\tMODE=\).*/\1100/" ${PCPHOME}/pcp-functions
+		;;
+	t0)
+		sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
+		;;
+	t1)
+		sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
+		;;
+	t3)
+		sed -i "s/\(\\tTEST=\).*/\13/" ${PCPHOME}/pcp-functions
+		;;
+	a0)
+		sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
+		sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
+		sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
+		;;
+	a1)
+		sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
+		sed -i "s/\(\\tMODE=\).*/\140/" ${PCPHOME}/pcp-functions
+		sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
+		;;
+	*)
+		pcp_cli_help 
+		;;
+esac

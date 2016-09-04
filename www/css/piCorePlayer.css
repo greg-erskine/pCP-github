@@ -1,43 +1,81 @@
-h1 {
-	text-decoration:none;
+/* piCorePlayer style sheet
+
+Version: 3.00 2016-08-09 GE
+	Added .pointer.
+
+Version: 0.15 2016-05-20 GE
+	Added .column350, .right, .column20.
+
+Version: 0.14 2016-04-27 GE
+	Added .column280.
+	Changed .indicator_green, .indicator_red.
+
+Version: 0.13 2016-04-10 PH
+	Added .large6, .large8, .large10.
+	Added .column50, .column75.
+	Added button style.
+
+Version: 0.12 2016-03-16 GE
+	Added .column100, .column110, .column120.
+
+Version: 0.11 2016-02-23 GE
+	Added .large60, .large64, .indicator_green, .indicator_red.
+
+Version: 0.10 2016-02-01 SBP
+	Added a.nav6, a.nav6a.
+
+Version: 0.09 2015-08-23 GE
+	Added a.tab7 .small3, a.nav5a, a.nav7a.
+
+Version: 0.08 2015-06-17 GE
+	Added .large22.
+
+Version: 0.07 2015-06-05 GE
+	Renamed styles nav to nav5 and nav2 to nav7.
+	Simplified input styles.
+
+Version: 0.06 2015-02-04 GE
+	Removed .circle, .indicator.
+	Added .centre, input.large36, .column380.
+	Added .copyright.
+
+Version: 0.05 2014-12-20 GE
+	Severely pruned.
+
+Version: 0.05 2014-12-07 SBP
+	Added .circle style.
+
+Version: 0.04 2014-10-24 GE
+	Added textarea.white style.
+
+Version: 0.03 2014-10-08 GE
+	Added input[type=submit] style.
+
+Version: 0.02 2014-10-04 GE
+	Major format changes.
+	Added textarea style.
+
+Version: 0.01 2014-06-24 SBP
+	Original.
+*/
+
+/* Default setting */
+* {
 	font-family:verdana, arial, sans-serif;
-	font-size:16px;
+	font-size:12px;
+	text-decoration:none;
+}
+
+h1 {
 	color:#cc3300;
+	font-size:16px;
 }
 
 h2 {
-	text-decoration:none;
-	font-family:verdana, arial, sans-serif;
-	font-size:16px;
 	color:#cc3300;
-}
-  
-h3 {
-	text-decoration:none;
-	font-family:verdana, arial, sans-serif;
 	font-size:14px;
-}  
-
-p {
-	text-decoration:none;
-	font-family:verdana, arial, sans-serif;
-	font-size:12px;
 }
-
-header {
-	width:960px;
-}
-
-table.greybg {
-	width:960px;
-	background-color:#d8d8d8;
-}
-
-em {
-	text-decoration:none;
-	color: red;
-}
-
+/* Set the colour of messages */
 .info {
 	color:black;
 }
@@ -54,389 +92,357 @@ em {
 	color:green;
 }
 
-/*This is for horizontal navigation bar #FFFF66 */
+/* Get rid of some space in the banner table */
+.banner {
+	margin-bottom:-5px;
+	margin-top:-3px;
+}
 
-a.nav, a.nav:link, a.nav:visited, a.nav2, a.nav2:link, a.nav2:visited  {
-	display:block;
-	width:189.6px;
-	height:25px;
-	background:#000000;
-	border:1px solid #000000;
-	margin-top:0px;
+/* Footer text needs to be smaller and white */
+.footer {
+	color:white;
+	font-size:11px;
+	margin-bottom:2px;
+	margin-top:2px;
 	text-align:center;
-	text-decoration:none;
-	font-family:verdana, arial, sans-serif;
-	font-size:12px;
-	color:#ffffff;
-	line-height:20px;
-	overflow:hidden;
-	float:left;
 }
 
-a.nav2, a.nav2:link, a.nav2:visited  {
-	width:134.85px;
+.copyright {
+	color:#888888;
+	font-size:11px;
+	margin-bottom:-5px;
+	margin-top:-3px;
+	text-align:center;
 }
 
-a.nav:hover, a.nav2:hover {
-	color:#000000;
-	background:#ffffff;
-/*	border:1px solid #000000;*/
-}
-
-a.nav:active, a.nav2:active {
-	color:#ffffff;
-	background:#000000;
-}
-
-.odd {
-	background:#cccccc;
+/* This is for odd and even striped tables */
+.odd, .even, .warning{
+	background:#d8d8d8;
+	border:0;
 	display:block;
-	border:0px;
 }
 
 .even {
 	background:#eaeaea;
+}
+
+.warning {
+	background:red;
+}
+
+.even td p, .odd td p, .warning td p {
+	margin-bottom:5px;
+	margin-top:5px;
+}
+
+/* This is for more and less feature */
+.more {
 	display:block;
-	border:0px;
 }
 
-/*This is for making a nice squeezeliteform*/
-
-div.row {background:#cccccc;border:2px solid #eaeaea;margin:0 0 5px 0;float:left;width:100%;padding:6px 0;}
-div.row label {float:left;display:block;width:15em;font-weight:bold;padding:0 6px;}
-div.row label:hover {background:#e0e0e0;cursor:pointer;}
-div.row fieldset {border:1px solid gray;margin:0 6px;}
-div.row fieldset span {display:block;}
-div.row fieldset span label {float:none;display:inline;}
-div.row fieldset legend {font-weight:bold;}
-div.requiredRow {border:2px solid #049;}
-
-input { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; color:#000000 ; text-decoration: none;}
-select { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; color:#000000 ; text-decoration: none;}
-
-.menuLink { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; color:#FFFFFF ; text-decoration: none;color:#ffffff;}
-.menuLink:link { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; color:#FFFFFF ; text-decoration: none;color:#ffffff;}
-.menuLink:visited { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; color:#FFFFFF ; text-decoration: none;color:#ffffff;}
-.menuLink:hover { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;color:#FFFF00}
-.menuLink:active { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;color:#FFFF00}
-
-.submenu { font-family:  Arial, Helvetica, sans-serif; font-size: 12px;text-decoration: none;color:#666666;}
-.submenu:link { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;color:#666666;}
-.submenu:visited { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;color:#666666;}
-.submenu:hover { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;color:#1981d1}
-.submenu:active { font-family:  Arial, Helvetica, sans-serif; font-size: 12px; text-decoration: none;color:#1981d1}
-
-td.upgrade {border-color:#e6e6e6;background-color:#e6e6e6;border-top-style: solid; border-top-width: 1px; border-bottom-style: solid; border-bottom-width: 1px; border-left-style: solid; border-left-width: 1px;}
-td.upgrade1 {border-color:#007cc2;background-color:#007cc2;border-top-style: solid; border-top-width: 1px; border-bottom-style: solid; border-bottom-width: 1px; border-left-style: solid; border-left-width: 1px;}
-
-td {
-	font-family: verdana, arial, helvetica, sans-serif;
-	font-size: 12px;
-	padding-left: 2px;
+.less {
+	display:none;
 }
 
-td.content {
-	background-color: #edf5fe;
-	padding-left: 4px;
+.moreless {
+	color:#cc3300;
+	cursor:help;
+	font-size:10px;
 }
 
-td.title {
-	background-color: #e6e6e6;
-	height: 25px;
-	vertical-align: middle;
-	padding-left: 10px;
+.indicator_green, .indicator_red {
+	border-radius:8px;
+	color:white;
+	display:inline-block;
+	font-size:12px;
+	height:16px;
+	line-height:16px;
+	text-align:center;
+	text-decoration:bold;
+	width:16px;
+	}
+
+.indicator_green {
+	background:green;
 }
 
-td.title1 {
-	background-color: #bbbbbb;
-	height: 25px;
-	vertical-align: middle;
-	text-align: center;
-	padding: 4px;
+.indicator_red {
+	background:red;
 }
 
-td.btnline {
-	background-color: #e6e6e6;
-	font-size: 12px;
-	height: 32px;
-	padding-left: 10px;
-	vertical-align: middle
+.pointer {
+	cursor: pointer;
 }
 
-td.menutit {
-	font-style: italic; 
-	font-weight: bold; 
-	font-size: 16px;
-	color: #000000;
-	text-align: center;
-	height: 69px;
+/* Squeezelite running indicator */
+.centre {
+	text-align:center;
 }
 
-body.navigation {
-	background-color: #ffffff;
-	font-family: arial, helvetica, sans-serif;
-	font-size: 12px;
-	color: #000000;
-	font-weight: bold;
-	margin: 6px 4px 3px 0px;
-	padding: 0px
+.right {
+	text-align:right;
 }
 
-td.menu1 {
-	background-color: #ffffff;
-	padding: 0px;
-	height: 45px;
-	background-image: url(/images/setup2.gif);
-	background-repeat: no-repeat;
+/* fieldset formatting */
+div.row {
+	margin:5px 0 5px 0;
 }
 
-td.menu2 {
-	background-color: #ffffff; 
-	padding: 4px 0px 0px 0px;
+div.row fieldset {
+	border:1px solid grey;
+	margin:0 5px;
 }
 
-span.menutit {
-	font-family: Arial, Helvetica, sans-serif; 
-	font-size: 12px;
-	font-weight: bold;
-	color: #000000;
-	margin-top: 15px; 
-	margin-left: 20px;
+div.row fieldset legend {
+	font-weight:bold;
 }
 
-body.main {
-	background-color: #ffffff;
-	font-family: arial, helvetica, sans-serif;
-	font-size: 12px;
-	margin: 4px 0px 0px 8px;
+/* Define size input buttons and fields */
+input, button {
+	width:9em;
 }
 
-.mframe {
-	background-color: #ffffff;
-	border: 1px solid #c0c0c0;
-	border-collapse: collapse;
-	padding: 3px
+.small1 {
+	width:1em; 
 }
 
-textarea.log {
-	background-color: #e6e6e6; 
-	color: #000000;
-	font-family: arial, helvetica, sans-serif; 
-	font-size: 14px;
+.small2 {
+	width:2em; 
 }
 
-.titletbl {
-	background-color: #FFFFFF;
-	border: 0px;
-	BORDER-COLLAPSE: collapse;
-	padding: 0px;
+.small3 {
+	width:2.8em; 
 }
 
-td.titletbl1 {
-	background-color: #FFFFFF;
-	border: 0px;
-	BORDER-COLLAPSE: collapse;
-	padding: 0px;
-	width: 14px;
-	height: 30px;
-	background-image: url(/images/lilst1.gif);
-	background-repeat: no-repeat
+.large6 {
+	width:6em; 
 }
 
-td.titletbl2 {
-	background-color: #FFFFFF;
-	border: 0px;
-	border-collapse: collapse;
-	padding: 0px;
-	height: 30px;
+.large8 {
+	width:8em; 
 }
 
-td.titletbl3 {
-	background-color: #ffffff;
-	border: 0px;
-	border-collapse: collapse;
-	padding: 0px;
-	width: 155px;
-	height: 30px;
-	background-image: url(/images/lilst3.gif);
-	background-repeat: no-repeat
+.large10 {
+	width:10em; 
 }
 
-.capstr {
-	font-size: 12px;
-	font-weight: bold;
-	color: #007cc2;
-	font-family: Arial, Helvetica, sans-serif;
+.large12 {
+	width:12em; 
 }
 
-.cfgframe {
-	background-color: #ffffff;
-	margin: 0px auto 0px auto;
-	border-collapse: separate;
-	width: 100%;
+.large15 {
+	width:15em; 
 }
 
-table.sframe {
-	background-color: #ffffff;
-	border: 1px solid #b7cee6;
-	border-collapse: collapse;
-	margin: 8px 4px 8px 4px
+.large16 {
+	width:16em; 
 }
 
-td.sframe {
-	background-color: #FFFFFF;
-	border: 1px solid #B7CEE6;
-	padding: 0px;
+.large18 {
+	width:18em; 
 }
 
-td.sframe_title {
-	background-color: #FFFFFF;
-	border: 1px solid #B7CEE6;
-	height: 18px;
-	background-image: url(/images/menubar.gif);
-	background-repeat: repeat-x;
-	padding: 0px;
+.large22 {
+	width:22em; 
 }
 
-td.headline {
-	font-family: arial, helvetica, sans-serif; 
-	background-color: #e6e6e6;
-	background-image: url(/images/menubar.gif);
-	color: #007cc2; 
-	font-size: 12px; 
-	font-weight: bolder; 
-	height: 20px;
-	text-align: left; 
-	vertical-align: middle; 
-	padding-left: 0px;
+.large30 {
+	width:30em;
 }
 
-td.header {
-	background-color: #e6e6e6; 
-	color: #333333;
-	font-family: arial, helvetica, sans-serif; 
-	font-size: 13px; 
-	font-weight: bolder;
-	height: 28px; 
-	text-align: left; 
-	vertical-align: middle; 
-	padding-left: 2px;
+.large36 {
+	width:36em;
 }
 
-td.statusHeader {
-	background-color: #E6E6E6; 
-	color: #000000;
-	font-family: Arial, Helvetica, sans-serif; 
-	FONT-SIZE: 12px; 
-	FONT-WEIGHT: bold;
-	HEIGHT: 18px; 
-	TEXT-ALIGN: left; 
-	VERTICAL-ALIGN: middle; 
-	padding-left: 2px
+.large60 {
+	width:60em;
 }
 
-td.listhead {
-	background-color: #BBBBBB;
-	color: #000000;
-	font-family: Arial, Helvetica, sans-serif;
-	FONT-SIZE: 12px;
-	HEIGHT: 18px;
-	VERTICAL-ALIGN: middle;
-	padding-left: 2px
+.large64 {
+	width:64em;
 }
 
-td.listrow {
-	background-color: #e6e6e6;
-	color: #000000;
-	font-family: Arial, Helvetica, sans-serif;
-	FONT-SIZE: 12px;
-	HEIGHT: 18px;
-	VERTICAL-ALIGN: middle;
-	padding-left: 2px
+/* Define columns widths */
+.column20 {
+	width:20px;
 }
 
-tr.note {
-	background-color: #e6e6e6;
-	color: #007cc2;
-	font-family: Arial, Helvetica, sans-serif;
-	FONT-SIZE: 12px;
-	HEIGHT: 23px;
-	VERTICAL-ALIGN: middle;
-	padding-left: 2px
+.column50 {
+	width:50px;
 }
 
-span.qspath {
-	FONT-WEIGHT: bold
+.column75 {
+	width:75px;
 }
 
-span.qsnote {
-	FONT-WEIGHT: normal
+.column100 {
+	width:100px;
 }
 
-.st3g {
-	BACKGROUND-COLOR: #0097E8;
-	COLOR: #0097E8;
-	FONT-SIZE: 12px;
-	HEIGHT: 16px
+.column110 {
+	width:110px;
 }
 
-.n3g {
-	BACKGROUND-COLOR: #EDF5FE;
-	COLOR: #EDF5FE;
-	FONT-SIZE: 12px;
-	HEIGHT: 16px; 
-	border-bottom: 2px solid #0097E8
+.column120 {
+	width:120px;
 }
 
-.v3g {
-	BACKGROUND-COLOR: #FFFFFF;
-	COLOR: #FFFFFF;
-	FONT-SIZE: 12px;
-	HEIGHT: 16px
+.column150 {
+	width:150px;
 }
 
-
-td.note {
-	background-color: #e6e6e6;
-	color: #007cc2;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	height: 23px;
-	vertical-align: middle;
-	padding-left: 2px
+.column210 {
+	width:210px;
 }
 
-td.note1 {
-	background-color: #e6e6e6;
-	color: #0000FF;
-	font-family: Arial, Helvetica, sans-serif;
-	FONT-SIZE: 12px;
-	HEIGHT: 23px;
-	VERTICAL-ALIGN: middle;
-	padding-left: 2px
+.column280 {
+	width:280px;
 }
 
-td.qsheader {
-	background-color: #E6E6E6;
-	color: #333333;
-	font-family: Arial, Helvetica, sans-serif;
-	FONT-SIZE: 16px;
-	FONT-WEIGHT: bolder;
-	HEIGHT: 24px;
-	TEXT-ALIGN: left;
-	VERTICAL-ALIGN: middle;
-	padding-left: 2px
+.column300 {
+	width:300px;
 }
 
-td.qsfail {
-	color: #FF0000
+.column350 {
+	width:350px;
 }
 
-span.hint {
-	color: #007cc2
+.column380 {
+	width:380px;
 }
 
-a.hyp:link {text-decoration: none; color: #0097E8}
-a.hyp:visited {text-decoration: none; color:#0097E8}
-a.hyp:hover {text-decoration: none; color: #666666}
-a.hyp:active {text-decoration: none; color: #666666}
+.column420 {
+	width:420px;
+}
+
+.center {
+	text-align:center;
+}
+
+/* Used for adding padding rows in tables */
+.padding {
+	height:8px;
+}
+
+/* Define the tables */
+table, table.bgwhite, table.bggrey, table.bgblack {
+	border:0px solid red;
+	background:white;
+	width:956px;
+}
+
+table.bggrey {
+	background:#d8d8d8;
+}
+
+table.bgblack {
+	background:black;
+}
+
+table.percent100 {
+	width:100%;
+}
+
+/* Define textareas */
+textarea, textarea.styled, textarea.inform {
+	background:#d8d8d8;
+	border:1px solid grey;
+	font-family:courier;
+	font-size:12px;
+	padding:5px;
+	width:944px;
+}
+
+textarea.inform {
+	background:#eaeaea;
+	border:0px solid grey;
+	width:898px;
+}
+
+textarea.width600 {
+	background:#eaeaea;
+	border:0px solid grey;
+	width:600px;
+	height:50px;
+}
+
+textarea.white {
+	background:white;
+	border:0px solid white;
+	font-size:12px;
+}
+
+.tab7end {
+	color:white;
+	font-size:5px;
+	margin-bottom:-10px;
+}
+
+/* Horizontal navigation and controls bar */
+a.nav5, a.nav6, a.nav7, a.nav5a, a.nav6a, a.nav7a{
+	background:black;
+	border:1px solid black;
+	border-radius:8px 8px 8px 8px;
+	color:white;
+	display:block;
+	float:left;
+	line-height:20px;
+	margin-top:-12px;
+	overflow:hidden;
+	text-align:center;
+	width:187.5px;
+}
+
+a.nav6, a.nav6a {
+	width:155.5px;
+}
+
+a.nav7, a.nav7a {
+	width:133px;
+}
+
+a.nav5:hover, a.nav5a:hover,
+a.nav6:hover, a.nav6a:hover,
+a.nav7:hover, a.nav7a:hover{
+	background:white;
+	color:black;
+}
+
+a.nav5a, a.nav6a, a.nav7a{
+	background:#d8d8d8;
+	color:black;
+}
+
+a.tab7, a.tab7a, a.tab14, a.tab14a {
+	font-size:10px;
+	background:#eaeaea;
+	border-radius:8px 8px 0 0;
+	color:black;
+	display:block;
+	float:left;
+	line-height:20px;
+	margin-top:-12px;
+	overflow:hidden;
+	text-align:center;
+	width:133px;
+}
+
+a.tab14, a.tab14a {
+	border-radius:0 0 8px 8px;
+	width:72px;
+}
+
+a.tab7a, a.tab14a {
+	background:black;
+	color:white;
+	font-size:11px;
+}
+
+a.tab7:visited, a.tab14:visited {
+	background:#eaeaea;
+}
+
+a.tab7:hover, a.tab14:hover {
+	background:#d8d8d8;
+	font-size:11px;
+}

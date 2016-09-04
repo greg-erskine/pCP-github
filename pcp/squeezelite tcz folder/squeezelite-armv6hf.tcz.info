@@ -1,0 +1,18 @@
+Title:          Squeezelite-armv6hf.tcz
+Description:    Squeezelite is a small headless squeezebox emulator for linux using alsa audio output. 
+                It is aimed at supporting high quality audio including usb dac based output at multiple sample rates 
+                including 44.1/48/88.2/96/176.4/192k/352.8/384kHz. Squeezelite play pcm (wav/aiff) 
+                plus flac, mp3, ogg and aac via libFLAC, libmad/libmpg123, libvorbisfile, libfaad respectively if they are present on your machine
+Version:        1.8
+Author:         Triode alias Adrian Smith
+Original-site:  https://code.google.com/p/squeezelite
+Copying-policy: Use (squeezelite-armv6hf -t) and see output or See LICENSE file in source
+Size:		  69632 b
+Extension_by:   SBP
+Tags:	    	  Squeezelite supporting resampling via soxr. Wma and alac decoding via audio-ffmpeg library.
+Comments:       Binaries only
+                ----
+                Compiled for piCore 6.x with  -DFFMPEG and -DRESAMPLE build options
+                ----
+                PPI compatible
+Change-log:     2015/1/21 First version

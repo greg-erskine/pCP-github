@@ -1,122 +1,147 @@
 #!/bin/sh
 
+# Version: 2.06 2016-06-07
+#	Added multi ALSA_PARAMS and FROM_PAGE. GE.
+#	Added MMAP configuration. GE.
+#	Added $ORG_ALSA_PARAMS4. SBP.
+#	Added $CLOSEOUT $PRIORITY $POWER_GPIO check for 0. SBP.
+
+# Version: 0.08 2016-04-25 GE
+#	Added pcp_update.
+
+# Version: 0.07 2016-03-30 SBP
+#	Added warning pop-up box for setting a different output value when using ALSAeq.
+
+# Version: 0.06 2016-01-15 SBP
+#	Changed order of back button and reboot prompt.
+
+# Version: 0.05 2015-09-21 SBP
+#	Removed httpd decoding.
+#	Added pcp_restart_required.
+
+# Version: 0.04 2015-01-23 SBP
+#	Added CLOSEOUT.
+#	Removed debugging code.
+#	Removed adding quotes when decoding variables.
+#	Added pcp_reset, pcp_restore.
+
+# Version: 0.03 2014-12-12 GE
+#	HTML5 format.
+#	Minor mods.
+
 # Version: 0.02 2014-08-22 SBP
-#	Changed the back button to absolute path back to Squeezelite.cgi. Otherwise we would go in circles
+#	Changed the back button to absolute path back to Squeezelite.cgi. Otherwise we would go in circles.
 
 # Version: 0.01 2014-06-25 GE
 #	Original.
-
 
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Write to config.cfg</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Write to configuration file" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
-echo ''
+# Read original mmap value, so we only do something if value is changed
+ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 
-pcp_controls
+RESTART_REQUIRED=1
+REBOOT_REQUIRED=0
+
+pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
+
 pcp_banner
-pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-# Decode variables using httpd, add quotes
-NAME=`sudo /usr/local/sbin/httpd -d \"$NAME\"`
-OUTPUT=`sudo /usr/local/sbin/httpd -d \"$OUTPUT\"`
-ALSA_PARAMS=`sudo /usr/local/sbin/httpd -d \"$ALSA_PARAMS\"`
-BUFFER_SIZE=`sudo /usr/local/sbin/httpd -d \"$BUFFER_SIZE\"`
-_CODEC=`sudo /usr/local/sbin/httpd -d \"$_CODEC\"`
-PRIORITY=`sudo /usr/local/sbin/httpd -d \"$PRIORITY\"`
-MAX_RATE=`sudo /usr/local/sbin/httpd -d \"$MAX_RATE\"`
-UPSAMPLE=`sudo /usr/local/sbin/httpd -d \"$UPSAMPLE\"`
-MAC_ADDRESS=`sudo /usr/local/sbin/httpd -d \"$MAC_ADDRESS\"`
-SERVER_IP=`sudo /usr/local/sbin/httpd -d \"$SERVER_IP\"`
-LOGLEVEL=`sudo /usr/local/sbin/httpd -d \"$LOGLEVEL\"`
-LOGFILE=`sudo /usr/local/sbin/httpd -d \"$LOGFILE\"`
-DSDOUT=`sudo /usr/local/sbin/httpd -d \"$DSDOUT\"`
-VISULIZER=`sudo /usr/local/sbin/httpd -d \"$VISULIZER\"`
-OTHER=`sudo /usr/local/sbin/httpd -d \"$OTHER\"`
+#========================================================================================
+# Reset configuration
+#----------------------------------------------------------------------------------------
+pcp_reset() {
+	pcp_reset_config_to_defaults
+}
 
-if [ $DEBUG = 1 ]; then
-	echo '<code>[ INFO ] '$QUERY_STRING'</code>'
-	echo '<h2>[ DEBUG ] Parameters from decoded $QUERY_STRING</h2>'
-	echo '<code>NAME=.'$NAME'.<br />'
-	echo 'OUTPUT=.'$OUTPUT'.<br />'
-	echo 'ALSA_PARAMS=.'$ALSA_PARAMS'.<br />'
-	echo 'BUFFER_SIZE=.'$BUFFER_SIZE'.<br />'
-	echo 'CODEC=.'$_CODEC'.<br />'
-	echo 'PRIORITY=.'$PRIORITY'.<br />'
-	echo 'MAX_RATE=.'$MAX_RATE'.<br />'
-	echo 'UPSAMPLE=.'$UPSAMPLE'.<br />'
-	echo 'MAC_ADDRESS=.'$MAC_ADDRESS'.<br />'
-	echo 'SERVER_IP=.'$SERVER_IP'.<br />'
-	echo 'LOGLEVEL=.'$LOGLEVEL'.<br />'
-	echo 'LOGFILE=.'$LOGFILE'.<br />'
-	echo 'DSDOUT=.'$DSDOUT'.<br />'
-	echo 'VISULIZER=.'$VISULIZER'.<br />'
-	echo 'OTHER=.'$OTHER'.<br />'
-	echo '</code>'
-fi
+#========================================================================================
+# Restore configuration
+#
+# Note: Assumes a backup onto USB stick exists.
+#----------------------------------------------------------------------------------------
+pcp_restore() {
+	pcp_mount_device sda1
+	. /mnt/sda1/newconfig.cfg
+	pcp_umount_device sda1
+	pcp_save_to_config
+}
 
-# Save the parameters to the config file
-sudo sed -i "s/\(NAME=\).*/\1$NAME/" $CONFIGCFG
-sudo sed -i "s/\(OUTPUT=\).*/\1$OUTPUT/" $CONFIGCFG
-sudo sed -i "s/\(ALSA_PARAMS=\).*/\1$ALSA_PARAMS/" $CONFIGCFG
-sudo sed -i "s/\(BUFFER_SIZE=\).*/\1$BUFFER_SIZE/" $CONFIGCFG
-sudo sed -i "s/\(_CODEC=\).*/\1$_CODEC/" $CONFIGCFG
-sudo sed -i "s/\(PRIORITY=\).*/\1$PRIORITY/" $CONFIGCFG
-sudo sed -i "s/\(MAX_RATE=\).*/\1$MAX_RATE/" $CONFIGCFG
-sudo sed -i "s/\(UPSAMPLE=\).*/\1$UPSAMPLE/" $CONFIGCFG
-sudo sed -i "s/\(MAC_ADDRESS=\).*/\1$MAC_ADDRESS/" $CONFIGCFG
-sudo sed -i "s/\(SERVER_IP=\).*/\1$SERVER_IP/" $CONFIGCFG
-sudo sed -i "s/\(LOGLEVEL=\).*/\1$LOGLEVEL/" $CONFIGCFG
-sudo sed -i "s/\(LOGFILE=\).*/\1$LOGFILE/" $CONFIGCFG
-sudo sed -i "s/\(DSDOUT=\).*/\1$DSDOUT/" $CONFIGCFG
-sudo sed -i "s/\(VISULIZER=\).*/\1$VISULIZER/" $CONFIGCFG
-sudo sed -i "s/\(OTHER=\).*/\1$OTHER/" $CONFIGCFG
+#========================================================================================
+# Update config.cfg to the latest version
+#
+# This will first create the latest version of config.cfg with default values, then,
+# restore original values.
+#----------------------------------------------------------------------------------------
+pcp_update() {
+	echo '<p class="info">[ INFO ] Copying config.cfg to /tmp...</p>'
+	sudo cp $CONFIGCFG /tmp/config.cfg
+	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying config.cfg to /tmp...</p>'
+	echo '<p class="info">[ INFO ] Setting config.cfg to defaults...</p>'
+	pcp_update_config_to_defaults
+	echo '<p class="info">[ INFO ] Updating config.cfg with original values...</p>'
+	. $CONFIGCFG
+	. /tmp/config.cfg
+	pcp_save_to_config
+}
+
+pcp_multi_alsa_mmap() {
+	pcp_mount_mmcblk0p1
+	if [ $ALSA_PARAMS4 -eq 1 ]; then
+		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
+		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
+		[ $? -eq 1 ] && REBOOT_REQUIRED=1 && RESTART_REQUIRED=0
+		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
+	else
+		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
+		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+		pcp_umount_mmcblk0p1
+	fi
+}
+
+#========================================================================================
+# Main
+#----------------------------------------------------------------------------------------
+case "$SUBMIT" in
+	Save)
+		ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
+		[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
+		[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
+		[ $PRIORITY -eq 0 ] && PRIORITY=""
+		[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
+		pcp_save_to_config
+	;;
+	Reset*)
+		pcp_reset
+	;;
+	Restore*)
+		pcp_restore
+	;;
+	Update*)
+		pcp_update
+	;;
+	*)
+		echo '<p class="error">[ ERROR ] Invalid case argument.</p>'
+	;;
+esac
 
 . $CONFIGCFG
 
-if [ $DEBUG = 1 ]; then
-	echo '<h2>[ DEBUG ] Parameters after reading config file</h2>'
-	echo '<code>NAME=.'$NAME'.<br />'
-	echo 'OUTPUT=.'$OUTPUT'.<br />'
-	echo 'ALSA_PARAMS=.'$ALSA_PARAMS'.<br />'
-	echo 'BUFFER_SIZE=.'$BUFFER_SIZE'.<br />'
-	echo 'CODEC=.'$_CODEC'.<br />'
-	echo 'PRIORITY=.'$PRIORITY'.<br />'
-	echo 'MAX_RATE=.'$MAX_RATE'.<br />'
-	echo 'UPSAMPLE=.'$UPSAMPLE'.<br />'
-	echo 'MAC_ADDRESS=.'$MAC_ADDRESS'.<br />'
-	echo 'SERVER_IP=.'$SERVER_IP'.<br />'
-	echo 'LOGLEVEL=.'$LOGLEVEL'.<br />'
-	echo 'LOGFILE=.'$LOGFILE'.<br />'
-	echo 'DSDOUT=.'$DSDOUT'.<br />'
-	echo 'VISULIZER=.'$VISULIZER'.<br />'
-	echo 'OTHER=.'$OTHER'.<br />'
-	echo '</code>'
+if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
+	STRING1='ALSA equalizer is enabled. In order to use it "equal" must be used in the OUTPUT box. Press OK to go back and change or Cancel to continue'
+	SCRIPT1=squeezelite.cgi
+	pcp_confirmation_required
 fi
 
-pcp_show_config_cfg
 pcp_backup
-
-#We needed a static link to squeezelite.cgi otherwise the go back button would go in circles if coming from usboption.cgi
-#pcp_go_back_button
-echo '<FORM METHOD="LINK" ACTION="squeezelite.cgi"><INPUT TYPE="submit" VALUE="Go back"></FORM>'
+sleep 1
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
+[ $RESTART_REQUIRED -eq 1 ] && pcp_restart_required
+pcp_go_back_button
 
 echo '</body>'
 echo '</html>'

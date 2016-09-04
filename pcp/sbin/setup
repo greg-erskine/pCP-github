@@ -1,0 +1,480 @@
+#!/bin/sh +x
+
+# Version: 3.02 2016-08-29 PH
+#	Updated Static IP to wait for USB ethernet to be detected
+
+# Version: 0.04 2015-09-09 GE
+#	Added backup to pcp_write_wifi.
+
+# Version: 0.03 2015-09-01 GE
+#	Added shutdown option.
+
+# Version: 0.02 2015-08-26 GE
+#	Updated.
+
+# Version: 0.01 2015-05-19 GE
+#	Original.
+
+BACKTITLE="piCorePlayer Basic Setup"
+
+PCPHOME=/home/tc/www/cgi-bin
+STATICIP=/opt/eth0.sh
+
+. $PCPHOME/pcp-functions
+pcp_variables
+
+DIALOG_OK=0
+DIALOG_CANCEL=1
+DIALOG_HELP=2
+DIALOG_EXTRA=3
+DIALOG_ITEM_HELP=4
+DIALOG_ESC=255
+
+WIFICHANGED=0
+STATICIPCHANGED=0
+WEBGUICHANGED=0
+
+#========================================================================================
+# Check if dialog.tcz is installed - install if necessary.
+#----------------------------------------------------------------------------------------
+which dialog
+if [ $? = 0 ]; then
+	echo 'dialog.tcz already installed.'
+else
+	if [ ! -f /mnt/mmcblk0p2/tce/optional/dialog.tcz ]; then
+		if [ $(pcp_internet_accessible) = 0 ]; then
+			echo 'dialog.tcz downloading...'
+			tce-load -w dialog.tcz
+			[ $? = 0 ] && echo 'dialog.tcz downloaded.' || echo 'Error downloading dialog.tcz.'
+		else
+			echo 'Error downloading dialog.tcz, cannot access Internet.'
+			exit 1
+		fi
+	else
+		echo 'dialog.tcz already downloaded.'
+	fi
+	echo 'dialog.tcz installing... '
+	tce-load -i dialog.tcz
+	if [ $? = 0 ]; then
+		echo 'dialog.tcz installed.'
+	else
+		echo 'Error installing dialog.tcz.'
+		exit 1
+	fi
+fi
+
+#========================================================================================
+# Start message
+#----------------------------------------------------------------------------------------
+pcp_start_message() {
+	dialog	--title      "Important Message!" \
+			--yes-label  "Continue" \
+			--no-label   "Exit" \
+			--backtitle  "$BACKTITLE" \
+			--yesno      "\nThis basic piCorePlayer setup is only intended for configuration of settings that can not be set through the web GUI." \
+			10 60
+
+	[ $? = $DIALOG_OK ] || pcp_exit_program
+}
+
+#========================================================================================
+# Exit
+#----------------------------------------------------------------------------------------
+pcp_exit_program() {
+	clear
+	if [ $WIFICHANGED = 1 ]; then
+		echo
+		pcp_backup_nohtml
+		echo
+		echo "WIFI: $WIFI"
+		echo "SSID: $SSID"
+		echo "Password: $PASSWORD"
+		echo "Security: $ENCRYPTION"
+	fi
+	if [ $STATICIPCHANGED = 1 ]; then
+		echo
+		pcp_backup_nohtml
+		echo
+		echo "Static IP: $STATUSIP"
+		echo "Static IP address: $IP"
+		echo "Netmask: $NETMASK"
+		echo "Broadcast: $BROADCAST"
+		echo "Default gateway: $GATEWAY"
+	fi
+	if [ $WEBGUICHANGED = 1 ]; then
+		echo
+		echo "Web GUI is $STATUS"
+	fi
+	echo
+	exit 0
+}
+
+#========================================================================================
+# Main menu
+#----------------------------------------------------------------------------------------
+pcp_main_menu() {
+	pcp_variables
+	OPTION=$(dialog \
+		--title         "Main Menu" \
+		--stdout \
+		--cancel-label  "Exit" \
+		--backtitle     "$BACKTITLE" \
+		--menu          "Choose option:" \
+		0 0 0 \
+		\
+		"Wifi"          "Setup Wifi" \
+		"Static IP"     "Setup Static IP (wired networks only)" \
+		"WebGUI"        "Enable/Disable Web GUI" \
+		"Backup"        "Backup $NAME configuration file" \
+		"Reboot"        "Reboot $NAME" \
+		"Shutdown"      "Shutdown $NAME" \
+	)
+
+	[ $? = $DIALOG_OK ] || pcp_exit_program
+
+	case $OPTION in
+		Wifi)
+			WIFICHANGED=1
+			pcp_wifi_menu
+			pcp_main_menu
+			;;
+		Static*)
+			STATICIPCHANGED=1
+			pcp_dhcp_menu
+			pcp_main_menu
+			;;
+		WebGUI)
+			WEBGUICHANGED=1
+			pcp_webgui_menu
+			;;
+		Backup)
+			pcp_backup_nohtml >/dev/null 2>&1
+			pcp_main_menu
+			;;
+		Reboot)
+			clear
+			echo "Rebooting $NAME..."
+			sudo reboot
+			;;
+		Shutdown)
+			clear
+			echo "Shutting down $NAME..."
+			exitcheck.sh
+			;;
+	esac
+}
+
+#========================================================================================
+# Webgui
+#----------------------------------------------------------------------------------------
+pcp_webgui_menu() {
+	pcp_get_webgui_status
+	if [ $WEBGUI = 0 ]; then
+		STATUS=Enabled.
+		BUTTON=Disable
+	else
+		STATUS=Disabled.
+		BUTTON=Enable
+	fi
+
+	dialog	--title       "WebGUI Menu" \
+			--yes-label   "$BUTTON" \
+			--no-label    "Exit" \
+			--backtitle   "$BACKTITLE" \
+			--yesno       "\nWeb GUI is $STATUS\n\n" \
+			0 0
+	RESULT=$?
+
+	if [ $RESULT = $DIALOG_OK ]; then
+		if [ $BUTTON = "Enable" ]; then
+			pcp_webgui_enable
+		else
+			pcp_webgui_disable
+		fi
+		pcp_webgui_menu
+	fi
+
+	[ $RESULT = $DIALOG_CANCEL ] && pcp_main_menu
+}
+
+#----------------------------------------------------------------------------------------
+# Enable webGUI
+#----------------------------------------------------------------------------------------
+pcp_webgui_enable() {
+	sudo /usr/local/etc/init.d/httpd start >/dev/null 2>&1
+	sed -i '/httpd start/s/^#\+//' $PCPHOME/do_rebootstuff.sh >/dev/null 2>&1
+	pcp_backup_nohtml >/dev/null 2>&1
+}
+
+#----------------------------------------------------------------------------------------
+# Disable webGUI
+#----------------------------------------------------------------------------------------
+pcp_webgui_disable() {
+	sudo /usr/local/etc/init.d/httpd stop >/dev/null 2>&1
+	sed -i '/httpd start/s/^/#/g' $PCPHOME/do_rebootstuff.sh >/dev/null 2>&1
+	pcp_backup_nohtml >/dev/null 2>&1
+}
+
+#----------------------------------------------------------------------------------------
+# Status webGUI
+#----------------------------------------------------------------------------------------
+pcp_get_webgui_status() {
+	WEBGUI=0
+	ps | grep -v grep | grep httpd
+	[ $? = 0 ] || WEBGUI=$(($WEBGUI + 1))
+	cat /home/tc/www/cgi-bin/do_rebootstuff.sh | grep "#/usr/local/etc/init.d/httpd"
+	[ $? = 0 ] && WEBGUI=$(($WEBGUI + 1))
+}
+
+#========================================================================================
+# Static IP
+#----------------------------------------------------------------------------------------
+pcp_dhcp_menu() {
+	pcp_get_static_ip_status
+	[ $STATISIP = 0 ] && STATUSIP=on || STATUSIP=off
+
+	pcp_read_script
+
+	dialog	--title      "Static IP Status Menu" \
+			--backtitle  "$BACKTITLE" \
+			--yesno      "\nAre these Static IP settings correct? \n\n\
+							Static IP: $STATUSIP \n\n\
+							IP address: $IP \n\
+							Netmask: $NETMASK \n\
+							Broadcast: $BROADCAST \n\
+							Default gateway: $GATEWAY \n\n" \
+			0 0
+
+	[ $? = $DIALOG_OK ] && pcp_main_menu
+
+	dialog	--title      "Static IP On/Off Menu" \
+			--yes-label  "On" \
+			--no-label   "Off" \
+			--backtitle  "$BACKTITLE" \
+			--yesno      "\nTurn Static IP On or Off. \n\n" \
+			0 0
+
+	if [ $? = $DIALOG_CANCEL ]; then
+		pcp_edit_localboot delete
+		pcp_nodhcp_bootcode delete
+		sudo rm -f $STATICIP
+		pcp_main_menu
+	else
+		pcp_static_ip_menu
+	fi
+}
+
+pcp_static_ip_menu() {
+	pcp_read_script
+	exec 3>&1
+	VALUES=$(dialog \
+		--title            "Static IP Menu" \
+		--ok-label         "Save" \
+		--cancel-label     "Exit" \
+		--output-separator "," \
+		--backtitle        "$BACKTITLE" \
+		--form             "Create a static IP" \
+		0 0 0 \
+		\
+		"Static IP address:"  1 1  "$IP"         1 20 15 0 \
+		"Netmask:"            2 1  "$NETMASK"    2 20 15 0 \
+		"Broadcast:"          3 1  "$BROADCAST"  3 20 15 0 \
+		"Default gateway:"    4 1  "$GATEWAY"    4 20 15 0 \
+		2>&1 1>&3)
+	RESULT=$?
+	exec 3>&-
+	IP=$(echo ${VALUES} | awk -F, '{ print $1 }')
+	NETMASK=$(echo ${VALUES} | awk -F, '{ print $2 }')
+	BROADCAST=$(echo ${VALUES} | awk -F, '{ print $3 }')
+	GATEWAY=$(echo ${VALUES} | awk -F, '{ print $4 }')
+
+	if [ $RESULT = $DIALOG_OK ]; then 
+		pcp_edit_localboot add
+		pcp_nodhcp_bootcode add
+		pcp_write_script
+		pcp_dhcp_menu
+	else
+		pcp_main_menu
+	fi
+}
+
+pcp_get_static_ip_status() {
+	STATISIP=0
+	[ -f $STATICIP ] || STATISIP=$(($STATISIP + 1))
+	grep eth0.sh /opt/bootlocal.sh >/dev/null 2>&1
+	[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	if mount | grep $VOLUME >/dev/null 2>&1; then
+		grep nodhcp /mnt/mmcblk0p1/cmdline.txt >/dev/null 2>&1
+		[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
+		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+	fi
+}
+
+#----------------------------------------------------------------------------------------
+# Read eth0 script
+#----------------------------------------------------------------------------------------
+pcp_read_script() {
+	if [ -f $STATICIP ]; then
+		set -- `cat $STATICIP | grep ifconfig`
+		IP=$3
+		NETMASK=$5
+		BROADCAST=$7
+		set -- `cat $STATICIP | grep route`
+		GATEWAY=$5
+	else
+		IP=192.168.1.x
+		NETMASK=255.255.255.0
+		BROADCAST=192.168.1.255
+		GATEWAY=192.168.1.x
+	fi
+}
+
+#----------------------------------------------------------------------------------------
+# Write eth0 script
+#----------------------------------------------------------------------------------------
+pcp_write_script() {
+	sudo rm -f $STATICIP
+	sudo echo '#!/bin/sh' >$STATICIP
+	sudo echo '# Generated by piCorePlayer' >>$STATICIP
+	sudo echo 'echo "[ INFO ] Running $0..."' >>$STATICIP
+	sudo echo 'NWOK=1' >>$STATICIP
+	sudo echo 'until [ -d /sys/class/net/eth0 ]' >>$STATICIP
+	sudo echo 'do' >>$STATICIP
+	sudo echo '  if [ $((CNT++)) -gt 20 ]; then' >>$STATICIP
+	sudo echo '          echo -n "${RED} No Ethernet Adapter Found! ${NORMAL}"' >>$STATICIP
+	sudo echo '          NWOK=0' >>$STATICIP
+	sudo echo '          break' >>$STATICIP
+	sudo echo '  else' >>$STATICIP
+	sudo echo '          echo-n "."' >>$STATICIP
+	sudo echo '          sleep 0.5' >>$STATICIP
+	sudo echo '  fi' >>$STATICIP
+	sudo echo 'done' >>$STATICIP
+	sudo echo 'if [ $NWOK -eq 1 ]; then' >>$STATICIP
+	sudo echo 'ifconfig eth0 '$IP' netmask '$NETMASK' broadcast '$BROADCAST' up' >>$STATICIP
+	sudo echo 'route add default gw '$GATEWAY >>$STATICIP
+	sudo echo 'echo nameserver '$GATEWAY' > /etc/resolv.conf' >>$STATICIP
+	sudo echo '/etc/init.d/settime.sh &' >>$STATICIP
+	sudo echo 'fi' >>$STATICIP
+	sudo chmod ugo+x $STATICIP
+	
+}
+
+#----------------------------------------------------------------------------------------
+# Add/delete /opt/eth0.sh to bootlocal.sh
+#----------------------------------------------------------------------------------------
+pcp_edit_localboot() {
+	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /opt/bootlocal.sh...'
+	#ugly permission hack, ownership is messed up and you cannot sudo with redirected output
+	sudo chown root.staff /opt
+	sudo chmod 775 /opt
+	sudo chmod g+s /opt
+	grep -v eth0.sh /opt/bootlocal.sh >/opt/bootlocal.sh~
+	sudo chmod u=rwx,g=rx,o=rx /opt/bootlocal.sh~
+	sudo mv /opt/bootlocal.sh~ /opt/bootlocal.sh
+	[ "$1" = "add" ] && sed -i "4i /opt/eth0.sh" /opt/bootlocal.sh
+}
+
+#----------------------------------------------------------------------------------------
+# Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt
+#----------------------------------------------------------------------------------------
+pcp_nodhcp_bootcode() {
+	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...'
+	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	if mount | grep $VOLUME >/dev/null; then
+		sed -i 's/nodhcp //g' /mnt/mmcblk0p1/cmdline.txt
+		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' /mnt/mmcblk0p1/cmdline.txt
+		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+	else
+		[ $DEBUG = 1 ] && echo '[ ERROR ] '$VOLUME' not mounted'
+	fi
+}
+
+#========================================================================================
+# wifi menu
+#----------------------------------------------------------------------------------------
+pcp_wifi_menu() {
+	dialog	--title      "Wifi Status Menu" \
+			--backtitle  "$BACKTITLE" \
+			--yesno      "\nAre these Wifi settings correct? \n\n\
+							Wifi: $WIFI \n\n\
+							SSID: $SSID \n\
+							Password: $PASSWORD \n\
+							Security: $ENCRYPTION \n\n" \
+			0 0
+
+	if [ $? = $DIALOG_OK ]; then
+		pcp_write_wifi
+		pcp_main_menu
+	else
+		dialog	--title      "Wifi On/Off Menu" \
+				--yes-label  "On" \
+				--no-label   "Off" \
+				--backtitle  "$BACKTITLE" \
+				--yesno      "\nTurn Wifi On or Off. \n\n" \
+				0 0
+
+		if [ $? = $DIALOG_OK ]; then
+			WIFI="on"
+			pcp_wireless_menu
+		else
+			WIFI="off"
+			pcp_wifi_menu
+		fi
+	fi
+}
+
+pcp_wireless_menu() {
+	exec 3>&1
+	VALUES=$(dialog \
+		--title            "Wireless Menu" \
+		--ok-label         "OK" \
+		--no-cancel \
+		--output-separator "," \
+		--backtitle        "$BACKTITLE" \
+		--form             "Setup Wifi" \
+		0 0 0 \
+		\
+		"SSID:"                     1 1  "$SSID"        1 27 40 0 \
+		"Password:"                 2 1  "$PASSWORD"    2 27 40 0 \
+		"Security [WEP|WPA|OPEN]:"  3 1  "$ENCRYPTION"  3 27 4 0 \
+		2>&1 1>&3)
+	result=$?
+	exec 3>&-
+	SSID=$(echo ${VALUES} | awk -F, '{ print $1 }')
+	PASSWORD=$(echo ${VALUES} | awk -F, '{ print $2 }')
+	ENCRYPTION=$(echo ${VALUES} | awk -F, '{ print $3 }')
+
+	if [ $result = $DIALOG_OK ]; then 
+		case $ENCRYPTION in
+			WEP|WPA|OPEN)
+				pcp_wifi_menu
+				;;
+			*)
+				dialog	--title      "Security Mode Error Message" \
+						--backtitle  "$BACKTITLE" \
+						--msgbox     "\nWARNING!!\n\
+								Security: $ENCRYPTION \n\
+								Security must be WEP, WPA or OPEN.\n" \
+						0 0
+				pcp_wireless_menu
+				;;
+		esac
+	else
+		pcp_main_menu
+	fi
+}
+
+pcp_write_wifi() {
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
+	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
+	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	pcp_backup_nohtml >/dev/null 2>&1
+}
+
+#========================================================================================
+# Main
+#----------------------------------------------------------------------------------------
+pcp_start_message
+pcp_main_menu

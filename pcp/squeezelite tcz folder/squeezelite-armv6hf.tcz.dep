@@ -1,0 +1,8 @@
+alsa.tcz
+libasound.tcz
+flac.tcz
+libmad.tcz 
+libvobis.tcz
+faad2.tcz
+libsoxr.tcz  
+audio-ffmpeg.tcz

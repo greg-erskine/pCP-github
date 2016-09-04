@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -z $2 ]; then
+	echo "Usage: $0 filename.zip sfusername"
+	exit -1
+fi
+
+# repo.xml URL
+# http://picoreplayer.sourceforge.net/repo.xml
+
+# package URL
+# http://picoreplayer.sourceforge.net/repo/piCorePlayer-1.2.zip
+
+APPKG=$1
+
+rm $APPKG
+zip -9r $APPKG piCorePlayerApplet.lua piCorePlayerMeta.lua strings.txt install.xml
+SHA=`shasum $APPKG | awk '{printf "%s", $1}'`
+sed -i -e "/<applet name=\"piCorePlayer\".*>/,/<\/applet>/ s|<sha>[0-9a-z]\{1,\}</sha>|<sha>$SHA</sha>|g" repo.xml
+cat repo.xml
+scp $APPKG $2@web.sourceforge.net:/home/project-web/picoreplayer/htdocs/repo
+scp repo.xml $2@web.sourceforge.net:/home/project-web/picoreplayer/htdocs

@@ -1,0 +1,16 @@
+Title:          libcofi.tcz
+Description:    Small library of 2 libc functions that are hand optimized for speed
+Version:        0.9.0
+Author:         lirc 
+Original-site:  https://patchwork.ozlabs.org/patch/209704/
+Copying-policy: LGPLv2.1
+Size:           8kb
+Extension_by:   Ralphy: http://ralph_irving.users.sourceforge.net/pico/libcofi.tcz
+Tags:           Needed for LIRC (IR remote control) and Shairport-synch
+Comments:       Binaries only the libcofi was a small library that had hand optimized
+				assembly version of 2 libc functions that could speed applications using those
+				functions a lot
+                ----
+                Compiled for piCore 7.x
+                ----
+Change-log:     2016/03/21 First version, (Ralphy)

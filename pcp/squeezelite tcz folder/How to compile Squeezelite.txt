@@ -1,0 +1,30 @@
+How to compile i piCore
+
+Before you begin, please do not have any build depend tczs like compiletc, lib* or *dev files ondemand. All depends for building need to be loaded thru onboot or manually such as
+tce-load -i compile-essentials or tce-load -wi compile-essentials
+Also the headers needs to be installed linux-3.16.y_api_headers.tcz
+and
+squashfs-tools-4.x.tcz
+and git.tcz
+
+In order to build squeezelite we need these packages:
+tce-load -i linux-3.16.y_api_headers.tcz
+tce-load -i alsa-dev.tcz
+tce-load -i libasound.tcz
+tce-load -i flac-dev.tcz
+tce-load -i libmad-dev.tcz 
+tce-load -i libvobis-dev.tcz
+tce-load -i faad2-dev.tcz
+tce-load -i mpg123-dev.tcz
+tce-load -i libsoxr.tcz  /from Ralphy Git until we get it into piCore
+extraxt the header file soxr.h from source file soxr-o.1.1-Source.tar.xz then copy it to /usr/include
+tce-load -i libffmpeg.tcz  /from Ralphy Git until we get it into piCore
+tce-load -i ffmpeg2-dev.tcz /(det skulle af en eller anden grun gøre manuelt) og så 
+
+extraxt the header file soxr.h from source file soxr-o.1.1-Source.tar.xz then copy it to /usr/include
+eller lave et symbolic link
+sudo ln -s /mnt/mmcblk0p2/SBP_compiled/soxr.h /usr/include/soxr.h
+
+
+Then
+make -f Makefile.rpi

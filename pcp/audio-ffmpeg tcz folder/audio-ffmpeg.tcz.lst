@@ -1,0 +1,10 @@
+Parallel unsquashfs: Using 1 processor
+3 inodes (82 blocks) to write
+
+drwxr-xr-x root/root                26 2015-02-13 13:58 squashfs-root
+drwxr-xr-x root/root                28 2015-02-13 13:58 squashfs-root/usr
+drwxr-xr-x root/root                26 2015-02-13 16:51 squashfs-root/usr/local
+drwxr-xr-x root/root                87 2015-02-13 16:51 squashfs-root/usr/local/lib
+-rwxr-xr-x root/root           8686568 2015-02-13 16:51 squashfs-root/usr/local/lib/libavcodec.so.56
+-rwxr-xr-x root/root           1555976 2015-02-13 16:51 squashfs-root/usr/local/lib/libavformat.so.56
+-rwxr-xr-x root/root            320536 2015-02-13 16:51 squashfs-root/usr/local/lib/libavutil.so.54

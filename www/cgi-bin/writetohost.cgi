@@ -1,44 +1,68 @@
 #!/bin/sh
+
+# Version: 0.03 2015-12-05 GE
+#	Added more debug information.
+#	Added reboot required button.
+
+# Version: 0.02 2014-12-10 GE
+#	Using pcp_html_head now.
+#	HTML5 formatting.
+
+# Version: 0.01 2014-08-06 SBP
+#	Original version.
+
+#========================================================================================
+# The hostname is set during the boot process. It needs to be set before the network is
+# started otherwise udhcpc will use the default hostname "box".
+#
+# Default hostname values:
+# - piCore       : box
+# - piCorePlayer : piCorePlayer
+#
+# The best option is setting the hostname in cmdline.txt, therefore a reboot is required.
+#
+# You need to check the following to ensure the hostname is fully implemented:
+#  - /etc/hostname
+#  - /etc/hosts
+#  - /opt/bootsync.sh				: sethostname piCorePlayer, default value if missing from cmdline.txt
+#  - config.cfg
+#  - /mnt/mmcblk0p1/cmdline.txt		: hostname set here, overwrites all other methods
+#  - /proc/cmdline.txt				: set after reboot
+#  - $CMDLINE						: set after reboot
+#  - linux prompt
+#  - udhcpc - eth0
+#  - udhcpc - wlan0
+#
+# The extensive debug information should give most of the above information.
+# ---------------------------------------------------------------------------------------
+
 . pcp-functions
 pcp_variables
-. $CONFIGCFG
 
-echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-echo '<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
-echo ''
-echo '<head>'
-echo '  <meta http-equiv="Cache-Control" content="no-cache" />'
-echo '  <meta http-equiv="Pragma" content="no-cache" />'
-echo '  <meta http-equiv="Expires" content="0" />'
-echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
-echo '  <title>pCP - Write Hostname</title>'
-echo '  <meta name="author" content="Steen" />'
-echo '  <meta name="description" content="Write Hostname" />'
-echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css" />'
-echo '</head>'
-echo ''
-echo '<body>'
+pcp_html_head "Write Hostname" "SBP" "15" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-
-# Decode Host name using httpd
-HOST=`sudo /usr/local/sbin/httpd -d \"$HOST\"`
-
-echo '<p class="info">[ INFO ] Your HOST name is set to: '$HOST'</p>'
-
-# Update host name in config file
-sudo sed -i "s/\(HOST *=*\).*/\1$HOST/" $CONFIGCFG
-
-# Update host name in bootsync.sh file
-sudo sed -i '/sethostname/c\/usr/bin/sethostname '"$HOST" /opt/bootsync.sh
-
+echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
+pcp_mount_mmcblk0p1
+pcp_write_to_host
+[ $DEBUG -eq 1 ] && pcp_textarea "Current /mnt/mmcblk0p1/cmdline.txt" "cat /mnt/mmcblk0p1/cmdline.txt" 100
+pcp_umount_mmcblk0p1
+pcp_save_to_config
 pcp_backup
 
-[ $DEBUG = 1 ] && pcp_show_bootsync_sh
-[ $DEBUG = 1 ] && pcp_show_config_cfg
+if [ $DEBUG -eq 1 ]; then
+	pcp_textarea "Current hostname" "hostname" 50
+	pcp_textarea "Current /proc/cmdline" "cat /proc/cmdline" 100
+	pcp_textarea "Current /etc/hostname" "cat /etc/hostname" 50
+	pcp_textarea "Current /etc/hosts" "cat /etc/hosts" 180
+	pcp_textarea "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
+	pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 380
+	pcp_textarea "ps " "ps | grep -v grep | grep udhcpc" 100
+fi
 
+pcp_reboot_required
 pcp_go_back_button
 
 echo '</body>'
