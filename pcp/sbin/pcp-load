@@ -200,9 +200,18 @@ recursive_scan_dep() {
 				RESULT[IDX]=name
 				IRANGE[name"#1"]=IDX
 				depfile=optional"/"name".dep"
-				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0))
-					if (system("rm -f "depfile"; wget -c -P "optional" "mirror"/"name".dep 2>/dev/null") == 0 && ! SUPPRESS)
+				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0)) {
+					if (system("rm -f "depfile"; wget -c -P "optional" "mirror"/"name".dep 2>/dev/null") == 0 && ! SUPPRESS) {
 						system("echo -n \"<p>[ INFO ] "name".dep Downloaded.....\" 1>&2")
+					} else if ( mirror ~ /sourceforge/ ){
+						system("echo \"</p><p>[ ERROR ] "name" Missing DEP file</p>\" 1>&2")
+						system ("echo \"1\" > /tmp/appserr")
+						system ("rm -f " depfile)
+						exit 1
+					} else {
+						system("echo \"sourceforge not detected\"")
+					}
+				}		
 				MARK[name]=2
 				FIRST[name]=0
 				if (mirror || system("test -f "optional"/"name) == 0) {
@@ -214,6 +223,10 @@ recursive_scan_dep() {
 								system ("echo \"1\" > /tmp/appserr")
 								system ("rm -f " depfile)
 								exit 1
+							}
+							if ( line == "BLANK.tcz"){
+								line=""
+								system("rm -f "depfile)
 							}
 							if ( length(name) > 0 ){
 								system("echo \""name" DEP Test Ok</p>\" 1>&2")
