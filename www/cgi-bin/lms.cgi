@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-09-03
+#	Added Samba  PH
+
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
 
@@ -35,7 +38,9 @@ pcp_html_head "LMS Main Page" "SBP"
 pcp_banner
 pcp_navigation
 pcp_running_script
+pcp_remove_query_string
 pcp_httpd_query_string
+
 
 # Read from slimserver.cfg file
 CFG_FILE="/home/tc/.slimserver.cfg"
@@ -126,6 +131,87 @@ pcp_remove_fs() {
 	echo '<p class="info">[ INFO ] Extensions Removed, Reboot to Finish</p>'
 }
 
+pcp_install_samba4() {
+	RESULT=0
+	echo -n '<p class="info">[ INFO ] '
+	sudo -u tc tce-load -w samba4.tcz
+	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
+	echo '<p>'
+	if [ $RESULT -eq 0 ]; then
+		sudo -u tc tce-load -i samba4.tcz
+		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
+		echo '<p>'
+	fi
+	if [ $RESULT -eq 0 ]; then
+		echo "samba4.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo '<p class="info">[ INFO ] Samba Support Loaded...</p>'
+		cat << EOF > /usr/local/etc/init.d/samba
+#!/bin/sh
+NAME="Samba"
+DESC="File Sharing"
+CONF=/usr/local/etc/samba/smb.conf
+
+startsmb(){
+        if [ -f $CONF ]; then
+
+                echo "Starting SAMBA..."
+                /usr/local/sbin/smbd
+                /usr/local/sbin/nmbd
+        else
+                echo "Samba not Configured......exiting"
+        fi
+}
+stopsmb(){
+        echo "Stopping SAMBA..."
+        pkill nmbd
+        pkill smbd
+}
+case "\$1" in
+        start) startsmb;;
+        stop) stopsmb;;
+        restart)
+                echo "Restarting SAMBA..."
+                stopsmb
+                sleep 3
+                startsmb
+        ;;
+        status)
+                ps -ef | grep smb | grep -v grep | awk '{ print \$0 }'
+                ;;
+        *)
+                echo ""
+                echo -e "Usage: /usr/local/etc/init.d/`basename \$0` [start|stop|restart|status]"
+                echo ""
+                exit 1
+        ;;
+esac
+exit 0
+EOF
+		chmod 755 /usr/local/etc/init.d/samba
+		touch /usr/local/etc/samba/smb.conf
+		echo "usr/local/etc/init.d/samba" >> /opt/.filetool.lst
+		echo "usr/local/var/lib/samba" >> /opt/.filetool.lst
+		echo "usr/local/etc/samba/smb.conf" >> /opt/.filetool.lst
+		SAMBA="yes"
+		pcp_save_to_config
+		pcp_backup
+	else
+		echo '<p class="error">[ ERROR ] Samba4.tcz not loaded, try again later!</p>'
+	fi
+
+}
+
+pcp_remove_samba4() {
+	echo '<p class="info">[ INFO ] Removing Extensions</p>'
+	sed -i '/samba4.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete samba4.tcz
+	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
+	sed -i '/usr\/local\/var\/lib\/samba/d' /opt/.filetool.lst
+	sed -i '/usr\/local\/etc\/samba\/smb.conf/d' /opt/.filetool.lst
+	echo '<p class="info">[ INFO ] Extensions Removed, Reboot to Finish</p>'
+}
+
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Start)
@@ -189,6 +275,9 @@ case "$ACTION" in
 		pcp_backup
 		pcp_reboot_required
 	;;
+	Rescan*)
+		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
+	;;
 	Install_FS)
 		pcp_sufficient_free_space 4000
 		pcp_install_fs
@@ -197,8 +286,28 @@ case "$ACTION" in
 		pcp_remove_fs
 		pcp_reboot_required
 	;;
-	Rescan*)
-		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
+	Install_Samba)
+		pcp_sufficient_free_space 25000
+		pcp_install_samba4
+	;;
+	Remove_Samba)
+		SAMBA="disabled"
+		pcp_save_to_config
+		pcp_remove_samba4
+		pcp_backup
+		pcp_reboot_required
+	;;
+	SambaStart)
+		echo '<p class="info">[ INFO ] Starting Samba...</p>'
+		/usr/local/etc/init.d/samba start
+	;;
+	SambaStop)
+		echo '<p class="info">[ INFO ] Stopping Samba...</p>'
+		/usr/local/etc/init.d/samba stop
+	;;
+	SambaRestart)
+		echo '<p class="info">[ INFO ] Re-Starting Samba...</p>'
+		/usr/local/etc/init.d/samba restart
 	;;
 	*)
 		pcp_warning_message
@@ -243,7 +352,7 @@ esac
 # Function to check the Samba radio button according to config file
 case "$SAMBA" in
 	yes) SAMBAyes="checked" ;;
-	no) SAMBAno="checked" ;;
+	*) SAMBAno="checked" ;;
 esac
 
 # Function to check the show log radio button according to selection
@@ -1051,6 +1160,282 @@ pcp_mount_netdrives() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mount_netdrives
+#----------------------------------------------------------------------------------------
+#========================================================================================
+# Samba Share Drive Support
+#----------------------------------------------------------------------------------------
+pcp_samba() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Setup Samba Share</legend>'
+	echo '          <form name="Start" action="'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	if [ "$SAMBA" = "disabled" ]; then
+		echo '                  <button type="submit" name="ACTION" value="Install_Samba">Install</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Install Samba for pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will install Samba Extension for SMB Share support for pCP.</p>'
+		echo '                  </div>'
+	else
+		echo '                  <button type="submit" name="ACTION" value="Remove_Samba">Remove</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Remove Samba from pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will remove Samba Extension for SMB Share support for pCP.</p>'
+		echo '                  </div>'
+	fi
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+
+	if [ "$SAMBA" != "disabled" ]; then
+		if [ -f $SAMBACONF ]; then
+#			This will read the config file. 
+			GLOBAL=0
+			SC=0
+			trimval() {
+				echo $1 | cut -d '=' -f2 | xargs 
+			}
+			trimshare() {
+				echo $1 | tr -d '[]' 
+			}
+
+			while read LINE; do
+				case $LINE in
+					*global*) GLOBAL=1;;
+					netbios*) NETBIOS=$(trimval "${LINE}");;
+					workgroup*) WG=$(trimval "${LINE}");;
+					[*)	SC=$((SC+1)); eval SHARE${SC}=$(trimshare "${LINE}");;
+					path*) eval SHAREPATH${SC}=$(trimval "${LINE}");;
+					create\ mask*) eval SHAREMASK${SC}=$(trimval "${LINE}");;
+					writeable*) eval SHARERO${SC}="no";;
+					read\ only*) eval SHARERO${SC}="yes";;
+					*);;
+				esac
+			done < $SAMBACONF
+		fi	
+		echo '            <table class="bggrey percent100">'
+		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <button type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
+		echo '                  </td>'
+		echo '                  <td class="column100">'
+		echo '                    <input class="small1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>Yes'
+		echo '                    <input class="small1" type="radio" name="SAMBA" value="no" '$SAMBAno'>No'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Automatic start of SAMBA when pCP boots&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Yes - will enable automatic start of SAMBA when pCP boots.</p>'
+		echo '                      <p>No - will disable automatic start of SAMBA when pCP boots.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </form>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <form name="Start" action="'$0'">'
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <input type="submit" name="ACTION" value="SambaStart" '$DISABLED' />'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Start SAMBA&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>This will start SAMBA.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </form>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <form name="Stop" action="'$0'">'
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <input type="submit" name="ACTION" value="SambaStop" '$DISABLED' />'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Stop SAMBA&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>This will stop SAMBA.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </form>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <form name="Restart" action="'$0'">'
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <input type="submit" name="ACTION" value="SambaRestart" '$DISABLED' />'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Restart SAMBA&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>This will stop SAMBA and then restart it.</p>'
+		echo '                      <p><b>Note:</b></p>'
+		echo '                        <li>A restart of SAMBA is rarely needed.</li>'
+		echo '                        <li>SAMBA running indicator will turn green.</li>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </form>'
+		echo '            </table>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '            <table class="bggrey percent100">'
+		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <button type="submit" name="COMMAND" value="setpw">Set Password</button>'
+		echo '                  </td>'
+		echo '                  <td class="column100 ">'
+		echo '                    <p class="row">UserName: tc</p>'
+		echo '                  </td>'
+		echo '                  <td class="column75">'
+		echo '                    <p class="row">Password:</p>'
+		echo '                  </td>'
+		echo '                  <td class="column150">'
+		echo '                    <p><input class="large12" type="text" name="SAMBAPASS" value=""></p>'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Username and Password to be used to access share.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Needs done 1st time.  Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </form>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <p class="row">Server Name</p>'
+		echo '                  </td>'
+		echo '                  <td class="column210">'
+		echo '                    <p><input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required"></p>'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>This is the Server name that will show up in your network browser.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		COL1="150"
+		COL2="150"
+		COL3="150"
+		COL4="100"
+		COL5="150"
+		COL6="100"
+		COL7="150"
+		pcp_toggle_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column'$COL1' center"><p><b>Share Name</b></p></td>'
+		echo '                  <td class="column'$COL2'"><p><b>Share Path</b></p></td>'
+		echo '                  <td class="column'$COL3'"><p><b>Create File Mode</b></p></td>'
+		echo '                  <td class="column'$COL4' center"><p><b>Read ONLY<b></p></td>'
+		echo '                </tr>'
+		I=1
+		SC=$((SC+1))
+		while [ $I -le $SC ]
+		do
+			pcp_toggle_row_shade
+			echo '                <tr class="'$ROWSHADE'">'
+			echo '                  <td class="column'$COL1' center">'
+			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
+			eval echo -n "\${SHARE${I}}"
+			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$">'
+			echo '                  </td>'
+			echo '                  <td class="column'$COL2'">'
+			echo -n '                    <input class="large12" type="text" ID="SHAREPATH'$I'" name="SHAREPATH'$I'" value="'
+			eval echo -n "\${SHAREPATH${I}}"
+			echo '" title="Enter the Path to be Shared" pattern="^[a-zA-Z0-9_/]{1,32}$">'
+			echo '                  </td>'
+			echo '                  <td class="column'$COL3'">'
+			echo -n '                    <input class="large8" type="text" ID="SHAREMASK'$I'" name="SHAREMASK'$I'" value="'
+			eval echo -n "\${SHAREMASK${I}}"
+			echo '" title="Enter the File mode for new files Default=664" pattern="^[0-7]{4}$">'
+			echo '                  </td>'
+			RO=$(eval echo "\${SHARERO${I}}")
+			case "$RO" in
+				yes) SHAREROyes="checked";;
+				*) SHAREROyes="";;
+			esac
+			echo '                  <td class="column'$COL4' center">'
+			echo '                    <input class="small1" type="checkbox" name="SHARERO'$I'" value="yes" '$SHAREROyes'>'
+			echo '                  </td>'
+			echo '                  <td class="column'$COL5' center">'
+			echo '                    <input type="button" value="Remove" onclick="eraseshare('$I')">'
+			echo '                  </td>'
+			echo '                </tr>'
+			I=$((I+1))
+		done
+		echo '                <script type="text/javascript">'
+		echo '                  function eraseshare(i) {'
+		echo '                    var box = "SHARE";'
+		echo '                    var Box = box.concat(i);'
+		echo '                    document.getElementById(Box).value = "";'
+		echo '                    var box = "SHAREPATH";'
+		echo '                    var Box = box.concat(i);'
+		echo '                    document.getElementById(Box).value = "";'
+		echo '                    var box = "SHAREMASK";'
+		echo '                    var Box = box.concat(i);'
+		echo '                    document.getElementById(Box).value = "";'
+		echo '                  }'
+		echo '                </script>'
+			
+		#--------------------------------------Submit button-------------------------------------
+		pcp_toggle_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <input type="hidden" name="COMMAND" value="setconfig">'
+		echo '                    <input type="hidden" name="SC" value="'$SC'">'
+		echo '                    <button type="submit" name="ACTION" value="setconfig">Set Samba</button>'
+		echo '                  </td>'
+		echo '                </tr>'
+#----------------------------------------------------------------------------------------
+		echo '              </form>'
+		echo '            </table>'
+	fi
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
