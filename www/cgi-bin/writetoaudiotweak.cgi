@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-05
+#	Updated FIQ-split. SBP.
+
 # Version: 0.13 2016-03-30 SBP
 #	Added warning pop-up box for setting output value when removing ALSAeq.
 

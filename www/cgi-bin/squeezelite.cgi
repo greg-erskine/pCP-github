@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-05
+#	Added Hifiberry Digi+ Pro support. SBP.
+
 # Version: 3.00 2016-07-25
 #	Added note regaring hw: option for output. PH.
 #	Added new DACs. SBP.

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.02 2016-09-04 PH
-#	Updated Kernel INformation for 3.02
+# Version 3.02 2016-09-05 PH
+#	Updated Kernel Information for 3.02
 #	Removed pcp-load, as 3.00 and on had the updated file.  Not needed for pcp 2.xx
 
 # Version 3.00 2016-08-09 PH
@@ -12,7 +12,7 @@
 #	Added oldpiversion.cfg to allow bootfix to know what the old version was.
 
 # Version 2.05 2016-04-17 SBP
-#	Currently a copy of the old insitu_update.cgi.  
+#	Currently a copy of the old insitu_update.cgi.
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -171,7 +171,7 @@ pcp_uudecode (){
 awk=awk
 
 if command -v gawk >/dev/null; then
-    awk=gawk
+	awk=gawk
 fi
 
 $awk '
@@ -212,7 +212,7 @@ function charval(char) {
 }
 
 #========================================================================================
-# Download kernel modules for new kernel 
+# Download kernel modules for new kernel
 #----------------------------------------------------------------------------------------
 pcp_get_kernel_modules() {
 #	Update pcp-load if needed  (This is not needed right now, but left this in for reference
@@ -224,28 +224,28 @@ pcp_get_kernel_modules() {
 #		tail -n +$PAYLOAD_START $0 | pcp_uudecode > /tmp/new-pcp-load
 #		chmod 755 /tmp/new-pcp-load
 #		cp -f /tmp/new-pcp-load /usr/local/sbin/pcp-load
-#	fi	
+#	fi
 	case "${VERSION}" in
 		piCorePlayer2.06)
 			# Set the below for the new kernel
 			KUPDATE=1
 			NEWKERNELVER=4.1.20
-			PICOREVERSION=7.x 
-			;;
+			PICOREVERSION=7.x
+		;;
 		piCorePlayer3.00*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			NEWKERNELVER=4.4.15
-			PICOREVERSION=8.x 
-			;;
+			PICOREVERSION=8.x
+		;;
 		piCorePlayer3.02*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			NEWKERNELVER=4.4.19
-			PICOREVERSION=8.x 
-			;;
+			PICOREVERSION=8.x
+		;;
 		*)  KUPDATE=0
-			;;
+		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
@@ -255,8 +255,7 @@ pcp_get_kernel_modules() {
 		case $BUILD in
 			armv6) KERNEL="${NEWKERNELVER}-piCore+" ;;
 			armv7) KERNEL="${NEWKERNELVER}-piCore_v7+" ;;
-			*) FAIL_MSG="Kernel Version Error"
-			;;
+			*) FAIL_MSG="Kernel Version Error" ;;
 		esac
 		TCE_DL="${TCE_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
 		PCP_DL="${PCP_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
@@ -303,7 +302,7 @@ pcp_get_boot_files() {
 	fi
 }
 
-#======================================================================================== 
+#========================================================================================
 # Install the boot files
 #----------------------------------------------------------------------------------------
 pcp_install_boot_files() {
@@ -343,7 +342,7 @@ pcp_save_configuration() {
 	[ -e /mnt/mmcblk0p1/oldpiversion.cfg ] && rm -f /mnt/mmcblk0p1/oldpiversion.cfg
 	echo "OLDPIVERS=\"$PIVERS\"" > /mnt/mmcblk0p1/oldpiversion.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
-	
+
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
@@ -391,7 +390,7 @@ pcp_finish_install() {
 	sudo mkdir ${UPD_PCP}/mydata
 	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz -C ${UPD_PCP}/mydata
 	sudo tar zxvf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
-	
+
 	# Move Bootfix into location if it is present
 	if [ -f "${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/bootfix.sh" ]; then
 		sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/ /mnt/mmcblk0p2/tce/
@@ -411,7 +410,7 @@ pcp_finish_install() {
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
-	sudo chown root:staff /opt/.filetool.lst 
+	sudo chown root:staff /opt/.filetool.lst
 	sudo cat /opt/.filetool.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst > /opt/.filetool.lst
 	sudo chown root:staff /opt/.filetool.lst
@@ -419,7 +418,7 @@ pcp_finish_install() {
 
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
-	sudo chown root:staff /opt/.xfiletool.lst 
+	sudo chown root:staff /opt/.xfiletool.lst
 	sudo cat /opt/.xfiletool.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.xfiletool.lst > /opt/.xfiletool.lst
 	sudo chown root:staff /opt/.xfiletool.lst
@@ -464,7 +463,7 @@ outfile.close
 
 	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot as it always have been done
 
-	# Update pCP by copying the content from the new version to the correct location followed by a backup 
+	# Update pCP by copying the content from the new version to the correct location followed by a backup
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 
@@ -573,19 +572,19 @@ case "$ACTION" in
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		;;
+	;;
 	download)
 		STEP="Step 4 - Downloading files"
 		pcp_warning_message
-		;;
+	;;
 	install)
 		STEP="Step 5 - Installing files"
 		pcp_warning_message
-		;;
+	;;
 	*)
 		STEP="Invalid ACTION"
 		FAIL_MSG="Invalid ACTION: $ACTION"
-		;;
+	;;
 esac
 
 #========================================================================================
