@@ -3,7 +3,7 @@
 # tcz concept and code from Jason Williams
 #
 # Version 3.03 2016-09-04 PH
-#	added requriement of .dep.pcp on pcp sourceforge repo.
+#	added requirement of .dep.pcp on pcp sourceforge repo.
 #
 # Version 3.00 2016-08-14 PH
 # 	pcp-load modified version for piCorePlayer
@@ -92,9 +92,9 @@ app_exists() {
 
 fetch_app() {
 	echo "<p>[ INFO ] Downloading: $1</p>"
-	wget -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
+	wget -T 30 -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
 	echo -n "<p>"
-	wget -c "$MIRROR"/"$1" 1>&2
+	wget -T 30 -c "$MIRROR"/"$1" 1>&2
 	echo -n "</p>"
 	echo "<p>[ INFO ] Checking MD5 of: ${1}....."
 	md5sum -cs "$1".md5.txt
@@ -210,7 +210,7 @@ recursive_scan_dep() {
 					pcpdep=""
 				}		
 				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0)) {
-					if (system("rm -f "depfile"; wget -c -P "optional" "mirror"/"name".dep"pcpdep" 2>/dev/null") == 0 && ! SUPPRESS) {
+					if (system("rm -f "depfile"; wget -T 30 -c -P "optional" "mirror"/"name".dep"pcpdep" 2>/dev/null") == 0 && ! SUPPRESS) {
 						system("echo -n \"<p>[ INFO ] "name".dep Downloaded.....\" 1>&2")
 						#If we downloaded a dep.pcp, rename it back to .dep
 						if (system("test -f "depfile".pcp") == 0) 
