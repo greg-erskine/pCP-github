@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-09-03
-#	Added JS function to remove query string from URL History   PH
-#	Initial Hifiberry Digi+ Pro support SBP
+# Version: 3.02 2016-09-05
+#	Added JS function to remove query string from URL History. PH.
+#	Added Hifiberry Digi+ Pro support. SBP.
+#	Updated FIQ-split. SBP.
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
@@ -940,7 +941,7 @@ pcp_httpd_query_string_no_decode() {
 }
 
 # This will remove the query string from the url, prevents page reloads and document.referrer from
-# reposting a command that we've already executed.  Once we test this more we might want to move this 
+# reposting a command that we've already executed.  Once we test this more we might want to move this
 # script to the piCorePlayer.js.
 pcp_remove_query_string() {
 	echo '<script type="text/javascript">'
@@ -1781,7 +1782,7 @@ pcp_enable_iqaudio_dac_p() {
 }
 
 #========================================================================================
-# Load the correct modules for IQaudIO AMP+ and digiAMP+
+# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_amp() {
 	pcp_disable_i2s

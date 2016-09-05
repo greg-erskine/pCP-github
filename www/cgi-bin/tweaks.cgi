@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-05
+#	Updated FIQ-split. SBP.
+
 # Version: 3.01 2016-08-20
 #   Modified User Command Strings to display using javascript
 
