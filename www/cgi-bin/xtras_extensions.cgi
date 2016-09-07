@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-09-06
+#	Updated. GE.
+
 # Version: 3.02 2016-09-05
 #	Added default button. SBP.
 #	Added more help txt. SBP.
@@ -134,9 +137,48 @@ pcp_cleanup() {
 	rm -f /tmp/sizelist
 }
 
+#========================================================================================
+# This routine creates /opt/localmirrors if it is not found.
+# This file should be included in the pCP distribution.
+#----------------------------------------------------------------------------------------
 pcp_create_localmirrors() {
-	echo https://sourceforge.net/projects/picoreplayer/files/repo/ > /opt/localmirrors
-	echo https://sourceforge.net/projects/picoreplayer/files/tce/ >> /opt/localmirrors	# FIX
+	echo http://repo.tinycorelinux.net/ > /opt/localmirrors
+	echo https://sourceforge.net/projects/picoreplayer/files/repo/ >> /opt/localmirrors
+	#echo https://sourceforge.net/projects/picoreplayer/files/tce/ >> /opt/localmirrors	# FIX
+}
+
+#========================================================================================
+# Generate warning message
+#----------------------------------------------------------------------------------------
+pcp_information_message() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Information</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	echo '                <p><b>piCorePlayer</b> uses two repositories for downloading extensions:</p>'
+	echo '                <ul>'
+	echo '                  <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
+	echo '                  <li><b>piCorePlayer sourceforge repository</b> - maintained by the piCorePlayer team.</li>'
+	echo '                </ul>'
+	echo '                <p><b>Extensions</b> can be:</p>'
+	echo '                <ul>'
+	echo '                  <li><b>downloaded</b> - the extension has been downloaded to SD card.</li>'
+	echo '                  <li><b>installed</b> - the extension is downloaded and installed.</li>'
+	echo '                  <li><b>uninstalled</b> - the extension is downloaded but not installed.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 }
 
 #========================================================================================
@@ -199,6 +241,8 @@ pcp_display_files() {
 	fi
 }
 
+pcp_information_message
+
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
@@ -241,12 +285,12 @@ case "$SUBMIT" in
 		pcp_set_mirror
 		pcp_cleanup
 	;;
-	Default)
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Setting repository to Default piCore repo...</p>'
-		MYMIRROR='http://repo.tinycorelinux.net/'
-		pcp_set_mirror
-		pcp_cleanup
-	;;
+#	Default)
+#		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Setting repository to Default piCore repo...</p>'
+#		MYMIRROR='http://repo.tinycorelinux.net/'
+#		pcp_set_mirror
+#		pcp_cleanup
+#	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
 	;;
@@ -255,6 +299,70 @@ esac
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+#========================================================================================
+# Check for internet and piCore repository access
+#----------------------------------------------------------------------------------------
+if [ "$SUBMIT" = "Initial" ]; then
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Internet</legend>'
+	echo '          <table class="bggrey percent100">'
+
+	#------------------------------------------------------------------------------------
+	echo '            <tr class="'$ROWSHADE'">'
+
+	                    if [ $(pcp_internet_accessible) -eq 0 ]; then
+	                      pcp_green_tick "Internet accessible."
+	                    else
+	                      pcp_red_cross "Internet not accessible."
+	                    fi
+
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td class="column300">'
+	echo '                <p>'$STATUS'</p>'
+	echo '              </td>'
+	echo '              <td class="column150">'
+	echo '                <p>blah 1</p>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	#------------------------------------------------------------------------------------
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	
+	                    if [ $(pcp_picore_accessible) -eq 0 ]; then
+	                      pcp_green_tick "Official piCore repository accessible."
+	                    else
+	                      pcp_red_cross "Official piCore repository not accessible."
+	                    fi
+
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td class="column300">'
+	echo '                <p>'$STATUS'</p>'
+	echo '              </td>'
+	echo '              <td class="column150">'
+	echo '                <p>blah 2</p>'
+	echo '              </td>'
+	echo '            </tr>'
+
+
+
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 
 if [ $DEBUG -eq 1 ]; then
 	#========================================================================================
@@ -311,9 +419,12 @@ if [ $DEBUG -eq 1 ]; then
 	echo '</table>'
 fi
 
-if [ $MODE -ge $MODE_BETA ]; then
+if [ $MODE -ge $MODE_DEVELOPER ]; then
 	#========================================================================================
-	# Show available piCore remote mirrors
+	# Show available piCore/TinyCore remote mirrors - needs mirrors.tcz installed.
+	#
+	# Note: The piCore/Tiny Core remote mirrors are generally slow, incomplete and not
+	#       up to date. I don't recommend using them.
 	#----------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -332,7 +443,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '                <td class="column300">'
 	echo '                  <select class="large22" name="MYMIRROR">'
 
-							  if [ $(pcp_extn_is_installed mirrors) -eq 0 ]; then
+                              if [ $(pcp_extn_is_installed mirrors) -eq 0 ]; then
 								read MIRROR < /opt/tcemirror
 								for M in $(cat "/usr/local/share/mirrors")
 								do
@@ -369,7 +480,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 							  echo '                  <input type="submit" name="SUBMIT" value="Get">'
 							fi
 
-	echo '                  <input type="submit" name="SUBMIT" value="Default">'
+#	echo '                  <input type="submit" name="SUBMIT" value="Default">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
@@ -379,6 +490,9 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
+fi
+
+
 
 	#========================================================================================
 	# Show piCore local mirrors
@@ -389,7 +503,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '      <form name="local_mirrors" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
-	echo '            <legend>piCorePlayer Sourceforge repository</legend>'
+	echo '            <legend>Select extension repository</legend>'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
@@ -442,222 +556,9 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '  </tr>'
 	echo '</table>'
 
-	#========================================================================================
-	# Installed extensions - tce-status -i
-	#----------------------------------------------------------------------------------------
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="installed" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Locally installed extensions</legend>'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Installed extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
-							  for i in $(tce-status -i)
-							  do
-								echo '<option value="'$i'.tcz">'$i'.tcz</option>'
-							  done
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of installed extensions&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all piCore extensions that are currently installed.</li>'
-	echo '                      <li>These extensions are loaded at boot via /mnt/mmcblk0p2/tce/onboot.lst.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-
-	#========================================================================================
-	# Uninstalled extensions - tce-status -u
-	#----------------------------------------------------------------------------------------
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="uninstalled" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Locally downloaded extensions</legend>'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Uninstalled extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
-							  for i in $(tce-status -u)
-							  do
-								echo '<option value="'$i'">'$i'</option>'
-							  done
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of uninstalled extensions&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all piCore extensions that are currently downloaded but not (yet) installed.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Install">'
-	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-
-	#========================================================================================
-	# Orphaned extensions - tce-status -o  WARNING: very slow!
-	#----------------------------------------------------------------------------------------
-	if [ "$ORPHAN" = "yes" ]; then
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <form name="orphan" action="'$0'" method="get">'
-		echo '        <div class="row">'
-		echo '          <fieldset>'
-		echo '            <legend>Locally orphaned extensions</legend>'
-		echo '            <table class="bggrey percent100">'
-		pcp_incr_id
-		pcp_start_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150">'
-		echo '                  <p>Orphaned extensions</p>'
-		echo '                </td>'
-		echo '                <td class="column300">'
-		echo '                  <select class="large22" name="EXTN">'
-								  for i in $(tce-status -o | grep '.tcz ' | sed 's/ not found!//' )
-								  do
-									echo '<option value="'$i'">'$i'</option>'
-								  done
-		echo '                  </select>'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>List of Orphaned extensions&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <ul>'
-		echo '                      <li>Lists all orphaned extensions installed.</li>'
-		echo '                    </ul>'
-		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <input type="submit" name="SUBMIT" value="Info">'
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </table>'
-		echo '          </fieldset>'
-		echo '        </div>'
-		echo '      </form>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-	fi
-fi
-
-#========================================================================================
-# Loaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="loaded" action="'$0'" method="get">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Locally loaded extensions</legend>'
-echo '            <table class="bggrey percent100">'
-pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Loaded extensions</p>'
-echo '                </td>'
-echo '                <td class="column300">'
-echo '                  <select class="large22" name="EXTN">'
-                          for E in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
-                          do
-                            [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
-                            echo '<option value="'$E'" '$SELECTED'>'$E'</option>'
-                          done
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>List of loaded extensions&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <ul>'
-echo '                      <li>Lists all piCore extensions that are currently loaded.</li>'
-echo '                      <li>These extensions may be installed or uninstalled.</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <input type="submit" name="SUBMIT" value="Info">'
-echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-
 #========================================================================================
 # Available extensions from tags.db
 #----------------------------------------------------------------------------------------
-INDICATOR=$HEAVY_CHECK_MARK
-CLASS="indicator_green"
-
 # This will find the correct value of MYMIRROR if not set by this page
 if [ x"$MYMIRROR" = x"" ]; then
 	MYMIRROR=$(cat /opt/tcemirror)
@@ -665,19 +566,19 @@ fi
 
 case "$MYMIRROR" in
 	https://sourceforge.net/projects/picoreplayer/files/repo/*)
-		STATUS="<b>piCorePlayer Sourceforge repository is selected</b>"
+		pcp_green_tick "piCorePlayer Sourceforge repository is selected."
 	;;
 	http://repo.tinycorelinux.net/*)
-		STATUS="<b>Officiel piCore repository is selected</b>"
+		pcp_green_tick "Official piCore repository is selected."
 	;;
-#	http://repo.xxxx.xx/*)                                              #<--- SBP I don't know if it is possible to parse all official mirrors from the mirror.tcz and use them here?
-#		STATUS="<b>Officiel piCore mirror is selected</b>"
+#	http://repo.xxxx.xx/*)                                        #<--- SBP I don't know if it is possible to parse all official mirrors from the mirror.tcz and use them here?
+#		pcp_green_tick "Official piCore mirror is selected."
 #	;;
 	none*)
-		STATUS="<b>No repository is selected</b>"             
+		pcp_green_tick "No repository is selected."             
 	;;
 	*)
-		STATUS="<b>Possibly you are using a mirrored repo</b>"          #<--- SBP For now used as a proxi for the use of mirrors. It is clearly not the correct way
+		pcp_green_tick "Possibly you are using a mirrored repo."  #<--- SBP For now used as a proxi for the use of mirrors. It is clearly not the correct way
 	;;
 esac
 
@@ -744,6 +645,220 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+
+if [ $MODE -ge $MODE_BETA ]; then
+
+	#========================================================================================
+	# Installed extensions - tce-status -i
+	#----------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="installed" action="'$0'" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Installed extensions</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Installed extensions</p>'
+	echo '                </td>'
+	echo '                <td class="column300">'
+	echo '                  <select class="large22" name="EXTN">'
+							  for i in $(tce-status -i)
+							  do
+								echo '<option value="'$i'.tcz">'$i'.tcz</option>'
+							  done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>List of installed extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li>Lists all piCore extensions that are currently installed.</li>'
+	echo '                      <li>These extensions are loaded at boot via /mnt/mmcblk0p2/tce/onboot.lst.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+	#========================================================================================
+	# Uninstalled extensions - tce-status -u
+	#----------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="uninstalled" action="'$0'" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Uninstalled extensions</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Uninstalled extensions</p>'
+	echo '                </td>'
+	echo '                <td class="column300">'
+	echo '                  <select class="large22" name="EXTN">'
+							  for i in $(tce-status -u)
+							  do
+								echo '<option value="'$i'">'$i'</option>'
+							  done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>List of uninstalled extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li>Lists all piCore extensions that are currently downloaded but not (yet) installed.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+	echo '                  <input type="submit" name="SUBMIT" value="Install">'
+	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+	#========================================================================================
+	# Orphaned extensions - tce-status -o  WARNING: very slow!
+	#----------------------------------------------------------------------------------------
+	if [ "$ORPHAN" = "yes" ]; then
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <form name="orphan" action="'$0'" method="get">'
+		echo '        <div class="row">'
+		echo '          <fieldset>'
+		echo '            <legend>Orphaned extensions</legend>'
+		echo '            <table class="bggrey percent100">'
+		pcp_incr_id
+		pcp_start_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150">'
+		echo '                  <p>Orphaned extensions</p>'
+		echo '                </td>'
+		echo '                <td class="column300">'
+		echo '                  <select class="large22" name="EXTN">'
+								  for i in $(tce-status -o | grep '.tcz ' | sed 's/ not found!//' )
+								  do
+									echo '<option value="'$i'">'$i'</option>'
+								  done
+		echo '                  </select>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>List of Orphaned extensions&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <ul>'
+		echo '                      <li>Lists all orphaned extensions installed.</li>'
+		echo '                    </ul>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td>'
+		echo '                  <input type="submit" name="SUBMIT" value="Info">'
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </table>'
+		echo '          </fieldset>'
+		echo '        </div>'
+		echo '      </form>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+	fi
+
+	#========================================================================================
+	# Loaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
+	#----------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="loaded" action="'$0'" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Loaded extensions</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Loaded extensions</p>'
+	echo '                </td>'
+	echo '                <td class="column300">'
+	echo '                  <select class="large22" name="EXTN">'
+							  for E in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+							  do
+								[ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
+								echo '<option value="'$E'" '$SELECTED'>'$E'</option>'
+							  done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>List of loaded extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li>Lists all piCore extensions that are currently loaded.</li>'
+	echo '                      <li>These extensions may be installed or uninstalled.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+fi
 
 #========================================================================================
 # Manual search for extension
@@ -815,67 +930,6 @@ if [ $MODE -eq $MODE_DEVELOPER ] && [ $DEBUG -eq 1 ]; then
 	echo '</table>'
 fi
 
-#========================================================================================
-# Check for internet and piCore repository access
-#----------------------------------------------------------------------------------------
-if [ "$SUBMIT" = "Initial" ]; then
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Internet</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-
-	                  if [ $(pcp_internet_accessible) -eq 0 ]; then
-	                      INDICATOR=$HEAVY_CHECK_MARK
-	                      CLASS="indicator_green"
-	                      STATUS="Internet accessible..."
-	                  else
-	                      INDICATOR=$HEAVY_BALLOT_X
-	                      CLASS="indicator_red"
-	                      STATUS="Internet not accessible!!"
-	                  fi
-
-	echo '              <td class="column150 center">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '              </td>'
-	echo '              <td class="column150">'
-	echo '                <p>'$STATUS'</p>'
-	echo '              </td>'
-	echo '              <td class="column150">'
-	echo '                <p></p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p></p>'
-	echo '              </td>'
-
-	                    if [ $(pcp_picore_accessible) -eq 0 ]; then
-	                        INDICATOR=$HEAVY_CHECK_MARK
-	                        CLASS="indicator_green"
-	                        STATUS="piCore repository accessible..."
-	                    else
-	                        INDICATOR=$HEAVY_BALLOT_X
-	                        CLASS="indicator_red"
-	                        STATUS="piCore repository not accessible!!"
-	                    fi
-
-	echo '              <td class="column150 center">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '              </td>'
-	echo '              <td class="column210">'
-	echo '                <p>'$STATUS'</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
 
 if [ $MODE -ge $MODE_BETA ] && [ $EXTNFOUND -eq 1 ] && [ "$SUBMIT" != "Initial" ]; then
 	#========================================================================================

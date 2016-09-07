@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.02 2016-09-05
+# Version: 3.02 2016-09-06
 #	Added JS function to remove query string from URL History. PH.
 #	Added Hifiberry Digi+ Pro support. SBP.
 #	Updated FIQ-split. SBP.
+#	Added pcp_green_tick, pcp_red_cross. GE.
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
@@ -358,6 +359,18 @@ NORMAL="$(echo -e '\033[0;39m')"
 HEAVY_CHECK_MARK="&#10004;"
 HEAVY_BALLOT_X="&#10008;"
 DEGREE_SIGN="&deg;"
+
+pcp_green_tick() {
+  INDICATOR=$HEAVY_CHECK_MARK
+  CLASS="indicator_green"
+  STATUS="$1"
+}
+
+pcp_red_cross() {
+  INDICATOR=$HEAVY_BALLOT_X
+  CLASS="indicator_red"
+  STATUS="$1"
+}
 
 # Used on LMS controls
 BLACKTRIANGLE="&#9650;"
