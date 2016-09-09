@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-06
+# Version: 3.03 2016-09-09
 #	Updated. GE.
 
 # Version: 3.02 2016-09-05
@@ -354,8 +354,6 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '              </td>'
 	echo '            </tr>'
 
-
-
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -491,8 +489,6 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '  </tr>'
 	echo '</table>'
 fi
-
-
 
 	#========================================================================================
 	# Show piCore local mirrors
@@ -650,6 +646,59 @@ echo '</table>'
 if [ $MODE -ge $MODE_BETA ]; then
 
 	#========================================================================================
+	# Loaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
+	#----------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="loaded" action="'$0'" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Downloaded extensions</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Downloaded extensions</p>'
+	echo '                </td>'
+	echo '                <td class="column300">'
+	echo '                  <select class="large22" name="EXTN">'
+							  for E in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+							  do
+								[ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
+								echo '<option value="'$E'" '$SELECTED'>'$E'</option>'
+							  done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>List of loaded extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li>Lists all piCore extensions that are currently loaded.</li>'
+	echo '                      <li>These extensions may be installed or uninstalled.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+	#========================================================================================
 	# Installed extensions - tce-status -i
 	#----------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
@@ -805,58 +854,6 @@ if [ $MODE -ge $MODE_BETA ]; then
 		echo '</table>'
 	fi
 
-	#========================================================================================
-	# Loaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
-	#----------------------------------------------------------------------------------------
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="loaded" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Loaded extensions</legend>'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Loaded extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
-							  for E in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
-							  do
-								[ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
-								echo '<option value="'$E'" '$SELECTED'>'$E'</option>'
-							  done
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of loaded extensions&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all piCore extensions that are currently loaded.</li>'
-	echo '                      <li>These extensions may be installed or uninstalled.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
 
 fi
 
