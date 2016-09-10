@@ -4,20 +4,20 @@
 
 
 [PI0]
-initramfs 8.0rc1.gz followkernel
-kernel kernel4419.img
+initramfs 8.0.gz followkernel
+kernel kernel4420.img
 
 [PI1]
-initramfs 8.0rc1.gz followkernel
-kernel kernel4419.img
+initramfs 8.0.gz followkernel
+kernel kernel4420.img
 
 [PI2]
-initramfs 8.0rc1v7.gz followkernel
-kernel kernel4419v7.img
+initramfs 8.0v7.gz followkernel
+kernel kernel4420v7.img
 
 [PI3]
-initramfs 8.0rc1v7.gz followkernel
-kernel kernel4419v7.img
+initramfs 8.0v7.gz followkernel
+kernel kernel4420v7.img
 
 [ALL]
 cmdline cmdline.txt
