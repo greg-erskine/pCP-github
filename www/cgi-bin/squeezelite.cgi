@@ -195,6 +195,7 @@ case "$AUDIO" in
 	HDMI)            HDMICHECKED="selected" ;;
 	USB)             USBCHECKED="selected" ;;
 	I2SDAC)          I2DACCHECKED="selected";;
+	I2SGENERIC)      I2GENCHECKED="selected";;
 	I2SDIG)          I2DIGCHECKED="selected" ;;
 	I2SAMP)          I2AMPCHECKED="selected" ;;
 	IQaudio)         IQaudioCHECKED="selected" ;;
@@ -231,7 +232,7 @@ if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
-	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: Generic (HiFiBerry/ES9023/PCM5102A)</option>'
+	echo '                    <option value="I2SGENERIC" '$I2GENCHECKED'>I2S audio: Generic (HiFiBerry/ES9023/PCM5102A)</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+ (and Pro)</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
 	echo '                    <option value="I2SpDIGpro" '$I2SDIGproCHECKED'>I2S audio: HiFiBerry Digi+ Pro</option>'

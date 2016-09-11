@@ -15,7 +15,7 @@ DAEMON=/mnt/mmcblk0p2/tce/shairport-sync
 # Read from config file
 . /usr/local/sbin/config.cfg
 
-if [ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] || [ "$OUTPUT" = "hw:CARD=IQaudIODAC" ]; then
+if [ "$AUDIO" = "I2SpIQaudIO" ] || [ "$AUDIO" = "I2SpDAC" ]; then
     SH_CONTROL='-c Digital'
 else
     SH_CONTROL=''
