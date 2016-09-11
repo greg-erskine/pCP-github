@@ -25,8 +25,8 @@ case "$1" in
         start)
                 echo "Starting $DESC: $PNAME..."
                 start-stop-daemon --start --quiet --exec $DAEMON \
-                                  -- -a "$NAME" -o alsa -S soxr -d -D -R \
-                                  -d "$OUTPUT" "$SH_CONTROL"
+                                  -- -a $NAME -o alsa -S soxr -d -D -R \
+                                  -- -d $OUTPUT $SH_CONTROL
                 ;;
         stop)
                 echo "Stopping $DESC: $PNAME..."
