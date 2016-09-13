@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.02 2016-09-09
+# Version: 3.02 2016-09-13
 #	Added JS function to remove query string from URL History. PH.
 #	Added Hifiberry Digi+ Pro support. SBP.
 #	Updated FIQ-split. SBP.
 #	Added pcp_green_tick, pcp_red_cross. GE.
 #	Added PICORE_REPO_1, PICORE_REPO_2. GE.
+#	Added pcp_pcp_repo_accessible, pcp_picore_repo_1_accessible, pcp_picore_repo_2_accessible. GE.
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
@@ -459,6 +460,21 @@ pcp_sourceforge_accessible() {
 
 pcp_picore_accessible() {
 	/bin/busybox wget -s $MIRROR >/dev/null 2>&1
+	echo $?
+}
+
+pcp_pcp_repo_accessible() {
+	/bin/busybox wget -s $PCP_REPO >/dev/null 2>&1
+	echo $?
+}
+
+pcp_picore_repo_1_accessible() {
+	/bin/busybox wget -s $PICORE_REPO_1 >/dev/null 2>&1
+	echo $?
+}
+
+pcp_picore_repo_2_accessible() {
+	/bin/busybox wget -s $PICORE_REPO_2 >/dev/null 2>&1
 	echo $?
 }
 
@@ -922,6 +938,7 @@ pcp_textarea_inform() {
 
 pcp_write_to_log() {
 	# TODO Check if $LOG has been set.
+	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
 	echo ====================================================================================== >> $LOG
 	echo "$TITLE" >> $LOG
 	echo -------------------------------------------------------------------------------------- >> $LOG
