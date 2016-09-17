@@ -1,23 +1,10 @@
 #!/bin/sh
 
-# Version: 3.02 2016-06-04 PH
+# Version: 3.03 2016-09-17 PH
 #	Original version.
 
 . pcp-functions
 pcp_variables
-
-# Store the original values so we can see if they are changed
-#ORIG_MOUNTPOINT="$MOUNTPOINT"
-#ORIG_MOUNTUUID="$MOUNTUUID"
-#ORIG_NETMOUNT1POINT="$NETMOUNT1POINT"
-#ORIG_NETMOUNT1="$NETMOUNT1"
-#ORIG_NETMOUNT1IP="$NETMOUNT1IP"
-#ORIG_NETMOUNT1SHARE="$NETMOUNT1SHARE"
-#ORIG_NETMOUNT1FSTYPE="$NETMOUNT1FSTYPE"
-#ORIG_NETMOUNT1USER="$NETMOUNT1USER"
-#ORIG_NETMOUNT1PASS="$NETMOUNT1PASS"
-#ORIG_NETMOUNT1OPTIONS="$NETMOUNT1OPTIONS"
-#ORIG_LMSDATA="$LMSDATA"
 
 pcp_html_head "Write to Samba" "PH" 
 
@@ -36,17 +23,13 @@ REBOOT_REQUIRED="0"
 
 	
 #========================================================================================
-# Mounts section
+# Process Command section
 #----------------------------------------------------------------------------------------
-#Only do something if variable is changed
 
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] COMMAND is: '$COMMAND'</p>'
 
 case "$COMMAND" in
 	setconfig)
-#		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTPOINT is: '$MOUNTPOINT'</p>'
-#		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTUUID is: '$ORIG_MOUNTUUID'</p>'
-#		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTUUID is: '$MOUNTUUID'</p>'
 		echo '<p class="info">[ INFO ] Writing smb.conf to: '$SAMBACONF'</p>'
 
 		# Write the Global Section of the config file
@@ -103,7 +86,9 @@ case "$COMMAND" in
 		echo '</table>'
 
 		pcp_backup
-#		Need to restart samba
+		echo -n '<p class="info">[ INFO ] '
+		/usr/local/etc/init.d/samba restart
+		echo '</p>'
 	;;
 	autostart)
 		echo '<p class="info">[ INFO ] Setting SAMBA Autostart Status</p>'
@@ -116,6 +101,7 @@ case "$COMMAND" in
 		smbpasswd -x tc >/dev/null 2>&1 
 		echo '<p class="info">[ INFO ] Adding new password for user: tc</p>'
 		(echo "$SAMBAPASS"; echo "$SAMBAPASS") | smbpasswd -s -a tc
+		pcp_backup
 	;;
 	*)
 		echo '<p class="error">[ERROR] Web Page Error, Incorrect Command Submitted</p>'

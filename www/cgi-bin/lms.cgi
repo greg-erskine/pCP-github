@@ -152,38 +152,46 @@ DESC="File Sharing"
 CONF=/usr/local/etc/samba/smb.conf
 
 startsmb(){
-        if [ -f $CONF ]; then
+	if [ -f $CONF ]; then
+		echo "Starting SAMBA..."
+		/usr/local/sbin/smbd
+		/usr/local/sbin/nmbd
+	else
+		echo "Samba not Configured......exiting"
+	fi
+}
 
-                echo "Starting SAMBA..."
-                /usr/local/sbin/smbd
-                /usr/local/sbin/nmbd
-        else
-                echo "Samba not Configured......exiting"
-        fi
-}
 stopsmb(){
-        echo "Stopping SAMBA..."
-        pkill nmbd
-        pkill smbd
+	echo "Stopping SAMBA..."
+	pkill nmbd
+	pkill smbd
 }
+
 case "\$1" in
-        start) startsmb;;
-        stop) stopsmb;;
-        restart)
-                echo "Restarting SAMBA..."
-                stopsmb
-                sleep 3
-                startsmb
-        ;;
-        status)
-                ps -ef | grep smb | grep -v grep | awk '{ print \$0 }'
-                ;;
-        *)
-                echo ""
-                echo -e "Usage: /usr/local/etc/init.d/`basename \$0` [start|stop|restart|status]"
-                echo ""
-                exit 1
-        ;;
+	start) startsmb;;
+	stop) stopsmb;;
+	restart)
+		echo "Restarting SAMBA..."
+		stopsmb
+		sleep 3
+		startsmb
+	;;
+	status)
+		PID=$(pidof smbd)
+		if [ -n "$PID" ]; then
+			echo "Samba Running"
+			exit 0
+		else
+			echo "Samba Not Running"
+			exit 1
+		fi
+	;;
+	*)
+		echo ""
+		echo -e "Usage: /usr/local/etc/init.d/`basename \$0` [start|stop|restart|status]"
+		echo ""
+		exit 1
+	;;
 esac
 exit 0
 EOF
@@ -198,7 +206,6 @@ EOF
 	else
 		echo '<p class="error">[ ERROR ] Samba4.tcz not loaded, try again later!</p>'
 	fi
-
 }
 
 pcp_remove_samba4() {
@@ -209,9 +216,17 @@ pcp_remove_samba4() {
 	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/var\/lib\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/etc\/samba\/smb.conf/d' /opt/.filetool.lst
-	echo '<p class="info">[ INFO ] Extensions Removed, Reboot to Finish</p>'
+	echo '<p class="info">[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
 }
 
+pcp_samba_status() {
+	if [ -f /usr/local/etc/init.d/samba ]; then
+		/usr/local/etc/init.d/samba status 1>/dev/null
+		echo $?
+	else
+		echo 1
+	fi
+}
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Start)
@@ -1165,6 +1180,16 @@ pcp_mount_netdrives() {
 # Samba Share Drive Support
 #----------------------------------------------------------------------------------------
 pcp_samba() {
+#------------------------------------Samba Indication--------------------------------------
+	if [ $(pcp_samba_status) -eq 0 ]; then
+		SMBINDICATOR=$HEAVY_CHECK_MARK
+		CLASS="indicator_green"
+		STATUS="running"
+	else
+		SMBINDICATOR=$HEAVY_BALLOT_X
+		CLASS="indicator_red"
+		STATUS="not running"
+	fi
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1175,6 +1200,30 @@ pcp_samba() {
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 centre">'
+	echo '                  <p class="'$CLASS'">'$SMBINDICATOR'</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Samba is '$STATUS'&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li><span class="indicator_green">&#x2714;</span> = Samba running.</li>'
+	echo '                      <li><span class="indicator_red">&#x2718;</span> = Samba not running.</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>Samba must be running to share files from this pCP.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#----------------------------------------------------------------------------------------
+	pcp_lms_padding
+	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ "$SAMBA" = "disabled" ]; then
@@ -1435,7 +1484,7 @@ pcp_samba() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_samba
+[ $MODE -ge $MODE_BETA ] && pcp_samba
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
