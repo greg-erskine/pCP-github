@@ -2,6 +2,7 @@
 
 # Version: 3.02 2016-09-05
 #	Added Hifiberry Digi+ Pro support. SBP.
+#	Fixed problem with selection of certain cards. GE/SBP
 
 # Version: 3.00 2016-07-04
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
@@ -73,7 +74,7 @@ echo '<textarea class="white" style="height: 80px;" >'
 if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 	echo '[ INFO ] Setting $AUDIO to '$AUDIO
 	case "$AUDIO" in
-		Analog*)
+		Analog)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_disable_i2s
 			pcp_disable_HDMI
@@ -81,7 +82,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:::0"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		HDMI*)
+		HDMI)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_disable_i2s
 			pcp_disable_HDMI
@@ -91,7 +92,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			pcp_umount_mmcblk0p1_nohtml
 			sudo amixer cset numid=3 2 >/dev/null 2>&1
 		;;
-		USB*)
+		USB)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_disable_i2s
 			pcp_disable_HDMI
@@ -99,7 +100,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SDAC*)
+		I2SDAC)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_i2s_dac
 			pcp_disable_HDMI
@@ -107,7 +108,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SGENERIC*)
+		I2SGENERIC)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_i2s_dac
 			pcp_disable_HDMI
@@ -115,7 +116,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SDIG*)
+		I2SDIG)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_i2s_digi
 			pcp_disable_HDMI
@@ -123,7 +124,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SAMP*)
+		I2SAMP)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_i2s_amp
 			pcp_disable_HDMI
@@ -131,7 +132,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		IQaudio*)
+		IQaudio)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_iqaudio_dac
 			pcp_disable_HDMI
@@ -139,7 +140,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SpIQAMP*)
+		I2SpIQAMP)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_iqaudio_amp
 			pcp_disable_HDMI
@@ -147,7 +148,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SpDAC*)
+		I2SpDAC)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_hifiberry_dac_p
 			pcp_disable_HDMI
@@ -155,7 +156,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SpDIG*)
+		I2SpDIG)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_i2s_digi
 			pcp_disable_HDMI
@@ -163,7 +164,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SpDIGpro*)
+		I2SpDIGpro)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_hifiberry_digi_pro
 			pcp_disable_HDMI
@@ -171,7 +172,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SpIQaudIO*)
+		I2SpIQaudIO)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_iqaudio_dac_p
 			pcp_disable_HDMI
@@ -179,7 +180,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		I2SpIQaudIOdigi*)
+		I2SpIQaudIOdigi)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_iqaudio_digi
 			pcp_disable_HDMI
@@ -187,7 +188,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		justboomdac*)
+		justboomdac)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_justboomdac
 			pcp_disable_HDMI
@@ -195,7 +196,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		justboomdigi*)
+		justboomdigi)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_justboomdigi
 			pcp_disable_HDMI
@@ -203,7 +204,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		raspidac3*)
+		raspidac3)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_raspidac3
 			pcp_disable_HDMI
@@ -211,7 +212,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		rpi_dac*)
+		rpi_dac)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_rpi_dac
 			pcp_disable_HDMI
@@ -219,7 +220,7 @@ if [ "$ORIG_AUDIO" != "$AUDIO" ]; then
 			ALSA_PARAMS="80:4::"
 			pcp_umount_mmcblk0p1_nohtml
 		;;
-		LOCO_dac*)
+		LOCO_dac)
 			pcp_mount_mmcblk0p1_nohtml
 			pcp_enable_LOCO_dac
 			pcp_disable_HDMI
