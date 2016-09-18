@@ -2,13 +2,14 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.02 2016-09-13
+# Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
 #	Added Hifiberry Digi+ Pro support. SBP.
 #	Updated FIQ-split. SBP.
 #	Added pcp_green_tick, pcp_red_cross. GE.
 #	Added PICORE_REPO_1, PICORE_REPO_2. GE.
 #	Added pcp_pcp_repo_accessible, pcp_picore_repo_1_accessible, pcp_picore_repo_2_accessible. GE.
+#	Added pcp_reset_repository. GE.
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
@@ -310,7 +311,7 @@ pcp_variables() {
 	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
 	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
-	PICORE_REPO_2="http://distro.ibiblio.org/tinycore"
+	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
@@ -476,6 +477,13 @@ pcp_picore_repo_1_accessible() {
 pcp_picore_repo_2_accessible() {
 	/bin/busybox wget -s $PICORE_REPO_2 >/dev/null 2>&1
 	echo $?
+}
+
+#=========================================================================================
+# Reset repository to piCore default value.
+#-----------------------------------------------------------------------------------------
+pcp_reset_repository() {
+	echo $PICORE_REPO_1 > /opt/tcemirror
 }
 
 #=========================================================================================

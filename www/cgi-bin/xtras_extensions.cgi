@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-13
+# Version: 3.03 2016-09-19
 #	Extensive update. GE.
 
 # Version: 3.02 2016-09-05
@@ -41,7 +41,6 @@
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
-getMirror
 . pcp-lms-functions
 . pcp-functions
 pcp_variables
@@ -59,6 +58,7 @@ ORPHAN=""
 EXTNFOUND=0
 MYMIRROR=$(cat /opt/tcemirror)
 LOG="${LOGDIR}/pcp_extensions.log"
+PCP_REPO=${PCP_REPO}/
 
 #========================================================================================
 # Search, load, install and delete extension routines
@@ -129,7 +129,7 @@ pcp_init_search() {
 	search.sh picoreplayer
 }
 
-pcp_set_mirror() {
+pcp_set_repository() {
 	echo $MYMIRROR > /opt/tcemirror
 }
 
@@ -188,7 +188,11 @@ pcp_debug_info() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<p class="debug">[ DEBUG ] $EXTN: '$EXTN'<br />'
 		echo '                 [ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
-		echo '                 [ DEBUG ] $MIRROR: '$MIRROR'</p>'
+		echo '                 [ DEBUG ] $MYMIRROR: '$MYMIRROR'<br />'
+		echo '                 [ DEBUG ] $MIRROR: '$MIRROR'<br />'
+		echo '                 [ DEBUG ] $PICORE_REPO_1: '$PICORE_REPO_1'<br />'
+		echo '                 [ DEBUG ] $PICORE_REPO_2: '$PICORE_REPO_2'<br />'
+		echo '                 [ DEBUG ] $PCP_REPO: '$PCP_REPO'</p>'
 	fi
 }
 
@@ -293,13 +297,12 @@ case "$SUBMIT" in
 	;;
 	Set)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Setting repository...</p>'
-		pcp_set_mirror
+		pcp_set_repository
 		pcp_cleanup
 	;;
 	Reset)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Resetting repository to Official piCore repository...</p>'
-		MYMIRROR="$PICORE_REPO_1"
-		pcp_set_mirror
+		pcp_reset_repository
 		pcp_cleanup
 	;;
 	*)
@@ -404,7 +407,7 @@ echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td>'
-echo '                  <p><b>WARNING:</b> Check you have sufficient free space to download your required extension.</p>'
+echo '                  <p><b>WARNING:</b> Check you have sufficient free space before you download your required extension.</p>'
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'
@@ -520,6 +523,8 @@ fi
 #========================================================================================
 # Set repository
 #----------------------------------------------------------------------------------------
+MYMIRROR=$(cat /opt/tcemirror)
+
 case "$MYMIRROR" in
 	"$PICORE_REPO_1")
 		SELECTED_1="selected"
