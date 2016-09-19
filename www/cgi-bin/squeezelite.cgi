@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.02 2016-09-05
+# Version: 3.02 2016-09-19
 #	Added Hifiberry Digi+ Pro support. SBP.
+#	Fixed pattern for ALSA settings to allow 24_3.
 
 # Version: 3.00 2016-07-25
 #	Added note regaring hw: option for output. PH.
@@ -415,7 +416,7 @@ pcp_squeezelite_alsa() {
 	echo '                         name="ALSA_PARAMS3"'
 	echo '                         value="'$ALSA_PARAMS3'"'
 	echo '                         title="sample format ( 16 | 24 | 24_3 | 32 )"'
-	echo '                         pattern="(16|24|24_3|32)"'
+	echo '                         pattern="16|24_3|24|32"'
 	echo '                  >'
 	echo '                  <input class="small1"'
 	echo '                         type="text"'
