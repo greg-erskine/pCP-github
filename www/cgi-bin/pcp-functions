@@ -1745,8 +1745,8 @@ pcp_disable_i2s() {
 	sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
 	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
 	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
-	sed -i '/dtoverlay=justboomdigi/d' $CONFIGTXT
-	sed -i '/dtoverlay=justboomdac/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboom-digi/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboom-dac/d' $CONFIGTXT
 	sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
 }
 

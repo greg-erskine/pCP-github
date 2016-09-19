@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 3.02 2016-09-05
+# Version: 3.02 2016-09-19
 #	Added Hifiberry Digi+ Pro support. SBP.
-#	Fixed problem with selection of certain cards. GE/SBP
+#	Fixed problem with selection of certain cards. GE/SBP.
 
 # Version: 3.00 2016-07-04
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
