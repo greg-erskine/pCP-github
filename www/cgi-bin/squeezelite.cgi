@@ -3,6 +3,7 @@
 # Version: 3.02 2016-09-19
 #	Added Hifiberry Digi+ Pro support. SBP.
 #	Fixed pattern for ALSA settings to allow 24_3.
+#	Added missing raspidac3CHECKED. GE.
 
 # Version: 3.00 2016-07-25
 #	Added note regaring hw: option for output. PH.
@@ -209,10 +210,11 @@ case "$AUDIO" in
 	I2SpIQaudIO)     IQaudIOpCHECKED="selected" ;;
 	I2SpIQAMP)       IQAMPCHECKED="selected" ;;
 	I2SpIQaudIOdigi) IQaudIOdigipCHECKED="selected" ;;
+	LOCO_dac)        rpi_LOCOCHECKED="selected" ;;
 	justboomdac)     justboomdacCHECKED="selected" ;;
 	justboomdigi)    justboomdigiCHECKED="selected" ;;
+	raspidac3)       raspidac3CHECKED="selected" ;;
 	rpi_dac)         rpi_dacCHECKED="selected" ;;
-	LOCO_dac)        rpi_LOCOCHECKED="selected" ;;
 	*)               CHECKED="Not set" ;;
 esac
 
