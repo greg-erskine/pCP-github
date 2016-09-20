@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.02 2016-09-19
+# Version: 3.02 2016-09-20
 #	Added Hifiberry Digi+ Pro support. SBP.
 #	Fixed pattern for ALSA settings to allow 24_3.
 #	Added missing raspidac3CHECKED. GE.
+#	Fixed -i option only when Jivelite and LIRC enabled. RI.
 
 # Version: 3.00 2016-07-25
 #	Added note regaring hw: option for output. PH.
@@ -153,7 +154,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$CLOSEOUT" ]     && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$UNMUTE" ]       && STRING="$STRING -U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && STRING="$STRING -V $ALSAVOLUME"
-[ "$IR_LIRC" = "yes" ]      && STRING="$STRING -i $IR_CONFIG"
+[ "$IR_LIRC" = "yes" ] && [ "$JIVELITE" != "yes" ] && STRING="$STRING -i $IR_CONFIG"
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
