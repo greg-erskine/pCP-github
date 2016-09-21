@@ -1,12 +1,10 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-19
-#	Extensive update. GE.
-
-# Version: 3.02 2016-09-05
+# Version: 3.02 2016-09-21
 #	Added default button. SBP.
 #	Added more help txt. SBP.
 #	Added repo indicator. SBP.
+#	Extensive update. GE.
 
 # Version: 3.00 2016-07-08
 #	Removed pcp_mode_lt_beta. GE.
