@@ -2,9 +2,14 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-09-03
-#	Added JS function to remove query string from URL History   PH
-#	Initial Hifiberry Digi+ Pro support SBP
+# Version: 3.02 2016-09-19
+#	Added JS function to remove query string from URL History. PH.
+#	Added Hifiberry Digi+ Pro support. SBP.
+#	Updated FIQ-split. SBP.
+#	Added pcp_green_tick, pcp_red_cross. GE.
+#	Added PICORE_REPO_1, PICORE_REPO_2. GE.
+#	Added pcp_pcp_repo_accessible, pcp_picore_repo_1_accessible, pcp_picore_repo_2_accessible. GE.
+#	Added pcp_reset_repository. GE.
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
@@ -305,6 +310,8 @@ pcp_variables() {
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
 	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
 	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
+	PICORE_REPO_1="http://repo.tinycorelinux.net/"
+	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
 	DEBUG=0
@@ -357,6 +364,18 @@ NORMAL="$(echo -e '\033[0;39m')"
 HEAVY_CHECK_MARK="&#10004;"
 HEAVY_BALLOT_X="&#10008;"
 DEGREE_SIGN="&deg;"
+
+pcp_green_tick() {
+  INDICATOR=$HEAVY_CHECK_MARK
+  CLASS="indicator_green"
+  STATUS="$1"
+}
+
+pcp_red_cross() {
+  INDICATOR=$HEAVY_BALLOT_X
+  CLASS="indicator_red"
+  STATUS="$1"
+}
 
 # Used on LMS controls
 BLACKTRIANGLE="&#9650;"
@@ -443,6 +462,28 @@ pcp_sourceforge_accessible() {
 pcp_picore_accessible() {
 	/bin/busybox wget -s $MIRROR >/dev/null 2>&1
 	echo $?
+}
+
+pcp_pcp_repo_accessible() {
+	/bin/busybox wget -s $PCP_REPO >/dev/null 2>&1
+	echo $?
+}
+
+pcp_picore_repo_1_accessible() {
+	/bin/busybox wget -s $PICORE_REPO_1 >/dev/null 2>&1
+	echo $?
+}
+
+pcp_picore_repo_2_accessible() {
+	/bin/busybox wget -s $PICORE_REPO_2 >/dev/null 2>&1
+	echo $?
+}
+
+#=========================================================================================
+# Reset repository to piCore default value.
+#-----------------------------------------------------------------------------------------
+pcp_reset_repository() {
+	echo $PICORE_REPO_1 > /opt/tcemirror
 }
 
 #=========================================================================================
@@ -905,6 +946,7 @@ pcp_textarea_inform() {
 
 pcp_write_to_log() {
 	# TODO Check if $LOG has been set.
+	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
 	echo ====================================================================================== >> $LOG
 	echo "$TITLE" >> $LOG
 	echo -------------------------------------------------------------------------------------- >> $LOG
@@ -940,7 +982,7 @@ pcp_httpd_query_string_no_decode() {
 }
 
 # This will remove the query string from the url, prevents page reloads and document.referrer from
-# reposting a command that we've already executed.  Once we test this more we might want to move this 
+# reposting a command that we've already executed.  Once we test this more we might want to move this
 # script to the piCorePlayer.js.
 pcp_remove_query_string() {
 	echo '<script type="text/javascript">'
@@ -1703,8 +1745,8 @@ pcp_disable_i2s() {
 	sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
 	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
 	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
-	sed -i '/dtoverlay=justboomdigi/d' $CONFIGTXT
-	sed -i '/dtoverlay=justboomdac/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboom-digi/d' $CONFIGTXT
+	sed -i '/dtoverlay=justboom-dac/d' $CONFIGTXT
 	sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
 }
 
@@ -1781,7 +1823,7 @@ pcp_enable_iqaudio_dac_p() {
 }
 
 #========================================================================================
-# Load the correct modules for IQaudIO AMP+ and digiAMP+
+# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_amp() {
 	pcp_disable_i2s

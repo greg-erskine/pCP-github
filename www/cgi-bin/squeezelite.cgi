@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-20
+#	Added Hifiberry Digi+ Pro support. SBP.
+#	Fixed pattern for ALSA settings to allow 24_3.
+#	Added missing raspidac3CHECKED. GE.
+#	Fixed -i option only when Jivelite and LIRC enabled. RI.
+
 # Version: 3.00 2016-07-25
 #	Added note regaring hw: option for output. PH.
 #	Added new DACs. SBP.
@@ -148,7 +154,7 @@ STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
 [ x"" != x"$CLOSEOUT" ]     && STRING="$STRING -C $CLOSEOUT"
 [ x"" != x"$UNMUTE" ]       && STRING="$STRING -U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && STRING="$STRING -V $ALSAVOLUME"
-[ "$IR_LIRC" = "yes" ]      && STRING="$STRING -i $IR_CONFIG"
+[ "$IR_LIRC" = "yes" ] && [ "$JIVELITE" != "yes" ] && STRING="$STRING -i $IR_CONFIG"
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
@@ -195,6 +201,7 @@ case "$AUDIO" in
 	HDMI)            HDMICHECKED="selected" ;;
 	USB)             USBCHECKED="selected" ;;
 	I2SDAC)          I2DACCHECKED="selected";;
+	I2SGENERIC)      I2GENCHECKED="selected";;
 	I2SDIG)          I2DIGCHECKED="selected" ;;
 	I2SAMP)          I2AMPCHECKED="selected" ;;
 	IQaudio)         IQaudioCHECKED="selected" ;;
@@ -204,10 +211,11 @@ case "$AUDIO" in
 	I2SpIQaudIO)     IQaudIOpCHECKED="selected" ;;
 	I2SpIQAMP)       IQAMPCHECKED="selected" ;;
 	I2SpIQaudIOdigi) IQaudIOdigipCHECKED="selected" ;;
+	LOCO_dac)        rpi_LOCOCHECKED="selected" ;;
 	justboomdac)     justboomdacCHECKED="selected" ;;
 	justboomdigi)    justboomdigiCHECKED="selected" ;;
+	raspidac3)       raspidac3CHECKED="selected" ;;
 	rpi_dac)         rpi_dacCHECKED="selected" ;;
-	LOCO_dac)        rpi_LOCOCHECKED="selected" ;;
 	*)               CHECKED="Not set" ;;
 esac
 
@@ -231,7 +239,7 @@ if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE 
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
-	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: Generic (HiFiBerry/ES9023/PCM5102A)</option>'
+	echo '                    <option value="I2SGENERIC" '$I2GENCHECKED'>I2S audio: Generic (HiFiBerry/ES9023/PCM5102A)</option>'
 	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+ (and Pro)</option>'
 	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
 	echo '                    <option value="I2SpDIGpro" '$I2SDIGproCHECKED'>I2S audio: HiFiBerry Digi+ Pro</option>'
@@ -411,7 +419,7 @@ pcp_squeezelite_alsa() {
 	echo '                         name="ALSA_PARAMS3"'
 	echo '                         value="'$ALSA_PARAMS3'"'
 	echo '                         title="sample format ( 16 | 24 | 24_3 | 32 )"'
-	echo '                         pattern="(16|24|24_3|32)"'
+	echo '                         pattern="16|24_3|24|32"'
 	echo '                  >'
 	echo '                  <input class="small1"'
 	echo '                         type="text"'

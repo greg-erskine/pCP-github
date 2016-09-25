@@ -15,7 +15,7 @@ DAEMON=/mnt/mmcblk0p2/tce/shairport-sync
 # Read from config file
 . /usr/local/sbin/config.cfg
 
-if [ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] || [ "$OUTPUT" = "hw:CARD=IQaudIODAC" ]; then
+if [ "$AUDIO" = "I2SpIQaudIO" ] || [ "$AUDIO" = "I2SpDAC" ]; then
     SH_CONTROL='-c Digital'
 else
     SH_CONTROL=''
@@ -25,8 +25,8 @@ case "$1" in
         start)
                 echo "Starting $DESC: $PNAME..."
                 start-stop-daemon --start --quiet --exec $DAEMON \
-                                  -- -a "$NAME" -o alsa -S soxr -d -D -R \
-                                  -d "$OUTPUT" "$SH_CONTROL"
+                                  -- -a $NAME -o alsa -S soxr -d -D -R \
+                                  -- -d $OUTPUT $SH_CONTROL
                 ;;
         stop)
                 echo "Stopping $DESC: $PNAME..."

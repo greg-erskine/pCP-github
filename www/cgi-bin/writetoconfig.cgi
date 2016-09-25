@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-21
+#	Fixed blanking ALSA_PARAMS issue. GE.
+
 # Version: 2.06 2016-06-07
 #	Added multi ALSA_PARAMS and FROM_PAGE. GE.
 #	Added MMAP configuration. GE.
@@ -108,11 +111,13 @@ pcp_multi_alsa_mmap() {
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Save)
-		ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
-		[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
-		[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
-		[ $PRIORITY -eq 0 ] && PRIORITY=""
-		[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
+		if [ $MODE -ge $MODE_BASIC ]; then
+			ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
+			[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
+			[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
+			[ $PRIORITY -eq 0 ] && PRIORITY=""
+			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
+		fi
 		pcp_save_to_config
 	;;
 	Reset*)
