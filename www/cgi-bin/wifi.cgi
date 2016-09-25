@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-15
+#	Minor update. GE.
+
 # Version: 2.06 2016-04-27 PH
 #	Add ability to blacklist RPi3 builtin wifi
 
@@ -368,18 +371,18 @@ if [ $(pcp_rpi_is_model_3B) -eq 0 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>RPi3B Builtin WIFI</p>'
+	echo '                  <p>RPi3B Built-in Wifi</p>'
 	echo '                </td>'
 	echo '                <td class="column380">'
 	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPI3WIFIyes'>On&nbsp;'
 	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPI3WIFIno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Turn off Raspberry pi 3B builtin wifi card;&nbsp;'
+	echo '                  <p>Turn off Raspberry Pi 3B built-in wifi card&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Will blacklist the driver in the commandline</p>'
+	echo '                    <p>This will blacklist the driver in /mnt/mmcblk0p1/cmdline.txt.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'

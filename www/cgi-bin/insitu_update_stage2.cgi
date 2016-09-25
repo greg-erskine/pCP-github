@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.02 2016-09-05 PH
-#	Updated Kernel Information for 3.02
+# Version 3.02 2016-09-04 PH
+#	Updated Kernel Information for 3.02 piCore8.0 Release
 #	Removed pcp-load, as 3.00 and on had the updated file.  Not needed for pcp 2.xx
 
 # Version 3.00 2016-08-09 PH
@@ -241,7 +241,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.02*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.4.19
+			NEWKERNELVER=4.4.20
 			PICOREVERSION=8.x
 		;;
 		*)  KUPDATE=0
@@ -249,7 +249,7 @@ pcp_get_kernel_modules() {
 	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
-		TCE_REPO="http://repo.tinycorelinux.net/"
+		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		BUILD=$(getBuild)
 		case $BUILD in

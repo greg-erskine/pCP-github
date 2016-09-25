@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-19
+#	Added pcp_reset_repository.
+
 # Version: 3.00 2016-08-12
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
@@ -141,6 +144,11 @@ echo "${GREEN}Done.${NORMAL}"
 # Read from config file.
 echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
+echo "${GREEN}Done.${NORMAL}"
+
+# Set default respository incase it has been set to something non-standard.
+echo -n "${BLUE}Setting piCore repository... ${NORMAL}"
+pcp_reset_repository
 echo "${GREEN}Done.${NORMAL}"
 
 # Mount USB stick if present

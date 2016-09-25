@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.02 2016-09-20 RI
+#	Fixed -i option only when Jivelite and LIRC enabled.
+
 # Version: 0.07 2016-03-29 PH
 #	Fixed $VISUALISER and $IR_LIRC.
 #	Changed log location to ${LOGDIR}.
@@ -63,7 +66,7 @@ LOGDIR=/var/log
 [ x"" != x"$CLOSEOUT" ]     && CLOSEOUT="-C $CLOSEOUT"
 [ x"" != x"$UNMUTE" ]       && UNMUTE="-U $UNMUTE"
 [ x"" != x"$ALSAVOLUME" ]   && ALSAVOLUME="-V $ALSAVOLUME"
-[ "$IR_LIRC" = "yes" ]        && LIRC="-i $IR_CONFIG"
+[ "$IR_LIRC" = "yes" ] && [ "$JIVELITE" != "yes" ] && LIRC="-i $IR_CONFIG"
 [ x"" != x"$POWER_GPIO" ]   && POWER_GPIO="-G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && POWER_SCRIPT="-S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && OTHER="$OTHER"
