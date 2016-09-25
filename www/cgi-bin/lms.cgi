@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.03 2016-09-21
+#	Pop-up asking to delete cache. SBP
+#	Remove all traces of LMS
+
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
 
@@ -61,6 +65,12 @@ else
 DISABLED="disabled"
 fi
 
+# logic to activate/inactivate buttons depending upon whether LMS cache is present or not 
+if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
+DISABLECACHE=""
+else
+DISABLECACHE="disabled"
+fi
 
 #---------------------------Routines-----------------------------------------------------
 pcp_download_lms() {
@@ -85,11 +95,28 @@ pcp_remove_lms() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN*
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz*
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz.md5.txt
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz.md5.txt
-#   Lets not remove the cache automatically......Todo....put a clear Cache Option on the page
-#	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_io_socket_ssl.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_io_socket_ssl.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_io_socket_ssl.tcz.dep
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_net_ssleay.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_net_ssleay.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_mozilla_ca.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_mozilla_ca.tcz.md5.txt
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	if [ x"$DISABLECACHE" = x ]; then
+		STRING1='Press OK to remove LMS cache.......To keep the cache - Press Cancel'
+		SCRIPT1=lms.cgi?ACTION=Remove_cache
+		pcp_confirmation_required
+	fi
+}
+
+pcp_remove_lms_cache() {
+	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
+	sudo rm -rf /mnt/"$NETMOUNT1POINT"/slimserver/
+	sudo rm -rf /mnt/"$MOUNTPOINT"/slimserver/
 }
 
 pcp_lms_padding() {
@@ -188,6 +215,9 @@ case "$ACTION" in
 		pcp_save_to_config
 		pcp_backup
 		pcp_reboot_required
+	;;
+	Remove_cache)
+		pcp_remove_lms_cache
 	;;
 	Install_FS)
 		pcp_sufficient_free_space 4000
@@ -389,6 +419,7 @@ pcp_lms_install_lms() {
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will remove LMS and all the extra packages that was added with LMS.</p>'
+		echo '                    <p>You will be promted in the process whether you want to remove or keep your LMS cache.</p>'
 		echo '                  </div>'
 	fi
 	echo '                </td>'
@@ -396,6 +427,29 @@ pcp_lms_install_lms() {
 	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_install_lms
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Remove LMS cache-------------------------
+pcp_lms_remove_cache() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Remove_cache" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                    <button type="submit" name="ACTION" value="Remove_cache" '$DISABLECACHE'>Remove cache</button>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Remove LMS cache from pCP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will remove your LMS cache from pCP.</p>'
+	echo '                  </div>'
+	echo '                 </td>'
+	echo '               </tr>'
+	echo '              </form>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_lms_remove_cache
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Start LMS-------------------------------------
