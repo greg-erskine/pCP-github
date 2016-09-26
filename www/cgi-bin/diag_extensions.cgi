@@ -21,6 +21,7 @@ pcp_navigation
 # Set variables
 PCP_REPO=${PCP_REPO}/
 KERNELVER=$(uname -r)
+EXTENLIST="/tmp/xxx_extensions.lst"
 getMirror
 
 pcp_log_header() {
@@ -87,6 +88,44 @@ pcp_message() {
 	echo "[ INFO ] Checking extensions for ${1}..." | tee -a $LOG
 }
 
+
+#========================================================================================
+# Generate a list of REQUIRED DOWNLOADED EXTENSIONS (alphabetically sorted)
+#----------------------------------------------------------------------------------------
+pcp_downloaded_extensions() {
+cat <<EOF > $EXTENLIST
+alsa-modules-4.4.20-piCore_v7+.tcz
+alsa-utils.tcz
+alsa.tcz
+backlight-4.4.20-piCore_v7+.tcz
+busybox-httpd.tcz
+dialog.tcz
+firmware-atheros.tcz
+firmware-brcmwifi.tcz
+firmware-ralinkwifi.tcz
+firmware-rpi3-wireless.tcz
+firmware-rtlwifi.tcz
+libasound.tcz
+libedit.tcz
+libelf.tcz
+libgcrypt.tcz
+libgpg-error.tcz
+libiw.tcz
+libnl.tcz
+libssh2.tcz
+libts.tcz
+ncurses.tcz
+openssh.tcz
+openssl.tcz
+readline.tcz
+touchscreen-4.4.20-piCore_v7+.tcz
+wifi.tcz
+wireless-4.4.20-piCore_v7+.tcz
+wireless_tools.tcz
+wpa_supplicant.tcz
+EOF
+}
+
 #========================================================================================
 # Generate warning message
 #----------------------------------------------------------------------------------------
@@ -131,8 +170,80 @@ pcp_debug_info() {
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-
 pcp_warning_message
+pcp_downloaded_extensions
+
+
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Checking the standard extensions are downloaded . . .</legend>'
+echo '          <table class="bggrey percent100">'
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <textarea class="inform" style="height:300px">'
+
+for i in $(cat $EXTENLIST)
+do
+	if [ -f /mnt/mmcblk0p2/tce/optional/${i} ]; then
+		echo "[ FOUND ] $i"
+	else
+		echo "[ MISSING ] $i"
+	fi
+done 
+
+
+echo '                  </textarea>'
+echo '                </td>'
+echo '              </tr>'
+
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Checking for extra extensions . . .</legend>'
+echo '          <table class="bggrey percent100">'
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <textarea class="inform" style="height:300px">'
+
+
+EXTNS=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+
+for i in $EXTNS
+do
+	if grep $i $EXTENLIST >/dev/null 2>&1; then
+		echo "[ OK ] $i"
+	else
+		echo "[ EXTRA ] $i"
+	fi
+done 
+
+echo '                  </textarea>'
+echo '                </td>'
+echo '              </tr>'
+
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+
+
 
 pcp_running_script
 pcp_httpd_query_string
