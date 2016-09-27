@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-26 GE
+# Version: 3.03 2016-09-27 GE
 #	Original version.
 
 #========================================================================================
@@ -21,7 +21,8 @@ pcp_navigation
 # Set variables
 PCP_REPO=${PCP_REPO}/
 KERNELVER=$(uname -r)
-EXTENLIST="/tmp/xxx_extensions.lst"
+EXTENLIST="/tmp/pcp_extensions.lst"
+VERBOSE=TRUE
 getMirror
 
 pcp_log_header() {
@@ -88,42 +89,47 @@ pcp_message() {
 	echo "[ INFO ] Checking extensions for ${1}..." | tee -a $LOG
 }
 
-
 #========================================================================================
 # Generate a list of REQUIRED DOWNLOADED EXTENSIONS (alphabetically sorted)
+#
+# NOTE: This list must be maintained MANUALLY.
 #----------------------------------------------------------------------------------------
 pcp_downloaded_extensions() {
-cat <<EOF > $EXTENLIST
-alsa-modules-4.4.20-piCore_v7+.tcz
-alsa-utils.tcz
-alsa.tcz
-backlight-4.4.20-piCore_v7+.tcz
-busybox-httpd.tcz
-dialog.tcz
-firmware-atheros.tcz
-firmware-brcmwifi.tcz
-firmware-ralinkwifi.tcz
-firmware-rpi3-wireless.tcz
-firmware-rtlwifi.tcz
-libasound.tcz
-libedit.tcz
-libelf.tcz
-libgcrypt.tcz
-libgpg-error.tcz
-libiw.tcz
-libnl.tcz
-libssh2.tcz
-libts.tcz
-ncurses.tcz
-openssh.tcz
-openssl.tcz
-readline.tcz
-touchscreen-4.4.20-piCore_v7+.tcz
-wifi.tcz
-wireless-4.4.20-piCore_v7+.tcz
-wireless_tools.tcz
-wpa_supplicant.tcz
-EOF
+	VERSION=$(echo ${KERNELVER} | awk -F"-" '{print $1}')
+#	echo $VERSION
+	echo alsa-modules-${VERSION}-piCore+.tcz     > $EXTENLIST
+	echo alsa-modules-${VERSION}-piCore_v7+.tcz >> $EXTENLIST
+	echo alsa-utils.tcz                         >> $EXTENLIST
+	echo alsa.tcz                               >> $EXTENLIST
+	echo backlight-${VERSION}-piCore+.tcz       >> $EXTENLIST
+	echo backlight-${VERSION}-piCore_v7+.tcz    >> $EXTENLIST
+	echo busybox-httpd.tcz                      >> $EXTENLIST
+	echo dialog.tcz                             >> $EXTENLIST
+	echo firmware-atheros.tcz                   >> $EXTENLIST
+	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
+	echo firmware-ralinkwifi.tcz                >> $EXTENLIST
+	echo firmware-rpi3-wireless.tcz             >> $EXTENLIST
+	echo firmware-rtlwifi.tcz                   >> $EXTENLIST
+	echo libasound.tcz                          >> $EXTENLIST
+	echo libedit.tcz                            >> $EXTENLIST
+	echo libelf.tcz                             >> $EXTENLIST
+	echo libgcrypt.tcz                          >> $EXTENLIST
+	echo libgpg-error.tcz                       >> $EXTENLIST
+	echo libiw.tcz                              >> $EXTENLIST
+	echo libnl.tcz                              >> $EXTENLIST
+	echo libssh2.tcz                            >> $EXTENLIST
+	echo libts.tcz                              >> $EXTENLIST
+	echo ncurses.tcz                            >> $EXTENLIST
+	echo openssh.tcz                            >> $EXTENLIST
+	echo openssl.tcz                            >> $EXTENLIST
+	echo readline.tcz                           >> $EXTENLIST
+	echo touchscreen-${VERSION}-piCore+.tcz     >> $EXTENLIST
+	echo touchscreen-${VERSION}-piCore_v7+.tcz  >> $EXTENLIST
+	echo wifi.tcz                               >> $EXTENLIST
+	echo wireless-${VERSION}-piCore+.tcz        >> $EXTENLIST
+	echo wireless-${VERSION}-piCore_v7+.tcz     >> $EXTENLIST
+	echo wireless_tools.tcz                     >> $EXTENLIST
+	echo wpa_supplicant.tcz                     >> $EXTENLIST
 }
 
 #========================================================================================
@@ -170,10 +176,11 @@ pcp_debug_info() {
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-pcp_warning_message
-pcp_downloaded_extensions
 
-
+#========================================================================================
+#	Check standard extensions are downloaded
+#	Check for extra extensions
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -186,15 +193,19 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:300px">'
 
+echo "" >> $LOG
+echo "List of standard extensions" >> $LOG
+echo "" >> $LOG
+echo "[ INFO  ] The list of standard extensions must be maintained MANUALLY." | tee -a $LOG
+pcp_downloaded_extensions
 for i in $(cat $EXTENLIST)
 do
 	if [ -f /mnt/mmcblk0p2/tce/optional/${i} ]; then
-		echo "[ FOUND ] $i"
+		[ $VERBOSE ] && echo "[ FOUND ] $i" | tee -a $LOG
 	else
-		echo "[ MISSING ] $i"
+		echo "[ MISSING ] $i" | tee -a $LOG
 	fi
 done 
-
 
 echo '                  </textarea>'
 echo '                </td>'
@@ -206,8 +217,7 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -220,15 +230,18 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:300px">'
 
+echo "" >> $LOG
+echo "List of additional (non-standard) extensions" >> $LOG
+echo "" >> $LOG
 
 EXTNS=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
 
 for i in $EXTNS
 do
 	if grep $i $EXTENLIST >/dev/null 2>&1; then
-		echo "[ OK ] $i"
+		[ $VERBOSE ] && echo "[ OK ] $i"  | tee -a $LOG
 	else
-		echo "[ EXTRA ] $i"
+		echo "[ EXTRA ] $i" | tee -a $LOG
 	fi
 done 
 
@@ -242,12 +255,15 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
 
-
+#exit
 
 pcp_running_script
 pcp_httpd_query_string
 pcp_debug_info
+
+pcp_warning_message
 
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -262,8 +278,8 @@ echo '                <td>'
 echo '                  <textarea class="inform" style="height:300px">'
 
 pcp_internet | tee -a $LOG
-pcp_picore_repo_1
-pcp_pcp_repo
+pcp_picore_repo_1 | tee -a $LOG
+pcp_pcp_repo | tee -a $LOG
 
 #========================================================================================
 pcp_set_repo ${PCP_REPO%/}
@@ -362,9 +378,7 @@ pcp_message "networking"
 pcp_check_extension filesystems-${KERNELVER}.tcz
 pcp_check_extension ntfs-3g.tcz
 pcp_check_extension net-usb-${KERNELVER}.tcz
-
 #----------------------------------------------------------------------------------------
-
 
 echo '                  </textarea>'
 echo '                </td>'
