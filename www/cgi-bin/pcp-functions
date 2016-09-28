@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-09-27 GE
-#	Added pcp_log_header.
+# Version: 3.03 2016-09-28
+#	Added pcp_log_header. GE.
+#	Updated pcp_textarea_inform. GE.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -955,6 +956,7 @@ pcp_textarea_inform() {
 	echo '<textarea class="inform" style="height:'$3'px">'
 	eval $2
 	echo '</textarea>'
+	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
 }
 
 pcp_write_to_log() {

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-27 GE
+# Version: 3.03 2016-09-28 GE
 #	Original version.
 
 #========================================================================================
@@ -311,6 +311,10 @@ pcp_check_extension Audiophonics-powerscript.tcz
 pcp_message "LMS"
 #----------------
 pcp_check_extension slimserver.tcz
+pcp_check_extension slimserver-CPAN.tcz
+pcp_check_extension perl5.tcz
+pcp_check_extension gcc_libs.tcz
+pcp_check_extension openssl.tcz
 pcp_check_extension perl_io_socket_ssl.tcz
 pcp_check_extension perl_mozilla_ca.tcz
 pcp_check_extension perl_net_ssleay.tcz
@@ -406,4 +410,3 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
-

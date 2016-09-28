@@ -1,6 +1,10 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 3.03 2016-09-28
+#	Changed to using pcp_log_header. GE.
+#	Changed to using pcp_green_tick, pcp_red_cross. GE.
+
 # Version: 0.10 2016-04-23 GE
 #	Minor enhancements.
 #	Changed log location to /var/log.
@@ -53,9 +57,7 @@ pcp_add_to_log() {
 	END="=====================> End <====================="
 	LOG="${LOGDIR}/pcp_diagrpi.log"
 
-	(echo $0; date) > $LOG
-	cat /etc/motd >> $LOG
-	echo  >> $LOG
+	pcp_log_header $0
 
 	echo "Raspberry Pi" >> $LOG
 	echo  ============ >> $LOG
@@ -83,9 +85,9 @@ pcp_add_to_log() {
 	echo "Size: $SIZE" >> $LOG
 	echo "Build options: $BUILD" >> $LOG
 	if [ $(pcp_squeezelite_status) -eq 0 ]; then
-		echo "Squeezelite running..." >> $LOG
+		echo "Squeezelite running." >> $LOG
 	else
-		echo  "Squeezelite not running!!" >> $LOG
+		echo  "Squeezelite not running." >> $LOG
 	fi
 	echo  >> $LOG
 
@@ -103,14 +105,14 @@ pcp_add_to_log() {
 	echo "Version: $(pcp_picore_version)" >> $LOG
 	echo "Linux release: $(pcp_linux_release)" >> $LOG
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
-		echo "Internet found..." >> $LOG
+		echo "Internet found." >> $LOG
 	else
-		echo "Internet not found!!" >> $LOG
+		echo "Internet not found." >> $LOG
 	fi
 	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		echo "Sourceforge accessible..." >> $LOG
+		echo "Sourceforge accessible." >> $LOG
 	else
-		echo "Sourceforge not accessible!!" >> $LOG
+		echo "Sourceforge not accessible." >> $LOG
 	fi
 }
 
@@ -274,13 +276,9 @@ SIZE=$(ls -l /mnt/mmcblk0p2/tce/squeezelite-armv6hf | awk '{ print $5 }')
 BUILD=$(sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | awk -F": " '{print $2}')
 
 if [ $(pcp_squeezelite_status) -eq 0 ]; then
-	INDICATOR=$HEAVY_CHECK_MARK
-	CLASS="indicator_green"
-	STATUS="Running..."
+	pcp_green_tick "Running."
 else
-	INDICATOR=$HEAVY_BALLOT_X
-	CLASS="indicator_red"
-	STATUS="Not running!!"
+	pcp_red_cross "Not running."
 fi
 
 echo '<table class="bggrey">'
@@ -420,13 +418,9 @@ pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 
                     if [ $(pcp_internet_accessible) -eq 0 ]; then
-                      INDICATOR=$HEAVY_CHECK_MARK
-                      CLASS="indicator_green"
-                      STATUS="Internet found..."
+                        pcp_green_tick "Internet found."
                     else
-                      INDICATOR=$HEAVY_BALLOT_X
-                      CLASS="indicator_red"
-                      STATUS="Internet not found!!"
+                        pcp_red_cross "Internet not found."
                     fi
 
 echo '              <td class="column150 centre">'
@@ -437,13 +431,9 @@ echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
                     if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-                      INDICATOR=$HEAVY_CHECK_MARK
-                      CLASS="indicator_green"
-                      STATUS="Sourceforge accessible..."
+                        pcp_green_tick "Sourceforge accessible."
                     else
-                      INDICATOR=$HEAVY_BALLOT_X
-                      CLASS="indicator_red"
-                      STATUS="Sourceforge not accessible!!"
+                        pcp_red_cross "Sourceforge not accessible."
                     fi
 
 echo '              <td class="column150 centre">'
