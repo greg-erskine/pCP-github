@@ -1,16 +1,20 @@
 #!/bin/sh
 
+# Version: 3.03 2016-09-30
+#	Updated [Save to USB] more> help. GE.
+#	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
+
 # Version: 3.00 2016-07-08
 #	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
 
-# Version: 2.06 2016-05-22 GE
-#	Fixed a few typos.
+# Version: 2.06 2016-05-22
+#	Fixed a few typos. GE.
 
-# Version: 2.05 2016-04-30 GE
-#	Added double quotes when comparing strings.
-#	Added pcp_main_update_config.
-#	Moved to developer mode: pcp_main_copy2fs, pcp_main_dosfsck, pcp_main_reset_all, pcp_main_restore_all.
-#   Changes to insitu_update section
+# Version: 2.05 2016-04-30
+#	Added double quotes when comparing strings. GE.
+#	Added pcp_main_update_config. GE.
+#	Moved to developer mode: pcp_main_copy2fs, pcp_main_dosfsck, pcp_main_reset_all, pcp_main_restore_all. GE.
+#   Changes to insitu_update section. GE.
 
 # Version: 0.22 2016-03-10 GE
 #	Added squeezelite version to more> help.
@@ -131,13 +135,9 @@ echo '          <table class="bggrey percent100">'
 pcp_main_squeezelite_indication() {
 
 	if [ $(pcp_squeezelite_status) -eq 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	pcp_start_row_shade
@@ -147,9 +147,11 @@ pcp_main_squeezelite_indication() {
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
-	[ "$SQUEEZELITE" = "no" ] &&
-	echo '                  And Squeezelite is disabled on Tweaks page.&nbsp;&nbsp;'
+	if [ "$SQUEEZELITE" = "no" ]; then
+		echo '                <p>Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
+	else
+		echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+	fi
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -172,13 +174,9 @@ pcp_main_squeezelite_indication && pcp_main_padding
 pcp_main_lms_indication() {
 
 	if [ $(pcp_lms_status) -eq 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	pcp_start_row_shade
@@ -207,13 +205,9 @@ pcp_main_lms_indication() {
 pcp_main_shairport_indication() {
 
 	if [ $(pcp_shairport_status) -eq 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	pcp_incr_id
@@ -429,14 +423,13 @@ pcp_main_save_usb() {
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will copy the current configuration file to the USB flash drive.</p>'
-	echo '                  <p>This configuration file can be used:</p>'
+	echo '                  <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
+	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>as a backup</li>'
-	echo '                    <li>after an update</li>'
-	echo '                    <li>in another piCorePlayer.</li>'
+	echo '                    <li>If you then reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
+	echo '                    <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
+	echo '                    <li>This configuration file is named newconfig.cfg and will be automatially renamed to usedconfig.cfg after rebooting.</li>'
 	echo '                  </ul>'
-	echo '                  <p><b>Note: </b>USB flash drive must be plugged into USB port.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-09-30 GE
+#	Minor update.
+
 # Version: 0.04 2016-03-29 GE
 #	Rewrite.
 
@@ -45,6 +48,16 @@ pcp_html_end() {
 	echo '                <p>'$FAIL_MSG'</p>'
 	echo '              </td>'
 	echo '            </tr>'
+
+	if [ "${FAIL_MSG:0:2}" = "OK" ] ; then
+		pcp_toggle_row_shade
+		echo '            <tr class="'$ROWSHADE'">'
+		echo '              <td>'
+		                      pcp_go_main_button
+		echo '              </td>'
+		echo '            </tr>'
+	fi
+
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -54,10 +67,6 @@ pcp_html_end() {
 
 	pcp_footer
 	pcp_copyright
-
-	if [ "${FAIL_MSG:0:2}" = "OK" ] ; then
-		pcp_go_main_button
-	fi
 
 	echo '</body>'
 	echo '</html>'
