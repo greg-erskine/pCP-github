@@ -31,6 +31,11 @@ pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
+#Logic determining actual size, maximal possible size 
+ACTUAL_SIZE=$(fdisk -l /dev/mmcblk0p2 | grep dev/mmcblk0p2: | awk '{ print $3 }')
+MAX_SIZE=$(fdisk -l /dev/mmcblk0 | grep /dev/mmcblk0: | awk '{ print $3 }')
+
+
 # Allow the correct values in dropdown list to be selectable
 DISABLED100=""
 DISABLED200=""
@@ -46,7 +51,7 @@ DISABLED1000=""
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $DISABLED100: '$DISABLED100'<br />'
+		echo '<p class="debug">[ DEBUG ] $DISABLED100: '"$DISABLED100"'<br />'
 		echo '<p class="debug">[ DEBUG ] $DISABLED200: '$DISABLED200'<br />'
 		echo '<p class="debug">[ DEBUG ] $DISABLED300: '$DISABLED300'<br />'
 		echo '<p class="debug">[ DEBUG ] $DISABLED500: '$DISABLED500'<br />'
@@ -93,10 +98,6 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-#Logic determining actual size, maximal possible size 
-ACTUAL_SIZE=$(fdisk -l /dev/mmcblk0p2 | grep dev/mmcblk0p2: | awk '{ print $3 }')
-MAX_SIZE=$(fdisk -l /dev/mmcblk0 | grep /dev/mmcblk0: | awk '{ print $3 }')
 
 
 #========================================================================================
