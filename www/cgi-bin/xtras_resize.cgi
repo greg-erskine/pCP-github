@@ -184,12 +184,12 @@ pcp_copyright
 echo '</body>'
 echo '</html>'
 
-#case "$SUBMIT" in
-#	Resize)
-#		touch /home/tc/fdisk_required
-#		pcp_backup
-#		sudo reboot
-#	;;
-#esac
+case "$SUBMIT" in
+	Resize)
+		touch /home/tc/fdisk_required
+		pcp_backup
+		sudo reboot
+	;;
+esac
 
 exit
