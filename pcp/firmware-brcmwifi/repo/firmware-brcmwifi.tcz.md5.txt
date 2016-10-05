@@ -1,1 +1,1 @@
-03B3D6135DF61FF58A0AEACF9D2E5FE3  firmware-brcmwifi.tcz
+bee8296cab70e6819cec1a301d1a4312  firmware-brcmwifi.tcz
