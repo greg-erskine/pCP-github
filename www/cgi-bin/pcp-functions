@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-09-28
+# Version: 3.03 2016-10-05
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
+#	Addded pcp_create_rotdash. GE.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -327,7 +328,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=30
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1279,6 +1280,10 @@ pcp_check_mydata() {
 }
 
 pcp_backup() {
+
+pcp_create_rotdash
+
+
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
@@ -1310,6 +1315,9 @@ pcp_backup() {
 }
 
 pcp_backup_nohtml() {
+
+pcp_create_rotdash
+
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
@@ -1335,6 +1343,19 @@ pcp_backup_nohtml() {
 		echo '[ INFO ] Be careful adding large files to /home/tc.'
 		echo '[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'
 	fi
+}
+
+pcp_create_rotdash() {
+	sudo cat <<EOF > /usr/local/sbin/rotdash
+#!/bin/sh
+
+while [ -e /proc\$1 ]
+do
+	echo  -n "."
+	sleep 0.25
+done
+EOF
+sudo chmod u+x,g+x,o+x /usr/local/sbin/rotdash
 }
 
 #=========================================================================================

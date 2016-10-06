@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-04
+# Version: 3.03 2016-10-05
 #	Added selectable partition size from dropdown list. SBP.
 
 # Version: 3.00 2016-07-08
@@ -30,15 +30,25 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-#DEBUG=1
+DEBUG=1
+
+pcp_convert_to_mbytes() {
+	LEN=$((${#1} - 6))
+	echo ${1:0:$LEN}
+}
 
 #========================================================================================
 # Logic determining actual size, maximum possible size
 #----------------------------------------------------------------------------------------
-P1_ACTUAL_SIZE=$(fdisk -l /dev/mmcblk0p1 | grep dev/mmcblk0p1: | awk '{ print $3 }')
-P2_ACTUAL_SIZE=$(fdisk -l /dev/mmcblk0p2 | grep dev/mmcblk0p2: | awk '{ print $3 }')
-SD_MAX_SIZE=$(fdisk -l /dev/mmcblk0 | grep /dev/mmcblk0: | awk '{ print $3 }')
+P1_ACTUAL_SIZE_BYTES=$(fdisk -l /dev/mmcblk0p1 | grep dev/mmcblk0p1: | awk '{ print $5 }')
+P2_ACTUAL_SIZE_BYTES=$(fdisk -l /dev/mmcblk0p2 | grep dev/mmcblk0p2: | awk '{ print $5 }')
+SD_MAX_SIZE_BYTES=$(fdisk -l /dev/mmcblk0 | grep /dev/mmcblk0: | awk '{ print $5 }')
 
+P1_ACTUAL_SIZE=$(pcp_convert_to_mbytes $P1_ACTUAL_SIZE_BYTES)
+P2_ACTUAL_SIZE=$(pcp_convert_to_mbytes $P2_ACTUAL_SIZE_BYTES)
+SD_MAX_SIZE=$(pcp_convert_to_mbytes $SD_MAX_SIZE_BYTES)
+
+P2_MAX_SIZE=$(($SD_MAX_SIZE - $P1_ACTUAL_SIZE))
 AVAILABLE_SPACE=$(($SD_MAX_SIZE - ($P1_ACTUAL_SIZE + $P2_ACTUAL_SIZE)))
 
 # Allow the correct values in dropdown list to be selectable
@@ -58,10 +68,14 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $DISABLED300:    '$DISABLED300'<br />'
 	echo '                 [ DEBUG ] $DISABLED500:    '$DISABLED500'<br />'
 	echo '                 [ DEBUG ] $DISABLED1000:   '$DISABLED1000'<br />'
-	echo '                 [ DEBUG ] P1 actual size:  '$P1_ACTUAL_SIZE'<br />'
-	echo '                 [ DEBUG ] P2 actual size:  '$P2_ACTUAL_SIZE'<br />'
-	echo '                 [ DEBUG ] SD max size:     '$SD_MAX_SIZE'<br />'
-	echo '                 [ DEBUG ] Available space: '$AVAILABLE_SPACE'</p>'
+	echo '                 [ DEBUG ] P1 actual size bytes:   '$P1_ACTUAL_SIZE_BYTES'<br />'
+	echo '                 [ DEBUG ] P1 actual size mbytes:  '$P1_ACTUAL_SIZE'<br />'
+	echo '                 [ DEBUG ] P2 actual size bytes:   '$P2_ACTUAL_SIZE_BYTES'<br />'
+	echo '                 [ DEBUG ] P2 actual size mbytes:  '$P2_ACTUAL_SIZE'<br />'
+	echo '                 [ DEBUG ] SD max size bytes:      '$SD_MAX_SIZE_BYTES'<br />'
+	echo '                 [ DEBUG ] SD max size mbytes:     '$SD_MAX_SIZE'<br />'
+	echo '                 [ DEBUG ] P2 max size mbytes:     '$P2_MAX_SIZE'<br />'
+	echo '                 [ DEBUG ] Available space mbytes: '$AVAILABLE_SPACE'</p>'
 	echo '<!-- End of debug info -->'
 fi
 
@@ -70,7 +84,7 @@ fi
 #----------------------------------------------------------------------------------------
 if [ "$SUBMIT" = "Resize" ]; then
 	echo "SIZE=$SD_SIZE" > /home/tc/partition_size.cfg
-	[ "$SD_SIZE" = "" ] && NEW_SIZE=$SD_MAX_SIZE || NEW_SIZE=$SD_SIZE
+	[ "$SD_SIZE" = "" ] && NEW_SIZE=$P2_MAX_SIZE || NEW_SIZE=$SD_SIZE
 
 	pcp_start_row_shade
 	echo '<table class="bggrey">'
@@ -123,7 +137,7 @@ else
 		echo '                  </select>'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Choose a size between the current partition size: <b>'$P2_ACTUAL_SIZE' MB</b> and the SD card size: <b>'$SD_MAX_SIZE' MB</b>&nbsp;&nbsp;'
+		echo '                  <p>Choose a size between the current partition size: <b>'$P2_ACTUAL_SIZE' MB</b> and the maximum partition size: <b>'$P2_MAX_SIZE' MB</b>&nbsp;&nbsp;'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
@@ -142,7 +156,7 @@ else
 			echo '                    <input type="submit" name="SUBMIT" value="Resize" />&nbsp;&nbsp;Click to start the auto resize partition process.'
 			echo '                  </p>'
 		else
-			echo '                  <p style="color:white">NOTE: Not enough space available for expansion (only '$AVAILABLE_SPACE' MB).</p>'
+			echo '                  <p style="color:white"><b>WARNING:</b> Not enough space available for expansion (only '$AVAILABLE_SPACE' MB).</p>'
 		fi
 		echo '                </td>'
 		echo '              </tr>'
