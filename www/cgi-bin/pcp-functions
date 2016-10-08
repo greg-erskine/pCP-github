@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-05
+# Version: 3.03 2016-10-08
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -328,7 +328,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=30
+	MODE=0
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1280,10 +1280,6 @@ pcp_check_mydata() {
 }
 
 pcp_backup() {
-
-pcp_create_rotdash
-
-
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
@@ -1315,9 +1311,6 @@ pcp_create_rotdash
 }
 
 pcp_backup_nohtml() {
-
-pcp_create_rotdash
-
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 

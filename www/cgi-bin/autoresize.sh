@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-05
+# Version: 3.03 2016-10-08
 #	Added selectable partition size. SBP.
 
 # Version: 0.01 2015-11-27 GE
 #	Original version.
 
 SCRATCH="/home/tc"
-DEBUG=TRUE
+#DEBUG=TRUE
 
 [ $DEBUG ] && fdisk -l /dev/mmcblk0
 

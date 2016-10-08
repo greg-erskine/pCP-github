@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-05
+# Version: 3.03 2016-10-08
 #	Added selectable partition size from dropdown list. SBP.
 
 # Version: 3.00 2016-07-08
@@ -30,7 +30,7 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-DEBUG=1
+#DEBUG=1
 
 pcp_convert_to_mbytes() {
 	LEN=$((${#1} - 6))
