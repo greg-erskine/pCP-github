@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-08
+# Version: 3.03 2016-10-11
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
+#	Updated pcp_backup and pcp_backup_nohtml. GE.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -1274,68 +1275,65 @@ pcp_reboot_button() {
 #=========================================================================================
 # Backup mydata
 #-----------------------------------------------------------------------------------------
-pcp_check_mydata() {
-	SIZE=$(ls -l /mnt/mmcblk0p2/tce/mydata.tgz | awk '{print $5}')
-	echo $SIZE
-}
 
 pcp_backup() {
+	if [ "$1" = "nohtml" ]; then
+		NEWLINE="-n"
+		PCLASSINFO=""
+		PCLASSERROR=""
+		PCLASSOK=""
+		PCLASSWARN=""
+		PRE=""
+		SLASHPRE=""
+		SLASHP=""
+	else
+		NEWLINE=""
+		PCLASSINFO='<p class="info">'
+		PCLASSERROR='<p class="error">'
+		PCLASSOK='<p class="ok">'
+		PCLASSWARN='<p class="warn">'
+		PRE='<pre>'
+		SLASHPRE='</pre>'
+		SLASHP='</p>'
+	fi
+
 	# Delete any previous backup_done file
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
 	# Do a backup - filetool.sh backs up files in .filetool.lst
-	echo '<p class="info">[ INFO ] '
-	sudo filetool.sh -b
-	sync
-	echo '</p>'
+	echo $NEWLINE $PCLASSINFO'[ INFO ] ' 
+	sudo filetool.sh -b | tee -a $LOG
+	echo $NEWLINE $SLASHP
+	sync > /dev/null 2>&1
 
 	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
-		echo '<p class="error">[ ERROR ] Backup status</p>'
-		echo '<pre>'
-		cat /tmp/backup_status
-		echo '</pre>'
+		echo $PCLASSERROR'[ ERROR ] Backup status'$SLASHP
+		echo $NEWLINE $PRE
+		cat /tmp/backup_status | tee -a $LOG
+		echo $NEWLINE $SLASHPRE
 	fi
 
 	# If backup_done exists, then the backup was successful
 	if [ -f /tmp/backup_done ]; then
-		echo '<p class="ok">[ OK ] Backup successful.</p>'
+		echo $PCLASSOK'[ OK ] Backup successful.'$SLASHP | tee -a $LOG
 	else
-		echo '<p class="error">[ ERROR ] Backup failed.</p>'
+		echo $PCLASSERROR'[ ERROR ] Backup failed.'$SLASHP | tee -a $LOG
 	fi
 	if [ $(pcp_check_mydata) -gt 350000 ]; then
-		echo '<p class="warn">[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.</p>'
-		echo '<p class="info">[ INFO ] Be careful adding large files to /home/tc.</p>'
-		echo '<p class="info">[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.</p>'
+		echo $PCLASSWARN'[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.'$SLASHP | tee -a $LOG
+		echo $PCLASSINFO'[ INFO ] Be careful adding large files to /home/tc.'$SLASHP | tee -a $LOG
+		echo $PCLASSINFO'[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'$SLASHP | tee -a $LOG
 	fi
 }
 
 pcp_backup_nohtml() {
-	# Delete any previous backup_done file
-	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
+	pcp_backup "nohtml"
+}
 
-	# Do a backup - filetool.sh backs up files in .filetool.lst
-	echo -n '[ INFO ] '
-	sudo filetool.sh -b
-	sync
-
-	# If backup_status file exists and is non-zero in size then an error has occurred
-	if [ -s /tmp/backup_status ]; then
-		echo '[ ERROR ] Backup status.'
-		cat /tmp/backup_status
-	fi
-
-	# If backup_done exists then the backup was successful
-	if [ -f /tmp/backup_done ]; then
-		echo '[ OK ] Backup successful.'
-	else
-		echo '[ ERROR ] Backup failed.'
-	fi
-	if [ $(pcp_check_mydata) -gt 350000 ]; then
-		echo '[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.'
-		echo '[ INFO ] Be careful adding large files to /home/tc.'
-		echo '[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'
-	fi
+pcp_check_mydata() {
+	SIZE=$(ls -l /mnt/mmcblk0p2/tce/mydata.tgz | awk '{print $5}')
+	echo $SIZE
 }
 
 pcp_create_rotdash() {
