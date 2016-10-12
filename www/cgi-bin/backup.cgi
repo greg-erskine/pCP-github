@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-11
+# Version: 3.03 2016-10-12
 #	Updated formatting. GE.
 #	Added backup log. GE.
 
@@ -19,7 +19,7 @@
 . pcp-functions
 pcp_variables
 
-pcp_html_head "Backup mydata" "SBP" "5" "main.cgi"
+pcp_html_head "Backup mydata" "SBP" "10" "main.cgi"
 
 pcp_banner
 pcp_running_script
@@ -27,48 +27,8 @@ pcp_running_script
 LOG="${LOGDIR}/pcp_backup.log"
 pcp_log_header $0
 
-#========================================================================================
-# Routines - it would be nice to have these in pcp-functions eventually.
-#----------------------------------------------------------------------------------------
-pcp_table_top() {
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '        <legend>'$1'</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-}
-
-pcp_table_middle() {
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-}
-
-pcp_table_end() {
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-}
-
-#========================================================================================
-# Main
-#----------------------------------------------------------------------------------------
 pcp_table_top "Backup"
-echo '                <textarea class="inform" style="height:100px">'
-pcp_backup "nohtml"
-echo '                </textarea>'
+pcp_textarea_inform "none" 'pcp_backup "nohtml"' "100"
 pcp_table_middle
 pcp_go_main_button
 pcp_table_end

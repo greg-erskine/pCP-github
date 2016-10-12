@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-11
+# Version: 3.03 2016-10-12
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -982,6 +982,41 @@ pcp_write_to_host() {
 	sed -i '1 s/^/host='${HOST}' /' $CMDLINETXT
 }
 
+#========================================================================================
+# Create table routines
+#----------------------------------------------------------------------------------------
+pcp_table_top() {
+	pcp_start_row_shade
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '        <legend>'$1'</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+}
+
+pcp_table_middle() {
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+}
+
+pcp_table_end() {
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+
 #=========================================================================================
 # Busybox httpd
 #-----------------------------------------------------------------------------------------
@@ -1273,10 +1308,12 @@ pcp_reboot_button() {
 }
 
 #=========================================================================================
-# Backup mydata
+# Backup files in /opt/.filetool.lst to mydata.tgz
+#  - $1 can be set to "nohtml"
+#  - routine can generate text or html output.
 #-----------------------------------------------------------------------------------------
-
 pcp_backup() {
+	WARNSIZE=350000
 	if [ "$1" = "nohtml" ]; then
 		NEWLINE="-n"
 		PCLASSINFO=""
@@ -1303,12 +1340,12 @@ pcp_backup() {
 	# Do a backup - filetool.sh backs up files in .filetool.lst
 	echo $NEWLINE $PCLASSINFO'[ INFO ] ' 
 	sudo filetool.sh -b | tee -a $LOG
-	echo $NEWLINE $SLASHP
+	echo $SLASHP
 	sync > /dev/null 2>&1
 
 	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
-		echo $PCLASSERROR'[ ERROR ] Backup status'$SLASHP
+		echo $PCLASSERROR'[ ERROR ] Show backup_status...'$SLASHP | tee -a $LOG
 		echo $NEWLINE $PRE
 		cat /tmp/backup_status | tee -a $LOG
 		echo $NEWLINE $SLASHPRE
@@ -1320,13 +1357,16 @@ pcp_backup() {
 	else
 		echo $PCLASSERROR'[ ERROR ] Backup failed.'$SLASHP | tee -a $LOG
 	fi
-	if [ $(pcp_check_mydata) -gt 350000 ]; then
+
+	# Encourage users to keep files backed up to mydata.tgz small
+	if [ $(pcp_check_mydata) -gt $WARNSIZE ]; then
 		echo $PCLASSWARN'[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.'$SLASHP | tee -a $LOG
 		echo $PCLASSINFO'[ INFO ] Be careful adding large files to /home/tc.'$SLASHP | tee -a $LOG
 		echo $PCLASSINFO'[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'$SLASHP | tee -a $LOG
 	fi
 }
 
+# For backward compatibility - recommended to use pcp_backup "nohtml"
 pcp_backup_nohtml() {
 	pcp_backup "nohtml"
 }
