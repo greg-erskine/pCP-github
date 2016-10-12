@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-12
+# Version: 3.03 2016-10-13
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -1070,13 +1070,13 @@ pcp_confirmation_required() {
 # Start/stop Squeezelite
 #-----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
-	echo '<p class="info">[ INFO ] '
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	if [ "$SHAIRPORT" = "yes" ]; then
 		pcp_shairport_restart
 	fi
+	echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite start
 	echo '</p>'
 }
@@ -1088,10 +1088,10 @@ pcp_squeezelite_stop() {
 }
 
 pcp_squeezelite_restart() {
-	echo '<p class="info">[ INFO ] '
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
+	echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite restart
 	echo '</p>'
 }
@@ -1340,7 +1340,7 @@ pcp_backup() {
 	# Do a backup - filetool.sh backs up files in .filetool.lst
 	echo $NEWLINE $PCLASSINFO'[ INFO ] ' 
 	sudo filetool.sh -b | tee -a $LOG
-	echo $SLASHP
+	[ "$1" = "nohtml" ] || echo $SLASHP
 	sync > /dev/null 2>&1
 
 	# If backup_status file exists and is non-zero in size, then an error has occurred
