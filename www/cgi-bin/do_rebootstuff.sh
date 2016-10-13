@@ -2,6 +2,7 @@
 
 # Version: 3.03 2016-10-13
 #	Added Samba Server Support. PH.
+#	Removed IQaudIO AMP unmute from here. SBP
 
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository.

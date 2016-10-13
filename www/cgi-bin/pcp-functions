@@ -8,6 +8,7 @@
 #	Addded pcp_create_rotdash. GE.
 #	Updated pcp_backup and pcp_backup_nohtml. GE.
 #	Added Samba. PH.
+#	Added correct unmute command for IQaudIO AMP. SBP
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
