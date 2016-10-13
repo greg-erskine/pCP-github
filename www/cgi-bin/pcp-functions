@@ -7,6 +7,7 @@
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
 #	Updated pcp_backup and pcp_backup_nohtml. GE.
+#	Added Samba. PH.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -310,6 +311,7 @@ pcp_variables() {
 	PCPHOME="/home/tc/www/cgi-bin"
 	LOGDIR="/var/log"
 	PACKAGEDIR="/mnt/mmcblk0p2/tce/optional"
+	SAMBACONF="/usr/local/etc/samba/smb.conf"
 
 	. $PCPHOME/pcp-rpi-functions
 
@@ -1611,6 +1613,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
 	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $CONFIGCFG
@@ -1709,6 +1712,7 @@ LMSCONTROLS="yes"
 PLAYERTABS="yes"
 HDMIPOWER="on"
 RPI3INTWIFI="on"
+SAMBA="disabled"
 WOL="no"
 WOL_NIC=""
 WOL_LMSMACADDRESS=""
