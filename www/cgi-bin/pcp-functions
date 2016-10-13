@@ -331,7 +331,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=30
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1898,7 +1898,7 @@ pcp_enable_iqaudio_dac_p() {
 #----------------------------------------------------------------------------------------
 pcp_enable_iqaudio_amp() {
 	pcp_disable_i2s
-	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+	sudo echo dtoverlay=iqaudio-dacplus,unmute_amp >> $CONFIGTXT
 }
 
 #========================================================================================

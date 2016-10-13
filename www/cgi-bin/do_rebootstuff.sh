@@ -397,18 +397,6 @@ if [ $? -eq 0 ] && [ "$AUDIO" = "HDMI" ]; then
 fi
 echo "${GREEN}Done.${NORMAL}"
 
-# Unmute IQaudIO amplifier via GPIO pin 22
-# Only do this if not controlling amp via squeezelite.
-if [ "$AUDIO" = "I2SpIQAMP" ]; then
-	if [ "$POWER_GPIO" = "" ]; then
-		echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
-		sudo sh -c "echo 22 > /sys/class/gpio/export"
-		sudo sh -c "echo out >/sys/class/gpio/gpio22/direction"
-		sudo sh -c "echo 1 >/sys/class/gpio/gpio22/value"
-		echo "${GREEN}Done.${NORMAL}"
-	fi
-fi
-
 # Start the essential stuff for piCorePlayer
 echo -n "${YELLOW}Waiting for network."
 CNT=1
