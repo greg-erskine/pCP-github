@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-14
+#	Enhanced format. GE.
+
 # Version: 3.02 2016-09-21
 #	Fixed blanking ALSA_PARAMS issue. GE.
 
@@ -45,8 +48,8 @@ pcp_variables
 # Read original mmap value, so we only do something if value is changed
 ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 
-RESTART_REQUIRED=1
-REBOOT_REQUIRED=0
+RESTART_REQUIRED=TRUE
+unset REBOOT_REQUIRED
 
 pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
@@ -96,7 +99,7 @@ pcp_multi_alsa_mmap() {
 	if [ $ALSA_PARAMS4 -eq 1 ]; then
 		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
 		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
-		[ $? -eq 1 ] && REBOOT_REQUIRED=1 && RESTART_REQUIRED=0
+		[ $? -eq 1 ] && REBOOT_REQUIRED=TRUE && unset RESTART_REQUIRED
 		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
 		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
 	else
@@ -109,6 +112,8 @@ pcp_multi_alsa_mmap() {
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
+pcp_table_top "Write to config"
+
 case "$SUBMIT" in
 	Save)
 		if [ $MODE -ge $MODE_BASIC ]; then
@@ -118,6 +123,7 @@ case "$SUBMIT" in
 			[ $PRIORITY -eq 0 ] && PRIORITY=""
 			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
 		fi
+		echo '<p class="info">[ INFO ] Saving config file.</p>'
 		pcp_save_to_config
 	;;
 	Reset*)
@@ -143,10 +149,15 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 fi
 
 pcp_backup
-sleep 1
-[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
-[ $RESTART_REQUIRED -eq 1 ] && pcp_restart_required
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
+
+sleep 1
+[ $REBOOT_REQUIRED ] && pcp_reboot_required
+[ $RESTART_REQUIRED ] && pcp_restart_required
 
 echo '</body>'
 echo '</html>'
