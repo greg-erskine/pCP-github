@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-03
+# Version: 3.03 2016-10-13
 #	Added Samba  PH
 
 # Version: 3.00 2016-07-01 PH
@@ -134,11 +134,11 @@ pcp_remove_fs() {
 pcp_install_samba4() {
 	RESULT=0
 	echo -n '<p class="info">[ INFO ] '
-	sudo -u tc tce-load -w samba4.tcz
+	sudo -u tc pcp-load -w samba4.tcz
 	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	echo '<p>'
 	if [ $RESULT -eq 0 ]; then
-		sudo -u tc tce-load -i samba4.tcz
+		sudo -u tc pcp-load -i samba4.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 		echo '<p>'
 	fi
@@ -177,8 +177,8 @@ case "\$1" in
 		startsmb
 	;;
 	status)
-		PID=$(pidof smbd)
-		if [ -n "$PID" ]; then
+		PID=\$(pidof smbd)
+		if [ -n "\$PID" ]; then
 			echo "Samba Running"
 			exit 0
 		else
@@ -188,7 +188,7 @@ case "\$1" in
 	;;
 	*)
 		echo ""
-		echo -e "Usage: /usr/local/etc/init.d/`basename \$0` [start|stop|restart|status]"
+		echo -e "Usage: /usr/local/etc/init.d/\$(basename \$0) [start|stop|restart|status]"
 		echo ""
 		exit 1
 	;;
@@ -1371,7 +1371,7 @@ pcp_samba() {
 		echo '                    <p class="row">Password:</p>'
 		echo '                  </td>'
 		echo '                  <td class="column150">'
-		echo '                    <p><input class="large12" type="text" name="SAMBAPASS" value=""></p>'
+		echo '                    <p><input class="large12" type="password" name="SAMBAPASS" value=""></p>'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Username and Password to be used to access share.&nbsp;&nbsp;'
@@ -1435,7 +1435,7 @@ pcp_samba() {
 			echo '                  <td class="column'$COL3'">'
 			echo -n '                    <input class="large8" type="text" ID="SHAREMASK'$I'" name="SHAREMASK'$I'" value="'
 			eval echo -n "\${SHAREMASK${I}}"
-			echo '" title="Enter the File mode for new files Default=664" pattern="^[0-7]{4}$">'
+			echo '" title="Enter the File mode for new files Default=0664" pattern="^[0-7]{4}$">'
 			echo '                  </td>'
 			RO=$(eval echo "\${SHARERO${I}}")
 			case "$RO" in

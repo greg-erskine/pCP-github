@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-13
+#	Added Samba Server Support. PH.
+
 # Version: 3.00 2016-08-12
 #	Changed ssh server to Openssh. SBP.
 #	Changed RPi3 wifi firmware extension name. SBP.
@@ -595,6 +598,12 @@ if [ "$HDMIPOWER" = "off" ]; then
 	else
 		echo "${RED}FAIL.${NORMAL}"
 	fi
+fi
+
+if [ "$SAMBA" = "yes" ]; then
+	echo "${BLUE}Starting Samba Server...${NORMAL}"
+	[ -x /usr/local/etc/init.d/samba ] && /usr/local/etc/init.d/samba start
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
