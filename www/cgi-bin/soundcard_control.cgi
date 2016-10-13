@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 # Version: 3.03 2016-10-11
 #	First version to control volume and eventaully filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
 
@@ -14,6 +15,7 @@ pcp_banner
 pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
+
 
 #========================================================================================
 # To find the controls:
@@ -34,17 +36,25 @@ pcp_soundcontrol() {
 			SSET="PCM"
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+			TEXT=""
 		;;
 		HDMI)
 
 		;;
-		USB)
 
+		USB)
+			CARD="USB DAC"
+			TEXT="<b>Sorry, you cannot control a USB DAc from this page</b>.
+				<li>Login via ssh.</li>
+				<li>Use 'alsamixer' to change the ALSA output level.</li>
+				<li>Backup ALSA settings by using 'backup button' on this page.</li>" 
 		;;
 		I2SDAC)
 
 		;;
 		I2SGENERIC)
+			CARD="Generic I2S DAC"
+			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."  
 
 		;;
 		I2SDIG)
@@ -57,12 +67,83 @@ pcp_soundcontrol() {
 
 		;;
 		I2SpIQAMP)
+			CARD="IQaudIODAC"
+			SSET="Digital"
+			DSP="DSP Program,0"
+			FILTER1="Low latency IIR with de-emphasis"
+			FILTER2="FIR interpolation with de-emphasis"
+			FILTER3="High attenuation with de-emphasis"
+			FILTER4="Fixed process flow"
+			FILTER5="Ringing-less low latency FIR"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+			TEXT=""
+
+			case "$DSPFILTER" in
+				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
+				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
+				FILTER3) FILTER="High attenuation with de-emphasis" ;;
+				FILTER4) FILTER="Fixed process flow" ;;
+				FILTER5) FILTER="Ringing-less low latency FIR" ;;
+			esac
+
+			# Logic to make checked radiobuttons - we needs to clear it otherwise we sometime have two FILTERS_CHECK checked at the same time.
+				FILTER1_CHECK=""
+				FILTER2_CHECK=""
+				FILTER3_CHECK=""
+				FILTER4_CHECK=""
+				FILTER5_CHECK=""
+			case "$ACTUAL_FILTER" in
+				Low) FILTER1_CHECK="checked" ;;
+				FIR) FILTER2_CHECK="checked" ;;
+				High) FILTER3_CHECK="checked" ;;
+				Fixed) FILTER4_CHECK="checked" ;;
+				Ringing-less) FILTER5_CHECK="checked" ;;
+			esac
 
 		;;
 		I2SpDAC)
+			CARD="sndrpihifiberry"
+			SSET="Digital"
+			DSP="DSP Program,0"
+			FILTER1="Low latency IIR with de-emphasis"
+			FILTER2="FIR interpolation with de-emphasis"
+			FILTER3="High attenuation with de-emphasis"
+			FILTER4="Fixed process flow"
+			FILTER5="Ringing-less low latency FIR"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+			TEXT=""
+
+			case "$DSPFILTER" in
+				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
+				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
+				FILTER3) FILTER="High attenuation with de-emphasis" ;;
+				FILTER4) FILTER="Fixed process flow" ;;
+				FILTER5) FILTER="Ringing-less low latency FIR" ;;
+			esac
+
+			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+				FILTER1_CHECK=""
+				FILTER2_CHECK=""
+				FILTER3_CHECK=""
+				FILTER4_CHECK=""
+				FILTER5_CHECK=""
+			case "$ACTUAL_FILTER" in
+				Low) FILTER1_CHECK="checked" ;;
+				FIR) FILTER2_CHECK="checked" ;;
+				High) FILTER3_CHECK="checked" ;;
+				Fixed) FILTER4_CHECK="checked" ;;
+				Ringing-less) FILTER5_CHECK="checked" ;;
+			esac
+
 
 		;;
 		I2SpDIG)
+			CARD="Hifiberry Digi plus"
+			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls"
 
 		;;
 		I2SpDIGpro)
@@ -80,6 +161,7 @@ pcp_soundcontrol() {
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
 			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+			TEXT=""
 
 			case "$DSPFILTER" in
 				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
@@ -89,7 +171,12 @@ pcp_soundcontrol() {
 				FILTER5) FILTER="Ringing-less low latency FIR" ;;
 			esac
 
-			# Logic to make checked radiobuttons - should be done for each sound card:
+			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+				FILTER1_CHECK=""
+				FILTER2_CHECK=""
+				FILTER3_CHECK=""
+				FILTER4_CHECK=""
+				FILTER5_CHECK=""
 			case "$ACTUAL_FILTER" in
 				Low) FILTER1_CHECK="checked" ;;
 				FIR) FILTER2_CHECK="checked" ;;
@@ -127,14 +214,14 @@ pcp_soundcontrol
 case "$ACTION" in
 	Test)
 		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
-		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER"
+		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 		pcp_soundcontrol
 	;;
 	Backup)
 		ALSAlevelout="Custom"
 		pcp_save_to_config
 		sudo alsactl store
-		pcp_backup >/dev/null 2>&1
+		pcp_backup
 	;;
 	0dB)
 		sudo amixer -c $CARD sset $SSET 0dB >/dev/null 2>&1
@@ -142,6 +229,7 @@ case "$ACTION" in
 	;;
 esac
 #----------------------------------------------------------------------------------------
+
 
 #======================================DEBUG=============================================
 if [ $DEBUG -eq 1 ]; then
@@ -178,7 +266,28 @@ pcp_incr_id
 echo '          <table class="bggrey percent100">'
 echo '            <form name="manual_adjust" action="'$0'" method="get">'
 pcp_start_row_shade
+#----------------------------------------------------------------------------------------
 
+#Show this if no ALSA controls are avaiable
+no_pcp_soundcard_options(){
+echo $TEXT
+echo '                  <input type="submit" name="ACTION" value="Backup">'
+echo '                </td>'
+echo '              </tr>'
+echo '            </form>'
+echo '          </table>'
+#----------------------------------------------------------------------------------------
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+}
+
+
+#----------------------------------------------------------------------------------------
+#Show this if ALSA controls are avaiable
+pcp_soundcard_options () {
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column100">'
 echo '                  <p>Volume</p>'
@@ -196,11 +305,9 @@ echo '                           max="100"'
 echo '                           oninput="VoIOutputid.value = VoIinputid.value">'
 echo '                  </p>'
 echo '                </td>'
-
 echo '                <td>'
 echo '                  <output name="VolOutputName" id="VoIOutputid">'"$ACTUAL_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_DB"'</b>'
 echo '                </td>'
-
 echo '              </tr>'
 
 #--------------------------------------DSP Filter options--------------------------------
@@ -245,6 +352,9 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
+}
+
+[ x"$TEXT" != x"" ] && no_pcp_soundcard_options || pcp_soundcard_options 
 
 pcp_footer
 pcp_copyright
