@@ -29,6 +29,47 @@ pcp_httpd_query_string
 # USB cards will probably never be supported this way as they are so different.
 #----------------------------------------------------------------------------------------
 
+pcp_generic_card_control() {
+	case "$GENERIC_CARD" in
+			TI51XX)
+				SSET="Digital"
+				DSP="DSP Program,0"
+				FILTER1="Low latency IIR with de-emphasis"
+				FILTER2="FIR interpolation with de-emphasis"
+				FILTER3="High attenuation with de-emphasis"
+				FILTER4="Fixed process flow"
+				FILTER5="Ringing-less low latency FIR"
+				ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+				ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+				ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+				TEXT=""
+
+				case "$DSPFILTER" in
+					FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
+					FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
+					FILTER3) FILTER="High attenuation with de-emphasis" ;;
+					FILTER4) FILTER="Fixed process flow" ;;
+					FILTER5) FILTER="Ringing-less low latency FIR" ;;
+				esac
+
+				# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+					FILTER1_CHECK=""
+					FILTER2_CHECK=""
+					FILTER3_CHECK=""
+					FILTER4_CHECK=""
+					FILTER5_CHECK=""
+				case "$ACTUAL_FILTER" in
+					Low) FILTER1_CHECK="checked" ;;
+					FIR) FILTER2_CHECK="checked" ;;
+					High) FILTER3_CHECK="checked" ;;
+					Fixed) FILTER4_CHECK="checked" ;;
+					Ringing-less) FILTER5_CHECK="checked" ;;
+				esac
+				;;
+			esac
+}
+
+
 pcp_soundcontrol() {
 	case "$AUDIO" in
 		Analog)
@@ -68,78 +109,13 @@ pcp_soundcontrol() {
 		;;
 		I2SpIQAMP)
 			CARD="IQaudIODAC"
-			SSET="Digital"
-			DSP="DSP Program,0"
-			FILTER1="Low latency IIR with de-emphasis"
-			FILTER2="FIR interpolation with de-emphasis"
-			FILTER3="High attenuation with de-emphasis"
-			FILTER4="Fixed process flow"
-			FILTER5="Ringing-less low latency FIR"
-			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
-			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
-			TEXT=""
-
-			case "$DSPFILTER" in
-				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
-				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
-				FILTER3) FILTER="High attenuation with de-emphasis" ;;
-				FILTER4) FILTER="Fixed process flow" ;;
-				FILTER5) FILTER="Ringing-less low latency FIR" ;;
-			esac
-
-			# Logic to make checked radiobuttons - we needs to clear it otherwise we sometime have two FILTERS_CHECK checked at the same time.
-				FILTER1_CHECK=""
-				FILTER2_CHECK=""
-				FILTER3_CHECK=""
-				FILTER4_CHECK=""
-				FILTER5_CHECK=""
-			case "$ACTUAL_FILTER" in
-				Low) FILTER1_CHECK="checked" ;;
-				FIR) FILTER2_CHECK="checked" ;;
-				High) FILTER3_CHECK="checked" ;;
-				Fixed) FILTER4_CHECK="checked" ;;
-				Ringing-less) FILTER5_CHECK="checked" ;;
-			esac
-
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
 		;;
 		I2SpDAC)
 			CARD="sndrpihifiberry"
-			SSET="Digital"
-			DSP="DSP Program,0"
-			FILTER1="Low latency IIR with de-emphasis"
-			FILTER2="FIR interpolation with de-emphasis"
-			FILTER3="High attenuation with de-emphasis"
-			FILTER4="Fixed process flow"
-			FILTER5="Ringing-less low latency FIR"
-			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
-			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
-			TEXT=""
-
-			case "$DSPFILTER" in
-				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
-				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
-				FILTER3) FILTER="High attenuation with de-emphasis" ;;
-				FILTER4) FILTER="Fixed process flow" ;;
-				FILTER5) FILTER="Ringing-less low latency FIR" ;;
-			esac
-
-			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
-				FILTER1_CHECK=""
-				FILTER2_CHECK=""
-				FILTER3_CHECK=""
-				FILTER4_CHECK=""
-				FILTER5_CHECK=""
-			case "$ACTUAL_FILTER" in
-				Low) FILTER1_CHECK="checked" ;;
-				FIR) FILTER2_CHECK="checked" ;;
-				High) FILTER3_CHECK="checked" ;;
-				Fixed) FILTER4_CHECK="checked" ;;
-				Ringing-less) FILTER5_CHECK="checked" ;;
-			esac
-
-
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
 		;;
 		I2SpDIG)
 			CARD="Hifiberry Digi plus"
@@ -151,39 +127,8 @@ pcp_soundcontrol() {
 		;;
 		I2SpIQaudIO)
 			CARD="IQaudIODAC"
-			SSET="Digital"
-			DSP="DSP Program,0"
-			FILTER1="Low latency IIR with de-emphasis"
-			FILTER2="FIR interpolation with de-emphasis"
-			FILTER3="High attenuation with de-emphasis"
-			FILTER4="Fixed process flow"
-			FILTER5="Ringing-less low latency FIR"
-			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
-			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
-			TEXT=""
-
-			case "$DSPFILTER" in
-				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
-				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
-				FILTER3) FILTER="High attenuation with de-emphasis" ;;
-				FILTER4) FILTER="Fixed process flow" ;;
-				FILTER5) FILTER="Ringing-less low latency FIR" ;;
-			esac
-
-			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
-				FILTER1_CHECK=""
-				FILTER2_CHECK=""
-				FILTER3_CHECK=""
-				FILTER4_CHECK=""
-				FILTER5_CHECK=""
-			case "$ACTUAL_FILTER" in
-				Low) FILTER1_CHECK="checked" ;;
-				FIR) FILTER2_CHECK="checked" ;;
-				High) FILTER3_CHECK="checked" ;;
-				Fixed) FILTER4_CHECK="checked" ;;
-				Ringing-less) FILTER5_CHECK="checked" ;;
-			esac
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
 		;;
 		I2SpIQaudIOdigi)
 
@@ -203,6 +148,15 @@ pcp_soundcontrol() {
 		LOCO_dac)
 
 		;;
+
+
+		Allo_Piano_dac)
+			CARD="PianoDAC"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+		;;
+
+
 		*)
 			echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
 		;;

@@ -241,6 +241,14 @@ if [ $CHANGED ]; then
 			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
+		Allo_Piano_dac)
+			pcp_mount_mmcblk0p1
+			pcp_enable_Piano_dac
+			pcp_disable_HDMI
+			OUTPUT="hw:CARD=PianoDAC"
+			ALSA_PARAMS="80:4::1"
+			pcp_umount_mmcblk0p1
+		;;
 
 		*)
 			echo '<p class="error">[ ERROR ] Error setting $AUDIO to '$AUDIO'</p>'

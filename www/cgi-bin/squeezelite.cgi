@@ -219,6 +219,7 @@ case "$AUDIO" in
 	justboomdigi)    justboomdigiCHECKED="selected" ;;
 	raspidac3)       raspidac3CHECKED="selected" ;;
 	rpi_dac)         rpi_dacCHECKED="selected" ;;
+	Allo_Piano_dac)  Allo_Piano_dacCHECKED="selected" ;;
 	*)               CHECKED="Not set" ;;
 esac
 
@@ -257,7 +258,7 @@ echo '                    <option value="justboomdac" '$justboomdacCHECKED'>I2S 
 echo '                    <option value="justboomdigi" '$justboomdigiCHECKED'>I2S audio: JustBoom Digi</option>'
 echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
 echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: RPi DAC</option>'
-
+echo '                    <option value="Allo_Piano_dac" '$Allo_Piano_dacCHECKED'>I2S audio: Allo Piano DAC</option>'
 echo '                  </select>'
 echo '                </td>'
 
