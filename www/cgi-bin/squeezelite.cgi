@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-14
+#	Added Advanced Options button. GE.
+
 # Version: 3.02 2016-09-20
 #	Added Hifiberry Digi+ Pro support. SBP.
 #	Fixed pattern for ALSA settings to allow 24_3.
@@ -271,7 +274,17 @@ echo '                </td>'
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="2">'
-echo '                  <input type="submit" value="Save" title="Save &quot;Audio output&quot; to configuration file">'
+echo '                  <input type="submit"'
+echo '                         value="Save"'
+echo '                         title="Save &quot;Audio output&quot; to configuration file"'
+echo '                  >'
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	echo '                  <input class="large16"'
+	echo '                         type="button"'
+	echo '                         value="Advanced Options"'
+	echo '                         onClick="location.href='\'''soundcard_control.cgi''\''"'
+	echo '                  >'
+fi
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
