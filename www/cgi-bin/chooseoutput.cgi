@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-13
+# Version: 3.03 2016-10-14
 #	Enhanced format. GE.
+#	Set mmap=1 for all configurations. GE.
 
 # Version: 3.02 2016-09-19
 #	Added Hifiberry Digi+ Pro support. SBP.
@@ -56,8 +57,6 @@ pcp_variables
 # Store the original values so we can see if they are changed
 ORIG_AUDIO="$AUDIO"
 
-#DEBUG=1
-
 pcp_html_head "Choose output" "SBP" "10" "squeezelite.cgi"
 
 pcp_banner
@@ -93,7 +92,7 @@ if [ $CHANGED ]; then
 			pcp_disable_i2s
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=ALSA"
-			ALSA_PARAMS="80:::0"
+			ALSA_PARAMS="80:::1"
 			pcp_umount_mmcblk0p1
 		;;
 		HDMI)
@@ -102,7 +101,7 @@ if [ $CHANGED ]; then
 			pcp_disable_HDMI
 			pcp_enable_HDMI
 			OUTPUT="sysdefault:CARD=ALSA"
-			ALSA_PARAMS="::32:0"
+			ALSA_PARAMS="::32:1"
 			pcp_umount_mmcblk0p1
 			sudo amixer cset numid=3 2 >/dev/null 2>&1
 		;;
@@ -111,7 +110,7 @@ if [ $CHANGED ]; then
 			pcp_disable_i2s
 			pcp_disable_HDMI
 			OUTPUT=""
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SDAC)
@@ -119,7 +118,7 @@ if [ $CHANGED ]; then
 			pcp_enable_i2s_dac
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SGENERIC)
@@ -127,7 +126,7 @@ if [ $CHANGED ]; then
 			pcp_enable_i2s_dac
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SDIG)
@@ -135,7 +134,7 @@ if [ $CHANGED ]; then
 			pcp_enable_i2s_digi
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SAMP)
@@ -143,7 +142,7 @@ if [ $CHANGED ]; then
 			pcp_enable_i2s_amp
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		IQaudio)
@@ -151,7 +150,7 @@ if [ $CHANGED ]; then
 			pcp_enable_iqaudio_dac
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=IQaudIODAC"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SpIQAMP)
@@ -159,7 +158,7 @@ if [ $CHANGED ]; then
 			pcp_enable_iqaudio_amp
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=IQaudIODAC"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SpDAC)
@@ -167,7 +166,7 @@ if [ $CHANGED ]; then
 			pcp_enable_hifiberry_dac_p
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SpDIG)
@@ -175,7 +174,7 @@ if [ $CHANGED ]; then
 			pcp_enable_i2s_digi
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SpDIGpro)
@@ -183,7 +182,7 @@ if [ $CHANGED ]; then
 			pcp_enable_hifiberry_digi_pro
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SpIQaudIO)
@@ -191,7 +190,7 @@ if [ $CHANGED ]; then
 			pcp_enable_iqaudio_dac_p
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=IQaudIODAC"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		I2SpIQaudIOdigi)
@@ -199,7 +198,7 @@ if [ $CHANGED ]; then
 			pcp_enable_iqaudio_digi
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=IQaudIODigi"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		justboomdac)
@@ -207,7 +206,7 @@ if [ $CHANGED ]; then
 			pcp_enable_justboomdac
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpijustboomd"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		justboomdigi)
@@ -215,7 +214,7 @@ if [ $CHANGED ]; then
 			pcp_enable_justboomdigi
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpijustboomd"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		raspidac3)
@@ -223,7 +222,7 @@ if [ $CHANGED ]; then
 			pcp_enable_raspidac3
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=Card"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		rpi_dac)
@@ -231,7 +230,7 @@ if [ $CHANGED ]; then
 			pcp_enable_rpi_dac
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=snd-rpi-dac"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 		LOCO_dac)
@@ -239,7 +238,7 @@ if [ $CHANGED ]; then
 			pcp_enable_LOCO_dac
 			pcp_disable_HDMI
 			OUTPUT="hw:CARD=sndrpidionaudio"
-			ALSA_PARAMS="80:4::"
+			ALSA_PARAMS="80:4::1"
 			pcp_umount_mmcblk0p1
 		;;
 

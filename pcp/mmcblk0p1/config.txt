@@ -85,3 +85,5 @@ max_usb_current=1
 # disable_audio_dither=1
 lcd_rotate=2
 
+# This will eventually become the default, but until then.
+dtoverlay=i2s-mmap

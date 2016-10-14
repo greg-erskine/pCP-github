@@ -2,6 +2,7 @@
 
 # Version: 3.03 2016-10-14
 #	Enhanced format. GE.
+#	Removed pcp_multi_alsa_mmap. GE.
 
 # Version: 3.02 2016-09-21
 #	Fixed blanking ALSA_PARAMS issue. GE.
@@ -94,20 +95,20 @@ pcp_update() {
 	pcp_save_to_config
 }
 
-pcp_multi_alsa_mmap() {
-	pcp_mount_mmcblk0p1
-	if [ $ALSA_PARAMS4 -eq 1 ]; then
-		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
-		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
-		[ $? -eq 1 ] && REBOOT_REQUIRED=TRUE && unset RESTART_REQUIRED
-		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
-		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
-	else
-		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
-		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
-		pcp_umount_mmcblk0p1
-	fi
-}
+#pcp_multi_alsa_mmap() {
+#	pcp_mount_mmcblk0p1
+#	if [ $ALSA_PARAMS4 -eq 1 ]; then
+#		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
+#		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
+#		[ $? -eq 1 ] && REBOOT_REQUIRED=TRUE && unset RESTART_REQUIRED
+#		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+#		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
+#	else
+#		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
+#		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+#		pcp_umount_mmcblk0p1
+#	fi
+#}
 
 #========================================================================================
 # Main
@@ -118,7 +119,7 @@ case "$SUBMIT" in
 	Save)
 		if [ $MODE -ge $MODE_BASIC ]; then
 			ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
-			[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
+#			[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
 			[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
 			[ $PRIORITY -eq 0 ] && PRIORITY=""
 			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
