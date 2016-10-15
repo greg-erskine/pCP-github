@@ -1802,158 +1802,351 @@ pcp_re_enable_analog() {
 	sudo sed -i "/audio_pwm_mode=2/c\audio_pwm_mode=2" $CONFIGTXT
 }
 
-#========================================================================================
-# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
-#----------------------------------------------------------------------------------------
-pcp_disable_i2s() {
-	pcp_re_enable_analog
-	sed -i '/dtoverlay=hifiberry-dac/d' $CONFIGTXT
-	sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
-	sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
-	sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
-	sed -i '/dtoverlay=hifiberry-digi-pro/d' $CONFIGTXT
-	sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
-	sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
-	sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
-	sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
-	sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
-	sed -i '/dtoverlay=justboom-digi/d' $CONFIGTXT
-	sed -i '/dtoverlay=justboom-dac/d' $CONFIGTXT
-	sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
-}
-
-#=========================================================================================
-# Enable/disable HDMI settings in config.txt
-#-----------------------------------------------------------------------------------------
-pcp_disable_HDMI() {
-	sed -i '/hdmi_drive=2/d' $CONFIGTXT
-	sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
-	sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
-}
-
-pcp_enable_HDMI() {
-	pcp_disable_i2s
-	sudo echo hdmi_drive=2 >> $CONFIGTXT
-	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
-	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
-}
 
 #========================================================================================
-# Load the correct modules for HiFiBerry DAC
+# Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
 #----------------------------------------------------------------------------------------
-pcp_enable_i2s_dac() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+pcp_AudioKernel_status() {
+	sudo  uname -a | grep pcpAudioCore > /dev/null 2>&1
+	echo $?
 }
 
-#========================================================================================
-# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_digi() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
-}
+if [ $(pcp_AudioKernel_status) -eq 0 ]; then
+		KERNELVERSION=Audiokernel
+	else
+		KERNELVERSION=Officialkernel
+	fi
+
 
 #========================================================================================
-# Load the correct modules for HiFiBerry DAC+
+# Using official overlays for the official kernel
 #----------------------------------------------------------------------------------------
-pcp_enable_hifiberry_dac_p() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
-}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry Digi+ Pro
-#----------------------------------------------------------------------------------------
-pcp_enable_hifiberry_digi_pro() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
-}
 
-#========================================================================================
-# Load the correct modules for HiFiBerry AMP
-#----------------------------------------------------------------------------------------
-pcp_enable_i2s_amp() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
-}
+case "$KERNELVERSION" in
+	Officialkernel)
+		#========================================================================================
+		# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+		#----------------------------------------------------------------------------------------
+		pcp_disable_i2s() {
+		pcp_re_enable_analog
+			sed -i '/dtoverlay=hifiberry-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-digi-pro/d' $CONFIGTXT
+			sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
+			sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
+			sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
+			sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=justboom-digi/d' $CONFIGTXT
+			sed -i '/dtoverlay=justboom-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
+			sed -i '/dtoverlay=allo-piano-dac-pcm512x-audio/d' $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
-}
+		#=========================================================================================
+		# Enable/disable HDMI settings in config.txt
+		#-----------------------------------------------------------------------------------------
+		pcp_disable_HDMI() {
+			sed -i '/hdmi_drive=2/d' $CONFIGTXT
+			sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
+			sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for IQaudIO DAC+
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_dac_p() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
-}
+		pcp_enable_HDMI() {
+			pcp_disable_i2s
+			sudo echo hdmi_drive=2 >> $CONFIGTXT
+			sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+			sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_amp() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=iqaudio-dacplus,unmute_amp >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for HiFiBerry DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for IQaudIO digi
-#----------------------------------------------------------------------------------------
-pcp_enable_iqaudio_digi() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_digi() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for raspidac3
-#----------------------------------------------------------------------------------------
-pcp_enable_raspidac3() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for HiFiBerry DAC+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_hifiberry_dac_p() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for rpi-dac
-#----------------------------------------------------------------------------------------
-pcp_enable_rpi_dac() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for HiFiBerry Digi+ Pro
+		#----------------------------------------------------------------------------------------
+		pcp_enable_hifiberry_digi_pro() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for justboomdac
-#----------------------------------------------------------------------------------------
-pcp_enable_justboomdac() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for HiFiBerry AMP
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_amp() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for justboomdigi
-#----------------------------------------------------------------------------------------
-pcp_enable_justboomdigi() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for IQaudIO DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for Dion Audio LOCO
-#----------------------------------------------------------------------------------------
-pcp_enable_LOCO_dac() {
-	pcp_disable_i2s
-	sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for IQaudIO DAC+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_dac_p() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+		}
 
-#========================================================================================
-# Load the correct modules for Allo Piano DAC
-#----------------------------------------------------------------------------------------
-pcp_enable_Piano_dac() {
-	pcp_disable_i2s
-	sudo echo allo-piano-dac-pcm512x-audio >> $CONFIGTXT
-}
+		#========================================================================================
+		# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_amp() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-dacplus,unmute_amp >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for IQaudIO digi
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_digi() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for raspidac3
+		#----------------------------------------------------------------------------------------
+		pcp_enable_raspidac3() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for rpi-dac
+		#----------------------------------------------------------------------------------------
+		pcp_enable_rpi_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for justboomdac
+		#----------------------------------------------------------------------------------------
+		pcp_enable_justboomdac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for justboomdigi
+		#----------------------------------------------------------------------------------------
+		pcp_enable_justboomdigi() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Dion Audio LOCO
+		#----------------------------------------------------------------------------------------
+		pcp_enable_LOCO_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Allo Piano DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_Piano_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=allo-piano-dac-pcm512x-audio >> $CONFIGTXT
+		}
+	;;
+
+
+		Audiokernel)
+		#========================================================================================
+		# Using special overlays for the Audio kernel (Clives simple kernel)
+		#----------------------------------------------------------------------------------------
+
+		#========================================================================================
+		# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
+		#----------------------------------------------------------------------------------------
+		pcp_disable_i2s() {
+			pcp_re_enable_analog
+			sed -i '/dtoverlay=hifiberry-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
+			sed -i '/dtoverlay=hifiberry-digi-pro/d' $CONFIGTXT
+			sed -i '/dtoverlay=iqaudio-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=iqaudio-dacplus/d' $CONFIGTXT
+			sed -i '/dtoverlay=iqaudio-digi-wm8804-audio/d' $CONFIGTXT
+			sed -i '/dtoverlay=raspidac3/d' $CONFIGTXT
+			sed -i '/dtoverlay=rpi-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=justboom-digi/d' $CONFIGTXT
+			sed -i '/dtoverlay=justboom-dac/d' $CONFIGTXT
+			sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
+			sed -i '/dtoverlay=allo-piano-dac-pcm512x-audio/d' $CONFIGTXT
+		}
+
+		#=========================================================================================
+		# Enable/disable HDMI settings in config.txt
+		#-----------------------------------------------------------------------------------------
+		pcp_disable_HDMI() {
+			sed -i '/hdmi_drive=2/d' $CONFIGTXT
+			sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
+			sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
+		}
+
+		pcp_enable_HDMI() {
+			pcp_disable_i2s
+			sudo echo hdmi_drive=2 >> $CONFIGTXT
+			sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+			sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for HiFiBerry DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac" >> $CONFIGTXT
+			sudo echo dtoverlay=dtoverlay=simple-bclk-int-div-40-80 >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_digi() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for HiFiBerry DAC+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_hifiberry_dac_p() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for HiFiBerry Digi+ Pro
+		#----------------------------------------------------------------------------------------
+		pcp_enable_hifiberry_digi_pro() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for HiFiBerry AMP
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_amp() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for IQaudIO DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for IQaudIO DAC+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_dac_p() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_amp() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-dacplus,unmute_amp >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for IQaudIO digi
+		#----------------------------------------------------------------------------------------
+		pcp_enable_iqaudio_digi() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for raspidac3
+		#----------------------------------------------------------------------------------------
+		pcp_enable_raspidac3() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for rpi-dac
+		#----------------------------------------------------------------------------------------
+		pcp_enable_rpi_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for justboomdac
+		#----------------------------------------------------------------------------------------
+		pcp_enable_justboomdac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for justboomdigi
+		#----------------------------------------------------------------------------------------
+		pcp_enable_justboomdigi() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Dion Audio LOCO
+		#----------------------------------------------------------------------------------------
+		pcp_enable_LOCO_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Allo Piano DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_Piano_dac() {
+			pcp_disable_i2s
+			sudo echo dtoverlay=allo-piano-dac-pcm512x-audio >> $CONFIGTXT
+		}
+	;;
+
+esac
+
