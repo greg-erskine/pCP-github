@@ -1772,7 +1772,7 @@ ALSA_PARAMS="80:4::1"
 	case "$AUDIO" in
 		Analog)           pcp_disable_i2s; OUTPUT="hw:CARD=ALSA"; ALSA_PARAMS="80:::1" ;;
 		HDMI)             pcp_disable_i2s; pcp_enable_HDMI; OUTPUT="sysdefault:CARD=ALSA"; ALSA_PARAMS="::32:1" ;;
-		USB)              pcp_disable_i2s; OUTPUT="" ;;
+		USB)              pcp_disable_i2s; OUTPUT="$USBOUTPUT" ;;
 		I2SDAC)           pcp_enable_i2s_dac; OUTPUT="hw:CARD=sndrpihifiberry" ;;
 		I2SDIG)           pcp_enable_i2s_digi; OUTPUT="hw:CARD=sndrpihifiberry" ;;
 		I2SAMP)           pcp_enable_i2s_amp; OUTPUT="hw:CARD=sndrpihifiberry" ;;
@@ -1817,8 +1817,7 @@ pcp_AudioKernel_status() {
 }
 
 if [ $(pcp_AudioKernel_status) -eq 0 ]; then
-#		KERNELVERSION=Audiokernel
-		KERNELVERSION=Officialkernel
+		KERNELVERSION=Audiokernel
 	else
 		KERNELVERSION=Officialkernel
 	fi

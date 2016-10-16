@@ -186,6 +186,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
@@ -231,6 +232,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	#-----------------------------------------------------------------------------------------
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone

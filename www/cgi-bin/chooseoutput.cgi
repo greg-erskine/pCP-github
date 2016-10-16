@@ -77,17 +77,18 @@ if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 	unset CHANGED
 else
 	echo '<p class="info">[ INFO ] Audio output ($AUDIO) changed from '$ORIG_AUDIO' to '$AUDIO'.</p>'
+	# the next line is needed to clear OUTPUT from here when selecting USB. Whereas when pcp_read_chosen_audio is called from do_rebootstuff it should use the correct USB OUTPUT from newconfig.
+	USBOUTPUT="" 
 	CHANGED=TRUE
 fi
 
 # Only do something if $AUDIO variable has changed
 if [ $CHANGED ]; then
 	pcp_squeezelite_stop
-	pcp_save_to_config
 	pcp_read_chosen_audio
+
 	# Set the default settings
 	echo '<p class="info">[ INFO ] Setting Audio output ($AUDIO) to '$AUDIO'</p>'
-
 
 	# If ALSA equalizer is chosen output it should always be equal
 	[ "$ALSAeq" = "yes" ] && OUTPUT="equal"
@@ -142,6 +143,12 @@ if [ $CHANGED ]; then
 		echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
 		echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
 	fi
+
+		if [ "$AUDIO" = "USB" ]; then
+		STRING1='INFO: USB is chosen. Please check that the OUTPUT field is correct. Press Ok to check, and then reboot'
+		SCRIPT1='squeezelite.cgi'
+		pcp_confirmation_required
+		fi
 
 	pcp_squeezelite_start
 	pcp_save_to_config
