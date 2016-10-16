@@ -1766,26 +1766,31 @@ pcp_reset_config_to_defaults() {
 # Read which output to use then add/remove modules
 #-----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
+pcp_mount_mmcblk0p1
+pcp_disable_HDMI
+ALSA_PARAMS="80:4::1"
 	case "$AUDIO" in
-		Analog)           pcp_disable_i2s ;;
-		HDMI)             pcp_enable_HDMI ;;
-		USB)              pcp_disable_i2s ;;
-		I2SDAC)           pcp_enable_i2s_dac ;;
-		I2SDIG)           pcp_enable_i2s_digi ;;
-		I2SAMP)           pcp_enable_i2s_amp ;;
-		IQaudio)          pcp_enable_iqaudio_dac ;;
-		I2SpIQAMP)        pcp_enable_iqaudio_amp ;;
-		I2SpDAC)          pcp_enable_hifiberry_dac_p ;;
-		I2SpDIG)          pcp_enable_i2s_digi ;;
-		I2SpDIGpro)       pcp_enable_hifiberry_digi_pro ;;
-		I2SpIQaudIO)      pcp_enable_iqaudio_dac_p ;;
-		I2SpIQaudIOdigi)  pcp_enable_iqaudio_digi ;;
-		justboomdac)      pcp_enable_justboomdac ;;
-		justboomdigi)     pcp_enable_justboomdigi ;;
-		raspidac3)        pcp_enable_raspidac3 ;;
-		rpi_dac)          pcp_enable_rpi_dac ;;
-		LOCO_dac)         pcp_enable_LOCO_dac ;;
+		Analog)           pcp_disable_i2s; OUTPUT="hw:CARD=ALSA"; ALSA_PARAMS="80:::1" ;;
+		HDMI)             pcp_disable_i2s; pcp_enable_HDMI; OUTPUT="sysdefault:CARD=ALSA"; ALSA_PARAMS="::32:1" ;;
+		USB)              pcp_disable_i2s; OUTPUT="" ;;
+		I2SDAC)           pcp_enable_i2s_dac; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SDIG)           pcp_enable_i2s_digi; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SAMP)           pcp_enable_i2s_amp; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		IQaudio)          pcp_enable_iqaudio_dac; OUTPUT="hw:CARD=IQaudIODAC" ;;
+		I2SpIQAMP)        pcp_enable_iqaudio_amp; OUTPUT="hw:CARD=IQaudIODAC" ;;
+		I2SpDAC)          pcp_enable_hifiberry_dac_p; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SpDIG)          pcp_enable_i2s_digi; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SpDIGpro)       pcp_enable_hifiberry_digi_pro; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SpIQaudIO)      pcp_enable_iqaudio_dac_p; OUTPUT="hw:CARD=IQaudIODAC" ;;
+		I2SpIQaudIOdigi)  pcp_enable_iqaudio_digi; OUTPUT="hw:CARD=IQaudIODigi" ;;
+		justboomdac)      pcp_enable_justboomdac; OUTPUT="hw:CARD=sndrpijustboomd" ;;
+		justboomdigi)     pcp_enable_justboomdigi; OUTPUT="hw:CARD=sndrpijustboomd" ;;
+		raspidac3)        pcp_enable_raspidac3; OUTPUT="hw:CARD=Card" ;;
+		rpi_dac)          pcp_enable_rpi_dac; OUTPUT="hw:CARD=snd-rpi-dac" ;;
+		LOCO_dac)         pcp_enable_LOCO_dac; OUTPUT="hw:CARD=sndrpidionaudio" ;;
+		Allo_Piano_dac)	  pcp_enable_Piano_dac; OUTPUT="hw:CARD=PianoDAC" ;;
 	esac
+pcp_umount_mmcblk0p1
 }
 
 #========================================================================================
@@ -1812,7 +1817,8 @@ pcp_AudioKernel_status() {
 }
 
 if [ $(pcp_AudioKernel_status) -eq 0 ]; then
-		KERNELVERSION=Audiokernel
+#		KERNELVERSION=Audiokernel
+		KERNELVERSION=Officialkernel
 	else
 		KERNELVERSION=Officialkernel
 	fi
@@ -1860,6 +1866,7 @@ case "$KERNELVERSION" in
 			sudo echo hdmi_drive=2 >> $CONFIGTXT
 			sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
 			sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+			sudo amixer cset numid=3 2 >/dev/null 2>&1
 		}
 
 		#========================================================================================
