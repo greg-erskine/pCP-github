@@ -1768,13 +1768,16 @@ pcp_reset_config_to_defaults() {
 pcp_read_chosen_audio() {
 pcp_mount_mmcblk0p1
 pcp_disable_HDMI
+pcp_disable_i2s
 ALSA_PARAMS="80:4::1"
 	case "$AUDIO" in
-		Analog)           pcp_disable_i2s; OUTPUT="hw:CARD=ALSA"; ALSA_PARAMS="80:::1" ;;
-		HDMI)             pcp_disable_i2s; pcp_enable_HDMI; OUTPUT="sysdefault:CARD=ALSA"; ALSA_PARAMS="::32:1" ;;
-		USB)              pcp_disable_i2s; OUTPUT="$USBOUTPUT" ;;
+		Analog)           OUTPUT="hw:CARD=ALSA"; ALSA_PARAMS="80:::1" ;;
+		HDMI)             pcp_enable_HDMI; OUTPUT="sysdefault:CARD=ALSA"; ALSA_PARAMS="::32:1" ;;
+		USB)              OUTPUT="$USBOUTPUT" ;;
 		I2SDAC)           pcp_enable_i2s_dac; OUTPUT="hw:CARD=sndrpihifiberry" ;;
 		I2SDIG)           pcp_enable_i2s_digi; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SGENERIC_TI)    pcp_enable_i2s_g_ti; OUTPUT="hw:CARD=sndrpihifiberry" ;;
+		I2SGENERIC_ESS)   pcp_enable_i2s_g_ess; OUTPUT="hw:CARD=sndrpihifiberry" ;;
 		I2SAMP)           pcp_enable_i2s_amp; OUTPUT="hw:CARD=sndrpihifiberry" ;;
 		IQaudio)          pcp_enable_iqaudio_dac; OUTPUT="hw:CARD=IQaudIODAC" ;;
 		I2SpIQAMP)        pcp_enable_iqaudio_amp; OUTPUT="hw:CARD=IQaudIODAC" ;;
@@ -1792,6 +1795,7 @@ ALSA_PARAMS="80:4::1"
 	esac
 pcp_umount_mmcblk0p1
 }
+
 
 #========================================================================================
 # Disable/re_enable analog audio
@@ -1872,7 +1876,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry DAC
 		#----------------------------------------------------------------------------------------
 		pcp_enable_i2s_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
 		}
 
@@ -1880,7 +1883,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_i2s_digi() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
 		}
 
@@ -1888,7 +1890,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry DAC+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_hifiberry_dac_p() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
 		}
 
@@ -1896,7 +1897,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry Digi+ Pro
 		#----------------------------------------------------------------------------------------
 		pcp_enable_hifiberry_digi_pro() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
 		}
 
@@ -1904,15 +1904,27 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry AMP
 		#----------------------------------------------------------------------------------------
 		pcp_enable_i2s_amp() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Generic TI51XX DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_g_ti() {
+			sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Generic ESS 9023 DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_g_ess() {
+			sudo echo dtoverlay=hifiberry-dac >> $CONFIGTXT
 		}
 
 		#========================================================================================
 		# Load the correct modules for IQaudIO DAC
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
 		}
 
@@ -1920,7 +1932,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for IQaudIO DAC+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_dac_p() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
 		}
 
@@ -1928,7 +1939,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_amp() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-dacplus,unmute_amp >> $CONFIGTXT
 		}
 
@@ -1936,7 +1946,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for IQaudIO digi
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_digi() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
 		}
 
@@ -1944,7 +1953,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for raspidac3
 		#----------------------------------------------------------------------------------------
 		pcp_enable_raspidac3() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
 		}
 
@@ -1952,7 +1960,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for rpi-dac
 		#----------------------------------------------------------------------------------------
 		pcp_enable_rpi_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
 		}
 
@@ -1960,7 +1967,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for justboomdac
 		#----------------------------------------------------------------------------------------
 		pcp_enable_justboomdac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
 		}
 
@@ -1968,7 +1974,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for justboomdigi
 		#----------------------------------------------------------------------------------------
 		pcp_enable_justboomdigi() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
 		}
 
@@ -1976,7 +1981,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for Dion Audio LOCO
 		#----------------------------------------------------------------------------------------
 		pcp_enable_LOCO_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
 		}
 
@@ -1984,23 +1988,20 @@ case "$KERNELVERSION" in
 		# Load the correct modules for Allo Piano DAC
 		#----------------------------------------------------------------------------------------
 		pcp_enable_Piano_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=allo-piano-dac-pcm512x-audio >> $CONFIGTXT
 		}
 	;;
 
 
 		Audiokernel)
-		#========================================================================================
-		# Using special overlays for the Audio kernel (Clives simple kernel)
-		#----------------------------------------------------------------------------------------
 
 		#========================================================================================
 		# Remove HiFiBerry Digi/DAC and IQaudIO DAC modules
 		#----------------------------------------------------------------------------------------
 		pcp_disable_i2s() {
-			pcp_re_enable_analog
-			sed -i '/dtoverlay=hifiberry-dac/d' $CONFIGTXT
+		pcp_re_enable_analog
+			sed -i '/dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac"/d' $CONFIGTXT
+			sed -i '/dtoverlay=dtoverlay=simple-bclk-int-div-40-80/d' $CONFIGTXT
 			sed -i '/dtoverlay=hifiberry-digi/d' $CONFIGTXT
 			sed -i '/dtoverlay=hifiberry-dacplus/d' $CONFIGTXT
 			sed -i '/dtoverlay=hifiberry-amp/d' $CONFIGTXT
@@ -2014,6 +2015,9 @@ case "$KERNELVERSION" in
 			sed -i '/dtoverlay=justboom-dac/d' $CONFIGTXT
 			sed -i '/dtoverlay=dionaudio-loco/d' $CONFIGTXT
 			sed -i '/dtoverlay=allo-piano-dac-pcm512x-audio/d' $CONFIGTXT
+			sed -i '/dtoverlay=simple-es9023-audio,card_name="snd_rpi_hifiberry_dac"/d' $CONFIGTXT
+			sed -i '/dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac"/d' $CONFIGTXT
+
 		}
 
 		#=========================================================================================
@@ -2030,13 +2034,13 @@ case "$KERNELVERSION" in
 			sudo echo hdmi_drive=2 >> $CONFIGTXT
 			sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
 			sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+			sudo amixer cset numid=3 2 >/dev/null 2>&1
 		}
 
 		#========================================================================================
 		# Load the correct modules for HiFiBerry DAC
 		#----------------------------------------------------------------------------------------
 		pcp_enable_i2s_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac" >> $CONFIGTXT
 			sudo echo dtoverlay=dtoverlay=simple-bclk-int-div-40-80 >> $CONFIGTXT
 		}
@@ -2045,7 +2049,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_i2s_digi() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-digi >> $CONFIGTXT
 		}
 
@@ -2053,7 +2056,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry DAC+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_hifiberry_dac_p() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-dacplus >> $CONFIGTXT
 		}
 
@@ -2061,7 +2063,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry Digi+ Pro
 		#----------------------------------------------------------------------------------------
 		pcp_enable_hifiberry_digi_pro() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-digi-pro >> $CONFIGTXT
 		}
 
@@ -2069,15 +2070,27 @@ case "$KERNELVERSION" in
 		# Load the correct modules for HiFiBerry AMP
 		#----------------------------------------------------------------------------------------
 		pcp_enable_i2s_amp() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=hifiberry-amp >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Generic TI51XX DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_g_ti() {
+			sudo echo dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac" >> $CONFIGTXT
+		}
+
+		#========================================================================================
+		# Load the correct modules for Generic ESS 9023 DAC
+		#----------------------------------------------------------------------------------------
+		pcp_enable_i2s_g_ess() {
+			sudo echo dtoverlay=simple-es9023-audio,card_name="snd_rpi_hifiberry_dac" >> $CONFIGTXT
 		}
 
 		#========================================================================================
 		# Load the correct modules for IQaudIO DAC
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-dac >> $CONFIGTXT
 		}
 
@@ -2085,7 +2098,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for IQaudIO DAC+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_dac_p() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-dacplus >> $CONFIGTXT
 		}
 
@@ -2093,7 +2105,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for IQaudIO AMP+ and IQaudIO digiAMP+
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_amp() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-dacplus,unmute_amp >> $CONFIGTXT
 		}
 
@@ -2101,7 +2112,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for IQaudIO digi
 		#----------------------------------------------------------------------------------------
 		pcp_enable_iqaudio_digi() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=iqaudio-digi-wm8804-audio >> $CONFIGTXT
 		}
 
@@ -2109,7 +2119,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for raspidac3
 		#----------------------------------------------------------------------------------------
 		pcp_enable_raspidac3() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=raspidac3 >> $CONFIGTXT
 		}
 
@@ -2117,7 +2126,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for rpi-dac
 		#----------------------------------------------------------------------------------------
 		pcp_enable_rpi_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=rpi-dac >> $CONFIGTXT
 		}
 
@@ -2125,7 +2133,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for justboomdac
 		#----------------------------------------------------------------------------------------
 		pcp_enable_justboomdac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=justboom-dac >> $CONFIGTXT
 		}
 
@@ -2133,7 +2140,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for justboomdigi
 		#----------------------------------------------------------------------------------------
 		pcp_enable_justboomdigi() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=justboom-digi >> $CONFIGTXT
 		}
 
@@ -2141,7 +2147,6 @@ case "$KERNELVERSION" in
 		# Load the correct modules for Dion Audio LOCO
 		#----------------------------------------------------------------------------------------
 		pcp_enable_LOCO_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=dionaudio-loco >> $CONFIGTXT
 		}
 
@@ -2149,10 +2154,8 @@ case "$KERNELVERSION" in
 		# Load the correct modules for Allo Piano DAC
 		#----------------------------------------------------------------------------------------
 		pcp_enable_Piano_dac() {
-			pcp_disable_i2s
 			sudo echo dtoverlay=allo-piano-dac-pcm512x-audio >> $CONFIGTXT
 		}
 	;;
-
 esac
 

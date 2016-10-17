@@ -93,8 +93,13 @@ pcp_soundcontrol() {
 		I2SDAC)
 
 		;;
-		I2SGENERIC)
-			CARD="Generic I2S DAC"
+		I2SGENERIC_TI)
+			CARD="Generic Texas TI51XX I2S DAC"
+			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."  
+
+		;;
+		I2SGENERIC_ESS)
+			CARD="Generic ESS 9023 I2S DAC"
 			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."  
 
 		;;
