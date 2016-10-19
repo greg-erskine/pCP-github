@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-13
+# Version: 3.03 2016-10-19
 #	Enhanced formatting. GE.
+#	Added pcp_squeezelite_status. GE.
 
 # Version: 0.04 2016-02-02 GE
 #	Added pcp_go_main_button.
@@ -18,7 +19,7 @@
 . pcp-functions
 pcp_variables
 
-pcp_html_head "Restart Squeezelite" "SBP" "10" "main.cgi"
+pcp_html_head "Restart Squeezelite" "SBP" "5" "main.cgi"
 
 pcp_banner
 pcp_running_script
@@ -28,6 +29,8 @@ pcp_table_top "Restarting Squeezelite"
 pcp_squeezelite_stop
 sleep 2
 pcp_squeezelite_start
+sleep 1
+pcp_squeezelite_status "html"
 
 if [ "$SHAIRPORT" = "yes" ]; then
 	pcp_shairport_stop

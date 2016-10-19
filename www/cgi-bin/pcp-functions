@@ -2,13 +2,14 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-13
+# Version: 3.03 2016-10-19
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
 #	Updated pcp_backup and pcp_backup_nohtml. GE.
 #	Added Samba. PH.
-#	Added correct unmute command for IQaudIO AMP. SBP
+#	Added correct unmute command for IQaudIO AMP. SBP.
+#	Updated pcp_squeezelite_status. GE.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -332,7 +333,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=100
+	MODE=0
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1101,7 +1102,16 @@ pcp_squeezelite_restart() {
 
 pcp_squeezelite_status() {
 	sudo /usr/local/etc/init.d/squeezelite status > /dev/null 2>&1
-	echo $?
+	RESULT=$?
+	if [ "$1" = "html" ]; then
+		if [ $RESULT -eq 0 ]; then
+			echo '<p class="ok">[ OK ] Squeezelite running.</p>'
+		else
+			echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
+		fi
+	else
+		echo $RESULT
+	fi
 }
 
 #=========================================================================================
