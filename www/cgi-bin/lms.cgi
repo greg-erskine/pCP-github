@@ -176,7 +176,8 @@ DESC="File Sharing"
 CONF=/usr/local/etc/samba/smb.conf
 
 startsmb(){
-	if [ -f $CONF ]; then
+	grep -q "path" \$CONF
+	if [ \$? -eq 0 ]; then
 		echo "Starting SAMBA..."
 		/usr/local/sbin/smbd
 		/usr/local/sbin/nmbd
@@ -191,9 +192,19 @@ stopsmb(){
 	pkill smbd
 }
 
+#Must Run as Root for ownership
+if [ \$(/usr/bin/id -u) -ne 0 ]; then
+	echo "Need to run as root." >&2
+	exit 1
+fi
+
 case "\$1" in
-	start) startsmb;;
-	stop) stopsmb;;
+	start)
+		startsmb
+	;;
+	stop)
+		stopsmb
+	;;
 	restart)
 		echo "Restarting SAMBA..."
 		stopsmb

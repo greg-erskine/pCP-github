@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-13 PH
+# Version: 3.03 2016-10-18 PH
 #	Original version.
 
 . pcp-functions
@@ -55,7 +55,11 @@ case "$COMMAND" in
 				echo -n "    " >> $SAMBACONF
 				eval echo "path = \${SHAREPATH${I}}" >> $SAMBACONF
 				echo -n "    " >> $SAMBACONF
-				eval echo "create mask = \${SHAREMASK${I}}" >> $SAMBACONF
+				if [ $(eval echo "\${SHAREMASK${I}}") != "" ]; then
+					eval echo "create mask = \${SHAREMASK${I}}" >> $SAMBACONF
+				else
+					echo "create mask = 0664" >> $SAMBACONF
+				fi
 				echo "    browseable = yes" >> $SAMBACONF
 				RO=$(eval echo "\${SHARERO${I}}")
 				if [ "$RO" = "yes" ]; then	
@@ -86,9 +90,15 @@ case "$COMMAND" in
 		echo '</table>'
 
 		pcp_backup
-		echo -n '<p class="info">[ INFO ] '
-		/usr/local/etc/init.d/samba restart
-		echo '</p>'
+		grep -q "path" $SAMBACONF
+		if [ $? -eq 0 ]; then
+			echo -n '<p class="info">[ INFO ] '
+			/usr/local/etc/init.d/samba restart
+			echo '</p>'
+		else
+			echo '<p class="error">[ ERROR ] No Shares are set, Samba will be stopped</p>'
+			/usr/local/etc/init.d/samba stop
+		fi
 	;;
 	autostart)
 		echo '<p class="info">[ INFO ] Setting SAMBA Autostart Status</p>'
