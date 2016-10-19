@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-19
+#	Enhanced formatting. GE.
+
 # Version: 0.03 2015-12-05 GE
 #	Added more debug information.
 #	Added reboot required button.
@@ -39,31 +42,37 @@
 . pcp-functions
 pcp_variables
 
-pcp_html_head "Write Hostname" "SBP" "15" "tweaks.cgi"
+pcp_html_head "Write Hostname" "SBP" "10" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
+
+pcp_table_top "Changing hostname"
 echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
 pcp_mount_mmcblk0p1
 pcp_write_to_host
-[ $DEBUG -eq 1 ] && pcp_textarea "Current /mnt/mmcblk0p1/cmdline.txt" "cat /mnt/mmcblk0p1/cmdline.txt" 100
+[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current /mnt/mmcblk0p1/cmdline.txt" "cat /mnt/mmcblk0p1/cmdline.txt" 70
 pcp_umount_mmcblk0p1
 pcp_save_to_config
 pcp_backup
 
 if [ $DEBUG -eq 1 ]; then
-	pcp_textarea "Current hostname" "hostname" 50
-	pcp_textarea "Current /proc/cmdline" "cat /proc/cmdline" 100
-	pcp_textarea "Current /etc/hostname" "cat /etc/hostname" 50
-	pcp_textarea "Current /etc/hosts" "cat /etc/hosts" 180
-	pcp_textarea "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
-	pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 380
-	pcp_textarea "ps " "ps | grep -v grep | grep udhcpc" 100
+	pcp_textarea_inform "Current hostname" "hostname" 20
+	pcp_textarea_inform "Current /proc/cmdline" "cat /proc/cmdline" 100
+	pcp_textarea_inform "Current /etc/hostname" "cat /etc/hostname" 50
+	pcp_textarea_inform "Current /etc/hosts" "cat /etc/hosts" 180
+	pcp_textarea_inform "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
+	pcp_textarea_inform "Current config.cfg" "cat $CONFIGCFG" 380
+	pcp_textarea_inform "ps " "ps | grep -v grep | grep udhcpc" 50
 fi
 
-pcp_reboot_required
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
+pcp_reboot_required
 
 echo '</body>'
 echo '</html>'

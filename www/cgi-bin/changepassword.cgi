@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-19
+#	Enhanced formatting. GE.
+
 # Version: 0.03 2015-09-19 SBP
 #	Removed httpd decoding.
 
@@ -19,20 +22,26 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
+pcp_table_top
+
 if [ "$NEWPASSWORD" = "$CONFIRMPASSWORD" ]; then
-	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'
-	echo '<p class="info">[ INFO ] '
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[ OK ] Passwords OK. '$NEWPASSWORD' = '$CONFIRMPASSWORD'</p>'
+	echo '<p class="ok">[ OK ] '
 	echo "tc:"$NEWPASSWORD | sudo chpasswd
-	echo '</p>'
+	echo '.</p>'
 	pcp_backup
 	#####################################
 	# TODO. Add code to update httpd.conf
 	#####################################
 else
-	echo '<p class="error">[ ERROR ] Passwords NOT OK. '$NEWPASSWORD' ne '$CONFIRMPASSWORD'</p>'
+	echo '<p class="error">[ ERROR ] Password not confirmed. Try again.</p>'
 fi
 
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

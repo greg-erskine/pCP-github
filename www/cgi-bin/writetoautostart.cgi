@@ -116,6 +116,8 @@ pcp_set_user_commands() {
 #========================================================================================
 # Main routine
 #----------------------------------------------------------------------------------------
+pcp_table_top "Autostart"
+
 case "$AUTOSTART" in
 	FAV)
 		pcp_httpd_query_string
@@ -137,7 +139,11 @@ esac
 #----------------------------------------------------------------------------------------
 
 [ $DEBUG -eq 1 ] && pcp_show_config_cfg
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
