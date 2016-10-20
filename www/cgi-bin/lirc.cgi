@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-21
+#	Added lirc[0-9] and hidraw[0-9]. GE.
+
 # Version: 3.01 2016-08-27
 #	Changed default lirc GPIO to 25. GE.
 
@@ -390,8 +393,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                         type="text"'
 	echo '                         name="IR_DEVICE"'
 	echo '                         value="'$IR_DEVICE'"'
-	echo '                         title="( lirc0 | hidraw1 )"'
-	echo '                         pattern="(lirc0|hidraw1)"'
+	echo '                         title="( lirc[0-9] | hidraw[0-9] )"'
+	echo '                         pattern="(lirc[0-9]|hidraw[0-9])"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -399,7 +402,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;lirc0|hidraw1&gt;</p>'
+	echo '                    <p>&lt;lirc[0-9]|hidraw[0-9]&gt;</p>'
 	echo '                    <p><b>Default:</b> lirc0</p>'
 	echo '                    <ul>'
 	echo '                      <li class="pointer" title="Click to use lirc0" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option1\'')">'
