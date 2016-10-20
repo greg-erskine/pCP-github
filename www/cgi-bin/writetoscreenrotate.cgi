@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-20
+#	Enhanced formatting. GE.
+
 # Version: 0.02 2016-05-09 GE
 #	Fixed SCREENROTATE variable (YES/NO).
 
@@ -20,6 +23,8 @@ pcp_save_to_config
 #========================================================================================
 # Write to mmcblk0p1/config.txt
 #----------------------------------------------------------------------------------------
+pcp_table_top "Rotoate screen"
+
 case "$SCREENROTATE" in
 	yes)
 		pcp_mount_mmcblk0p1
@@ -37,12 +42,13 @@ case "$SCREENROTATE" in
 	;;
 esac
 
-. $CONFIGCFG
-
-pcp_show_config_cfg
 pcp_backup
-pcp_reboot_required
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
+pcp_reboot_required
 
 echo '</body>'
 echo '</html>'
