@@ -23,7 +23,7 @@ pcp_save_to_config
 #========================================================================================
 # Write to mmcblk0p1/config.txt
 #----------------------------------------------------------------------------------------
-pcp_table_top "Rotoate screen"
+pcp_table_top "Rotate screen"
 
 case "$SCREENROTATE" in
 	yes)
