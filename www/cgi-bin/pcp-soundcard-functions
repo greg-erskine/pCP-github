@@ -1,0 +1,344 @@
+#!/bin/sh
+
+
+# Version: 3.03 2016-10-22
+#	First version to simplfy sound card definitions. SBP.
+
+pcp_httpd_query_string
+
+
+#========================================================================================
+# Disable/re_enable analog audio
+#----------------------------------------------------------------------------------------
+pcp_disable_analog() {
+	sudo sed -i 's/^dtparam=audio=on/#dtparam=audio=on/g' $CONFIGTXT
+	sudo sed -i 's/^audio_pwm_mode=2/#audio_pwm_mode=2/g' $CONFIGTXT
+}
+
+pcp_re_enable_analog() {
+	pcp_disable_analog
+	sudo sed -i "/dtparam=audio=on/c\dtparam=audio=on" $CONFIGTXT
+	sudo sed -i "/audio_pwm_mode=2/c\audio_pwm_mode=2" $CONFIGTXT
+}
+
+
+#========================================================================================
+# Remove Audio overlays
+#----------------------------------------------------------------------------------------
+		pcp_disable_i2s() {
+			pcp_re_enable_analog
+			AUDIO_DTOVERLAY=$(grep "DTOVERLAY\=\"" pcp-soundcard-functions | awk -F'=\"' '{print $2}' | sed 's/"//g')
+
+			for i in $AUDIO_DTOVERLAY ; do
+			sed -i '/dtoverlay='"$i"'/d' $CONFIGTXT
+			done
+		}
+#========================================================================================
+# Add Audio overlays
+#----------------------------------------------------------------------------------------
+		pcp_enable_i2s() {
+			pcp_re_enable_analog
+			#only add overlay if present in sound card definitions
+			[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY >> $CONFIGTXT  
+		}
+
+
+
+#=========================================================================================
+# Enable/disable HDMI settings in config.txt
+#-----------------------------------------------------------------------------------------
+		pcp_disable_HDMI() {
+			sed -i '/hdmi_drive=2/d' $CONFIGTXT
+			sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
+			sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
+		}
+
+		pcp_re_enable_HDMI() {
+			pcp_disable_i2s
+			sudo echo hdmi_drive=2 >> $CONFIGTXT
+			sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+			sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+			sudo amixer cset numid=3 2 >/dev/null 2>&1
+		}
+
+
+
+#========================================================================================
+# Control of sound card routines:
+# Needs to be populated for each soundcard. Some is without filter options.
+# USB cards will probably never be supported this way as they are so different.
+#----------------------------------------------------------------------------------------
+#========================================================================================
+# HELP - To find the controls:
+#  - amixer -c 0 scontrols
+#  - aplay -l
+#----------------------------------------------------------------------------------------
+pcp_generic_card_control() {
+	case "$GENERIC_CARD" in
+			TI51XX)
+				SSET="Digital"
+				DSP="DSP Program,0"
+				FILTER1="Low latency IIR with de-emphasis"
+				FILTER2="FIR interpolation with de-emphasis"
+				FILTER3="High attenuation with de-emphasis"
+				FILTER4="Fixed process flow"
+				FILTER5="Ringing-less low latency FIR"
+				ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+				ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+				ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+				TEXT=""
+
+				case "$DSPFILTER" in
+					FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
+					FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
+					FILTER3) FILTER="High attenuation with de-emphasis" ;;
+					FILTER4) FILTER="Fixed process flow" ;;
+					FILTER5) FILTER="Ringing-less low latency FIR" ;;
+				esac
+
+				# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+					FILTER1_CHECK=""
+					FILTER2_CHECK=""
+					FILTER3_CHECK=""
+					FILTER4_CHECK=""
+					FILTER5_CHECK=""
+				case "$ACTUAL_FILTER" in
+					Low) FILTER1_CHECK="checked" ;;
+					FIR) FILTER2_CHECK="checked" ;;
+					High) FILTER3_CHECK="checked" ;;
+					Fixed) FILTER4_CHECK="checked" ;;
+					Ringing-less) FILTER5_CHECK="checked" ;;
+				esac
+				;;
+			esac
+}
+
+
+#========================================================================================================
+# Section that controls loading of DAC overlays
+#--------------------------------------------------------------------------------------------------------
+pcp_read_chosen_audio() {
+pcp_mount_mmcblk0p1
+pcp_disable_HDMI
+pcp_disable_i2s
+TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."
+ALSA_PARAMS="80:4::1"
+pcp_soundcontrol
+pcp_enable_i2s
+pcp_umount_mmcblk0p1
+}
+
+
+
+
+#========================================================================================================
+# Sound card definitions: The section below is the only section that needs changed when new DACs are supported
+#--------------------------------------------------------------------------------------------------------
+pcp_soundcontrol() {
+	case "$AUDIO" in
+	Analog)
+		#========================================================================================
+		# Load the correct modules for ANALOG
+		#----------------------------------------------------------------------------------------
+			OUTPUT="hw:CARD=ALSA"
+			ALSA_PARAMS="80:::1"
+			CARD="ALSA"
+			SSET="PCM"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+			TEXT=""
+
+		;;
+	HDMI)
+		#========================================================================================
+		# Load the correct modules for HDMI
+		#----------------------------------------------------------------------------------------
+			# still need more work
+			OUTPUT="sysdefault:CARD=ALSA"
+			ALSA_PARAMS="::32:1"
+		;;
+
+	USB)
+		#========================================================================================
+		# Load the correct modules for USB DAC
+		#----------------------------------------------------------------------------------------
+			OUTPUT="$USBOUTPUT"
+			CARD="USB DAC"
+			TEXT="<b>Sorry, you cannot control a USB DAc from this page</b>.
+			<li>Login via ssh.</li>
+			<li>Use 'alsamixer' to change the ALSA output level.</li>
+			<li>Backup ALSA settings by using 'backup button' on this page.</li>"
+		;;
+		
+	I2SDAC)
+		#========================================================================================
+		# Load the correct modules for HiFiBerry DAC
+		#----------------------------------------------------------------------------------------
+			CARD="Hifiberry DAC"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			DTOVERLAY="hifiberry-dac"
+		;;
+
+	I2SDIG)
+		#========================================================================================
+		# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
+		#----------------------------------------------------------------------------------------
+			CARD="Hifiberry Digi (and + version)"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			DTOVERLAY="hifiberry-digi"
+		;;
+
+	I2SpDAC)
+		#========================================================================================
+		# Load the correct modules for HiFiBerry DAC+
+		#----------------------------------------------------------------------------------------
+			CARD="sndrpihifiberry"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="hifiberry-dacplus"
+		;;
+
+	I2SpDIGpro)
+		#========================================================================================
+		# Load the correct modules for HiFiBerry Digi+ Pro
+		#----------------------------------------------------------------------------------------
+			CARD="Hifiberry Digi plus"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			DTOVERLAY="hifiberry-digi-pro"
+		;;
+
+	I2SAMP)
+		#========================================================================================
+		# Load the correct modules for HiFiBerry AMP
+		#----------------------------------------------------------------------------------------
+			CARD="sndrpihifiberry"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="hifiberry-amp"
+		;;
+
+	I2SGENERIC_TI)
+		#========================================================================================
+		# Load the correct modules for Generic TI51XX DAC
+		#----------------------------------------------------------------------------------------
+			CARD="Generic Texas TI51XX I2S DAC"
+			DTOVERLAY="hifiberry-dac"
+		;;
+
+	I2SGENERIC_ESS)
+		#========================================================================================
+		# Load the correct modules for Generic ESS 9023 DAC
+		#----------------------------------------------------------------------------------------
+			CARD="Generic ESS 9023 I2S DAC"
+			DTOVERLAY="hifiberry-dac"
+		;;
+
+	IQaudio)
+		#========================================================================================
+		# Load the correct modules for IQaudIO DAC
+		#----------------------------------------------------------------------------------------
+			CARD="IQaudIODAC"
+			OUTPUT="hw:CARD=IQaudIODAC"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="iqaudio-dac"
+		;;
+
+	I2SpIQaudIO)
+		#========================================================================================
+		# Load the correct modules for IQaudIO DAC+
+		#----------------------------------------------------------------------------------------
+			CARD="IQaudIODAC"
+			OUTPUT="hw:CARD=IQaudIODAC"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="iqaudio-dacplus"
+		;;
+
+	I2SpIQAMP)
+		#========================================================================================
+		# Load the correct modules for IQaudIO AMP+ 
+		#----------------------------------------------------------------------------------------
+			CARD="IQaudIODAC"
+			OUTPUT="hw:CARD=IQaudIODAC"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="iqaudio-dacplus,unmute_amp"
+		;;
+
+	I2SpIQaudIOdigi)
+		#========================================================================================
+		# Load the correct modules for IQaudIO digi
+		#----------------------------------------------------------------------------------------
+			CARD="IQaudIO Digi"
+			OUTPUT="hw:CARD=IQaudIODigi" 
+			DTOVERLAY="iqaudio-digi-wm8804-audio"
+		;;
+
+	raspidac3)
+		#========================================================================================
+		# Load the correct modules for raspidac3
+		#----------------------------------------------------------------------------------------
+			CARD="RaspiDac3"
+			OUTPUT="hw:CARD=Card"
+			DTOVERLAY="raspidac3"
+		;;
+
+	rpi_dac)
+		#========================================================================================
+		# Load the correct modules for rpi-dac
+		#----------------------------------------------------------------------------------------
+			CARD="Raspi Dac"
+			OUTPUT="hw:CARD=snd-rpi-dac"
+			DTOVERLAY="rpi-dac"
+		;;
+
+	justboomdac)
+		#========================================================================================
+		# Load the correct modules for justboomdac
+		#----------------------------------------------------------------------------------------
+			CARD="sndrpijustboomd"
+			OUTPUT="hw:CARD=sndrpijustboomd"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="justboom-dac"
+		;;
+
+	justboomdigi)
+		#========================================================================================
+		# Load the correct modules for justboomdigi
+		#----------------------------------------------------------------------------------------
+			CARD="sndrpijustboomd"
+			OUTPUT="hw:CARD=sndrpijustboomd"
+			DTOVERLAY="justboom-digi"
+		;;
+
+	LOCO_dac)
+		#========================================================================================
+		# Load the correct modules for Dion Audio LOCO
+		#----------------------------------------------------------------------------------------
+			CARD="sndrpijustboomd"
+			OUTPUT="hw:CARD=sndrpijustboomd"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="dionaudio-loco"
+		;;
+
+	Allo_Piano_dac)
+		#========================================================================================
+		# Load the correct modules for Allo Piano DAC
+		#----------------------------------------------------------------------------------------
+			CARD="PianoDAC"	
+			OUTPUT="hw:CARD=PianoDAC"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
+			DTOVERLAY="allo-piano-dac-pcm512x-audio"
+		;;
+esac
+}
+
+
+

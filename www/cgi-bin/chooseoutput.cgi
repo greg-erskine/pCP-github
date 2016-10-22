@@ -51,6 +51,7 @@
 # Version: 0.01 SBP
 #	Original.
 
+. pcp-soundcard-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG

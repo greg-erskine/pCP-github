@@ -123,6 +123,7 @@
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
+. pcp-soundcard-functions
 . pcp-lms-functions
 . pcp-rpi-functions
 . pcp-functions

@@ -4,6 +4,7 @@
 # Version: 3.03 2016-10-11
 #	First version to control volume and eventaully filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
 
+. pcp-soundcard-functions
 . pcp-functions
 pcp_variables
 . $CONFIGCFG
@@ -16,158 +17,8 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-
-#========================================================================================
-# To find the controls:
-#  - amixer -c 0 scontrols
-#  - aplay -l
-#----------------------------------------------------------------------------------------
-
-#========================================================================================
-# Routines
-# Needs to be populated for each soundcard. Some is without filter options.
-# USB cards will probably never be supported this way as they are so different.
-#----------------------------------------------------------------------------------------
-
-pcp_generic_card_control() {
-	case "$GENERIC_CARD" in
-			TI51XX)
-				SSET="Digital"
-				DSP="DSP Program,0"
-				FILTER1="Low latency IIR with de-emphasis"
-				FILTER2="FIR interpolation with de-emphasis"
-				FILTER3="High attenuation with de-emphasis"
-				FILTER4="Fixed process flow"
-				FILTER5="Ringing-less low latency FIR"
-				ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
-				ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-				ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
-				TEXT=""
-
-				case "$DSPFILTER" in
-					FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
-					FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
-					FILTER3) FILTER="High attenuation with de-emphasis" ;;
-					FILTER4) FILTER="Fixed process flow" ;;
-					FILTER5) FILTER="Ringing-less low latency FIR" ;;
-				esac
-
-				# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
-					FILTER1_CHECK=""
-					FILTER2_CHECK=""
-					FILTER3_CHECK=""
-					FILTER4_CHECK=""
-					FILTER5_CHECK=""
-				case "$ACTUAL_FILTER" in
-					Low) FILTER1_CHECK="checked" ;;
-					FIR) FILTER2_CHECK="checked" ;;
-					High) FILTER3_CHECK="checked" ;;
-					Fixed) FILTER4_CHECK="checked" ;;
-					Ringing-less) FILTER5_CHECK="checked" ;;
-				esac
-				;;
-			esac
-}
-
-
-pcp_soundcontrol() {
-	case "$AUDIO" in
-		Analog)
-			CARD="ALSA"
-			SSET="PCM"
-			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
-			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
-			TEXT=""
-		;;
-		HDMI)
-
-		;;
-
-		USB)
-			CARD="USB DAC"
-			TEXT="<b>Sorry, you cannot control a USB DAc from this page</b>.
-				<li>Login via ssh.</li>
-				<li>Use 'alsamixer' to change the ALSA output level.</li>
-				<li>Backup ALSA settings by using 'backup button' on this page.</li>" 
-		;;
-		I2SDAC)
-
-		;;
-		I2SGENERIC_TI)
-			CARD="Generic Texas TI51XX I2S DAC"
-			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."  
-
-		;;
-		I2SGENERIC_ESS)
-			CARD="Generic ESS 9023 I2S DAC"
-			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."  
-
-		;;
-		I2SDIG)
-
-		;;
-		I2SAMP)
-
-		;;
-		IQaudio)
-
-		;;
-		I2SpIQAMP)
-			CARD="IQaudIODAC"
-			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
-		;;
-		I2SpDAC)
-			CARD="sndrpihifiberry"
-			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
-		;;
-		I2SpDIG)
-			CARD="Hifiberry Digi plus"
-			TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls"
-
-		;;
-		I2SpDIGpro)
-
-		;;
-		I2SpIQaudIO)
-			CARD="IQaudIODAC"
-			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
-		;;
-		I2SpIQaudIOdigi)
-
-		;;
-		justboomdac)
-
-		;;
-		justboomdigi)
-
-		;;
-		raspidac3)
-
-		;;
-		rpi_dac)
-
-		;;
-		LOCO_dac)
-
-		;;
-
-
-		Allo_Piano_dac)
-			CARD="PianoDAC"
-			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
-		;;
-
-
-		*)
-			echo '[ ERROR ] Error setting $AUDIO to '$AUDIO
-		;;
-	esac
-}
 pcp_soundcontrol
+
 
 #========================================ACTIONS=========================================
 case "$ACTION" in
@@ -298,6 +149,7 @@ echo '                    <p>Use the sliders to adjust the output level, then</p
 echo '                    <ul>'
 echo '                      <li><b>Test</b> - The changes will be written to ALSA, so you can hear the effects.</li>'
 echo '                      <li><b>Backup</b> - The output settings are backed up to make them available after a reboot.</li>'
+echo '                      <li><b>Backup</b> - =dB button will set outout at 0dB.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
