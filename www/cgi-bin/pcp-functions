@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-19
+# Version: 3.03 2016-10-24
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -10,6 +10,9 @@
 #	Added Samba. PH.
 #	Added correct unmute command for IQaudIO AMP. SBP.
 #	Updated pcp_squeezelite_status. GE.
+#	Simplfy sound card definitions. SBP.
+#	Added IR_GPIO_OUT. GE.
+#	Renamed IR_GPIO to IR_GPIO_IN. GE.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -325,7 +328,7 @@ pcp_variables() {
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=1
+	DEBUG=0
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -334,7 +337,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=40
+	MODE=0
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -348,7 +351,6 @@ pcp_variables() {
 		REPOSITORY="https://sourceforge.net/projects/picoreplayer/files/beta"
 	fi
 }
-
 
 pcp_variables
 . $CONFIGCFG
@@ -1617,7 +1619,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_GPIO=\).*/\1\"$IR_GPIO\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $CONFIGCFG
+	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $CONFIGCFG
 	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $CONFIGCFG
 	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
 	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
@@ -1716,7 +1719,8 @@ POWER_GPIO=""
 POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
-IR_GPIO="25"
+IR_GPIO_IN="25"
+IR_GPIO_OUT=""
 IR_DEVICE="lirc0"
 IR_CONFIG=""
 LMSWEBPORT=""
@@ -1773,5 +1777,3 @@ pcp_reset_config_to_defaults() {
 	# Make sure that onboard analog soundcard is enabled and i2s DAC overlays are removed
 	pcp_disable_i2s
 }
-
-

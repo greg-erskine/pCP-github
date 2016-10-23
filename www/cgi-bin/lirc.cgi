@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-21
+# Version: 3.03 2016-10-24
 #	Added lirc[0-9] and hidraw[0-9]. GE.
+#	Added LIRC gpio out for IR transmitter. GE.
 
 # Version: 3.01 2016-08-27
 #	Changed default lirc GPIO to 25. GE.
@@ -32,7 +33,8 @@ pcp_httpd_query_string
 
 FAIL_MSG="ok"
 KERNEL=$(uname -r)
-DEFAULT_GPIO="25"
+DEFAULT_LIRC_GPIO_IN="25"
+DEFAULT_IR_GPIO_OUT=""
 
 #========================================================================================
 #  335872 irda-4.1.13-piCore+.tcz
@@ -349,7 +351,9 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '            <form name="settings" action="'$0'" method="get">'
 	#----------------------------------------------------------------------------------------
 
-	#------------------------------------------LIRC GPIO-------------------------------------
+	#------------------------------------------LIRC GPIO IN-----------------------------------
+	# gpio_in_pin    GPIO for input (default "18")
+	#-----------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -357,8 +361,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  <input class="input"'
 	echo '                         type="number"'
 #	echo '                         type="text"'
-	echo '                         name="IR_GPIO"'
-	echo '                         value="'$IR_GPIO'"'
+	echo '                         name="IR_GPIO_IN"'
+	echo '                         value="'$IR_GPIO_IN'"'
 	echo '                         title="( 0 - 31 )"'
 #	echo '                         title="( 4,5,6,12,13,16,17,20,22,23,24,25,26,27 )"'
 	echo '                         min="0"'
@@ -367,14 +371,14 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set LIRC GPIO number&nbsp;&nbsp;'
+	echo '                  <p>Set LIRC GPIO in number (IR receiver)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;0 - 31&gt;</p>'
 #	echo '                    <p>&lt;4,5,6,12,13,16,17,20,22,23,24,25,26,27&gt;</p>'
-	echo '                    <p><b>Default:</b> '$DEFAULT_GPIO'</p>'
-	echo '                    <p>Set GPIO number to match the GPIO used to connect the IR Receiver.</p>'
+	echo '                    <p><b>Default:</b> '$DEFAULT_IR_GPIO_IN'</p>'
+	echo '                    <p>Set GPIO in number to match the GPIO used to connect the IR Receiver.</p>'
 	echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
 	echo '                    <p><b>Note:</b> Not used for USB PCRemote.</p>'
 	echo '                    </ul>'
@@ -382,6 +386,39 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 	#----------------------------------------------------------------------------------------
+
+	if [ $MODE -ge $MODE_BETA ]; then
+		#------------------------------------------LIRC GPIO OUT---------------------------------
+		# gpio_out_pin    GPIO for output (default "17")
+		#----------------------------------------------------------------------------------------
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 center">'
+		echo '                  <input class="input"'
+		echo '                         type="number"'
+		echo '                         name="IR_GPIO_OUT"'
+		echo '                         value="'$IR_GPIO_OUT'"'
+		echo '                         title="( 0 - 31 )"'
+		echo '                         min="0"'
+		echo '                         max="31"'
+		echo '                  >'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Set LIRC GPIO out number (IR transmitter)&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>&lt;0 - 31&gt;</p>'
+		echo '                    <p><b>Default:</b> '$DEFAULT_LIRC_GPIO_OUT'</p>'
+		echo '                    <p>Set GPIO out number to match the GPIO used to connect the IR Transmitter.</p>'
+		echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
+		echo '                    </ul>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+		#----------------------------------------------------------------------------------------
+	fi
 
 	#------------------------------------------IR Device-------------------------------------
 	pcp_incr_id
