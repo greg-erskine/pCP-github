@@ -125,6 +125,7 @@ pcp_html_end() {
 
 	pcp_footer
 	pcp_copyright
+	pcp_remove_query_string
 
 	echo '</body>'
 	echo '</html>'
@@ -602,7 +603,11 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_mount_mmcblk0p1_nohtml
 		echo '[ INFO ] Changing '$CONFIGTXT'... '
 		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+		if [ "$IR_GPIO_OUT" = "" ]; then
+			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
+		else
+			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+		fi
 		pcp_umount_mmcblk0p1_nohtml
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
@@ -619,6 +624,19 @@ if [ "$ACTION" != "Initial" ]; then
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
+fi
+
+if [ $DEBUG -eq 1 ]; then
+	pcp_table_top "Debug"
+	echo '<p class="debug">[ DEBUG ] $IR_LIRC: '$IR_LIRC'<br />'
+	echo '                 [ DEBUG ] $IR_GPIO_IN: '$IR_GPIO_IN'<br />'
+	echo '                 [ DEBUG ] $IR_GPIO_OUT: '$IR_GPIO_OUT'<br />'
+	echo '                 [ DEBUG ] $IR_DEVICE: '$IR_DEVICE'</p>'
+	pcp_mount_mmcblk0p1
+	echo '<p class="info">[ INFO ] Last few lines of config.txt</p>'
+	pcp_textarea_inform "none" "tail -2 $CONFIGTXT" "30"
+	pcp_umount_mmcblk0p1
+	pcp_table_end
 fi
 
 pcp_backup_if_required
