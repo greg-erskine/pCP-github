@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-24
+# Version: 3.03 2016-10-25
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -414,14 +414,30 @@ pcp_free_space() {
 }
 
 pcp_sufficient_free_space() {
-	REQUIRED=$1
-	SPACE=$(pcp_free_space k)
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k</p>'
-	if [ $REQUIRED -lt $SPACE ]; then
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Enough space.</p>'
+	if [ "$1" = "nohtml" ]; then
+		REQUIRED=$2
+		NEWLINE="-n"
+		PCLASSDEBUG=""
+		PCLASSINFO=""
+		PCLASSERROR=""
+		PCLASSOK=""
+		SLASHP=""
 	else
-		echo '<p class="error">[ ERROR ] Not enough space.</p>'
-		echo '<p class="info">[ INFO ] Try expanding your partition.</p>'
+		REQUIRED=$1
+		NEWLINE=""
+		PCLASSDEBUG='<p class="debug">'
+		PCLASSINFO='<p class="info">'
+		PCLASSERROR='<p class="error">'
+		PCLASSOK='<p class="ok">'
+		SLASHP='</p>'
+	fi
+	SPACE=$(pcp_free_space k)
+	[ $DEBUG -eq 1 ] && echo $PCLASSDEBUG'[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k'$SLASHP
+	if [ $REQUIRED -lt $SPACE ]; then
+		[ $DEBUG -eq 1 ] && echo $PCLASSDEBUG'[ DEBUG ] Enough space.'$SLASHP
+	else
+		echo $PCLASSERROR'[ ERROR ] Not enough space.'$SLASHP
+		echo $PCLASSINFO'[ INFO ] Try expanding your partition.'$SLASHP
 		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-24
+# Version: 3.03 2016-10-25
 #	Added lirc[0-9] and hidraw[0-9]. GE.
 #	Added LIRC gpio out for IR transmitter. GE.
 
@@ -33,7 +33,7 @@ pcp_httpd_query_string
 
 FAIL_MSG="ok"
 KERNEL=$(uname -r)
-DEFAULT_LIRC_GPIO_IN="25"
+DEFAULT_IR_GPIO_IN="25"
 DEFAULT_IR_GPIO_OUT=""
 
 #========================================================================================
@@ -161,7 +161,11 @@ pcp_lirc_install() {
 	pcp_mount_mmcblk0p1_nohtml
 	echo '[ INFO ] Adding lirc-rpi overlay to config.txt... '
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+	if [ "$IR_GPIO_OUT" = "" ]; then
+		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
+	else
+		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+	fi
 	pcp_umount_mmcblk0p1_nohtml
 
 	# Add lirc conf to the .filetool.lst
@@ -216,7 +220,8 @@ pcp_lirc_uninstall() {
 
 	if [ "$FAIL_MSG" = "ok" ]; then
 		IR_LIRC="no"
-		IR_GPIO=$DEFAULT_GPIO
+		IR_GPIO_IN=$DEFAULT_IR_GPIO_IN
+		IR_GPIO_OUT=$DEFAULT_IR_GPIO_OUT
 		IR_DEVICE="lirc0"
 		IR_CONFIG=""
 		pcp_save_to_config
@@ -239,7 +244,7 @@ case "$ACTION" in
 	;;
 	Save)
 		ACTION=$ACTION
-		[ "$IR_GPIO" = "" ] && IR_GPIO=$DEFAULT_GPIO
+		[ "$IR_GPIO_IN" = "" ] && IR_GPIO_IN=$DEFAULT_IR_GPIO_IN
 	;;
 	*)
 		ACTION="Initial"
@@ -411,7 +416,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>&lt;0 - 31&gt;</p>'
-		echo '                    <p><b>Default:</b> '$DEFAULT_LIRC_GPIO_OUT'</p>'
+		echo '                    <p><b>Default:</b> '$DEFAULT_IR_GPIO_OUT'</p>'
 		echo '                    <p>Set GPIO out number to match the GPIO used to connect the IR Transmitter.</p>'
 		echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
 		echo '                    </ul>'
@@ -506,7 +511,7 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_sourceforge_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$SOURCEFORGE_STATUS
-		pcp_sufficient_free_space $SPACE_REQUIRED
+		pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
 		pcp_lirc_install
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
