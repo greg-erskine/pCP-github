@@ -70,7 +70,8 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Soundcard Adjustment for: '"$CARD"'</legend>'
+echo '          <legend>Soundcard Adjustment for: '"$LISTNAME"'</legend>'
+
 #----------------------------------------------------------------------------------------
 pcp_incr_id
 echo '          <table class="bggrey percent100">'
@@ -149,7 +150,7 @@ echo '                    <p>Use the sliders to adjust the output level, then</p
 echo '                    <ul>'
 echo '                      <li><b>Test</b> - The changes will be written to ALSA, so you can hear the effects.</li>'
 echo '                      <li><b>Backup</b> - The output settings are backed up to make them available after a reboot.</li>'
-echo '                      <li><b>Backup</b> - =dB button will set outout at 0dB.</li>'
+echo '                      <li><b>0dB Button</b> - Force outout level to 0dB.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'

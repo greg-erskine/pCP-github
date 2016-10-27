@@ -2,6 +2,7 @@
 
 # Version: 3.03 2016-10-14
 #	Added Advanced Options button. GE.
+#	Cleaned Audio selection and made a dynamic drop-down list
 
 # Version: 3.02 2016-09-20
 #	Added Hifiberry Digi+ Pro support. SBP.
@@ -188,6 +189,31 @@ pcp_cards_controls() {
 	echo '                    </ul>'
 }
 
+
+#========================================================================================
+# Determine which sound cards are avaiable for the various RPi boards
+#----------------------------------------------------------------------------------------
+if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
+# RPI is P5-connetion no HAT model or unknown
+RP_MODEL=ALL_NO_HAT
+fi
+
+if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
+# RPI is 40 pin HAT model
+RP_MODEL=HAT_ALL
+fi
+
+[ $MODE -ge $MODE_BETA ] && RP_MODEL=ALL
+# Mode is beta and all models will be shown
+
+
+
+#========================================================================================
+# Populate sound card drop-down options
+#---------------------------------------------------------------------------------------- 
+pcp_sound_card_dropdown
+
+
 #========================================================================================
 # Start Audio output table
 #----------------------------------------------------------------------------------------
@@ -200,30 +226,6 @@ echo '          <fieldset>'
 echo '            <legend>Choose audio output</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Audio output-------------------------------
-case "$AUDIO" in
-	Analog)          ANCHECKED="selected" ;;
-	HDMI)            HDMICHECKED="selected" ;;
-	USB)             USBCHECKED="selected" ;;
-	I2SDAC)          I2DACCHECKED="selected";;
-	I2SGENERIC_TI)   I2GENCHECKED_TI="selected";;
-	I2SGENERIC_ESS)  I2GENCHECKED_ESS="selected";;
-	I2SDIG)          I2DIGCHECKED="selected" ;;
-	I2SAMP)          I2AMPCHECKED="selected" ;;
-	IQaudio)         IQaudioCHECKED="selected" ;;
-	I2SpDAC)         I2SDACpCHECKED="selected" ;;
-	I2SpDIGpro)      I2SDIGproCHECKED="selected" ;;
-	I2SpDIG)         I2SDIGpCHECKED="selected" ;;
-	I2SpIQaudIO)     IQaudIOpCHECKED="selected" ;;
-	I2SpIQAMP)       IQAMPCHECKED="selected" ;;
-	I2SpIQaudIOdigi) IQaudIOdigipCHECKED="selected" ;;
-	LOCO_dac)        rpi_LOCOCHECKED="selected" ;;
-	justboomdac)     justboomdacCHECKED="selected" ;;
-	justboomdigi)    justboomdigiCHECKED="selected" ;;
-	raspidac3)       raspidac3CHECKED="selected" ;;
-	rpi_dac)         rpi_dacCHECKED="selected" ;;
-	Allo_Piano_dac)  Allo_Piano_dacCHECKED="selected" ;;
-	*)               CHECKED="Not set" ;;
-esac
 
 pcp_incr_id
 pcp_start_row_shade
@@ -233,35 +235,13 @@ echo '                  <p>Audio output</p>'
 echo '                </td>'
 echo '                <td class="column350">'
 echo '                  <select name="AUDIO">'
-echo '                    <option value="Analog" '$ANCHECKED'>Analog audio:</option>'
-echo '                    <option value="HDMI" '$HDMICHECKED'>HDMI audio:</option>'
-echo '                    <option value="USB" '$USBCHECKED'>USB audio:</option>'
 
-if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
-	echo '                    <option value="I2SDAC" '$I2DACCHECKED'>I2S audio: HiFiBerry/Sabre ES9023/TI PCM5102A</option>'
-	echo '                    <option value="I2SDIG" '$I2DIGCHECKED'>I2S audio: HiFiBerry Digi</option>'
-	echo '                    <option value="IQaudio" '$IQaudioCHECKED'>I2S audio: IQaudIO Pi-DAC</option>'
-	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP</option>'
-fi
+#============================================================================================
+# Dynamic dropdown list generator
+#--------------------------------------------------------------------------------------------
+awk '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
+#==============================End dynamic dropdown===========================================
 
-if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ] || [ $MODE -ge $MODE_BETA ]; then
-	echo '                    <option value="I2SGENERIC_TI" '$I2GENCHECKED_TI'>I2S audio: Generic TI51XX DAC (TEXAS PCM5102A)</option>'
-	echo '                    <option value="I2SGENERIC_ESS" '$I2GENCHECKED_ESS'>I2S audio: Generic ESS_9023 DAC (HiFiBerry Light and Audiophonics ES9023)</option>'
-	echo '                    <option value="I2SpDAC" '$I2SDACpCHECKED'>I2S audio: HiFiBerry DAC+ (and Pro)</option>'
-	echo '                    <option value="I2SpDIG" '$I2SDIGpCHECKED'>I2S audio: HiFiBerry Digi+</option>'
-	echo '                    <option value="I2SpDIGpro" '$I2SDIGproCHECKED'>I2S audio: HiFiBerry Digi+ Pro</option>'
-	echo '                    <option value="I2SAMP" '$I2AMPCHECKED'>I2S audio: HiFiBerry AMP+</option>'
-	echo '                    <option value="I2SpIQaudIO" '$IQaudIOpCHECKED'>I2S audio: IQaudIO Pi-DAC+</option>'
-	echo '                    <option value="I2SpIQaudIOdigi" '$IQaudIOdigipCHECKED'>I2S audio: IQaudIO Pi-Digi+</option>'
-	echo '                    <option value="I2SpIQAMP" '$IQAMPCHECKED'>I2S audio: IQaudIO Pi-(Digi) AMP+</option>'
-fi
-
-echo '                    <option value="LOCO_dac" '$rpi_LOCOCHECKED'>I2S audio: Dion Audio LOCO AMP</option>'
-echo '                    <option value="justboomdac" '$justboomdacCHECKED'>I2S audio: JustBoom DAC</option>'
-echo '                    <option value="justboomdigi" '$justboomdigiCHECKED'>I2S audio: JustBoom Digi</option>'
-echo '                    <option value="raspidac3" '$raspidac3CHECKED'>I2S audio: RaspiDAC Rev.3x</option>'
-echo '                    <option value="rpi_dac" '$rpi_dacCHECKED'>I2S audio: RPi DAC</option>'
-echo '                    <option value="Allo_Piano_dac" '$Allo_Piano_dacCHECKED'>I2S audio: Allo Piano DAC</option>'
 echo '                  </select>'
 echo '                </td>'
 
@@ -282,7 +262,7 @@ echo '                  <input type="submit"'
 echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
-if [ $MODE -ge $MODE_DEVELOPER ]; then
+if [ $MODE -ge $MODE_BETA ]; then
 	echo '                  <input class="large16"'
 	echo '                         type="button"'
 	echo '                         value="Advanced Options"'
@@ -300,6 +280,7 @@ echo '    </td>'
 echo '  </tr>'
 #----------------------------------------------------------------------------------------
 
+. $CONFIGCFG
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
