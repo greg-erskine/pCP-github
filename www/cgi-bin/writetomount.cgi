@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-10-29
+#	Added support for GPT disks
+
 # Version: 2.06 2016-06-04 PH
 #	Made CIFS User and Password Optional
 #	Error trap on setting LMS Cache to a fat based device.
@@ -69,8 +72,14 @@ pcp_do_umount () {
 # Mounts section
 #----------------------------------------------------------------------------------------
 #Only do something if variable is changed
-
+pcp_table_top "Write to mount"
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
+
+if [ "${ACTION}" = "gptfdisk" ]; then 
+	MOUNTTYPE="skip"
+	EXTN="util-linux.tcz"
+	pcp_textarea_inform "none" "sudo -u tc pcp-load -i $EXTN" 50
+fi	
 
 case "$MOUNTTYPE" in
 	localdisk)
@@ -228,6 +237,8 @@ case "$MOUNTTYPE" in
 			fi
 		fi	
 	;;
+	skip)
+	;;
 	*)
 		echo '<p class="error">[ERROR] Web Page Error, No MountType Submitted</p>'
 	;;
@@ -239,7 +250,11 @@ echo '<hr>'
 
 [ "$REBOOT_REQUIRED" = "1" ] && pcp_reboot_required
 
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
