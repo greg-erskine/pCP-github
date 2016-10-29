@@ -1,1 +1,0 @@
-e739da9f66bfb0c746abc1f11d44d2a7  touchscreen-4.4.13-piCore+.tcz
