@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-20
+# Version: 3.03 2016-10-29
 #	Enhanced formatting. GE.
+#	Write jivelite.tcz.dep, instead of relying on it to be in base image PH
+#	TODO: Move jivelite to repo with pcp-load
 
 # Version: 0.07 2016-05-09 GE
 #	Fixed JIVELITE variable (YES/NO).
@@ -80,6 +82,11 @@ pcp_download_jivelite() {
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 			sudo cp /tmp/$JIVELITE_MD5 /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt     #<-------------why do we rename jivelite extension????
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+			cat << EOF > /mnt/mmcblk0p2/tce/optional/jivelite.tcz.dep
+touchscreen-KERNEL.tcz
+backlight-KERNEL.tcz
+libts.tcz
+EOF
 		else
 			echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
 		fi
