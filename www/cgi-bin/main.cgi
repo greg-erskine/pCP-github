@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-30
+# Version: 3.03 2016-11-01
 #	Updated [Save to USB] more> help. GE.
 #	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
+#	Option to Start/stop services by clicking on green/red indicators. SBP.
 
 # Version: 3.00 2016-07-08
 #	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
@@ -136,21 +137,23 @@ pcp_main_squeezelite_indication() {
 
 	if [ $(pcp_squeezelite_status) -eq 0 ]; then
 		pcp_green_tick "running"
+		FUNCTIONSQLT=stop.cgi
 	else
 		pcp_red_cross "not running"
+		FUNCTIONSQLT=restartsqlt.cgi
 	fi
 
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 centre">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '               <a href='"$FUNCTIONSQLT"' title="Click to start/stop Squeezelite"><p class="'$CLASS'">'$INDICATOR'</p></a>'
 	echo '              </td>'
 	echo '              <td>'
 	if [ "$SQUEEZELITE" = "no" ]; then
-		echo '                <p>Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
+		echo '                <p>Squeezelite is disabled on <a href="tweaks.cgi"><b>Tweaks page</b></a> '$STATUS'&nbsp;&nbsp;'
 	else
-		echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+		echo '                <p><a href="squeezelite.cgi"><b>Squeezelite is</b></a> '$STATUS'&nbsp;&nbsp;'
 	fi
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
@@ -175,18 +178,20 @@ pcp_main_lms_indication() {
 
 	if [ $(pcp_lms_status) -eq 0 ]; then
 		pcp_green_tick "running"
+		FUNCTIONLMS=lms.cgi?ACTION=Stop
 	else
 		pcp_red_cross "not running"
+		FUNCTIONLMS=lms.cgi?ACTION=Start
 	fi
 
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 centre">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '               <a href='"$FUNCTIONLMS"' title="Click to start/stop LMS"><p class="'$CLASS'">'$INDICATOR'</p></a>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>LMS is '$STATUS'&nbsp;&nbsp;'
+	echo '                <p><a href="lms.cgi"><b>LMS is</b></a> '$STATUS'&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -206,18 +211,20 @@ pcp_main_shairport_indication() {
 
 	if [ $(pcp_shairport_status) -eq 0 ]; then
 		pcp_green_tick "running"
+		FUNCTIONSHAIRPORT=pcp_shairport_start
 	else
 		pcp_red_cross "not running"
+		FUNCTIONSHAIRPORT=lms.cgi?ACTION=Start
 	fi
 
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 centre">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '               <a href='"$FUNCTIONSHAIRPORT"' title="Click to start/stop Shairport"><p class="'$CLASS'">'$INDICATOR'</p></a>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Shairport is '$STATUS'&nbsp;&nbsp;'
+	echo '                <p><a href="tweaks.cgi"><b>Shairport is</b></a> '$STATUS'&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -235,6 +242,44 @@ pcp_main_shairport_indication() {
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication && pcp_main_padding
 #----------------------------------------------------------------------------------------
+
+#------------------------------------Samba Indication--------------------------------
+pcp_main_samba_indication() {
+
+	if [ $(pcp_samba_status) -eq 0 ]; then
+		pcp_green_tick "running"
+		FUNCTIONSAMBA=lms.cgi?ACTION=SambaStop
+	else
+		pcp_red_cross "not running"
+		FUNCTIONSAMBA=lms.cgi?ACTION=SambaStart
+	fi
+
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 centre">'
+	echo '               <a href='"$FUNCTIONSAMBA"' title="Click to start/stop Samba"><p class="'$CLASS'">'$INDICATOR'</p></a>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p><a href="lms.cgi"><b>Samba is</b></a> '$STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = Samba running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = Samba not running.</li>'
+	echo '                  </ul>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Samba must be running to easily access music files on pCP from a windows computer on your network.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ "$SAMBA" = "yes" ] && pcp_main_samba_indication && pcp_main_padding
+#----------------------------------------------------------------------------------------
+
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
 pcp_main_restart_squeezelite() {

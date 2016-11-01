@@ -328,7 +328,7 @@ pcp_variables() {
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
 	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
+	DEBUG=1
 
 	# Set to 1 to get features that are under test.
 	# Set to 2 to show old features that might be on its way out.
@@ -337,7 +337,7 @@ pcp_variables() {
 	TEST=0
 
 	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
+	MODE=100
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1133,6 +1133,19 @@ pcp_squeezelite_status() {
 		echo $RESULT
 	fi
 }
+
+#=========================================================================================
+# Status Samba
+#-----------------------------------------------------------------------------------------
+pcp_samba_status() {
+	if [ -f /usr/local/etc/init.d/samba ]; then
+		/usr/local/etc/init.d/samba status 1>/dev/null
+		echo $?
+	else
+		echo 1
+	fi
+}
+
 
 #=========================================================================================
 # Start/stop Shairport-sync

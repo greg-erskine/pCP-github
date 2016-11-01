@@ -1,11 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-29
+# Version: 3.03 2016-10-13
 #	Pop-up asking to delete cache. SBP
 #	Remove all traces of LMS. SBP
 #	Added Samba.  PH.
-#	Added GPT Disk support. PH
-#	Converted lms removal to proper method to avoid removing a dependancy. PH
 
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
@@ -94,10 +92,27 @@ pcp_install_lms() {
 }
 
 pcp_remove_lms() {
+	echo '<p class="info">[ INFO ] Removing LMS...</p>'
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
-	sudo -u tc tce-audit builddb
-	sudo -u tc tce-audit delete slimserver.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver-CPAN*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz*
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/gcc_libs.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl5.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_io_socket_ssl.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_io_socket_ssl.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_io_socket_ssl.tcz.dep
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_net_ssleay.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_net_ssleay.tcz.md5.txt
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_mozilla_ca.tcz
+	sudo rm -f /mnt/mmcblk0p2/tce/optional/perl_mozilla_ca.tcz.md5.txt
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	if [ x"$DISABLECACHE" = x ]; then
+		STRING1='Press OK to remove LMS cache.......To keep the cache - Press Cancel'
+		SCRIPT1=lms.cgi?ACTION=Remove_cache
+		pcp_confirmation_required
+	fi
 }
 
 pcp_remove_lms_cache() {
@@ -239,14 +254,6 @@ pcp_remove_samba4() {
 	echo '<p class="info">[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
 }
 
-pcp_samba_status() {
-	if [ -f /usr/local/etc/init.d/samba ]; then
-		/usr/local/etc/init.d/samba status 1>/dev/null
-		echo $?
-	else
-		echo 1
-	fi
-}
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Start)
@@ -285,10 +292,6 @@ case "$ACTION" in
 		echo '        <fieldset>'
 		echo '          <legend>Downloading Logitech Media Server (LMS)</legend>'
 		echo '          <table class="bggrey percent100">'
-		pcp_start_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td>'
-		echo '                <textarea class="inform" style="height:80px">'
 		pcp_sufficient_free_space 40000
 		pcp_download_lms
 		if [ "$?" = "0" ]; then
@@ -298,11 +301,8 @@ case "$ACTION" in
 			pcp_backup
 			pcp_reboot_required
 		else
-			echo '[ ERROR ] Error Downloading LMS, please try again later.'
+			echo '<p class="error">[ ERROR ] Error Downloading LMS, please try again later.'
 		fi
-		echo '                </textarea>'
-		echo '              </td>'
-		echo '            </tr>'
 		echo '          </table>'
 		echo '        </fieldset>'
 		echo '      </div>'
@@ -311,43 +311,14 @@ case "$ACTION" in
 		echo '</table>'
 	;;
 	Remove)
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <div class="row">'
-		echo '        <fieldset>'
-		echo '          <legend>Downloading Logitech Media Server (LMS)</legend>'
-		echo '          <table class="bggrey percent100">'
-		pcp_start_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td>'
-		echo '                <textarea class="inform" style="height:120px">'
-		echo '[ INFO ] Removing LMS Extensions...'
-		echo
-		echo 'After a reboot these extensions will be permanently deleted:'
+		pcp_remove_lms
 		LMSERVER="no"
 		pcp_save_to_config
-		pcp_remove_lms
-		pcp_backup "nohtml"
-		echo '                </textarea>'
-		echo '              </td>'
-		if [ x"$DISABLECACHE" = x ]; then
-			STRING1='Press OK to remove LMS cache.......To keep the cache - Press Cancel'
-			SCRIPT1='lms.cgi?ACTION=Remove_cache&REBOOT_REQUIRED=1'
-			pcp_confirmation_required
-		fi
-		echo '            </tr>'
-		echo '          </table>'
-		echo '        </fieldset>'
-		echo '      </div>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		pcp_backup
 		pcp_reboot_required
 	;;
 	Remove_cache)
 		pcp_remove_lms_cache
-		[ "${REBOOT_REQUIRED}" = "1" ] && pcp_reboot_required
 	;;
 	Rescan*)
 		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
@@ -954,8 +925,6 @@ pcp_extra_filesys() {
 # USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_usbdrives() {
-	fdisk -V 2>&1 | grep -q -i busybox
-	[ $? -eq 0 ] && BBFDISK=1 || BBFDISK=0
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1019,14 +988,8 @@ pcp_mount_usbdrives() {
 			LBL=$(blkid $i -s LABEL| awk -F"LABEL=" '{print $NF}' | tr -d "\"")
 			UUID=$(blkid $i -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $i -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
-			if [ $BBFDISK -eq 1 ]; then
-				SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
-				[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
-			else
-				SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f5 | tr -d +)
-				SIZExB="${SIZE}B"
-			fi
-			
+			SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
+			[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
 			case "$MOUNTUUID" in
 				"$UUID")
 					UUIDyes="checked"
@@ -1073,20 +1036,6 @@ pcp_mount_usbdrives() {
 	echo '                  <p>Disk Mount Disabled</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	fdisk -l | grep -q "Found valid GPT"
-	if [ $? -eq 0 ]; then
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column'$COL1' center">'
-		echo '                </td>'
-		echo '                <td colspan="4">'
-		echo '                  <p>Disk with GPT partition table Found! Install extension "util-linux.tcz" for compatability</p>'
-		echo '                </td>'
-		echo '                <td  class="column150 center">'
-		echo '                  <button type="submit" name="ACTION" value="gptfdisk">Install Support</button>'
-		echo '                  </td>'
-		echo '              </tr>'
-	fi
 	if [ "$DISKFOUND" = "no" ]; then
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
