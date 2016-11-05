@@ -33,7 +33,7 @@
 
 MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
-
+NC="busybox nc"
 pcp_lms_status() {
 	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
 	echo $?
@@ -83,7 +83,7 @@ pcp_lms_request() {
 	STRING=$1
 	set -- $1
 	NUM=$(($#+1))
-	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | awk '{ print $'$NUM' }'`
+	RESULT=`( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 | awk '{ print $'$NUM' }'`
 	echo `sudo $HTTPD -d $RESULT`
 }
 
@@ -91,7 +91,7 @@ pcp_lms_request_list() {
 	STRING=$1
 	set -- $1
 	NUM=$(($#+2))
-	RESULT=`( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 | sed 's/ /\+/g' `
+	RESULT=`( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 | sed 's/ /\+/g' `
 	echo `sudo $HTTPD -d $RESULT`
 }
 
@@ -99,12 +99,12 @@ pcp_lms_request_debug() {
 	STRING=$1
 	set -- $1
 	NUM=$(($#+1))
-	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090
+	( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090
 }
 
 pcp_lms_send() {
 	STRING=$1
-	( echo "$MAC $STRING"; echo exit ) | nc $LMSIP 9090 > /dev/null
+	( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 > /dev/null
 }
 
 #========================================================================================
