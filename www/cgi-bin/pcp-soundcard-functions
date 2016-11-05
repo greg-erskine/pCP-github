@@ -6,6 +6,21 @@
 
 
 #========================================================================================
+# Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
+#----------------------------------------------------------------------------------------
+pcp_AudioKernel_status() {
+	sudo  uname -a | grep pcpAudioCore > /dev/null 2>&1
+	echo $?
+}
+
+if [ $(pcp_AudioKernel_status) -eq 0 ]; then
+		KERNELVERSION=Audiokernel
+	else
+		KERNELVERSION=Officialkernel
+	fi
+
+
+#========================================================================================
 # Disable/re_enable analog audio
 #----------------------------------------------------------------------------------------
 		pcp_disable_analog() {
@@ -113,6 +128,15 @@
 					ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
 					ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
 					TEXT=""
+					;;
+
+				ES9023)
+					#CARD="ALSA"
+					#SSET="PCM"
+					#ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+					#ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+					#TEXT=""
+					#PARAMS1=384k
 					;;				
 				esac
 		}
@@ -206,20 +230,19 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
 		
-	I2SDAC) 	#========================================================================================
+	HIFI_DAC) 	#========================================================================================
 			# Load the correct modules for HiFiBerry DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Hifiberry DAC"
 			OUTPUT="hw:CARD=sndrpihifiberry"
 			DTOVERLAY="hifiberry-dac"
-			VALUE="I2SDAC"
-			LISTNAME="HifiBerry DAC"
 			#Dynamic_Squeezelite_drop_down_info: 
 			LISTNAME="Hifiberry_DAC"
 			RPI_MODEL="ALL_NO_HAT"
 		;;
 
-	I2SDIG) 	#========================================================================================
+
+	HIFI_DIGI) 	#========================================================================================
 			# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 			#----------------------------------------------------------------------------------------
 			CARD="Hifiberry Digi (and + version)"
@@ -227,10 +250,11 @@ pcp_soundcontrol() {
 			DTOVERLAY="hifiberry-digi"
 			#Dynamic_Squeezelite_drop_down_info: 
 			LISTNAME="Hifiberry_Digi_(and_+_version)"
-			RPI_MODEL="ALL_NO_HAT"
+			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
 
-	I2SpDAC) 	#========================================================================================
+
+	HIFI_DAC+) 	#========================================================================================
 			# Load the correct modules for HiFiBerry DAC+
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
@@ -243,7 +267,19 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	I2SpDIGpro) 	#========================================================================================
+	HIFI_DAC+light) #========================================================================================
+			# Load the correct modules for HiFiBerry DAC+ Light with es9023 DAC
+			#----------------------------------------------------------------------------------------
+			CARD="sndrpihifiberry"
+			OUTPUT="hw:CARD=sndes9023dac"
+#			OUTPUT="hw:CARD=sndrpihifiberry"
+			[ $KERNELVERSION = Audiokernel ] && DTOVERLAY="hifiberry-dacpluslight-es9023-audio,384k" || DTOVERLAY="hifiberry-dac"
+			#Dynamic_Squeezelite_drop_down_info: 
+			LISTNAME="Hifiberry_DAC+Light"
+			RPI_MODEL="HAT_ALL"
+		;;
+
+	HIFI_DIGpro) 	#========================================================================================
 			# Load the correct modules for HiFiBerry Digi+ Pro
 			#----------------------------------------------------------------------------------------
 			CARD="Hifiberry Digi plus"
@@ -254,11 +290,10 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	I2SAMP) 	#========================================================================================
+	HIFI_AMP) 	#========================================================================================
 			# Load the correct modules for HiFiBerry AMP
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
-			OUTPUT="hw:CARD=sndrpihifiberry"
 			OUTPUT="hw:CARD=sndrpihifiberry"
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
@@ -268,27 +303,31 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	I2SGENERIC_TI) 	#========================================================================================
+	I2S_GENERIC_TI) #========================================================================================
 			# Load the correct modules for Generic TI51XX DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Generic Texas TI51XX I2S DAC"
-			DTOVERLAY="hifiberry-dac"
+			OUTPUT="hw:CARD=sndrpihifiberry"
+			[ $KERNELVERSION = Audiokernel ] && DTOVERLAY="simple-pcm5102a-audio" || DTOVERLAY="hifiberry-dac"
+			GENERIC_CARD=TI51XX
+			pcp_generic_card_control
 			#Dynamic_Squeezelite_drop_down_info: 
 			LISTNAME="Generic_TI51XX_DAC"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
 
-	I2SGENERIC_ESS)	#========================================================================================
+	I2S_GENERIC_ESS) #========================================================================================
 			# Load the correct modules for Generic ESS 9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Generic ESS 9023 I2S DAC"
-			DTOVERLAY="hifiberry-dac"
+			OUTPUT="hw:CARD=sndes9023dac"
+			[ $KERNELVERSION = Audiokernel ] && DTOVERLAY="simple-es9023-audio,384k" && GENERIC_CARD=ES9023 && pcp_generic_card_control || DTOVERLAY="hifiberry-dac"
 			#Dynamic_Squeezelite_drop_down_info: 
 			LISTNAME="Generic_ESS_9023_DAC"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
 
-	IQaudio) 	#========================================================================================
+	IQ_DAC) 	#========================================================================================
 			# Load the correct modules for IQaudIO DAC
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
@@ -298,10 +337,10 @@ pcp_soundcontrol() {
 			DTOVERLAY="iqaudio-dac"
 			#Dynamic_Squeezelite_drop_down_info: 
 			LISTNAME="IQaudIO_DAC"
-			RPI_MODEL="HAT_ALL"
+			RPI_MODEL="ALL_NO_HAT"
 		;;
 
-	I2SpIQaudIO)	#========================================================================================
+	IQ_DAC+)	#========================================================================================
 			# Load the correct modules for IQaudIO DAC+
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
@@ -314,7 +353,7 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	I2SpIQAMP)	#========================================================================================
+	IQ_AMP+)	#========================================================================================
 			# Load the correct modules for IQaudIO AMP+ 
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
@@ -327,16 +366,17 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	I2SpIQaudIOdigi) #========================================================================================
-			# Load the correct modules for IQaudIO digi
+	IQ_DIGI+)	#========================================================================================
+			# Load the correct modules for IQaudIO digi+
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIO Digi"
 			OUTPUT="hw:CARD=IQaudIODigi" 
 			DTOVERLAY="iqaudio-digi-wm8804-audio"
 			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="IQaudIO_digi"
+			LISTNAME="IQaudIO_DIGI+"
 			RPI_MODEL="HAT_ALL"
 		;;
+
 
 	raspidac3) 	#========================================================================================
 			# Load the correct modules for raspidac3
@@ -360,7 +400,7 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	justboomdac)	#========================================================================================
+	justboom_dac)	#========================================================================================
 			# Load the correct modules for justboomdac
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
@@ -373,14 +413,14 @@ pcp_soundcontrol() {
 			RPI_MODEL="HAT_ALL"
 		;;
 
-	justboomdigi)	#========================================================================================
+	justboom_digi)	#========================================================================================
 			# Load the correct modules for justboomdigi
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
 			OUTPUT="hw:CARD=sndrpijustboomd"
 			DTOVERLAY="justboom-digi"
 			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Justboom_Digi"
+			LISTNAME="Justboom_DIGI"
 			RPI_MODEL="HAT_ALL"
 		;;
 
@@ -388,7 +428,7 @@ pcp_soundcontrol() {
 			# Load the correct modules for Dion Audio LOCO
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
-			OUTPUT="hw:CARD=sndrpijustboomd"
+			OUTPUT="hw:CARD=sndrpidionaudio"
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="dionaudio-loco"
@@ -409,8 +449,34 @@ pcp_soundcontrol() {
 			LISTNAME="Allo_Piano_DAC"
 			RPI_MODEL="HAT_ALL"
 		;;
+
+#================================================================================================================
+# Overlays for the DACs below are only avaiable if using the Audiokernel. So they only show in the dropdown list
+# if using the Audiokernel
+#---------------------------------------------------------------------------------------------------------------- 
+
+	ISabre_9023)	#========================================================================================
+			# Load the correct modules for Audiophonics I-Sabre DAC es9023 DAC
+			#----------------------------------------------------------------------------------------
+			CARD="sndes9023dac"
+			OUTPUT="hw:CARD=sndes9023dac"
+			DTOVERLAY="dtoverlay=i-sabre-dac-es9023-audio,384k"
+			#Dynamic_Squeezelite_drop_down_info:
+			[ $KERNELVERSION = Audiokernel ] && LISTNAME="I-Sabre-es9023_DAC" RPI_MODEL="HAT_ALL"
+		;;
+
+
+	Mambo_HIFI+)	#========================================================================================
+			# Load the correct modules for Collybia Mamboberry HiFi DAC+ es9023 DAC
+			#----------------------------------------------------------------------------------------
+			CARD="sndes9023dac"
+			OUTPUT="hw:CARD=Mamboberry"
+			DTOVERLAY="dtoverlay=mamboberry-dacplus-es9023-audio,384k"
+			#Dynamic_Squeezelite_drop_down_info: 
+			[ $KERNELVERSION = Audiokernel ] && LISTNAME="Mamboberry-HiFi-DAC+" && RPI_MODEL="HAT_ALL"
+		;;
+
+
 esac
 }
-
-
 
