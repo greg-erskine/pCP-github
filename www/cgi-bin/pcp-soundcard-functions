@@ -1,9 +1,7 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-27
-#	Make a dynamic drop-down list for squeezelite.cgi. SBP.
-#	First version to simplfy sound card definitions. SBP.
-
+# Version: 3.03 2016-11-08
+#	Original. SBP.
 
 #========================================================================================
 # Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
@@ -14,173 +12,167 @@ pcp_AudioKernel_status() {
 }
 
 if [ $(pcp_AudioKernel_status) -eq 0 ]; then
-		KERNELVERSION=Audiokernel
-	else
-		KERNELVERSION=Officialkernel
-	fi
-
+	KERNELVERSION=Audiokernel
+else
+	KERNELVERSION=Officialkernel
+fi
 
 #========================================================================================
 # Disable/re_enable analog audio
 #----------------------------------------------------------------------------------------
-		pcp_disable_analog() {
-			sudo sed -i 's/^dtparam=audio=on/#dtparam=audio=on/g' $CONFIGTXT
-			sudo sed -i 's/^audio_pwm_mode=2/#audio_pwm_mode=2/g' $CONFIGTXT
-		}
+pcp_disable_analog() {
+	sudo sed -i 's/^dtparam=audio=on/#dtparam=audio=on/g' $CONFIGTXT
+	sudo sed -i 's/^audio_pwm_mode=2/#audio_pwm_mode=2/g' $CONFIGTXT
+}
 
-		pcp_re_enable_analog() {
-			pcp_disable_analog
-			sudo sed -i "/dtparam=audio=on/c\dtparam=audio=on" $CONFIGTXT
-			sudo sed -i "/audio_pwm_mode=2/c\audio_pwm_mode=2" $CONFIGTXT
-		}
+pcp_re_enable_analog() {
+	pcp_disable_analog
+	sudo sed -i "/dtparam=audio=on/c\dtparam=audio=on" $CONFIGTXT
+	sudo sed -i "/audio_pwm_mode=2/c\audio_pwm_mode=2" $CONFIGTXT
+}
 
 #========================================================================================
 # Remove Audio dtoverlays
 #----------------------------------------------------------------------------------------
-		pcp_disable_i2s() {
-			pcp_re_enable_analog
-			# get a list of all avaiable sound coard overlays:
-			AUDIO_DTOVERLAY=$(grep "DTOVERLAY\=\"" pcp-soundcard-functions | awk -F'=\"' '{print $2}' | sed 's/"//g')
+pcp_disable_i2s() {
+	pcp_re_enable_analog
+	# Get a list of all avaiable sound coard overlays:
+	AUDIO_DTOVERLAY=$(grep "DTOVERLAY\=\"" pcp-soundcard-functions | awk -F'=\"' '{print $2}' | sed 's/"//g')
 
-			for i in $AUDIO_DTOVERLAY ; do
-			sed -i '/dtoverlay='"$i"'/d' $CONFIGTXT
-			done
-		}
+	for i in $AUDIO_DTOVERLAY; do
+		sed -i '/dtoverlay='"$i"'/d' $CONFIGTXT
+	done
+}
 
 #========================================================================================
 # Add Audio dtoverlays
 #----------------------------------------------------------------------------------------
-		pcp_enable_i2s() {
-			pcp_re_enable_analog
-			#only add overlay if present in sound card definitions
-			[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY >> $CONFIGTXT  
-		}
+pcp_enable_i2s() {
+	pcp_re_enable_analog
+	# Only add overlay if present in sound card definitions
+	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY >> $CONFIGTXT
+}
 
 #=========================================================================================
 # Enable/disable HDMI settings in config.txt
 #-----------------------------------------------------------------------------------------
-		pcp_disable_HDMI() {
-			sed -i '/hdmi_drive=2/d' $CONFIGTXT
-			sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
-			sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
-		}
+pcp_disable_HDMI() {
+	sed -i '/hdmi_drive=2/d' $CONFIGTXT
+	sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
+	sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
+}
 
-		pcp_enable_HDMI() {
-			pcp_disable_i2s
-			sudo echo hdmi_drive=2 >> $CONFIGTXT
-			sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
-			sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
-			sudo amixer cset numid=3 2 >/dev/null 2>&1
-		}
-
+pcp_enable_HDMI() {
+	pcp_disable_i2s
+	sudo echo hdmi_drive=2 >> $CONFIGTXT
+	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+	sudo amixer cset numid=3 2 >/dev/null 2>&1
+}
 
 #========================================================================================
 # Control of sound card routines:
 # Needs to be populated for each type of soundcard. Some is without filter options.
 # USB cards will probably never be supported this way as they are so different.
 #----------------------------------------------------------------------------------------
-#========================================================================================
 # HELP - To find the controls:
 #  - amixer -c 0 scontrols
 #  - aplay -l
 #----------------------------------------------------------------------------------------
-		pcp_generic_card_control() {
-			case "$GENERIC_CARD" in
-				TI51XX)
-					SSET="Digital"
-					DSP="DSP Program,0"
-					FILTER1="Low latency IIR with de-emphasis"
-					FILTER2="FIR interpolation with de-emphasis"
-					FILTER3="High attenuation with de-emphasis"
-					FILTER4="Fixed process flow"
-					FILTER5="Ringing-less low latency FIR"
-					ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
-					ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-					ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
-					TEXT=""
+pcp_generic_card_control() {
+	case "$GENERIC_CARD" in
+		TI51XX)
+			SSET="Digital"
+			DSP="DSP Program,0"
+			FILTER1="Low latency IIR with de-emphasis"
+			FILTER2="FIR interpolation with de-emphasis"
+			FILTER3="High attenuation with de-emphasis"
+			FILTER4="Fixed process flow"
+			FILTER5="Ringing-less low latency FIR"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+			TEXT=""
 
-						case "$DSPFILTER" in
-							FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
-							FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
-							FILTER3) FILTER="High attenuation with de-emphasis" ;;
-							FILTER4) FILTER="Fixed process flow" ;;
-							FILTER5) FILTER="Ringing-less low latency FIR" ;;
-						esac
+			case "$DSPFILTER" in
+				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
+				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
+				FILTER3) FILTER="High attenuation with de-emphasis" ;;
+				FILTER4) FILTER="Fixed process flow" ;;
+				FILTER5) FILTER="Ringing-less low latency FIR" ;;
+			esac
 
-					# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
-							FILTER1_CHECK=""
-							FILTER2_CHECK=""
-							FILTER3_CHECK=""
-							FILTER4_CHECK=""
-							FILTER5_CHECK=""
-						case "$ACTUAL_FILTER" in
-						Low) FILTER1_CHECK="checked" ;;
-						FIR) FILTER2_CHECK="checked" ;;
-						High) FILTER3_CHECK="checked" ;;
-						Fixed) FILTER4_CHECK="checked" ;;
-						Ringing-less) FILTER5_CHECK="checked" ;;
-					esac
-				;;
+			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+			FILTER1_CHECK=""
+			FILTER2_CHECK=""
+			FILTER3_CHECK=""
+			FILTER4_CHECK=""
+			FILTER5_CHECK=""
 
-				ONBOARD)
-					CARD="ALSA"
-					SSET="PCM"
-					ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
-					ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
-					TEXT=""
-					;;
+			case "$ACTUAL_FILTER" in
+				Low) FILTER1_CHECK="checked" ;;
+				FIR) FILTER2_CHECK="checked" ;;
+				High) FILTER3_CHECK="checked" ;;
+				Fixed) FILTER4_CHECK="checked" ;;
+				Ringing-less) FILTER5_CHECK="checked" ;;
+			esac
+		;;
 
-				ES9023)
-					#CARD="ALSA"
-					#SSET="PCM"
-					#ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
-					#ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
-					#TEXT=""
-					#PARAMS1=384k
-					;;				
-				esac
-		}
+		ONBOARD)
+			CARD="ALSA"
+			SSET="PCM"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+			TEXT=""
+		;;
 
+		ES9023)
+			#CARD="ALSA"
+			#SSET="PCM"
+			#ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			#ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+			#TEXT=""
+			#PARAMS1=384k
+		;;
+	esac
+}
 
 #========================================================================================================
 # Section that controls loading of DAC overlays
 #--------------------------------------------------------------------------------------------------------
-	pcp_read_chosen_audio() {
-		pcp_mount_mmcblk0p1
-		pcp_disable_HDMI
-		pcp_disable_i2s
-		pcp_soundcontrol
-		pcp_enable_i2s
-		pcp_umount_mmcblk0p1
-	}
-
+pcp_read_chosen_audio() {
+	pcp_mount_mmcblk0p1
+	pcp_disable_HDMI
+	pcp_disable_i2s
+	pcp_soundcontrol
+	pcp_enable_i2s
+	pcp_umount_mmcblk0p1
+}
 
 #========================================================================================================
 # Section that populate sound card drop-down list on Squeezelite.cgi
 #--------------------------------------------------------------------------------------------------------
-#========================================================================================================
 # This will get us all avaiable AUDIO options
 #--------------------------------------------------------------------------------------------------------
-
-AUDIO_OPTIONS=$(grep '#===*' $PCPHOME'/pcp-soundcard-functions' | grep ')' | grep -v 'AUDIO_OPTIONS=' | awk -F')' '{print $1}')
+AUDIO_OPTIONS=$(grep ') # Audio option' $PCPHOME'/pcp-soundcard-functions' | grep ')' | grep -v 'AUDIO_OPTIONS=' | awk -F')' '{print $1}')
 
 #========================================================================================================
 # This will make the dropdown.cfg file with the options used in squeezelite.cgi
 #--------------------------------------------------------------------------------------------------------
-	pcp_sound_card_dropdown(){
-		sudo rm /tmp/dropdown.cfg
-		. $CONFIGCFG
-		CONF_AUDIO="$AUDIO"
-			for i in $AUDIO_OPTIONS; do
-				AUDIO=$i 
-				CHECKED="notselected"
-				[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
-				pcp_soundcontrol
-				#Dynamic_Squeezelite_drop_down_info:         
-				sudo echo $AUDIO $CHECKED $LISTNAME $RPI_MODEL >> /tmp/dropdown.cfg
-			done
-	}
-
+pcp_sound_card_dropdown() {
+	sudo rm /tmp/dropdown.cfg
+	. $CONFIGCFG
+	CONF_AUDIO="$AUDIO"
+		for i in $AUDIO_OPTIONS; do
+			AUDIO=$i
+			CHECKED="notselected"
+			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
+			pcp_soundcontrol
+			# Dynamic_Squeezelite_drop_down_info:
+#			sudo echo $AUDIO $CHECKED $LISTNAME $RPI_MODEL >> /tmp/dropdown.cfg
+			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+		done
+}
 
 #========================================================================================================
 # Sound card definitions: The section below is the only section that needs changed when new DACs are supported
@@ -192,69 +184,68 @@ pcp_soundcontrol() {
 	TEXT="Sorry, this DAC cannot be controlled as it has no ALSA controls."
 	ALSA_PARAMS="80:4::1"
 	case "$AUDIO" in
-	Analog)		#========================================================================================
+		Analog) # Audio option
+			#========================================================================================
 			# Load the correct modules for ANALOG
 			#----------------------------------------------------------------------------------------
 			OUTPUT="hw:CARD=ALSA"
 			ALSA_PARAMS="80:::1"
 			GENERIC_CARD=ONBOARD
 			pcp_generic_card_control
-			#Dynamic_Squeezelite_drop_down_info:         
-			LISTNAME="Analog_audio"
+			# Dynamic_Squeezelite_drop_down_info:
+			LISTNAME="Analog audio"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
-
-	HDMI) 		#========================================================================================
+		HDMI) # Audio option
+			#========================================================================================
 			# Load the correct modules for HDMI
 			#----------------------------------------------------------------------------------------
 			OUTPUT="sysdefault:CARD=ALSA"
 			ALSA_PARAMS="::32:1"
 			GENERIC_CARD=ONBOARD
 			pcp_generic_card_control
-			#Dynamic_Squeezelite_drop_down_info:  
-			LISTNAME="HDMI_audio"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HDMI audio"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
-
-	USB) 		#========================================================================================
-			# Load the correct modules for USB DAC
+		USB) # Audio option
+			#========================================================================================
+			# Load the correct modules for USB DAC/DIGI
 			#----------------------------------------------------------------------------------------
 			OUTPUT="$USBOUTPUT"
 			CARD="USB DAC"
-			TEXT="<b>Sorry, you cannot control a USB DAc from this page</b>.
+			TEXT="<b>Sorry, you cannot control a USB DAC from this page</b>.
 			<li>Login via ssh.</li>
 			<li>Use 'alsamixer' to change the ALSA output level.</li>
 			<li>Backup ALSA settings by using 'backup button' on this page.</li>"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="USB_audio_DAC"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="USB audio"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
-		
-	HIFI_DAC) 	#========================================================================================
+		HIFI_DAC) # Audio option
+			#========================================================================================
 			# Load the correct modules for HiFiBerry DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Hifiberry DAC"
 			OUTPUT="hw:CARD=sndrpihifiberry"
 			DTOVERLAY="hifiberry-dac"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Hifiberry_DAC"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HiFiBerry DAC"
 			RPI_MODEL="ALL_NO_HAT"
 		;;
-
-
-	HIFI_DIGI) 	#========================================================================================
+		HIFI_DIGI) # Audio option
+			#========================================================================================
 			# Load the correct modules for HiFiBerry Digi and HiFiBerry Digi+
 			#----------------------------------------------------------------------------------------
 			CARD="Hifiberry Digi (and + version)"
 			OUTPUT="hw:CARD=sndrpihifiberry"
 			DTOVERLAY="hifiberry-digi"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Hifiberry_Digi_(and_+_version)"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HiFiBerry Digi (and + version)"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
-
-
-	HIFI_DAC+) 	#========================================================================================
+		HIFI_DAC+) # Audio option
+			#========================================================================================
 			# Load the correct modules for HiFiBerry DAC+
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
@@ -262,35 +253,35 @@ pcp_soundcontrol() {
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="hifiberry-dacplus"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Hifiberry_DAC+"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HiFiBerry DAC+"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	HIFI_DAC+light) #========================================================================================
+		HIFI_DAC+_light) # Audio option
+			#========================================================================================
 			# Load the correct modules for HiFiBerry DAC+ Light with es9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
 			OUTPUT="hw:CARD=sndes9023dac"
 #			OUTPUT="hw:CARD=sndrpihifiberry"
-			[ $KERNELVERSION = Audiokernel ] && DTOVERLAY="hifiberry-dacpluslight-es9023-audio,384k" || DTOVERLAY="hifiberry-dac"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Hifiberry_DAC+Light"
+			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="hifiberry-dacpluslight-es9023-audio,384k" || DTOVERLAY="hifiberry-dac"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HiFiBerry DAC+ Light"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	HIFI_DIGpro) 	#========================================================================================
+		HIFI_DIGpro) # Audio option
+			#========================================================================================
 			# Load the correct modules for HiFiBerry Digi+ Pro
 			#----------------------------------------------------------------------------------------
 			CARD="Hifiberry Digi plus"
 			OUTPUT="hw:CARD=sndrpihifiberry"
 			DTOVERLAY="hifiberry-digi-pro"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Hifiberry_Digi+_Pro"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HiFiBerry Digi+ Pro"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	HIFI_AMP) 	#========================================================================================
+		HIFI_AMP) # Audio option
+			#========================================================================================
 			# Load the correct modules for HiFiBerry AMP
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
@@ -298,36 +289,36 @@ pcp_soundcontrol() {
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="hifiberry-amp"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Hifiberry_AMP"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="HiFiBerry AMP"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	I2S_GENERIC_TI) #========================================================================================
+		I2S_GENERIC_TI) # Audio option
+			#========================================================================================
 			# Load the correct modules for Generic TI51XX DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Generic Texas TI51XX I2S DAC"
 			OUTPUT="hw:CARD=sndrpihifiberry"
-			[ $KERNELVERSION = Audiokernel ] && DTOVERLAY="simple-pcm5102a-audio" || DTOVERLAY="hifiberry-dac"
+			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-pcm5102a-audio" || DTOVERLAY="hifiberry-dac"
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Generic_TI51XX_DAC"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="Generic TI51XX DAC"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
-
-	I2S_GENERIC_ESS) #========================================================================================
+		I2S_GENERIC_ESS) # Audio option
+			#========================================================================================
 			# Load the correct modules for Generic ESS 9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Generic ESS 9023 I2S DAC"
 			OUTPUT="hw:CARD=sndes9023dac"
-			[ $KERNELVERSION = Audiokernel ] && DTOVERLAY="simple-es9023-audio,384k" && GENERIC_CARD=ES9023 && pcp_generic_card_control || DTOVERLAY="hifiberry-dac"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Generic_ESS_9023_DAC"
+			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-es9023-audio,384k" && GENERIC_CARD=ES9023 && pcp_generic_card_control || DTOVERLAY="hifiberry-dac"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="Generic ESS9023 DAC"
 			RPI_MODEL="HAT_ALL_NO_HAT"
 		;;
-
-	IQ_DAC) 	#========================================================================================
+		IQ_DAC) # Audio option
+			#========================================================================================
 			# Load the correct modules for IQaudIO DAC
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
@@ -335,12 +326,12 @@ pcp_soundcontrol() {
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="iqaudio-dac"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="IQaudIO_DAC"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="IQaudIO DAC"
 			RPI_MODEL="ALL_NO_HAT"
 		;;
-
-	IQ_DAC+)	#========================================================================================
+		IQ_DAC+) # Audio option
+			#========================================================================================
 			# Load the correct modules for IQaudIO DAC+
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
@@ -348,59 +339,58 @@ pcp_soundcontrol() {
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="iqaudio-dacplus"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="IQaudIO_DAC+"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="IQaudIO DAC+"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	IQ_AMP+)	#========================================================================================
-			# Load the correct modules for IQaudIO AMP+ 
+		IQ_AMP+) # Audio option
+			#========================================================================================
+			# Load the correct modules for IQaudIO AMP+
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
 			OUTPUT="hw:CARD=IQaudIODAC"
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="iqaudio-dacplus,unmute_amp"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="IQaudIO_AMP+"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="IQaudIO AMP+"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	IQ_DIGI+)	#========================================================================================
+		IQ_DIGI+) # Audio option
+			#========================================================================================
 			# Load the correct modules for IQaudIO digi+
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIO Digi"
-			OUTPUT="hw:CARD=IQaudIODigi" 
+			OUTPUT="hw:CARD=IQaudIODigi"
 			DTOVERLAY="iqaudio-digi-wm8804-audio"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="IQaudIO_DIGI+"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="IQaudIO DIGI+"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-
-	raspidac3) 	#========================================================================================
+		raspidac3) # Audio option
+			#========================================================================================
 			# Load the correct modules for raspidac3
 			#----------------------------------------------------------------------------------------
 			CARD="RaspiDac3"
 			OUTPUT="hw:CARD=Card"
 			DTOVERLAY="raspidac3"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="raspidac3"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME=" RaspiDAC Rev.3x"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	rpi_dac)	#========================================================================================
+		rpi_dac) # Audio option
+			#========================================================================================
 			# Load the correct modules for rpi-dac
 			#----------------------------------------------------------------------------------------
 			CARD="Raspi Dac"
 			OUTPUT="hw:CARD=snd-rpi-dac"
 			DTOVERLAY="rpi-dac"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="rpi-dac"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="RPi DAC"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	justboom_dac)	#========================================================================================
+		justboom_dac) # Audio option
+			#========================================================================================
 			# Load the correct modules for justboomdac
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
@@ -408,23 +398,23 @@ pcp_soundcontrol() {
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="justboom-dac"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Justboom_DAC"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="JustBoom DAC"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	justboom_digi)	#========================================================================================
+		justboom_digi) # Audio option
+			#========================================================================================
 			# Load the correct modules for justboomdigi
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
 			OUTPUT="hw:CARD=sndrpijustboomd"
 			DTOVERLAY="justboom-digi"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Justboom_DIGI"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="JustBoom DIGI"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	LOCO_dac)	#========================================================================================
+		LOCO_dac) # Audio option
+			#========================================================================================
 			# Load the correct modules for Dion Audio LOCO
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
@@ -432,51 +422,48 @@ pcp_soundcontrol() {
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="dionaudio-loco"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Dion_Audio_LOCO"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="Dion Audio LOCO"
 			RPI_MODEL="HAT_ALL"
 		;;
-
-	Allo_Piano_dac)	#========================================================================================
+		Allo_Piano_dac) # Audio option
+			#========================================================================================
 			# Load the correct modules for Allo Piano DAC
 			#----------------------------------------------------------------------------------------
-			CARD="PianoDAC"	
+			CARD="PianoDAC"
 			OUTPUT="hw:CARD=PianoDAC"
 			GENERIC_CARD=TI51XX
 			pcp_generic_card_control
 			DTOVERLAY="allo-piano-dac-pcm512x-audio"
-			#Dynamic_Squeezelite_drop_down_info: 
-			LISTNAME="Allo_Piano_DAC"
+			# Dynamic_Squeezelite_drop_down_info
+			LISTNAME="Allo Piano DAC"
 			RPI_MODEL="HAT_ALL"
 		;;
 
-#================================================================================================================
-# Overlays for the DACs below are only avaiable if using the Audiokernel. So they only show in the dropdown list
-# if using the Audiokernel
-#---------------------------------------------------------------------------------------------------------------- 
+		#================================================================================================================
+		# Overlays for the DACs below are only avaiable if using the Audiokernel. So they only show in the dropdown list
+		# if using the Audiokernel
+		#----------------------------------------------------------------------------------------------------------------
 
-	ISabre_9023)	#========================================================================================
-			# Load the correct modules for Audiophonics I-Sabre DAC es9023 DAC
+		ISabre_9023) # Audio option
+			#========================================================================================
+			# Load the correct modules for Audiophonics I-Sabre DAC ES9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="sndes9023dac"
 			OUTPUT="hw:CARD=sndes9023dac"
 			DTOVERLAY="dtoverlay=i-sabre-dac-es9023-audio,384k"
-			#Dynamic_Squeezelite_drop_down_info:
-			[ $KERNELVERSION = Audiokernel ] && LISTNAME="I-Sabre-es9023_DAC" RPI_MODEL="HAT_ALL"
+			# Dynamic_Squeezelite_drop_down_info
+			[ "$KERNELVERSION" = "Audiokernel" ] && LISTNAME="I-Sabre-ES9023 DAC" && RPI_MODEL="HAT_ALL"
 		;;
-
-
-	Mambo_HIFI+)	#========================================================================================
+		Mambo_HIFI+) # Audio option
+			#========================================================================================
 			# Load the correct modules for Collybia Mamboberry HiFi DAC+ es9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="sndes9023dac"
 			OUTPUT="hw:CARD=Mamboberry"
 			DTOVERLAY="dtoverlay=mamboberry-dacplus-es9023-audio,384k"
-			#Dynamic_Squeezelite_drop_down_info: 
-			[ $KERNELVERSION = Audiokernel ] && LISTNAME="Mamboberry-HiFi-DAC+" && RPI_MODEL="HAT_ALL"
+			# Dynamic_Squeezelite_drop_down_info
+			[ "$KERNELVERSION" = "Audiokernel" ] && LISTNAME="Mamboberry-HiFi-DAC+" && RPI_MODEL="HAT_ALL"
 		;;
-
-
-esac
+	esac
 }
-

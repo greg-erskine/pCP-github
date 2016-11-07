@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-14
+# Version: 3.03 2016-11-08
 #	Added Advanced Options button. GE.
-#	Cleaned Audio selection and made a dynamic drop-down list
+#	Cleaned Audio selection and made a dynamic drop-down list. SBP.
 
 # Version: 3.02 2016-09-20
 #	Added Hifiberry Digi+ Pro support. SBP.
@@ -189,30 +189,26 @@ pcp_cards_controls() {
 	echo '                    </ul>'
 }
 
-
 #========================================================================================
 # Determine which sound cards are avaiable for the various RPi boards
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
-# RPI is P5-connetion no HAT model or unknown
-RP_MODEL=ALL_NO_HAT
+	# RPI is P5-connetion no HAT model or unknown
+	RP_MODEL=ALL_NO_HAT
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
-# RPI is 40 pin HAT model
-RP_MODEL=HAT_ALL
+	# RPI is 40 pin HAT model
+	RP_MODEL=HAT_ALL
 fi
 
 [ $MODE -ge $MODE_BETA ] && RP_MODEL=ALL
 # Mode is beta and all models will be shown
 
-
-
 #========================================================================================
 # Populate sound card drop-down options
 #---------------------------------------------------------------------------------------- 
 pcp_sound_card_dropdown
-
 
 #========================================================================================
 # Start Audio output table
@@ -239,7 +235,7 @@ echo '                  <select name="AUDIO">'
 #============================================================================================
 # Dynamic dropdown list generator
 #--------------------------------------------------------------------------------------------
-awk '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
+awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
 #==============================End dynamic dropdown===========================================
 
 echo '                  </select>'
