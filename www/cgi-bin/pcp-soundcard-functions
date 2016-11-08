@@ -262,8 +262,7 @@ pcp_soundcontrol() {
 			# Load the correct modules for HiFiBerry DAC+ Light with es9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
-			OUTPUT="hw:CARD=sndes9023dac"
-#			OUTPUT="hw:CARD=sndrpihifiberry"
+			OUTPUT="hw:CARD=sndrpihifiberry"
 			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="hifiberry-dacpluslight-es9023-audio,384k" || DTOVERLAY="hifiberry-dac"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="HiFiBerry DAC+ Light"
@@ -297,7 +296,7 @@ pcp_soundcontrol() {
 			#========================================================================================
 			# Load the correct modules for Generic TI51XX DAC
 			#----------------------------------------------------------------------------------------
-			CARD="Generic Texas TI51XX I2S DAC"
+			CARD="sndrpihifiberry"
 			OUTPUT="hw:CARD=sndrpihifiberry"
 			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-pcm5102a-audio" || DTOVERLAY="hifiberry-dac"
 			GENERIC_CARD=TI51XX
@@ -311,7 +310,7 @@ pcp_soundcontrol() {
 			# Load the correct modules for Generic ESS 9023 DAC
 			#----------------------------------------------------------------------------------------
 			CARD="Generic ESS 9023 I2S DAC"
-			OUTPUT="hw:CARD=sndes9023dac"
+			OUTPUT="hw:CARD=es9023"
 			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-es9023-audio,384k" && GENERIC_CARD=ES9023 && pcp_generic_card_control || DTOVERLAY="hifiberry-dac"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="Generic ESS9023 DAC"
