@@ -381,8 +381,8 @@ pcp_soundcontrol() {
 			#========================================================================================
 			# Load the correct modules for rpi-dac
 			#----------------------------------------------------------------------------------------
-			CARD="Raspi Dac"
-			OUTPUT="hw:CARD=snd-rpi-dac"
+			CARD="sndrpirpidac"
+			OUTPUT="hw:CARD=sndrpirpidac"
 			DTOVERLAY="rpi-dac"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="RPi DAC"
