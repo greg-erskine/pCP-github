@@ -1,0 +1,10 @@
+Title:		pcp-lirc.tcz
+Description:	LIRC package for remote control
+Version:	0.9.0
+Author:		Alec Leamas
+Original-site:	http://www.lirc.org
+Copying-policy:	GPL
+Size:		221184k
+Extension_by:	piCorePlayer team: https://sites.google.com/site/picoreplayer
+		Compiled for piCore 8.x
+Change-log:	Import https://github.com/ralph-irving/tcz-lirc (bda422187206a32ab524e47a3038296d817f019c)
