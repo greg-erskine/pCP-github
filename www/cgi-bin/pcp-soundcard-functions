@@ -448,9 +448,9 @@ pcp_soundcontrol() {
 			#========================================================================================
 			# Load the correct modules for Audiophonics I-Sabre DAC ES9023 DAC
 			#----------------------------------------------------------------------------------------
-			CARD="sndes9023dac"
-			OUTPUT="hw:CARD=sndes9023dac"
-			DTOVERLAY="dtoverlay=i-sabre-dac-es9023-audio,384k"
+			CARD="ISabre"
+			OUTPUT="hw:CARD=ISabre"
+			DTOVERLAY="i-sabre-dac-es9023-audio,384k"
 			# Dynamic_Squeezelite_drop_down_info
 			[ "$KERNELVERSION" = "Audiokernel" ] && LISTNAME="I-Sabre-ES9023 DAC" && RPI_MODEL="HAT_ALL"
 		;;
@@ -458,9 +458,9 @@ pcp_soundcontrol() {
 			#========================================================================================
 			# Load the correct modules for Collybia Mamboberry HiFi DAC+ es9023 DAC
 			#----------------------------------------------------------------------------------------
-			CARD="sndes9023dac"
+			CARD="Mamboberry"
 			OUTPUT="hw:CARD=Mamboberry"
-			DTOVERLAY="dtoverlay=mamboberry-dacplus-es9023-audio,384k"
+			DTOVERLAY="mamboberry-dacplus-es9023-audio,384k"
 			# Dynamic_Squeezelite_drop_down_info
 			[ "$KERNELVERSION" = "Audiokernel" ] && LISTNAME="Mamboberry-HiFi-DAC+" && RPI_MODEL="HAT_ALL"
 		;;
