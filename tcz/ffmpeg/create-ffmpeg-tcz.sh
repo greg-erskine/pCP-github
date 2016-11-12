@@ -92,13 +92,13 @@ rm $STARTDIR/onlylib
 echo "$TCZLIB contains"
 unsquashfs -ll $TCZLIB
 
-echo -e "Title:\t\t$TCZ" > $TCZLIBINFO
+echo -e "Title:\t\t$TCZLIB" > $TCZLIBINFO
 echo -e "Description:\tMultimedia files command line conversion tools shared libraries." >> $TCZLIBINFO
 echo -e "Version:\t$FFMPEGVERSION" >> $TCZLIBINFO
 echo -e "Author:\t\tFabrice Bellard" >> $TCZLIBINFO
 echo -e "Original-site:\thttp://ffmpeg.org/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tGPL 2.1 or higher" >> $TCZLIBINFO
-echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZLIBINFO
+echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
 echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
 
