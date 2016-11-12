@@ -73,6 +73,15 @@ cd $STARTDIR/$SRC/pkg/usr/local >> $LOG
 
 bsdtar -cf - bin sbin lib | (cd $OUTPUT/usr/local; bsdtar -xf -)
 
+echo "Creating headers..."
+cd $STARTDIR/$SRC/pkg/usr/local/include >> $LOG
+
+if [ -f $STARTDIR/$SRC-headers.tar.gz ]; then
+        rm $STARTDIR/$SRC-headers.tar.gz
+fi
+
+bsdtar -czf $STARTDIR/$SRC-headers.tar.gz *
+
 cd $OUTPUT >> $LOG
 
 cp -p $STARTDIR/tce.lirc $OUTPUT/usr/local/tce.installed/lirc
