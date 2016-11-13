@@ -18,7 +18,6 @@ usr/local/etc/ssh/ssh_host_rsa_key
 usr/local/etc/ssh/ssh_host_rsa_key.pub
 usr/local/etc/init.d/squeezelite
 usr/local/etc/init.d/httpd
-usr/local/etc/init.d/shairport-sync
 usr/local/sbin/config.cfg
 usr/local/sbin/piversion.cfg
 usr/local/sbin/setup

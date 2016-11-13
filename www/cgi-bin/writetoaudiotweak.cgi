@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.03 2016-11-13
+#	Changes for pcp-shairportsync.tcz. PH
+
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
 
@@ -63,8 +66,6 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-SHAIRP="shairport-sync"
-AVAHI="avahi.tzc and needed packages"
 WGET="/bin/busybox wget"
 EQREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal"
 CAPS="caps-0.4.5"
@@ -75,112 +76,25 @@ REBOOT_REQUIRED=0
 #========================================================================================================
 # Routines
 #--------------------------------------------------------------------------------------------------------
-pcp_download_shairport() {
-	pcp_sufficient_free_space 2000
-	cd /tmp
-	sudo rm -f /tmp/${SHAIRP}
-	echo '<p class="info">[ INFO ] Downloading Shairport from Ralphy'\''s repository...</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Ralphy repo: '${REPOSITORY}'</p>'
-	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
-
-	$WGET -s ${REPOSITORY}/${SHAIRP}
+pcp_download_shairport(){
+	pcp_sufficient_free_space 500
+	echo '<p class="info">[ INFO ] Downloading Shairport-sync...</p>'
+	sudo -u tc pcp-load -r ${PCP_REPO} -w pcp-shairportsync.tcz
 	if [ $? -eq 0 ]; then
-		echo '<p class="info">[ INFO ] Downloading '$SHAIRP' and '$AVAHI'...'
-		$WGET ${REPOSITORY}/${SHAIRP} -O /tmp/${SHAIRP}
-		if [ $? -eq 0 ]; then
-			echo '<p class="ok">[ OK ] Download successful.</p>'
-			/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
-#			sudo pkill shairport-sync
-			sudo cp /tmp/$SHAIRP /mnt/mmcblk0p2/tce/shairport-sync
-			sudo chown tc:staff /mnt/mmcblk0p2/tce/shairport-sync
-			sudo chmod 755 /mnt/mmcblk0p2/tce/shairport-sync
-		else
-			echo '<p class="error">[ ERROR ] Shairport download unsuccessful, try again!</p>'
-#			SHAIRPORT=$ORIG_SHAIRPORT
-		fi
+		echo '<p class="info">[ INFO ] Installing Shairport-sync...</p>'
+		sudo -u tc pcp-load -i pcp-shairportsync.tcz
+		return 0
 	else
-		echo '<p class="error">[ ERROR ] Shairport not available in repository, try again later!</p>'
-#		SHAIRPORT=$ORIG_SHAIRPORT
+		echo '<p class="error">[ ERROR ] Shairport download unsuccessful, try again!</p>'
+		return 1
 	fi
-
-	sudo rm -f /tmp/avahi/*
-	[ -d /tmp/avahi ] || sudo mkdir avahi
-	echo '<p class="info">[ INFO ] Downloading Avahi from Ralphy'\''s repository...</p>'
-	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
-
-	$WGET -s ${REPOSITORY}/avahi.tcz
-	if [ $? -eq 0 ]; then
-		RESULT=0
-		echo -n '<p class="info">[ INFO ] Downloading Avahi'
-		$WGET ${REPOSITORY}/avahi.tcz -O /tmp/avahi/avahi.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/avahi.tcz.dep -O /tmp/avahi/avahi.tcz.dep
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/avahi.tcz.md5.txt -O /tmp/avahi/avahi.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/dbus.tcz -O /tmp/avahi/dbus.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/dbus.tcz.md5.txt -O /tmp/avahi/dbus.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/expat2.tcz -O /tmp/avahi/expat2.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/expat2.tcz.md5.txt -O /tmp/avahi/expat2.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libattr.tcz -O /tmp/avahi/libattr.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libattr.tcz.md5.txt -O /tmp/avahi/libattr.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libavahi.tcz -O /tmp/avahi/libavahi.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libavahi.tcz.dep -O /tmp/avahi/libavahi.tcz.dep
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libavahi.tcz.md5.txt -O /tmp/avahi/libavahi.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libcap.tcz -O /tmp/avahi/libcap.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libcap.tcz.md5.txt -O /tmp/avahi/libcap.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libcofi.tcz -O /tmp/avahi/libcofi.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libcofi.tcz.md5.txt -O /tmp/avahi/libcofi.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libdaemon.tcz -O /tmp/avahi/libdaemon.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/libdaemon.tcz.md5.txt -O /tmp/avahi/libdaemon.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/nss-mdns.tcz -O /tmp/avahi/nss-mdns.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${REPOSITORY}/nss-mdns.tcz.md5.txt -O /tmp/avahi/nss-mdns.tcz.md5.txt
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		if [ $RESULT -eq 0 ]; then
-			echo '<p class="ok">[ OK ] Download successful.</p>'
-			sudo chown -R tc:staff /tmp/avahi/*
-			sudo chmod -R 644 /tmp/avahi/*
-			sudo cp -rp /tmp/avahi/* /mnt/mmcblk0p2/tce/optional
-		else
-			echo '<p class="error">[ ERROR ] Avahi download unsuccessful, try again!</p>'
-		fi
-	else
-		echo '<p class="error">[ ERROR ] Avahi not available in repository, try again later!</p>'
-	fi
-	SPACE=$(pcp_free_space k)
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k</p>'
 }
 
 pcp_remove_shairport() {
 	echo '<p class="info">[ INFO ] Removing Shairport...'
 	/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
-#	sudo pkill shairport-sync
-	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz*
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz*
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete pcp-shairportsync.tcz
 }
 
 #========================================================================================
@@ -267,7 +181,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	
 	#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----	
 	if [ "$AUDIO" != "Analog" ] && [ "$AUDIO" != "HDMI" ]; then
-	 CARDNO=1
+		CARDNO=1
 	fi
 
 	# If output is different from analog or HDMI then find the number of the non-ALSA card
@@ -458,7 +372,6 @@ fi
 #----------------------------------------------------------------------------------------
 # Only do something if variable is changed
 if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
-	REBOOT_REQUIRED=1
 	echo '<hr>'
 	echo '<p class="info">[ INFO ] SHAIRPORT is set to: '$SHAIRPORT'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SHAIRPORT is: '$ORIG_SHAIRPORT'</p>'
@@ -467,21 +380,29 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 	case "$SHAIRPORT" in
 		yes)
 			echo '<p class="info">[ INFO ] Shairport-sync will be enabled.</p>'
-			if grep -Fxq "avahi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
+			if [ -f /mnt/mmcblk0p2/tce/optional/pcp-shairportsync.tcz ]; then
 				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Shairport-sync already loaded.</p>'
+				echo "pcp-shairportsync.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 			else
-				sudo echo "avahi.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 				pcp_download_shairport
+				if [ $? -eq 0 ]; then
+					echo "pcp-shairportsync.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+					/usr/local/etc/init.d/shairport-sync start
+				fi
 			fi
-			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_disable_analog
+#			I think this should be in the audiocard setup, not here
+#			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_disable_analog
 			CLOSEOUT="15"
 		;;
 		no)
+			REBOOT_REQUIRED=1
 			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
 			pcp_remove_shairport
-			sudo sed -i '/avahi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_re_enable_analog
-			CLOSEOUT=""
+			sed -i '/pcp-shairportsync.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sync
+#			I think this should be in the audiocard setup, not here
+#			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_re_enable_analog
+			CLOSEOUT="2"
 		;;
 		*)
 			echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'

@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-13
+# Version: 3.03 2016-11-13
 #	Added Samba Server Support. PH.
 #	Removed IQaudIO AMP unmute from here. SBP
+#	Changes for shairport-sync.  Incomplete PH
 
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository.
@@ -513,14 +514,6 @@ echo "${GREEN}Done.${NORMAL}"
 
 
 if [ "$SHAIRPORT" = "yes" ]; then
-	echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
-	/usr/local/etc/init.d/dbus start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
-
-	echo -n "${BLUE}Starting avahi daemon... ${NORMAL}"
-	/usr/local/etc/init.d/avahi start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
-
 	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
 	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"

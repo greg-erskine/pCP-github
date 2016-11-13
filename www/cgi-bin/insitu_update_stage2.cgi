@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version 3.03 2016-11-13
+#	Changes for shairport-sync.  Incomplete PH
+
+
 # Version 3.02 2016-09-04 PH
 #	Updated Kernel Information for 3.02 piCore8.0 Release
 #	Removed pcp-load, as 3.00 and on had the updated file.  Not needed for pcp 2.xx
@@ -369,6 +373,22 @@ pcp_install_tce_files() {
 	#sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
 	#[ $? -eq 0 ] || FAIL_MSG="Error removing kernel specific files."
 
+	#	pcp_remove_shairport.old() {  Need to figure out how we want to remove the old shairport
+	#	echo '<p class="info">[ INFO ] Removing Shairport...'
+	#	/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
+	#	sudo pkill shairport-sync
+	#	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
+	#	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz*
+	#	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz*
+}
+	
 	# Untar and update the tzc packages files to optional
 	echo '[ INFO ] Untarring '${VERSION}'_tce.tar.gz...'
 	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
