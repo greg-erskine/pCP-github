@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 # Version: 3.03 2016-11-13 
 #	Update for pcp-shairportsync.tcz RE
 
@@ -16,10 +17,13 @@ DAEMON=/usr/local/sbin/shairport-sync
 # -B "$ON_START" -E "$ON_STOP"
 
 # Read from config file
+. /home/tc/www/cgi-bin/pcp-functions
+. /home/tc/www/cgi-bin/pcp-soundcard-functions
 . /usr/local/sbin/config.cfg
+pcp_soundcontrol
 
-if [ "$AUDIO" = "I2SpIQaudIO" ] || [ "$AUDIO" = "I2SpDAC" ]; then
-    SH_CONTROL='-c Digital'
+if [ ! -z $SSET ]; then
+    SH_CONTROL='-c '"$SSET"''
 else
     SH_CONTROL=''
 fi
