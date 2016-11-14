@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-11-14 RI
+#	Override DAEMON if a squeezelite binary installed in /mnt/mmcblk0p2/tce/.
+
 # Version: 3.02 2016-09-20 RI
 #	Fixed -i option only when Jivelite and LIRC enabled.
 
@@ -41,7 +44,7 @@
 
 PNAME=Squeezelite
 DESC="Squeezelite player"
-DAEMON=/usr/local/bin/squeezelite
+[ -f /mnt/mmcblk0p2/tce/squeezelite ] && DAEMON=/mnt/mmcblk0p2/tce/squeezelite || DAEMON=/usr/local/bin/squeezelite
 PIDFILE=/var/run/squeezelite.pid
 LOGDIR=/var/log
 
