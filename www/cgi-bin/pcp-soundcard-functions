@@ -82,7 +82,6 @@ pcp_enable_HDMI() {
 pcp_generic_card_control() {
 	case "$GENERIC_CARD" in
 		TI51XX)
-			SSET="Digital"
 			DSP="DSP Program,0"
 			FILTER1="Low latency IIR with de-emphasis"
 			FILTER2="FIR interpolation with de-emphasis"
@@ -120,7 +119,6 @@ pcp_generic_card_control() {
 
 		ONBOARD)
 			CARD="ALSA"
-			SSET="PCM"
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
 			TEXT=""
@@ -169,7 +167,6 @@ pcp_sound_card_dropdown() {
 			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
 			pcp_soundcontrol
 			# Dynamic_Squeezelite_drop_down_info:
-#			sudo echo $AUDIO $CHECKED $LISTNAME $RPI_MODEL >> /tmp/dropdown.cfg
 			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
 		done
 }
@@ -190,8 +187,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			OUTPUT="hw:CARD=ALSA"
 			ALSA_PARAMS="80:::1"
+			SSET="PCM"
 			GENERIC_CARD=ONBOARD
-			pcp_generic_card_control
 			# Dynamic_Squeezelite_drop_down_info:
 			LISTNAME="Analog audio"
 			RPI_MODEL="HAT_ALL_NO_HAT"
@@ -202,8 +199,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			OUTPUT="sysdefault:CARD=ALSA"
 			ALSA_PARAMS="::32:1"
+			SSET="PCM"
 			GENERIC_CARD=ONBOARD
-			pcp_generic_card_control
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="HDMI audio"
 			RPI_MODEL="HAT_ALL_NO_HAT"
@@ -250,8 +247,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
 			OUTPUT="hw:CARD=sndrpihifiberry"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="hifiberry-dacplus"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="HiFiBerry DAC+"
@@ -285,8 +282,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
 			OUTPUT="hw:CARD=sndrpihifiberry"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="hifiberry-amp"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="HiFiBerry AMP"
@@ -298,9 +295,9 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpihifiberry"
 			OUTPUT="hw:CARD=sndrpihifiberry"
+			SSET="Digital"
 			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-pcm5102a-audio" || DTOVERLAY="hifiberry-dac"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="Generic TI51XX DAC"
 			RPI_MODEL="HAT_ALL_NO_HAT"
@@ -311,7 +308,7 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="Generic ESS 9023 I2S DAC"
 			OUTPUT="hw:CARD=es9023"
-			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-es9023-audio,384k" && GENERIC_CARD=ES9023 && pcp_generic_card_control || DTOVERLAY="hifiberry-dac"
+			[ "$KERNELVERSION" = "Audiokernel" ] && DTOVERLAY="simple-es9023-audio,384k" && GENERIC_CARD=ES9023 || DTOVERLAY="hifiberry-dac"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="Generic ESS9023 DAC"
 			RPI_MODEL="HAT_ALL_NO_HAT"
@@ -322,8 +319,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
 			OUTPUT="hw:CARD=IQaudIODAC"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="iqaudio-dac"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="IQaudIO DAC"
@@ -335,8 +332,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
 			OUTPUT="hw:CARD=IQaudIODAC"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="iqaudio-dacplus"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="IQaudIO DAC+"
@@ -348,8 +345,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="IQaudIODAC"
 			OUTPUT="hw:CARD=IQaudIODAC"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="iqaudio-dacplus,unmute_amp"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="IQaudIO AMP+"
@@ -394,11 +391,11 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
 			OUTPUT="hw:CARD=sndrpijustboomd"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="justboom-dac"
 			# Dynamic_Squeezelite_drop_down_info
-			LISTNAME="JustBoom DAC"
+			LISTNAME="JustBoom DAC/AMP (and Zero)"
 			RPI_MODEL="HAT_ALL"
 		;;
 		justboom_digi) # Audio option
@@ -409,7 +406,7 @@ pcp_soundcontrol() {
 			OUTPUT="hw:CARD=sndrpijustboomd"
 			DTOVERLAY="justboom-digi"
 			# Dynamic_Squeezelite_drop_down_info
-			LISTNAME="JustBoom DIGI"
+			LISTNAME="JustBoom Digi (and Zero)"
 			RPI_MODEL="HAT_ALL"
 		;;
 		LOCO_dac) # Audio option
@@ -418,8 +415,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="sndrpijustboomd"
 			OUTPUT="hw:CARD=sndrpidionaudio"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="dionaudio-loco"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="Dion Audio LOCO"
@@ -431,8 +428,8 @@ pcp_soundcontrol() {
 			#----------------------------------------------------------------------------------------
 			CARD="PianoDAC"
 			OUTPUT="hw:CARD=PianoDAC"
+			SSET="Digital"
 			GENERIC_CARD=TI51XX
-			pcp_generic_card_control
 			DTOVERLAY="allo-piano-dac-pcm512x-audio"
 			# Dynamic_Squeezelite_drop_down_info
 			LISTNAME="Allo Piano DAC"
