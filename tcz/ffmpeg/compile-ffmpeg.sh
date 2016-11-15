@@ -53,8 +53,10 @@ export CFLAGS="-march=armv6 -mfloat-abi=hard -mfpu=vfp -s"
     --disable-vdpau \
     --enable-version3 \
     --disable-x11grab \
+    --disable-iconv \
     --disable-xlib \
     --disable-zlib \
+    --disable-bzlib \
     --extra-ldflags="-Wl,-rpath,/usr/local/lib -s"
 
 make -j 4 || return 1
