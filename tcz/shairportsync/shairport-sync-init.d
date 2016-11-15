@@ -9,7 +9,7 @@
 
 PNAME="Shairport-sync"
 DESC="Shairport-sync player"
-DAEMON=/usr/local/sbin/shairport-sync
+[ -f /mnt/mmcblk0p2/tce/shairport-sync ] && DAEMON=/mnt/mmcblk0p2/tce/shairport-sync || DAEMON=/usr/local/sbin/shairport-sync
 
 # Not used.
 # ON_START="echo power 0 | nc 192.168.1.101 9090"
