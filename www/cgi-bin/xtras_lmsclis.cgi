@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-11-18
+#	Added find_servers. GE.
+
 # Version: 0.04 2016-05-09 GE
 #	Renamed variable HTPPD to HTTPD.
 
@@ -48,17 +51,22 @@ echo '                <td class="column150 center">'
 echo '                  <input type="submit" name="SUBMIT" value="Connect">'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <select class="large16" name="NEWLMSIP">'
-echo '                    <option value="192.168.1.7" >192.168.1.7</option>'
-echo '                    <option value="192.168.1.11" >192.168.1.11</option>'
-echo '                  </select>'
+
+if which find_servers >/dev/null 2>&1; then
+	echo '                  <select class="large16" name="NEWLMSIP">'
+	find_servers | sed -e 's|(||' -e 's|)||' | awk '{ printf "<option value=%s>%s</option>\n", $2, $1 }'
+	echo '                  </select>'
+else
+	echo ' <p class="error">[ ERROR ] find_servers missing.</p>'
+fi
+
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Connect to LMS&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>This will connect piCorePlayer to another LMS.</p>'
+echo '                    <p>This will connect piCorePlayer to selected LMS.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </form>'
