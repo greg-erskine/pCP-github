@@ -435,6 +435,7 @@ pcp_sufficient_free_space() {
 	[ $DEBUG -eq 1 ] && echo $PCLASSDEBUG'[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k'$SLASHP
 	if [ $REQUIRED -lt $SPACE ]; then
 		[ $DEBUG -eq 1 ] && echo $PCLASSDEBUG'[ DEBUG ] Enough space.'$SLASHP
+		return 0
 	else
 		echo $PCLASSERROR'[ ERROR ] Not enough space.'$SLASHP
 		echo $PCLASSINFO'[ INFO ] Try expanding your partition.'$SLASHP
@@ -442,7 +443,7 @@ pcp_sufficient_free_space() {
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required
 		pcp_go_back_button
-		exit 1
+		return 1
 	fi
 }
 
