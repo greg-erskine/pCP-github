@@ -105,12 +105,21 @@ case "$1" in
 			sudo kill `cat $PIDFILE`
 			sudo rm -f $PIDFILE
 		fi
-		sudo ps | grep squeezelite-armv6hf | grep -v grep | awk '{print $1}' | xargs kill -9
+		sudo ps | grep squeezelite | grep -v grep | awk '{print $1}' | xargs kill -9
 		sleep 1
 		$0 start
 		;;
 	status)
 		# Now checking for squeezelite daemon is running?
+		PID=$(ps -ef | grep $DAEMON | grep -v grep | awk '{ print $1 }')
+		if [ 0$PID -gt 0 ]; then
+				echo "$PNAME is running. PID=$PID"
+				exit 0
+		else
+				echo "$PNAME not running."
+				exit 1
+		fi
+
 		pidof squeezelite && echo "$PNAME is running." && exit 0 || echo "$PNAME not running." && exit 1
 		;;
 	*)
