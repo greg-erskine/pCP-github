@@ -119,8 +119,6 @@ case "$1" in
 				echo "$PNAME not running."
 				exit 1
 		fi
-
-		pidof squeezelite && echo "$PNAME is running." && exit 0 || echo "$PNAME not running." && exit 1
 		;;
 	*)
 		echo
