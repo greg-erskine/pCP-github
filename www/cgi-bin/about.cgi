@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.03 2016-11-19
+#	Changes for Squeezelite extension. PH.
+
 # Version: 3.00 2016-08-18 PH
 #   Updated forum thread Link, added blank Targets
 
@@ -111,7 +114,7 @@ if [ $MODE -ge $MODE_BASIC ]; then
 	echo '            </tr>'
 	echo '            <tr>'
 	echo '              <td>'
-	                      pcp_textarea_inform "none" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 240
+	                      pcp_textarea_inform "none" "${SQLT_BIN} -t" 240
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'

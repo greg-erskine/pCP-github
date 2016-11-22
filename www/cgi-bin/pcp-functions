@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-10-25
+# Version: 3.03 2016-11-19
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -13,6 +13,7 @@
 #	Simplfy sound card definitions. SBP.
 #	Added IR_GPIO_OUT. GE.
 #	Renamed IR_GPIO to IR_GPIO_IN. GE.
+#	Changes for Squeezelite extension. PH.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -350,6 +351,9 @@ pcp_variables() {
 		INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/beta"
 		REPOSITORY="https://sourceforge.net/projects/picoreplayer/files/beta"
 	fi
+	
+	#Set Squeezelite Varible to Binary location.
+	[ -f /mnt/mmcblk0p2/tce/squeezelite ] && SQLT_BIN=/mnt/mmcblk0p2/tce/squeezelite || SQLT_BIN=/usr/local/bin/squeezelite
 }
 
 pcp_variables
@@ -732,7 +736,7 @@ pcp_footer() {
 	fi
 
 	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
-	SQUEEZELITE='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
+	SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
 
 	echo '<!-- Start of pcp_footer -->'
 	echo '<table class="bgblack">'
@@ -743,7 +747,7 @@ pcp_footer() {
 					piCorePlayer v'$(pcp_picoreplayer_version)' |
 					linux '$(pcp_linux_release)' |
 					piCore v'$(pcp_picore_version)' |
-					'`echo $SQUEEZELITE`' |
+					'`echo $SQUEEZELITEfoot`' |
 					'`echo $TIMESTAMP`'</p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -940,11 +944,11 @@ pcp_picoreplayer_version() {
 }
 
 pcp_squeezelite_version() {
-	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
+	${SQLT_BIN} -t | awk '/^Squeezelite/ { print $2 }' | sed s/v// | sed s/,//
 }
 
 pcp_squeezelite_build_option() {
-	sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | grep $1 > /dev/null
+	${SQLT_BIN} -? | grep "Build options" | grep $1 > /dev/null
 	echo $?
 }
 

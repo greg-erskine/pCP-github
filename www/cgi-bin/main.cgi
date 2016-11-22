@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-30
+# Version: 3.03 2016-11-19
 #	Updated [Save to USB] more> help. GE.
 #	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
+#	Changes for Squeezelite extension. PH.
 
 # Version: 3.00 2016-07-08
 #	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
@@ -296,10 +297,50 @@ pcp_main_restart_shairport() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite - Ralphy-------------------
-pcp_main_update_ralphy() {
+pcp_main_update_sqlt() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="update">Update</button>'
+	echo '                </td>'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="full_update">Full Update</button>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Update Squeezelite Extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will update the pCP Squeezelite extension from the pCP repository.</p>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>Update will attempt to update the squeezelite package in place.</li>'
+	echo '                      <li>Full Update will update squeezelite and all libraries, requiring a reboot.</li>'
+	echo '                      <br>'
+	echo '                      <li>Internet access is required.</li>'
+	echo '                      <li>The basic version is 1.3MB which plays pcm, (wav/aiff), flac, mp3, ogg and aac.</li>'
+	echo '                      <li>The if ffmpeg libraries are added, can in addition play ALAC and WMA.</li>'
+	echo '                      <li>Triode is the original author of Squeezelite.</li>'
+	echo '                      <li>Ralphy provides Squeezelite binaries with additional features enabled.</li>'
+	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/" target="_blank">Squeezelite Google code</a>.</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
+	echo '                    <p><b>Build options:</b></p>'
+	echo '                    <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </form>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_sqlt
+#----------------------------------------------------------------------------------------
 
-	SIZE=$(ls -l /mnt/mmcblk0p2/tce/squeezelite-armv6hf | awk '{ print $5 }')
-	if [ $SIZE -lt 2000000 ]; then
+#------------------------------------------Install/Remove FFMPEG-------------------
+pcp_main_ffmpeg() {
+
+	if [ ! -f /mnt/mmcblk0p2/tce/optional/pcp-libffmpeg.tcz ]; then
 		VERSIONsmall="selected"
 	else
 		VERSIONlarge="selected"
@@ -309,39 +350,43 @@ pcp_main_update_ralphy() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="SUBMIT" value="Install">'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="VERSION">'
-	echo '                    <option value="Small" '$VERSIONsmall'>Ralphy'\''s basic version</option>'
-	echo '                    <option value="Large" '$VERSIONlarge'>Ralphy'\''s ffmpeg version</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Select and update Squeezelite&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will download and install Squeezelite from Ralphy'\''s repository.</p>'
-	echo '                    <p><b>Note:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>Internet access is required.</li>'
-	echo '                      <li>The basic version is 1MB which plays pcm, (wav/aiff), flac, mp3, ogg and aac.</li>'
-	echo '                      <li>The ffmpeg version is 12MB which in addition plays ALAC and WMA (ffmpeg is built in).</li>'
-	echo '                      <li>Triode is the original author of Squeezelite.</li>'
-	echo '                      <li>Ralphy provides Squeezelite binaries with the additional features enabled.</li>'
-	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
-	echo '                    </ul>'
-	echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
-	echo '                    <p><b>Build options:</b></p>'
-	echo '                    <p>'$(sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
-	echo '                  </div>'
-	echo '                </td>'
+	if [ "${VERSIONsmall}" == "selected" ]; then
+		echo '                <td class="column150 center">'
+		echo '                  <button type="submit" name="ACTION" value="inst_ffmpeg">Install</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Install FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will download and install FFMpeg Libraries from the pCP repository.</p>'
+		echo '                    <p><b>Note:</b></p>'
+		echo '                    <ul>'
+		echo '                      <li>Internet access is required.</li>'
+		echo '                      <li>The 7MB ffmpeg library adds playback of ALAC and WMA.</li>'
+		echo '                    </ul>'
+		echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
+		echo '                    <p><b>Build options:</b></p>'
+		echo '                    <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
+		echo '                  </div>'
+		echo '                </td>'
+	else
+		echo '                <td class="column150 center">'
+		echo '                  <button type="submit" name="ACTION" value="rem_ffmpeg">Remove</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Remove FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will remove the FFMpeg Libraries from the system.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+	fi
 	echo '              </form>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_ralphy
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_ffmpeg
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------

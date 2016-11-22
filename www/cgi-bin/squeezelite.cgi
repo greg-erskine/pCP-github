@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-08
+# Version: 3.03 2016-11-19
 #	Added Advanced Options button. GE.
 #	Cleaned Audio selection and made a dynamic drop-down list. SBP.
+#	Changes for Squeezelite extension. PH.
 
 # Version: 3.02 2016-09-20
 #	Added Hifiberry Digi+ Pro support. SBP.
@@ -141,7 +142,7 @@ pcp_navigation
 #========================================================================================
 # Create Squeezelite command string
 #----------------------------------------------------------------------------------------
-STRING="/mnt/mmcblk0p2/tce/squeezelite-armv6hf "
+STRING="${SQLT_BIN} "
 [ x"" != x"$NAME" ]         && STRING="$STRING -n \"$NAME\""
 [ x"" != x"$OUTPUT" ]       && STRING="$STRING -o $OUTPUT"
 [ x"" != x"$ALSA_PARAMS" ]  && STRING="$STRING -a $ALSA_PARAMS"
@@ -363,7 +364,7 @@ else
 	echo '                    </ul>'
 	echo '                    <p>Squeezelite found these output devices:</p>'
 	echo '                    <ul>'
-	                            /mnt/mmcblk0p2/tce/squeezelite-armv6hf -l | awk '/^  / { print "                      <li> "$1"</li>" }'
+	                            ${SQLT_BIN} -l | awk '/^  / { print "                      <li> "$1"</li>" }'
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'

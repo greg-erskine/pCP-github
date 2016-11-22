@@ -1,9 +1,10 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 3.03 2016-09-28
+# Version: 3.03 2016-11-19
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
+#	Changes for Squeezelite extension. PH.
 
 # Version: 0.10 2016-04-23 GE
 #	Minor enhancements.
@@ -272,8 +273,8 @@ echo '</table>'
 #========================================================================================
 # Squeezelite
 #----------------------------------------------------------------------------------------
-SIZE=$(ls -l /mnt/mmcblk0p2/tce/squeezelite-armv6hf | awk '{ print $5 }')
-BUILD=$(sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | awk -F": " '{print $2}')
+SIZE=$(ls -l ${SQLT_BIN} | awk '{ print $5 }')
+BUILD=$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')
 
 if [ $(pcp_squeezelite_status) -eq 0 ]; then
 	pcp_green_tick "Running."

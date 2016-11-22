@@ -1,8 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
-# Version: 3.03 2016-09-28
+# Version: 3.03 2016-11-19
 #	Changed to using pcp_log_header. GE.
+#	Changes for Squeezelite extension. PH.
 
 # Version: 0.13 2016-03-28 GE
 #	Changed log location to /var/log.
@@ -77,10 +78,10 @@ echo '              <td>'
 
 pcp_textarea_inform "piCore version: $(pcp_picore_version)" "version" 60 log
 pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat /usr/local/sbin/piversion.cfg" 60 log
-pcp_textarea_inform "Squeezelite version and license: $(pcp_squeezelite_version)" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 300 log
-pcp_textarea_inform "Squeezelite help" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -h" 300 log
-pcp_textarea_inform "Squeezelite Output devices" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l" 150 log
-pcp_textarea_inform "Squeezelite Volume controls" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -L" 150 log
+pcp_textarea_inform "Squeezelite version and license: $(pcp_squeezelite_version)" "${SQLT_BIN} -t" 300 log
+pcp_textarea_inform "Squeezelite help" "${SQLT_BIN} -h" 300 log
+pcp_textarea_inform "Squeezelite Output devices" "${SQLT_BIN} -l" 150 log
+pcp_textarea_inform "Squeezelite Volume controls" "${SQLT_BIN} -L" 150 log
 pcp_textarea_inform "Squeezelite process" 'ps -o args | grep -v grep | grep squeezelite' 60 log
 
 pcp_mount_mmcblk0p1 >/dev/null 2>&1
