@@ -260,10 +260,12 @@ echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
 if [ $MODE -ge $MODE_BETA ]; then
+. $CONFIGCFG
+pcp_soundcontrol
 	echo '                  <input class="large16"'
 	echo '                         type="button"'
 	echo '                         value="Advanced Options"'
-	echo '                         onClick="location.href='\'''soundcard_control.cgi''\''"'
+	echo '                         onClick="location.href='\'''$CONTROL_PAGE''\''"'
 	echo '                  >'
 fi
 echo '                </td>'
