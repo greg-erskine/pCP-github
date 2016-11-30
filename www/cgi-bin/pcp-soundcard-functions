@@ -34,11 +34,10 @@ pcp_re_enable_analog() {
 pcp_disable_i2s() {
 	pcp_re_enable_analog
 	# Get a list of all avaiable sound coard overlays:
-	AUDIO_DTOVERLAY=$(grep "DTOVERLAY\=\"" pcp-soundcard-functions | awk -F'=\"' '{print $2}' | sed 's/"//g')
-
-	for i in $AUDIO_DTOVERLAY; do
-		sed -i '/dtoverlay='"$i"'/d' $CONFIGTXT
-	done
+	for i in $AUDIO_OPTIONS_EXTRA; do
+			. "$DACLOCATION"/"$i".conf
+			sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
+		done
 }
 
 #========================================================================================
@@ -172,6 +171,7 @@ sudo rm /tmp/dropdown.cfg
 pcp_soundcontrol() {
 echo "$AUDIO_OPTIONS_EXTRA" | grep  -q  "$AUDIO"  && . "$DACLOCATION"/"$AUDIO".conf
 }
+
 
 
 
