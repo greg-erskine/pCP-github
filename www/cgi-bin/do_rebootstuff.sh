@@ -519,18 +519,6 @@ if [ "$SHAIRPORT" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-if [ "$A_S_LMS" = "Enabled" ]; then
-	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
-	pcp_auto_start_lms
-	echo "${GREEN}Done.${NORMAL}"
-fi
-
-if [ "$A_S_FAV" = "Enabled" ]; then
-	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
-	pcp_auto_start_fav
-	echo "${GREEN}Done.${NORMAL}"
-fi
-
 # Automatically set the timezone
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page... ${NORMAL}"
@@ -605,6 +593,18 @@ echo "${GREEN}Done.${NORMAL}"
 if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
 	echo -n "${BLUE}Starting user commands... ${NORMAL}"
 	pcp_user_commands
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+if [ "$A_S_LMS" = "Enabled" ]; then
+	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
+	pcp_auto_start_lms
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+if [ "$A_S_FAV" = "Enabled" ]; then
+	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
+	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
