@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-19
+# Version: 3.03 2016-12-07
 #	Updated [Save to USB] more> help. GE.
 #	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
 #	Changes for Squeezelite extension. PH.
@@ -318,10 +318,9 @@ pcp_main_update_sqlt() {
 	echo '                    <ul>'
 	echo '                      <li>Update will attempt to update the squeezelite package in place.</li>'
 	echo '                      <li>Full Update will update squeezelite and all libraries, requiring a reboot.</li>'
-	echo '                      <br>'
 	echo '                      <li>Internet access is required.</li>'
-	echo '                      <li>The basic version is 1.3MB which plays pcm, (wav/aiff), flac, mp3, ogg and aac.</li>'
-	echo '                      <li>The if ffmpeg libraries are added, can in addition play ALAC and WMA.</li>'
+	echo '                      <li>The basic version is 1.3MB which plays PCM, (WAV/AIFF), FLAC, MP3, OGG and AAC.</li>'
+	echo '                      <li>If the FFMpeg library is added, can additionally play ALAC and WMA.</li>'
 	echo '                      <li>Triode is the original author of Squeezelite.</li>'
 	echo '                      <li>Ralphy provides Squeezelite binaries with additional features enabled.</li>'
 	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/" target="_blank">Squeezelite Google code</a>.</li>'
@@ -337,7 +336,7 @@ pcp_main_update_sqlt() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_update_sqlt
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Install/Remove FFMPEG-------------------
+#------------------------------------------Install/Remove FFMPEG-------------------------
 pcp_main_ffmpeg() {
 
 	if [ ! -f /mnt/mmcblk0p2/tce/optional/pcp-libffmpeg.tcz ]; then
@@ -349,8 +348,8 @@ pcp_main_ffmpeg() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
-	if [ "${VERSIONsmall}" == "selected" ]; then
+	echo '              <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
+	if [ "${VERSIONsmall}" = "selected" ]; then
 		echo '                <td class="column150 center">'
 		echo '                  <button type="submit" name="ACTION" value="inst_ffmpeg">Install</button>'
 		echo '                </td>'
@@ -363,11 +362,8 @@ pcp_main_ffmpeg() {
 		echo '                    <p><b>Note:</b></p>'
 		echo '                    <ul>'
 		echo '                      <li>Internet access is required.</li>'
-		echo '                      <li>The 7MB ffmpeg library adds playback of ALAC and WMA.</li>'
+		echo '                      <li>The 7MB FFMpeg library adds playback of ALAC and WMA.</li>'
 		echo '                    </ul>'
-		echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
-		echo '                    <p><b>Build options:</b></p>'
-		echo '                    <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
 		echo '                  </div>'
 		echo '                </td>'
 	else
