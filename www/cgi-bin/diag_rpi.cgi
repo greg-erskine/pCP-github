@@ -1,10 +1,11 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 3.03 2016-11-19
+# Version: 3.03 2016-12-07
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
 #	Changes for Squeezelite extension. PH.
+#	removed squeezelite size. GE.
 
 # Version: 0.10 2016-04-23 GE
 #	Minor enhancements.
@@ -83,7 +84,6 @@ pcp_add_to_log() {
 	echo  =========== >> $LOG
 	echo  >> $LOG
 	echo "Version: $(pcp_squeezelite_version)" >> $LOG
-	echo "Size: $SIZE" >> $LOG
 	echo "Build options: $BUILD" >> $LOG
 	if [ $(pcp_squeezelite_status) -eq 0 ]; then
 		echo "Squeezelite running." >> $LOG
@@ -273,7 +273,6 @@ echo '</table>'
 #========================================================================================
 # Squeezelite
 #----------------------------------------------------------------------------------------
-SIZE=$(ls -l ${SQLT_BIN} | awk '{ print $5 }')
 BUILD=$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')
 
 if [ $(pcp_squeezelite_status) -eq 0 ]; then
@@ -305,10 +304,10 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_squeezelite_version)'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>Size:</p>'
+echo '                <p></p>'
 echo '              </td>'
 echo '              <td>'
-echo '                <p>'$SIZE'</p>'
+echo '                <p></p>'
 echo '              </td>'
 echo '            </tr>'
 #-------------------------------------Row 2----------------------------------------------
