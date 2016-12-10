@@ -261,7 +261,7 @@ echo '                         title="Save &quot;Audio output&quot; to configura
 echo '                  >'
 if [ $MODE -ge $MODE_BETA ]; then
 . $CONFIGCFG
-pcp_soundcontrol
+#pcp_soundcontrol
 	echo '                  <input class="large16"'
 	echo '                         type="button"'
 	echo '                         value="Advanced Options"'

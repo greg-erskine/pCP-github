@@ -38,6 +38,7 @@ pcp_disable_i2s() {
 			. "$DACLOCATION"/"$i".conf
 			sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
 		done
+	pcp_soundcontrol
 }
 
 #========================================================================================
@@ -45,8 +46,24 @@ pcp_disable_i2s() {
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s() {
 	pcp_re_enable_analog
-	# Only add overlay if present in sound card definitions
-	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY >> $CONFIGTXT
+	# Only add overlay if present in sound card definitions and only add parameter if selected in soundcard_control.cgi
+	# First set default parameters for dtoverlay where PARAMS1 is the Default value AND save default PARAMS1 in config.cfg
+	PARAM1="$PARAMS1"      # NEEDED AS PARAM1 IS SAVED IN CONFIG:CFG
+	pcp_soundcontrol
+
+	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY,$PARAMS1  >> $CONFIGTXT
+
+	# Next, Use the parameters which are selected in soundcard_control.cgi
+	if [ x"$PARAM1" != x"" ] || [ x"$PARAM2" != x"" ] || [ x"$PARAM3" != x"" ] || [ x"$PARAM4" != x"" ] || [ x"$PARAM5" != x"" ]; then                       #NEED TO FIGURE OUT A BETTER AY FOR THIS. HOW TO HAVE A RANGE BETWEEN 1 to 5 HERE
+	pcp_disable_i2s
+#       pcp_soundcontrol
+	[ x"$PARAM1" != x"" ] && PAR1=','"$PARAM1"''
+	[ x"$PARAM2" != x"" ] && PAR2=','"$PARAM2"''
+	[ x"$PARAM3" != x"" ] && PAR3=','"$PARAM3"''
+	[ x"$PARAM4" != x"" ] && PAR4=','"$PARAM4"''
+	[ x"$PARAM5" != x"" ] && PAR5=','"$PARAM5"''
+	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY$PAR1$PAR2$PAR3$PAR4$PAR5  >> $CONFIGTXT
+	fi
 }
 
 #=========================================================================================
@@ -65,6 +82,19 @@ pcp_enable_HDMI() {
 	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
 	sudo amixer cset numid=3 2 >/dev/null 2>&1
 }
+
+#========================================================================================================
+# Section that controls loading of DAC overlays
+#--------------------------------------------------------------------------------------------------------
+pcp_read_chosen_audio() {
+	pcp_mount_mmcblk0p1
+	pcp_disable_HDMI
+	pcp_disable_i2s
+#	pcp_soundcontrol
+	pcp_enable_i2s
+	pcp_umount_mmcblk0p1
+}
+
 
 #========================================================================================
 # Control of sound card routines:
@@ -87,7 +117,6 @@ pcp_generic_card_control() {
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
 			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
-			TEXT=""
 
 			case "$DSPFILTER" in
 				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
@@ -120,28 +149,18 @@ pcp_generic_card_control() {
 			TEXT=""
 		;;
 
-		ES9023)
+		#ES9023)
 			#CARD="ALSA"
 			#SSET="PCM"
 			#ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
 			#ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
-			#TEXT=""
-			#PARAMS1=384k
-		;;
+#			TEXT="Choosing 384k will enable 352k and 384k sample rates. Selecting bclk_ratio_int_div will use bclk_ratio=50 for 16/24bps and bclk_ratio=100 for 32bps media when sample rate is a multiple of 8kHz and less than 192kHz. Which causes the selection of the 19M2 OSC as the parent for the PCM clock with an integer divider, rather than PLLD with fractional divider and MASH noise shaping."
+#			PARAMS1="384k"
+#			PARAMS2="bclk_ratio_int_div"
+		#;;
 	esac
 }
 
-#========================================================================================================
-# Section that controls loading of DAC overlays
-#--------------------------------------------------------------------------------------------------------
-pcp_read_chosen_audio() {
-	pcp_mount_mmcblk0p1
-	pcp_disable_HDMI
-	pcp_disable_i2s
-	pcp_soundcontrol
-	pcp_enable_i2s
-	pcp_umount_mmcblk0p1
-}
 
 #========================================================================================================
 # This will get us all avaiable AUDIO DACs
@@ -166,13 +185,30 @@ sudo rm /tmp/dropdown.cfg
 }
 
 #========================================================================================================
-# This will get us available options from the DACs
+# This will get us available options from the DAC
 #--------------------------------------------------------------------------------------------------------
 pcp_soundcontrol() {
+PARAMS1=""
+PARAMS2=""
+PARAMS3=""
+PARAMS4=""
+PARAMS5=""
 echo "$AUDIO_OPTIONS_EXTRA" | grep  -q  "$AUDIO"  && . "$DACLOCATION"/"$AUDIO".conf
 }
 
 
+#========================================================================================================
+# This will get us available options from the selected DAC
+#--------------------------------------------------------------------------------------------------------
+pcp_selected_soundcontrol() {
+. "$CONFIGCFG"
+PARAMS1=""
+PARAMS2=""
+PARAMS3=""
+PARAMS4=""
+PARAMS5=""
+. "$DACLOCATION"/"$AUDIO".conf
+}
 
 
 

@@ -88,6 +88,9 @@ if [ $CHANGED ]; then
 	pcp_squeezelite_stop
 	pcp_read_chosen_audio
 
+	# To save the default dt-overlay parameter (PARAMS1) in config.cfg
+	PARAM1="$PARAMS1"      # NEEDED AS PARAM1 IS THE VALUE SAVED IN CONFIG:CFG
+
 	# Set the default settings
 	echo '<p class="info">[ INFO ] Setting Audio output ($AUDIO) to '$AUDIO'</p>'
 

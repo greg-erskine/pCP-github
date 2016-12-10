@@ -1654,6 +1654,11 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $CONFIGCFG
+	sudo sed -i "s/\(SPARAMS1=\).*/\1\"$PARAM1\"/" $CONFIGCFG
+	sudo sed -i "s/\(SPARAMS2=\).*/\1\"$PARAM2\"/" $CONFIGCFG
+	sudo sed -i "s/\(SPARAMS3=\).*/\1\"$PARAM3\"/" $CONFIGCFG
+	sudo sed -i "s/\(SPARAMS4=\).*/\1\"$PARAM4\"/" $CONFIGCFG
+	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $CONFIGCFG
 }
 
 #=========================================================================================
@@ -1754,6 +1759,11 @@ SAMBA="disabled"
 WOL="no"
 WOL_NIC=""
 WOL_LMSMACADDRESS=""
+SPARAMS1=""
+SPARAMS2=""
+SPARAMS3=""
+SPARAMS4=""
+SPARAMS5=""
 EOF
 }
 
