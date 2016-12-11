@@ -80,7 +80,11 @@ case "${ACTION}" in
 			rm -f /usr/local/tce.installed/pcp-squeezelite
 			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz /tmp
 			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz.md5.txt /tmp
-			sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz
+			if [ $DEBUG -eq 1 ]; then
+				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz 2>&1
+			else
+				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz
+			fi
 			if [ $? -ne 0 ]; then
 				DLERROR=1
 				echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
@@ -89,6 +93,7 @@ case "${ACTION}" in
 			else
 				rm -f /tmp/pcp-squeezelite.tcz*
 			fi
+			echo '<p class="info">[ INFO ] Reloading old squeezelite extension</p>'
 			sudo -u tc pcp-load -i pcp-squeezelite.tcz
 			echo '<p class="ok">[ OK ] Current Squeezelite version: '$(pcp_squeezelite_version)'</p>'
 		fi
@@ -109,22 +114,38 @@ case "${ACTION}" in
 		rm -rf ${TMP_UPG}
 		mkdir ${TMP_UPG}
 		chown tc.staff ${TMP_UPG}
-		sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz
-		if [ $? -eq 0 ]; then
+		if [ $DEBUG -eq 1 ]; then
+			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz 2>&1
+			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+		else
+			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz
+			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+		fi
+		if [ $FAIL -eq 0 ]; then
 			mkdir -p ${PACKAGEDIR}/upgrade
 			mv ${TMP_UPG}/* ${PACKAGEDIR}/upgrade
 			chown -R tc.staff ${PACKAGEDIR}/upgrade
 			sync
 			REBOOT_REQUIRED=1
+		else
+			echo '<p class="info">[ INFO ] Reloading old squeezelite extension</p>'
 		fi
 	;;
 	inst_ffmpeg)
-		pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz
-		if [ $? -eq 0 ]; then
+		echo '<p class="info">[ INFO ] Installing FFMpeg extension.</p>'
+		if [ $DEBUG -eq 1 ]; then
+			pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
+			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+		else
+			pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz
+			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+		fi
+		if [ $FAIL -eq 0 ]; then
 			echo "pcp-libffmpeg.tcz" >> $ONBOOTLST
 		fi
 	;;
 	rem_ffmpeg)
+		echo '<p class="info">[ INFO ] FFMpeg extension marked for removal. Reboot Required to complete.</p>'
 		sudo -u tc tce-audit builddb
 		sudo -u tc tce-audit delete pcp-libffmpeg.tcz
 		sed -i '/pcp-libffmpeg.tcz/d' $ONBOOTLST
