@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-13
+# Version: 3.10 2016-12-11
 #	Added Samba Server Support. PH.
 #	Removed IQaudIO AMP unmute from here. SBP
 #	Changes for shairport-sync.  Incomplete PH
+#	Fixed newconfig.cfg process. PH
 
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository.
@@ -188,7 +189,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
-	pcp_read_chosen_audio
+	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
@@ -234,7 +235,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
-	pcp_read_chosen_audio
+	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-08
+# Version: 3.10 2016-12-11
 #	Original. SBP.
 
 DACLOCATION="/usr/local/etc/pcp"
@@ -12,7 +12,6 @@ DACLOCATION="/usr/local/etc/pcp"
 pcp_AudioKernel_status() {
 	sudo  uname -a | grep pcpAudioCore > /dev/null 2>&1 && KERNELVERSION=Audiokernel || KERNELVERSION=Officialkernel
 }
-
 
 #========================================================================================
 # Disable/re_enable analog audio
@@ -92,9 +91,9 @@ pcp_read_chosen_audio() {
 	pcp_disable_i2s
 #	pcp_soundcontrol
 	pcp_enable_i2s
-	pcp_umount_mmcblk0p1
+	#This is to allow no unmount of mmcblk0p1 during booting with newconfig.cfg
+	[ "$1" != "noumount" ] && pcp_umount_mmcblk0p1
 }
-
 
 #========================================================================================
 # Control of sound card routines:
@@ -160,7 +159,6 @@ pcp_generic_card_control() {
 		#;;
 	esac
 }
-
 
 #========================================================================================================
 # This will get us all avaiable AUDIO DACs
