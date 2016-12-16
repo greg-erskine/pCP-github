@@ -1,11 +1,10 @@
 #!/bin/sh
 
-# Version: 3.10 2016-12-12
+# Version: 3.10 2016-12-11
 #	Added Samba Server Support. PH.
 #	Removed IQaudIO AMP unmute from here. SBP
 #	Changes for shairport-sync.  Incomplete PH
 #	Fixed newconfig.cfg process. PH
-#	Fixed USB not ready process. SBP
 
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository.
@@ -157,21 +156,6 @@ echo "${GREEN}Done.${NORMAL}"
 echo -n "${BLUE}Setting piCore repository... ${NORMAL}"
 pcp_reset_repository
 echo "${GREEN}Done.${NORMAL}"
-
-# waiting for USB device to be ready
-echo -n "${YELLOW}Waiting for USB.${RED}"
-CNT=1
-until cat /etc/fstab | grep -q /dev/sda1
-do
-	if [ $((CNT++)) -gt 40 ]; then
-		echo -n "${RED} No USB device found! ${NORMAL}"
-		break
-	else
-		echo -n "."
-		sleep 0.5
-	fi
-done
-echo "${GREEN} Done ($CNT).${NORMAL}"
 
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
