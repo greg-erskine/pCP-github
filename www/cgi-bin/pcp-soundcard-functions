@@ -3,7 +3,7 @@
 # Version: 3.10 2016-12-11
 #	Original. SBP.
 
-DACLOCATION="/usr/local/etc/pcp"
+DACLOCATION="/usr/local/etc/pcp/cards"
 #DACLOCATION="/home/tc/www/cgi-bin/extra_audio_cards"
 
 #========================================================================================

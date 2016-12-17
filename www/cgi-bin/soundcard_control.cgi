@@ -90,6 +90,7 @@ fi
 # Only show this if ALSA volume control is possible
 pcp_soundcard_volume_options() {
 if [ x"$ACTUAL_VOL" != x"" ]; then
+pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column100">'
 echo '                  <p><b>Output Level</b></p>'
@@ -118,7 +119,7 @@ fi
 # Only show these options if filters are an option for current sound card.
 pcp_soundcard_DSP_options() {
 if [ x"$FILTER1" != x"" ]; then
-pcp_start_row_shade
+pcp_toggle_row_shade
 [ x"$FILTER1" != x"" ] && echo ' <p><b>DSP filter options:&nbsp;&nbsp;</b><br>'
 [ x"$FILTER1" != x"" ] && echo ' <input type="radio" name="DSPFILTER" value="FILTER1" '"$FILTER1_CHECK"'><label for="FILTER1"> '"$FILTER1"'</label><br>'
 [ x"$FILTER2" != x"" ] && echo ' <input type="radio" name="DSPFILTER" value="FILTER2" '"$FILTER2_CHECK"'><label for="FILTER2"> '"$FILTER2"'</label><br>'
@@ -127,6 +128,7 @@ pcp_start_row_shade
 [ x"$FILTER5" != x"" ] && echo ' <input type="radio" name="DSPFILTER" value="FILTER5" '"$FILTER5_CHECK"'><label for="FILTER5"> '"$FILTER5"'</label><br>'
 #----------------------------------------------------------------------------------------
 fi
+pcp_toggle_row_shade
 }
 
 
@@ -181,7 +183,6 @@ fi
 pcp_soundcard_parameter_options() {
 if [ x"$PARAMS1" != x"" ] || [ x"$PARAMS2" != x"" ] || [ x"$PARAMS3" != x"" ] || [ x"$PARAMS4" != x"" ] || [ x"$PARAMS5" != x"" ]; then            #....... CAN PROBABLY BE MADE SMARTER
 pcp_incr_id
-pcp_start_row_shade
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
@@ -221,7 +222,9 @@ fi
 #----------------------------------------------------------------------------------------
 pcp_table_top "Soundcard Adjustment for: $LISTNAME"
 echo '            <form name="manual_adjust" action="'$0'" method="get">'
+pcp_start_row_shade
 pcp_incr_id
+
 
 [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
