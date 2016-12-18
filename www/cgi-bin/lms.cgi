@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-29
+# Version: 3.10 2016-12-18
 #	Pop-up asking to delete cache. SBP
 #	Remove all traces of LMS. SBP
 #	Added Samba.  PH.
 #	Added GPT Disk support. PH
 #	Converted lms removal to proper method to avoid removing a dependancy. PH
+#	Updates for using sourceforge repo for filesystem support. PH
 
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
@@ -62,35 +63,14 @@ LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
 WGET="/bin/busybox wget"
 
-# logic to activate/inactivate buttons depending upon whether LMS is installed or not 
-if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-DISABLED=""
-else
-DISABLED="disabled"
-fi
-
-# logic to activate/inactivate buttons depending upon whether LMS cache is present or not 
-if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
-DISABLECACHE=""
-else
-DISABLECACHE="disabled"
-fi
-
 #---------------------------Routines-----------------------------------------------------
-pcp_download_lms() {
-	cd /tmp
-	sudo rm -f /tmp/LMS
-	sudo mkdir /tmp/LMS
-
-	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz
-	return $?
-}
 
 pcp_install_lms() {
-	echo '<p class="info">[ INFO ] Installing LMS...</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
+	echo '[ INFO ] Installing LMS...'
 	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] LMS is added to onboot.lst'
+	[ $DEBUG -eq 1 ] && cat /mnt/mmcblk0p2/tce/onboot.lst
 }
 
 pcp_remove_lms() {
@@ -116,19 +96,18 @@ pcp_lms_padding() {
 
 pcp_install_fs() {
 	RESULT=0
-	echo -n '<p class="info">[ INFO ] '
-	sudo -u tc tce-load -w ntfs-3g.tcz
-	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-	echo '<p>'
-	echo -n '<p class="info">[ INFO ] Loading'
-	sudo -u tc tce-load -i ntfs-3g.tcz
-	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-	echo '<p>'
+	echo '<p class="info">[ INFO ] Downloaded additional filesystem support.</p>'
+	sudo -u tc pcp-load -r $PCP_REPO -w ntfs-3g.tcz
+	if [ -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
+		echo '<p class="info">[ INFO ] Loading filesystem extensions'
+		sudo -u tc tce-load -i ntfs-3g.tcz
+		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
+	fi
 	if [ $RESULT -eq 0 ]; then
 		echo "ntfs-3g.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
-		echo '<p class="info">[ INFO ] NTFS Support Loaded...</p>'
+		echo '<p class="info">[ INFO ] Filesystem support including NTFS loaded...</p>'
 	else
-		echo '<p class="error">[ ERROR ] ntfs-3g.tcz not loaded, try again later!</p>'
+		echo '<p class="error">[ ERROR ] Extensions not loaded, try again later!</p>'
 	fi
 }
 
@@ -248,6 +227,7 @@ pcp_samba_status() {
 	fi
 }
 #----------------------------------------------------------------------------------------
+REBOOT_REQUIRED=0
 case "$ACTION" in
 	Start)
 		case "$LMSDATA" in
@@ -288,15 +268,15 @@ case "$ACTION" in
 		pcp_start_row_shade
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td>'
-		echo '                <textarea class="inform" style="height:80px">'
+		echo '                <textarea class="inform" style="height:160px">'
 		pcp_sufficient_free_space 40000
-		pcp_download_lms
-		if [ "$?" = "0" ]; then
+		sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz 
+		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 			pcp_install_lms
 			LMSERVER="yes"
 			pcp_save_to_config
-			pcp_backup
-			pcp_reboot_required
+			pcp_backup "nohtml"
+			REBOOT_REQUIRED=1
 		else
 			echo '[ ERROR ] Error Downloading LMS, please try again later.'
 		fi
@@ -343,11 +323,10 @@ case "$ACTION" in
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		pcp_reboot_required
+		REBOOT_REQUIRED=1
 	;;
 	Remove_cache)
 		pcp_remove_lms_cache
-		[ "${REBOOT_REQUIRED}" = "1" ] && pcp_reboot_required
 	;;
 	Rescan*)
 		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
@@ -358,7 +337,7 @@ case "$ACTION" in
 	;;
 	Remove_FS)
 		pcp_remove_fs
-		pcp_reboot_required
+		REBOOT_REQUIRED=1
 	;;
 	Install_Samba)
 		pcp_sufficient_free_space 25000
@@ -369,7 +348,7 @@ case "$ACTION" in
 		pcp_save_to_config
 		pcp_remove_samba4
 		pcp_backup
-		pcp_reboot_required
+		REBOOT_REQUIRED=1
 	;;
 	SambaStart)
 		echo '<p class="info">[ INFO ] Starting Samba...</p>'
@@ -387,8 +366,23 @@ case "$ACTION" in
 		pcp_warning_message
 	;;
 esac
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
+# logic to activate/inactivate buttons depending upon whether LMS is installed or not 
+if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+	DISABLED=""
+else
+	DISABLED="disabled"
+fi
+
+# logic to activate/inactivate buttons depending upon whether LMS cache is present or not 
+if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
+	DISABLECACHE=""
+else
+	DISABLECACHE="disabled"
+fi
+
 df | grep -qs ntfs
 [ "$?" = "0" ] && NTFS="yes" || NTFS="no"
 
