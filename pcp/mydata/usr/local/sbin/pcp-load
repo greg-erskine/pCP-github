@@ -2,8 +2,9 @@
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
 #
-# Version 3.03 2016-09-04 PH
+# Version 3.10 2016-12-18 PH
 #	added requirement of .dep.pcp on pcp sourceforge repo.
+#	added /download to end of wget links for sourceforge repo.
 #
 # Version 3.00 2016-08-14 PH
 # 	pcp-load modified version for piCorePlayer
@@ -92,10 +93,21 @@ app_exists() {
 
 fetch_app() {
 	echo "<p>[ INFO ] Downloading: $1</p>"
-	wget -T 30 -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
-	echo -n "<p>"
-	wget -T 30 -c "$MIRROR"/"$1" 1>&2
-	echo -n "</p>"
+	case $MIRROR in
+		*sourceforge*)
+			#wget -T 30 -cq "$MIRROR"/"$1".md5.txt/download -O "$MIRROR"/"$1".md5.txt 2>/dev/null
+			wget -T 30 -c "$MIRROR"/"$1".md5.txt/download -O "$1".md5.txt 2>/dev/null
+			echo -n "<p>"
+			wget -T 30 -c "$MIRROR"/"$1"/download -O "$1" 1>&2
+			echo -n "</p>"
+		;;
+		*)
+			wget -T 30 -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
+			echo -n "<p>"
+			wget -T 30 -c "$MIRROR"/"$1" 1>&2
+			echo -n "</p>"
+		;;
+	esac
 	echo "<p>[ INFO ] Checking MD5 of: ${1}....."
 	md5sum -cs "$1".md5.txt
 	if [ "$?" != 0 ]; then
@@ -203,14 +215,16 @@ recursive_scan_dep() {
 				RESULT[IDX]=name
 				IRANGE[name"#1"]=IDX
 				depfile=optional"/"name".dep"
-				# If we are using the pcp repo on sourceforge, depfiles end in .dep.pcp and must exist
-				if ( mirror ~ /sourceforge/ ) {
-					pcpdep=".pcp"
-				} else {
-					pcpdep=""
-				}		
 				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0)) {
-					if (system("rm -f "depfile"; wget -T 30 -c -P "optional" "mirror"/"name".dep"pcpdep" 2>/dev/null") == 0 && ! SUPPRESS) {
+					# If we are using the pcp repo on sourceforge, depfiles end in .dep.pcp and must exist
+					# add /download to the end of sourceforge wget links
+					if ( mirror ~ /sourceforge/ ) {
+						dl_link=mirror"/"name".dep.pcp/download -O "name".dep.pcp"
+					} else {
+						dl_link=mirror"/"name".dep"
+					}
+					if (system("rm -f "depfile"; wget -T 30 -c -P "optional" "dl_link" 2>/dev/null") == 0 && ! SUPPRESS)
+					{
 						system("echo -n \"<p>[ INFO ] "name".dep Downloaded.....\" 1>&2")
 						#If we downloaded a dep.pcp, rename it back to .dep
 						if (system("test -f "depfile".pcp") == 0) 
@@ -222,7 +236,7 @@ recursive_scan_dep() {
 						system ("rm -f " depfile)
 						exit 1
 					}
-				}		
+				}
 				MARK[name]=2
 				FIRST[name]=0
 				if (mirror || system("test -f "optional"/"name) == 0) {
