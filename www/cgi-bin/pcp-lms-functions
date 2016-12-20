@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 3.03 2016-11-23
+# Version: 3.10 2016-12-20
 #	Fixed players tabs for new changes in the LMS cli PH
 
 # Version: 2.06 2016-05-09
@@ -95,8 +95,11 @@ pcp_lms_request_list() {
 	set -- $1
 	NUM=$(($#+2))
 	RESULT=`( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 | sed 's/ /\+/g' `
-	#Change delimeter from + to something specific we can parse out later.
-	TT="${RESULT//+/!pcp!}%%"
+	case $STRING in
+		# For the Player List, change delimeter from + to something specific we can parse out later.
+		players*) TT="${RESULT//+/!pcp!}%%";;
+		*) TT=${RESULT};;
+	esac		
 	echo `sudo $HTTPD -d $TT`
 }
 
