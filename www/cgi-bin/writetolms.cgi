@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.10 2016-12-20
+#	Remove references to SAMBA in this routine.
+
 # Version: 2.05 2016-04-15 GE
 #	Fixed sourceforge redirection issue.
 #	Updated slimserver extension names   PH
@@ -14,7 +17,6 @@ pcp_variables
 
 # Store the original values so we can see if they are changed
 ORIG_LMSERVER="$LMSERVER"
-ORIG_SAMBA="$SAMBA"
 
 pcp_html_head "Write LMS settings" "SBP" "15" "lms.cgi"
 
@@ -22,8 +24,6 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-#LMS="slimserver*"
-SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
 LMSUPDATELOG="/tmp/updateLMS.txt"			#<---- MAKE RIGHT DIRECTORY???
 
