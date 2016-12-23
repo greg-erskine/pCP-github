@@ -2,9 +2,10 @@
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
 #
-# Version 3.10 2016-12-18 PH
+# Version 3.10 2016-12-22 PH
 #	added requirement of .dep.pcp on pcp sourceforge repo.
-#	added /download to end of wget links for sourceforge repo.
+#	updated for sourceforge repo change.
+#	Removed html <p> tags.
 #
 # Version 3.00 2016-08-14 PH
 # 	pcp-load modified version for piCorePlayer
@@ -43,9 +44,9 @@ abort(){
 	echo " Download only into tce/optional directory:"
 	echo "   ${PROG_NAME} -w nano.tcz"
 	echo " Use alternative repository, root level"
-	echo "   ${PROG_NAME} -r https://sourceforge.net/projects/picoreplayer/files/repo"
+	echo "   ${PROG_NAME} -r https://picoreplayer.sourceforge.io/tcz_repo"
 	echo " Use alternative repository, override absolute path."
-	echo "   ${PROG_NAME} -u https://sourceforge.net/projects/picoreplayer/files/repo/8.x/armv6/tcz"
+	echo "   ${PROG_NAME} -u https://picoreplayer.sourceforge.io/tcz_repo/8.x/armv6/tcz"
 	exit 2
 }
 
@@ -92,30 +93,17 @@ app_exists() {
 }
 
 fetch_app() {
-	echo "<p>[ INFO ] Downloading: $1</p>"
-	case $MIRROR in
-		*sourceforge*)
-			#wget -T 30 -cq "$MIRROR"/"$1".md5.txt/download -O "$MIRROR"/"$1".md5.txt 2>/dev/null
-			wget -T 30 -c "$MIRROR"/"$1".md5.txt/download -O "$1".md5.txt 2>/dev/null
-			echo -n "<p>"
-			wget -T 30 -c "$MIRROR"/"$1"/download -O "$1" 1>&2
-			echo -n "</p>"
-		;;
-		*)
-			wget -T 30 -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
-			echo -n "<p>"
-			wget -T 30 -c "$MIRROR"/"$1" 1>&2
-			echo -n "</p>"
-		;;
-	esac
-	echo "<p>[ INFO ] Checking MD5 of: ${1}....."
+	echo "[ INFO ] Downloading: $1"
+	wget -T 30 -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
+	wget -T 30 -c "$MIRROR"/"$1" 1>&2
+	echo -n "[ INFO ] Checking MD5 of: ${1}....."
 	md5sum -cs "$1".md5.txt
 	if [ "$?" != 0 ]; then
-		echo "</p>[ ERROR ] Error on $1</p>"
+		echo "FAIL"
 		rm -f $1*
 		echo "1" > /tmp/appserr
 	else
-		echo "$1 OK</p>"
+		echo "OK"
 	fi
 }
 
@@ -206,7 +194,7 @@ recursive_scan_dep() {
 			if (name in MARK) {
 				if (MARK[name] == 2) {
 					if (! SUPPRESS)
-						system("echo <p>[ WARN ] Warning loop dependency: "name"</p> 1>&2")
+						system("echo [ WARN ] Warning loop dependency: "name" 1>&2")
 				} else {
 					RESULT[++IDX]="@#"name
 				}
@@ -219,19 +207,18 @@ recursive_scan_dep() {
 					# If we are using the pcp repo on sourceforge, depfiles end in .dep.pcp and must exist
 					# add /download to the end of sourceforge wget links
 					if ( mirror ~ /sourceforge/ ) {
-						dl_link=mirror"/"name".dep.pcp/download -O "name".dep.pcp"
+						dl_link=mirror"/"name".dep.pcp"
 					} else {
 						dl_link=mirror"/"name".dep"
 					}
-					if (system("rm -f "depfile"; wget -T 30 -c -P "optional" "dl_link" 2>/dev/null") == 0 && ! SUPPRESS)
-					{
-						system("echo -n \"<p>[ INFO ] "name".dep Downloaded.....\" 1>&2")
+					if (system("rm -f "depfile"; wget -T 30 -c -P "optional" "dl_link" 2>/dev/null") == 0 && ! SUPPRESS) {
+						system("echo \"[ INFO ] "name".dep Downloaded.....\" 1>&2")
 						#If we downloaded a dep.pcp, rename it back to .dep
 						if (system("test -f "depfile".pcp") == 0) 
 							system("mv -f "depfile".pcp "depfile )
 					} else if ( mirror ~ /sourceforge/ ){
 						# dep file was missing, this is a hard error
-						system("echo \"</p><p>[ ERROR ] "name" Missing PCP DEP file</p>\" 1>&2")
+						system("echo \"[ ERROR ] "name" Missing PCP DEP file\" 1>&2")
 						system ("echo \"1\" > /tmp/appserr")
 						system ("rm -f " depfile)
 						exit 1
@@ -243,7 +230,7 @@ recursive_scan_dep() {
 					while (getline line < depfile > 0){
 						if ( FIRST[name] == 0 ){
 							if ( line !~ /[a-zA-Z0-9_+].tcz$/ ){
-								system("echo \"</p><p>[ ERROR ] "name" Failed Checks</p>\" 1>&2")
+								system("echo \"[ ERROR ] "name" Failed Checks\" 1>&2")
 								close(depfile)
 								system ("echo \"1\" > /tmp/appserr")
 								system ("rm -f " depfile)
@@ -255,7 +242,7 @@ recursive_scan_dep() {
 								system("rm -f "depfile)
 							}
 							if ( length(name) > 0 ){
-								system("echo \""name" DEP Test Ok</p>\" 1>&2")
+								system("echo \""name" Dependancy Tested Ok\" 1>&2")
 							}
 							FIRST[name]=1
 						}
@@ -319,14 +306,14 @@ fi
 # If load local or install then also check if already installed.
 if [ "$INSTALL" ] && [ ! "$BOOTING" ]; then
 	if [ -f "$TCEINSTALLED/$APPNAME" ]; then
-		echo "<p>[ INFO ] $APPNAME is already installed!</p>"
+		echo "[ INFO ] $APPNAME is already installed!"
 		continue
 	fi
 fi
 
 if [ "$WGET" ]; then
 	if app_exists "$EXTENSION" "$FROMWHERE"; then
-		echo "<p>[ INFO ] $APPNAME is already downloaded.</p>"
+		echo "[ INFO ] $APPNAME is already downloaded."
 	else
 		mkdir -p "$FROMWHERE"
 		TARGETSFETCH="$TARGETSFETCH\n$EXTENSION"
@@ -360,17 +347,17 @@ do
 		done || echo "1" > /tmp/appserr 
 	fi
 	if [ $(cat /tmp/appserr) = "1" ]; then
-		echo "<p>[ ERROR] There was a error downloading ${EXTENSION}</p>"
+		echo "[ ERROR] There was a error downloading ${EXTENSION}"
 #		rm -f $EXTENSION*   Not needed here....I think
 		RETRY=$((RETRY+1))
 		if [ $RETRY -lt $MAX_RETRIES ]; then
-			echo "<p>[ INFO ] Retrying extension ${EXTENSION}........in 5 seconds.</p>"
+			echo "[ INFO ] Retrying extension ${EXTENSION}........in 5 seconds."
 			sleep 5
 		else
-			echo "<p>[ ERROR ]Max retries reached</p>"
+			echo "[ ERROR ]Max retries reached"
 		fi
 	else
-		echo "<p>[ INFO ] All Files Tested Good</p>"
+		echo "[ INFO ] All Files Tested Good"
 		break
 	fi
 done
