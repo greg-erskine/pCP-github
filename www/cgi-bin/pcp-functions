@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.03 2016-11-19
+# Version: 3.10 2016-12-22
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -14,6 +14,7 @@
 #	Added IR_GPIO_OUT. GE.
 #	Renamed IR_GPIO to IR_GPIO_IN. GE.
 #	Changes for Squeezelite extension. PH.
+#	Updated sourceforge repo locations
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -323,8 +324,8 @@ pcp_variables() {
 	. $PCPHOME/pcp-soundcard-functions
 
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
-	INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"
-	PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
+	INSITU_DOWNLOAD="https://picoreplayer.sourceforge.io/insitu"
+	PCP_REPO="https://picoreplayer.sourceforge.io/tcz_repo"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
@@ -348,8 +349,8 @@ pcp_variables() {
 
 	# Use test download area
 	if [ $TEST -eq 3 ]; then
-		INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/beta"
-		REPOSITORY="https://sourceforge.net/projects/picoreplayer/files/beta"
+		INSITU_DOWNLOAD="https://picoreplayer.sourceforge.io/beta"
+		REPOSITORY="https://picoreplayer.sourceforge.io/beta"
 	fi
 	
 	#Set Squeezelite Varible to Binary location.
@@ -500,7 +501,7 @@ pcp_picore_accessible() {
 }
 
 pcp_pcp_repo_accessible() {
-	/bin/busybox wget -s $PCP_REPO >/dev/null 2>&1
+	/bin/busybox wget -s ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 

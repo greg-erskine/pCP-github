@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version 3.03 2016-11-13
+# Version 3.10 2016-12-22
 #	Changes for pcp-shairportsync.tcz. PH
+#	Changes for sourceforge repo, also moved alsaequal to armv5&7 repos and changed install.
 
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
@@ -67,7 +68,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 WGET="/bin/busybox wget"
-EQREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal"
+#EQREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal"
 CAPS="caps-0.4.5"
 
 # Only offer reboot option if needed
@@ -122,36 +123,15 @@ fi
 #Routines
 pcp_download_alsaequal() {
 	pcp_sufficient_free_space 800
-	cd /tmp
-	sudo rm -f /tmp/alsaequal.tcz
-	sudo rm -f /tmp/caps*
 	echo '<p class="info">[ INFO ] Downloading ALSA Equalizer from repository...</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${EQREPOSITORY}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
-	$WGET -s ${EQREPOSITORY}/alsaequal.tcz
+	sudo -u tc pcp-load -r $PCP_REPO -wi alsaequal.tcz
 	if [ $? -eq 0 ]; then
-		RESULT=0
-		echo '<p class="info">[ INFO ] Downloading ALSA Equalizer and packages...'
-		$WGET ${EQREPOSITORY}/alsaequal.tcz/download -O /tmp/alsaequal.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		$WGET ${EQREPOSITORY}/${CAPS}.tcz/download -O /tmp/${CAPS}.tcz
-		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-		if [ $RESULT -eq 0 ]; then
-			echo '<p class="ok">[ OK ] Download successful.</p>'
-			sudo cp /tmp/alsaequal.tcz /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-			sudo chmod 644 /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-			sudo cp /tmp/${CAPS}.tcz /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
-			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
-			sudo chmod 644 /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
-			sudo rm -f /tmp/alsaequal.tcz
-			sudo rm -f /tmp/caps*
-		else
-			echo '<p class="error">[ ERROR ] Alsaequalizer download unsuccessful, try again!</p>'
-		fi
+		echo '<p class="ok">[ OK ] Download successful.</p>'
 	else
-		echo '<p class="error">[ ERROR ] Alsaequalizer not available in repository, try again later!</p>'
+		echo '<p class="error">[ ERROR ] Alsaequalizer download unsuccessful, try again!</p>'
 	fi
 
 	SPACE=$(pcp_free_space k)
@@ -160,9 +140,10 @@ pcp_download_alsaequal() {
 
 pcp_remove_alsaequal() {
 	echo '<p class="info">[ INFO ] Removing ALSA Equalizer...</p>'
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/alsaequal.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/${CAPS}.tcz
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete pcp-shairportsync.tcz
 	sudo rm -f /home/tc/.alsaequal.bin
+	REBOOT_REQUIRED=1
 }
 
 #----------------------------------------------------------------------------------------

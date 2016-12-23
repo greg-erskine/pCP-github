@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-25
+# Version: 3.10 2016-12-22
 #	Added lirc[0-9] and hidraw[0-9]. GE.
 #	Added LIRC gpio out for IR transmitter. GE.
+#	Sourceforge repo updates. PH
 
 # Version: 3.01 2016-08-27
 #	Changed default lirc GPIO to 25. GE.
@@ -150,7 +151,7 @@ pcp_lirc_install() {
 
 	echo '[ INFO ] Installing packages for IR remote control.'
 	echo '[ INFO ] This can take a couple of minutes. Please wait...'
-	sudo -u tc pcp-load -r $PCP_REPO -wfi lirc.tcz | sed 's|<p>||g' | sed 's|<\/p>||g'
+	sudo -u tc pcp-load -r $PCP_REPO -wi lirc.tcz
 
 	echo '[ INFO ] Updating configuration files... '
 
@@ -181,12 +182,6 @@ pcp_lirc_install() {
 		sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
 	fi
 
-	# Download lirc.dep file until the pcp-load script can handle this.
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep ]; then
-		echo "[ INFO ] Downloading missing lirc.tcz.dep file..."
-		sudo wget https://sourceforge.net/projects/picoreplayer/files/repo/8.x/armv7/tcz/lirc.tcz.dep/download -O /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep
-	fi
-
 	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
 }
 
@@ -194,10 +189,11 @@ pcp_lirc_install() {
 # LIRC uninstall
 #----------------------------------------------------------------------------------------
 pcp_lirc_uninstall() {
+	#Should we move this to tce-audit delete ?
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz
-#	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep         <----- this file is not downloaded by pcp-load so for now we supply it with the image
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
 
 	if [ $SHAIRPORT = "no" ]; then

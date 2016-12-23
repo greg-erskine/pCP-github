@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version 3.03 2016-11-13
+# Version 3.10 2016-12-22
 #	Changes for shairport-sync.  Incomplete PH
-
+#	Sourceforge repo changes. PH
 
 # Version 3.02 2016-09-04 PH
 #	Updated Kernel Information for 3.02 piCore8.0 Release
@@ -34,7 +34,7 @@ FAIL_MSG="ok"
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-#INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
+#INSITU_DOWNLOAD="https://picoreplayer.sourceforge.io/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -252,7 +252,7 @@ pcp_get_kernel_modules() {
 		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
-		PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
+		PCP_REPO="https://picoreplayer.sourceforge.io/tcz_repo"
 		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		BUILD=$(getBuild)
