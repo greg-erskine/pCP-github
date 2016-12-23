@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.10 2016-12-22
+# Version 3.10 2016-12-23
 #	Changes for shairport-sync.  Incomplete PH
 #	Sourceforge repo changes. PH
 
@@ -276,15 +276,9 @@ pcp_get_kernel_modules() {
 			echo '[ INFO ] All new Kernel modules for ${KERNEL} already present.'
 		else
 			for EXT in ${MODULES}; do
-				case $EXT in
-					irda|backlight|touchscreen) #These are the current PCP extra modules
-						sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz | sed -e 's/<[^>]*>//g'
-						[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
-					;;
-					*) #Get file from the TC repo
-						sudo -u tc pcp-load -w -u ${TCE_DL} ${EXT}-${KERNEL}.tcz | sed -e 's/<[^>]*>//g'
-						[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
-					;;
+				# All kernel modules distributed from PCP_REPO
+				sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz
+				[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
 				esac
 			done
 		fi
@@ -297,7 +291,7 @@ pcp_get_kernel_modules() {
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '$VERSION'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz/download -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -356,7 +350,7 @@ pcp_save_configuration() {
 pcp_get_tce_files() {
 	echo '[ INFO ] Step 4B. - Downloading '$VERSION'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz/download -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -461,7 +455,7 @@ while True:
         if "#pCPstart------" in ln:
             CUT=1
             outfile.write("#pCPstart------\n")
-            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh | tee -a /var/log/pcp_boot.log\n")
+            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh 2>&1 | tee -a /var/log/pcp_boot.log\n")
             outfile.write("#pCPstop------\n")
         else:
             if not "#pCPstop------" in ln:
