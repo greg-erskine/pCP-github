@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version 3.10 2016-12-22
-#	Changes for pcp-shairportsync.tcz. PH
-#	Changes for sourceforge repo, also moved alsaequal to armv5&7 repos and changed install.
+# Version: 3.10 2016-12-23
+#	Changes for pcp-shairportsync.tcz. PH.
+#	Changes for sourceforge repo, also moved alsaequal to armv5&7 repos and changed install. PH.
 
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
@@ -124,7 +124,7 @@ fi
 pcp_download_alsaequal() {
 	pcp_sufficient_free_space 800
 	echo '<p class="info">[ INFO ] Downloading ALSA Equalizer from repository...</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${EQREPOSITORY}'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${PCP_REPO}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
 
 	sudo -u tc pcp-load -r $PCP_REPO -wi alsaequal.tcz
@@ -159,15 +159,15 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	if [ "$AUDIO" = "Analog" ] || [ "$AUDIO" = "HDMI" ]; then
 		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
 	fi
-	
-	#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----	
+
+	#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----
 	if [ "$AUDIO" != "Analog" ] && [ "$AUDIO" != "HDMI" ]; then
 		CARDNO=1
 	fi
 
 	# If output is different from analog or HDMI then find the number of the non-ALSA card
 	#	aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-	#-- Code below is not fully working as I2S DACs needs a reboot to show up ---------------------------------	
+	#-- Code below is not fully working as I2S DACs needs a reboot to show up ---------------------------------
 	#	if [ $? = 0 ]; then
 	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
 	#			CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
@@ -317,7 +317,6 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 else
 	echo '<p class="info">[ INFO ] USB FSM FIQ variable unchanged.</p>'
 fi
-#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # SQUEEZELITE section

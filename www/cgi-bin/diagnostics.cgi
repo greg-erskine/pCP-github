@@ -1,7 +1,7 @@
 #!/bin/sh
 # Diagnostics script
 
-# Version: 3.03 2016-11-19
+# Version: 3.10 2016-12-23
 #	Changed to using pcp_log_header. GE.
 #	Changes for Squeezelite extension. PH.
 

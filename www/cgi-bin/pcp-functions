@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.10 2016-12-22
+# Version: 3.10 2016-12-23
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -14,7 +14,7 @@
 #	Added IR_GPIO_OUT. GE.
 #	Renamed IR_GPIO to IR_GPIO_IN. GE.
 #	Changes for Squeezelite extension. PH.
-#	Updated sourceforge repo locations
+#	Updated sourceforge repo locations. PH.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -492,6 +492,7 @@ pcp_internet_accessible() {
 
 pcp_sourceforge_accessible() {
 	/bin/busybox wget -s https://sourceforge.net/projects/picoreplayer/files/ >/dev/null 2>&1
+#	/bin/busybox wget -s ${PCP_REPO}/ >/dev/null 2>&1		# GE. Should we change to this?
 	echo $?
 }
 

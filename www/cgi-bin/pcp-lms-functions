@@ -2,11 +2,11 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 3.10 2016-12-20
-#	Fixed players tabs for new changes in the LMS cli PH
+# Version: 3.10 2016-12-23
+#	Fixed players tabs for new changes in the LMS cli. PH.
 
 # Version: 2.06 2016-05-09
-#	Renamed variable HTPPD to HTTPD.
+#	Renamed variable HTPPD to HTTPD. GE.
 
 # Version: 2.05 2016-04-22
 #	Added pcp_set_slimconfig. PH.
@@ -37,6 +37,7 @@
 MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
 NC="busybox nc"
+
 pcp_lms_status() {
 	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
 	echo $?
