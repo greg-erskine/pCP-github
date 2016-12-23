@@ -38,8 +38,7 @@
 DEBUG=0
 
 #Have to set this before you run the script
-PCP="piCorePlayer3.10b3-Audio"
-
+PCP="piCorePlayer3.10b3"
 
 BUILDROOT="/home/paul"
 
@@ -382,13 +381,16 @@ build_mydata(){
 	chown -R 0.0 ${MYDATA}/usr
 	chown 0.50 ${MYDATA}/usr/local/bin
 	chown -R 0.50 ${MYDATA}/var
-	chown 0.50 ${MYDATA}/etc/*
-	chmod 664 ${MYDATA}/etc/*
+	chown 0.0 ${MYDATA}/etc/*
+	find ${MYDATA}/etc -not -type d | xargs -r chmod 644
 	chown 0.50 ${MYDATA}/opt/*
 	chmod 775 ${MYDATA}/opt/bootsync.sh
 	chmod 664 ${MYDATA}/opt/tcemirror
 	chmod 775 ${MYDATA}/opt/.xfiletool.lst
+	chown 0.50 ${MYDATA}/etc/sysconfig/*
+	chmod 664 ${MYDATA}/etc/sysconfig/*
 
+	find ${MYDATA}/etc -not -type d | xargs -r dos2unix
 
 	find ${MYDATA}/usr/local/etc/pcp -type d | xargs -r chown 0.50
 
@@ -397,9 +399,9 @@ build_mydata(){
 	find ${MYDATA}/usr/local/etc/pcp -not -type d | xargs -r chmod 664
 
 	# These files have already been copied, but this is setting ownership,type and dos2unix.
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/etc/asound.conf ${MYDATA}/etc/asound.conf root.root 644
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/etc/motd ${MYDATA}/etc/motd root.root 644
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/etc/modprobe.conf ${MYDATA}/etc/modprobe.conf root.root 644
+	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/etc/asound.conf ${MYDATA}/etc/asound.conf root.staff 664
+	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/etc/motd ${MYDATA}/etc/motd root.staff 664
+	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/etc/modprobe.conf ${MYDATA}/etc/modprobe.conf root.staff 664
 
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/home/tc/.local/bin/copywww.sh ${MYDATA}/home/tc/.local/bin/copywww.sh 1001.50 755
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/home/tc/.local/bin/.pbtemp ${MYDATA}/home/tc/.local/bin/.pbtemp 1001.50 644
@@ -510,6 +512,11 @@ unmount_loops(){
 	losetup -d ${LOOP2}
 	rmdir ${PART1}
 	rmdir ${PART2}
+}
+
+abort(){
+	unmount_loops
+	exit 1
 }
 
 #Check to be sure the config.txt matches the kernel, 
@@ -647,7 +654,7 @@ while true; do
 	read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
 	case $yn in
 		[Yy]* ) break;;
-		[Nn]* ) exit;;
+		[Nn]* ) abort;;
 		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
 	esac
 done
@@ -660,12 +667,14 @@ select KERNELV6 in $(ls ${BUILDROOT}/pcp/pcpCore/armv6/kernel/);
 do
 	if [ "$KERNELV6" != "" ]; then
 		echo "${YELLOW}You picked ${KERNELV6}${NORMAL}"
-		read -p "Do you wish to continue?" yn
+		read -p "Do you wish to continue? (y)es, (n)o, e(x)it " yn
 		case $yn in
 			[Yy]* ) break;;
 			[Nn]* ) ;;
-			* ) echo "Please answer yes or no.";;
+			[Xx]* ) abort;;
+			* ) echo "Please answer (y)es, (n)o or e(x)it.";;
 		esac
+		echo "Press Enter to reselect${GREEN}"
 	fi
 done
 echo
@@ -674,12 +683,14 @@ select KERNELV7 in $(ls ${BUILDROOT}/pcp/pcpCore/armv7/kernel/);
 do
 	if [ "$KERNELV7" != "" ]; then
 		echo "${YELLOW}You picked ${KERNELV7}${NORMAL}"
-		read -p "Do you wish to continue?" yn
+		read -p "Do you wish to continue? (y)es, (n)o, e(x)it " yn
 		case $yn in
 			[Yy]* ) break;;
 			[Nn]* ) ;;
-			* ) echo "Please answer yes or no.";;
+			[Xx]* ) abort;;
+			* ) echo "Please answer (y)es, (n)o or e(x)it.";;
 		esac
+		echo "Press Enter to reselect${GREEN}"
 	fi
 done
 

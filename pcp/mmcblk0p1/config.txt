@@ -5,19 +5,19 @@
 
 [PI0]
 initramfs pcp_8.0.gz followkernel
-kernel kernel4436.img
+kernel kernel4439.img
 
 [PI1]
 initramfs pcp_8.0.gz followkernel
-kernel kernel4436.img
+kernel kernel4439.img
 
 [PI2]
 initramfs pcp_8.0v7.gz followkernel
-kernel kernel4436v7.img
+kernel kernel4439v7.img
 
 [PI3]
 initramfs pcp_8.0v7.gz followkernel
-kernel kernel4436v7.img
+kernel kernel4439v7.img
 
 [ALL]
 cmdline cmdline.txt
