@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.10 2016-12-18
+# Version: 3.10 2016-12-23
 #	Pop-up asking to delete cache. SBP
 #	Remove all traces of LMS. SBP
 #	Added Samba.  PH.
@@ -66,11 +66,16 @@ WGET="/bin/busybox wget"
 #---------------------------Routines-----------------------------------------------------
 
 pcp_install_lms() {
-	echo '[ INFO ] Installing LMS...'
-	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
-	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] LMS is added to onboot.lst'
-	[ $DEBUG -eq 1 ] && cat /mnt/mmcblk0p2/tce/onboot.lst
+	echo '[ INFO ] Downloading LMS...'
+	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz 
+	if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+		echo '[ INFO ] Installing LMS...'
+		sudo -u tc pcp-load -i slimserver.tcz
+		sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+		sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] LMS is added to onboot.lst'
+		[ $DEBUG -eq 1 ] && cat /mnt/mmcblk0p2/tce/onboot.lst
+	fi
 }
 
 pcp_remove_lms() {
@@ -96,32 +101,32 @@ pcp_lms_padding() {
 
 pcp_install_fs() {
 	RESULT=0
-	echo '<p class="info">[ INFO ] Downloaded additional filesystem support.</p>'
+	echo '[ INFO ] Downloaded additional filesystem support.</p>'
 	sudo -u tc pcp-load -r $PCP_REPO -w ntfs-3g.tcz
 	if [ -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
-		echo '<p class="info">[ INFO ] Loading filesystem extensions'
+		echo '[ INFO ] Loading filesystem extensions'
 		sudo -u tc tce-load -i ntfs-3g.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	fi
 	if [ $RESULT -eq 0 ]; then
 		echo "ntfs-3g.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
-		echo '<p class="info">[ INFO ] Filesystem support including NTFS loaded...</p>'
+		echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
 	else
-		echo '<p class="error">[ ERROR ] Extensions not loaded, try again later!</p>'
+		echo '[ ERROR ] Extensions not loaded, try again later!</p>'
 	fi
 }
 
 pcp_remove_fs() {
-	echo '<p class="info">[ INFO ] Removing Extensions</p>'
+	echo '[ INFO ] Removing Extensions</p>'
 	rm -f /mnt/mmcblk0p2/tce/optional/ntfs-3g*
 	rm -f /mnt/mmcblk0p2/tce/optional/filesystems*
 	sed -i '/ntfs-3g.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	echo '<p class="info">[ INFO ] Extensions Removed, Reboot to Finish</p>'
+	echo '[ INFO ] Extensions Removed, Reboot to Finish</p>'
 }
 
 pcp_install_samba4() {
 	RESULT=0
-	echo -n '<p class="info">[ INFO ] '
+	echo '[ INFO ] Downloading Samba4...'
 	sudo -u tc pcp-load -w samba4.tcz
 	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	echo '<p>'
@@ -132,7 +137,7 @@ pcp_install_samba4() {
 	fi
 	if [ $RESULT -eq 0 ]; then
 		echo "samba4.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
-		echo '<p class="info">[ INFO ] Samba Support Loaded...</p>'
+		echo '[ INFO ] Samba Support Loaded...</p>'
 		cat << EOF > /usr/local/etc/init.d/samba
 #!/bin/sh
 NAME="Samba"
@@ -201,21 +206,21 @@ EOF
 		echo "usr/local/etc/samba/smb.conf" >> /opt/.filetool.lst
 		SAMBA="yes"
 		pcp_save_to_config
-		pcp_backup
+		pcp_backup "nohtml"
 	else
-		echo '<p class="error">[ ERROR ] Samba4.tcz not loaded, try again later!</p>'
+		echo '[ ERROR ] Samba4.tcz not loaded, try again later!</p>'
 	fi
 }
 
 pcp_remove_samba4() {
-	echo '<p class="info">[ INFO ] Removing Extensions</p>'
+	echo '[ INFO ] Removing Extensions</p>'
 	sed -i '/samba4.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete samba4.tcz
 	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/var\/lib\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/etc\/samba\/smb.conf/d' /opt/.filetool.lst
-	echo '<p class="info">[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
+	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
 }
 
 pcp_samba_status() {
@@ -235,72 +240,57 @@ case "$ACTION" in
 			netmount1) MNT="/mnt/$NETMOUNT1POINT";;
 			default) MNT="/mnt/mmcblk0p2";;
 		esac
+		pcp_table_top "Logitech Media Server (LMS)"
+		echo '                <textarea class="inform" style="height:40px">'
 		mount | grep -qs $MNT
 		if [ "$?" = "0" ]; then
-			echo '<p class="info">[ INFO ] Starting LMS...</p>'
-			echo -n '<p class="info">[ INFO ] '
+			echo '[ INFO ] Starting LMS...'
+			echo -n '[ INFO ] '
 			sudo /usr/local/etc/init.d/slimserver start
 		else
-			echo '<p class="error">[ ERROR ] LMS data disk failed mount, LMS will not start.'
+			echo '[ ERROR ] LMS data disk not mounted, LMS will not start.'
 		fi
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	Stop)
-		echo '<p class="info">[ INFO ] Stopping LMS...</p>'
-		echo -n '<p class="info">[ INFO ] '
+		pcp_table_top "Logitech Media Server (LMS)"
+		echo '                <textarea class="inform" style="height:40px">'
+		echo '[ INFO ] Stopping LMS...'
+		echo -n '[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
+		echo '                </textarea>'
+		pcp_table_end
 		sleep 2
 	;;
 	Restart)
-		echo '<p class="info">[ INFO ] Restarting LMS...</p>'
-		echo -n '<p class="info">[ INFO ] '
+		pcp_table_top "Logitech Media Server (LMS)"
+		echo '                <textarea class="inform" style="height:40px">'
+		echo '[ INFO ] Restarting LMS...</p>'
+		echo -n '[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
-		echo -n '<p class="info">[ INFO ] '
+		echo -n '[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver start
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	Install)
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <div class="row">'
-		echo '        <fieldset>'
-		echo '          <legend>Downloading Logitech Media Server (LMS)</legend>'
-		echo '          <table class="bggrey percent100">'
-		pcp_start_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td>'
+		pcp_table_top "Downloading Logitech Media Server (LMS)"
 		echo '                <textarea class="inform" style="height:160px">'
 		pcp_sufficient_free_space 40000
-		sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz 
+		pcp_install_lms
 		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-			pcp_install_lms
 			LMSERVER="yes"
 			pcp_save_to_config
 			pcp_backup "nohtml"
-			REBOOT_REQUIRED=1
 		else
 			echo '[ ERROR ] Error Downloading LMS, please try again later.'
 		fi
 		echo '                </textarea>'
-		echo '              </td>'
-		echo '            </tr>'
-		echo '          </table>'
-		echo '        </fieldset>'
-		echo '      </div>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		pcp_table_end
 	;;
 	Remove)
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <div class="row">'
-		echo '        <fieldset>'
-		echo '          <legend>Downloading Logitech Media Server (LMS)</legend>'
-		echo '          <table class="bggrey percent100">'
-		pcp_start_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td>'
+		pcp_table_top "Removing Logitech Media Server (LMS)"
 		echo '                <textarea class="inform" style="height:120px">'
 		echo '[ INFO ] Removing LMS Extensions...'
 		echo
@@ -310,19 +300,12 @@ case "$ACTION" in
 		pcp_remove_lms
 		pcp_backup "nohtml"
 		echo '                </textarea>'
-		echo '              </td>'
 		if [ x"$DISABLECACHE" = x ]; then
 			STRING1='Press OK to remove LMS cache.......To keep the cache - Press Cancel'
 			SCRIPT1='lms.cgi?ACTION=Remove_cache&REBOOT_REQUIRED=1'
 			pcp_confirmation_required
 		fi
-		echo '            </tr>'
-		echo '          </table>'
-		echo '        </fieldset>'
-		echo '      </div>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		pcp_table_end
 		REBOOT_REQUIRED=1
 	;;
 	Remove_cache)
@@ -332,35 +315,53 @@ case "$ACTION" in
 		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
 	;;
 	Install_FS)
+		pcp_table_top "Installing extra file system support"
+		echo '                <textarea class="inform" style="height:80px">'
 		pcp_sufficient_free_space 4000
 		pcp_install_fs
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	Remove_FS)
+		pcp_table_top "Removing extra file system support"
+		echo '                <textarea class="inform" style="height:80px">'
 		pcp_remove_fs
+		echo '                </textarea>'
+		pcp_table_end
 		REBOOT_REQUIRED=1
 	;;
 	Install_Samba)
+		pcp_table_top "Installing Samba4 Server"
+		echo '                <textarea class="inform" style="height:120px">'
 		pcp_sufficient_free_space 25000
 		pcp_install_samba4
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	Remove_Samba)
+		pcp_table_top "Removing Samba4 Server"
+		echo '                <textarea class="inform" style="height:120px">'
 		SAMBA="disabled"
 		pcp_save_to_config
 		pcp_remove_samba4
-		pcp_backup
+		pcp_backup "nohtml"
 		REBOOT_REQUIRED=1
+		pcp_table_end
 	;;
 	SambaStart)
-		echo '<p class="info">[ INFO ] Starting Samba...</p>'
-		/usr/local/etc/init.d/samba start
+		pcp_table_top "Starting Samba"
+		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba start" 40
+		pcp_table_end
 	;;
 	SambaStop)
-		echo '<p class="info">[ INFO ] Stopping Samba...</p>'
-		/usr/local/etc/init.d/samba stop
+		pcp_table_top "Stopping Samba"
+		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba stop" 40
+		pcp_table_end
 	;;
 	SambaRestart)
-		echo '<p class="info">[ INFO ] Re-Starting Samba...</p>'
-		/usr/local/etc/init.d/samba restart
+		pcp_table_top "Re-Starting Samba"
+		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba restart" 40
+		pcp_table_end
 	;;
 	*)
 		pcp_warning_message
