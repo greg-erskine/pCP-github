@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 3.10 2016-12-11
+# Version: 3.10 2016-12-23
 #	Added Samba Server Support. PH.
 #	Removed IQaudIO AMP unmute from here. SBP
 #	Changes for shairport-sync.  Incomplete PH
 #	Fixed newconfig.cfg process. PH
+#	Set rpi3wifi blacklist in newconfig process. PH
 
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository.
@@ -193,6 +194,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -239,6 +241,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
 	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	#cleanup all old kernel modules
