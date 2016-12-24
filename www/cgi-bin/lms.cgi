@@ -276,8 +276,8 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_table_top "Downloading Logitech Media Server (LMS)"
-		echo '                <textarea class="inform" style="height:160px">'
 		pcp_sufficient_free_space 40000
+		echo '                <textarea class="inform" style="height:160px">'
 		pcp_install_lms
 		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 			LMSERVER="yes"
@@ -316,8 +316,8 @@ case "$ACTION" in
 	;;
 	Install_FS)
 		pcp_table_top "Installing extra file system support"
-		echo '                <textarea class="inform" style="height:80px">'
 		pcp_sufficient_free_space 4000
+		echo '                <textarea class="inform" style="height:80px">'
 		pcp_install_fs
 		echo '                </textarea>'
 		pcp_table_end
@@ -332,8 +332,8 @@ case "$ACTION" in
 	;;
 	Install_Samba)
 		pcp_table_top "Installing Samba4 Server"
-		echo '                <textarea class="inform" style="height:120px">'
 		pcp_sufficient_free_space 25000
+		echo '                <textarea class="inform" style="height:120px">'
 		pcp_install_samba4
 		echo '                </textarea>'
 		pcp_table_end
@@ -341,12 +341,13 @@ case "$ACTION" in
 	Remove_Samba)
 		pcp_table_top "Removing Samba4 Server"
 		echo '                <textarea class="inform" style="height:120px">'
+		pcp_remove_samba4
+		echo '                </textarea>'
 		SAMBA="disabled"
 		pcp_save_to_config
-		pcp_remove_samba4
 		pcp_backup "nohtml"
-		REBOOT_REQUIRED=1
 		pcp_table_end
+		REBOOT_REQUIRED=1
 	;;
 	SambaStart)
 		pcp_table_top "Starting Samba"
