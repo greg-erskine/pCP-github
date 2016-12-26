@@ -44,9 +44,9 @@ abort(){
 	echo " Download only into tce/optional directory:"
 	echo "   ${PROG_NAME} -w nano.tcz"
 	echo " Use alternative repository, root level"
-	echo "   ${PROG_NAME} -r https://picoreplayer.sourceforge.io/tcz_repo"
+	echo "   ${PROG_NAME} -r http://picoreplayer.sourceforge.net/tcz_repo"
 	echo " Use alternative repository, override absolute path."
-	echo "   ${PROG_NAME} -u https://picoreplayer.sourceforge.io/tcz_repo/8.x/armv6/tcz"
+	echo "   ${PROG_NAME} -u http://picoreplayer.sourceforge.net/tcz_repo/8.x/armv6/tcz"
 	exit 2
 }
 

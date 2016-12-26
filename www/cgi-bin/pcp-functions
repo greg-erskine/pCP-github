@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.10 2016-12-23
+# Version: 3.10 2016-12-26
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
 #	Addded pcp_create_rotdash. GE.
@@ -324,8 +324,8 @@ pcp_variables() {
 	. $PCPHOME/pcp-soundcard-functions
 
 	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
-	INSITU_DOWNLOAD="https://picoreplayer.sourceforge.io/insitu"
-	PCP_REPO="https://picoreplayer.sourceforge.io/tcz_repo"
+	INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
+	PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
@@ -349,8 +349,8 @@ pcp_variables() {
 
 	# Use test download area
 	if [ $TEST -eq 3 ]; then
-		INSITU_DOWNLOAD="https://picoreplayer.sourceforge.io/beta"
-		REPOSITORY="https://picoreplayer.sourceforge.io/beta"
+		INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/beta"
+		REPOSITORY="http://picoreplayer.sourceforge.net/beta"
 	fi
 	
 	#Set Squeezelite Varible to Binary location.
@@ -491,8 +491,7 @@ pcp_internet_accessible() {
 }
 
 pcp_sourceforge_accessible() {
-	/bin/busybox wget -s https://sourceforge.net/projects/picoreplayer/files/ >/dev/null 2>&1
-#	/bin/busybox wget -s ${PCP_REPO}/ >/dev/null 2>&1		# GE. Should we change to this?
+	/bin/busybox wget -s ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
