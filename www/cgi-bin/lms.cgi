@@ -7,7 +7,8 @@
 #	Added GPT Disk support. PH
 #	Converted lms removal to proper method to avoid removing a dependancy. PH
 #	Updates for using sourceforge repo for filesystem support. PH
-#  Added pattern not not allow mount points starting with sd
+# 	Added pattern not not allow mount points starting with sd. PH
+#	Samba Cleanup.  PH
 
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
@@ -157,9 +158,19 @@ startsmb(){
 }
 
 stopsmb(){
-	echo "Stopping SAMBA..."
+	echo -n "Stopping SAMBA"
 	pkill nmbd
 	pkill smbd
+	CNT=0
+	while [ \$CNT -lt 50 ]; do
+		[ \$((CNT++)) ]
+		PID=\$(pidof nmbd)
+		[ -z "\$PID" ] && PID=\$(pidof smbd)
+		[ -z "\$PID" ] && break
+		sleep .1
+		echo -n "."
+	done
+	echo "Stopped."
 }
 
 #Must Run as Root for ownership
@@ -1411,7 +1422,7 @@ pcp_samba() {
 		echo '              <form name="Start" action="'$0'">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		echo '                    <input type="submit" name="ACTION" value="SambaStart" '$DISABLED' />'
+		echo '                    <input type="submit" name="ACTION" value="SambaStart" />'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Start SAMBA&nbsp;&nbsp;'
@@ -1428,7 +1439,7 @@ pcp_samba() {
 		echo '              <form name="Stop" action="'$0'">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		echo '                    <input type="submit" name="ACTION" value="SambaStop" '$DISABLED' />'
+		echo '                    <input type="submit" name="ACTION" value="SambaStop" />'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Stop SAMBA&nbsp;&nbsp;'
@@ -1445,7 +1456,7 @@ pcp_samba() {
 		echo '              <form name="Restart" action="'$0'">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		echo '                    <input type="submit" name="ACTION" value="SambaRestart" '$DISABLED' />'
+		echo '                    <input type="submit" name="ACTION" value="SambaRestart" />'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Restart SAMBA&nbsp;&nbsp;'
@@ -1467,7 +1478,12 @@ pcp_samba() {
 		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		echo '                    <button type="submit" name="COMMAND" value="setpw">Set Password</button>'
+		if [ "$STATUS" = "running" ]; then 
+			PWDISABLE=""
+		else
+			PWDISABLE="disabled"
+		fi
+		echo '                    <button type="submit" name="COMMAND" value="setpw" '$PWDISABLE'>Set Password</button>'
 		echo '                  </td>'
 		echo '                  <td class="column100 ">'
 		echo '                    <p class="row">UserName: tc</p>'
@@ -1476,15 +1492,19 @@ pcp_samba() {
 		echo '                    <p class="row">Password:</p>'
 		echo '                  </td>'
 		echo '                  <td class="column150">'
-		echo '                    <p><input class="large12" type="password" name="SAMBAPASS" value=""></p>'
+		echo '                    <p><input class="large12" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
 		echo '                  </td>'
 		echo '                  <td>'
-		echo '                    <p>Username and Password to be used to access share.&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="'$ID'" class="less">'
-		echo '                      <p>Needs done 1st time.  Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
-		echo '                    </div>'
+		if [ "$STATUS" = "running" ]; then
+			echo '                    <p>Username and Password to be used to access share.&nbsp;&nbsp;'
+			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                    </p>'
+			echo '                    <div id="'$ID'" class="less">'
+			echo '                      <p>Needs done 1st time.  Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
+			echo '                    </div>'
+		else
+			echo '                    <p>Samba has to be running to set password!</p'
+		fi
 		echo '                  </td>'
 		echo '                </tr>'
 		echo '              </form>'
