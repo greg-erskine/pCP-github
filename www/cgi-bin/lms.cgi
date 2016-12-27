@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 3.10 2016-12-23
+# Version: 3.10 2016-12-27
 #	Pop-up asking to delete cache. SBP
 #	Remove all traces of LMS. SBP
 #	Added Samba.  PH.
 #	Added GPT Disk support. PH
 #	Converted lms removal to proper method to avoid removing a dependancy. PH
 #	Updates for using sourceforge repo for filesystem support. PH
+#  Added pattern not not allow mount points starting with sd
 
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
@@ -266,7 +267,7 @@ case "$ACTION" in
 	Restart)
 		pcp_table_top "Logitech Media Server (LMS)"
 		echo '                <textarea class="inform" style="height:40px">'
-		echo '[ INFO ] Restarting LMS...</p>'
+		echo '[ INFO ] Restarting LMS...'
 		echo -n '[ INFO ] '
 		sudo /usr/local/etc/init.d/slimserver stop
 		echo -n '[ INFO ] '
@@ -967,7 +968,7 @@ pcp_mount_usbdrives() {
 	echo '                  <p>Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <p>/mnt/ <input class="large12" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" required pattern="^[a-zA-Z0-9_]{1,32}$"><p>'
+	echo '                  <p>/mnt/ <input class="large12" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" required pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
@@ -976,6 +977,7 @@ pcp_mount_usbdrives() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>The drive will be mounted by UUID to this path and will be automounted on startup.</p>'
 	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                    <p>Do not use hardware device names like sda1 or mmcblk0.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1146,7 +1148,7 @@ pcp_mount_netdrives() {
 	echo '                  <p class="row">Mount Point</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <p>/mnt/ <input class="large12" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" required pattern="^[a-zA-Z0-9_]{1,32}$"></p>'
+	echo '                  <p>/mnt/ <input class="large12" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" required pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the mount point for the below network share.&nbsp;&nbsp;'
@@ -1154,10 +1156,12 @@ pcp_mount_netdrives() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>The network share will be mounted by to this path and will be automounted on startup.</p>'
-	echo '                    <p>IP address is only the IP address.  Do not enter any / or :</p>'
-	echo '                    <p>Share for CIFS is the share name only (DO not use /).</p>'
-	echo '                    <p>Share for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
-	echo '                    <p>Options are a comma delimited list of mount options. Ref mount man pages.</p>'
+	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                    <p>Do not use hardware device names like sda1 or mmcblk0.</p>'
+	echo '                    <p>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</p>'
+	echo '                    <p>&#60;Server Share&#62 for CIFS is the share name only (DO not use /).</p>'
+	echo '                    <p>&#60;Server Share&#62 for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
+	echo '                    <p>&#60;Options&#62 are a comma delimited list of mount options. Ref mount man pages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
