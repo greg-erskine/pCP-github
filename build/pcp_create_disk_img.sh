@@ -38,7 +38,7 @@
 DEBUG=0
 
 #Have to set this before you run the script
-PCP="piCorePlayer3.10b3"
+PCP="piCorePlayer3.10rc1"
 
 BUILDROOT="/home/paul"
 
