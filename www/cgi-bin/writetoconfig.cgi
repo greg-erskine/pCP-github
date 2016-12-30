@@ -46,6 +46,14 @@
 pcp_variables
 . $CONFIGCFG
 
+# Restore sparams variable value from config.cfg so it is not overwritten with default values
+PARAM1="$SPARAMS1"
+PARAM2="$SPARAMS2"
+PARAM3="$SPARAMS3"
+PARAM4="$SPARAMS4"
+PARAM5="$SPARAMS5"
+
+
 # Read original mmap value, so we only do something if value is changed
 ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 

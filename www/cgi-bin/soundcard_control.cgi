@@ -7,7 +7,13 @@
 . pcp-soundcard-functions
 . pcp-functions
 pcp_variables
+
 . $CONFIGCFG
+# Save copy of variable value from config.cfg so it is not overwritten with default values
+ORIG_AUDIO="$AUDIO"
+ORIG_CARD="$CARD"
+ORIG_OUTPUT="$OUTPUT"
+ORIG_ALSA_PARAMS="$ALSA_PARAMS"
 
 pcp_html_head "Sound card controls" "SBP"
 
@@ -30,6 +36,10 @@ case "$ACTION" in
 		pcp_generic_card_control
 	;;
 	Backup)
+		AUDIO="$ORIG_AUDIO"
+		CARD="$ORIG_CARD"
+		OUTPUT="$ORIG_OUTPUT"
+		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		ALSAlevelout="Custom"
 		pcp_save_to_config
 		sudo alsactl store
@@ -41,6 +51,10 @@ case "$ACTION" in
 		pcp_generic_card_control
 	;;	
 	Select)
+		AUDIO="$ORIG_AUDIO"
+		CARD="$ORIG_CARD"
+		OUTPUT="$ORIG_OUTPUT"
+		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		pcp_save_to_config
 		pcp_soundcontrol
 		pcp_read_chosen_audio
@@ -181,6 +195,7 @@ fi
 
 # Only show these options if Parameters for dtoverlay are an option for current sound card.
 pcp_soundcard_parameter_options() {
+. $CONFIGCFG
 if [ x"$PARAMS1" != x"" ] || [ x"$PARAMS2" != x"" ] || [ x"$PARAMS3" != x"" ] || [ x"$PARAMS4" != x"" ] || [ x"$PARAMS5" != x"" ]; then            #....... CAN PROBABLY BE MADE SMARTER
 pcp_incr_id
 pcp_toggle_row_shade
