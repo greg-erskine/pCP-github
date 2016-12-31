@@ -209,8 +209,9 @@ fi
 #========================================================================================
 # Populate sound card drop-down options
 #---------------------------------------------------------------------------------------- 
-[ ! -e /tmp/dropdown.cfg ] && pcp_sound_card_dropdown             #<--- To speed up loading of page it is only run if dropdown list is not already generated
-
+#[ ! -e /tmp/dropdown.cfg ] && pcp_sound_card_dropdown             #<--- To speed up loading of page it is only run if dropdown list is not already generated. Not fully working as the selected card does not change
+pcp_sound_card_dropdown
+ 
 #========================================================================================
 # Start Audio output table
 #----------------------------------------------------------------------------------------
