@@ -209,7 +209,7 @@ fi
 #========================================================================================
 # Populate sound card drop-down options
 #---------------------------------------------------------------------------------------- 
-pcp_sound_card_dropdown
+[ ! -e /tmp/dropdown.cfg ] && pcp_sound_card_dropdown             #<--- To speed up loading of page it is only run if dropdown list is not already generated
 
 #========================================================================================
 # Start Audio output table
