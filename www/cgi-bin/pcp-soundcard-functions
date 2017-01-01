@@ -32,12 +32,12 @@ pcp_re_enable_analog() {
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
 	pcp_re_enable_analog
-	# Get a list of all avaiable sound coard overlays:
-	for i in $AUDIO_OPTIONS_EXTRA; do
-			. "$DACLOCATION"/"$i".conf
-			sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
-		done
-	pcp_soundcontrol
+        # Get a list of all avaiable sound coard overlays:
+        for i in $AUDIO_OPTIONS_EXTRA; do
+                        # unset DTOVERLAY
+                        . "$DACLOCATION"/"$i".conf
+                        [ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
+                done
 }
 
 #========================================================================================
@@ -47,15 +47,19 @@ pcp_enable_i2s() {
 	pcp_re_enable_analog
 	# Only add overlay if present in sound card definitions and only add parameter if selected in soundcard_control.cgi
 	# First set default parameters for dtoverlay where PARAMS1 is the Default value AND save default PARAMS1 in config.cfg
-	PARAM1="$PARAMS1"      # NEEDED AS PARAM1 IS SAVED IN CONFIG:CFG
-	pcp_soundcontrol
+#	pcp_soundcontrol
+	PARAM1="$PARAMS1"      # NEEDED AS PARAM1 IS SAVED IN CONFIG.CFG
 
-	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY,$PARAMS1  >> $CONFIGTXT
 
-	# Next, Use the parameters which are selected in soundcard_control.cgi
-	if [ x"$PARAM1" != x"" ] || [ x"$PARAM2" != x"" ] || [ x"$PARAM3" != x"" ] || [ x"$PARAM4" != x"" ] || [ x"$PARAM5" != x"" ]; then                       #NEED TO FIGURE OUT A BETTER AY FOR THIS. HOW TO HAVE A RANGE BETWEEN 1 to 5 HERE
+	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY,$PARAMS1  >> $CONFIGTXT      #<--- Needed in order to use the dtoverlay with default parameter1 when first setup and when coming here from newconfig etc  
+
+	# Next, if parameter use is changed via soundcard_control.cgi then use that parameter instead of default
+	# so if SPARAMS(1-5) from config.cfg is different from PARAM(1-5 from soundcard.cgi then it has changed and the following apply 
+
+
+	if [ "$SPARAM1" != "$PARAM1" ] || [ "$SPARAM2" != "$PARAM2" ] || [ x"$SPARAM3" != "$PARAM3" ] || [ x"$SPARAM4" != "$PARAM4" ] || [ x"$SPARAM5" != "$PARAM5" ]; then                       #NEED TO FIGURE OUT A BETTER AY FOR THIS. HOW TO HAVE A RANGE BETWEEN 1 to 5 HERE
 	pcp_disable_i2s
-#       pcp_soundcontrol
+       pcp_soundcontrol
 	[ x"$PARAM1" != x"" ] && PAR1=','"$PARAM1"''
 	[ x"$PARAM2" != x"" ] && PAR2=','"$PARAM2"''
 	[ x"$PARAM3" != x"" ] && PAR3=','"$PARAM3"''
