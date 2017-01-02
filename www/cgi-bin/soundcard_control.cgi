@@ -56,7 +56,7 @@ case "$ACTION" in
 		OUTPUT="$ORIG_OUTPUT"
 		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		pcp_save_to_config
-		pcp_soundcontrol
+		#pcp_soundcontrol
 		pcp_read_chosen_audio
 		pcp_backup
 		pcp_reboot_required

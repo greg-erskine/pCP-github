@@ -40,33 +40,21 @@ pcp_disable_i2s() {
                 done
 }
 
+
 #========================================================================================
 # Add Audio dtoverlays
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s() {
 	pcp_re_enable_analog
-	# Only add overlay if present in sound card definitions and only add parameter if selected in soundcard_control.cgi
-	# First set default parameters for dtoverlay where PARAMS1 is the Default value AND save default PARAMS1 in config.cfg
-#	pcp_soundcontrol
-	PARAM1="$PARAMS1"      # NEEDED AS PARAM1 IS SAVED IN CONFIG.CFG
+	. $CONFIGCFG
+	pcp_soundcontrol
+	[ x"$SPARAMS1" != x"" ] && PAR1=','"$SPARAMS1"'' || PAR1="$SPARAMS1"
+	[ x"$SPARAMS2" != x"" ] && PAR2=','"$SPARAMS2"'' || PAR2="$SPARAMS2"
+	[ x"$SPARAMS3" != x"" ] && PAR3=','"$SPARAMS3"'' || PAR3="$SPARAMS3"
+	[ x"$SPARAMS4" != x"" ] && PAR4=','"$SPARAMS4"'' || PAR4="$SPARAMS4"
+	[ x"$SPARAMS5" != x"" ] && PAR5=','"$SPARAMS5"'' || PAR5="$SPARAMS5"
 
-
-	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY,$PARAMS1  >> $CONFIGTXT      #<--- Needed in order to use the dtoverlay with default parameter1 when first setup and when coming here from newconfig etc  
-
-	# Next, if parameter use is changed via soundcard_control.cgi then use that parameter instead of default
-	# so if SPARAMS(1-5) from config.cfg is different from PARAM(1-5 from soundcard.cgi then it has changed and the following apply 
-
-
-	if [ "$SPARAM1" != "$PARAM1" ] || [ "$SPARAM2" != "$PARAM2" ] || [ x"$SPARAM3" != "$PARAM3" ] || [ x"$SPARAM4" != "$PARAM4" ] || [ x"$SPARAM5" != "$PARAM5" ]; then                       #NEED TO FIGURE OUT A BETTER AY FOR THIS. HOW TO HAVE A RANGE BETWEEN 1 to 5 HERE
-	pcp_disable_i2s
-       pcp_soundcontrol
-	[ x"$PARAM1" != x"" ] && PAR1=','"$PARAM1"''
-	[ x"$PARAM2" != x"" ] && PAR2=','"$PARAM2"''
-	[ x"$PARAM3" != x"" ] && PAR3=','"$PARAM3"''
-	[ x"$PARAM4" != x"" ] && PAR4=','"$PARAM4"''
-	[ x"$PARAM5" != x"" ] && PAR5=','"$PARAM5"''
 	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY$PAR1$PAR2$PAR3$PAR4$PAR5  >> $CONFIGTXT
-	fi
 }
 
 #=========================================================================================

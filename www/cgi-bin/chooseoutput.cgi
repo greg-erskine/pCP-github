@@ -86,7 +86,7 @@ fi
 # Only do something if $AUDIO variable has changed
 if [ $CHANGED ]; then
 	pcp_squeezelite_stop
-	pcp_read_chosen_audio
+	pcp_soundcontrol
 
 	# To save the default dt-overlay parameter (PARAMS1) in config.cfg
 	PARAM1="$PARAMS1"      # NEEDED AS PARAM1 IS THE VALUE SAVED IN CONFIG:CFG
@@ -156,6 +156,7 @@ if [ $CHANGED ]; then
 
 	pcp_squeezelite_start
 	pcp_save_to_config
+	pcp_read_chosen_audio
 	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated config.cfg" "cat $CONFIGCFG" 380
 	pcp_backup
 fi
