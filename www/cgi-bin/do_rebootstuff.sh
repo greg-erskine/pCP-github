@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.10 2016-12-23
+# Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH.
 #	Removed IQaudIO AMP unmute from here. SBP
 #	Changes for shairport-sync.  Incomplete PH
@@ -187,14 +187,16 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	. $MNTUSB/newconfig.cfg
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
+	pcp_timezone
+	pcp_write_to_host
+	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
-	pcp_timezone
-	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -234,14 +236,16 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
 	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
 	#-----------------------------------------------------------------------------------------
+	pcp_timezone
+	pcp_write_to_host
+	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
 	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
-	pcp_timezone
-	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
 	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	#cleanup all old kernel modules
