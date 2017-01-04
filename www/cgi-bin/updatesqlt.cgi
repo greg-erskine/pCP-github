@@ -52,31 +52,31 @@ pcp_end() {
 case "${ACTION}" in
 	update)
 		SPACE_REQUIRED=95
-
-		echo '<p class="info">[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)'</p>'
-
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
 
-		echo '<p class="info">[ INFO ] Waiting for Squeezelite to complete shutdown.</p>'
+	echo '                <textarea class="inform" style="height:150px">'
+		echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
+
+		echo '[ INFO ] Waiting for Squeezelite to complete shutdown.'
 		CNT=0
 		until ! lsof | grep -q /tmp/tcloop/pcp-squeezelite
 		do
 			[ $((CNT++)) -gt 10 ] && break || sleep 1
 		done
 		if [ $CNT -gt 10 ]; then
-			echo '<p class="error">[ ERROR ] Squeezelite took too long to terminate, please run a full package update.</p>'
+			echo '[ ERROR ] Squeezelite took too long to terminate, please run a full package update.'
 		 	RESULT=1
 		fi		
-		echo '<p class="info">[ INFO ] Removing old Squeezelite extension</p>'
+		echo '[ INFO ] Removing old Squeezelite extension'
 		if [ $RESULT -eq 0 -a -d /tmp/tcloop/pcp-squeezelite ]; then
 			umount -d /tmp/tcloop/pcp-squeezelite
 			RESULT=$?
 		fi
 		if [ $RESULT -ne 0 ]; then
-			echo '<p class="error">[ ERROR ] Inplace update failed, please run a full package update</p>'
+			echo '[ ERROR ] Inplace update failed, please run a full package update.'
 		else
-			echo '<p class="info">[ INFO ] Updating Squeezelite extension</p>'
+			echo '[ INFO ] Updating Squeezelite extension'
 			rm -f /usr/local/tce.installed/pcp-squeezelite
 			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz /tmp
 			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz.md5.txt /tmp
@@ -85,41 +85,44 @@ case "${ACTION}" in
 			else
 				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz
 			fi
+
 			if [ $? -ne 0 ]; then
 				DLERROR=1
-				echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
+				echo '[ ERROR ] Download unsuccessful, try again later!'
 				mv -f /tmp/pcp-squeezelite.tcz /mnt/mmcblk0p2/tce/optional
 				mv -f /tmp/pcp-squeezelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional
 			else
 				rm -f /tmp/pcp-squeezelite.tcz*
 			fi
-			echo '<p class="info">[ INFO ] Reloading old squeezelite extension</p>'
+			echo '[ INFO ] Reloading squeezelite extension'
 			sudo -u tc pcp-load -i pcp-squeezelite.tcz
-			echo '<p class="ok">[ OK ] Current Squeezelite version: '$(pcp_squeezelite_version)'</p>'
+			echo '[ OK ] Current Squeezelite version: '$(pcp_squeezelite_version)''
 		fi
-
+	echo '                </textarea>'
 		[ $DEBUG -eq 1 ] && (echo '<p class="ok">[ OK ] '; ls -al ${SQLT_BIN})
+
 	;;
 	full_update)
 		SPACE_REQUIRED=1300
-
-		echo '<p class="info">[ INFO ] Updating Squeezelite extension.</p>'
-		echo '<p class="info">[ INFO ] a reboot will be required to complete.</p>'
-		
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
+
+	echo '                <textarea class="inform" style="height:150px">'
+		echo '[ INFO ] Updating Squeezelite extension.'
+		echo '[ INFO ] a reboot will be required to complete.'
 
 		TMP_UPG="/tmp/upgrade"
 		
 		rm -rf ${TMP_UPG}
 		mkdir ${TMP_UPG}
 		chown tc.staff ${TMP_UPG}
+
 		if [ $DEBUG -eq 1 ]; then
 			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz 2>&1
-			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
 		else
 			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz
-			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
 		fi
 		if [ $FAIL -eq 0 ]; then
 			mkdir -p ${PACKAGEDIR}/upgrade
@@ -128,17 +131,18 @@ case "${ACTION}" in
 			sync
 			REBOOT_REQUIRED=1
 		else
-			echo '<p class="info">[ INFO ] Reloading old squeezelite extension</p>'
+			echo '[ INFO ] Reloading old squeezelite extension'
 		fi
+	echo '                </textarea>'
 	;;
 	inst_ffmpeg)
 		echo '<p class="info">[ INFO ] Installing FFMpeg extension.</p>'
 		if [ $DEBUG -eq 1 ]; then
 			pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
-			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
 		else
 			pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz
-			[ $? -eq 0 ] && FAIL = 0 || FAIL=1
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
 		fi
 		if [ $FAIL -eq 0 ]; then
 			echo "pcp-libffmpeg.tcz" >> $ONBOOTLST
