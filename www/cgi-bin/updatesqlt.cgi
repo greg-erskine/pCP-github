@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-19
+# Version: 3.10 2017-01-04
 #	Changes for Squeezelite extension. PH.
+#	Formatting Changes for textareas. SBP.
 
 # Version: 0.05 2016-02-20 GE
 #	Fixed sourceforge redirection issue.
@@ -54,8 +55,8 @@ case "${ACTION}" in
 		SPACE_REQUIRED=95
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-
-	echo '                <textarea class="inform" style="height:150px">'
+		pcp_table_top "Updating Squeezelite extension"
+		echo '                <textarea class="inform" style="height:150px">'
 		echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
 
 		echo '[ INFO ] Waiting for Squeezelite to complete shutdown.'
@@ -98,21 +99,21 @@ case "${ACTION}" in
 			sudo -u tc pcp-load -i pcp-squeezelite.tcz
 			echo '[ OK ] Current Squeezelite version: '$(pcp_squeezelite_version)''
 		fi
-	echo '                </textarea>'
-		[ $DEBUG -eq 1 ] && (echo '<p class="ok">[ OK ] '; ls -al ${SQLT_BIN})
-
+		[ $DEBUG -eq 1 ] && (echo '[ OK ] '; ls -al ${SQLT_BIN})
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	full_update)
 		SPACE_REQUIRED=1300
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
 
-	echo '                <textarea class="inform" style="height:150px">'
+		pcp_table_top "Updating Squeezelite and all libraries"
+		echo '                <textarea class="inform" style="height:150px">'
 		echo '[ INFO ] Updating Squeezelite extension.'
 		echo '[ INFO ] a reboot will be required to complete.'
 
 		TMP_UPG="/tmp/upgrade"
-		
 		rm -rf ${TMP_UPG}
 		mkdir ${TMP_UPG}
 		chown tc.staff ${TMP_UPG}
@@ -133,32 +134,44 @@ case "${ACTION}" in
 		else
 			echo '[ INFO ] Reloading old squeezelite extension'
 		fi
-	echo '                </textarea>'
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	inst_ffmpeg)
-		echo '<p class="info">[ INFO ] Installing FFMpeg extension.</p>'
+		pcp_table_top "Installing FFMpeg extension"
+		SPACE_REQUIRED=7000
+		pcp_sufficient_free_space $SPACE_REQUIRED
+		[ $? -eq 0 ] || pcp_end
+		echo '                <textarea class="inform" style="height:100px">'
 		if [ $DEBUG -eq 1 ]; then
-			pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
+			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
 			[ $? -eq 0 ] && FAIL=0 || FAIL=1
 		else
-			pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz
+			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz
 			[ $? -eq 0 ] && FAIL=0 || FAIL=1
 		fi
 		if [ $FAIL -eq 0 ]; then
+			sudo -u tc pcp-load -i pcp-libffmpeg.tcz
 			echo "pcp-libffmpeg.tcz" >> $ONBOOTLST
 		fi
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	rem_ffmpeg)
-		echo '<p class="info">[ INFO ] FFMpeg extension marked for removal. Reboot Required to complete.</p>'
+		pcp_table_top "Removing FFMpeg extension"
+		echo '                <textarea class="inform" style="height:100px">'
+		echo '[ INFO ] FFMpeg extension marked for removal. Reboot Required to complete.</p>'
 		sudo -u tc tce-audit builddb
 		sudo -u tc tce-audit delete pcp-libffmpeg.tcz
 		sed -i '/pcp-libffmpeg.tcz/d' $ONBOOTLST
 		REBOOT_REQUIRED=1
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	*) echo '<p class="error">[ ERROR ] Option Error!'
 	;;
 esac
-	
+
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 pcp_end
