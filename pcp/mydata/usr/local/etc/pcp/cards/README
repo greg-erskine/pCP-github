@@ -1,30 +1,28 @@
 The location of the dtoverlay files is mnt/mmcblk0p1/overlays.
 
-Read the avaialbe functions and variables in pcp-soundcard-functions:
+Read the available functions and variables in pcp-soundcard-functions:
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
 
 Definition of the variables:
----------------------------- 
-CARD: Defines the audio card name used by ALSA for controlling this DAC
-OUTPUT: Defines the output settings used as default on the squeezelite.cgi page. Like: "hw:CARD=IQaudIODAC"
-ALSA_PARAMS: Defines the default ALSA buffer settings used on the squeezelite.cgi page. Like:"80:4::1"
-SSET: Defines the name of the ALSA control which can control the output volume (if possible)
+----------------------------
+CARD:         Defines the audio card name used by ALSA for controlling this DAC
+OUTPUT:       Defines the output settings used as default on the squeezelite.cgi page. Like: "hw:CARD=IQaudIODAC"
+ALSA_PARAMS:  Defines the default ALSA buffer settings used on the squeezelite.cgi page. Like:"80:4::1"
+SSET:         Defines the name of the ALSA control which can control the output volume (if possible)
 GENERIC_CARD: Defines which function in the pcp-soundcard-functions file is called when the card is chosen.
-DTOVERLAY: Defines which dtoverlay file is loaded in the boot process
+DTOVERLAY:    Defines which dtoverlay file is loaded in the boot process
 CONTROL_PAGE: Let you use another GUI control.cgi file. So you can provide your own GUI for a new card.
-LISTNAME: Defines the name of the DAC that is shown in the dropdown list on squeezelite.cgi page
+LISTNAME:     Defines the name of the DAC that is shown in the dropdown list on squeezelite.cgi page
 PARAMS1 to 5: Defines all the possible parameter that are allowed in the dtoverlay. If PARAMS1 is defined, then this parametr will be loaded by default.
-TEXT: Defines the help text shown in the soundcard_control.cgi
-RPI_MODEL: Defines if the DAC is shown in the dropdown list in squeezelite.cgi dependent upon which RPi is used.
-	"HAT_ALL_NO_HAT" defines when the DAC will show in the dropdown list 
-	"ALL" means avaiable for all RPIs. 
-	"HAT" equals HAT-DACs for RPi with 40 pin connection. 
-	"NON_HAT" is for RPi boards with P5 connector
-	so "HAT_ALL" will be shown on RPi with 40 pin but also if the RPi model is unknown=ALL
+TEXT:         Defines the help text shown in the soundcard_control.cgi
+RPI_MODEL:    Defines if the DAC is shown in the dropdown list in squeezelite.cgi dependent upon which RPi is used.
+              "HAT_ALL_NO_HAT" defines when the DAC will show in the dropdown list
+              "ALL" means avaiable for all RPIs.
+              "HAT" equals HAT-DACs for RPi with 40 pin connection.
+              "NON_HAT" is for RPi boards with P5 connector
+              so "HAT_ALL" will be shown on RPi with 40 pin but also if the RPi model is unknown=ALL
 
+pcp_AudioKernel_status: This checks kernel status.
 
-This check kernel status : pcp_AudioKernel_status
-It is possible to define the variables differently dependent upon the kernel. So if using the Audiokernel version which contains all the patches provided by Clive use something like this: : 
+It is possible to define the variables differently dependent upon the kernel. So if using the Audiokernel version which contains all the patches provided by Clive use something like this:
 if [ "$KERNELVERSION" = "Audiokernel" ]; then
-
-
