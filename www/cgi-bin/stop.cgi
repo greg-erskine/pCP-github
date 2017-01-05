@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-19 GE
+# Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 #	Added pcp_squeezelite_status. GE.
 

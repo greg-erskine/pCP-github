@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-12-07
+# Version: 3.10 2017-01-06
 #	Updated [Save to USB] more> help. GE.
 #	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
 #	Changes for Squeezelite extension. PH.

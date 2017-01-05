@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-29
+# Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
-#	Write jivelite.tcz.dep, instead of relying on it to be in base image PH
-#	TODO: Move jivelite to repo with pcp-load
+#	Write jivelite.tcz.dep, instead of relying on it to be in base image. PH.
+#	TODO: Move jivelite to repo with pcp-load.
 
 # Version: 0.07 2016-05-09 GE
 #	Fixed JIVELITE variable (YES/NO).

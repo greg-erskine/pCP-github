@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-28
+# Version: 3.10 2017-01-06
 #	Improved display of pcp_boot.log. GE.
 
 # Version: 0.01 2016-04-23

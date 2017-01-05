@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-19
+# Version: 3.10 2017-01-06
 #	Added Advanced Options button. GE.
 #	Cleaned Audio selection and made a dynamic drop-down list. SBP.
 #	Changes for Squeezelite extension. PH.

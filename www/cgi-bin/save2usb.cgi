@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-09-30 GE
+# Version: 3.10 2017-01-06
 #	Minor update.
 
 # Version: 0.04 2016-03-29 GE

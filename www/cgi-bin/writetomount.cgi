@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-29
-#	Added support for GPT disks
+# Version: 3.10 2017-01-06
+#	Added support for GPT disks. PH.
 
 # Version: 2.06 2016-06-04 PH
 #	Made CIFS User and Password Optional

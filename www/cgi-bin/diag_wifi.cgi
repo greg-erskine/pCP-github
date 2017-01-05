@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 3.03 2016-09-28
+# Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
 #	Added wpa_supplicant.conf.

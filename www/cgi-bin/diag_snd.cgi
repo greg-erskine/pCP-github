@@ -1,7 +1,7 @@
 #!/bin/sh
 # Sound diagnostics script
 
-# Version: 3.03 2016-09-28
+# Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 
 # Version: 0.09 2016-05-16 GE

@@ -1,7 +1,6 @@
 #!/bin/sh
 
-
-# Version: 3.03 2016-10-11
+# Version: 3.10 2017-01-06
 #	First version to control volume and eventaully filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
 
 . pcp-soundcard-functions
@@ -25,7 +24,6 @@ pcp_httpd_query_string
 
 pcp_soundcontrol
 pcp_generic_card_control
-
 
 #========================================ACTIONS=========================================
 case "$ACTION" in
@@ -64,7 +62,6 @@ case "$ACTION" in
 esac
 #----------------------------------------------------------------------------------------
 
-
 #======================================DEBUG=============================================
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
@@ -93,12 +90,10 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] Check5 is:      '$FILTER5_CHECK'</p>'
 	echo '<!-- End of debug info -->'
 fi
-#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Below is the blocks that builds the table
 #----------------------------------------------------------------------------------------
-
 
 #--------------ALSA volume options-------------------------------------------------------
 # Only show this if ALSA volume control is possible
@@ -128,7 +123,6 @@ echo '              </tr>'
 fi
 }
 
-
 #--------------------------------------DSP Filter options--------------------------------
 # Only show these options if filters are an option for current sound card.
 pcp_soundcard_DSP_options() {
@@ -144,7 +138,6 @@ pcp_toggle_row_shade
 fi
 pcp_toggle_row_shade
 }
-
 
 #--------------------------------------Show Buttons for Volume selection-------------------
 # Only show this if ALSA volume control is possible
@@ -181,9 +174,7 @@ fi
 #echo '          </table>'
 }
 
-
 #--------------------------------------Parameter options--------------------------------
-
 
 # Logic that will show options as checked if defined in config.cfg
 [ x"$SPARAMS1" != x"" ] && PARAMS1_CHECK="checked"
@@ -191,7 +182,6 @@ fi
 [ x"$SPARAMS3" != x"" ] && PARAMS3_CHECK="checked"
 [ x"$SPARAMS4" != x"" ] && PARAMS4_CHECK="checked"
 [ x"$SPARAMS5" != x"" ] && PARAMS5_CHECK="checked"
-
 
 # Only show these options if Parameters for dtoverlay are an option for current sound card.
 pcp_soundcard_parameter_options() {
@@ -231,7 +221,6 @@ echo '              </tr>'
 fi
 }
 
-
 #========================================================================================
 # Build the Table
 #----------------------------------------------------------------------------------------
@@ -240,14 +229,12 @@ echo '            <form name="manual_adjust" action="'$0'" method="get">'
 pcp_start_row_shade
 pcp_incr_id
 
-
 [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
 [ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
 pcp_table_end
 #-----------------------------------------------------------------------------------------
-
 
 pcp_footer
 pcp_copyright

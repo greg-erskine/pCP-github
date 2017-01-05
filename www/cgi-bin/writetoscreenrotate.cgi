@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-21
+# Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 
 # Version: 0.02 2016-05-09 GE

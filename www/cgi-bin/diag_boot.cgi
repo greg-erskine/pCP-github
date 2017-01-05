@@ -1,7 +1,7 @@
 #!/bin/sh
 # Boot diagnostics script
 
-# Version: 3.03 2016-09-28
+# Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 
 # Version: 0.07 2016-03-28 GE

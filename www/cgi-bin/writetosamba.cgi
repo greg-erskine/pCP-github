@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-18 PH
-#	Original version.
+# Version: 3.10 2017-01-06
+#	Original version. PH.
 
 . pcp-functions
 pcp_variables

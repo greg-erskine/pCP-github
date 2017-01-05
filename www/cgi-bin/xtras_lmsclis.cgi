@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-18
+# Version: 3.10 2017-01-06
 #	Added find_servers. GE.
 
 # Version: 0.04 2016-05-09 GE

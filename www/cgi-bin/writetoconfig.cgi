@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-14
+# Version: 3.10 2017-01-06
 #	Enhanced format. GE.
 #	Removed pcp_multi_alsa_mmap. GE.
 

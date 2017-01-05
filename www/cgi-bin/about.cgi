@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-11-19
+# Version: 3.10 2017-01-06
 #	Changes for Squeezelite extension. PH.
 
 # Version: 3.00 2016-08-18 PH

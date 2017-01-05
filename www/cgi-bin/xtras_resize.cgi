@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.03 2016-10-08
+# Version: 3.10 2017-01-06
 #	Added selectable partition size from dropdown list. SBP.
 
 # Version: 3.00 2016-07-08
