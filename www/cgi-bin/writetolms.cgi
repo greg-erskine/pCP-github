@@ -1,10 +1,12 @@
 #!/bin/sh
 
-# Version: 2.05 2016-04-15 GE
-#	Fixed sourceforge redirection issue.
-#	Updated slimserver extension names   PH
-#	Added LMS update function   SBP
+# Version: 3.10 2016-12-23
+#	Remove references to SAMBA in this routine. PH.
 
+# Version: 2.05 2016-04-15
+#	Fixed sourceforge redirection issue. GE.
+#	Updated slimserver extension names. PH.
+#	Added LMS update function. SBP.
 
 # Version: 0.01 2016-01-30 SBP
 #	Original version.
@@ -14,7 +16,6 @@ pcp_variables
 
 # Store the original values so we can see if they are changed
 ORIG_LMSERVER="$LMSERVER"
-ORIG_SAMBA="$SAMBA"
 
 pcp_html_head "Write LMS settings" "SBP" "15" "lms.cgi"
 
@@ -22,10 +23,9 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-#LMS="slimserver*"
-SAMBA="samba.tcz"
 WGET="/bin/busybox wget"
-LMSUPDATELOG="/tmp/updateLMS.txt"			#<---- MAKE RIGHT DIRECTORY???
+LMSUPDATELOG="/tmp/updateLMS.txt"					#<---- MAKE RIGHT DIRECTORY???
+#LMSUPDATELOG="${LOGDIR}/pcp_updateLMS.log"			# GE. Can we make the log file dir/name this?
 
 # Only offer reboot option if needed
 REBOOT_REQUIRED=0
@@ -47,7 +47,7 @@ pcp_disable_lms() {
 }
 
 pcp_lms_update() {
-	# the -m option will force an update no matter what.  We need to remove that option after testing
+	# The -m option will force an update no matter what.  We need to remove that option after testing.
 	# Update checks and frequency are set within LMS, and will write /tmp/slimupdate/update_url when there is an update to be done.
 	sudo lms-update.sh -r -u > "$LMSUPDATELOG" 2>&1  
 }

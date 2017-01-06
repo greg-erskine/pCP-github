@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.10 2016-12-22
+#	Added lirc[0-9] and hidraw[0-9]. GE.
+#	Added LIRC gpio out for IR transmitter. GE.
+#	Sourceforge repo updates. PH
+
 # Version: 3.01 2016-08-27
 #	Changed default lirc GPIO to 25. GE.
 
@@ -29,7 +34,8 @@ pcp_httpd_query_string
 
 FAIL_MSG="ok"
 KERNEL=$(uname -r)
-DEFAULT_GPIO="25"
+DEFAULT_IR_GPIO_IN="25"
+DEFAULT_IR_GPIO_OUT=""
 
 #========================================================================================
 #  335872 irda-4.1.13-piCore+.tcz
@@ -120,6 +126,7 @@ pcp_html_end() {
 
 	pcp_footer
 	pcp_copyright
+	pcp_remove_query_string
 
 	echo '</body>'
 	echo '</html>'
@@ -144,7 +151,7 @@ pcp_lirc_install() {
 
 	echo '[ INFO ] Installing packages for IR remote control.'
 	echo '[ INFO ] This can take a couple of minutes. Please wait...'
-	sudo -u tc pcp-load -r $PCP_REPO -wfi lirc.tcz | sed 's|<p>||g' | sed 's|<\/p>||g'
+	sudo -u tc pcp-load -r $PCP_REPO -wi lirc.tcz
 
 	echo '[ INFO ] Updating configuration files... '
 
@@ -155,7 +162,11 @@ pcp_lirc_install() {
 	pcp_mount_mmcblk0p1_nohtml
 	echo '[ INFO ] Adding lirc-rpi overlay to config.txt... '
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+	if [ "$IR_GPIO_OUT" = "" ]; then
+		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
+	else
+		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+	fi
 	pcp_umount_mmcblk0p1_nohtml
 
 	# Add lirc conf to the .filetool.lst
@@ -171,12 +182,6 @@ pcp_lirc_install() {
 		sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
 	fi
 
-	# Download lirc.dep file until the pcp-load script can handle this.
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep ]; then
-		echo "[ INFO ] Downloading missing lirc.tcz.dep file..."
-		sudo wget https://sourceforge.net/projects/picoreplayer/files/repo/8.x/armv7/tcz/lirc.tcz.dep/download -O /mnt/mmcblk0p2/tce/optional/lirc.tcz.dep
-	fi
-
 	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
 }
 
@@ -184,10 +189,11 @@ pcp_lirc_install() {
 # LIRC uninstall
 #----------------------------------------------------------------------------------------
 pcp_lirc_uninstall() {
+	#Should we move this to tce-audit delete ?
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz
-#	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep         <----- this file is not downloaded by pcp-load so for now we supply it with the image
+	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep
 	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
 
 	if [ $SHAIRPORT = "no" ]; then
@@ -210,7 +216,8 @@ pcp_lirc_uninstall() {
 
 	if [ "$FAIL_MSG" = "ok" ]; then
 		IR_LIRC="no"
-		IR_GPIO=$DEFAULT_GPIO
+		IR_GPIO_IN=$DEFAULT_IR_GPIO_IN
+		IR_GPIO_OUT=$DEFAULT_IR_GPIO_OUT
 		IR_DEVICE="lirc0"
 		IR_CONFIG=""
 		pcp_save_to_config
@@ -233,7 +240,7 @@ case "$ACTION" in
 	;;
 	Save)
 		ACTION=$ACTION
-		[ "$IR_GPIO" = "" ] && IR_GPIO=$DEFAULT_GPIO
+		[ "$IR_GPIO_IN" = "" ] && IR_GPIO_IN=$DEFAULT_IR_GPIO_IN
 	;;
 	*)
 		ACTION="Initial"
@@ -346,7 +353,9 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '            <form name="settings" action="'$0'" method="get">'
 	#----------------------------------------------------------------------------------------
 
-	#------------------------------------------LIRC GPIO-------------------------------------
+	#------------------------------------------LIRC GPIO IN-----------------------------------
+	# gpio_in_pin    GPIO for input (default "18")
+	#-----------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -354,8 +363,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  <input class="input"'
 	echo '                         type="number"'
 #	echo '                         type="text"'
-	echo '                         name="IR_GPIO"'
-	echo '                         value="'$IR_GPIO'"'
+	echo '                         name="IR_GPIO_IN"'
+	echo '                         value="'$IR_GPIO_IN'"'
 	echo '                         title="( 0 - 31 )"'
 #	echo '                         title="( 4,5,6,12,13,16,17,20,22,23,24,25,26,27 )"'
 	echo '                         min="0"'
@@ -364,14 +373,14 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set LIRC GPIO number&nbsp;&nbsp;'
+	echo '                  <p>Set LIRC GPIO in number (IR receiver)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;0 - 31&gt;</p>'
 #	echo '                    <p>&lt;4,5,6,12,13,16,17,20,22,23,24,25,26,27&gt;</p>'
-	echo '                    <p><b>Default:</b> '$DEFAULT_GPIO'</p>'
-	echo '                    <p>Set GPIO number to match the GPIO used to connect the IR Receiver.</p>'
+	echo '                    <p><b>Default:</b> '$DEFAULT_IR_GPIO_IN'</p>'
+	echo '                    <p>Set GPIO in number to match the GPIO used to connect the IR Receiver.</p>'
 	echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
 	echo '                    <p><b>Note:</b> Not used for USB PCRemote.</p>'
 	echo '                    </ul>'
@@ -379,6 +388,39 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 	#----------------------------------------------------------------------------------------
+
+	if [ $MODE -ge $MODE_BETA ]; then
+		#------------------------------------------LIRC GPIO OUT---------------------------------
+		# gpio_out_pin    GPIO for output (default "17")
+		#----------------------------------------------------------------------------------------
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 center">'
+		echo '                  <input class="input"'
+		echo '                         type="number"'
+		echo '                         name="IR_GPIO_OUT"'
+		echo '                         value="'$IR_GPIO_OUT'"'
+		echo '                         title="( 0 - 31 )"'
+		echo '                         min="0"'
+		echo '                         max="31"'
+		echo '                  >'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Set LIRC GPIO out number (IR transmitter)&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>&lt;0 - 31&gt;</p>'
+		echo '                    <p><b>Default:</b> '$DEFAULT_IR_GPIO_OUT'</p>'
+		echo '                    <p>Set GPIO out number to match the GPIO used to connect the IR Transmitter.</p>'
+		echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
+		echo '                    </ul>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+		#----------------------------------------------------------------------------------------
+	fi
 
 	#------------------------------------------IR Device-------------------------------------
 	pcp_incr_id
@@ -390,8 +432,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                         type="text"'
 	echo '                         name="IR_DEVICE"'
 	echo '                         value="'$IR_DEVICE'"'
-	echo '                         title="( lirc0 | hidraw1 )"'
-	echo '                         pattern="(lirc0|hidraw1)"'
+	echo '                         title="( lirc[0-9] | hidraw[0-9] )"'
+	echo '                         pattern="(lirc[0-9]|hidraw[0-9])"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -399,7 +441,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;lirc0|hidraw1&gt;</p>'
+	echo '                    <p>&lt;lirc[0-9]|hidraw[0-9]&gt;</p>'
 	echo '                    <p><b>Default:</b> lirc0</p>'
 	echo '                    <ul>'
 	echo '                      <li class="pointer" title="Click to use lirc0" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option1\'')">'
@@ -465,7 +507,7 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_sourceforge_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$SOURCEFORGE_STATUS
-		pcp_sufficient_free_space $SPACE_REQUIRED
+		pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
 		pcp_lirc_install
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
@@ -562,7 +604,11 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_mount_mmcblk0p1_nohtml
 		echo '[ INFO ] Changing '$CONFIGTXT'... '
 		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO" >> $CONFIGTXT
+		if [ "$IR_GPIO_OUT" = "" ]; then
+			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
+		else
+			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+		fi
 		pcp_umount_mmcblk0p1_nohtml
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
@@ -579,6 +625,19 @@ if [ "$ACTION" != "Initial" ]; then
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
+fi
+
+if [ $DEBUG -eq 1 ]; then
+	pcp_table_top "Debug"
+	echo '<p class="debug">[ DEBUG ] $IR_LIRC: '$IR_LIRC'<br />'
+	echo '                 [ DEBUG ] $IR_GPIO_IN: '$IR_GPIO_IN'<br />'
+	echo '                 [ DEBUG ] $IR_GPIO_OUT: '$IR_GPIO_OUT'<br />'
+	echo '                 [ DEBUG ] $IR_DEVICE: '$IR_DEVICE'</p>'
+	pcp_mount_mmcblk0p1
+	echo '<p class="info">[ INFO ] Last few lines of config.txt</p>'
+	pcp_textarea_inform "none" "tail -2 $CONFIGTXT" "30"
+	pcp_umount_mmcblk0p1
+	pcp_table_end
 fi
 
 pcp_backup_if_required

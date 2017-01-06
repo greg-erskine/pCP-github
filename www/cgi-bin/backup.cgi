@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-06
+#	Updated formatting. GE.
+#	Added backup log. GE.
+
 # Version: 0.04 2014-12-09 GE
 #	HTML5 formatted.
 
@@ -15,12 +19,22 @@
 . pcp-functions
 pcp_variables
 
-pcp_html_head "Backup mydata" "SBP" "5" "main.cgi"
+pcp_html_head "Backup mydata" "SBP" "10" "main.cgi"
 
 pcp_banner
 pcp_running_script
-pcp_textarea "none" "pcp_backup_nohtml" "80"
+
+LOG="${LOGDIR}/pcp_backup.log"
+pcp_log_header $0
+
+pcp_table_top "Backup"
+pcp_textarea_inform "none" 'pcp_backup "nohtml"' "100"
+pcp_table_middle
 pcp_go_main_button
+pcp_table_end
+
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

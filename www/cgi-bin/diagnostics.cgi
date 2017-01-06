@@ -1,6 +1,10 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 3.10 2016-12-23
+#	Changed to using pcp_log_header. GE.
+#	Changes for Squeezelite extension. PH.
+
 # Version: 0.13 2016-03-28 GE
 #	Changed log location to /var/log.
 
@@ -48,11 +52,8 @@ pcp_variables
 . pcp-pastebin-functions
 
 # Local variables
-START="====================> Start <===================="
-END="=====================> End <====================="
 LOG="${LOGDIR}/pcp_diagnostics.log"
-(echo $0; date) > $LOG
-cat /etc/motd >>$LOG
+pcp_log_header $0
 
 pcp_html_head "Diagnostics" "GE"
 
@@ -60,36 +61,57 @@ pcp_banner
 pcp_diagnostics
 pcp_running_script
 
-pcp_textarea "piCore version: $(pcp_picore_version)" "version" 60 log
-pcp_textarea "piCorePlayer version: $(pcp_picoreplayer_version)" "cat /usr/local/sbin/piversion.cfg" 60 log
-pcp_textarea "Squeezelite version and license: $(pcp_squeezelite_version)" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -t" 300 log
-pcp_textarea "Squeezelite help" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -h" 300 log
-pcp_textarea "Squeezelite Output devices" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -l" 150 log
-pcp_textarea "Squeezelite Volume controls" "/mnt/mmcblk0p2/tce/squeezelite-armv6hf -L" 150 log
-pcp_textarea "Squeezelite process" 'ps -o args | grep -v grep | grep squeezelite' 60 log
+#=========================================================================================
+# Diagnostics
+#-----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Diagnostics</legend>'
+echo '          <table class="bggrey percent100">'
+pcp_start_row_shade
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+
+pcp_textarea_inform "piCore version: $(pcp_picore_version)" "version" 60 log
+pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat /usr/local/sbin/piversion.cfg" 60 log
+pcp_textarea_inform "Squeezelite version and license: $(pcp_squeezelite_version)" "${SQLT_BIN} -t" 300 log
+pcp_textarea_inform "Squeezelite help" "${SQLT_BIN} -h" 300 log
+pcp_textarea_inform "Squeezelite Output devices" "${SQLT_BIN} -l" 150 log
+pcp_textarea_inform "Squeezelite Volume controls" "${SQLT_BIN} -L" 150 log
+pcp_textarea_inform "Squeezelite process" 'ps -o args | grep -v grep | grep squeezelite' 60 log
 
 pcp_mount_mmcblk0p1 >/dev/null 2>&1
 if mount >/dev/null 2>&1 | grep $VOLUME; then
-	pcp_textarea "Current config.txt" "cat $CONFIGTXT" 150 log
-	pcp_textarea "Current cmdline.txt" "cat $CMDLINETXT" 150 log
+	pcp_textarea_inform "Current config.txt" "cat $CONFIGTXT" 150 log
+	pcp_textarea_inform "Current cmdline.txt" "cat $CMDLINETXT" 150 log
 	pcp_umount_mmcblk0p1 >/dev/null 2>&1
 fi
 
-pcp_textarea "Current config.cfg" "cat $CONFIGCFG" 150 log
-pcp_textarea "Current bootsync.sh" "cat $BOOTSYNC" 150 log
-pcp_textarea "Current bootlocal.sh" "cat $BOOTLOCAL" 150 log
-pcp_textarea "Current shutdown.sh" "cat $SHUTDOWN" 150 log
-pcp_textarea "" "dmesg" 300 log
-pcp_textarea "Current /opt/.filetool.lst" "cat /opt/.filetool.lst" 300 log
-pcp_textarea "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
-pcp_textarea "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
-pcp_textarea "lsmod" "lsmod" 300 log
-pcp_textarea "Directory of www/cgi-bin" "ls -al" 300 log
+pcp_textarea_inform "Current config.cfg" "cat $CONFIGCFG" 150 log
+pcp_textarea_inform "Current bootsync.sh" "cat $BOOTSYNC" 150 log
+pcp_textarea_inform "Current bootlocal.sh" "cat $BOOTLOCAL" 150 log
+pcp_textarea_inform "Current shutdown.sh" "cat $SHUTDOWN" 150 log
+pcp_textarea_inform "" "dmesg" 300 log
+pcp_textarea_inform "Current /opt/.filetool.lst" "cat /opt/.filetool.lst" 300 log
+pcp_textarea_inform "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
+pcp_textarea_inform "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
+pcp_textarea_inform "lsmod" "lsmod" 300 log
+pcp_textarea_inform "Directory of www/cgi-bin" "ls -al" 300 log
 
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
 
-echo '<br />'
-echo '<br />'
+echo '              </td>'
+echo '            </tr>'
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 
 pcp_footer
 pcp_copyright

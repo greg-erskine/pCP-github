@@ -522,7 +522,6 @@ fi
 # Set repository
 #----------------------------------------------------------------------------------------
 MYMIRROR=$(cat /opt/tcemirror)
-
 case "$MYMIRROR" in
 	"$PICORE_REPO_1")
 		SELECTED_1="selected"

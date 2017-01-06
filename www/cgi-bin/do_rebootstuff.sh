@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-02
+#	Added Samba Server Support. PH.
+#	Removed IQaudIO AMP unmute from here. SBP
+#	Changes for shairport-sync.  Incomplete PH
+#	Fixed newconfig.cfg process. PH
+#	Set rpi3wifi blacklist in newconfig process. PH
+
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository.
 
@@ -180,12 +187,16 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	. $MNTUSB/newconfig.cfg
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
-	pcp_disable_HDMI
-	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
-	pcp_read_chosen_audio
-	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	pcp_save_to_config
+	pcp_disable_HDMI
+	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
+	pcp_read_chosen_audio noumount
+	echo "${GREEN}Done.${NORMAL}"
 	pcp_save_to_config
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -225,12 +236,16 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
 	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
 	#-----------------------------------------------------------------------------------------
-	pcp_disable_HDMI
-	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
-	pcp_read_chosen_audio
-	echo "${GREEN}Done.${NORMAL}"
 	pcp_timezone
 	pcp_write_to_host
+	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	pcp_save_to_config
+	pcp_disable_HDMI
+	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
+	pcp_read_chosen_audio noumount
+	echo "${GREEN}Done.${NORMAL}"
 	pcp_save_to_config
 	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	#cleanup all old kernel modules
@@ -394,18 +409,6 @@ if [ $? -eq 0 ] && [ "$AUDIO" = "HDMI" ]; then
 fi
 echo "${GREEN}Done.${NORMAL}"
 
-# Unmute IQaudIO amplifier via GPIO pin 22
-# Only do this if not controlling amp via squeezelite.
-if [ "$AUDIO" = "I2SpIQAMP" ]; then
-	if [ "$POWER_GPIO" = "" ]; then
-		echo -n "${BLUE}Unmute IQaudIO AMP... ${NORMAL}"
-		sudo sh -c "echo 22 > /sys/class/gpio/export"
-		sudo sh -c "echo out >/sys/class/gpio/gpio22/direction"
-		sudo sh -c "echo 1 >/sys/class/gpio/gpio22/value"
-		echo "${GREEN}Done.${NORMAL}"
-	fi
-fi
-
 # Start the essential stuff for piCorePlayer
 echo -n "${YELLOW}Waiting for network."
 CNT=1
@@ -519,28 +522,8 @@ echo "${GREEN}Done.${NORMAL}"
 
 
 if [ "$SHAIRPORT" = "yes" ]; then
-	echo -n "${BLUE}Starting dbus daemon... ${NORMAL}"
-	/usr/local/etc/init.d/dbus start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
-
-	echo -n "${BLUE}Starting avahi daemon... ${NORMAL}"
-	/usr/local/etc/init.d/avahi start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
-
 	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
 	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
-fi
-
-if [ "$A_S_LMS" = "Enabled" ]; then
-	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
-	pcp_auto_start_lms
-	echo "${GREEN}Done.${NORMAL}"
-fi
-
-if [ "$A_S_FAV" = "Enabled" ]; then
-	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
-	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
@@ -605,6 +588,12 @@ if [ "$HDMIPOWER" = "off" ]; then
 	fi
 fi
 
+if [ "$SAMBA" = "yes" ]; then
+	echo "${BLUE}Starting Samba Server...${NORMAL}"
+	[ -x /usr/local/etc/init.d/samba ] && /usr/local/etc/init.d/samba start
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
 echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
@@ -612,6 +601,18 @@ echo "${GREEN}Done.${NORMAL}"
 if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
 	echo -n "${BLUE}Starting user commands... ${NORMAL}"
 	pcp_user_commands
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+if [ "$A_S_LMS" = "Enabled" ]; then
+	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
+	pcp_auto_start_lms
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+if [ "$A_S_FAV" = "Enabled" ]; then
+	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
+	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
 

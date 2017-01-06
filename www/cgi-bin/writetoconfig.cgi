@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-06
+#	Enhanced format. GE.
+#	Removed pcp_multi_alsa_mmap. GE.
+
 # Version: 3.02 2016-09-21
 #	Fixed blanking ALSA_PARAMS issue. GE.
 
@@ -42,11 +46,19 @@
 pcp_variables
 . $CONFIGCFG
 
+# Restore sparams variable value from config.cfg so it is not overwritten with default values
+PARAM1="$SPARAMS1"
+PARAM2="$SPARAMS2"
+PARAM3="$SPARAMS3"
+PARAM4="$SPARAMS4"
+PARAM5="$SPARAMS5"
+
+
 # Read original mmap value, so we only do something if value is changed
 ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 
-RESTART_REQUIRED=1
-REBOOT_REQUIRED=0
+RESTART_REQUIRED=TRUE
+unset REBOOT_REQUIRED
 
 pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
@@ -91,33 +103,36 @@ pcp_update() {
 	pcp_save_to_config
 }
 
-pcp_multi_alsa_mmap() {
-	pcp_mount_mmcblk0p1
-	if [ $ALSA_PARAMS4 -eq 1 ]; then
-		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
-		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
-		[ $? -eq 1 ] && REBOOT_REQUIRED=1 && RESTART_REQUIRED=0
-		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
-		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
-	else
-		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
-		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
-		pcp_umount_mmcblk0p1
-	fi
-}
+#pcp_multi_alsa_mmap() {
+#	pcp_mount_mmcblk0p1
+#	if [ $ALSA_PARAMS4 -eq 1 ]; then
+#		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
+#		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
+#		[ $? -eq 1 ] && REBOOT_REQUIRED=TRUE && unset RESTART_REQUIRED
+#		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+#		echo "dtoverlay=i2s-mmap" >> $CONFIGTXT
+#	else
+#		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
+#		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
+#		pcp_umount_mmcblk0p1
+#	fi
+#}
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
+pcp_table_top "Write to config"
+
 case "$SUBMIT" in
 	Save)
 		if [ $MODE -ge $MODE_BASIC ]; then
 			ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
-			[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
+#			[ "$FROM_PAGE" = "squeezelite" ] && [ "$ORG_ALSA_PARAMS4" != "$ALSA_PARAMS4" ] && pcp_multi_alsa_mmap
 			[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
 			[ $PRIORITY -eq 0 ] && PRIORITY=""
 			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
 		fi
+		echo '<p class="info">[ INFO ] Saving config file.</p>'
 		pcp_save_to_config
 	;;
 	Reset*)
@@ -143,10 +158,15 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 fi
 
 pcp_backup
-sleep 1
-[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
-[ $RESTART_REQUIRED -eq 1 ] && pcp_restart_required
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
+
+sleep 1
+[ $REBOOT_REQUIRED ] && pcp_reboot_required
+[ $RESTART_REQUIRED ] && pcp_restart_required
 
 echo '</body>'
 echo '</html>'

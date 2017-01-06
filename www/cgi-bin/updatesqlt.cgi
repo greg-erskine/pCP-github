@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-04
+#	Changes for Squeezelite extension. PH.
+#	Formatting Changes for textareas. SBP.
+
 # Version: 0.05 2016-02-20 GE
 #	Fixed sourceforge redirection issue.
 
@@ -25,28 +29,18 @@ pcp_html_head "Updating Squeezelite" "SBP" "5" "main.cgi"
 . $CONFIGCFG
 
 WGET="/bin/busybox wget"
-OLD_SQLT_VERSION=$SQLT_VERSION
+#OLD_SQLT_VERSION=$SQLT_VERSION
 
 pcp_banner
 pcp_running_script
 pcp_squeezelite_stop
 pcp_httpd_query_string
+REBOOT_REQUIRED=0
+RESULT=0
 
 #========================================================================================
 # Check for free space
 #----------------------------------------------------------------------------------------
-pcp_enough_free_space() {
-	REQUIRED_SPACE=$1
-	FREE_SPACE=$(pcp_free_space k)
-	if [ $FREE_SPACE -gt $REQUIRED_SPACE ]; then
-		echo '<p class="ok">[  OK  ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k</p>'
-		return 0
-	else
-		echo '<p class="error">[ ERROR ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k</p>'
-		echo '<p class="error">[ ERROR ] Not enough free space - try expanding your partition.</p>'
-		return 1
-	fi
-}
 
 pcp_end() {
 	pcp_squeezelite_start
@@ -55,49 +49,129 @@ pcp_end() {
 	exit
 }
 #----------------------------------------------------------------------------------------
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ACTION='$ACTION'</p>'
+case "${ACTION}" in
+	update)
+		SPACE_REQUIRED=95
+		pcp_sufficient_free_space $SPACE_REQUIRED
+		[ $? -eq 0 ] || pcp_end
+		pcp_table_top "Updating Squeezelite extension"
+		echo '                <textarea class="inform" style="height:150px">'
+		echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
 
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Version: '$VERSION'</p>'
+		echo '[ INFO ] Waiting for Squeezelite to complete shutdown.'
+		CNT=0
+		until ! lsof | grep -q /tmp/tcloop/pcp-squeezelite
+		do
+			[ $((CNT++)) -gt 10 ] && break || sleep 1
+		done
+		if [ $CNT -gt 10 ]; then
+			echo '[ ERROR ] Squeezelite took too long to terminate, please run a full package update.'
+		 	RESULT=1
+		fi		
+		echo '[ INFO ] Removing old Squeezelite extension'
+		if [ $RESULT -eq 0 -a -d /tmp/tcloop/pcp-squeezelite ]; then
+			umount -d /tmp/tcloop/pcp-squeezelite
+			RESULT=$?
+		fi
+		if [ $RESULT -ne 0 ]; then
+			echo '[ ERROR ] Inplace update failed, please run a full package update.'
+		else
+			echo '[ INFO ] Updating Squeezelite extension'
+			rm -f /usr/local/tce.installed/pcp-squeezelite
+			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz /tmp
+			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz.md5.txt /tmp
+			if [ $DEBUG -eq 1 ]; then
+				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz 2>&1
+			else
+				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz
+			fi
 
-case "$VERSION" in
-	Small*)
-		MESSAGE="Updating Squeezelite to Ralphy basic version..."
-		DOWNLOAD="squeezelite-armv6hf-noffmpeg"
-		SQLT_VERSION="basic"
-		SPACE_REQUIRED=1100
+			if [ $? -ne 0 ]; then
+				DLERROR=1
+				echo '[ ERROR ] Download unsuccessful, try again later!'
+				mv -f /tmp/pcp-squeezelite.tcz /mnt/mmcblk0p2/tce/optional
+				mv -f /tmp/pcp-squeezelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional
+			else
+				rm -f /tmp/pcp-squeezelite.tcz*
+			fi
+			echo '[ INFO ] Reloading squeezelite extension'
+			sudo -u tc pcp-load -i pcp-squeezelite.tcz
+			echo '[ OK ] Current Squeezelite version: '$(pcp_squeezelite_version)''
+		fi
+		[ $DEBUG -eq 1 ] && (echo '[ OK ] '; ls -al ${SQLT_BIN})
+		echo '                </textarea>'
+		pcp_table_end
 	;;
-	Large*)
-		MESSAGE="Updating Squeezelite to Ralphy ffmpeg version (will take a few minutes)..."
-		DOWNLOAD="squeezelite-armv6hf-ffmpeg"
-		SQLT_VERSION="ffmpeg"
-		SPACE_REQUIRED=13000
+	full_update)
+		SPACE_REQUIRED=1300
+		pcp_sufficient_free_space $SPACE_REQUIRED
+		[ $? -eq 0 ] || pcp_end
+
+		pcp_table_top "Updating Squeezelite and all libraries"
+		echo '                <textarea class="inform" style="height:150px">'
+		echo '[ INFO ] Updating Squeezelite extension.'
+		echo '[ INFO ] a reboot will be required to complete.'
+
+		TMP_UPG="/tmp/upgrade"
+		rm -rf ${TMP_UPG}
+		mkdir ${TMP_UPG}
+		chown tc.staff ${TMP_UPG}
+
+		if [ $DEBUG -eq 1 ]; then
+			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz 2>&1
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
+		else
+			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
+		fi
+		if [ $FAIL -eq 0 ]; then
+			mkdir -p ${PACKAGEDIR}/upgrade
+			mv ${TMP_UPG}/* ${PACKAGEDIR}/upgrade
+			chown -R tc.staff ${PACKAGEDIR}/upgrade
+			sync
+			REBOOT_REQUIRED=1
+		else
+			echo '[ INFO ] Reloading old squeezelite extension'
+		fi
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	inst_ffmpeg)
+		pcp_table_top "Installing FFMpeg extension"
+		SPACE_REQUIRED=7000
+		pcp_sufficient_free_space $SPACE_REQUIRED
+		[ $? -eq 0 ] || pcp_end
+		echo '                <textarea class="inform" style="height:100px">'
+		if [ $DEBUG -eq 1 ]; then
+			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
+		else
+			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz
+			[ $? -eq 0 ] && FAIL=0 || FAIL=1
+		fi
+		if [ $FAIL -eq 0 ]; then
+			sudo -u tc pcp-load -i pcp-libffmpeg.tcz
+			echo "pcp-libffmpeg.tcz" >> $ONBOOTLST
+		fi
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	rem_ffmpeg)
+		pcp_table_top "Removing FFMpeg extension"
+		echo '                <textarea class="inform" style="height:100px">'
+		echo '[ INFO ] FFMpeg extension marked for removal. Reboot Required to complete.</p>'
+		sudo -u tc tce-audit builddb
+		sudo -u tc tce-audit delete pcp-libffmpeg.tcz
+		sed -i '/pcp-libffmpeg.tcz/d' $ONBOOTLST
+		REBOOT_REQUIRED=1
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	*) echo '<p class="error">[ ERROR ] Option Error!'
 	;;
 esac
 
-echo '<p>[ INFO ] '${MESSAGE}'</p>'
-echo '<p class="info">[ INFO ] Current Squeezelite '$OLD_SQLT_VERSION' version: '$(pcp_squeezelite_version)'</p>'
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
-pcp_enough_free_space $SPACE_REQUIRED
-[ $? -eq 0 ] || pcp_end
-
-# Remove Squeezelite from /tmp
-if [ -e /tmp/squeezelite-armv6hf ]; then
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Removing /tmp/squeezelite-armv6hf...</p>'
-	sudo rm -f /tmp/squeezelite-armv6hf*
-fi
-
-$WGET ${REPOSITORY}/$DOWNLOAD -O /tmp/squeezelite-armv6hf
-result=$?
-if [ $result -ne 0 ]; then
-	echo '<p class="error">[ ERROR ] Download unsuccessful, try again later!'
-else
-	echo '<p class="ok">[ OK ] Download successful'
-	sudo mv /mnt/mmcblk0p2/tce/squeezelite-armv6hf /tmp/squeezelite-armv6hf~
-	sudo cp /tmp/squeezelite-armv6hf /mnt/mmcblk0p2/tce
-	sudo chmod u+x /mnt/mmcblk0p2/tce/squeezelite-armv6hf
-fi
-
-[ $DEBUG -eq 1 ] && (echo '<p class="ok">[ OK ] '; ls -al /mnt/mmcblk0p2/tce/squeezelite-armv6hf)
-
-pcp_save_to_config
-echo '<p class="ok">[ OK ] Upgraded Squeezelite '$SQLT_VERSION' version: '$(pcp_squeezelite_version)'</p>'
 pcp_end

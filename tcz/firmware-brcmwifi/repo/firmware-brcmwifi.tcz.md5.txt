@@ -1,0 +1,1 @@
+bee8296cab70e6819cec1a301d1a4312  firmware-brcmwifi.tcz

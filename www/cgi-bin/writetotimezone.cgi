@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-06
+#	Enhanced formatting. GE.
+
 # Version: 0.05 2015-09-18 SBP
 #	Added pcp_save_to_config, pcp_mount_mmcblk0p1 and pcp_umount_mmcblk0p1.
 #	Removed httpd decoding.
@@ -23,12 +26,14 @@
 . pcp-functions
 pcp_variables
 
-pcp_html_head "Set Timezone" "GE" "15" "tweaks.cgi"
+pcp_html_head "Set Timezone" "GE" "10" "tweaks.cgi"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-echo '<p class="info">[ INFO ] Timezone: '$TIMEZONE'</p>'
+
+pcp_table_top "Changing timezone"
+echo '<p class="info">[ INFO ] Setting Timezone to '$TIMEZONE'</p>'
 pcp_save_to_config
 pcp_mount_mmcblk0p1
 pcp_set_timezone
@@ -37,7 +42,12 @@ pcp_umount_mmcblk0p1
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
 
 pcp_backup
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
+pcp_reboot_required
 
 echo '</body>'
 echo '</html>'

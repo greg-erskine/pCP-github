@@ -31,6 +31,10 @@ echo "Creating $TCZ..."
 mkdir -p $OUTPUT/usr/local/sbin >> $LOG
 cp -p $SRC/shairport-sync $OUTPUT/usr/local/sbin/shairport-sync >> $LOG
 
+mkdir -p $OUTPUT/usr/local/etc/init.d >> $LOG
+cp -p $SRC/../shairport-sync-init.d $OUTPUT/usr/local/etc/init.d/shairport-sync >> $LOG
+chmod 755 $OUTPUT/usr/local/etc/init.d/shairport-sync >> $LOG
+
 cd $OUTPUT/.. >> $LOG
 
 if [ -f $TCZ ]; then

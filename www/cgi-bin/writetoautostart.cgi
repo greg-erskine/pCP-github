@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-06
+#	Enhanced formatting. GE.
+
 # Version: 0.04 2016-02-21 GE
 #	Added clear function to pcp_set_user_commands.
 
@@ -28,18 +31,15 @@ pcp_httpd_query_string
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	echo '<tr class="odd">'
-	echo '  <td  colspan="3">'
-	echo '    <p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'<br />'
-	echo '                     [ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
-	echo '                     [ DEBUG ] $AUTOSTART: '$AUTOSTART'<br />'
-	echo '                     [ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
-	echo '                     [ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
-	echo '                     [ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
-	echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
-	echo '                     [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
-	echo '  </td>'
-	echo '</tr>'
+	echo '  <p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
+	echo '                   [ DEBUG ] $AUTOSTART: '$AUTOSTART'<br />'
+	echo '                   [ DEBUG ] $A_S_LMS: '$A_S_LMS'<br />'
+	echo '                   [ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
+	echo '                   [ DEBUG ] $A_S_FAV: '$A_S_FAV'<br />'
+	echo '                   [ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
+	echo '                   [ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
+	echo '                   [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
+	echo '                   [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
 	echo '<!-- End of debug info -->'
 fi
 
@@ -59,13 +59,12 @@ pcp_set_austostart_fav() {
 	# Save the encoded parameter to the config file, with quotes
 	pcp_save_to_config
 
-	echo '<p class="info">[ INFO ] Auto start FAV is set to: '$AUTOSTARTFAV'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Auto start FAV is: '$A_S_FAV'</p>'
+	echo '<p class="info">[ INFO ] Auto start favorite is '$A_S_FAV'</p>'
+	echo '<p class="info">[ INFO ] Auto start favorite is set to '$AUTOSTARTFAV'</p>'
 
 	pcp_backup
 
 	if [ "$SUBMIT" = "Test" ]; then
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Submit: '$SUBMIT'</p>'
 		pcp_auto_start_fav
 	fi
 }
@@ -83,16 +82,14 @@ pcp_set_austostart_lms() {
 		A_S_FAV="Disabled"
 	fi
 
-	# Save the encoded parameter to the config file, with quotes
 	pcp_save_to_config
 
-	echo '<p class="info">[ INFO ] Autostart LMS is set to: '$AUTOSTARTLMS'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Autostart LMS is: '$A_S_LMS'</p>'
+	echo '<p class="info">[ INFO ] Auto start LMS command is '$A_S_LMS'</p>'
+	echo '<p class="info">[ INFO ] Auto start LMS command is set to '$AUTOSTARTLMS'</p>'
 
 	pcp_backup
 
 	if [ "$SUBMIT" = "Test" ]; then
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Submit: '$SUBMIT'</p>'
 		pcp_auto_start_lms
 	fi
 }
@@ -106,10 +103,13 @@ pcp_set_user_commands() {
 		USER_COMMAND_2=""
 		USER_COMMAND_3=""
 	fi
+
 	pcp_save_to_config
-	echo '<p class="info">[ INFO ] User command #1 is set to: '$USER_COMMAND_1'<br />'
-	echo '                [ INFO ] User command #2 is set to: '$USER_COMMAND_2'<br />'
-	echo '                [ INFO ] User command #3 is set to: '$USER_COMMAND_3'</p>'
+
+	echo '<p class="info">[ INFO ] User command #1 is set to: '$USER_COMMAND_1'</p>'
+	echo '<p class="info">[ INFO ] User command #2 is set to: '$USER_COMMAND_2'</p>'
+	echo '<p class="info">[ INFO ] User command #3 is set to: '$USER_COMMAND_3'</p>'
+
 	pcp_backup
 }
 
@@ -118,14 +118,17 @@ pcp_set_user_commands() {
 #----------------------------------------------------------------------------------------
 case "$AUTOSTART" in
 	FAV)
+		pcp_table_top "Auto Start Favorite"
 		pcp_httpd_query_string
 		pcp_set_austostart_fav
 	;;
 	LMS)
+		pcp_table_top "Auto Start LMS Command"
 		pcp_httpd_query_string_no_decode
 		pcp_set_austostart_lms
 	;;
 	CMD)
+		pcp_table_top "User Commands"
 		pcp_httpd_query_string_no_decode
 		pcp_set_user_commands
 	;;
@@ -133,11 +136,13 @@ case "$AUTOSTART" in
 		echo '<p class="error">[ ERROR ] Invalid AUTOSTART option: '$AUTOSTART'</p>'
 	;;
 esac
-
 #----------------------------------------------------------------------------------------
 
-[ $DEBUG -eq 1 ] && pcp_show_config_cfg
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.10 2016-12-22
+#	Sourceforge repo changes. PH
+
 # Version: 2.05 2016-04-15 PH
 #	Original.
 
@@ -34,7 +37,6 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
 WGET="/bin/busybox wget"
-LMSREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/LMS"
 
 #---------------------------Routines-----------------------------------------------------
 if [ -e /tmp/slimupdate/update_url ]; then

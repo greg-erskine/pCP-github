@@ -1,16 +1,21 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-06
+#	Updated [Save to USB] more> help. GE.
+#	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
+#	Changes for Squeezelite extension. PH.
+
 # Version: 3.00 2016-07-08
 #	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
 
-# Version: 2.06 2016-05-22 GE
-#	Fixed a few typos.
+# Version: 2.06 2016-05-22
+#	Fixed a few typos. GE.
 
-# Version: 2.05 2016-04-30 GE
-#	Added double quotes when comparing strings.
-#	Added pcp_main_update_config.
-#	Moved to developer mode: pcp_main_copy2fs, pcp_main_dosfsck, pcp_main_reset_all, pcp_main_restore_all.
-#   Changes to insitu_update section
+# Version: 2.05 2016-04-30
+#	Added double quotes when comparing strings. GE.
+#	Added pcp_main_update_config. GE.
+#	Moved to developer mode: pcp_main_copy2fs, pcp_main_dosfsck, pcp_main_reset_all, pcp_main_restore_all. GE.
+#   Changes to insitu_update section. GE.
 
 # Version: 0.22 2016-03-10 GE
 #	Added squeezelite version to more> help.
@@ -131,13 +136,9 @@ echo '          <table class="bggrey percent100">'
 pcp_main_squeezelite_indication() {
 
 	if [ $(pcp_squeezelite_status) -eq 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	pcp_start_row_shade
@@ -147,9 +148,11 @@ pcp_main_squeezelite_indication() {
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
-	[ "$SQUEEZELITE" = "no" ] &&
-	echo '                  And Squeezelite is disabled on Tweaks page.&nbsp;&nbsp;'
+	if [ "$SQUEEZELITE" = "no" ]; then
+		echo '                <p>Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
+	else
+		echo '                <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+	fi
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -172,13 +175,9 @@ pcp_main_squeezelite_indication && pcp_main_padding
 pcp_main_lms_indication() {
 
 	if [ $(pcp_lms_status) -eq 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	pcp_start_row_shade
@@ -207,13 +206,9 @@ pcp_main_lms_indication() {
 pcp_main_shairport_indication() {
 
 	if [ $(pcp_shairport_status) -eq 0 ]; then
-		INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	pcp_incr_id
@@ -302,10 +297,49 @@ pcp_main_restart_shairport() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite - Ralphy-------------------
-pcp_main_update_ralphy() {
+pcp_main_update_sqlt() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="update">Update</button>'
+	echo '                </td>'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="full_update">Full Update</button>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Update Squeezelite Extensions&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will update the pCP Squeezelite extension from the pCP repository.</p>'
+	echo '                    <p><b>Note:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>Update will attempt to update the squeezelite package in place.</li>'
+	echo '                      <li>Full Update will update squeezelite and all libraries, requiring a reboot.</li>'
+	echo '                      <li>Internet access is required.</li>'
+	echo '                      <li>The basic version is 1.3MB which plays PCM, (WAV/AIFF), FLAC, MP3, OGG and AAC.</li>'
+	echo '                      <li>If the FFMpeg library is added, can additionally play ALAC and WMA.</li>'
+	echo '                      <li>Triode is the original author of Squeezelite.</li>'
+	echo '                      <li>Ralphy provides Squeezelite binaries with additional features enabled.</li>'
+	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/" target="_blank">Squeezelite Google code</a>.</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
+	echo '                    <p><b>Build options:</b></p>'
+	echo '                    <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </form>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_sqlt
+#----------------------------------------------------------------------------------------
 
-	SIZE=$(ls -l /mnt/mmcblk0p2/tce/squeezelite-armv6hf | awk '{ print $5 }')
-	if [ $SIZE -lt 2000000 ]; then
+#------------------------------------------Install/Remove FFMPEG-------------------------
+pcp_main_ffmpeg() {
+
+	if [ ! -f /mnt/mmcblk0p2/tce/optional/pcp-libffmpeg.tcz ]; then
 		VERSIONsmall="selected"
 	else
 		VERSIONlarge="selected"
@@ -314,40 +348,41 @@ pcp_main_update_ralphy() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="SUBMIT" value="Install">'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="VERSION">'
-	echo '                    <option value="Small" '$VERSIONsmall'>Ralphy'\''s basic version</option>'
-	echo '                    <option value="Large" '$VERSIONlarge'>Ralphy'\''s ffmpeg version</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Select and update Squeezelite&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will download and install Squeezelite from Ralphy'\''s repository.</p>'
-	echo '                    <p><b>Note:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>Internet access is required.</li>'
-	echo '                      <li>The basic version is 1MB which plays pcm, (wav/aiff), flac, mp3, ogg and aac.</li>'
-	echo '                      <li>The ffmpeg version is 12MB which in addition plays ALAC and WMA (ffmpeg is built in).</li>'
-	echo '                      <li>Triode is the original author of Squeezelite.</li>'
-	echo '                      <li>Ralphy provides Squeezelite binaries with the additional features enabled.</li>'
-	echo '                      <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/">Squeezelite Google code</a>.</li>'
-	echo '                    </ul>'
-	echo '                    <p><b>Version:</b> '$(pcp_squeezelite_version)'</p>'
-	echo '                    <p><b>Build options:</b></p>'
-	echo '                    <p>'$(sudo /mnt/mmcblk0p2/tce/squeezelite-armv6hf -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
-	echo '                  </div>'
-	echo '                </td>'
+	echo '              <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
+	if [ "${VERSIONsmall}" = "selected" ]; then
+		echo '                <td class="column150 center">'
+		echo '                  <button type="submit" name="ACTION" value="inst_ffmpeg">Install</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Install FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will download and install FFMpeg Libraries from the pCP repository.</p>'
+		echo '                    <p><b>Note:</b></p>'
+		echo '                    <ul>'
+		echo '                      <li>Internet access is required.</li>'
+		echo '                      <li>The 7MB FFMpeg library adds playback of ALAC and WMA.</li>'
+		echo '                    </ul>'
+		echo '                  </div>'
+		echo '                </td>'
+	else
+		echo '                <td class="column150 center">'
+		echo '                  <button type="submit" name="ACTION" value="rem_ffmpeg">Remove</button>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Remove FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will remove the FFMpeg Libraries from the system.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+	fi
 	echo '              </form>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_ralphy
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_ffmpeg
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------
@@ -429,14 +464,13 @@ pcp_main_save_usb() {
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will copy the current configuration file to the USB flash drive.</p>'
-	echo '                  <p>This configuration file can be used:</p>'
+	echo '                  <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
+	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>as a backup</li>'
-	echo '                    <li>after an update</li>'
-	echo '                    <li>in another piCorePlayer.</li>'
+	echo '                    <li>If you then reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
+	echo '                    <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
+	echo '                    <li>This configuration file is named newconfig.cfg and will be automatially renamed to usedconfig.cfg after rebooting.</li>'
 	echo '                  </ul>'
-	echo '                  <p><b>Note: </b>USB flash drive must be plugged into USB port.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'

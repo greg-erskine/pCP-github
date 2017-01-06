@@ -1,7 +1,10 @@
 #!/bin/sh
 
-# Version: 0.01 2016-04-23 GE
-#	Original.
+# Version: 3.10 2017-01-06
+#	Improved display of pcp_boot.log. GE.
+
+# Version: 0.01 2016-04-23
+#	Original. GE.
 
 . pcp-functions
 pcp_variables
@@ -54,7 +57,7 @@ echo '                  <option value="'$FIRST'">'$FIRST'</option>'
 
 	                    for LOG in $LOGS
 	                    do
-	                      echo '                  <option value="'$LOG'">'$LOG'</option>'
+	                        echo '                  <option value="'$LOG'">'$LOG'</option>'
 	                    done
 
 echo '                </select>'
@@ -102,14 +105,22 @@ pcp_log_show() {
 		do
 			echo '            <tr>'
 			echo '              <td>'
-			                      pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG' 250
+			                      if [ "$LOG" = "pcp_boot.log" ]; then
+			                          pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG | sed "s/\[[01]\;3[0-9]m//g"' 250
+			                      else
+			                          pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG' 250
+			                      fi
 			echo '              </td>'
 			echo '            </tr>'
 		done
 	else
 		echo '            <tr>'
 		echo '              <td>'
-		                      pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION' 250
+		                      if [ "$SELECTION" = "pcp_boot.log" ]; then
+		                          pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION | sed "s/\[[01]\;3[0-9]m//g"' 250
+		                      else
+		                          pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION' 250
+		                      fi
 		echo '              </td>'
 		echo '            </tr>'
 	fi

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version 3.10 2016-12-26
+#	Changes for shairport-sync.  Incomplete PH
+#	Sourceforge repo changes. PH
+
 # Version 3.02 2016-09-04 PH
 #	Updated Kernel Information for 3.02 piCore8.0 Release
 #	Removed pcp-load, as 3.00 and on had the updated file.  Not needed for pcp 2.xx
@@ -30,7 +34,7 @@ FAIL_MSG="ok"
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-#INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
+#INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -248,7 +252,7 @@ pcp_get_kernel_modules() {
 		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
-		PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
+		PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
 		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		BUILD=$(getBuild)
@@ -272,15 +276,9 @@ pcp_get_kernel_modules() {
 			echo '[ INFO ] All new Kernel modules for ${KERNEL} already present.'
 		else
 			for EXT in ${MODULES}; do
-				case $EXT in
-					irda|backlight|touchscreen) #These are the current PCP extra modules
-						sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz | sed -e 's/<[^>]*>//g'
-						[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
-					;;
-					*) #Get file from the TC repo
-						sudo -u tc pcp-load -w -u ${TCE_DL} ${EXT}-${KERNEL}.tcz | sed -e 's/<[^>]*>//g'
-						[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
-					;;
+				# All kernel modules distributed from PCP_REPO
+				sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz
+				[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
 				esac
 			done
 		fi
@@ -293,7 +291,7 @@ pcp_get_kernel_modules() {
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '$VERSION'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz/download -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -352,7 +350,7 @@ pcp_save_configuration() {
 pcp_get_tce_files() {
 	echo '[ INFO ] Step 4B. - Downloading '$VERSION'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz/download -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -369,6 +367,22 @@ pcp_install_tce_files() {
 	#sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
 	#[ $? -eq 0 ] || FAIL_MSG="Error removing kernel specific files."
 
+	#	pcp_remove_shairport.old() {  Need to figure out how we want to remove the old shairport
+	#	echo '<p class="info">[ INFO ] Removing Shairport...'
+	#	/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
+	#	sudo pkill shairport-sync
+	#	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
+	#	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz*
+	#	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz*
+	# sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz*
+}
+	
 	# Untar and update the tzc packages files to optional
 	echo '[ INFO ] Untarring '${VERSION}'_tce.tar.gz...'
 	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
@@ -441,7 +455,7 @@ while True:
         if "#pCPstart------" in ln:
             CUT=1
             outfile.write("#pCPstart------\n")
-            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh | tee -a /var/log/pcp_boot.log\n")
+            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh 2>&1 | tee -a /var/log/pcp_boot.log\n")
             outfile.write("#pCPstop------\n")
         else:
             if not "#pCPstop------" in ln:

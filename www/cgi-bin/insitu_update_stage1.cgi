@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.10 2016-12-26
+#	Sourceforge repo changes. PH
+
 # Version 2.05 2016-06-17 SBP
 #	Original version
 #	Split from insitu_update.cgi to download new updater before updates.
@@ -19,7 +22,7 @@ FAIL_MSG="ok"
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-#INSITU_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
+#INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
 
 #========================================================================================
 #      382 - insitu.cfg

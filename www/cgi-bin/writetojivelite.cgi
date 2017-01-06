@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.10 2017-01-06
+#	Enhanced formatting. GE.
+#	Write jivelite.tcz.dep, instead of relying on it to be in base image. PH.
+#	TODO: Move jivelite to repo with pcp-load.
+
 # Version: 0.07 2016-05-09 GE
 #	Fixed JIVELITE variable (YES/NO).
 
@@ -63,7 +68,7 @@ pcp_download_jivelite() {
 	sudo rm -f /tmp/${JIVELITE_TCZ}
 	sudo rm -f /tmp/${JIVELITE_MD5}
 	echo '<p class="info">[ INFO ] Downloading Jivelite from Ralphy'\''s repository...</p>'
-	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
+	echo '<p class="info">[ INFO ] Downloading will take a few minutes. Please wait...</p>'
 
 	$WGET -s ${REPOSITORY}/${JIVELITE_TCZ}
 	if [ $? -eq 0 ]; then
@@ -77,6 +82,11 @@ pcp_download_jivelite() {
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 			sudo cp /tmp/$JIVELITE_MD5 /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt     #<-------------why do we rename jivelite extension????
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+			cat << EOF > /mnt/mmcblk0p2/tce/optional/jivelite.tcz.dep
+touchscreen-KERNEL.tcz
+backlight-KERNEL.tcz
+libts.tcz
+EOF
 		else
 			echo '<p class="error">[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!</p>'
 		fi
@@ -95,8 +105,6 @@ pcp_install_jivelite() {
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is added to .xfiletool.lst</p>'
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 	sudo echo 'opt/jivelite' >> /opt/.xfiletool.lst
-
-	# need to add this to cmdline.txt ==> consoleblank=0                           #<--------------part of jivelite OR screen support
 }
 
 pcp_delete_jivelite() {
@@ -104,7 +112,6 @@ pcp_delete_jivelite() {
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
 	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 	sudo rm -rf /home/tc/.jivelite
-###	sudo rm -rf /opt/jivelite
 
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from onboot.lst</p>'
 	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
@@ -193,17 +200,19 @@ pcp_delete_vumeters() {
 
 pcp_lirc_popup() {
 	if [ "$IR_LIRC" = "yes" ]; then
-	STRING1='INFO: LIRC is enabled; you might need to remove/install LIRC again to fix problems. But first press Ok to reboot now'
-	SCRIPT1='reboot.cgi'
-	pcp_confirmation_required
+		STRING1='INFO: LIRC is enabled; you might need to remove/install LIRC again to fix problems. But first press [OK] to reboot now'
+		SCRIPT1='reboot.cgi'
+		pcp_confirmation_required
 	else
-	pcp_reboot_required
+		pcp_reboot_required
 	fi
-	
 }
+
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
+pcp_table_top "Jivelite"
+
 case "$OPTION" in
 	JIVELITE)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Doing OPTION: '$OPTION'<br />'
@@ -217,7 +226,7 @@ case "$OPTION" in
 						pcp_download_vumeters
 						pcp_install_default_vumeter
 						pcp_remove_temp
-											;;
+					;;
 					no)
 						pcp_delete_jivelite
 						pcp_delete_vumeters
@@ -229,8 +238,7 @@ case "$OPTION" in
 				esac
 				pcp_backup
 				echo '<p class="info">[ INFO ] A reboot is needed in order to finalize!</p>'
-				pcp_lirc_popup				
-#				pcp_reboot_required
+				pcp_lirc_popup
 			;;
 			Reset)
 				echo '<p class="info">[ INFO ] Resetting Jivelite Configuration......</p>'
@@ -261,9 +269,11 @@ case "$OPTION" in
 	;;
 esac
 
-
-
+pcp_table_middle
 pcp_go_back_button
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'

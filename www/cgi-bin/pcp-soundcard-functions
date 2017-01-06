@@ -1,0 +1,219 @@
+#!/bin/sh
+
+# Version: 3.10 2016-12-11
+#	Original. SBP.
+
+DACLOCATION="/usr/local/etc/pcp/cards"
+#DACLOCATION="/home/tc/www/cgi-bin/cards"
+
+#========================================================================================
+# Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
+#----------------------------------------------------------------------------------------
+pcp_AudioKernel_status() {
+	sudo  uname -a | grep pcpAudioCore > /dev/null 2>&1 && KERNELVERSION=Audiokernel || KERNELVERSION=Officialkernel
+}
+
+#========================================================================================
+# Disable/re_enable analog audio
+#----------------------------------------------------------------------------------------
+pcp_disable_analog() {
+	sudo sed -i 's/^dtparam=audio=on/#dtparam=audio=on/g' $CONFIGTXT
+	sudo sed -i 's/^audio_pwm_mode=2/#audio_pwm_mode=2/g' $CONFIGTXT
+}
+
+pcp_re_enable_analog() {
+	pcp_disable_analog
+	sudo sed -i "/dtparam=audio=on/c\dtparam=audio=on" $CONFIGTXT
+	sudo sed -i "/audio_pwm_mode=2/c\audio_pwm_mode=2" $CONFIGTXT
+}
+
+#========================================================================================
+# Remove Audio dtoverlays
+#----------------------------------------------------------------------------------------
+pcp_disable_i2s() {
+	pcp_re_enable_analog
+        # Get a list of all avaiable sound coard overlays:
+        for i in $AUDIO_OPTIONS_EXTRA; do
+                        # unset DTOVERLAY
+                        . "$DACLOCATION"/"$i".conf
+                        [ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
+                done
+}
+
+
+#========================================================================================
+# Add Audio dtoverlays
+#----------------------------------------------------------------------------------------
+pcp_enable_i2s() {
+	pcp_re_enable_analog
+	. $CONFIGCFG
+	pcp_soundcontrol
+	[ x"$SPARAMS1" != x"" ] && PAR1=','"$SPARAMS1"'' || PAR1="$SPARAMS1"
+	[ x"$SPARAMS2" != x"" ] && PAR2=','"$SPARAMS2"'' || PAR2="$SPARAMS2"
+	[ x"$SPARAMS3" != x"" ] && PAR3=','"$SPARAMS3"'' || PAR3="$SPARAMS3"
+	[ x"$SPARAMS4" != x"" ] && PAR4=','"$SPARAMS4"'' || PAR4="$SPARAMS4"
+	[ x"$SPARAMS5" != x"" ] && PAR5=','"$SPARAMS5"'' || PAR5="$SPARAMS5"
+
+	[ x"$DTOVERLAY" != x"" ] && sudo echo dtoverlay=$DTOVERLAY$PAR1$PAR2$PAR3$PAR4$PAR5  >> $CONFIGTXT
+}
+
+#=========================================================================================
+# Enable/disable HDMI settings in config.txt
+#-----------------------------------------------------------------------------------------
+pcp_disable_HDMI() {
+	sed -i '/hdmi_drive=2/d' $CONFIGTXT
+	sed -i '/hdmi_force_hotplug=1/d' $CONFIGTXT
+	sed -i '/hdmi_force_edid_audio=1/d' $CONFIGTXT
+}
+
+pcp_enable_HDMI() {
+	pcp_disable_i2s
+	sudo echo hdmi_drive=2 >> $CONFIGTXT
+	sudo echo hdmi_force_hotplug=1 >> $CONFIGTXT
+	sudo echo hdmi_force_edid_audio=1 >> $CONFIGTXT
+	sudo amixer cset numid=3 2 >/dev/null 2>&1
+}
+
+#========================================================================================================
+# Section that controls loading of DAC overlays
+#--------------------------------------------------------------------------------------------------------
+pcp_read_chosen_audio() {
+	pcp_mount_mmcblk0p1
+	pcp_disable_HDMI
+	pcp_disable_i2s
+#	pcp_soundcontrol
+	pcp_enable_i2s
+	#This is to allow no unmount of mmcblk0p1 during booting with newconfig.cfg
+	[ "$1" != "noumount" ] && pcp_umount_mmcblk0p1
+}
+
+#========================================================================================
+# Control of sound card routines:
+# Needs to be populated for each type of soundcard. Some is without filter options.
+# USB cards will probably never be supported this way as they are so different.
+#----------------------------------------------------------------------------------------
+# HELP - To find the controls:
+#  - amixer -c 0 scontrols
+#  - aplay -l
+#----------------------------------------------------------------------------------------
+pcp_generic_card_control() {
+	case "$GENERIC_CARD" in
+		TI51XX)
+			DSP="DSP Program,0"
+			FILTER1="Low latency IIR with de-emphasis"
+			FILTER2="FIR interpolation with de-emphasis"
+			FILTER3="High attenuation with de-emphasis"
+			FILTER4="Fixed process flow"
+			FILTER5="Ringing-less low latency FIR"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
+
+			case "$DSPFILTER" in
+				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
+				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
+				FILTER3) FILTER="High attenuation with de-emphasis" ;;
+				FILTER4) FILTER="Fixed process flow" ;;
+				FILTER5) FILTER="Ringing-less low latency FIR" ;;
+			esac
+
+			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+			FILTER1_CHECK=""
+			FILTER2_CHECK=""
+			FILTER3_CHECK=""
+			FILTER4_CHECK=""
+			FILTER5_CHECK=""
+
+			case "$ACTUAL_FILTER" in
+				Low) FILTER1_CHECK="checked" ;;
+				FIR) FILTER2_CHECK="checked" ;;
+				High) FILTER3_CHECK="checked" ;;
+				Fixed) FILTER4_CHECK="checked" ;;
+				Ringing-less) FILTER5_CHECK="checked" ;;
+			esac
+		;;
+
+		ONBOARD)
+			CARD="ALSA"
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+			TEXT=""
+		;;
+
+		#ES9023)
+			#CARD="ALSA"
+			#SSET="PCM"
+			#ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			#ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+#			TEXT="Choosing 384k will enable 352k and 384k sample rates. Selecting bclk_ratio_int_div will use bclk_ratio=50 for 16/24bps and bclk_ratio=100 for 32bps media when sample rate is a multiple of 8kHz and less than 192kHz. Which causes the selection of the 19M2 OSC as the parent for the PCM clock with an integer divider, rather than PLLD with fractional divider and MASH noise shaping."
+#			PARAMS1="384k"
+#			PARAMS2="bclk_ratio_int_div"
+		#;;
+	esac
+}
+
+#========================================================================================================
+# This will get us all avaiable AUDIO DACs
+#--------------------------------------------------------------------------------------------------------
+AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print $1 }')
+
+#========================================================================================================
+# Section that populate sound card drop-down list on Squeezelite.cgi 
+#--------------------------------------------------------------------------------------------------------
+pcp_sound_card_dropdown() {
+sudo rm /tmp/dropdown.cfg
+	. $CONFIGCFG
+	CONF_AUDIO="$AUDIO"
+		for i in $AUDIO_OPTIONS_EXTRA; do
+			AUDIO=$i
+			pcp_blank_audio_conf
+			. "$DACLOCATION"/"$AUDIO".conf
+			CHECKED="notselected"
+			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
+			pcp_soundcontrol
+			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+		done
+}
+
+#========================================================================================================
+# This will get us available options from the DAC
+#--------------------------------------------------------------------------------------------------------
+pcp_soundcontrol() {
+pcp_blank_audio_conf
+echo "$AUDIO_OPTIONS_EXTRA" | grep  -q  "$AUDIO"  && . "$DACLOCATION"/"$AUDIO".conf
+}
+
+
+#========================================================================================================
+# This will get us available options from the selected DAC
+#--------------------------------------------------------------------------------------------------------
+pcp_selected_soundcontrol() {
+. "$CONFIGCFG"
+pcp_blank_audio_conf
+. "$DACLOCATION"/"$AUDIO".conf
+}
+
+pcp_blank_audio_conf() {
+	# Remove left-over from previous audio DAC
+	CARD=""
+	OUTPUT=""
+	ALSA_PARAMS=""
+	GENERIC_CARD=""
+	CONTROL_PAGE=""
+	LISTNAME=""
+	DTOVERLAY=""
+	TEXT=""
+	PARAMS1=""
+	PARAMS2=""
+	PARAMS3=""
+	PARAMS4=""
+	PARAMS5=""
+	RPI_MODEL=""
+}
+
+
+
+	
+
+
+
