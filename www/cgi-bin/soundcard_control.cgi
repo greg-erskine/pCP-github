@@ -233,6 +233,8 @@ pcp_incr_id
 
 [ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
+[ x"$GENERIC_CARD" = x"" ] && echo "$TEXT"
+
 pcp_table_end
 #-----------------------------------------------------------------------------------------
 
