@@ -21,6 +21,7 @@ DESC="Shairport-sync player"
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
 . /usr/local/sbin/config.cfg
 pcp_soundcontrol
+. /usr/local/sbin/config.cfg
 
 if [ ! -z $SSET ]; then
     SH_CONTROL='-c '"$SSET"''

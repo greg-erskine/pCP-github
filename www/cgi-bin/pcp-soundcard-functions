@@ -3,8 +3,8 @@
 # Version: 3.10 2016-12-11
 #	Original. SBP.
 
-DACLOCATION="/usr/local/etc/pcp/cards"
-#DACLOCATION="/home/tc/www/cgi-bin/cards"
+#DACLOCATION="/usr/local/etc/pcp/cards"
+DACLOCATION="/home/tc/www/cgi-bin/cards"
 
 #========================================================================================
 # Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
@@ -203,6 +203,7 @@ pcp_blank_audio_conf() {
 	LISTNAME=""
 	DTOVERLAY=""
 	TEXT=""
+	SSET=""
 	PARAMS1=""
 	PARAMS2=""
 	PARAMS3=""
