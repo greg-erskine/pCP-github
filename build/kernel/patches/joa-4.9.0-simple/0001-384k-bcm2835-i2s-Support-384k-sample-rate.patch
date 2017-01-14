@@ -1,0 +1,43 @@
+From aecb9cd8a93966161c26bad9c0747fa836551a1b Mon Sep 17 00:00:00 2001
+From: Paul <phermann1@att.net>
+Date: Sun, 6 Nov 2016 13:19:20 -0500
+Subject: [PATCH 01/19] 384k: bcm2835-i2s: Support 384k sample rate
+
+Add support for sample rates up to 384k to bcm2835-i2s driver,
+with SNDRV_PCM_RATE_CONTINUOUS and specifying 8k min and 384k max,
+for both playback and capture.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ sound/soc/bcm/bcm2835-i2s.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/bcm/bcm2835-i2s.c b/sound/soc/bcm/bcm2835-i2s.c
+index 6ba2049..4a67db2 100644
+--- a/sound/soc/bcm/bcm2835-i2s.c
++++ b/sound/soc/bcm/bcm2835-i2s.c
+@@ -578,7 +578,9 @@ static struct snd_soc_dai_driver bcm2835_i2s_dai = {
+ 	.playback = {
+ 		.channels_min = 2,
+ 		.channels_max = 2,
+-		.rates =	SNDRV_PCM_RATE_8000_192000,
++		.rates =	SNDRV_PCM_RATE_CONTINUOUS,
++		.rate_min =	8000,
++		.rate_max =	384000,
+ 		.formats =	SNDRV_PCM_FMTBIT_S16_LE
+ 				| SNDRV_PCM_FMTBIT_S24_LE
+ 				| SNDRV_PCM_FMTBIT_S32_LE
+@@ -586,7 +588,9 @@ static struct snd_soc_dai_driver bcm2835_i2s_dai = {
+ 	.capture = {
+ 		.channels_min = 2,
+ 		.channels_max = 2,
+-		.rates =	SNDRV_PCM_RATE_8000_192000,
++		.rates =	SNDRV_PCM_RATE_CONTINUOUS,
++		.rate_min =	8000,
++		.rate_max =	384000,
+ 		.formats =	SNDRV_PCM_FMTBIT_S16_LE
+ 				| SNDRV_PCM_FMTBIT_S24_LE
+ 				| SNDRV_PCM_FMTBIT_S32_LE
+-- 
+2.7.4
+

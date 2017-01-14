@@ -1,0 +1,143 @@
+From 86d812b33ec0acc23d9bfa9de0e939d2767d2b4c Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Fri, 6 May 2016 14:26:40 +0100
+Subject: [PATCH 53/65] ES9023: ALSA ASoC ESS Sabre ES9023 codec driver
+
+ALSA ASoC codec driver for the ESS Sabre ES9023.
+
+Note to self, this has now been split into this patch (for upstream) and
+a downstream patch for 384k support.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ sound/soc/codecs/Kconfig  |  4 +++
+ sound/soc/codecs/Makefile |  2 ++
+ sound/soc/codecs/es9023.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 80 insertions(+)
+ create mode 100644 sound/soc/codecs/es9023.c
+
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index fe32cca..e31144d9 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -65,6 +65,7 @@ config SND_SOC_ALL_CODECS
+ 	select SND_SOC_BT_SCO
+ 	select SND_SOC_ES8328_SPI if SPI_MASTER
+ 	select SND_SOC_ES8328_I2C if I2C
++	select SND_SOC_ES9023
+ 	select SND_SOC_GTM601
+ 	select SND_SOC_ICS43432
+ 	select SND_SOC_ISABELLE if I2C
+@@ -468,6 +469,9 @@ config SND_SOC_ES8328_SPI
+ 	tristate
+ 	select SND_SOC_ES8328
+ 
++config SND_SOC_ES9023
++	tristate "ESS Sabre ES9023 CODEC"
++
+ config SND_SOC_GTM601
+ 	tristate 'GTM601 UMTS modem audio codec'
+ 
+diff --git a/sound/soc/codecs/Makefile b/sound/soc/codecs/Makefile
+index dbb213d..3750265 100644
+--- a/sound/soc/codecs/Makefile
++++ b/sound/soc/codecs/Makefile
+@@ -58,6 +58,7 @@ snd-soc-dmic-objs := dmic.o
+ snd-soc-es8328-objs := es8328.o
+ snd-soc-es8328-i2c-objs := es8328-i2c.o
+ snd-soc-es8328-spi-objs := es8328-spi.o
++snd-soc-es9023-objs := es9023.o
+ snd-soc-gtm601-objs := gtm601.o
+ snd-soc-ics43432-objs := ics43432.o
+ snd-soc-isabelle-objs := isabelle.o
+@@ -256,6 +257,7 @@ obj-$(CONFIG_SND_SOC_DMIC)	+= snd-soc-dmic.o
+ obj-$(CONFIG_SND_SOC_ES8328)	+= snd-soc-es8328.o
+ obj-$(CONFIG_SND_SOC_ES8328_I2C)+= snd-soc-es8328-i2c.o
+ obj-$(CONFIG_SND_SOC_ES8328_SPI)+= snd-soc-es8328-spi.o
++obj-$(CONFIG_SND_SOC_ES9023)	+= snd-soc-es9023.o
+ obj-$(CONFIG_SND_SOC_GTM601)    += snd-soc-gtm601.o
+ obj-$(CONFIG_SND_SOC_ICS43432)	+= snd-soc-ics43432.o
+ obj-$(CONFIG_SND_SOC_ISABELLE)	+= snd-soc-isabelle.o
+diff --git a/sound/soc/codecs/es9023.c b/sound/soc/codecs/es9023.c
+new file mode 100644
+index 0000000..0e4955c
+--- /dev/null
++++ b/sound/soc/codecs/es9023.c
+@@ -0,0 +1,74 @@
++/*
++ * Driver for the ESS ES9023 codec
++ *
++ * Author:     Clive Messer <clive.messer@digitaldreamtime.co.uk>
++ *             Copyright 2014
++ *
++ * based on the PCM1794A codec driver
++ *     by Florian Meier <florian.meier@koalo.de> Copyright 2013
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++
++#include <sound/soc.h>
++
++static struct snd_soc_dai_driver es9023_dai = {
++	.name     = "es9023-hifi",
++	.playback = {
++		.stream_name  = "Playback",
++		.channels_min = 2,
++		.channels_max = 2,
++		.rates        = SNDRV_PCM_RATE_8000_192000,
++		.formats      = SNDRV_PCM_FMTBIT_S16_LE |
++				SNDRV_PCM_FMTBIT_S24_3LE |
++				SNDRV_PCM_FMTBIT_S24_LE |
++				SNDRV_PCM_FMTBIT_S32_LE
++	},
++};
++
++static struct snd_soc_codec_driver soc_codec_dev_es9023;
++
++static int es9023_probe(struct platform_device *pdev)
++{
++	return snd_soc_register_codec(&pdev->dev, &soc_codec_dev_es9023,
++				      &es9023_dai, 1);
++}
++
++static int es9023_remove(struct platform_device *pdev)
++{
++	snd_soc_unregister_codec(&pdev->dev);
++	return 0;
++}
++
++static const struct of_device_id es9023_of_match[] = {
++	{ .compatible = "ess,es9023", },
++	{ /* sentinel */ },
++};
++MODULE_DEVICE_TABLE(of, es9023_of_match);
++
++static struct platform_driver es9023_codec_driver = {
++	.probe  = es9023_probe,
++	.remove = es9023_remove,
++	.driver = {
++		.name           = "es9023-codec",
++		.owner          = THIS_MODULE,
++		.of_match_table = es9023_of_match,
++	},
++};
++
++module_platform_driver(es9023_codec_driver);
++
++MODULE_AUTHOR("Clive Messer <clive.messer@digitaldreamtime.co.uk>");
++MODULE_DESCRIPTION("ASoC ESS Sabre ES9023 codec driver");
++MODULE_LICENSE("GPL v2");
+-- 
+2.7.4
+

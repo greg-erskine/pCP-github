@@ -1,0 +1,80 @@
+From 9ae4d722b0137a9565fdbae76b2782f517eb2ae9 Mon Sep 17 00:00:00 2001
+From: Phil Elwell <phil@raspberrypi.org>
+Date: Mon, 19 Sep 2016 17:16:09 +0100
+Subject: [PATCH 36/65] overlays: adjust overlays for absent pwm_clk
+
+Clocks are now managed by cprman, so pwm_clk no longer exists.
+
+Signed-off-by: Phil Elwell <phil@raspberrypi.org>
+---
+ arch/arm/boot/dts/overlays/pwm-2chan-overlay.dts | 12 +++---------
+ arch/arm/boot/dts/overlays/pwm-overlay.dts       | 12 +++---------
+ 2 files changed, 6 insertions(+), 18 deletions(-)
+
+diff --git a/arch/arm/boot/dts/overlays/pwm-2chan-overlay.dts b/arch/arm/boot/dts/overlays/pwm-2chan-overlay.dts
+index 18e4e4f..abdeddd 100644
+--- a/arch/arm/boot/dts/overlays/pwm-2chan-overlay.dts
++++ b/arch/arm/boot/dts/overlays/pwm-2chan-overlay.dts
+@@ -29,25 +29,19 @@ N.B.:
+ 
+ 	fragment@1 {
+ 		target = <&pwm>;
+-		__overlay__ {
++		frag1: __overlay__ {
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pwm_pins>;
++			assigned-clock-rates = <100000000>;
+ 			status = "okay";
+ 		};
+ 	};
+ 
+-	fragment@2 {
+-		target = <&clk_pwm>;
+-		frag2: __overlay__ {
+-			clock-frequency = <100000000>;
+-		};
+-	};
+-
+ 	__overrides__ {
+ 		pin   = <&pwm_pins>,"brcm,pins:0";
+ 		pin2  = <&pwm_pins>,"brcm,pins:4";
+ 		func  = <&pwm_pins>,"brcm,function:0";
+ 		func2 = <&pwm_pins>,"brcm,function:4";
+-		clock = <&frag2>,"clock-frequency:0";
++		clock = <&frag1>,"assigned-clock-rates:0";
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/overlays/pwm-overlay.dts b/arch/arm/boot/dts/overlays/pwm-overlay.dts
+index bf030a6..27809e8 100644
+--- a/arch/arm/boot/dts/overlays/pwm-overlay.dts
++++ b/arch/arm/boot/dts/overlays/pwm-overlay.dts
+@@ -27,23 +27,17 @@ N.B.:
+ 
+ 	fragment@1 {
+ 		target = <&pwm>;
+-		__overlay__ {
++		frag1: __overlay__ {
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pwm_pins>;
++			assigned-clock-rates = <100000000>;
+ 			status = "okay";
+ 		};
+ 	};
+ 
+-	fragment@2 {
+-		target = <&clk_pwm>;
+-		frag2: __overlay__ {
+-			clock-frequency = <100000000>;
+-		};
+-	};
+-
+ 	__overrides__ {
+ 		pin   = <&pwm_pins>,"brcm,pins:0";
+ 		func  = <&pwm_pins>,"brcm,function:0";
+-		clock = <&frag2>,"clock-frequency:0";
++		clock = <&frag1>,"assigned-clock-rates:0";
+ 	};
+ };
+-- 
+2.7.4
+

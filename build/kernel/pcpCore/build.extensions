@@ -1,0 +1,192 @@
+#!/bin/bash
+
+#################################################################################
+#
+# build.extension
+#
+#	This works by copying a current functioning extensions replacing the kernel modules with the new kernel
+#	To include new kernel modules, there is a pause where you can add a module to the new extension if needed
+#	Pretty much this process wont work when making major kernel changes i.e. 4.4.y to 4.9.y  (See Note Below)
+#
+# Prep - need to setup some starting points
+#
+#	path  (versions and extensions are examples)
+#	armv6/extensions/4.4.20/<all extensions that you wish to update>
+#	armv7/extensions/4.4.20/<all extensions that you wish to update>
+#
+#  new extensions will be saved in path based on the new kernel version.  Note, that you need a new kernel for this to work.
+#
+#
+#	Notes: Currently this breaks if a new kernel doesn't have at least all modules in old versions
+
+
+
+if [ -d armv6 -o -d armv7 ]; then
+	echo
+	echo "Start from within the armv6 or armv7 directory"
+	echo "Usage .$0" >&2
+	exit 1
+fi
+
+BASEWD=$(pwd)
+
+AVAILKERNEL=$(ls extensions)
+
+echo "Please Select the Kernel version to use for starting module file listings"
+select OLD in $AVAILKERNEL;
+do
+	if [ "$OLD" != "" ]; then
+		echo "You picked $OLD"
+		read -p "Do you wish to continue?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+AVAILKERNEL=$(ls modules)
+
+echo
+echo "Starting kernel is $OLD"
+echo
+select NEW in $AVAILKERNEL;
+do
+	if [ "$NEW" != "" ]; then
+		echo "You picked $NEW"
+		read -p "Do you wish to continue?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+#MODPATH=
+OLDKERNEL=${OLD%^*}
+NEWKERNEL=${NEW%^*}
+
+cd extensions/$OLD
+
+#This is the list of extension names
+EXT=$(find * -name "*.tcz" | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///')
+
+cd $BASEWD
+mkdir -p extensions/$NEW
+LISTPATH="${BASEWD}/extensions/${OLD}"
+SRCMODPATH="modules/${NEW}/lib/modules/${NEWKERNEL}/kernel"
+
+for I in ${EXT}; do
+	echo
+	echo "*****************************************************************"
+	echo "Creating Module Extension for $I-$NEWKERNEL"
+	cd ${SRCMODPATH}
+	cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.list /tmp/${I}.list
+	sed -i "s|usr/local/lib/modules/$OLDKERNEL/kernel/||" /tmp/${I}.list
+	tar -T /tmp/${I}.list -cf /tmp/${I}-${NEWKERNEL}.tar
+	cd ${BASEWD}
+	DESTMODPATH="extensions/${NEW}/${I}-${NEWKERNEL}/usr/local/lib/modules/${NEWKERNEL}/kernel"
+	mkdir -p ${DESTMODPATH}
+	cd ${DESTMODPATH}
+	tar xf /tmp/${I}-${NEWKERNEL}.tar
+	cd ${BASEWD}
+	echo
+	echo "New module is located at "
+	echo "${DESTMODPATH}"
+	echo
+	echo "Add and new modules that you need to.   Then Press any key to continue"
+	read key
+	cd extensions/${NEW}/${I}-${NEWKERNEL}
+	echo "fixing directory access rights"
+	find -type d | xargs chmod -v 755
+	find usr -not -type d > ../${I}-${NEWKERNEL}.tcz.list
+	cd ..
+	echo "Squashing Extension"
+	mksquashfs ${I}-${NEWKERNEL} ${I}-${NEWKERNEL}.tcz -all-root -noappend > /dev/null
+	md5sum ${I}-${NEWKERNEL}.tcz > ${I}-${NEWKERNEL}.tcz.md5.txt
+	echo "Updating Extension Info"
+	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep
+	rm -f ${I}-${NEWKERNEL}.tcz.info
+	while read LINE; do
+		case $LINE in
+			Title*) 
+				P=1
+				V1="Title:          "
+				V2="${I}-${NEWKERNEL}.tcz"
+			;;
+			Description*) 
+				P=1
+				V1="$LINE"
+				V2=""
+			;;
+			Version*) 
+				P=1
+				V1="Version:        "
+				V2="${NEWKERNEL}"
+			;;
+			Author*) 
+				P=1
+				V1="$LINE"
+				V2=""
+			;;
+			Original-site*)
+				P=1
+				V1="$LINE"
+				V2=""
+			;;
+			Copying*)
+				P=1
+				V1="$LINE"
+				V2=""
+			;;
+			Size*) 
+				P=1
+				S=$(du -h $I-${NEWKERNEL}.tcz | awk -F 'K' '{print $1}')
+				V1="Size:           "
+				V2="${S}k"
+			;;
+			Extension*) 
+				P=1
+				V1="Extension_by:   "
+				V2="pcpTeam"
+			;;
+			Tags*) 
+				P=1
+				V1="$LINE"
+				V2=""
+			;;
+			Comments*)
+				P=1
+				V1=$(printf "Comments:       Binaries only\n                ---\n                Compiled for pcpCore3.x\n")
+				V2=""
+				;;
+			Change*)
+				P=1
+				V1="$LINE"
+				V2=""
+			;;
+			Current*)
+				P=1
+				V1="Current:        "
+				V2=$(date '+%Y/%m/%d')
+				V2="${V2} First Version"
+			;;
+			*)
+				P=0
+			;;
+		esac
+		[ $P -eq 1 ] && printf '%s%s\n' "${V1}" "${V2}" >> ${I}-${NEWKERNEL}.tcz.info
+	done < ${LISTPATH}/${I}-${OLDKERNEL}.tcz.info
+	echo "${I}-${NEWKERNEL}.tcz Done...."
+	echo
+	
+	cd $BASEWD
+	
+	echo "Cleaning Up"
+	rm -f /tmp/*.tar
+	rm -f /tmp/*.list
+done
+
+echo "Done!"

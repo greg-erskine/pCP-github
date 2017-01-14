@@ -1,0 +1,38 @@
+From 1dd85303ea2ff2a636dbed1c211c693ee481ad34 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Tue, 26 Apr 2016 11:32:21 +0000
+Subject: [PATCH 22/65] ARM: bcm2708: fix register range of spi-aux
+
+Fix the register range of the spi-aux devices,
+as they do not control the gate.
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ arch/arm/boot/dts/bcm2708_common.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index aad0752..7218bba 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -250,7 +250,7 @@
+ 
+ 		spi1: spi@7e215080 {
+ 			compatible = "brcm,bcm2835-aux-spi";
+-			reg = <0x7e215080 0x40>, <0x7e215000 0x8>;
++			reg = <0x7e215080 0x40>;
+ 			interrupts = <1 29>;
+ 			clocks = <&aux BCM2835_AUX_CLOCK_SPI1>;
+ 			#address-cells = <1>;
+@@ -260,7 +260,7 @@
+ 
+ 		spi2: spi@7e2150C0 {
+ 			compatible = "brcm,bcm2835-aux-spi";
+-			reg = <0x7e2150C0 0x40>, <0x7e215000 0x8>;
++			reg = <0x7e2150C0 0x40>;
+ 			interrupts = <1 29>;
+ 			clocks = <&aux BCM2835_AUX_CLOCK_SPI2>;
+ 			#address-cells = <1>;
+-- 
+2.7.4
+

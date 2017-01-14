@@ -1,0 +1,30 @@
+From 056fab07c182229d0220ce32810b08f15f4cf851 Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Tue, 16 Aug 2016 20:09:33 +0100
+Subject: [PATCH 35/65] CM3: ARM: bcm2708: remove clk_core as it is no longer
+ used
+
+Remove clk_core from device tree as it is no longer used.
+Any "modification" to the core_clock in the bootloader is now
+automatically detected via the cnew clockmgr.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/bcm2710-rpi-cm3.dts | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/bcm2710-rpi-cm3.dts b/arch/arm/boot/dts/bcm2710-rpi-cm3.dts
+index d00520e..c5d1447 100644
+--- a/arch/arm/boot/dts/bcm2710-rpi-cm3.dts
++++ b/arch/arm/boot/dts/bcm2710-rpi-cm3.dts
+@@ -145,7 +145,6 @@
+ 		i2c0_baudrate = <&i2c0>,"clock-frequency:0";
+ 		i2c1_baudrate = <&i2c1>,"clock-frequency:0";
+ 		i2c2_baudrate = <&i2c2>,"clock-frequency:0";
+-		core_freq = <&clk_core>,"clock-frequency:0";
+ 
+ 		act_led_gpio = <&act_led>,"gpios:4";
+ 		act_led_activelow = <&act_led>,"gpios:8";
+-- 
+2.7.4
+
