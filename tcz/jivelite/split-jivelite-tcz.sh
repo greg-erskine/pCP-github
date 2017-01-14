@@ -6,6 +6,8 @@ fi
 unsquashfs jivelite_touch.tcz 
 mv squashfs-root jivelite-build
 
+rm -rf jivelite-build/opt/jivelite/bin/{lua,luac} jivelite-build/opt/jivelite/lib/liblua.so jivelite-build/opt/jivelite/share/lua jivelite-build/opt/jivelite/lib/lua
+
 if [ -f hdskins.tar.gz ]; then
 	rm hdskins.tar.gz
 fi

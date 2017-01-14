@@ -111,21 +111,6 @@ if [ -f $OUTPUT/../lua.tar ]; then
 fi
 
 tar -cf $OUTPUT/../lua.tar opt/jivelite/bin/{lua,luac} opt/jivelite/lib/liblua.so opt/jivelite/share/lua opt/jivelite/lib/lua
-rm -rf opt/jivelite/bin/{lua,luac} opt/jivelite/lib/liblua.so opt/jivelite/share/lua opt/jivelite/lib/lua
-
-cd $LUAOUTPUT >> $LOG
-tar -xf $OUTPUT/../lua.tar
-mkdir -p usr/bin
-mv opt/jivelite/bin/{lua,luac} usr/bin
-rmdir opt/jivelite/bin
-cd $LUAOUTPUT/..
-
-if [ -f $LUATCZ ]; then
-	rm $LUATCZ >> $LOG
-fi
-
-mksquashfs $LUAOUTPUT $LUATCZ -all-root -no-progress >> $LOG
-md5sum `basename $LUATCZ` > $LUATCZ.md5.txt
 
 cd $OUTPUT/.. >> $LOG
 
@@ -135,6 +120,21 @@ fi
 
 mksquashfs $OUTPUT $TCZ -all-root -no-progress >> $LOG
 md5sum `basename $TCZ` > ${TCZ}.md5.txt
+
+cd $LUAOUTPUT >> $LOG
+tar -xf $OUTPUT/../lua.tar
+mkdir -p usr/bin
+mv opt/jivelite/bin/{lua,luac} usr/bin
+rmdir opt/jivelite/bin
+
+cd $LUAOUTPUT/..
+
+if [ -f $LUATCZ ]; then
+	rm $LUATCZ >> $LOG
+fi
+
+mksquashfs $LUAOUTPUT $LUATCZ -all-root -no-progress >> $LOG
+md5sum `basename $LUATCZ` > $LUATCZ.md5.txt
 
 cd $OUTPUT/../
 ./split-jivelite-tcz.sh
