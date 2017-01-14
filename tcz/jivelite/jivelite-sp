@@ -1,0 +1,14 @@
+#!/bin/sh
+if [ ! -z ${SDL_TOUCHSCREEN} ]; then
+    export JIVE_NOCURSOR=1
+fi
+
+export HOME=/home/tc
+export JIVE_FRAMERATE=22
+
+/usr/sbin/fbset -depth 32
+
+while true; do
+    sleep 3
+    /opt/jivelite/bin/jivelite > /dev/null 2>&1
+done
