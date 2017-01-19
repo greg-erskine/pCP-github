@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-20
+#	Fixed the issue with shairport not working when using USB cards. SBP.
+
 # Version: 3.10 2016-12-11
 #	Original. SBP.
 
-#DACLOCATION="/usr/local/etc/pcp/cards"
-DACLOCATION="/home/tc/www/cgi-bin/cards"
+DACLOCATION="/usr/local/etc/pcp/cards"
+#DACLOCATION="/home/tc/www/cgi-bin/cards"
 
 #========================================================================================
 # Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
@@ -32,14 +35,13 @@ pcp_re_enable_analog() {
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
 	pcp_re_enable_analog
-        # Get a list of all avaiable sound coard overlays:
-        for i in $AUDIO_OPTIONS_EXTRA; do
-                        # unset DTOVERLAY
-                        . "$DACLOCATION"/"$i".conf
-                        [ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
-                done
+	# Get a list of all available sound card overlays
+	for i in $AUDIO_OPTIONS_EXTRA; do
+		# unset DTOVERLAY
+		. "$DACLOCATION"/"$i".conf
+		[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
+	done
 }
-
 
 #========================================================================================
 # Add Audio dtoverlays
@@ -83,14 +85,15 @@ pcp_read_chosen_audio() {
 	pcp_disable_i2s
 #	pcp_soundcontrol
 	pcp_enable_i2s
-	#This is to allow no unmount of mmcblk0p1 during booting with newconfig.cfg
+	# This is to allow no unmount of mmcblk0p1 during booting with newconfig.cfg
 	[ "$1" != "noumount" ] && pcp_umount_mmcblk0p1
 }
 
 #========================================================================================
 # Control of sound card routines:
-# Needs to be populated for each type of soundcard. Some is without filter options.
-# USB cards will probably never be supported this way as they are so different.
+#  - Needs to be populated for each type of soundcard.
+#  - Some are without filter options.
+#  - USB cards will probably never be supported this way as they are so different.
 #----------------------------------------------------------------------------------------
 # HELP - To find the controls:
 #  - amixer -c 0 scontrols
@@ -140,15 +143,15 @@ pcp_generic_card_control() {
 			TEXT=""
 		;;
 
-		#ES9023)
-			#CARD="ALSA"
-			#SSET="PCM"
-			#ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
-			#ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+#		ES9023)
+#			CARD="ALSA"
+#			SSET="PCM"
+#			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+#			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
 #			TEXT="Choosing 384k will enable 352k and 384k sample rates. Selecting bclk_ratio_int_div will use bclk_ratio=50 for 16/24bps and bclk_ratio=100 for 32bps media when sample rate is a multiple of 8kHz and less than 192kHz. Which causes the selection of the 19M2 OSC as the parent for the PCM clock with an integer divider, rather than PLLD with fractional divider and MASH noise shaping."
 #			PARAMS1="384k"
 #			PARAMS2="bclk_ratio_int_div"
-		#;;
+#		;;
 	esac
 }
 
@@ -158,39 +161,38 @@ pcp_generic_card_control() {
 AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print $1 }')
 
 #========================================================================================================
-# Section that populate sound card drop-down list on Squeezelite.cgi 
+# Section that populate sound card drop-down list on Squeezelite.cgi
 #--------------------------------------------------------------------------------------------------------
 pcp_sound_card_dropdown() {
 sudo rm /tmp/dropdown.cfg
 	. $CONFIGCFG
 	CONF_AUDIO="$AUDIO"
-		for i in $AUDIO_OPTIONS_EXTRA; do
-			AUDIO=$i
-			pcp_blank_audio_conf
-			. "$DACLOCATION"/"$AUDIO".conf
-			CHECKED="notselected"
-			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
-			pcp_soundcontrol
-			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
-		done
+	for i in $AUDIO_OPTIONS_EXTRA; do
+		AUDIO=$i
+		pcp_blank_audio_conf
+		. "$DACLOCATION"/"$AUDIO".conf
+		CHECKED="notselected"
+		[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
+		pcp_soundcontrol
+		sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+	done
 }
 
 #========================================================================================================
 # This will get us available options from the DAC
 #--------------------------------------------------------------------------------------------------------
 pcp_soundcontrol() {
-pcp_blank_audio_conf
-echo "$AUDIO_OPTIONS_EXTRA" | grep  -q  "$AUDIO"  && . "$DACLOCATION"/"$AUDIO".conf
+	pcp_blank_audio_conf
+	echo "$AUDIO_OPTIONS_EXTRA" | grep -q "$AUDIO" && . "$DACLOCATION"/"$AUDIO".conf
 }
-
 
 #========================================================================================================
 # This will get us available options from the selected DAC
 #--------------------------------------------------------------------------------------------------------
 pcp_selected_soundcontrol() {
-. "$CONFIGCFG"
-pcp_blank_audio_conf
-. "$DACLOCATION"/"$AUDIO".conf
+	. "$CONFIGCFG"
+	pcp_blank_audio_conf
+	. "$DACLOCATION"/"$AUDIO".conf
 }
 
 pcp_blank_audio_conf() {
@@ -211,10 +213,3 @@ pcp_blank_audio_conf() {
 	PARAMS5=""
 	RPI_MODEL=""
 }
-
-
-
-	
-
-
-
