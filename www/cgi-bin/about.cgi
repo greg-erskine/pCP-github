@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-19
+#	Masked out $NETMOUNT1PASS when config.cfg is displayed. GE.
+
 # Version: 3.10 2017-01-06
 #	Changes for Squeezelite extension. PH.
 
@@ -86,7 +89,7 @@ echo '                <h2>Please donate if you like piCorePlayer</h2>'
 echo '                <p class="centre"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;'
 echo 'lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">'
 echo '                   <img border="0" src="../images/donate.gif" alt="Donate"/></a></p>'
-echo '                <p>//Paul, Steen and Greg</p>'
+echo '                <p>//Paul, Ralphy, Steen and Greg</p>'
 echo '              </td>'
 echo '            </tr>'
 echo '          </table>'
@@ -136,7 +139,9 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr>'
 	echo '              <td>'
-	                      pcp_textarea_inform "$CONFIGCFG" 'cat $CONFIGCFG | sed s/^PASSWORD=.*/PASSWORD=\"******\"/' 560
+	                      pcp_textarea_inform "$CONFIGCFG" 'cat $CONFIGCFG \
+	                      | sed -e "s/\(PASSWORD=\).*/\1\"********\"/"\
+	                      | sed -e "s/\(NETMOUNT1PASS=\).*/\1\"*******\"/" ' 560
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
