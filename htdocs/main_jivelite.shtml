@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- Start of pcp_html_head -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>pCP - Jivelite</title>
+  <meta name="author" content="GE'">
+  <meta name="description" content="pCP - Jivelite">
+  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <script src="../js/piCorePlayer.js"></script>
+</head>
+<body>
+<!-- End of pcp_html_head -->
+<!--#include virtual="pcp_banner.html" -->
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table class="bggrey percent100">
+            <tr>
+              <td>
+                <h1>Jivelite</h1>
+              </td>
+            </tr>
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<!--#include virtual="pcp_footer.html" -->
+<!--#include virtual="pcp_mode.html" -->
+<!--#include virtual="pcp_copyright.html" -->
+
+</body>
+</html>
