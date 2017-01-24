@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-23
+#	Added Workgroup to Samba. PH.
+
 # Version: 3.10 2017-01-06
 #	Original version. PH.
 
@@ -35,7 +38,7 @@ case "$COMMAND" in
 		# Write the Global Section of the config file
 		echo "[global]" > $SAMBACONF
         echo "    netbios name = ${NETBIOS}" >> $SAMBACONF
-        echo "    workgroup = WORKGROUP" >> $SAMBACONF
+        echo "    workgroup = ${WGROUP}" >> $SAMBACONF
         echo "    log file = /var/log/%m.log" >> $SAMBACONF
         echo "    max log size = 1000" >> $SAMBACONF
         echo "    local master = no" >> $SAMBACONF

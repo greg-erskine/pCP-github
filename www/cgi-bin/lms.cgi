@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-23
+#	Added Workgroup to Samba. PH.
+
 # Version: 3.10 2016-12-27
 #	Pop-up asking to delete cache. SBP
 #	Remove all traces of LMS. SBP
@@ -1384,7 +1387,7 @@ pcp_samba() {
 				case $LINE in
 					*global*) GLOBAL=1;;
 					netbios*) NETBIOS=$(trimval "${LINE}");;
-					workgroup*) WG=$(trimval "${LINE}");;
+					workgroup*) WGROUP=$(trimval "${LINE}");;
 					[*)	SC=$((SC+1)); eval SHARE${SC}=$(trimshare "${LINE}");;
 					path*) eval SHAREPATH${SC}=$(trimval "${LINE}");;
 					create\ mask*) eval SHAREMASK${SC}=$(trimval "${LINE}");;
@@ -1520,6 +1523,24 @@ pcp_samba() {
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>This is the Server name that will show up in your network browser.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <p class="row">Server WorkGroup</p>'
+		echo '                  </td>'
+		echo '                  <td class="column210">'
+		echo '                    <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required"></p>'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>This is the Server Work Group that will show up in your network browser.&nbsp;&nbsp;'
 		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                    </p>'
 		echo '                    <div id="'$ID'" class="less">'
