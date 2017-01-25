@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-24
+#	Set CLOSEOUT empty when removing Shairport. PH.
+
 # Version: 3.10 2016-12-23
 #	Changes for pcp-shairportsync.tcz. PH.
 #	Changes for sourceforge repo, also moved alsaequal to armv5&7 repos and changed install. PH.
@@ -370,8 +373,6 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 					/usr/local/etc/init.d/shairport-sync start
 				fi
 			fi
-#			I think this should be in the audiocard setup, not here
-#			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_disable_analog
 			CLOSEOUT="15"
 		;;
 		no)
@@ -380,9 +381,7 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 			pcp_remove_shairport
 			sed -i '/pcp-shairportsync.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			sync
-#			I think this should be in the audiocard setup, not here
-#			[ "$OUTPUT" = "hw:CARD=sndrpihifiberry" ] && pcp_re_enable_analog
-			CLOSEOUT="2"
+			CLOSEOUT=""
 		;;
 		*)
 			echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'
