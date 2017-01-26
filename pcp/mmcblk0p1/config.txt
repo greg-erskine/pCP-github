@@ -2,7 +2,6 @@
 # http://www.raspberrypi.org/documentation/configuration/config-txt.md
 # Some settings may impact device functionality. See link above for details
 
-
 [PI0]
 initramfs pcp_8.0.gz followkernel
 kernel kernel4439.img
@@ -21,7 +20,6 @@ kernel kernel4439v7.img
 
 [ALL]
 cmdline cmdline.txt
-
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
@@ -65,7 +63,6 @@ dtoverlay=pi3-disable-bt
 #----------------------------------------------------
 dtparam=i2c=on,spi=on,i2s=on
 
-
 #---pCP----------------------------------------------
 dtparam=audio=on
 audio_pwm_mode=2
@@ -83,7 +80,9 @@ max_usb_current=1
 
 # Remove audio hiss
 # disable_audio_dither=1
-lcd_rotate=2
+
+# Screen rotation 0=0 degrees, 2=180 degrees
+lcd_rotate=0
 
 # This will eventually become the default, but until then.
 dtoverlay=i2s-mmap

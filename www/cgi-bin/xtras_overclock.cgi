@@ -1,21 +1,24 @@
 #!/bin/sh
 
-# Version: 0.05 2016-05-22 GE
-#	Started update for RPi0/RPi3.
+# Version: 3.11 2017-01-23
+#	Added underclocking. GE.
 
-# Version: 0.04 2016-01-08 GE
-#	Fixed pcp_running_script.
+# Version: 0.05 2016-05-22
+#	Started update for RPi0/RPi3. GE.
 
-# Version: 0.03 2015-09-22 SBP
-#	Removed httpd decoding.
-#	Minor code tidy up.
+# Version: 0.04 2016-01-08
+#	Fixed pcp_running_script. GE.
 
-# Version: 0.02 2015-08-24 GE
-#	Mode mods.
-#	Tidy up of code.
+# Version: 0.03 2015-09-22
+#	Removed httpd decoding. SBP.
+#	Minor code tidy up. SBP.
 
-# Version: 0.01 2015-06-02 GE
-#	Original version.
+# Version: 0.02 2015-08-24
+#	Mode mods. GE.
+#	Tidy up of code. GE.
+
+# Version: 0.01 2015-06-02
+#	Original version. GE.
 
 #========================================================================================
 # References:
@@ -146,15 +149,30 @@ pcp_start_save() {
 	#     "None"
 	#----------------------------------------------------------------------------------------
 
+	#========================================================================================
+	# Under clocking data
+	#----------------------------------------------------------------------------------------
+	#  RPi0
+	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#  RPi1
+	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#  RPi2
+	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#  RPi3
+	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#----------------------------------------------------------------------------------------
+
 	case $(pcp_rpi_type) in
 		0)
 			case "$ADVOVERCLOCK" in
-				None) pcp_set_overclock_default ;;
-				*)    pcp_set_overclock_default ;;
+				Under) pcp_set_overclock Under 600 250 400 0 ;;
+				None)  pcp_set_overclock_default ;;
+				*)     pcp_set_overclock_default ;;
 			esac
 		;;
 		1)
 			case "$ADVOVERCLOCK" in
+				Under)  pcp_set_overclock Under 600 250 400 0 ;;
 				None)   pcp_set_overclock_default ;;
 				Modest) pcp_set_overclock Modest 800 250 400 0 ;;
 				Medium) pcp_set_overclock Medium 900 250 450 2 ;;
@@ -165,6 +183,7 @@ pcp_start_save() {
 		;;
 		2)
 			case "$ADVOVERCLOCK" in
+				Under)  pcp_set_overclock Under 600 250 400 0 ;;
 				None) pcp_set_overclock_default ;;
 				High) pcp_set_overclock High 1000 500 500 2 ;;
 				*)    pcp_set_overclock_default ;;
@@ -172,6 +191,7 @@ pcp_start_save() {
 		;;
 		3)
 			case "$ADVOVERCLOCK" in
+				Under)  pcp_set_overclock Under 600 250 400 0 ;;
 				None) pcp_set_overclock_default ;;
 				*)    pcp_set_overclock_default ;;
 			esac
@@ -281,6 +301,7 @@ esac
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
 case "$ADVOVERCLOCK" in
+	Under)   OCunder="selected" ;;
 	None)    OCnone="selected" ;;
 	Modest)  OCmodest="selected" ;;
 	Medium)  OCmedium="selected" ;;
@@ -334,9 +355,11 @@ echo '                  <select class="large16" name="ADVOVERCLOCK">'
 
 case $(pcp_rpi_type) in
 	0)
+		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 	;;
 	1)
+		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 		echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
 		echo '                    <option value="Medium" '$OCmedium'>Moderate</option>'
@@ -344,10 +367,12 @@ case $(pcp_rpi_type) in
 		echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
 	;;
 	2)
+		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 		echo '                    <option value="High" '$OChigh'>High</option>'
 	;;
 	3)
+		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 	;;
 esac
@@ -484,8 +509,8 @@ if [ $DEBUG -eq 1 ]; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p class="debug">[ DEBUG ] $ADVOVERCLOCK: '$ADVOVERCLOCK'<br />'
-	echo '                                   [ DEBUG ] $OCdefault: '$OCdefault'<br />'
 	echo '                                   [ DEBUG ] $OCunder: '$OCunder'<br />'
+	echo '                                   [ DEBUG ] $OCdefault: '$OCdefault'<br />'
 	echo '                                   [ DEBUG ] $OCnone: '$OCnone'<br />'
 	echo '                                   [ DEBUG ] $OCmodest: '$OCmodest'<br />'
 	echo '                                   [ DEBUG ] $OCmedium: '$OCmedium'<br />'

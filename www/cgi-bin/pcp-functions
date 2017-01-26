@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.11 2017-01-26
+#	Updated SCREENROTATE default value. GE.
+
 # Version: 3.10 2016-12-26
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
@@ -1726,7 +1729,7 @@ USER_COMMAND_1=""
 USER_COMMAND_2=""
 USER_COMMAND_3=""
 JIVELITE="no"
-SCREENROTATE="no"
+SCREENROTATE="0"
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-26
+#	Updated to default rotation to 0. GE.
+#	Brown ribbon cable to bottom. GE.
+
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 
@@ -18,6 +22,7 @@ pcp_html_head "Write to config.cfg" "SBP" "15" "tweaks.cgi"
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
+
 pcp_save_to_config
 
 #========================================================================================
@@ -26,15 +31,14 @@ pcp_save_to_config
 pcp_table_top "Rotate screen"
 
 case "$SCREENROTATE" in
-	yes)
+	0|no)
 		pcp_mount_mmcblk0p1
-		sed -i '/lcd_rotate=2/d' $CONFIGTXT
-		sudo echo 'lcd_rotate=2' >> $CONFIGTXT
+		sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT
 		pcp_umount_mmcblk0p1
 	;;
-	no)
+	180|yes)
 		pcp_mount_mmcblk0p1
-		sed -i '/lcd_rotate=2/d' $CONFIGTXT
+		sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT
 		pcp_umount_mmcblk0p1
 	;;
 	*)
