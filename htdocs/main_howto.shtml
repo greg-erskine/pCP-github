@@ -28,6 +28,16 @@
                 <h1>How-to</h1>
               </td>
             </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column420">
+                <p><a href="how_to_download_pcp.shtml">How-to download piCorePlayer</p>
+              </td>
+              <td>
+                <p><a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
           </table>
         </fieldset>
       </div>

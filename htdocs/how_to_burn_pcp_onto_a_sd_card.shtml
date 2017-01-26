@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>pCP - Getting Started</title>
+  <title>pCP - How-to burn piCorePlayer onto a SD card</title>
   <meta name="author" content="GE'">
-  <meta name="description" content="pCP - Getting Started">
+  <meta name="description" content="pCP - How-to burn piCorePlayer onto a SD card">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
   <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
@@ -22,16 +22,19 @@
     <td>
       <div class="row">
         <fieldset>
-          <h1>Getting started - Getting piCorePlayer up and running on your Raspberry Pi.</h1>
           <table class="bggrey percent100">
+            <tr>
+              <td>
+                <h1>How-to burn piCorePlayer onto a SD card</h1>
+              </td>
+            </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column20">
                 <p>1.</p>
               </td>
               <td>
-                <p><a href="https://sites.google.com/site/picoreplayer/home/download" target="_blank">Download</a> piCorePlayer&#8212;see
-                   <a href="how_to_download_pcp.shtml">How-to download piCorePlayer</a>.</p>
+                <p>Go to the piCorePlayer Google Download web page&#8212;go to <a href="https://sites.google.com/site/picoreplayer/home/download" target="_blank">piCorePlayer Download</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -40,7 +43,7 @@
                 <p>2.</p>
               </td>
               <td>
-                <p>Burn image to a SD card (ie. using Win32Diskimager).</p>
+                <p></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -49,8 +52,7 @@
                 <p>3.</p>
               </td>
               <td>
-                <p>Insert the SD card, a LAN cable into Raspberry Pi and apply power.</p>
-              </td>
+                <p></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
@@ -58,7 +60,7 @@
                 <p>4.</p>
               </td>
               <td>
-                <p>Out of the box, the analog audio via the 3.5mm jack will be working.</p>
+                <p></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -67,21 +69,21 @@
                 <p>5.</p>
               </td>
               <td>
-                <p>piCorePlayer can be controlled like any other Squeezebox player, via:</p> 
-              </td>
+                <p></p>
             </tr>
-            <tr class="even">
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
               <td class="column20">
-                <p>&nbsp;</p>
+                <p>6.</p>
               </td>
               <td>
-                <ul>
-                  <li>Logitech Media Server (LMS) web interface</li>
-                  <li>software on your smartphone (ie. iPeng)</li>
-                  <li>Duet Controller</li>
-                  <li>Squeezebox Radio</li>
-                  <li>Squeezebox Touch</li>
-                </ul>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td colspan="2">
+                <p>Next: </p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->

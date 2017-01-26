@@ -26,6 +26,35 @@
             <tr>
               <td>
                 <h1>piCorePlayer</h1>
+                  <p>piCorePlayer is a very small system (piCore linux) which is running in RAM, and is not writing to the SD card.
+                     Therefore, it is very robust and will not corrupt your SD card. So you can simply cut the power without any risk of corruption of the system.</p>
+
+                  <p><b>piCorePlayer can be used in 3 ways:</b></p>
+                  <ol>
+                    <li>As a Squeezebox player that connect to your existing Logitech Media Server (LMS).</li>
+                    <li>As a Logitech Media Server (LMS).</li>
+                    <li>A combined Squeezebox player and Logitech Media Server (LMS).</li>
+                  </ol>
+
+                  <p>It is very small about 55 MB in total including the OS (piCore linux).
+                     It boots very fast, already 10-15 sec after you power on, then your piCorePlayer will be found in the Logitech Media Server control panel.
+                     After booting everything is running from RAM so there is no writing to the SD-card and therefore no risk of corruption of your card - just
+                     pull the power if you need to. It is possible to synchronize piCorePlayer to other Squeezebox devices.</p>
+
+                  <p><b>Features of piCorePlayer:</b></p>
+                  <ul>                  
+                    <li>piCore linux.</li>
+                    <li>Squeezelite player.</li>
+                    <li>WEB-server so the configuration can be managed via your browser.</li>
+                    <li>Setup script.</li>
+                    <li>SSH access (using OpenSSH) - so you can connect via LAN from another computer (via Putty).</li>
+                    <li>Option to use a WiFi dongle.</li>
+                    <li>Option to use a USB-DAC with up to 24 bit 192 khz.</li>
+                    <li>Option to use HDMI audio out up to 24 bit 192 khz (out of the box).</li>
+                    <li>Option to use the 3.5mm audio jack (out of the box).</li>
+                    <li>Option to use analog I2S-DACs.</li>
+                    <li>Option to use Digital I2S-DACs.</li>
+                  </ul>
               </td>
             </tr>
           </table>

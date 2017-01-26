@@ -30,7 +30,7 @@
                 <p>ALSAequal</p>
               </td>
               <td>
-                <p>AN equalisier that work with ALSA.</p>
+                <p>An Equalisier that works with ALSA&#8212;see <a href="http://www.quitte.de/dsp/caps.html" target="_blank">the C* Audio Plugin Suite</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -48,7 +48,7 @@
                 <p>LMS</p>
               </td>
               <td>
-                <p>Abbreviation of Logitech Media Server. Formally know as Squeezebox Server, xxx and xxx</p>
+                <p>Logitech Media Server (formally Slimserver, SqueezeCentre and Squeezebox Server).</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -57,7 +57,7 @@
                 <p>pCP</p>
               </td>
               <td>
-                <p>Abbreviation of piCorePlayer.</p>
+                <p>piCorePlayer.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -81,18 +81,38 @@
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column150">
-                <p>Raspberry Pi</p>
+                <p>putty</p>
               </td>
-              <td>Cheap credit card sized computer that makes an excellent basis for a music player.</p>
+              <td>
+                <p>Software to connect to your piCorePlayer in terminal mode.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
               <td class="column150">
+                <p>Raspberry Pi</p>
+              </td>
+              <td>
+                <p>Cheap credit card sized computer that makes an excellent basis for a streaming music player&#8212;see
+                <a href="https://www.raspberrypi.org/" target="_blank">Raspberry Pi Foundation</a>.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column150">
                 <p>squeezelite</p>
               </td>
               <td>
                 <p>Software that makes your computer work like a Logitech Squeezebox.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
+                <p>ssh</p>
+              </td>
+              <td>
+                <p>Software to connect to your piCorePlayer in terminal mode.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
