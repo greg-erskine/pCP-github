@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.11 2017-01-23
+# Version: 3.11 2017-01-28
 #	Added Workgroup to Samba. PH.
+#	Updated freespace requirements. PH.
 
 # Version: 3.10 2016-12-27
 #	Pop-up asking to delete cache. SBP
@@ -291,7 +292,7 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_table_top "Downloading Logitech Media Server (LMS)"
-		pcp_sufficient_free_space 40000
+		pcp_sufficient_free_space 48000
 		echo '                <textarea class="inform" style="height:160px">'
 		pcp_install_lms
 		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
@@ -331,7 +332,7 @@ case "$ACTION" in
 	;;
 	Install_FS)
 		pcp_table_top "Installing extra file system support"
-		pcp_sufficient_free_space 4000
+		pcp_sufficient_free_space 4300
 		echo '                <textarea class="inform" style="height:80px">'
 		pcp_install_fs
 		echo '                </textarea>'
