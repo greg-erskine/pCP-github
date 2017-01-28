@@ -293,17 +293,19 @@ case "$ACTION" in
 	Install)
 		pcp_table_top "Downloading Logitech Media Server (LMS)"
 		pcp_sufficient_free_space 48000
-		echo '                <textarea class="inform" style="height:160px">'
-		pcp_install_lms
-		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-			LMSERVER="yes"
-			pcp_save_to_config
-			pcp_backup "nohtml"
-		else
-			echo '[ ERROR ] Error Downloading LMS, please try again later.'
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:160px">'
+			pcp_install_lms
+			if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+				LMSERVER="yes"
+				pcp_save_to_config
+				pcp_backup "nohtml"
+			else
+				echo '[ ERROR ] Error Downloading LMS, please try again later.'
+			fi
+			echo '                </textarea>'
+			pcp_table_end
 		fi
-		echo '                </textarea>'
-		pcp_table_end
 	;;
 	Remove)
 		pcp_table_top "Removing Logitech Media Server (LMS)"
@@ -333,10 +335,12 @@ case "$ACTION" in
 	Install_FS)
 		pcp_table_top "Installing extra file system support"
 		pcp_sufficient_free_space 4300
-		echo '                <textarea class="inform" style="height:80px">'
-		pcp_install_fs
-		echo '                </textarea>'
-		pcp_table_end
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:80px">'
+			pcp_install_fs
+			echo '                </textarea>'
+			pcp_table_end
+		fi
 	;;
 	Remove_FS)
 		pcp_table_top "Removing extra file system support"
