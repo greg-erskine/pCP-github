@@ -32,8 +32,9 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
-#FIX_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files"
-FIX_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
+FIX_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files"
+#sourceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
+#FIX_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
 FIX_CGI="/home/tc/www/cgi-bin"
 REBOOT_REQUIRED=0
 
@@ -92,7 +93,11 @@ pcp_do_fixes200() {
 
 pcp_do_fixes_310() {
 	#Leading / is removed
-	HF_FILES_EXE="home/tc/www/cgi-bin/about.cgi home/tc/www/cgi-bin/pcp-soundcard-functions"
+	#EXE files get set to root.staff mode 755
+	HF_FILES_EXE="	home/tc/www/cgi-bin/about.cgi home/tc/www/cgi-bin/pcp-soundcard-functions \
+		home/tc/www/cgi-bin/lms.cgi home/tc/www/cgi-bin/main.cgi home/tc/www/cgi-bin/writetoaudiotweak.cgi \
+		home/tc/www/cgi-bin/writetosamba.cgi home/tc/www/cgi-bin/xtras_staticip.cgi"
+	#CFG files get set to root.staff mode 664
 	HF_FILES_CFG="usr/local/etc/pcp/cards/HDMI.conf usr/local/sbin/piversion.cfg"
 	HFDIR="/tmp/hf"
 	HOTFIX="hotfix311.tgz"
@@ -126,6 +131,7 @@ pcp_do_fixes_310() {
 			FAIL_MSG="$HOTFIX verification failed."
 		fi
 	fi
+#Apply the Fix
 	if [ "$FAIL_MSG" = "ok" ]; then
 		echo '[ INFO ] Extracting Hotfix 3.11'
 		tar xf ${HOTFIX}
@@ -141,6 +147,11 @@ pcp_do_fixes_310() {
 			chmod 664 $CFG
 			cp -fp $CFG /${CFG}
 		done
+	fi
+	#Apply pcp-functions change with sed, as to not change user modes.
+	if [ "$FAIL_MSG" = "ok" ]; then
+		FILE="/home/tc/www/cgi-bin/pcp-functions"
+		sed -i 's@OUTPUT=\"sysdefault:CARD=ALSA\"@OUTPUT=\"hw:CARD=ALSA\"@' $FILE
 	fi
 }
 
@@ -296,7 +307,7 @@ pcp_warning_message() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> You are about to fix some programs.</p>'
+	echo '                <p style="color:white"><b>Warning:</b> You are about to apply a HotFix to pCP '$(pcp_picoreplayer_version)'.</p>'
 	echo '                <ul>'
 	echo '                  <li style="color:white">Yes really!!</li>'
 	echo '                </ul>'
@@ -405,7 +416,7 @@ if [ "$ACTION" = "fix" ]; then
 		;;
 		*)
 			# No Fixes for this version
-			echo '[ INFO ] There are no current fixes for '${VERSION}'.'
+			echo '[ INFO ] There are no current fixes for '$(pcp_picoreplayer_version)'.'
 		;;
 	esac
 fi
