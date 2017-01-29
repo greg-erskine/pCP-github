@@ -353,10 +353,12 @@ case "$ACTION" in
 	Install_Samba)
 		pcp_table_top "Installing Samba4 Server"
 		pcp_sufficient_free_space 25000
-		echo '                <textarea class="inform" style="height:120px">'
-		pcp_install_samba4
-		echo '                </textarea>'
-		pcp_table_end
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:120px">'
+			pcp_install_samba4
+			echo '                </textarea>'
+			pcp_table_end
+		fi
 	;;
 	Remove_Samba)
 		pcp_table_top "Removing Samba4 Server"
