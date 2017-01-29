@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.11 2017-01-29
+#	Updated default soundcard for shairport to work out of box. SBP.
+
 # Version: 3.10 2016-12-26
 #	Added pcp_log_header. GE.
 #	Updated pcp_textarea_inform. GE.
