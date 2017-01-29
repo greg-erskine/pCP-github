@@ -1,0 +1,47 @@
+From 20e9518fb43b1828069d5ea68a0a0d896cf111fb Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Mon, 25 Apr 2016 09:24:09 +0000
+Subject: [PATCH 03/65] Revert "bcm2835-i2s: Reduce the TX DREQ threshold"
+
+This reverts commit 3de232825c9ba5989522b8691eb6ac5df6619458.
+---
+ sound/soc/bcm/bcm2835-i2s.c | 21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
+
+diff --git a/sound/soc/bcm/bcm2835-i2s.c b/sound/soc/bcm/bcm2835-i2s.c
+index aedb01f..04c1d13 100644
+--- a/sound/soc/bcm/bcm2835-i2s.c
++++ b/sound/soc/bcm/bcm2835-i2s.c
+@@ -555,22 +555,15 @@ static int bcm2835_i2s_hw_params(struct snd_pcm_substream *substream,
+ 
+ 	/* Setup the DMA parameters */
+ 	regmap_update_bits(dev->i2s_regmap, BCM2835_I2S_CS_A_REG,
+-			   BCM2835_I2S_RXTHR(3)
+-			   | BCM2835_I2S_TXTHR(3)
+-			   | BCM2835_I2S_DMAEN,
+-			   BCM2835_I2S_RXTHR(1)
+-			   | BCM2835_I2S_TXTHR(1)
+-			   | BCM2835_I2S_DMAEN);
++			BCM2835_I2S_RXTHR(1)
++			| BCM2835_I2S_TXTHR(1)
++			| BCM2835_I2S_DMAEN, 0xffffffff);
+ 
+ 	regmap_update_bits(dev->i2s_regmap, BCM2835_I2S_DREQ_A_REG,
+-			   BCM2835_I2S_TX_PANIC(0x7f)
+-			   | BCM2835_I2S_RX_PANIC(0x7f)
+-			   | BCM2835_I2S_TX(0x7f)
+-			   | BCM2835_I2S_RX(0x7f),
+-			   BCM2835_I2S_TX_PANIC(0x10)
+-			   | BCM2835_I2S_RX_PANIC(0x30)
+-			   | BCM2835_I2S_TX(0x20)
+-			   | BCM2835_I2S_RX(0x20));
++			  BCM2835_I2S_TX_PANIC(0x10)
++			| BCM2835_I2S_RX_PANIC(0x30)
++			| BCM2835_I2S_TX(0x30)
++			| BCM2835_I2S_RX(0x20), 0xffffffff);
+ 
+ 	/* Clear FIFOs */
+ 	bcm2835_i2s_clear_fifos(dev, true, true);
+-- 
+2.7.4
+

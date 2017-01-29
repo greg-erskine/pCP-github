@@ -1,0 +1,106 @@
+From 62af6f543415239a11d9261b552ce16db0a0b457 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Tue, 26 Apr 2016 12:12:16 +0000
+Subject: [PATCH 24/65] ARM: bcm2708: move to new clock manager and driver for
+ aux-uart
+
+Move to new aux-uart driver (from upstream) and enable it correctly
+in the device tree
+
+Note that this may also solve the "serial not 115200 baud"
+issue on the rpi3...
+
+With an extension to the driver (requesting clock change
+notifications) the driver could change the baud divider when
+such a clock change occurs...
+
+It still would require some communication between the firmware
+and the kernel, so that this would get propagated.
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ arch/arm/boot/dts/bcm2708_common.dtsi | 15 ++-------------
+ arch/arm/configs/bcm2709_defconfig    |  3 +++
+ arch/arm/configs/bcmrpi_defconfig     |  3 +++
+ drivers/tty/serial/8250/Kconfig       |  2 +-
+ 4 files changed, 9 insertions(+), 14 deletions(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index 7218bba..20425c1 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -239,12 +239,10 @@
+ 		};
+ 
+ 		uart1: serial@7e215040 {
+-			compatible = "brcm,bcm2835-aux-uart", "ns16550";
++			compatible = "brcm,bcm2835-aux-uart";
+ 			reg = <0x7e215040 0x40>;
+ 			interrupts = <1 29>;
+-			clocks = <&clk_uart1>;
+-			reg-shift = <2>;
+-			no-loopback-test;
++			clocks = <&aux BCM2835_AUX_CLOCK_UART>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -460,15 +458,6 @@
+ 			clock-frequency = <100000000>;
+ 		};
+ 
+-		clk_uart1: clock@5 {
+-			compatible = "fixed-factor-clock";
+-			reg = <5>;
+-			clocks = <&clk_core>;
+-			#clock-cells = <0>;
+-			clock-div = <1>;
+-			clock-mult = <2>;
+-		};
+-
+ 		/* The oscillator is the root of the clock tree. */
+ 		clk_osc: clock@6 {
+ 			compatible = "fixed-clock";
+diff --git a/arch/arm/configs/bcm2709_defconfig b/arch/arm/configs/bcm2709_defconfig
+index c7606f2..ee08394 100644
+--- a/arch/arm/configs/bcm2709_defconfig
++++ b/arch/arm/configs/bcm2709_defconfig
+@@ -599,6 +599,9 @@ CONFIG_SERIAL_8250_CONSOLE=y
+ # CONFIG_SERIAL_8250_DMA is not set
+ CONFIG_SERIAL_8250_NR_UARTS=1
+ CONFIG_SERIAL_8250_RUNTIME_UARTS=0
++CONFIG_SERIAL_8250_EXTENDED=y
++CONFIG_SERIAL_8250_SHARE_IRQ=y
++CONFIG_SERIAL_8250_BCM2835AUX=y
+ CONFIG_SERIAL_AMBA_PL011=y
+ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ CONFIG_SERIAL_OF_PLATFORM=y
+diff --git a/arch/arm/configs/bcmrpi_defconfig b/arch/arm/configs/bcmrpi_defconfig
+index 8121ad2..d740fb5 100644
+--- a/arch/arm/configs/bcmrpi_defconfig
++++ b/arch/arm/configs/bcmrpi_defconfig
+@@ -592,6 +592,9 @@ CONFIG_SERIAL_8250_CONSOLE=y
+ # CONFIG_SERIAL_8250_DMA is not set
+ CONFIG_SERIAL_8250_NR_UARTS=1
+ CONFIG_SERIAL_8250_RUNTIME_UARTS=0
++CONFIG_SERIAL_8250_EXTENDED=y
++CONFIG_SERIAL_8250_SHARE_IRQ=y
++CONFIG_SERIAL_8250_BCM2835AUX=y
+ CONFIG_SERIAL_AMBA_PL011=y
+ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ CONFIG_SERIAL_OF_PLATFORM=y
+diff --git a/drivers/tty/serial/8250/Kconfig b/drivers/tty/serial/8250/Kconfig
+index b0a9b57..817cdb8 100644
+--- a/drivers/tty/serial/8250/Kconfig
++++ b/drivers/tty/serial/8250/Kconfig
+@@ -274,7 +274,7 @@ config SERIAL_8250_ACORN
+ 
+ config SERIAL_8250_BCM2835AUX
+ 	tristate "BCM2835 auxiliar mini UART support"
+-	depends on ARCH_BCM2835 || COMPILE_TEST
++	depends on ARCH_BCM2708 || ARCH_BCM2709 || ARCH_BCM2835 || COMPILE_TEST
+ 	depends on SERIAL_8250 && SERIAL_8250_SHARE_IRQ
+ 	help
+ 	  Support for the BCM2835 auxiliar mini UART.
+-- 
+2.7.4
+

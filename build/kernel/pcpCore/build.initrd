@@ -1,0 +1,220 @@
+#!/bin/bash
+
+#################################################################################
+#
+# build.initrd
+#
+#	This works by copying a current functioning initrd replacing the kernel modules with the new kernel
+#	To include new kernel modules, there is a pause where you can add a module to the new initrd if needed
+#	Pretty much this process wont work when making major kernel changes i.e. 4.4.y to 4.9.y
+#
+# Prep - need to setup some starting points
+#
+#	path  (versions and initrd's are examples)
+#	armv6/initrd/4.4.20/8.0.gz
+#	armv7/initrd/4.4.20/8.0_v7.gz
+#
+#  new initrds will be saved in path based on the new kernel version.  Note, that you need a new kernel for this to work.
+#
+#
+
+BASEWD=$(pwd)
+INITRDWRK="/tmp/initrd-working"
+
+BUSYBOX=$(which busybox)
+if [ "$BUSYBOX" == "" ]; then
+	echo "busybox with depmod support is required in path"
+	exit 1
+else
+	DEPMOD="${BUSYBOX} depmod"
+	$DEPMOD --help > /dev/null 2>&1
+	[ $? -ne 0 ] && (echo "busybox does not have depmod support"; exit 1)
+fi
+
+if [ -d armv6 -o -d armv7 ]; then
+	echo
+	echo "Start from within the armv6 or armv7 directory"
+	echo "Usage .$0" >&2
+	exit 1
+fi
+
+echo "Setting up Sudo....."
+sudo echo
+
+AVAILINITRD=$(ls initrd)
+
+echo "Please Select the base initrd to use"
+select OLD in $AVAILINITRD;
+do
+	if [ "$OLD" != "" ]; then
+		echo "You picked $OLD"
+		read -p "Do you wish to continue?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+OLDINITRD=$(find ${BASEWD}/* -name "*.gz" | grep --max-count=1 ${OLD})
+echo "*****************************************************************"
+echo "Selecting initrd ${OLDINITRD}"
+echo
+echo "Press enter to continue"
+read key
+
+if [ -f "${OLDINITRD}" ]; then
+	echo "*****************************************************************"
+	echo "Removing the old unpacked initrd"
+	sudo rm -rf $INITRDWRK
+	if [ ! -d $INITRDWRK ]; then
+		mkdir $INITRDWRK
+		cd $INITRDWRK
+		zcat "${OLDINITRD}" | sudo cpio -i -H newc -d
+		cd ${BASEWD}
+	else
+		echo "$INITRDWRK is not empty, please delete and then restart"
+		exit 1
+	fi
+else
+	echo "Starting packed initrd not found"
+	exit 1
+fi
+
+OLDKERNEL=$(ls $INITRDWRK/lib/modules)
+AVAILKERNEL=$(ls modules)
+
+echo "Kernel in the base initrd is $OLDKERNEL"
+echo ""
+echo "Select which kernel to build new initrd."
+select NEWKERNELDIR in $AVAILKERNEL;
+do
+	if [ "$NEWKERNELDIR" != "" ]; then
+		echo "You picked $NEWKERNELDIR"
+		read -p "Do you wish to continue? (y/n)" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+NEWKERNEL=${NEWKERNELDIR%^*} 
+
+if [ "${OLDKERNEL}" = "${NEWKERNEL}" ]; then
+	echo
+	echo "*****************************************************************"
+	echo "[ WARN ]Kernel name matches previous initrd"
+	echo "Old Kernel: ${OLDKERNEL} directory will be renamed to ${OLDKERNEL}.old"
+	sudo mv $INITRDWRK/lib/modules/$OLDKERNEL $INITRDWRK/lib/modules/${OLDKERNEL}.old
+	OLDKERNEL=${OLDKERNEL}.old
+	echo 
+fi
+
+TMPOLDMOD="/tmp/oldmodules.list"
+
+echo
+echo "*****************************************************************"
+echo "Building Module List"
+cd $INITRDWRK/lib/modules/$OLDKERNEL/kernel
+find * -not -type d | awk -F '.gz' '{print $1}' > $TMPOLDMOD
+cd $BASEWD
+echo "Copying new Modules (And new or change paths have to be moved manually)"
+SRCMODPATH="modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/kernel"
+cd $SRCMODPATH
+tar -T $TMPOLDMOD -cf /tmp/$NEWKERNEL.tar
+cd $BASEWD
+DESTMODPATH="$INITRDWRK/lib/modules/$NEWKERNEL/kernel"
+sudo mkdir -p $DESTMODPATH
+cd $DESTMODPATH
+sudo tar xf /tmp/$NEWKERNEL.tar
+echo "*****************************************************************"
+echo "initrd has been updated with modules. Please add any modules that are needed."
+echo "New kernel is $NEWKERNEL Located in $NEWKERNELDIR"
+echo "Press any key to continue"
+read key
+echo
+echo "*****************************************************************"
+echo "Gzipping Modules"
+find -name "*.ko" | xargs -r -I {} sudo gzip -9 {}
+echo "Setting up kernel.tclocal symlink"
+cd ..
+sudo ln -s /usr/local/lib/modules/$NEWKERNEL/kernel kernel.tclocal
+cd $BASEWD
+sudo rm -rf $INITRDWRK/usr/local/lib/modules/${OLDKERNEL%.old}
+sudo mkdir -p $INITRDWRK/usr/local/lib/modules/$NEWKERNEL/kernel
+echo
+echo "Copy Builtin Module Files"
+sudo cp modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/modules.builtin $INITRDWRK/lib/modules/$NEWKERNEL/
+sudo cp modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/modules.devname $INITRDWRK/lib/modules/$NEWKERNEL/
+sudo cp modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/modules.order $INITRDWRK/lib/modules/$NEWKERNEL/
+echo "Running busybox depmod"
+sudo $DEPMOD -b $INITRDWRK $NEWKERNEL
+cd $BASEWD
+
+
+echo "*****************************************************************"
+while true
+do 
+	PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
+	echo "Release name is: ${PCPOSVER}"
+	echo
+	echo "Please enter new string, or enter to keep the same"
+	read key
+	if [ "$key" != "" ]; then
+		PCPOSVER=${key//[$'\t\r\n ']}
+		echo "You entered :${PCPOSVER}"
+	else
+		echo "Keeping the string :${PCPOSVER}"
+	fi
+	read -p "Is this correct? (y/n) " yn
+	case $yn in
+		[Yy]* ) sudo sh -c "echo ${PCPOSVER} > $INITRDWRK/usr/share/doc/tc/release.txt";break;;
+		[Nn]* ) ;;
+		* ) echo "Please answer yes or no.";;
+	esac
+done
+
+echo "*****************************************************************"
+echo "Select to remove the old modules"
+select REMOVE in $(ls $INITRDWRK/lib/modules)
+do
+	if [ "$REMOVE" != "" ]; then
+		echo "You picked $REMOVE"
+		read -p "Do you wish to continue? (y/n) " yn
+		case $yn in
+			[Yy]* ) sudo rm -rf $INITRDWRK/lib/modules/$REMOVE; break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+echo "*****************************************************************"
+echo "Name for the initrd for kernel $NEWKERNELDIR"
+echo 
+echo "Old initrd name was $(basename ${OLDINITRD})"
+echo
+echo "Enter new name, or press enter to keep old name"
+read key
+if [ "${key}" != "" ]; then
+	NEWINITRD=${key//[$'\t\r\n ']}
+else
+	NEWINITRD=$(basename ${OLDINITRD})
+fi
+echo
+echo "*****************************************************************"
+echo "Ready to build new initrd $NEWINITRD"
+echo "Press any key to continue, or ctrl-c to abort"
+read key
+NEWINITRDDIR=$BASEWD/initrd/$NEWKERNELDIR
+mkdir -p $NEWINITRDDIR
+cd $INITRDWRK
+sudo find | sudo cpio -o -H newc | gzip -9 > $NEWINITRDDIR/${NEWINITRD%.gz}.gz
+cd $BASEWD
+echo
+echo "Cleanup - Temp Files"
+sudo rm -rf $INITRDWRK
+sudo rm -rf /tmp/$NEWKERNEL.tar
+echo "Done"

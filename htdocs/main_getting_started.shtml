@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!-- Start of pcp_html_head -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>pCP - Getting Started</title>
+  <meta name="author" content="GE'">
+  <meta name="description" content="pCP - Getting Started">
+  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <script src="../js/piCorePlayer.js"></script>
+</head>
+<body>
+<!-- End of pcp_html_head -->
+<!--#include virtual="pcp_banner.html" -->
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <h1>Getting started - Getting piCorePlayer up and running on your Raspberry Pi.</h1>
+          <table class="bggrey percent100">
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>1.</p>
+              </td>
+              <td>
+                <p><a href="https://sites.google.com/site/picoreplayer/home/download" target="_blank">Download</a> piCorePlayer&#8212;see
+                   <a href="how_to_download_pcp.shtml">How-to download piCorePlayer</a>.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>2.</p>
+              </td>
+              <td>
+                <p>Burn image to a SD card (ie. using Win32Diskimager).</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>3.</p>
+              </td>
+              <td>
+                <p>Insert the SD card, a LAN cable into Raspberry Pi and apply power.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>4.</p>
+              </td>
+              <td>
+                <p>Out of the box, the analog audio via the 3.5mm jack will be working.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>5.</p>
+              </td>
+              <td>
+                <p>piCorePlayer can be controlled like any other Squeezebox player, via:</p> 
+              </td>
+            </tr>
+            <tr class="even">
+              <td class="column20">
+                <p>&nbsp;</p>
+              </td>
+              <td>
+                <ul>
+                  <li>Logitech Media Server (LMS) web interface</li>
+                  <li>software on your smartphone (ie. iPeng)</li>
+                  <li>Duet Controller</li>
+                  <li>Squeezebox Radio</li>
+                  <li>Squeezebox Touch</li>
+                </ul>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<!--#include virtual="pcp_footer.html" -->
+<!--#include virtual="pcp_mode.html" -->
+<!--#include virtual="pcp_copyright.html" -->
+
+</body>
+</html>

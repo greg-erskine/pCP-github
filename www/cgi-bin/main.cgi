@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-29
+#	Added button for Hotfix. PH.
+
 # Version: 3.10 2017-01-06
 #	Updated [Save to USB] more> help. GE.
 #	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
@@ -713,6 +716,29 @@ pcp_main_extras() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_extras
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------HotFix----------------------------------------
+pcp_main_hotfix() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="HotFix" action="fix.cgi" method="get">'
+	echo '                  <input type="submit" value="HotFix" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for a new hotfix and update pCP.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_hotfix
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Developer mode fieldset-----------------------

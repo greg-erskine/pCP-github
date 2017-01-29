@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!-- Start of pcp_html_head -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>pCP - Glossary</title>
+  <meta name="author" content="GE'">
+  <meta name="description" content="pCP - Glossary">
+  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <script src="../js/piCorePlayer.js"></script>
+</head>
+<body>
+<!-- End of pcp_html_head -->
+<!--#include virtual="pcp_banner.html" -->
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <h1>Glossary</h1>
+          <table class="bggrey percent100">
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column150">
+                <p>ALSAequal</p>
+              </td>
+              <td>
+                <p>An Equalisier that works with ALSA&#8212;see <a href="http://www.quitte.de/dsp/caps.html" target="_blank">the C* Audio Plugin Suite</a>.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
+                <p>jivelite</p>
+              </td>
+              <td>
+                <p>Touch screen graphical user interface that works like a Logitech Touch.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column150">
+                <p>LMS</p>
+              </td>
+              <td>
+                <p>Logitech Media Server (formally Slimserver, SqueezeCentre and Squeezebox Server).</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
+                <p>pCP</p>
+              </td>
+              <td>
+                <p>piCorePlayer.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column150">
+                <p>piCore</p>
+              </td>
+              <td>
+                <p>A version of TinyCore for the Raspberry Pi.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
+                <p>piCorePlayer</p>
+              </td>
+              <td>
+                <p>Squeezebox replacement using Raspberry Pi. piCore + squeezelite. Many more options.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column150">
+                <p>putty</p>
+              </td>
+              <td>
+                <p>Software to connect to your piCorePlayer in terminal mode.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
+                <p>Raspberry Pi</p>
+              </td>
+              <td>
+                <p>Cheap credit card sized computer that makes an excellent basis for a streaming music player&#8212;see
+                <a href="https://www.raspberrypi.org/" target="_blank">Raspberry Pi Foundation</a>.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column150">
+                <p>squeezelite</p>
+              </td>
+              <td>
+                <p>Software that makes your computer work like a Logitech Squeezebox.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
+                <p>ssh</p>
+              </td>
+              <td>
+                <p>Software to connect to your piCorePlayer in terminal mode.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<!--#include virtual="pcp_footer.html" -->
+<!--#include virtual="pcp_mode.html" -->
+<!--#include virtual="pcp_copyright.html" -->
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+From 84c7494fd926b99dd509f36aab246ff7e3510b60 Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Tue, 16 Aug 2016 20:07:38 +0100
+Subject: [PATCH 34/65] CM3: ARM: bcm2708: moved uart0 to use new clock
+ framework
+
+Moved uart0 to use new clock framework.
+At the same time removed the fixed clock clk_uart0
+and the corresponding references, as the clock is now
+read directly from the configured clocks.
+
+If it ever becomes necessary the following can get added
+to modify the base clock rate later:
+	assigned-clocks = <&clocks BCM2835_CLOCK_UART>;
+	assigned-clock-rates = <X>;
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/bcm2710-rpi-cm3.dts | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/bcm2710-rpi-cm3.dts b/arch/arm/boot/dts/bcm2710-rpi-cm3.dts
+index 98e6f92..d00520e 100644
+--- a/arch/arm/boot/dts/bcm2710-rpi-cm3.dts
++++ b/arch/arm/boot/dts/bcm2710-rpi-cm3.dts
+@@ -136,7 +136,6 @@
+ / {
+ 	__overrides__ {
+ 		uart0 = <&uart0>,"status";
+-		uart0_clkrate = <&clk_uart0>,"clock-frequency:0";
+ 		uart1 = <&uart1>,"status";
+ 		i2s = <&i2s>,"status";
+ 		spi = <&spi0>,"status";
+-- 
+2.7.4
+

@@ -10,6 +10,10 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
+# version: 3.11 2017-01-21
+#	Updates for Hotfixes based on piversion.cfg. PH.
+#	Added Hotfix3.11. PH.
+
 # version: 0.01 2016-02-21 GE
 #	Original.
 
@@ -29,7 +33,10 @@ WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
 FIX_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files"
+#sourceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
+#FIX_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
 FIX_CGI="/home/tc/www/cgi-bin"
+REBOOT_REQUIRED=0
 
 #========================================================================================
 # Fixes
@@ -76,11 +83,76 @@ pcp_do_fix_4() {
 	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
 }
 
-pcp_do_fixes() {
+#we can delete this. Left here for reference right now.  PH.
+pcp_do_fixes200() {
 	pcp_do_fix_1
 	pcp_do_fix_2
 	pcp_do_fix_3
 	pcp_do_fix_4
+}
+
+pcp_do_fixes_310() {
+	#Leading / is removed
+	#EXE files get set to root.staff mode 755
+	HF_FILES_EXE="	home/tc/www/cgi-bin/about.cgi home/tc/www/cgi-bin/pcp-soundcard-functions \
+		home/tc/www/cgi-bin/lms.cgi home/tc/www/cgi-bin/main.cgi home/tc/www/cgi-bin/writetoaudiotweak.cgi \
+		home/tc/www/cgi-bin/writetosamba.cgi home/tc/www/cgi-bin/xtras_staticip.cgi"
+	#CFG files get set to root.staff mode 664
+	HF_FILES_CFG="usr/local/etc/pcp/cards/HDMI.conf usr/local/sbin/piversion.cfg"
+	HFDIR="/tmp/hf"
+	HOTFIX="hotfix311.tgz"
+	HOTFIXMD5="${HOTFIX}.md5.txt"
+	echo "[ INFO ] Retreiving Hotfix 3.11."
+	rm -rf ${HFDIR}
+	mkdir -p ${HFDIR}
+	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIX} -O ${HFDIR}/${HOTFIX}
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded' ${HOTFIX}
+	else
+		echo '[ ERROR ] Error downloading '${HOTFIX}
+		FAIL_MSG="Error downloading ${HOTFIX}"
+	fi
+	echo "[ INFO ] Retreiving Hotfix 3.11 md5sum"
+	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIXMD5} -O ${HFDIR}/${HOTFIXMD5}
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded' ${HOTFIXMD5}
+	else
+		echo '[ ERROR ] Error downloading '${HOTFIXMD5}
+		FAIL_MSG="Error downloading ${HOTFIX}"
+	fi
+	if [ "$FAIL_MSG" = "ok" ]; then
+		echo "[ INFO ] Verifying Hotfix 3.11"
+		cd ${HFDIR}
+		md5sum -sc ${HOTFIXMD5}
+		if [ $? -eq 0 ]; then
+			echo '[ INFO ] Hotfix Verified.'
+		else
+			echo '[ ERROR ] '$HOTFIX' verification failed.'
+			FAIL_MSG="$HOTFIX verification failed."
+		fi
+	fi
+#Apply the Fix
+	if [ "$FAIL_MSG" = "ok" ]; then
+		echo '[ INFO ] Extracting Hotfix 3.11'
+		tar xf ${HOTFIX}
+		for EXE in ${HF_FILES_EXE}; do
+			dos2unix $EXE
+			chown tc:staff $EXE
+			chmod 750 $EXE
+			cp -fp $EXE /${EXE} 
+		done
+		for CFG in ${HF_FILES_CFG}; do
+			dos2unix $CFG
+			chown root:staff $CFG
+			chmod 664 $CFG
+			cp -fp $CFG /${CFG}
+		done
+	fi
+	#Apply pcp-functions change with sed, as to not change user modes.
+	if [ "$FAIL_MSG" = "ok" ]; then
+		FILE="/home/tc/www/cgi-bin/pcp-functions"
+		sed -i 's@OUTPUT=\"sysdefault:CARD=ALSA\"@OUTPUT=\"hw:CARD=ALSA\"@' $FILE
+	fi
 }
 
 #========================================================================================
@@ -235,10 +307,9 @@ pcp_warning_message() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> You are about to fix some programs.</p>'
+	echo '                <p style="color:white"><b>Warning:</b> You are about to apply a HotFix to pCP '$(pcp_picoreplayer_version)'.</p>'
 	echo '                <ul>'
 	echo '                  <li style="color:white">Yes really!!</li>'
-	echo '                  <li style="color:white">Well, maybe, when the program works??</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -274,15 +345,15 @@ pcp_html_end() {
 	echo '  </tr>'
 	echo '</table>'
 
+	pcp_go_main_button
 	pcp_footer
 	pcp_copyright
-
+	
 	if [ "$ACTION" = "fix" ] && [ "$FAIL_MSG" = "ok" ] ; then
-		pcp_backup
 		sleep 1
-		pcp_reboot_required
+		[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 	fi
-
+	
 	echo '</body>'
 	echo '</html>'
 	exit
@@ -323,7 +394,7 @@ echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
-echo '                  <textarea class="inform" style="height:130px">'
+echo '                  <textarea class="inform" style="height:180px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
@@ -333,10 +404,23 @@ if [ "$ACTION" = "initial" ]; then
 	[ "$FAIL_MSG" = "ok" ] && pcp_check_fix_md5
 fi
 #----------------------------------------------------------------------------------------
+
 if [ "$ACTION" = "fix" ]; then
-	echo '[ INFO ] You are applying the fixes.'
-	[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes
+	case $(pcp_picoreplayer_version) in
+		3.10*)
+			echo '[ INFO ] Hotfix for pCP 3.10 to address shairport sync issues.'
+			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_310
+			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
+			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Please Reselect sound card if using USB or HDMI.'
+			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Please reinstall shairport-sync for final step.'
+		;;
+		*)
+			# No Fixes for this version
+			echo '[ INFO ] There are no current fixes for '$(pcp_picoreplayer_version)'.'
+		;;
+	esac
 fi
+
 #----------------------------------------------------------------------------------------
 echo '                  </textarea>'
 echo '                </td>'

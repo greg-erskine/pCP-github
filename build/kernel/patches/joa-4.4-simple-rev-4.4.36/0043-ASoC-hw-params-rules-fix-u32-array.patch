@@ -1,0 +1,45 @@
+From 5bbf355fd9509cf384daa2f5cadd8ffac986e748 Mon Sep 17 00:00:00 2001
+From: Clive Messer <clive.messer@digitaldreamtime.co.uk>
+Date: Tue, 17 May 2016 08:39:12 +0000
+Subject: [PATCH 43/65] ASoC: hw-params-rules: fix u32 array
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ sound/soc/generic/hw-params-rules.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/sound/soc/generic/hw-params-rules.c b/sound/soc/generic/hw-params-rules.c
+index 31a0d95..9d52398 100644
+--- a/sound/soc/generic/hw-params-rules.c
++++ b/sound/soc/generic/hw-params-rules.c
+@@ -40,10 +40,10 @@ struct snd_soc_size_u32array {
+ static int asoc_generic_hw_params_read_u32array(
+ 	struct device *dev, struct device_node *node, void **data)
+ {
+-	int i, size, ret;
++	int size, ret;
+ 	struct snd_soc_size_u32array *array;
+ 
+-	size = of_property_count_elems_of_size(node, "values", sizeof(u32));
++	size = of_property_count_u32_elems(node, "values");
+ 	if (size < 0) {
+ 		dev_err(dev,
+ 			"%s: Could not read size of property \"values\" - %d\n",
+@@ -59,11 +59,9 @@ static int asoc_generic_hw_params_read_u32array(
+ 
+ 	array->size = size;
+ 
+-	for (i = 0; i < size; i++) {
+-		ret = of_property_read_u32(node, "values", &array->data[i]);
+-		if (ret)
+-			return ret;
+-	}
++	ret = of_property_read_u32_array(node, "values", &array->data[0], size);
++	if (ret)
++		return ret;
+ 
+ 	return 0;
+ }
+-- 
+2.7.4
+

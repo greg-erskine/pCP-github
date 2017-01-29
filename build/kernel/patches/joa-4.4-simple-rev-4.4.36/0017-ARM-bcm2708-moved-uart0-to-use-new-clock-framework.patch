@@ -1,0 +1,129 @@
+From 5b372983435c1478539d9ed4a50d2149f1989f73 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Tue, 26 Apr 2016 10:52:17 +0000
+Subject: [PATCH 17/65] ARM: bcm2708: moved uart0 to use new clock framework
+
+Moved uart0 to use new clock framework.
+At the same time removed the fixed clock clk_uart0
+and the corresponding references, as the clock is now
+read directly from the configured clocks.
+
+If it ever becomes necessary the following can get added
+to modify the base clock rate later:
+	assigned-clocks = <&clocks BCM2835_CLOCK_UART>;
+	assigned-clock-rates = <X>;
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ arch/arm/boot/dts/bcm2708-rpi-b-plus.dts |  1 -
+ arch/arm/boot/dts/bcm2708-rpi-b.dts      |  1 -
+ arch/arm/boot/dts/bcm2708-rpi-cm.dts     |  1 -
+ arch/arm/boot/dts/bcm2708_common.dtsi    | 21 +++------------------
+ arch/arm/boot/dts/bcm2709-rpi-2-b.dts    |  1 -
+ arch/arm/boot/dts/bcm2710-rpi-3-b.dts    |  1 -
+ 6 files changed, 3 insertions(+), 23 deletions(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708-rpi-b-plus.dts b/arch/arm/boot/dts/bcm2708-rpi-b-plus.dts
+index db2705a..ddccaee 100644
+--- a/arch/arm/boot/dts/bcm2708-rpi-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2708-rpi-b-plus.dts
+@@ -133,7 +133,6 @@
+ / {
+ 	__overrides__ {
+ 		uart0 = <&uart0>,"status";
+-		uart0_clkrate = <&clk_uart0>,"clock-frequency:0";
+ 		uart1 = <&uart1>,"status";
+ 		i2s = <&i2s>,"status";
+ 		spi = <&spi0>,"status";
+diff --git a/arch/arm/boot/dts/bcm2708-rpi-b.dts b/arch/arm/boot/dts/bcm2708-rpi-b.dts
+index beae037..022055b 100644
+--- a/arch/arm/boot/dts/bcm2708-rpi-b.dts
++++ b/arch/arm/boot/dts/bcm2708-rpi-b.dts
+@@ -127,7 +127,6 @@
+ / {
+ 	__overrides__ {
+ 		uart0 = <&uart0>,"status";
+-		uart0_clkrate = <&clk_uart0>,"clock-frequency:0";
+ 		uart1 = <&uart1>,"status";
+ 		i2s = <&i2s>,"status";
+ 		spi = <&spi0>,"status";
+diff --git a/arch/arm/boot/dts/bcm2708-rpi-cm.dts b/arch/arm/boot/dts/bcm2708-rpi-cm.dts
+index 1cda047..ce9f54f 100755
+--- a/arch/arm/boot/dts/bcm2708-rpi-cm.dts
++++ b/arch/arm/boot/dts/bcm2708-rpi-cm.dts
+@@ -93,7 +93,6 @@
+ / {
+ 	__overrides__ {
+ 		uart0 = <&uart0>,"status";
+-		uart0_clkrate = <&clk_uart0>,"clock-frequency:0";
+ 		uart1 = <&uart1>,"status";
+ 		i2s = <&i2s>,"status";
+ 		spi = <&spi0>,"status";
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index 1a3cb00..184ba33 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -136,10 +136,11 @@
+ 		};
+ 
+ 		uart0: serial@7e201000 {
+-			compatible = "arm,pl011", "arm,primecell";
++			compatible = "brcm,bcm2835-pl011", "arm,pl011", "arm,primecell";
+ 			reg = <0x7e201000 0x1000>;
+ 			interrupts = <2 25>;
+-			clocks = <&clk_uart0 &clk_apb_p>;
++			clocks = <&cprman BCM2835_CLOCK_UART>,
++						<&cprman BCM2835_CLOCK_VPU>;
+ 			clock-names = "uartclk","apb_pclk";
+ 			arm,primecell-periphid = <0x00241011>; // For an explanation, see
+ 			// https://github.com/raspberrypi/linux/commit/13731d862cf5219216533a3b0de052cee4cc5038
+@@ -450,22 +451,6 @@
+ 			clock-frequency = <250000000>;
+ 		};
+ 
+-		clk_uart0: clock@2 {
+-			compatible = "fixed-clock";
+-			reg = <2>;
+-			#clock-cells = <0>;
+-			clock-output-names = "uart0_pclk";
+-			clock-frequency = <48000000>;
+-		};
+-
+-		clk_apb_p: clock@3 {
+-			compatible = "fixed-clock";
+-			reg = <3>;
+-			#clock-cells = <0>;
+-			clock-output-names = "apb_pclk";
+-			clock-frequency = <126000000>;
+-		};
+-
+ 		clk_pwm: clock@4 {
+ 			compatible = "fixed-clock";
+ 			reg = <4>;
+diff --git a/arch/arm/boot/dts/bcm2709-rpi-2-b.dts b/arch/arm/boot/dts/bcm2709-rpi-2-b.dts
+index eca72bd..8eba22a 100644
+--- a/arch/arm/boot/dts/bcm2709-rpi-2-b.dts
++++ b/arch/arm/boot/dts/bcm2709-rpi-2-b.dts
+@@ -133,7 +133,6 @@
+ / {
+ 	__overrides__ {
+ 		uart0 = <&uart0>,"status";
+-		uart0_clkrate = <&clk_uart0>,"clock-frequency:0";
+ 		uart1 = <&uart1>,"status";
+ 		i2s = <&i2s>,"status";
+ 		spi = <&spi0>,"status";
+diff --git a/arch/arm/boot/dts/bcm2710-rpi-3-b.dts b/arch/arm/boot/dts/bcm2710-rpi-3-b.dts
+index 98352b5..098398d 100644
+--- a/arch/arm/boot/dts/bcm2710-rpi-3-b.dts
++++ b/arch/arm/boot/dts/bcm2710-rpi-3-b.dts
+@@ -180,7 +180,6 @@
+ / {
+ 	__overrides__ {
+ 		uart0 = <&uart0>,"status";
+-		uart0_clkrate = <&clk_uart0>,"clock-frequency:0";
+ 		uart1 = <&uart1>,"status";
+ 		i2s = <&i2s>,"status";
+ 		spi = <&spi0>,"status";
+-- 
+2.7.4
+

@@ -1,0 +1,443 @@
+From a99ce21e933245f89227ecff557b77695aeccb71 Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Thu, 19 May 2016 00:00:00 +0100
+Subject: [PATCH 63/65] simple: simple audio overlays for bclk_int_div
+
+Specify a bclk_integer_divisor preference for multiples of 8k rates
+using the msperl simple-card framework via dt overlay.
+
+40/80 bclk_ratio using dtoverlay=simple-bclk-int-div-40-80
+50/100 bclk_ratio using dtoverlay=simple-bclk-int-div-50-100
+
+Typically would be used in conjunction with simple-es9023-audio overlay.
+
+eg. dtoverlay=simple-es9023-audio,card_name="Akkordion"
+    dtoverlay=simple-bclk-int-div-40-80
+
+Version 2, add an overlay, simple-bclk-64fs-overlay.dts, for fixed 64fs
+bclk_ratio, regardless of data bit depth.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/overlays/Makefile                |   3 +
+ arch/arm/boot/dts/overlays/README                  |  26 +++++
+ .../boot/dts/overlays/simple-bclk-64fs-overlay.dts |  90 +++++++++++++++
+ .../overlays/simple-bclk-int-div-40-80-overlay.dts | 125 +++++++++++++++++++++
+ .../simple-bclk-int-div-50-100-overlay.dts         | 125 +++++++++++++++++++++
+ 5 files changed, 369 insertions(+)
+ create mode 100644 arch/arm/boot/dts/overlays/simple-bclk-64fs-overlay.dts
+ create mode 100644 arch/arm/boot/dts/overlays/simple-bclk-int-div-40-80-overlay.dts
+ create mode 100644 arch/arm/boot/dts/overlays/simple-bclk-int-div-50-100-overlay.dts
+
+diff --git a/arch/arm/boot/dts/overlays/Makefile b/arch/arm/boot/dts/overlays/Makefile
+index 056e625..57996c39 100644
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -89,6 +89,9 @@ dtbo-$(RPI_DT_OVERLAYS) += sdhost.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += sdio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += sdio-1bit.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += sdtweak.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += simple-bclk-int-div-40-80.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += simple-bclk-int-div-50-100.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += simple-bclk-64fs.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += simple-es9023-audio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += simple-pcm5102a-audio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += smi.dtbo
+diff --git a/arch/arm/boot/dts/overlays/README b/arch/arm/boot/dts/overlays/README
+index 6320617..f0d9bce 100644
+--- a/arch/arm/boot/dts/overlays/README
++++ b/arch/arm/boot/dts/overlays/README
+@@ -1177,6 +1177,32 @@ Params: overclock_50            Clock (in MHz) to use when the MMC framework
+         debug                   Enable debug output (default off)
+ 
+ 
++Name:   simple-bclk-64fs
++Info:   Use a "fixed" 64fs bclk_ratio for 2 channel, 32/24/16 bit audio.
++Load:   dtoverlay=simple-bclk-64fs
++Params: <None>
++
++
++Name:   simple-bclk-int-div-40-80
++Info:   Specify a bclk_integer_divisor preference for multiples of 8k rates
++        Use bclk_ratio=40 for S16_LE and bclk_ratio=80 for S24_LE and S32_LE
++        formats when the media sample rate is a multiple of 8000kHz and less
++        than 192kHz, which allows the use of the OSC with integer divider
++        rather than PLL with fractional (MASH) divider.
++Load:   dtoverlay=simple-bclk-int-div-40-80
++Params: <None>
++
++
++Name:   simple-bclk-int-div-50-100
++Info:   Specify a bclk_integer_divisor preference for multiples of 8k rates
++        Use bclk_ratio=50 for S16_LE and bclk_ratio=100 for S24_LE and S32_LE
++        formats when the media sample rate is a multiple of 8000kHz and less
++        than 192kHz, which allows the use of the OSC with integer divider
++        rather than PLL with fractional (MASH) divider.
++Load:   dtoverlay=simple-bclk-int-div-50-100
++Params: <None>
++
++
+ Name:   simple-es9023-audio
+ Info:   Configures a generic board or HAT using ESS Sabre ES9023 DAC
+ Load:   dtoverlay=simple-es9023-audio,<param>,<param>=<val>
+diff --git a/arch/arm/boot/dts/overlays/simple-bclk-64fs-overlay.dts b/arch/arm/boot/dts/overlays/simple-bclk-64fs-overlay.dts
+new file mode 100644
+index 0000000..1411a82
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/simple-bclk-64fs-overlay.dts
+@@ -0,0 +1,90 @@
++/*
++ * Copyright (c) 2016 Clive Messer <clive.messer@digitaldreamtime.co.uk>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This library is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This library is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++/*
++ * Always use a 64fs bclk_ratio (for 2 channel S16, S24_3, S24 and S32)
++ *  eg. dtoverlay=simple-bclk-64fs
++ */
++
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&sound>;
++		__overlay__ {
++			// 2ch, S16/S24_3/S24/S32 rule
++			// set bclk_ratio=64
++			hw-params-rule@0 {
++				rule-name = "S16/S24_3/S24/S32_2CH_BCLK64";
++				priority = <99>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_channels";
++					values = <2>;
++				};
++				match@1 {
++					method = "asoc_generic_hw_params_match_physical_bits";
++					values = <16>, <24>, <32>;
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <64>;
++				};
++			};
++			// default rule
++			// set blck_ratio=0 (Let cpu driver decide bclk_ratio)
++			hw-params-rule@1 {
++				rule-name = "DEFAULT_BCLK0";
++				priority = <0>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_noop";
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <0>;
++				};
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/overlays/simple-bclk-int-div-40-80-overlay.dts b/arch/arm/boot/dts/overlays/simple-bclk-int-div-40-80-overlay.dts
+new file mode 100644
+index 0000000..36a5649
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/simple-bclk-int-div-40-80-overlay.dts
+@@ -0,0 +1,125 @@
++/*
++ * Copyright (c) 2016 Clive Messer <clive.messer@digitaldreamtime.co.uk>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This library is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This library is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++/*
++ * Definitions of bclk_integer_divisor preference for multiples of 8k rates.
++ *  bclk_ratio=40 for S16. bclk_ratio=80 for S24, S24_3 and S32.
++ *  eg. dtoverlay=simple-bclk-int-div-40-80
++ */
++
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&sound>;
++		__overlay__ {
++			// 2ch, S24/S24_3/S32 @ 8/16/32/48/64/96kHz rule
++			// set bclk_ratio=80
++			hw-params-rule@0 {
++				rule-name = "x8kHz_S24/S24_3/S32_2CH_BCLK80";
++				priority = <99>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_channels";
++					values = <2>;
++				};
++				match@1 {
++					method = "asoc_generic_hw_params_match_rate_lt";
++					value = <192000>;
++				};
++				match@2 {
++					method = "asoc_generic_hw_params_match_rate_div_by";
++					value = <8000>;
++				};
++				match@3 {
++					method = "asoc_generic_hw_params_match_physical_bits";
++					values = <24>, <32>;
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <80>;
++				};
++			};
++			// 2ch, S16 @ 8/16/32/48/64/96kHz rule
++			// set bclk_ratio=40
++			hw-params-rule@1 {
++				rule-name = "x8kHz_S16_2CH_BCLK40";
++				priority = <99>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_channels";
++					values = <2>;
++				};
++				match@1 {
++					method = "asoc_generic_hw_params_match_rate_lt";
++					value = <192000>;
++				};
++				match@2 {
++					method = "asoc_generic_hw_params_match_rate_div_by";
++					value = <8000>;
++				};
++				match@3 {
++					method = "asoc_generic_hw_params_match_physical_bits";
++					values = <16>;
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <40>;
++				};
++			};
++			// default rule
++			// set blck_ratio=0 (Let cpu driver decide bclk_ratio)
++			hw-params-rule@2 {
++				rule-name = "DEFAULT_BCLK0";
++				priority = <0>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_noop";
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <0>;
++				};
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/overlays/simple-bclk-int-div-50-100-overlay.dts b/arch/arm/boot/dts/overlays/simple-bclk-int-div-50-100-overlay.dts
+new file mode 100644
+index 0000000..bf5244d
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/simple-bclk-int-div-50-100-overlay.dts
+@@ -0,0 +1,125 @@
++/*
++ * Copyright (c) 2016 Clive Messer <clive.messer@digitaldreamtime.co.uk>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This library is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This library is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++/*
++ * Definitions of bclk_integer_divisor preference for multiples of 8k rates.
++ *  bclk_ratio=50 for S16_LE and S24_3LE. bclk_ratio=100 for S24_LE and S32_LE.
++ *  eg. dtoverlay=simple-bclk-int-div-50-100
++ */
++
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&sound>;
++		__overlay__ {
++			// 2ch, S24/S32 @ 8/16/32/48/64/96kHz rule
++			// set bclk_ratio=100
++			hw-params-rule@0 {
++				rule-name = "x8kHz_S24/S32_2CH_BCLK100";
++				priority = <99>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_channels";
++					values = <2>;
++				};
++				match@1 {
++					method = "asoc_generic_hw_params_match_rate_lt";
++					value = <192000>;
++				};
++				match@2 {
++					method = "asoc_generic_hw_params_match_rate_div_by";
++					value = <8000>;
++				};
++				match@3 {
++					method = "asoc_generic_hw_params_match_physical_bits";
++					values = <32>;
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <100>;
++				};
++			};
++			// 2ch, S24_3/S16 @ 8/16/32/48/64/96kHz rule
++			// set bclk_ratio=50
++			hw-params-rule@1 {
++				rule-name = "x8kHz_S24_3/S16_2CH_BCLK50";
++				priority = <99>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_channels";
++					values = <2>;
++				};
++				match@1 {
++					method = "asoc_generic_hw_params_match_rate_lt";
++					value = <192000>;
++				};
++				match@2 {
++					method = "asoc_generic_hw_params_match_rate_div_by";
++					value = <8000>;
++				};
++				match@3 {
++					method = "asoc_generic_hw_params_match_physical_bits";
++					values = <16>, <24>;
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <50>;
++				};
++			};
++			// default rule
++			// set blck_ratio=0 (Let cpu driver decide bclk_ratio)
++			hw-params-rule@2 {
++				rule-name = "DEFAULT_BCLK0";
++				priority = <0>;
++				match@0 {
++					method = "asoc_generic_hw_params_match_noop";
++				};
++				action@0 {
++					method = "asoc_generic_hw_params_set_fixed_bclk_size";
++					value = <0>;
++				};
++			};
++		};
++	};
++};
+-- 
+2.7.4
+

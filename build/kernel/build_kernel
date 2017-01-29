@@ -1,0 +1,336 @@
+#!/bin/bash
+
+#################################################################################
+#
+# build_kernel for pcp kernels
+#
+# Prep - Need to clone some git repos
+#	Directory		Git Repo
+#	firmware			https://github.com/raspberrypi/firmware.git
+#	linux-git		https://github.com/raspberrypi/linux.git
+#	tools				https://github.com/raspberrypi/tools.git (Note, this is for a linux x86 based cross compiler)
+#
+#
+#  This editor is for making some build notes... 
+EDITOR="/usr/bin/notepadqq"
+#
+# Change your CC if needed.
+#for Rasperry pi arm
+export CCPREFIX="${BASEWD}/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-"
+#This is 64 bit, but only 4.8.3. based gcc
+#export CCPREFIX="${BASEWD}/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-"
+#These are built into the compiler
+#export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
+
+LINUX_GIT="linux-git"
+echo "Kernel Build Scripts"
+
+#  If you end up with different kernel trees, you can us this.
+#echo "Which Kernel would you like to use?"
+#LINUXSRC=$(find * -maxdepth 1 -type d -name "linux*")
+#select LINUX_GIT in $LINUXSRC
+#do
+#	if [ "${LINUX_GIT}" != "" ]; then
+#		echo "You picked: ${LINUX_GIT}"
+#		cd ${LINUX_GIT}
+#		echo
+#		git status
+#		cd ..
+#		echo
+#		read -p "Do you wish to continue?" yn
+#		case $yn in
+#			[Yy]* ) break;;
+#			[Nn]* ) exit 1;;
+#			* ) echo "Please answer yes or no.";;
+#		esac
+#	fi
+#done
+BASEWD=$(pwd)
+
+echo "*****************************************************************"
+echo
+echo "Working with linux source from ${LINUX_GIT}"
+
+BUILDKERNEL=1
+PREPAREMODS=0
+
+trimval() {
+	echo $1 | cut -d '=' -f2 | xargs 
+}
+
+if [ ! -d $LINUX_GIT ]; then
+	echo "Please start in base pcp build directory $LINUX_GIT"
+	exit 1
+fi
+
+echo "Select the Base Architecture"
+select RPIARCH in armv6 armv7;
+do
+	if [ "$RPIARCH" != "" ]; then
+		echo "You picked $RPIARCH"
+		read -p "Do you wish to continue? (y/n) " yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) exit 1;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+echo "*****************************************************************"
+echo
+
+while true; do
+	read -p "Do you need to Clean the linux build tree? (y/n) " yn
+	case $yn in
+		# Need to manually clean the dtbo's for some reason
+		[Yy]* ) cd $LINUX_GIT; make mrproper; rm -f arch/arm/boot/dts/overlays/*.dtbo; cd ..; break;;
+		[Nn]* ) break;;
+		* ) echo "Please answer yes or no.";;
+	esac
+done	
+echo "*****************************************************************"
+echo
+
+if [ -f  $LINUX_GIT/.config ]; then
+	while true; do
+		read -p "There is a .config in the build tree.  Should this be used for this build? (y/n) " yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) rm -f $LINUX_GIT/.config; break;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	done	
+	echo "*****************************************************************"
+	echo
+fi
+
+if [ ! -f  $LINUX_GIT/.config ]; then
+	echo "Select the previous config you would like to start with"
+	select INITCONFIG in $(ls pcpCore/$RPIARCH/configs);
+	do
+		if [ "$INITCONFIG" != "" ]; then
+			echo "You picked $INITCONFIG"
+			read -p "Do you wish to continue? (y/n) " yn
+			case $yn in
+				[Yy]* ) INITKERNEL=${INITCONFIG%^*};break;;
+				[Nn]* ) exit 1;;
+				* ) echo "Please answer yes or no.";;
+			esac
+		fi
+	done
+	xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITKERNEL}_.config.xz > $LINUX_GIT/.config
+fi
+echo
+echo "*****************************************************************"
+echo 
+while true;
+do
+	read -p "Just setup Kernel for building modules? (y/n) " yn
+	case $yn in
+		[Yy]* ) 
+			xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITCONFIG}_Module.symvers.xz > $LINUX_GIT/Module.symvers
+			xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITCONFIG}_System.map.xz > $LINUX_GIT/System.map
+			PREPAREMODS=1
+			BUILDKERNEL=0
+			break
+		;;
+		[Nn]* ) 
+			break
+		;;
+		* ) echo "Please answer yes or no."
+		;;
+	esac
+done	
+
+cd $LINUX_GIT
+
+while read LINE; do
+	case $LINE in
+		VERSION*) VERSION=$(trimval "${LINE}");;
+		PATCHLEVEL*) PATCHLEVEL=$(trimval "${LINE}");;
+		SUBLEVEL*) SUBLEVEL=$(trimval "${LINE}");;
+		NAME*) break;;
+		*);;
+	esac
+done < Makefile
+
+echo "*****************************************************************"
+echo 
+KVERSION=$(printf "%d.%d.%d" $VERSION $PATCHLEVEL $SUBLEVEL)
+echo "Kernel Version:$VERSION"
+echo "Kernel PatchLevel: $PATCHLEVEL"
+echo "Kernel SubLevel: $SUBLEVEL"
+echo
+DATESTAMP=$(date +%m%d%Y%H%M)
+echo "Date Stamp is: ${DATESTAMP}"
+echo
+echo -n "Local Version is set to "
+cat .config |grep "CONFIG_LOCALVERSION="
+echo
+echo "If you need to change, edit \".config\" in another shell"
+echo "Press any key when Ready to continue configuration of the Kernel"
+read key
+echo
+while read LINE; do
+	case $LINE in
+		CONFIG_LOCALVERSION=*) 
+			LOCALVERSION=$(trimval "${LINE}")
+			break
+		;;
+		*);;
+	esac
+done < .config
+KVERSION="${KVERSION}${LOCALVERSION}+"
+echo "Building for kernel $KVERSION"
+echo 
+echo "*****************************************************************"
+echo 
+
+while true; do
+	read -p "Do you need to run \"make oldconfig\"? (y/n) " yn
+	case $yn in
+		[Yy]* ) 
+			make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 oldconfig
+			break
+		;;
+		[Nn]* ) 
+			break
+		;;
+		* ) echo "Please answer yes or no."
+		;;
+	esac
+done
+echo "*****************************************************************"
+echo 
+while true; do
+	read -p "Do you need to run \"make menuconfig\"? (y/n) " yn
+	case $yn in
+		[Yy]* ) 
+			make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4  menuconfig
+			break
+		;;
+		[Nn]* ) 
+			break
+		;;
+		* ) echo "Please answer yes or no."
+		;;
+	esac
+done
+
+echo "*****************************************************************"
+echo "Create Build Notes"
+echo 
+NOTES=`mktemp`
+echo "*****************************************************************" > $NOTES
+echo "Build Notes for" >> $NOTES
+echo "Kernel $KVERSION" >> $NOTES
+echo "Date Stamp is: ${DATESTAMP}" >> $NOTES
+echo "Based on Source: ${LINUX_GIT}"  >> $NOTES
+echo "*****************************************************************" >> $NOTES
+echo "Notes Saved in: $NOTES"
+$EDITOR $NOTES
+
+echo "*****************************************************************"
+echo "Press any Key to start building kernel"
+read key
+
+if [ ${PREPAREMODS} -eq 1 ]; then
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 prepare_modules
+	if [ $? -ne 0 ]; then
+		exit 1
+	fi
+	echo "*****************************************************************"
+	echo "System prepared to build Modules........exiting"
+	exit 0
+fi
+
+if [ ${BUILDKERNEL} -eq 1 ]; then
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 zImage
+	if [ $? -ne 0 ]; then
+		echo "*****************************************************************"
+		echo "Error building Kernel.....exiting"
+		exit 1
+	fi
+
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 modules
+	if [ $? -ne 0 ]; then
+		echo "*****************************************************************"
+		echo "Error building Modules.....exiting"
+		exit 1
+	fi
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 dtbs
+	if [ $? -ne 0 ]; then
+		echo "*****************************************************************"
+		echo "Error building dtbs.....exiting"
+		exit 1
+	fi
+	echo "*****************************************************************"
+	echo " Copying Binaries to distribution"
+
+#	RPIARCH is either armv6 or armv7
+	MODPATH="${BASEWD}/pcpCore/${RPIARCH}/modules/${KVERSION}^${DATESTAMP}"
+	KERNELPATH="${BASEWD}/pcpCore/${RPIARCH}/kernel/${KVERSION}^${DATESTAMP}"
+	CFGPATH="${BASEWD}/pcpCore/${RPIARCH}/configs/${KVERSION}^${DATESTAMP}"
+
+	if [ ! -d $MODPATH ]; then
+		mkdir -p $MODPATH
+	fi
+	if [ ! -d $KERNELPATH/headers ]; then
+		mkdir -p $KERNELPATH/headers 
+	fi
+
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4  INSTALL_MOD_PATH=${MODPATH} INSTALL_MOD_STRIP=1 modules_install
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4  INSTALL_HDR_PATH=${KERNELPATH}/headers headers_install
+
+	case $RPIARCH in
+		armv6)
+			cp arch/arm/boot/zImage $KERNELPATH/kernel${VERSION}${PATCHLEVEL}${SUBLEVEL}.img
+			cp arch/arm/boot/dts/bcm2708*.dtb $KERNELPATH/
+			rsync -q arch/arm/boot/dts/overlays/*.dtbo $KERNELPATH/overlays/
+			rsync -q arch/arm/boot/dts/overlays/README* $KERNELPATH/overlays/
+		;;
+		armv7)
+			cp arch/arm/boot/zImage $KERNELPATH/kernel${VERSION}${PATCHLEVEL}${SUBLEVEL}v7.img
+			cp arch/arm/boot/dts/bcm2709-rpi-2-b.dtb $KERNELPATH/
+			cp arch/arm/boot/dts/bcm2710-rpi-3-b.dtb $KERNELPATH/
+			cp arch/arm/boot/dts/bcm2710-rpi-cm3.dtb $KERNELPATH/
+			rsync -q arch/arm/boot/dts/overlays/*.dtbo $KERNELPATH/overlays/
+			rsync -q arch/arm/boot/dts/overlays/README* $KERNELPATH/overlays/
+		;;
+	esac
+
+	echo "*****************************************************************"
+	echo " Copying kernel configuration files"
+	mkdir -p $CFGPATH
+	xz -z -9 --stdout .config > $CFGPATH/${KVERSION}_.config.xz
+	xz -z -9 --stdout System.map > $CFGPATH/${KVERSION}_System.map.xz
+	xz -z -9 --stdout Module.symvers > $CFGPATH/${KVERSION}_Module.symvers.xz
+
+	mv $NOTES $CFGPATH/${KVERSION}.Build_Notes
+	
+	#archive kernel source
+	#for git archiving source
+	#git config tar.tar.xz.command "xz -c"
+	echo "*****************************************************************"
+	while true; do
+		read -p "Do you need to run archive kernel source? (y/n) " yn
+		case $yn in
+			[Yy]* ) 
+				PCPSRC="${BASEWD}/pcpCore/source/${VERSION}.${PATCHLEVEL}.${SUBLEVEL}-${LOCALVERSION}_src.tar.xz"
+				echo "Archiving source to $PCPSRC"
+				echo -n "This will take a while! "
+				git archive -o /tmp/src.tar.xz HEAD &
+				rotdash $!
+				mv /tmp/src.tar.xz $PCPSRC
+				echo "Done"
+				break
+			;;
+			[Nn]* ) 
+				break
+			;;
+			* ) echo "Please answer yes or no."
+			;;
+		esac
+	done
+	echo "Done"
+fi

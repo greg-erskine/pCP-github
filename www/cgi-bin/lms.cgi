@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.11 2017-01-28
+#	Added Workgroup to Samba. PH.
+#	Updated freespace requirements. PH.
+
 # Version: 3.10 2016-12-27
 #	Pop-up asking to delete cache. SBP
 #	Remove all traces of LMS. SBP
@@ -288,18 +292,20 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_table_top "Downloading Logitech Media Server (LMS)"
-		pcp_sufficient_free_space 40000
-		echo '                <textarea class="inform" style="height:160px">'
-		pcp_install_lms
-		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-			LMSERVER="yes"
-			pcp_save_to_config
-			pcp_backup "nohtml"
-		else
-			echo '[ ERROR ] Error Downloading LMS, please try again later.'
+		pcp_sufficient_free_space 48000
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:160px">'
+			pcp_install_lms
+			if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+				LMSERVER="yes"
+				pcp_save_to_config
+				pcp_backup "nohtml"
+			else
+				echo '[ ERROR ] Error Downloading LMS, please try again later.'
+			fi
+			echo '                </textarea>'
+			pcp_table_end
 		fi
-		echo '                </textarea>'
-		pcp_table_end
 	;;
 	Remove)
 		pcp_table_top "Removing Logitech Media Server (LMS)"
@@ -328,11 +334,13 @@ case "$ACTION" in
 	;;
 	Install_FS)
 		pcp_table_top "Installing extra file system support"
-		pcp_sufficient_free_space 4000
-		echo '                <textarea class="inform" style="height:80px">'
-		pcp_install_fs
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_sufficient_free_space 4300
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:80px">'
+			pcp_install_fs
+			echo '                </textarea>'
+			pcp_table_end
+		fi
 	;;
 	Remove_FS)
 		pcp_table_top "Removing extra file system support"
@@ -345,10 +353,12 @@ case "$ACTION" in
 	Install_Samba)
 		pcp_table_top "Installing Samba4 Server"
 		pcp_sufficient_free_space 25000
-		echo '                <textarea class="inform" style="height:120px">'
-		pcp_install_samba4
-		echo '                </textarea>'
-		pcp_table_end
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:120px">'
+			pcp_install_samba4
+			echo '                </textarea>'
+			pcp_table_end
+		fi
 	;;
 	Remove_Samba)
 		pcp_table_top "Removing Samba4 Server"
@@ -1384,7 +1394,7 @@ pcp_samba() {
 				case $LINE in
 					*global*) GLOBAL=1;;
 					netbios*) NETBIOS=$(trimval "${LINE}");;
-					workgroup*) WG=$(trimval "${LINE}");;
+					workgroup*) WGROUP=$(trimval "${LINE}");;
 					[*)	SC=$((SC+1)); eval SHARE${SC}=$(trimshare "${LINE}");;
 					path*) eval SHAREPATH${SC}=$(trimval "${LINE}");;
 					create\ mask*) eval SHAREMASK${SC}=$(trimval "${LINE}");;
@@ -1520,6 +1530,24 @@ pcp_samba() {
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>This is the Server name that will show up in your network browser.&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150 center">'
+		echo '                    <p class="row">Server WorkGroup</p>'
+		echo '                  </td>'
+		echo '                  <td class="column210">'
+		echo '                    <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required"></p>'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>This is the Server Work Group that will show up in your network browser.&nbsp;&nbsp;'
 		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                    </p>'
 		echo '                    <div id="'$ID'" class="less">'
