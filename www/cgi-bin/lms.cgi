@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.11 2017-01-23
+# Version: 3.11 2017-01-28
 #	Added Workgroup to Samba. PH.
+#	Updated freespace requirements. PH.
 
 # Version: 3.10 2016-12-27
 #	Pop-up asking to delete cache. SBP
@@ -291,18 +292,20 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_table_top "Downloading Logitech Media Server (LMS)"
-		pcp_sufficient_free_space 40000
-		echo '                <textarea class="inform" style="height:160px">'
-		pcp_install_lms
-		if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-			LMSERVER="yes"
-			pcp_save_to_config
-			pcp_backup "nohtml"
-		else
-			echo '[ ERROR ] Error Downloading LMS, please try again later.'
+		pcp_sufficient_free_space 48000
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:160px">'
+			pcp_install_lms
+			if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+				LMSERVER="yes"
+				pcp_save_to_config
+				pcp_backup "nohtml"
+			else
+				echo '[ ERROR ] Error Downloading LMS, please try again later.'
+			fi
+			echo '                </textarea>'
+			pcp_table_end
 		fi
-		echo '                </textarea>'
-		pcp_table_end
 	;;
 	Remove)
 		pcp_table_top "Removing Logitech Media Server (LMS)"
@@ -331,11 +334,13 @@ case "$ACTION" in
 	;;
 	Install_FS)
 		pcp_table_top "Installing extra file system support"
-		pcp_sufficient_free_space 4000
-		echo '                <textarea class="inform" style="height:80px">'
-		pcp_install_fs
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_sufficient_free_space 4300
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:80px">'
+			pcp_install_fs
+			echo '                </textarea>'
+			pcp_table_end
+		fi
 	;;
 	Remove_FS)
 		pcp_table_top "Removing extra file system support"
@@ -348,10 +353,12 @@ case "$ACTION" in
 	Install_Samba)
 		pcp_table_top "Installing Samba4 Server"
 		pcp_sufficient_free_space 25000
-		echo '                <textarea class="inform" style="height:120px">'
-		pcp_install_samba4
-		echo '                </textarea>'
-		pcp_table_end
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:120px">'
+			pcp_install_samba4
+			echo '                </textarea>'
+			pcp_table_end
+		fi
 	;;
 	Remove_Samba)
 		pcp_table_top "Removing Samba4 Server"
