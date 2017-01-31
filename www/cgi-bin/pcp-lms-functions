@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 3.12 2017-01-30
+#	Added OPTIONS to .slimconfig.cfg for commandline options
+
 # Version: 3.10 2016-12-23
 #	Fixed players tabs for new changes in the LMS cli. PH.
 
@@ -507,7 +510,36 @@ pcp_lms_randomplay() {
 #----------------------------------------------------------------------------------------
 pcp_lms_set_slimconfig(){
 	CFG="/home/tc/.slimserver.cfg"
-	rm -rf $CFG
-	echo "CACHE=$1/Cache" >> $CFG
-	echo "PREFS=$1/prefs" >> $CFG
+	#Read the current config file, if present
+	[ -f $CFG ] && . $CFG
+	case $1 in
+		CACHE)
+			#Write new location for Cache and Prefs
+			echo "CACHE=$2/Cache" > $CFG
+			echo "PREFS=$2/prefs" >> $CFG
+			[ -n "$LOGS" ] && echo "LOGS=$LOGS" >> $CFG
+			[ -n "$LMSUSER" ] && echo "LMSUSER=$LMSUSER" >> $CFG
+			[ -n "$LMSGROUP" ] && echo "LMSGROUP=$LMSGROUP" >> $CFG
+			[ -n "$OPTIONS" ] && echo "OPTIONS=$OPTIONS" >> $CFG
+		;;
+		OPTS)
+			unset NEWOPTIONS
+			if [ "$OPTIONS" != "" ]; then  
+				for i in $OPTIONS; do
+					case $i in
+						$2);;  #Do Nothing, we will add later if we are adding.
+						*)NEWOPTIONS="${NEWOPTIONS} ${i} ";;#Add with extra spaces, will remove extra space later
+					esac
+				done
+			fi
+			if [ "$3" = "ADD" ]; then
+				NEWOPTIONS="${NEWOPTIONS} $2"
+			fi
+			OPTIONS=$(echo ${NEWOPTIONS} | sed 's/ \{1,\}/ /g')   # Remove extra blanks
+			sed -i '/OPTIONS=/d' $CFG   #Remove the options line from file
+			echo "OPTIONS=\"$OPTIONS\"" >> $CFG
+		;;
+		*) echo "ERROR"
+		;;
+	esac
 }

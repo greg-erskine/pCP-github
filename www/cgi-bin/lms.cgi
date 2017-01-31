@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-01-29
+#	Added --nomysqueezebox option for lms. PH.
+
 # Version: 3.11 2017-01-28
 #	Added Workgroup to Samba. PH.
 #	Updated freespace requirements. PH.
@@ -64,6 +67,7 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 [ -n "$PREFS" ] || PREFS=${TCEDIR}/slimserver/prefs
 [ -n "$LMSUSER" ] || LMSUSER=tc
 [ -n "$LMSGROUP" ] || LMSGROUP=staff
+[ -n "$OPTIONS" ] || OPTIONS=""
 
 LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
@@ -385,6 +389,15 @@ case "$ACTION" in
 		pcp_table_top "Re-Starting Samba"
 		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba restart" 40
 		pcp_table_end
+	;;
+	Mysb)
+		echo '[ INFO ] Setting --nomysqueezebox commandline option...'
+		case $NOMYSB in
+			yes) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" ADD;;
+			no) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" DEL;;
+			*)pcp_warning_message;;
+		esac
+		[ -f $CFG_FILE ] && . $CFG_FILE
 	;;
 	*)
 		pcp_warning_message
@@ -722,6 +735,37 @@ pcp_update_lms() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
 
+#-------------------------------nomysqueezebox-------------------------------------------
+pcp_lms_no_mysb() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	case $OPTIONS in
+		*--nomysqueezebox*) NOMYSByes="checked";;
+		*) NOMYSBno="checked";;
+	esac
+	echo '            <form name="Nomysb" action="'$0'" method="get">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="Mysb" '$DISABLED'>No MySB</button>'
+	echo '                </td>'
+	echo '                <td class="column100">'
+	echo '                  <input class="small1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes' >Yes'
+	echo '                  <input class="small1" type="radio" name="NOMYSB" value="no" '$NOMYSBno' >No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set --nomysqueezebox commandline option for LMS.&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>If enabled, this tells LMS to not use any mysqueezebox integrations.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_lms_no_mysb
+#----------------------------------------------------------------------------------------
+
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
 	pcp_incr_id
@@ -729,7 +773,7 @@ pcp_lms_show_logs() {
 	echo '            <form name="Show" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Show Logs" />'
+	echo '                  <input type="submit" value="Show Logs" '$DISABLED'/>'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'

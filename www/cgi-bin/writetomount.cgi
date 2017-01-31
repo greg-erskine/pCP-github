@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-01-30
+#	Revisions to pcp_lms_set_slimconfig function. PH.
+
 # Version: 3.10 2017-01-06
 #	Added support for GPT disks. PH.
 
@@ -211,7 +214,7 @@ case "$MOUNTTYPE" in
 
 			if [ "$BADFORMAT" = "no" ]; then
 				echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
-				pcp_lms_set_slimconfig $MNT
+				pcp_lms_set_slimconfig CACHE $MNT
 				pcp_save_to_config
 				pcp_backup
 				echo ''
