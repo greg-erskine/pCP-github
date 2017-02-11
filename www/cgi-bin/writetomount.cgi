@@ -113,8 +113,14 @@ case "$MOUNTTYPE" in
 							echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
 							umount $DEVICE
 							OPTIONS="-v -t ntfs-3g -o permissions"
-							;;
-						*)	OPTIONS="-v";;
+						;;
+						vfat|fat32)
+							umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+							OPTIONS="-o iocharset=utf8 -v"
+						;;
+						*)
+							OPTIONS="-v"
+						;;
 					esac
 					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
 					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$MOUNTUUID' /mnt/'$MOUNTPOINT'</p>'

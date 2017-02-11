@@ -464,8 +464,14 @@ if [ "$MOUNTUUID" != "no" ]; then
 			ntfs)
 				umount $DEVICE  #ntfs cannot be dual mounted
 				OPTIONS="-v -t ntfs-3g -o permissions"
-				;;
-			*) OPTIONS="-v";;
+			;;
+			vfat|fat32)
+				umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+				OPTIONS="-o iocharset=utf8 -v"
+			;;
+			*)
+				OPTIONS="-v"
+			;;
 		esac
 		mount $OPTIONS --uuid $MOUNTUUID /mnt/$MOUNTPOINT
 		if [ $? -eq 0 ]; then
