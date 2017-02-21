@@ -32,8 +32,12 @@ sudo mount /dev/sda1
 sudo mount /dev/mmcblk0p1
 sudo mount /mnt/mmcblk0p2
 sudo mkdir /mnt/sda1/piCorePlayer"$NUMBER"
+
 sudo tar -zcvf /mnt/sda1/piCorePlayer"$NUMBER"/piCorePlayer"$NUMBER"_boot.tar.gz /mnt/mmcblk0p1
-sudo tar -zcvf /mnt/sda1/piCorePlayer"$NUMBER"/piCorePlayer"$NUMBER"_tce.tar.gz /mnt/mmcblk0p2/tce
+
+# this is the old working version sudo tar -zcvf /mnt/sda1/piCorePlayer"$NUMBER"/piCorePlayer"$NUMBER"_tce.tar.gz /mnt/mmcblk0p2/tce
+# the following is used from 3.06 and forward to save space as the update process now downloads the needed modules
+sudo tar -zcvf /mnt/sda1/piCorePlayer"$NUMBER"/piCorePlayer"$NUMBER"_tce.tar.gz --exclude='wireless-*' --exclude='alsa-modules-*' --exclude='touchscreen-*' --exclude='backlight-*' /mnt/mmcblk0p2/tce
 
 echo "Stop Squeezelite"
 sudo /usr/local/etc/init.d/squeezelite stop
