@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.12 2017-02-26
+#	Updated SCREENROTATE default value. GE.
+
 # Version: 3.11 2017-01-29
 #	Updated default soundcard for shairport to work out of box. SBP.
 
@@ -1729,7 +1732,7 @@ USER_COMMAND_1=""
 USER_COMMAND_2=""
 USER_COMMAND_3=""
 JIVELITE="no"
-SCREENROTATE="no"
+SCREENROTATE="180"
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"

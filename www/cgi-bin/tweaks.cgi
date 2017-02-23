@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-02-26
+#	Updated screen rotate. GE.
+
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
 
@@ -1026,11 +1029,11 @@ pcp_tweaks_vumeter() {
 [ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
-#---------------------------------------Screen rotate------------------------------------
+#---------------------------------------Screen rotatation--------------------------------
 pcp_tweaks_screenrotate() {
 	case "$SCREENROTATE" in
-		yes) SCREENyes="selected" ;;
-		no) SCREENno="selected" ;;
+		0|no) SCREEN0="checked" ;;
+		180|yes) SCREEN180="checked" ;;
 	esac
 
 	echo '          <table class="bggrey percent100">'
@@ -1039,25 +1042,23 @@ pcp_tweaks_screenrotate() {
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>Rotate screen</p>'
+	echo '                  <p>Screen rotation</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="SCREENROTATE">'
-	echo '                    <option value="yes" '$SCREENyes'>Rotate screen</option>'
-	echo '                    <option value="no" '$SCREENno'>Default screen rotation</option>'
-	echo '                  </select>'
+	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="0" '$SCREEN0'>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="180" '$SCREEN180'>180'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Rotate screen if upside down&nbsp;&nbsp;'
+	echo '                  <p>Screen rotation (0|180)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows to rotate piCorePlayer if upside down.</p>'
-	echo '                    <p>A reboot after any change is needed.<p>'
-	echo '                    <p><b>Note:</b> For some screen mounts piCorePlayer is shown upside down.</p>'
+	echo '                    <p>Allows you to rotate the screen if the display is upside down.</p>'
+	echo '                    <p>A reboot is required to activate the changes.<p>'
+	echo '                    <p><b>Note:</b> On some (most) screen mounts, the screen is actually upside down.</p>'
 	echo '                    <ul>'
-	echo '                      <li>Rotate screen - will flip the view 180 degrees.</li>'
-	echo '                      <li>Default screen orientation.</li>'
+	echo '                      <li>0 - brown ribbon cable at bottom of screen.</li>'
+	echo '                      <li>180 - brown ribbon cable at top of screen (default).</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
