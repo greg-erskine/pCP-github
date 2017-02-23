@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>pCP - How-to burn piCorePlayer onto a SD card</title>
+  <title>pCP - How-to Setup Wifi on piCorePlayer without Ethernet</title>
   <meta name="author" content="GE'">
-  <meta name="description" content="pCP - How-to burn piCorePlayer onto a SD card">
+  <meta name="description" content="pCP - How-to Setup Wifi on piCorePlayer without Ethernet ">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
   <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
@@ -25,16 +25,16 @@
           <table class="bggrey percent100">
             <tr>
               <td>
-                <h1>How-to burn piCorePlayer onto a SD card</h1>
+                <h1>How-to setup wifi on piCorePlayer without Ethernet</h1>
               </td>
             </tr>
             <tr>
               <td>
-                <ul>
-                  <li><a href="#windows">Windows&#8212;using Win32 Disk Imager</a></li>
-                  <li><a href="#linux">Linux</a></li>
-                  <li><a href="#macos">MacOS</a></li>
-                  <li><a href="#more">Information</a></li>
+                <p>There are 2 situations where these methods will be useful:</p>
+                <ol>
+                  <li>You have a Raspberry Pi without in-built ethernet.</li>
+                  <li>Wired ethernet is not available.</li>
+                </ul>
               </td>
             </tr>
           </table>
@@ -44,22 +44,108 @@
   </tr>
 </table>
 
-<table id="windows" class="bggrey">
+<table class="bggrey">
   <tr>
     <td>
       <div class="row">
         <fieldset>
           <table class="bggrey percent100">
-            <legend>Windows&#8212;using Win32 Disk Imager</legend>
+            <legend>Add "newconfig.cfg" to boot partition on PC</legend>
+             <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>1.</p>
+              </td>
+              <td>
+                <p>Burn image to a SD card&#8212;see <a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</a>.</p>
+                <p><b>Note: </b>Do not eject the SD card as you need to add "newconfig.cfg" to the boot partition.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20" style="vertical-align: top;">
+                <p>2.</p>
+              </td>
+              <td>
+                <p>Type the following using your text editor (ie. Notepad++).</p>
+                <textarea  style="height:70px; width:600px; border:0px solid grey;">
+WIFI="on"
+SSID="SSID"
+PASSWORD="password"
+ENCRYPTION="WPA"
+                </textarea>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>3.</p>
+              </td>
+              <td>
+                <p>Save As the file "F\:newconfig.cfg" to the boot partition.</p>
+                <p>On a PC this will be a drive letter. (ie. F:)</p>
+              </td> 
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>4.</p>
+              </td>
+              <td>
+                <p>Eject SD card.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>5.</p>
+              </td>
+              <td>
+                <p>Insert SD card into piCorePlayer.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>6.</p>
+              </td>
+              <td>
+                <p>Apply power.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table class="bggrey percent100">
+            <legend>Using setup with keyboard and monitor</legend>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column20" style="vertical-align: top;">
                 <p>1.</p>
               </td>
               <td>
-                <p>Insert SD card into PC.</p>
-                <p>Note the new drive letter that has been created (ie. F:).</p>
+                <p>Login into your piCorePlayer.</p>
+                <p>login as: <b>tc</b></p>
+                <p>password: <b>piCore</b> (default)</p>  
               </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/wifi_putty_login.png" alt="piCore login terminal" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
@@ -67,7 +153,7 @@
                 <p>2.</p>
               </td>
               <td>
-                <p>Click on [Win32 Disk Imager].</p>
+                <p>Type "setup".</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -76,8 +162,7 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/win32diskimager_blank.png" alt="Win32 Disk Imager - Blank" /></p>
-              </td>
+                <p><img src="../images/setup_important_message.png" alt="Setup - Important message" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
@@ -85,7 +170,7 @@
                 <p>3.</p>
               </td>
               <td>
-                <p>Select Image File (ie. piCorePlayer3.11.img).</p>
+                <p>Click [Continue].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -94,93 +179,14 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/win32diskimager_image_file.png" alt="Win32 Disk Imager - Image File" /></p>
-              </td>
+                <p><img src="../images/setup_main_menu.png" alt="Setup - Main Menu" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20" style="vertical-align: top;">
+              <td class="column20">
                 <p>4.</p>
               </td>
               <td>
-                <p>(Optional) Click on [MD5 Hash].</p>
-                <p>Compare MD5 checksum with contents of piCoreImagex.xx.img.md5.txt</p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_md5_hash.png" alt="Win32 Disk Imager - MD5 Hash" /></p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20" style="vertical-align: top;">
-                <p>5.</p>
-              </td>
-              <td>
-                <p>Set Device to your SD card (ie. F:).</p>
-                <p><b>IMPORTANT: </b>Ensure you have your SD card selected. You can accidently overwrite USB HDD!</p>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_device.png" alt="Win32 Disk Imager - Device" /></p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
-              <td class="column20" style="vertical-align: top;">
-                <p>6.</p>
-              </td>
-              <td>
-                <p>Click [Write].</p>
-                <p>Write data on "Image file" to "Device".</p>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_write.png" alt="Win32 Disk Imager - Write" /></p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20" style="vertical-align: top;">
-                <p>6.</p>
-              </td>
-              <td>
-                <p>Read Confirm overwrite message.</p>
-                <p>Ensure Target Device is correct.</p>
-                <p>Ensure Target Device label is correct.</p>
-                <p>Click [Yes].</p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_confirm_overwrite.png" alt="Win32 Disk Imager - Confirm Overwrite" /></p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
-              <td class="column20" style="vertical-align: top;">
-                <p>7.</p>
-              </td>
-              <td>
-                <p>Writing should take about 10 seconds.</p>
-                <p>Exact time will depend on SD card class.</p>
                 <p>Click [OK].</p>
               </td>
             </tr>
@@ -190,122 +196,91 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/win32diskimager_complete.png" alt="Win32 Disk Imager - Complete" /></p>
+                <p><img src="../images/setup_wifi_status_menu.png" alt="Setup - Wifi Status Menu" /></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>5.</p>
+              </td>
+              <td>
+                <p>Click [No].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/setup_wifi_on_off_menu.png" alt="Setup - Wifi On Off Menu" /></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>6.</p>
+              </td>
+              <td>
+                <p>Click [On].</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/setup_wifi_menu.png" alt="Setup - Wifi Menu" /></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>7.</p>
+              </td>
+              <td>
+                <p>Enter SSID.</p>
+                <p>Enter Password.</p>
+                <p>Enter Security.</p>
+                <p>Click [OK].</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/setup_wifi_new_status_menu.png" alt="Setup - Wifi Status Menu" /></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
                 <p>8.</p>
+              </td>
+              <td>
+                <p>Click [Yes].</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>9.</p>
               </td>
               <td>
                 <p>Click [Exit].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_exit.png" alt="Win32 Disk Imager - Exit" /></p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20">
-                <p>9.</p>
-              </td>
-              <td>
-                <p>Click [Safely Remove Hardware and Eject Media].</p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
               <td class="column20">
                 <p>10.</p>
               </td>
               <td>
-                <p>Click [Eject Device] PCP (F:).</p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_eject_sd_card.png" alt="Win32 Disk Imager - Eject SD card" /></p>
+                <p>Type "pcp br".</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
           </table>
-        </fieldset>
-      </div>
-    </td>
-  </tr>
-</table>
-
-<table id="linux" class="bggrey">
-  <tr>
-    <td>
-      <div class="row">
-        <fieldset>
-          <table class="bggrey percent100">
-            <legend>Linux</legend>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20">
-                <p>1.</p>
-              </td>
-              <td>
-                <p>See <a href="#more">More information</a> below.</p>
-              </td>
-            </tr>
-          </table>
-        </fieldset>
-      </div>
-    </td>
-  </tr>
-</table>
-
-<table id="macos" class="bggrey">
-  <tr>
-    <td>
-      <div class="row">
-        <fieldset>
-          <table class="bggrey percent100">
-            <legend>MacOS</legend>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
-              <td class="column20">
-                <p>1.</p>
-              </td>
-              <td>
-                <p>See <a href="#more">More information</a> below.</p>
-              </td>
-            </tr>
-          </table>
-        </fieldset>
-      </div>
-    </td>
-  </tr>
-</table>
-
-<table id="more" class="bggrey">
-  <tr>
-    <td>
-      <div class="row">
-        <fieldset>
-          <legend>More information</legend>
-          <!-- -------------------------------------------------------------------- -->
-          <ul>
-            <li><a href="https://www.raspberrypi.org/documentation/installation/installing-images/" target="_blank">RPF - Installing Operating System Images</a></li>
-            <li><a href="http://elinux.org/RPi_Easy_SD_Card_Setup" target="_blank">eLinux - RPi Easy SD Card Setup</a></li>
-            <li><a href="https://sourceforge.net/projects/win32diskimager/" target="_blank">Win32 Disk Imager</a></li>
-            <li><a href="https://www.sdcard.org/downloads/formatter_4/" target="_blank">SD Card Formatter</a></li>
-           </ul>
-          <!-- -------------------------------------------------------------------- -->
         </fieldset>
       </div>
     </td>

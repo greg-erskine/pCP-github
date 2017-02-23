@@ -6,9 +6,9 @@
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>pCP - How to</title>
+  <title>pCP - How-to </title>
   <meta name="author" content="GE'">
-  <meta name="description" content="pCP - How to">
+  <meta name="description" content="pCP - How-to ">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
   <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
@@ -25,34 +25,65 @@
           <table class="bggrey percent100">
             <tr>
               <td>
-                <h1>How-to</h1>
+                <h1>How-to </h1>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
-              <td class="column420">
-                <p><a href="how_to_download_pcp.shtml">How-to download piCorePlayer</a></p>
+              <td class="column20">
+                <p>1.</p>
               </td>
               <td>
-                <p><a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</a></p>
+                <p></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column420">
-                <p><a href="how_to_edit_config_txt.shtml">How-to edit config.txt</a></p>
+              <td class="column20">
+                <p>2.</p>
               </td>
               <td>
-                <p><a href="how_to_access_pcp_via_ssh.shtml">How-to access piCorePlayer via ssh</a></p>
+                <p></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
-              <td class="column420">
-                <p><a href="how_to_setup_wifi_on_pcp_without_ethernet.shtml">How-to setup wifi on piCorePlayer without Ethernet</a></p>
+              <td class="column20">
+                <p>3.</p>
               </td>
               <td>
-                <p><a href="how_to_use_pcp_mode_settings.shtml">How-to use piCorePlayer mode setting</a></p>
+                <p></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>4.</p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>5.</p>
+              </td>
+              <td>
+                <p></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>6.</p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td colspan="2">
+                <p>Next: </p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
