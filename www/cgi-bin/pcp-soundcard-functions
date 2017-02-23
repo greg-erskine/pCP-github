@@ -164,7 +164,11 @@ AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print 
 # Section that populate sound card drop-down list on Squeezelite.cgi
 #--------------------------------------------------------------------------------------------------------
 pcp_sound_card_dropdown() {
-sudo rm /tmp/dropdown.cfg
+if [ -e /tmp/dropdown.cfg ]; then
+. $CONFIGCFG
+sudo sed -ie 's/\b'selected'\b/'notselected'/g' /tmp/dropdown.cfg
+sudo sed -i '/'"$AUDIO"':/s/\b'notselected'\b/'selected'/g' /tmp/dropdown.cfg
+else
 	. $CONFIGCFG
 	CONF_AUDIO="$AUDIO"
 	for i in $AUDIO_OPTIONS_EXTRA; do
@@ -176,6 +180,7 @@ sudo rm /tmp/dropdown.cfg
 		pcp_soundcontrol
 		sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
 	done
+fi
 }
 
 #========================================================================================================
