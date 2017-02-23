@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-02-24
+#	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
+
 # Version: 3.11 2017-01-20
 #	Fixed the issue with shairport not working when using USB cards. SBP.
 
@@ -164,23 +167,29 @@ AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print 
 # Section that populate sound card drop-down list on Squeezelite.cgi
 #--------------------------------------------------------------------------------------------------------
 pcp_sound_card_dropdown() {
-if [ -e /tmp/dropdown.cfg ]; then
-. $CONFIGCFG
-sudo sed -ie 's/\b'selected'\b/'notselected'/g' /tmp/dropdown.cfg
-sudo sed -i '/'"$AUDIO"':/s/\b'notselected'\b/'selected'/g' /tmp/dropdown.cfg
-else
-	. $CONFIGCFG
-	CONF_AUDIO="$AUDIO"
-	for i in $AUDIO_OPTIONS_EXTRA; do
-		AUDIO=$i
-		pcp_blank_audio_conf
-		. "$DACLOCATION"/"$AUDIO".conf
-		CHECKED="notselected"
-		[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
-		pcp_soundcontrol
-		sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
-	done
-fi
+	if [ -e /tmp/dropdown.cfg ]; then
+		. $CONFIGCFG
+
+#		sudo sed -ie 's/\b'selected'\b/'notselected'/g' /tmp/dropdown.cfg
+#		sudo sed -i '/'"$AUDIO"':/s/\b'notselected'\b/'selected'/g' /tmp/dropdown.cfg
+
+		###### Steen, is this simplier? Does it do what you want?
+		sudo sed -i 's/:selected:/:notselected:/' /tmp/dropdown.cfg
+		sudo sed -i "/${AUDIO}:/s/:notselected:/:selected:/" /tmp/dropdown.cfg
+
+	else
+		. $CONFIGCFG
+		CONF_AUDIO="$AUDIO"
+		for i in $AUDIO_OPTIONS_EXTRA; do
+			AUDIO=$i
+			pcp_blank_audio_conf
+			. "$DACLOCATION"/"$AUDIO".conf
+			CHECKED="notselected"
+			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
+			pcp_soundcontrol
+			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+		done
+	fi
 }
 
 #========================================================================================================
