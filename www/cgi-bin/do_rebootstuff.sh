@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 3.12 2017-02-25
-#	Added ntpd/crond message. GE
+# Version: 3.12 2017-02-26
+#	Added crond message. GE
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -652,4 +652,4 @@ if [ "$JIVELITE" = "yes" ]; then
 	sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
 fi
 
-echo "${BLUE}Background syncing time with ntpd using crond... ${NORMAL}"
+echo "${BLUE}crond syncing time... ${NORMAL}"
