@@ -1,9 +1,12 @@
 #!/bin/sh
 
+# Version: 3.12 2017-02-25
+#	Added ntpd/crond message. GE
+
 # Version: 3.10 2017-01-02
-#	Added Samba Server Support. PH.
+#	Added Samba Server Support. PH
 #	Removed IQaudIO AMP unmute from here. SBP
-#	Changes for shairport-sync.  Incomplete PH
+#	Changes for shairport-sync. Incomplete. PH
 #	Fixed newconfig.cfg process. PH
 #	Set rpi3wifi blacklist in newconfig process. PH
 
@@ -11,12 +14,12 @@
 #	Added pcp_reset_repository.
 
 # Version: 3.00 2016-08-12
-#	Changed ssh server to Openssh. SBP.
-#	Changed RPi3 wifi firmware extension name. SBP.
-#	Added "No network found!" message. GE.
-#	Adjusted Mount point permissions for SCP. PH.
-#	Changed Kernel Module update to handle individual modules. PH.
-#	Updated LIRC section. GE.
+#	Changed ssh server to Openssh. SBP
+#	Changed RPi3 wifi firmware extension name. SBP
+#	Added "No network found!" message. GE
+#	Adjusted Mount point permissions for SCP. PH
+#	Changed Kernel Module update to handle individual modules. PH
+#	Updated LIRC section. GE
 
 # Version: 2.06 2016-06-04 GE
 #	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
@@ -190,7 +193,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	pcp_timezone
 	pcp_write_to_host
 	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
-	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
@@ -431,7 +434,7 @@ echo "${GREEN} Done ($CNT).${NORMAL}"
 # Only send LMS WOL command if LMS is not run locally
 if [ "$LMSERVER" != "yes" ]; then
 	if [ "$WOL" = "yes" ] && [ "$WOL_NIC" != "" ] && [ "$WOL_LMSMACADDRESS" != "" ]; then
-		#Should we check for valid MAC address or should we asume this is covered in the applet/web interface??
+		# Should we check for valid MAC address or should we asume this is covered in the applet/web interface??
 		echo -n "${BLUE}Sending WOL magic packet ($WOL_LMSMACADDRESS)...${NORMAL}"
 		sudo ether-wake -i $WOL_NIC $WOL_LMSMACADDRESS
 		echo "${GREEN}Done.${NORMAL}"
@@ -556,9 +559,9 @@ if [ "$LMSERVER" = "yes" ]; then
 		sudo /usr/local/etc/init.d/slimserver start
 		echo "${GREEN}Done.${NORMAL}"
 		if [ "$SQUEEZELITE" = "yes" ]; then
-			#Wait for server to be responsive.
+			# Wait for server to be responsive.
 			echo -n "${YELLOW}Waiting for LMS to initiate."
-			#Check response from port 3483 for Player Connects.
+			# Check response from port 3483 for Player Connects.
 			CNT=1
 			TEST=""
 			while [ "$TEST" != "E" ];
@@ -648,3 +651,5 @@ if [ "$JIVELITE" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 	sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
 fi
+
+echo "${BLUE}Background syncing time with ntpd using crond... ${NORMAL}"
