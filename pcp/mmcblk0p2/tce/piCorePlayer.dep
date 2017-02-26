@@ -2,6 +2,7 @@ openssh.tcz
 busybox-httpd.tcz
 alsa.tcz
 alsa-utils.tcz
+dialog.tcz
 firmware-atheros.tcz
 firmware-brcmwifi.tcz
 firmware-rpi3-wireless.tcz
