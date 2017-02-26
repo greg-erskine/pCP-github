@@ -20,9 +20,6 @@ usr/local/etc/ssh/ssh_host_rsa_key.pub
 usr/local/etc/init.d/httpd
 usr/local/sbin/config.cfg
 usr/local/sbin/piversion.cfg
-usr/local/sbin/setup
-usr/local/sbin/pcp
-usr/local/sbin/pcp-load
 usr/local/etc/pcp/cards
 var/lib/alsa/asound.state
 var/spool/cron/crontabs
