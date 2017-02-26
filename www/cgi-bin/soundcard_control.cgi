@@ -22,7 +22,8 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-pcp_soundcontrol
+pcp_selected_soundcontrol
+#pcp_soundcontrol
 pcp_generic_card_control
 
 #========================================ACTIONS=========================================
@@ -30,7 +31,7 @@ case "$ACTION" in
 	Test)
 		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
-		pcp_soundcontrol
+		pcp_selected_soundcontrol
 		pcp_generic_card_control
 	;;
 	Backup)
@@ -45,7 +46,8 @@ case "$ACTION" in
 	;;
 	0dB)
 		sudo amixer -c $CARD sset $SSET 0dB >/dev/null 2>&1
-		pcp_soundcontrol
+		pcp_selected_soundcontrol
+#		pcp_soundcontrol
 		pcp_generic_card_control
 	;;	
 	Select)

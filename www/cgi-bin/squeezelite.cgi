@@ -238,6 +238,7 @@ echo '                  <select name="AUDIO">'
 # Dynamic dropdown list generator
 #--------------------------------------------------------------------------------------------
 awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
+
 #==============================End dynamic dropdown===========================================
 
 echo '                  </select>'
@@ -261,8 +262,7 @@ echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
 if [ $MODE -ge $MODE_BETA ]; then
-. $CONFIGCFG
-#pcp_soundcontrol
+pcp_selected_soundcontrol
 	echo '                  <input class="large16"'
 	echo '                         type="button"'
 	echo '                         value="Advanced Options"'

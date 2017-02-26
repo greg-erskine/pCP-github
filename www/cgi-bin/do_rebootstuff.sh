@@ -161,6 +161,9 @@ echo -n "${BLUE}Setting piCore repository... ${NORMAL}"
 pcp_reset_repository
 echo "${GREEN}Done.${NORMAL}"
 
+echo "${GREEN}Generating drop-down list... ${NORMAL}"
+pcp_sound_card_dropdown &
+
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
@@ -653,3 +656,4 @@ if [ "$JIVELITE" = "yes" ]; then
 fi
 
 echo "${BLUE}crond syncing time... ${NORMAL}"
+
