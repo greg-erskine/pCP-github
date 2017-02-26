@@ -38,7 +38,7 @@
 DEBUG=0
 
 #Have to set this before you run the script
-PCP="piCorePlayer3.11"
+PCP="piCorePlayer3.20alpha2"
 
 BUILDROOT="/home/paul"
 
@@ -127,12 +127,12 @@ pcp_check_losetup() {
 }
 
 pcp_set_image_sizes(){
-	P1SIZE=25     #to be Mulitplied by 2048 for partition alignment to SDCard
+	P1SIZE=32     #to be Mulitplied by 2048 for partition alignment to SDCard
 	P2SIZE=48
 	DDBS="1M"
-	DDCOUNT=$(expr 1 + $P1SIZE + $P2SIZE )
+	DDCOUNT=$(expr 4 + $P1SIZE + $P2SIZE )
 
-	P1ST=2048    #Start of image for 1MB Card alignment
+	P1ST=8192    #Start of image for 1MB Card alignment
 	P1BLKS=$(expr $P1SIZE \* 2048 )  #orig 51200
 	P1END=$(expr $P1ST + $P1BLKS - 1 ) #orig 53247
 
@@ -663,7 +663,7 @@ echo "${GREEN}[ INFO ] Preparing to populate the boot partition of /tmp/${PCP}.i
 
 echo
 echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv6 KERNEL${GREEN} version to use for starting module file listings"
-select KERNELV6 in $(ls ${BUILDROOT}/pcp/pcpCore/armv6/kernel/);
+select KERNELV6 in $(ls -r --sort=time ${BUILDROOT}/pcp/pcpCore/armv6/kernel/);
 do
 	if [ "$KERNELV6" != "" ]; then
 		echo "${YELLOW}You picked ${KERNELV6}${NORMAL}"
@@ -679,7 +679,7 @@ do
 done
 echo
 echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv7 KERNEL${GREEN} version to use for starting module file listings"
-select KERNELV7 in $(ls ${BUILDROOT}/pcp/pcpCore/armv7/kernel/);
+select KERNELV7 in $(ls -r --sort=time ${BUILDROOT}/pcp/pcpCore/armv7/kernel/);
 do
 	if [ "$KERNELV7" != "" ]; then
 		echo "${YELLOW}You picked ${KERNELV7}${NORMAL}"
