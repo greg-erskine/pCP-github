@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-02-27
+#	Changed pcp_picoreplayers_toolbar. GE
+
 # Version: 3.11 2017-01-19
 #	Masked out $NETMOUNT1PASS when config.cfg is displayed. GE.
 
@@ -49,7 +52,7 @@ LOG=$CONFIGCFG
 
 pcp_html_head "About" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
+pcp_picoreplayers_toolbar
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation

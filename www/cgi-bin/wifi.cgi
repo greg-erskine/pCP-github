@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-02-27
+#	Changed pcp_picoreplayers_toolbar. GE
+
 # Version: 3.02 2016-09-15
 #	Minor update. GE.
 
@@ -131,7 +134,7 @@ echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 echo '</script>'
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
+pcp_picoreplayers_toolbar
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation

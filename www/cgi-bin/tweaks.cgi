@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# Version: 3.12 2017-02-26
+# Version: 3.12 2017-02-27
+#	Changed pcp_picoreplayers_toolbar. GE
 #	Updated screen rotate. GE.
 
 # Version: 3.02 2016-09-05
@@ -135,7 +136,7 @@ pcp_variables
 
 pcp_html_head "Tweaks" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
+pcp_picoreplayers_toolbar
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation

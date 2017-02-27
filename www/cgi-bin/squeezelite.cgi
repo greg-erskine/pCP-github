@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.12 2017-02-27
+#	Changed pcp_picoreplayers_toolbar. GE
+
 # Version: 3.10 2017-01-06
 #	Added Advanced Options button. GE.
 #	Cleaned Audio selection and made a dynamic drop-down list. SBP.
@@ -134,7 +137,7 @@ pcp_variables
 
 pcp_html_head "Squeezelite Settings" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
+pcp_picoreplayers_toolbar
 [ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
