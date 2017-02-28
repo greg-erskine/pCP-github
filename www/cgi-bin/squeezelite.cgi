@@ -264,11 +264,12 @@ echo '                  <input type="submit"'
 echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
-if [ $MODE -ge $MODE_BETA ]; then
+
 pcp_selected_soundcontrol
+if [ x"" != x"$CONTROL_PAGE" ]; then
 	echo '                  <input class="large16"'
 	echo '                         type="button"'
-	echo '                         value="Advanced Options"'
+	echo '                         value="Audio card control"'
 	echo '                         onClick="location.href='\'''$CONTROL_PAGE''\''"'
 	echo '                  >'
 fi

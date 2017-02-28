@@ -68,6 +68,7 @@ esac
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
 	echo '<p class="debug">[ DEBUG ] Audiocard is:   '$AUDIO'<br />'
+	echo '                 [ DEBUG ] card is:        '$CARD'<br />'
 	echo '                 [ DEBUG ] sset is:        '$SSET'<br />'
 	echo '                 [ DEBUG ] dsp:            '$DSP'<br />'
 	echo '                 [ DEBUG ] dtoverlay is:   '$DTOVERLAY'<br />'
@@ -151,7 +152,7 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <input type="submit" name="ACTION" value="Test">'
 echo '                  <input type="submit" name="ACTION" value="Backup">'
-echo '                  <input type="submit" name="ACTION" value="0dB">'
+[ x"$ACTUAL_DB" != x"" ] && echo '<input type="submit" name="ACTION" value="0dB">'
 echo '                </td>'
 echo '              </tr>'
 
@@ -231,7 +232,7 @@ echo '            <form name="manual_adjust" action="'$0'" method="get">'
 pcp_start_row_shade
 pcp_incr_id
 
-[ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
+[ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENERIC_CARD" = "HIFIBERRY_AMP" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
 [ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
