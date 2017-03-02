@@ -10,8 +10,8 @@
 # Version: 3.10 2016-12-11
 #	Original. SBP.
 
-#DACLOCATION="/usr/local/etc/pcp/cards"
-DACLOCATION="/home/tc/www/cgi-bin/cards"
+DACLOCATION="/usr/local/etc/pcp/cards"
+#DACLOCATION="/home/tc/www/cgi-bin/cards"
 
 #. /usr/local/bin/shini.sh
 # shini - portable INI library for sh (with extras for bash)
