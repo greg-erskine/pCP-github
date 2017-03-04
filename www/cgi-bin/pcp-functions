@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.20 2017-03-04
+# Version: 3.20 2017-03-05
 #	Updated SCREENROTATE default value. GE.
 #	Added Help tab to pcp_picoreplayers toolbar. GE.
 #	Reduced size of LMS tab on pcp_picoreplayers toolbar. GE.
 #	Added EXTERNALLINK character. GE.
+#	Moved variables DEBUG, TEST and MODE to config.cfg GE.
 
 # Version: 3.11 2017-01-29
 #	Updated default soundcard for shairport to work out of box. SBP.
@@ -338,17 +339,6 @@ pcp_variables() {
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
-	# Set $DEBUG to 1 to display debug information when running scripts (default=0)
-	DEBUG=0
-
-	# Set to 1 to get features that are under test.
-	# Set to 2 to show old features that might be on its way out.
-	# Set to 3 in order to use beta download page from sourceforge when testing beta versions.
-	# Default is 0.
-	TEST=0
-
-	# Set $MODE to the desired level: 0, 10, 20, 30, 40, 100.
-	MODE=0
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -1582,11 +1572,18 @@ pcp_shutdown() {
 #
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #-----------------------------------------------------------------------------------------
+pcp_write_var_to_config() {
+	sed -i 's|\(^'$1'=\).*|\1"'$2'"|' $CONFIGCFG
+}
+
 pcp_save_to_config() {
 	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
 	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
 	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
 	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $CONFIGCFG
+	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $CONFIGCFG
+	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $CONFIGCFG
 	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $CONFIGCFG
 	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $CONFIGCFG
 	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
@@ -1692,6 +1689,9 @@ PASSWORD="password"
 ENCRYPTION="WPA"
 # End Wifi setup
 ##########################
+DEBUG="0"
+MODE="0"
+TEST="0"
 NAME="piCorePlayer"
 OUTPUT="hw:CARD=ALSA"
 ALSA_PARAMS="80:::1"
