@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 3.12 2017-02-27
-#	Changed pcp_picoreplayers_toolbar. GE
+# Version: 3.20 2017-03-04
+#	Changed pcp_picoreplayers_toolbar. GE.
 
 # Version: 3.10 2017-01-06
 #	Added Advanced Options button. GE.
