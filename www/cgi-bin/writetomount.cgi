@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.12 2017-01-30
+# Version: 3.20 2017-01-30
 #	Revisions to pcp_lms_set_slimconfig function. PH.
+#	Updates for vfat mount permissions. PH
 
 # Version: 3.10 2017-01-06
 #	Added support for GPT disks. PH.
@@ -116,7 +117,7 @@ case "$MOUNTTYPE" in
 						;;
 						vfat|fat32)
 							umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-							OPTIONS="-o iocharset=utf8 -v"
+							OPTIONS="-v -t vfat -o iocharset=utf8,uid=1001,gid=50,umask=022"
 						;;
 						*)
 							OPTIONS="-v"
