@@ -106,11 +106,29 @@
                 <p>7.</p>
               </td>
               <td>
-                <p>Type "exit" to close terminal.</p>
+                <p>Type "exit" or click [X] to close terminal.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
           </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <legend>More information</legend>
+          <!-- -------------------------------------------------------------------- -->
+          <ul>
+            <li><a href="pcp_aliases.shtml">piCorePlayer aliases</a></li>
+            <li><a href="pcp_cli.shtml">piCorePlayer CLI</a></li>
+          </ul>
+          <!-- -------------------------------------------------------------------- -->
         </fieldset>
       </div>
     </td>

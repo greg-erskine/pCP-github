@@ -67,11 +67,12 @@
                 <p>2.</p>
               </td>
               <td>
+                <p>Create a new file.</p>
                 <p>Type the following using your text editor (ie. Notepad++).</p>
                 <textarea  style="height:70px; width:600px; border:0px solid grey;">
 WIFI="on"
-SSID="SSID"
-PASSWORD="password"
+SSID="yourSSID"
+PASSWORD="yourPASSWORD"
 ENCRYPTION="WPA"
                 </textarea>
               </td>
@@ -82,8 +83,8 @@ ENCRYPTION="WPA"
                 <p>3.</p>
               </td>
               <td>
-                <p>Save As the file "F\:newconfig.cfg" to the boot partition.</p>
-                <p>On a PC this will be a drive letter. (ie. F:)</p>
+                <p>[Save As] the file "DRIVE\:newconfig.cfg" to the boot partition.</p>
+                <p>On a PC, DRIVE will be the drive letter for your SD card. (ie. F:)</p>
               </td> 
             </tr>
             <!-- -------------------------------------------------------------------- -->

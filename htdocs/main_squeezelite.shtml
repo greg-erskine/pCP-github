@@ -28,7 +28,33 @@
                 <h1>Squeezelite</h1>
               </td>
             </tr>
+            <tr>
+              <td>
+                <p>Squeezelite is a headless Squeezebox emulator for Linux/OSX/Windows.</p>
+                <p>Squeezelite is a small headless Squeezebox emulator for Linux using ALSA audio output and other platforms using portaudio. It is aimed at supporting high quality audio including USB dac based output at multiple sample rates including 44.1/48/88.2/96/176.4/192/352.8/384kHz.</p>
+                <p>Orginally developed and released by Adrian Smith.</p>
+                <p>Currently maintained by Ralph Irving.</p>
+              </td>
+            </tr>
           </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <legend>More information</legend>
+          <!-- -------------------------------------------------------------------- -->
+          <ul>
+            <li><a href="https://code.google.com/archive/p/squeezelite/" target="_blank">Original Squeezelite - Adrian Smith - Google Code Archive</a> &#8599;</li>
+            <li><a href="https://github.com/ralph-irving/squeezelite" target="_blank">Latest Squeezelite - Ralph Irving - Github</a> &#8599;</li>
+          </ul>
+          <!-- -------------------------------------------------------------------- -->
         </fieldset>
       </div>
     </td>

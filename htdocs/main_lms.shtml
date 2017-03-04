@@ -25,7 +25,14 @@
           <table class="bggrey percent100">
             <tr>
               <td>
-                <h1>LMS</h1>
+                <h1>Logitech Media Server (LMS)</h1>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Logitech Media Server (LMS) is the server software that powers networked audio players from Logitech including Squeezebox, Radio, Boom, Receiver, Transporter and various third party hardware devices that use Squeezelite.</p>
+                <p>Logitech Media Server (LMS) is Open Source Software written in Perl. LMS runs on pretty much any platform that Perl runs on, including Linux, Mac OSX, Solaris and Windows.</p>
+                <p>Logitech Media Server (LMS) was formally known as Squeezebox Server, SqueezeCentre and SlimServer.</p>
               </td>
             </tr>
           </table>

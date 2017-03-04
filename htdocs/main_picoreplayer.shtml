@@ -26,7 +26,7 @@
             <tr>
               <td>
                 <h1>piCorePlayer</h1>
-                <p>piCorePlayer is a emulation of a Squeeezebox network music player that runs exclusively on the Raspberry Pi.</p>
+                <p>piCorePlayer is a software emulation of a Squeeezebox network music player that runs exclusively on the Raspberry Pi.</p>
                 <p>piCorePlayer uses piCore linux, a very small embedded Linux distribution that runs in RAM. After the initial
                    setup, it only reads the SD card. This gives you a very robust system that, like most embedded systems, is very
                    unlikely to corrupt your SD card. This enables you can simply cut the power without the need of a complex
@@ -40,7 +40,7 @@
 
                 <p>piCorePlayer is very small distribution, being only about 75 MB in total, including the operating system (piCore linux).
                    It boots very fast, ready for use in about 30 seconds after you power on. Your piCorePlayer will be automatically
-                   found by the Logitech Media Server.
+                   found by the Logitech Media Server (LMS).
                    It is possible to synchronize piCorePlayer to your other Squeezebox devices.</p>
 
                 <p><b>Features of piCorePlayer:</b></p>
@@ -50,7 +50,7 @@
                   <li>Web based management interface for user configuration.</li>
                   <li>Supports the Offical 7" Raspberry Pi Touch screen through jivelite.</li>
                   <li>Command line setup script for situations where the network is not available.</li>
-                  <li>SSH access using OpenSSH for secure connect via LAN from another computer (ie. via PuTTY).</li>
+                  <li>SSH access using OpenSSH for secure connection via LAN from another computer (ie. via PuTTY).</li>
                   <li>DCHP for wired ethernet (default setting).</li>
                   <li>Supports most USB wifi adaptors.</li>
                   <li>Supports Analog out via the 3.5mm audio jack (default setting).</li>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!-- Start of pcp_html_head -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>pCP - Projects</title>
+  <meta name="author" content="GE'">
+  <meta name="description" content="pCP - Projects">
+  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <script src="../js/piCorePlayer.js"></script>
+</head>
+<body>
+<!-- End of pcp_html_head -->
+<!--#include virtual="pcp_banner.html" -->
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table class="bggrey percent100">
+            <tr>
+              <td>
+                <h1>Projects</h1>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column200">
+                <p><a href="https://github.com/terba/slimmer/wiki/Building-a-player" TARGET="_blank">Slimmer</a> &#8599;</p>
+              </td>
+              <td>
+                <p>You can build a high quality & low-cost network audio player with a slick interface.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column200">
+                <p><a href="http://penguinlovesmusic.de/the-tivoli-squeezebox-radio/" TARGET="_blank">Tivoli Squeezebox Radio</a> &#8599;</p>
+              </td>
+              <td>
+                <p>A Squeezebox built from a Tivoli Audio alarm speaker. Features:</p>
+                <ul>
+                  <li>Tivoli Speaker and case using the original speaker and 3W output;</li>
+                  <li>WiFi;</li>
+                  <li>runs on battery for a whole day (more than 12h);</li>
+                  <li>rotary and push controller for volume and play/pause;</li>
+                  <li>separate alarm clock;</li>
+                  <li>fully Squeezebox compatible player using a Raspberry Pi zero and SqueezeLite;</li>
+                  <li>very simple and power-efficient 5V design.</li>
+                </ul>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column200">
+                <p><a href="http://www.easysqueezebox.com/index.php/projects/raspberry-squeezie-pi-squeezelite/" TARGET="_blank">easysqueezebox</a> &#8599;</p>
+              </td>
+              <td>
+                <p>Build a Squeezebox Player using a Raspberry Pi and Squeezelite, using the piCorePlayer image, which comes complete with OS and libraries.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+
+
+<!--#include virtual="pcp_footer.html" -->
+<!--#include virtual="pcp_copyright.html" -->
+
+</body>
+</html>

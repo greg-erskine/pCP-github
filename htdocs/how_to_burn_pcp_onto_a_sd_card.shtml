@@ -34,7 +34,8 @@
                   <li><a href="#windows">Windows&#8212;using Win32 Disk Imager</a></li>
                   <li><a href="#linux">Linux&#8212;using dd</a></li>
                   <li><a href="#macos">MacOS</a></li>
-                  <li><a href="#more">Information</a></li>
+                  <li><a href="#more">More Information</a></li>
+                </ul>
               </td>
             </tr>
           </table>
@@ -58,25 +59,15 @@
               </td>
               <td>
                 <p>Insert SD card into PC.</p>
-                <p>Note the new drive letter that has been created (ie. F:).</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>2.</p>
               </td>
               <td>
-                <p>Click on [Win32 Disk Imager].</p>
-              </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
-              <td class="column20">
-                <p></p>
-              </td>
-              <td>
-                <p><img src="../images/win32diskimager_blank.png" alt="Win32 Disk Imager - Blank" /></p>
+                <p>Note the new drive letter that has been created (ie. F:).</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -85,11 +76,29 @@
                 <p>3.</p>
               </td>
               <td>
-                <p>Select Image File (ie. piCorePlayer3.11.img).</p>
+                <p>Click [Win32 Disk Imager].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
+              <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/win32diskimager_blank.png" alt="Win32 Disk Imager - Blank" /></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>4.</p>
+              </td>
+              <td>
+                <p>Select Image File (ie. piCorePlayer3.11.img).</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
               <td class="column20">
                 <p></p>
               </td>
@@ -98,17 +107,17 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20" style="vertical-align: top;">
-                <p>4.</p>
+                <p>5.</p>
               </td>
               <td>
-                <p>(Optional) Click on [MD5 Hash].</p>
+                <p>(Optional) Click [MD5 Hash].</p>
                 <p>Compare MD5 checksum with contents of piCoreImagex.xx.img.md5.txt</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20">
                 <p></p>
               </td>
@@ -117,16 +126,16 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20" style="vertical-align: top;">
-                <p>5.</p>
+                <p>6.</p>
               </td>
               <td>
                 <p>Set Device to your SD card (ie. F:).</p>
-                <p><b>IMPORTANT: </b>Ensure you have your SD card selected. You can accidently overwrite USB HDD!</p>
+                <p  class="error"><b>WARNING: </b>Ensure you have your SD card selected. You can accidently overwrite USB drive!</p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20">
                 <p></p>
               </td>
@@ -135,16 +144,16 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20" style="vertical-align: top;">
-                <p>6.</p>
+                <p>7.</p>
               </td>
               <td>
                 <p>Click [Write].</p>
                 <p>Write data on "Image file" to "Device".</p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20">
                 <p></p>
               </td>
@@ -153,19 +162,19 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20" style="vertical-align: top;">
-                <p>6.</p>
+                <p>8.</p>
               </td>
               <td>
                 <p>Read Confirm overwrite message.</p>
-                <p>Ensure Target Device is correct.</p>
-                <p>Ensure Target Device label is correct.</p>
+                <p class="error"><b>WARNING: </b>Ensure Target Device is correct.</p>
+                <p class="error"><b>WARNING: </b>Ensure Target Device label is correct.</p>
                 <p>Click [Yes].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20">
                 <p></p>
               </td>
@@ -174,18 +183,18 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20" style="vertical-align: top;">
-                <p>7.</p>
+                <p>9.</p>
               </td>
               <td>
                 <p>Writing should take about 10 seconds.</p>
-                <p>Exact time will depend on SD card class.</p>
+                <p>Exact time will depend on SD card quality.</p>
                 <p>Click [OK].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20">
                 <p></p>
               </td>
@@ -194,16 +203,16 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20">
-                <p>8.</p>
+                <p>10.</p>
               </td>
               <td>
                 <p>Click [Exit].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20">
                 <p></p>
               </td>
@@ -212,18 +221,18 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            <tr class="even">
               <td class="column20">
-                <p>9.</p>
+                <p>11.</p>
               </td>
               <td>
                 <p>Click [Safely Remove Hardware and Eject Media].</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
-            <tr class="even">
+            <tr class="odd">
               <td class="column20">
-                <p>10.</p>
+                <p>12.</p>
               </td>
               <td>
                 <p>Click [Eject Device] PCP (F:).</p>
@@ -262,62 +271,63 @@
                 <p><b>CAUTION: Make sure you know what your doing here. dd can write to any device and wipe out your hard disk in a second!</b></p>
                 <p>Depending on your system, finding the card device can use different tools.</p>
                 <p>Use lsblk or blkid to identify your device. Typically /dev/sd? or /dev/mmcblk?.</p>
-                <p>Run the command before and after inserting sd card.</p>
+                <p>Run the command before and after inserting SD card.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>2.</p>
               </td>
               <td>
-                <p>Using lsblk.</p>
+                <p>Using lsblk, type:</p>
+                <p>$ lsblk</p>
                 <p><img src="../images/dd_find_sd_card.png" alt="dd - Find SD card" /></p>
                 <p>In this case, the card is located at /dev/sdf.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>3.</p>
               </td>
               <td>
-                <p>Using blkid on piCorePlayer.</p>
+                <p>Using blkid on piCorePlayer, type:</p>
+                <p>$ blkid</p>
                 <p><img src="../images/dd_blkid_find_sd_card.png" alt="dd - Find SD card" /></p>
                 <p>In this case, the card is located at /dev/sdb.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>4.</p>
               </td>
               <td>
-                <p>Unmount all partitions of the sd card device.</p>
-                <p>Type the following commands.</p>
-                <p>  sudo umount /dev/sdf1</p>
-                <p>  sudo umount /dev/sdf2</p>
+                <p>Unmount all partitions of the SD card device.</p>
+                <p>Type the following commands:</p>
+                <p>$ sudo umount /dev/sdf1</p>
+                <p>$ sudo umount /dev/sdf2</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>5.</p>
               </td>
               <td>
                 <p>Write the new image using this command.</p>
-                <p> sudo dd if=piCorePlayer3.11.img of=/dev/sdf bs=1M</p>
+                <p>$ sudo dd if=piCorePlayer3.11.img of=/dev/sdf bs=1M</p>
                 <p><img src="../images/dd_write_sd_card.png" alt="dd - Write SD card" /></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>6.</p>
               </td>
               <td>
-                <p>Remove SD Card. Image is ready to use.</p>
-                <p>See <a href="#more">More information</a> below.</p>
+                <p>Remove SD card. Image is ready to use.</p>
               </td>
             </tr>
           </table>
@@ -358,10 +368,10 @@
           <legend>More information</legend>
           <!-- -------------------------------------------------------------------- -->
           <ul>
-            <li><a href="https://www.raspberrypi.org/documentation/installation/installing-images/" target="_blank">RPF - Installing Operating System Images</a></li>
-            <li><a href="http://elinux.org/RPi_Easy_SD_Card_Setup" target="_blank">eLinux - RPi Easy SD Card Setup</a></li>
-            <li><a href="https://sourceforge.net/projects/win32diskimager/" target="_blank">Win32 Disk Imager</a></li>
-            <li><a href="https://www.sdcard.org/downloads/formatter_4/" target="_blank">SD Card Formatter</a></li>
+            <li><a href="https://www.raspberrypi.org/documentation/installation/installing-images/" target="_blank">RPF - Installing Operating System Images &#8599;</a></li>
+            <li><a href="http://elinux.org/RPi_Easy_SD_Card_Setup" target="_blank">eLinux - RPi Easy SD Card Setup &#8599;</a></li>
+            <li><a href="https://sourceforge.net/projects/win32diskimager/" target="_blank">Win32 Disk Imager &#8599;</a></li>
+            <li><a href="https://www.sdcard.org/downloads/formatter_4/" target="_blank">SD Card Formatter &#8599;</a></li>
            </ul>
           <!-- -------------------------------------------------------------------- -->
         </fieldset>
