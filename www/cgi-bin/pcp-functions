@@ -308,9 +308,12 @@
 #=========================================================================================
 # System wide variables
 #-----------------------------------------------------------------------------------------
+pcp_config_file() {
+	CONFIGCFG="/usr/local/sbin/config.cfg"
+}
+
 pcp_variables() {
 	# The following variables are standard piCorePlayer variables, do not edit!
-	CONFIGCFG="/usr/local/sbin/config.cfg"
 	CONFIGTXT="/mnt/mmcblk0p1/config.txt"
 	CMDLINETXT="/mnt/mmcblk0p1/cmdline.txt"
 	BOOTLOCAL="/opt/bootlocal.sh"
@@ -356,8 +359,9 @@ pcp_variables() {
 	[ -f /mnt/mmcblk0p2/tce/squeezelite ] && SQLT_BIN=/mnt/mmcblk0p2/tce/squeezelite || SQLT_BIN=/usr/local/bin/squeezelite
 }
 
-pcp_variables
+pcp_config_file
 . $CONFIGCFG
+pcp_variables
 
 #=========================================================================================
 # ANSI colours

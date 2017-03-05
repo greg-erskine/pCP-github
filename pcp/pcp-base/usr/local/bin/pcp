@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 0.03 2017-03-04
+#	Moved Mode/Test/Debug to config. PH
+
 # Version: 0.03 2016-04-26 GE
 #	Added rescan (rs1) and wipecache (rs0).
 #	Revised pcp_cli_help.
@@ -104,35 +107,44 @@ case "$1" in
 		sudo reboot
 		;;
 	d0)
-		sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
+		DEBUG=0
+		pcp_save_to_config
 		;;
 	d1)
-		sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
+		DEBUG=1
+		pcp_save_to_config
 		;;
 	m0)
-		sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
+		MODE=0
+		pcp_save_to_config
 		;;
 	m100)
-		sed -i "s/\(\\tMODE=\).*/\1100/" ${PCPHOME}/pcp-functions
+		MODE=100
+		pcp_save_to_config
 		;;
 	t0)
-		sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
+		TEST=0
+		pcp_save_to_config
 		;;
 	t1)
-		sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
+		TEST=1
+		pcp_save_to_config
 		;;
 	t3)
-		sed -i "s/\(\\tTEST=\).*/\13/" ${PCPHOME}/pcp-functions
+		TEST=3
+		pcp_save_to_config
 		;;
 	a0)
-		sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
+		DEBUG=0
+		MODE=0
+		TEST=0
+		pcp_save_to_config
 		;;
 	a1)
-		sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tMODE=\).*/\140/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
+		DEBUG=1
+		MODE=140
+		TEST=1
+		pcp_save_to_config
 		;;
 	*)
 		pcp_cli_help 
