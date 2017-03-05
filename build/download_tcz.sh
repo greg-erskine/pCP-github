@@ -12,14 +12,46 @@ WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
 
 
+DATESTAMP=$(date +%m%d%Y%H%M)
+archive(){
+	echo "*****************************************************************"
+	echo " Archiving current state"
+	echo "*****************************************************************"
+	echo ""
+
+	tar -zc --exclude="archive*" -f archive/extentions-${DATESTAMP}.tgz *
+
+
+	echo " Archive contains"
+	echo ""
+	tar tvf archive/extentions-${DATESTAMP}.tgz
+	echo ""
+
+	read -p "Press Enter to remove files and continue" key
+
+	rm -f *.tcz*
+}
+
+cd tcz-for-img
+
+while true; do
+	read -p "Do you wish to archive files? (y/n)" yn
+	case $yn in
+			[Yy]* ) archive; break;;
+			[Nn]* ) break;;
+			* ) echo "Please answer yes or no.";;
+		esac
+done
+echo ""
+
 TCE_REPO="http://repo.tinycorelinux.net"
-PCP_REPO="https://sourceforge.net/projects/picoreplayer/files/repo"
+PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
 
 #This list does not include kernel modules
 TCE_EXT="alsa-utils alsa busybox-httpd dialog openssh openssl readline libedit \
-firmware-atheros firmware-ralinkwifi firmware-rpi3-wireless libiw libnl ncurses wifi wireless_tools wpa_supplicant"
+firmware-atheros firmware-ralinkwifi firmware-rpi3-wireless libiw libnl ncurses wifi wireless_tools wpa_supplicant ca-certificates"
 
-PCP_EXT="libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite"
+PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite"
 
 #TCE_EXT="readline busybox-httpd"
 #PCP_EXT="pcp-libflac"
@@ -79,6 +111,9 @@ for I in `ls -1 *.dep`; do
 	FAIL=1
 	while read -r LINE; do
 		case $LINE in
+			*-KERNEL.tcz) #Skip checking these, they are not here
+				FAIL=0
+			;;
 			*.tcz)
 				[ -e "$LINE" ] && FAIL=0 || FAIL=1
 			;;
