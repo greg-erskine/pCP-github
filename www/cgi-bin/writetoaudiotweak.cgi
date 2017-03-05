@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-05
+#	Fixed remove alsaeq function. SBP.
+
 # Version: 3.11 2017-01-24
 #	Set CLOSEOUT empty when removing Shairport. PH.
 
@@ -144,7 +147,7 @@ pcp_download_alsaequal() {
 pcp_remove_alsaequal() {
 	echo '<p class="info">[ INFO ] Removing ALSA Equalizer...</p>'
 	sudo -u tc tce-audit builddb
-	sudo -u tc tce-audit delete pcp-shairportsync.tcz
+	sudo -u tc tce-audit delete alsaequal.tcz
 	sudo rm -f /home/tc/.alsaequal.bin
 	REBOOT_REQUIRED=1
 }
