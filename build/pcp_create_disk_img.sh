@@ -38,7 +38,7 @@
 DEBUG=0
 
 #Have to set this before you run the script
-PCP="piCorePlayer3.20alpha2"
+PCP="piCorePlayer3.20alpha3"
 
 BUILDROOT="/home/paul"
 
@@ -426,9 +426,9 @@ build_mydata(){
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/config.cfg ${MYDATA}/usr/local/sbin/config.cfg 1001.50 664
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/piversion.cfg ${MYDATA}/usr/local/sbin/piversion.cfg 1001.50 664
 
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/pcp ${MYDATA}/usr/local/sbin/pcp root.root 755
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/pcp-load ${MYDATA}/usr/local/sbin/pcp-load root.root 755
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/setup ${MYDATA}/usr/local/sbin/setup root.root 755
+#	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/pcp ${MYDATA}/usr/local/sbin/pcp root.root 755
+#	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/pcp-load ${MYDATA}/usr/local/sbin/pcp-load root.root 755
+#	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/sbin/setup ${MYDATA}/usr/local/sbin/setup root.root 755
 
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/usr/local/etc/pointercal ${MYDATA}/usr/local/etc/pointercal root.root 644
 
