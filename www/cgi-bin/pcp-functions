@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.20 2017-03-05
+# Version: 3.20 2017-03-06
 #	Updated SCREENROTATE default value. GE.
 #	Added Help tab to pcp_picoreplayers toolbar. GE.
 #	Reduced size of LMS tab on pcp_picoreplayers toolbar. GE.
 #	Added EXTERNALLINK character. GE.
 #	Moved variables DEBUG, TEST and MODE to config.cfg GE.
+#	Added variables JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 
 # Version: 3.11 2017-01-29
 #	Updated default soundcard for shairport to work out of box. SBP.
@@ -47,263 +48,6 @@
 #	Added pcp_clean_cmdlinetxt. GE.
 #	Standardised $HOST and $TIMEZONE. GE.
 #	Added IR_DEVICE. GE.
-
-# Version: 2.06 2016-05-22
-#	Added HDMIPOWER, ADVOVERCLOCK variables to config. GE.
-#	Added RPI3INTWIFI variable to config. PH.
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
-#	Renamed variable HTPPD to HTTPD. GE.
-#	Added a couple more hotspots to debug in pCP logo. GE.
-#	Fixed a typo. GE.
-#	Added pcp_extn_is_installed. GE.
-
-# Version: 2.05 2016-04-30
-#	Added PCP_REPO. PH.
-#	Added package location $PACKAGEDIR and download with md5 check function. SBP.
-#	Added log location $LOGDIR. GE.
-#	Lots of minor tidy up of code. GE.
-#	Added customizable confirmation pop-up box. SBP.
-#	Added Disk Mounting Config variables. PH.
-#	Added Logs option to pcp_diagnostics toolbar. GE.
-#	Added $FILLEDSAMLLSQUARE. GE.
-#	Added LMSCONTROLS and PLAYERTABS. GE.
-#	Added pcp_update_config_to_defaults. GE.
-#	Added hotspot to pCP logo.
-
-# Version: 0.29 2016-03-18 GE
-#	Added POWER_GPIO and POWER_SCRIPT.
-#	Updated pcp_enable_i2s_dac.
-#	Added LMSWEBPORT.
-#	Added FSM.
-#	Changed backup too big warning messages in pcp_backup and pcp_backup_nohtml.
-#	Added POWER_OUTPUT. PH.
-#	Added IR_CONFIG.
-
-# Version: 0.28 2016-02-26 GE
-#	Fixed sourceforge redirection issue.
-#	Fixed "other" in pcp_save_to_config.
-#	Added pcp_squeezelite_build_option.
-#	Added some UTF-8 Dingbats definitions.
-#	Added firmware-brcmwifi.tcz.
-#	Added backup too big warning message to pcp_backup and pcp_backup_nohtml.
-#	Added IR_LIRC, IR_GPIO and SQUEEZELITE.
-
-# Version: 0.27 2016-02-12 GE
-#	Added SQLT_VERSION.
-
-# Version: 0.26 2016-02-09 SBP
-#	Added busybox before wget.
-#	Added LMS tab.
-#	Updated pcp_lmsip.
-
-# Version: 0.25 2016-01-22 GE
-#	Updated pcp_mount_mmcblk0p1_nohtml.
-
-# Version: 0.24 2016-01-07 SBP
-#	Added ALSA Equalizer.
-#	Added Shairport-sync.
-#	Added pcp_free_space.
-
-# Version: 0.23 2015-12-05 GE
-#	Added LMS tab to piCorePlayer tabs ($MODE_BETA).
-#	Added pcp_httpd_query_string_no_decode.
-#	Updated pcp_write_to_host.
-
-# Version: 0.22 2015-10-09 SBP
-#	Added #piCorePlayer I2S configuration to i2s configuration routines.
-#	Updated pcp_disable_i2s routine.
-
-# Version: 0.21 2015-09-21 GE
-#	Added -e option.
-#	Added -U option.
-#	Added -V option.
-#	Added pcp_reboot_required.
-#	Added pcp_restart_required.
-
-# Version: 0.40 2015-09-19 SBP
-#	Removed mount/umount functions from inside other pcp-functions.
-#	Updated pcp_write_to_host.
-#	Removed *=* from cron commands.
-#	Added pcp_html_head_no_content.
-#	Updated pcp_httpd_query_string to decode $QUERY_STRING.
-
-# Version: 0.39 2015-08-29 SBP
-#	Added support for device tree.
-#	Revised modes.
-#	Changed reboot message.
-#	Updated pcp_navigation.
-#	Updated cron defaults.
-#	Added warning message on beta mode tab.
-
-# Version: 0.38 2015-07-10 GE
-#	Updated pcp_picoreplayers.
-#	Added pcp_mode.
-#	Modified pcp_textarea and pcp_textarea_inform.
-
-# Version: 0.37 2015-06-25 SBP
-#	Changed timezone logic, so changes are immediately present (reboot not needed).
-#	Modified timezone resent, so that /etc/sysconfig/timezone file is also removed.
-
-# Version: 0.36 2015-06-11 SBP
-#	Added variable CRON_COMMAND to config.cfg
-
-# Version: 0.35 2015-06-06 GE
-#	Updated pcp_auto_start_lms, pcp_auto_start_fav to use pcp_lmsip.
-#	Added link to About page from pCP image.
-#	Renamed styles nav to nav5 and nav2 to nav7.
-#	Renamed $pCPHOME to $PCPHOME.
-#	Modified pcp_set_timezone to remove multiple spaces.
-
-# Version: 0.34 2015-05-22 SBP
-#	Add beta download page at SourceForge if "test = 3".
-
-# Version: 0.33 2015-05-10 SBP
-#	Changed the timezone settings to cmdline.txt file.
-
-# Version: 0.33 2015-05-10 GE
-#	Added pcp_picore_accessible and pcp_xtras tool bar.
-#	Added pcp_uptime_days.
-#	Added pcp_picoreplayers toolbar.
-#	Updated pcp_favorites toolbar.
-#	Tidyup - removed/added some comments.
-
-# Version: 0.32 2015-03-29 GE
-#	Added pcp_start_row_shade and pcp_toggle_row_shade.
-
-# Version: 0.31 2015-03-12 GE
-#	Updated and fixed spelling of the Visualiser option.
-#	Fixed User commands typo.
-
-# Version: 0.30 2015-03-10 GE
-#	Added pcp_internet_accessible.
-#	Added pcp_sourceforge_accessible.
-#	Added variable ASOUNDCONF.
-#	Added pcp_mode_lt_99 and pcp_mode_lt_5
-
-# Version: 0.29 2015-02-15 SBP
-#	Redirected errors for pcp_wlan0_mac_address, pcp_eth0_mac_address, pcp_controls_mac_address.
-#	Commented out sudo modprobe -q bcm2708_dmaengine.
-
-# Version: 0.28 2015-02-11 GE
-#	Fixed pcp_auto_start_lms and pcp_auto_start_fav.
-#	Added ANSI colours from tc-functions.
-
-# Version: 0.27 2015-02-08 SBP
-#	Modified pcp_html_head so no refresh if in debug mode.
-
-# Version: 0.26 2015-02-05 GE
-#	Modified pcp_lmsip.
-#	Improved pcp_reset_config_to_defaults.
-#	Added pcp_dianostics toolbar.
-#	Moved controls and LMS related items to pcp-lms-functions.
-#	Added pcp_which_squeezelite, pcp_eth0_ip, pcp_wlan0_ip.
-
-# Version: 0.25 2015-01-26 SBP
-#	Added CLOSEOUT.
-#	Added pcp_reset_config_to_defaults.
-#	Added pcp_mount_device, pcp_umount_device.
-#	Added pcp_user_commands.
-#	Updated pcp_banner.
-
-# Version: 0.24 2015-01-20 GE
-#	Added colour coding to Squeezelite in pcp_footer.
-#	Updated date display on pcp_footer.
-#	Updated Autostart LMS.
-#	Added pcp_auto_start_fav, pcp_autofav_id, pcp_favorites toolbar.
-#	Removed MODE = 5 for controls.
-
-# Version: 0.23 2014-12-20 GE
-#	Minor updates to modprode section.
-#	HTML5 format.
-#	Added pcp_textarea_inform.
-
-# Version: 0.22 2014-12-08 SBP
-#	Added support for the HiFiBerry AMP.
-
-# Version: 0.21 2014-10-22 GE
-#	Added new pcp_lmsip and pcp_lms_get.
-#	Added pcp_write_to_log and pcp_textarea.
-#	Added pcp_html_head.
-#	Updated useful buttons.
-
-# Version: 0.20 2014-10-09 SBP
-#	Clean up in the I2S section.
-
-# Version: 0.19 2014-10-09 GE
-#	Added pcp_uptime_seconds routine.
-#	Updated pcp_uptime_minutes routine.
-
-# Version: 0.18 2014-10-08 GE
-#	Updated pcp_uptime_minutes routine.
-
-# Version: 0.17 2014-10-04 GE
-#	Updated pcp_disable_i2s.
-#	Added pcp_mount_mmcblk0p1_nohtml and pcp_umount_mmcblk0p1_nohtml.
-#	Added pcp_backup_nohtml.
-
-# Version: 0.16 2014-10-02 GE
-#	Added pcp_uptime_minutes routine.
-#	Added variable $SERVER_IP_NO_PORT to pcp_auto_start_lms.
-#	Updated footer to use style footer.
-#	Activated $MODE = 5
-
-# Version: 0.15 2014-09-25 SBP
-#	Added support for the HiFiBerry DAC+ and Digi+.
-#	Added support for the IQaudIO+ DAC.
-
-# Version: 0.14 2014-09-20 GE
-#	Modified HTML to improve cross browser support.
-
-# Version: 0.13 2014-09-09 GE
-#	Added pcp_auto_start_lms.
-#	Removed $LMSIP using $SERVER_IP instead.
-
-# Version: 0.12 2014-09-08 GE
-#	Fixed pcp_controls_mac_address.
-
-# Version: 0.11 2014-09-07 SBP
-#	Added support for the DAC+ cards.
-
-# Version: 0.10 2014-09-05 GE
-#	Added INSITU_DOWNLOAD variable.
-
-# Version: 0.09 2014-09-04 GE
-#	Added timezone routine.
-#	Changed size of config.cfg textarea.
-
-# Version: 0.08 2014-08-31 GE
-#	Added /bin/sh to first line.
-
-# Version: 0.08 2014-08-26 GE
-#	Removed TEST from controls.
-#	Fixed TZ/date routine in footer.
-#	Renamed init.d file squeezelite_initd to squeezelite.
-
-# Version: 0.07 2014-08-17 SBP
-#	Removed backup from pcp_reboot and pcp_shutdown.
-#	Added piCorePlayer home as system wide variable.
-
-# Version: 0.06 2014-08-14 GE
-#	Added linux release (pcp_linux_release) to pcp_footer.
-#	Added pcp_squeezelite_restart, pcp_squeezelite_restart routines.
-
-# Version: 0.05 2014-08-12 GE
-#	Added sudo to pcp_squeezelite_version routine.
-
-# Version: 0.04 2014-08-11 SBP
-#	Updated $LMSIP to use $SERVER_IP (set in Squeezelite settings).
-#	Updated pcp_controls routine.
-
-# Version: 0.03 2014-08-05 GE
-#	Updated pcp_controls_mac_address routine to check for $WIFI = "on".
-
-# Version: 0.02 2014-07-18 GE
-#	Added routine pcp_config_mac_address, pcp_controls_mac_address, pcp_go_main_button.
-#	Updated routine pcp_footer to use pcp_controls_mac_address.
-#	Minor indent reformatting.
-
-# Version: 0.01 2014-06-25 GE
-#	Original.
 
 #=========================================================================================
 # System wide variables
@@ -1634,6 +1378,8 @@ pcp_save_to_config() {
 	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $CONFIGCFG
 	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
+	sudo sed -i "s/\(JL_SCREEN_WIDTH=\).*/\1\"$JL_SCREEN_WIDTH\"/" $CONFIGCFG
+	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSDATA=\).*/\1\"$LMSDATA\"/" $CONFIGCFG
@@ -1742,6 +1488,8 @@ USER_COMMAND_2=""
 USER_COMMAND_3=""
 JIVELITE="no"
 SCREENROTATE="180"
+JL_SCREEN_WIDTH="0"
+JL_SCREEN_HEIGHT="0"
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"

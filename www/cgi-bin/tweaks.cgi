@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-04
+# Version: 3.20 2017-03-05
 #	Changed pcp_picoreplayers_toolbar. GE.
 #	Updated screen rotate. GE.
+#	Added JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
@@ -1082,6 +1083,54 @@ pcp_tweaks_screenrotate() {
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+
+#---------------------------------------Screen Size--------------------------------------XXXXXXXXXXXX
+pcp_tweaks_screensize() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Screen size</p>'
+	echo '                </td>'
+
+	echo '                <td class="column150">'
+	echo '                  <p>Width: <input class="large6" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
+	echo '                </td>'
+	echo '                <td class="column150">'
+	echo '                  <p>Height: <input class="large6" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
+	echo '                </td>'
+
+	echo '                <td>'
+	echo '                  <p>Screen size&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows you to set a custom Jivelite screen size.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<p class="debug">[ DEBUG ] $JL_SCREEN_WIDTH: '$JL_SCREEN_WIDTH'<br />'
+		echo '                           $JL_SCREEN_HEIGHT: '$JL_SCREEN_HEIGHT'</p>'
+		echo '<!-- End of debug info -->'
+	fi
+
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_tweaks_screensize
+
 #----------------------------------------------------------------------------------------
 
 if [ $MODE -ge $MODE_NORMAL ]; then
