@@ -347,9 +347,9 @@ copy_part2(){
 		pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/build/tcz-for-img/$J ${PART2}/tce/optional/$J 1001.50 664	
 	done
 
-	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/firmware-brcmwifi/repo/firmware-brcmwifi ${PART2}/tce/optional/firmware-brcmwifi 1001.50 664
-	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/RTL_firmware/firmware-rtlwifi ${PART2}/tce/optional/firmware-rtlwifi 1001.50 664
-	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/libts-tcz/libts ${PART2}/tce/optional/libts 1001.50 664
+#	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/firmware-brcmwifi/repo/firmware-brcmwifi ${PART2}/tce/optional/firmware-brcmwifi 1001.50 664
+#	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/RTL_firmware/firmware-rtlwifi ${PART2}/tce/optional/firmware-rtlwifi 1001.50 664
+#	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/libts-tcz/libts ${PART2}/tce/optional/libts 1001.50 664
 
 	MOD_TCZ="alsa-modules irda net-usb touchscreen wireless"
 	for I in $MOD_TCZ; do
