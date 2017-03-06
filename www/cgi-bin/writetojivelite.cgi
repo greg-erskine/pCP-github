@@ -84,7 +84,6 @@ pcp_download_jivelite() {
 			sudo chown tc:staff /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
 			cat << EOF > /mnt/mmcblk0p2/tce/optional/jivelite.tcz.dep
 touchscreen-KERNEL.tcz
-backlight-KERNEL.tcz
 libts.tcz
 EOF
 		else
