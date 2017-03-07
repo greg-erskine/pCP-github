@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 #	Write jivelite.tcz.dep, instead of relying on it to be in base image. PH.
@@ -29,8 +32,7 @@
 #	Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "Write to Jivelite Tweak" "SBP" "150000" "tweaks.cgi"
 

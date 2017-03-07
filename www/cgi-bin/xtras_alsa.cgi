@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.2 2016-02-13 GE
 #	Added Analog/HDMI option.
 
@@ -7,8 +10,7 @@
 #	Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 CARDS=$(cat /proc/asound/card*/id)
 NO_OF_CARDS=$(echo $CARDS | wc -w )

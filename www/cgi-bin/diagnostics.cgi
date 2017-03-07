@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2016-12-23
 #	Changed to using pcp_log_header. GE.
 #	Changes for Squeezelite extension. PH.
@@ -48,7 +51,7 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
+. pcp-rpi-functions
 . pcp-pastebin-functions
 
 # Local variables
@@ -102,8 +105,6 @@ pcp_textarea_inform "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 
 pcp_textarea_inform "lsmod" "lsmod" 300 log
 pcp_textarea_inform "Directory of www/cgi-bin" "ls -al" 300 log
 
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
-
 echo '              </td>'
 echo '            </tr>'
 echo '          </table>'
@@ -112,6 +113,8 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
 
 pcp_footer
 pcp_copyright

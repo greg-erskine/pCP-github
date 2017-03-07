@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
@@ -29,9 +32,8 @@
 # Version: 0.01 2015-08-20 GE
 #	Original.
 
-. pcp-rpi-functions
 . pcp-functions
-pcp_variables
+. pcp-rpi-functions
 . pcp-pastebin-functions
 #. pcp-wifi-functions
 

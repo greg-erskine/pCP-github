@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.02 2016-05-09 GE
 #	Renamed variable HTPPD to HTTPD.
 
@@ -7,9 +10,9 @@
 #	Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-rpi-functions
 . pcp-pastebin-functions
+#. $CONFIGCFG
 
 pcp_html_head "pastebin" "GE"
 

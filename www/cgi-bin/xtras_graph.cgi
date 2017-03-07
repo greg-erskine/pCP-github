@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.04 2016-02-12 GE
 #	Updated due to changed pcp_rpi_thermal_temp routine.
 
@@ -26,12 +29,10 @@
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras_graph" "GE"
 
-pcp_controls
 pcp_banner
 pcp_xtras
 pcp_running_script

@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-04
-#	Changed pcp_picoreplayers_toolbar. GE.
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 3.12 2017-01-29
 #	Added --nomysqueezebox option for lms. PH.
@@ -42,16 +43,15 @@
 # Version: 0.01 2016-01-30 SBP
 #	Original.
 
-. pcp-lms-functions
-. pcp-rpi-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-rpi-functions
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "LMS Main Page" "SBP"
 
 pcp_picoreplayers_toolbar
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_controls
 pcp_banner
 pcp_navigation
 pcp_running_script
@@ -80,7 +80,7 @@ WGET="/bin/busybox wget"
 
 pcp_install_lms() {
 	echo '[ INFO ] Downloading LMS...'
-	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz 
+	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz
 	if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 		echo '[ INFO ] Installing LMS...'
 		sudo -u tc pcp-load -i slimserver.tcz
@@ -409,14 +409,14 @@ esac
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
-# logic to activate/inactivate buttons depending upon whether LMS is installed or not 
+# logic to activate/inactivate buttons depending upon whether LMS is installed or not
 if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 	DISABLED=""
 else
 	DISABLED="disabled"
 fi
 
-# logic to activate/inactivate buttons depending upon whether LMS cache is present or not 
+# logic to activate/inactivate buttons depending upon whether LMS cache is present or not
 if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
 	DISABLECACHE=""
 else
@@ -472,7 +472,7 @@ esac
 pcp_incr_id
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td>'
@@ -880,7 +880,7 @@ pcp_slimserver_persistence() {
 		echo '                  <p>Network Disk</p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL3'">'
-		if [ -n "$NETyes" -a  ! -d /mnt/"$NETMOUNT1POINT"/slimserver ]; then
+		if [ -n "$NETyes" -a ! -d /mnt/"$NETMOUNT1POINT"/slimserver ]; then
 			echo '                  <p>Disk Not Found, LMS Disabled</p>'
 		else
 			echo '                  <p>/mnt/'$NETMOUNT1POINT'/slimserver</p>'
@@ -1092,7 +1092,7 @@ pcp_mount_usbdrives() {
 				SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f5 | tr -d +)
 				SIZExB="${SIZE}B"
 			fi
-			
+
 			case "$MOUNTUUID" in
 				"$UUID")
 					UUIDyes="checked"
@@ -1374,7 +1374,7 @@ pcp_samba() {
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 centre">'
+	echo '                <td class="column150 center">'
 	echo '                  <p class="'$CLASS'">'$SMBINDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td>'
@@ -1427,14 +1427,14 @@ pcp_samba() {
 
 	if [ "$SAMBA" != "disabled" ]; then
 		if [ -f $SAMBACONF ]; then
-#			This will read the config file. 
+#			This will read the config file.
 			GLOBAL=0
 			SC=0
 			trimval() {
-				echo $1 | cut -d '=' -f2 | xargs 
+				echo $1 | cut -d '=' -f2 | xargs
 			}
 			trimshare() {
-				echo $1 | tr -d '[]' 
+				echo $1 | tr -d '[]'
 			}
 
 			while read LINE; do
@@ -1450,7 +1450,7 @@ pcp_samba() {
 					*);;
 				esac
 			done < $SAMBACONF
-		fi	
+		fi
 		echo '            <table class="bggrey percent100">'
 		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
 		pcp_incr_id
@@ -1535,7 +1535,7 @@ pcp_samba() {
 		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		if [ "$STATUS" = "running" ]; then 
+		if [ "$STATUS" = "running" ]; then
 			PWDISABLE=""
 		else
 			PWDISABLE="disabled"
@@ -1664,7 +1664,7 @@ pcp_samba() {
 		echo '                    document.getElementById(Box).value = "";'
 		echo '                  }'
 		echo '                </script>'
-			
+
 		#--------------------------------------Submit button-------------------------------------
 		pcp_toggle_row_shade
 		echo '                <tr class="'$ROWSHADE'">'

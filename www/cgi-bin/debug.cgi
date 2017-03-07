@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-05 GE
+# Version: 3.20 2017-03-08 GE
 #	Moved variables DEBUG, TEST and MODE to config.cfg. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 0.04 2015-08-16 GE
 #	Revised sed to match a tab in front of DEBUG, TEST and MODE.
@@ -34,10 +35,9 @@
 #	Use the interactive mode.
 #-----------------------------------------------------------------------------------------
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_httpd_query_string
 

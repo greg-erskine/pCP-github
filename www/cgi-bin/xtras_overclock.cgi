@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# Version: 3.12 2017-02-23
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 #	Added underclocking. GE.
 
 # Version: 0.05 2016-05-22
@@ -45,12 +47,10 @@
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras overclocking" "GE"
 
-pcp_controls
 pcp_banner
 pcp_xtras
 pcp_running_script

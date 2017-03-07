@@ -1,13 +1,15 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	First version to control volume and eventaully filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
 
-. pcp-soundcard-functions
 . pcp-functions
-pcp_variables
+. pcp-soundcard-functions
+#. $CONFIGCFG
 
-. $CONFIGCFG
 # Save copy of variable value from config.cfg so it is not overwritten with default values
 ORIG_AUDIO="$AUDIO"
 ORIG_CARD="$CARD"
@@ -16,7 +18,6 @@ ORIG_ALSA_PARAMS="$ALSA_PARAMS"
 
 pcp_html_head "Sound card controls" "SBP"
 
-pcp_controls
 pcp_banner
 pcp_navigation
 pcp_running_script

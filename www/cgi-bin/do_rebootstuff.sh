@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-02-26
+# Version: 3.20 2017-03-08
 #	Added crond message. GE
-#  Updates for vfat mount permissions. PH
+#	Updates for vfat mount permissions. PH
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -12,7 +12,7 @@
 #	Set rpi3wifi blacklist in newconfig process. PH
 
 # Version: 3.02 2016-09-19
-#	Added pcp_reset_repository.
+#	Added pcp_reset_repository. GE.
 
 # Version: 3.00 2016-08-12
 #	Changed ssh server to Openssh. SBP
@@ -145,6 +145,7 @@
 
 BACKUP=0
 . /home/tc/www/cgi-bin/pcp-functions
+. /home/tc/www/cgi-bin/pcp-soundcard-functions
 
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
@@ -201,7 +202,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
-	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
+	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_save_to_config
@@ -250,7 +251,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
-	[ $AUDIO = "USB" ] && USBOUTPUT="$OUTPUT"
+	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_save_to_config

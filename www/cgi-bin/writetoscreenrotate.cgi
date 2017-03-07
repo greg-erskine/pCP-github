@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.12 2017-02-26
 #	Updated to default rotation to 0. GE.
 #	Brown ribbon cable to bottom. GE.
@@ -14,8 +17,7 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "Write to config.cfg" "SBP" "15" "tweaks.cgi"
 

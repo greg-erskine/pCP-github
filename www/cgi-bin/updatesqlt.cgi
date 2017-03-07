@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-04
 #	Changes for Squeezelite extension. PH.
 #	Formatting Changes for textareas. SBP.
@@ -22,11 +25,9 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
+#. $CONFIGCFG
 
 pcp_html_head "Updating Squeezelite" "SBP" "5" "main.cgi"
-
-. $CONFIGCFG
 
 WGET="/bin/busybox wget"
 #OLD_SQLT_VERSION=$SQLT_VERSION

@@ -50,6 +50,17 @@
 #	Added IR_DEVICE. GE.
 
 #=========================================================================================
+# Setup debug logging
+#-----------------------------------------------------------------------------------------
+DEBUGLOG="/var/log/pcp_debug.log"
+
+pcp_debug_log() {
+	sudo echo $1 >>$DEBUGLOG
+}
+
+pcp_debug_log "$0 - Running pcp-functions..."
+
+#=========================================================================================
 # System wide variables
 #-----------------------------------------------------------------------------------------
 pcp_config_file() {
@@ -57,7 +68,11 @@ pcp_config_file() {
 }
 
 pcp_variables() {
-	# The following variables are standard piCorePlayer variables, do not edit!
+	pcp_debug_log "$0 - Setting pcp_variables..."
+	#=====================================================================================
+	# The following are standard piCorePlayer variables, do NOT edit!
+	# Note: This section is ONLY for variables as it can be run multiple times.
+	#-------------------------------------------------------------------------------------
 	CONFIGTXT="/mnt/mmcblk0p1/config.txt"
 	CMDLINETXT="/mnt/mmcblk0p1/cmdline.txt"
 	BOOTLOCAL="/opt/bootlocal.sh"
@@ -77,15 +92,9 @@ pcp_variables() {
 	PACKAGEDIR="/mnt/mmcblk0p2/tce/optional"
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 
-	. $PCPHOME/pcp-rpi-functions
-	. $PCPHOME/pcp-soundcard-functions
-
-	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
-	INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
-	PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
-	PICORE_REPO_1="http://repo.tinycorelinux.net/"
-	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
-
+	#-------------------------------------------------------------------------------------
+	# Define modes
+	#-------------------------------------------------------------------------------------
 	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
 	MODE_BASIC=10				# Display minimal settings for basic users
 	MODE_NORMAL=20				# Display typical settings for normal users
@@ -93,13 +102,24 @@ pcp_variables() {
 	MODE_BETA=40				# Beta options that can be shared with beta testers
 	MODE_DEVELOPER=100			# Experiential options for developers only
 
-	# Use test download area
+	#-------------------------------------------------------------------------------------
+	# Define repositories
+	#-------------------------------------------------------------------------------------
+	REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"
+	INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
+	PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+	PICORE_REPO_1="http://repo.tinycorelinux.net/"
+	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
+
+	# Use beta/test download area
 	if [ $TEST -eq 3 ]; then
 		INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/beta"
 		REPOSITORY="http://picoreplayer.sourceforge.net/beta"
 	fi
-	
-	#Set Squeezelite Varible to Binary location.
+
+	#-------------------------------------------------------------------------------------
+	# Set Squeezelite variable to binary location.
+	#-------------------------------------------------------------------------------------
 	[ -f /mnt/mmcblk0p2/tce/squeezelite ] && SQLT_BIN=/mnt/mmcblk0p2/tce/squeezelite || SQLT_BIN=/usr/local/bin/squeezelite
 }
 
@@ -121,35 +141,44 @@ WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
 
 #=========================================================================================
+# Routine to read config file.
+#-----------------------------------------------------------------------------------------
+pcp_read_config() {
+	pcp_debug_log "$0 - Reading pCP config.cfg..."
+	. $CONFIGCFG
+}
+
+#=========================================================================================
 # UTF-8 Dingbats and other symbols
 #
 # References:
 #  - http://nealchester.com/special-characters/#crosses
 #  - http://www.w3schools.com/charsets/ref_utf_dingbats.asp
 #-----------------------------------------------------------------------------------------
-HEAVY_CHECK_MARK="&#10004;"
-HEAVY_BALLOT_X="&#10008;"
-DEGREE_SIGN="&deg;"
-
-pcp_green_tick() {
-  INDICATOR=$HEAVY_CHECK_MARK
-  CLASS="indicator_green"
-  STATUS="$1"
-}
-
-pcp_red_cross() {
-  INDICATOR=$HEAVY_BALLOT_X
-  CLASS="indicator_red"
-  STATUS="$1"
-}
-
 # Used on LMS controls
 BLACKTRIANGLE="&#9650;"
 BLACKTRIANGLEDOWN="&#9660;"
 BLACKTRIANGLELEFT="&#9668;"
 BLACKTRIANGLERIGHT="&#9658;"
-FILLEDSAMLLSQUARE="&#9724;"
+DEGREE_SIGN="&deg;"
 EXTERNALLINK="&#8599;"
+FILLEDSAMLLSQUARE="&#9724;"
+
+# Tick and cross
+HEAVY_CHECK_MARK="&#10004;"
+HEAVY_BALLOT_X="&#10008;"
+
+pcp_green_tick() {
+	INDICATOR=$HEAVY_CHECK_MARK
+	CLASS="indicator_green"
+	STATUS="$1"
+}
+
+pcp_red_cross() {
+	INDICATOR=$HEAVY_BALLOT_X
+	CLASS="indicator_red"
+	STATUS="$1"
+}
 
 #=========================================================================================
 # Free space on /mnt/mmcblk0p2

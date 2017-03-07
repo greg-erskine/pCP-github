@@ -10,6 +10,9 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # version: 3.11 2017-01-21
 #	Updates for Hotfixes based on piversion.cfg. PH.
 #	Added Hotfix3.11. PH.
@@ -18,7 +21,6 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
 
 pcp_html_head "Fix pCP" "GE"
 

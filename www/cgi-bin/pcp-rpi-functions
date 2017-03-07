@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.12 2016-05-08 GE
 #	Added Raspberry Pi TYPE.
 
@@ -41,6 +44,8 @@
 
 # Version: 0.01 2014-10-22 GE
 #	Original.
+
+pcp_debug_log "$0 - Running pcp-rpi-functions..."
 
 #=========================================================================================
 # Determine revisions and features of Raspberry Pi

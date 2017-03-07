@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Added selectable partition size from dropdown list. SBP.
 
@@ -19,12 +22,10 @@
 #   Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras_resize" "GE" "30" "main.cgi"
 
-pcp_controls
 pcp_banner
 pcp_navigation
 pcp_running_script

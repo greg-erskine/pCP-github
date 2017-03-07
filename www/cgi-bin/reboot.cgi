@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 
@@ -13,7 +16,6 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
 
 pcp_html_head "Reboot Raspberry Pi" "SBP" "5" "main.cgi"
 

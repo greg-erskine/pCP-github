@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-05
-#	Changed pcp_picoreplayers_toolbar. GE.
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 #	Updated screen rotate. GE.
 #	Added JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 
@@ -9,7 +10,7 @@
 #	Updated FIQ-split. SBP.
 
 # Version: 3.01 2016-08-20
-#   Modified User Command Strings to display using javascript
+#	Modified User Command Strings to display using javascript. PH.
 
 # Version: 3.00 2016-08-10
 #	Added LIRC IR remote controls. SBP.
@@ -18,127 +19,20 @@
 #	Modified User commands. GE.
 #	Added WOL interface. GE.
 
-# Version: 0.26 2016-05-30
-#	Added pcp_tweaks_hdmipower. GE.
-#	Added Reset Jivelite configuration. PH.
-#	Changed overclock to enable only for RPi1. GE.
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
-#	Renamed variable HTPPD to HTTPD. GE.
-
-# Version: 0.25 2016-04-23 GE
-#	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
-
-# Version: 0.24 2016-03-27 SBP
-#	Added 0xf FIQ-Split acceleration.
-#	Changed LMS Web Port to Advanced mode.
-
-# Version: 0.23 2016-03-10 GE
-#	Fixed Auto start favorite pull-down list.
-#	Added LMS Web Port.
-#	Added dwc_otg.fiq_fsm_enable.
-
-# Version: 0.22 2016-02-26 GE
-#	Increased size of Custom Cron Command field.
-#	Increased size of User Command fields.
-#	Added Clear button to User commands.
-#	Added squeezelite autostart option.
-
-# Version: 0.21 2016-01-29 SBP
-#	Activated alsaeqaual feature.
-#	Added configure button to xtras_alsaequal.cgi
-
-# Version: 0.20 2016-01-18 GE
-#	Minor update to alsaequal.
-
-# Version: 0.19 2016-01-04 SBP
-#	Added ALSA Equalizer.
-#	Added Shairport-sync.
-
-# Version: 0.18 2015-11-23 GE
-#	Fixed auto favorites for decode $HTTPD change and LMS 7.9
-#	Fixed Autostart LMS and User commands.
-#	Added VU Meters.
-
-# Version: 0.17 2015-10-06 SBP
-#	Added Screen rotate routine.
-
-# Version: 0.16 2015-08-29 GE
-#	Revised modes.
-#	Turned pcp_picoreplayers tabs on in normal mode.
-#	Turned overclocking on for RPI2B if in beta mode.
-#	Updated some help messages.
-#	Revised initial mode settings.
-
-# Version: 0.15 2015-07-01 GE
-#	Added pcp_mode tabs.
-#	Added pcp_picoreplayers tabs.
-
-# Version: 0.14 2015-06-25 SBP
-#	Added Custom cron command.
-
-# Version: 0.13 2015-06-08 GE
-#	Started adding HTML5 input field validation.
-#	Removed some unnecessary code.
-#	Added more help to custom ALSA.
-
-# Version: 0.12 2015-05-11 GE
-#	Removed shairport option.
-#	Added debug code for auto start favorite.
-
-# Version: 0.11 2015-03-29 GE
-#	Added shairport (mode = 99).
-#	Added $ROWSHADE variable. Thought it would be easier.
-#	Added pcp_incr_id and pcp_start_row_shade.
-
-# Version: 0.10 2015-03-24 SBP
-#	Added jivelite support.
-
-# Version: 0.09 2015-02-27 SBP
-#	Removed overclock option for RPi2 boards.
-#	Removed mode = 4 for User command feature.
-
-# Version: 0.08 2015-02-19 GE
-#	Updated Auto start favorite.
-#	Added User commands.
-#	Minor html updates through out.
-#	Added more/less help to Schedule CRON jobs.
-#	Added copyright.
-
-# Version: 0.07 2015-01-04 GE
-#	Updated Auto start LMS.
-
-# Version: 0.06 2014-12-14 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-#	Major reformatting.
-#	Moved debug information to appropriate locations.
-
-# Version: 0.05 2014-10-02 GE
-#	Activated $MODE = 5 for AUTOSTARTLMS.
-
-# Version: 0.04 2014-09-10 GE
-#	Reformatted html.
-
-# Version: 0.03 2014-09-09 GE
-#	Added Auto start LMS command.
-
-# Version: 0.02 2014-09-06 SBP
-#	Added cronjob.
-
 # Version: 0.01 2014-08-06 GE
 #	Original version.
 
 set -f
-. pcp-lms-functions
+
 . pcp-functions
 . pcp-rpi-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Tweaks" "SBP"
 
 pcp_picoreplayers_toolbar
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_controls
 pcp_banner
 pcp_navigation
 

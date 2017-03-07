@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 0.03 2017-03-04
-#	Moved Mode/Test/Debug to config. PH
+# Version: 3.20 2017-03-07
+#	Moved Mode/Test/Debug to config. PH.
+#	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 0.03 2016-04-26 GE
 #	Added rescan (rs1) and wipecache (rs0).
@@ -53,100 +54,102 @@ pcp_cli_help() {
 	echo "-----------------------------------------------------------------------------------------"
 }
 
+# Note: Need to use $WWWROOT someday.
+. /home/tc/www/cgi-bin/pcp-functions
 . /home/tc/www/cgi-bin/pcp-lms-functions
 
 case "$1" in
 	play)
 		pcp_lms_play
-		;;
+	;;
 	stop)
 		pcp_lms_stop
-		;;
+	;;
 	up)
 		pcp_lms_volume_up
-		;;
+	;;
 	down)
 		pcp_lms_volume_down
-		;;
+	;;
 	next)
 		pcp_lms_next
-		;;
+	;;
 	prev)
 		pcp_lms_prev
-		;;
+	;;
 	rand*)
 		pcp_lms_randomplay
-		;;
+	;;
 	power)
 		pcp_lms_power $2
-		;;
+	;;
 	volume)
 		pcp_lms_volume_set $2
-		;;
+	;;
 	rs1|rescan)
 		pcp_lms_rescan
-		;;
+	;;
 	rs0|wipecache)
 		pcp_lms_wipecache
-		;;
+	;;
 	bu|backup)
 		pcp_backup_nohtml
-		;;
+	;;
 	sd|shutdown)
 		exitcheck.sh
-		;;
+	;;
 	bs|backdown)
 		pcp_backup_nohtml
 		exitcheck.sh
-		;;
+	;;
 	rb|reboot)
 		sudo reboot
-		;;
+	;;
 	br|backreboot)
 		pcp_backup_nohtml
 		sudo reboot
-		;;
+	;;
 	d0)
 		DEBUG=0
 		pcp_save_to_config
-		;;
+	;;
 	d1)
 		DEBUG=1
 		pcp_save_to_config
-		;;
+	;;
 	m0)
 		MODE=0
 		pcp_save_to_config
-		;;
+	;;
 	m100)
 		MODE=100
 		pcp_save_to_config
-		;;
+	;;
 	t0)
 		TEST=0
 		pcp_save_to_config
-		;;
+	;;
 	t1)
 		TEST=1
 		pcp_save_to_config
-		;;
+	;;
 	t3)
 		TEST=3
 		pcp_save_to_config
-		;;
+	;;
 	a0)
 		DEBUG=0
 		MODE=0
 		TEST=0
 		pcp_save_to_config
-		;;
+	;;
 	a1)
 		DEBUG=1
-		MODE=140
+		MODE=40
 		TEST=1
 		pcp_save_to_config
-		;;
+	;;
 	*)
 		pcp_cli_help 
-		;;
+	;;
 esac

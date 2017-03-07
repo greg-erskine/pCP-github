@@ -2,6 +2,10 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 3.20 2017-03-08
+#	Changed pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.12 2017-01-30
 #	Added OPTIONS to .slimconfig.cfg for commandline options
 
@@ -35,7 +39,7 @@
 # Version: 0.01 2015-02-03 GE
 #	Original.
 
-. /home/tc/www/cgi-bin/pcp-functions
+pcp_debug_log "$0 - Running pcp-lms-functions..."
 
 MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
@@ -50,7 +54,7 @@ pcp_lms_status() {
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
 pcp_controls() {
-	if [ "$LMSCONTROLS" = "yes" ]; then
+	if [ "$LMSCONTROLS" = "yes" ] && [ $MODE -ge $MODE_ADVANCED ] ; then
 		echo '<!-- Start of pcp_lms_controls toolbar -->'
 		echo '<table class="bgblack">'
 		echo '  <tr>'
@@ -510,11 +514,11 @@ pcp_lms_randomplay() {
 #----------------------------------------------------------------------------------------
 pcp_lms_set_slimconfig(){
 	CFG="/home/tc/.slimserver.cfg"
-	#Read the current config file, if present
+	# Read the current config file, if present
 	[ -f $CFG ] && . $CFG
 	case $1 in
 		CACHE)
-			#Write new location for Cache and Prefs
+			# Write new location for Cache and Prefs
 			echo "CACHE=$2/Cache" > $CFG
 			echo "PREFS=$2/prefs" >> $CFG
 			[ -n "$LOGS" ] && echo "LOGS=$LOGS" >> $CFG
@@ -527,8 +531,8 @@ pcp_lms_set_slimconfig(){
 			if [ "$OPTIONS" != "" ]; then  
 				for i in $OPTIONS; do
 					case $i in
-						$2);;  #Do Nothing, we will add later if we are adding.
-						*)NEWOPTIONS="${NEWOPTIONS} ${i} ";;#Add with extra spaces, will remove extra space later
+						$2);;  # Do Nothing, we will add later if we are adding.
+						*)NEWOPTIONS="${NEWOPTIONS} ${i} ";;  # Add with extra spaces, will remove extra space later
 					esac
 				done
 			fi
@@ -536,7 +540,7 @@ pcp_lms_set_slimconfig(){
 				NEWOPTIONS="${NEWOPTIONS} $2"
 			fi
 			OPTIONS=$(echo ${NEWOPTIONS} | sed 's/ \{1,\}/ /g')   # Remove extra blanks
-			sed -i '/OPTIONS=/d' $CFG   #Remove the options line from file
+			sed -i '/OPTIONS=/d' $CFG   # Remove the options line from file
 			echo "OPTIONS=\"$OPTIONS\"" >> $CFG
 		;;
 		*) echo "ERROR"

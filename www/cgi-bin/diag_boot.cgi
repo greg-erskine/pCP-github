@@ -1,6 +1,9 @@
 #!/bin/sh
 # Boot diagnostics script
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 
@@ -27,7 +30,6 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
 
 # Local variables
 LOG="${LOGDIR}/pcp_diag_boot.log"

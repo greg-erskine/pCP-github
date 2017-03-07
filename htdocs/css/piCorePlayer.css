@@ -1,6 +1,6 @@
 /* piCorePlayer style sheet
 
-Version: 3.12 2017-02-27
+Version: 3.20 2017-03-04
 	Added a.nav8, a.nav8a, a.nav8, a.nav8a, a.tab20, a.tab20a. GE
 	Added some extra .columXXX that might be useful. GE.
 	Cleaned formatting a little. GE
@@ -390,13 +390,6 @@ textarea.white {
 	background:white;
 	border:0px solid white;
 	font-size:12px;
-}
-
-.external {
-	background-image: url('somewhere.jpg');
-	background-repeat: no-repeat;
-	display: block;
-	padding-left: 30px;
 }
 
 /* Horizontal navigation and controls bar */

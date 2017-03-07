@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-04
-#	Changed pcp_picoreplayers_toolbar. GE.
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 3.02 2016-09-15
 #	Minor update. GE.
@@ -9,75 +10,13 @@
 # Version: 2.06 2016-04-27 PH
 #	Add ability to blacklist RPi3 builtin wifi
 
-# Version: 0.14 2015-09-08 GE
-#	Added diagnostics button (beta mode).
-#	Updated format of available networks.
-
-# Version: 0.13 2015-08-20 GE
-#	Revised modes.
-#	Updated javascript to have the correct ENCRYPTION "selected" in pulldown.
-#	Note: Javascript used here instead of shell script as per other pages.
-#	Turned pcp_picoreplayers tabs on in normal mode.
-
-# Version: 0.12 2015-07-01 GE
-#	Added pcp_mode tabs.
-#	Added pcp_picoreplayers tabs.
-
-# Version: 0.11 2015-06-10 GE
-#	0nly display "Available wifi networks" if Scan button pressed.
-#	Added wireless MAC and wireless IP.
-#	Tidy up of code.
-
-# Version: 0.10 2015-02-08 GE
-#	Only display "Available wifi networks" if $WIFI = on
-#	Added scanning message to give impression of reduced delay.
-#	Reduced "CNT -gt" from 10 to 5 to speed up display in WIFI2 loop.
-#	Fixed "Available wifi networks" format to work with 8192cu and rt2x00usb.
-#	Added copyright.
-
-# Version: 0.09 2015-01-25 SBP
-#	Added check for wifi adaptor present.
-#	Added descriptions and more/less help.
-
-# Version: 0.08 2014-12-20 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
-# Version: 0.07 2014-10-10 SBP
-#	Added if [ "$WIFI" = "on" ] condition.
-
-# Version: 0.06 2014-09-30 GE
-#	Added footer when No wifi devices found!.
-
-# Version: 0.05 2014-09-13 GE
-#	Added new available networks routine.
-#	Added double quotes around $SSID to handle spaces in SSID.
-#	Changed ESSID to SSID.
-#	Some reformatting.
-
-# Version: 0.04 2014-08-31 GE
-#	Increased password length from 32 to 64.
-#	Added some missing html tags.
-#	Some reformatting.
-
-# Version: 0.03 2014-08-28 GE
-#	Formatted wifi scanning section.
-#	Enabled Save button.
-#	Changed "WLAN Service" to "Wireless".
-#	Changed "Enable/Disable" to "On/Off".
-#	Removed "Save" button enable message.
-
-# Version: 0.02 2014-08-22 SBP
-#	Added wifi scanning section.
-
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
+. pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
-. pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "WIFI Settings" "SBP"
 
@@ -135,7 +74,7 @@ echo '}'
 echo '</script>'
 
 pcp_picoreplayers_toolbar
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_controls
 pcp_banner
 pcp_navigation
 pcp_httpd_query_string

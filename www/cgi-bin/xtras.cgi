@@ -1,15 +1,17 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.02 2015-07-04 GE
 #	Removed pcp_picoreplayers and pcp_uptime_days.
 
 # Version: 0.01 2015-04-30 GE
 #	Original version.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "xtras" "GE"
 

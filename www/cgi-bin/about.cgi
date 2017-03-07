@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-04
-#	Changed pcp_picoreplayers_toolbar. GE.
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 3.11 2017-01-19
 #	Masked out $NETMOUNT1PASS when config.cfg is displayed. GE.
@@ -12,48 +13,20 @@
 # Version: 3.00 2016-08-18 PH
 #   Updated forum thread Link, added blank Targets
 
-# Version: 0.09 2016-05-28 GE
-#	Updated link to forum thread.
-
-# Version: 0.08 2016-02-03 GE
-#	Changed upload to Beta mode.
-
-# Version: 0.07 2015-12-24 GE
-#	Added Upload to pastebin feature.
-
-# Version: 0.06 2015-08-29 GE
-#	Hide password.
-#	Turned pcp_picoreplayers tabs on in normal mode.
-#	Revised initial mode settings.
-
-# Version: 0.05 2015-07-01 GE
-#	Added pcp_mode tabs.
-#	Added pcp_picoreplayers tabs.
-
-# Version: 0.04 2015-02-04 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-#	Added copyright.
-
-# Version: 0.03 2014-09-04 GE
-#	Adjusted size of textareas.
-
-# Version: 0.02 2014-08-02 SBP
-#	Updated information.
-
 # Version: 0.01 2014-06-25 SBP
 #	Original.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
+. pcp-rpi-functions
+. pcp-lms-functions
 . pcp-pastebin-functions
+
 LOG=$CONFIGCFG
 
 pcp_html_head "About" "SBP"
 
 pcp_picoreplayers_toolbar
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_controls
 pcp_banner
 pcp_navigation
 
@@ -89,7 +62,7 @@ echo '                   <a href="https://sites.google.com/site/picoreplayer/hom
 echo '                   A forum discussion can be found '
 echo '                   <a href="http://forums.slimdevices.com/showthread.php?105997-Announce-piCorePlayer-3-00" target="_blank">here</a> '$EXTERNALLINK'.</p>'
 echo '                <h2>Please donate if you like piCorePlayer</h2>'
-echo '                <p class="centre"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;'
+echo '                <p class="center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;'
 echo 'lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">'
 echo '                   <img border="0" src="../images/donate.gif" alt="Donate"/></a> '$EXTERNALLINK'</p>'
 echo '                <p>//Paul, Ralphy, Steen and Greg</p>'

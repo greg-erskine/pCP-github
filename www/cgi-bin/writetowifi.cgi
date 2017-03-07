@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.00 2016-07-01 PH
 #	Changed name for RPi3 internal wifi firmware extension
 
@@ -35,8 +38,7 @@
 #	Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 ORIG_RPI3INTWIFI=$RPI3INTWIFI
 

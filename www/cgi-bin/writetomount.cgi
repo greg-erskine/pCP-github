@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.20 2017-01-30
 #	Revisions to pcp_lms_set_slimconfig function. PH.
 #	Updates for vfat mount permissions. PH
@@ -16,7 +19,6 @@
 
 . pcp-functions
 . pcp-lms-functions
-pcp_variables
 
 # Store the original values so we can see if they are changed
 ORIG_MOUNTPOINT="$MOUNTPOINT"

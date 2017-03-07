@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.11 2017-01-23
 #	Added Workgroup to Samba. PH.
 
@@ -7,7 +10,6 @@
 #	Original version. PH.
 
 . pcp-functions
-pcp_variables
 
 pcp_html_head "Write to Samba" "PH" 
 
