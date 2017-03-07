@@ -44,7 +44,7 @@ if [ -d $SRC/include ]; then
 fi
 mkdir -p $SRC/include
 
-bsdtar -C$SRC/include -xf $STARTDIR/../ffmpeg/ffmpeg-3.1.5-headers.tar.gz
+bsdtar -C$SRC/include -xf $STARTDIR/../ffmpeg/ffmpeg-3.1.7-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../flac/flac-1.3.1-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../ogg/libogg-1.3.2-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../vorbis/libvorbis-1.3.5-headers.tar.gz
@@ -54,14 +54,27 @@ bsdtar -C$SRC/include -xf $STARTDIR/../soxr/soxr-0.1.2-Source-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../mpg123/mpg123-1.23.8-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../lirc/lirc-0.9.0-headers.tar.gz
 
-cp -p $STARTDIR/../wiringpi/wiringpi/wiringPi/wiringPi.h $SRC/include
+if [ -d $STARTDIR/squashfs-root ]; then
+	rm -rf $STARTDIR/squashfs-root
+fi
+
+wget -q -O - http://picoreplayer.sourceforge.net/tcz_repo/8.x/armv6/tcz/wiringpi-dev.tcz > $STARTDIR/wiringpi-dev.tcz
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/wiringpi-dev.tcz
+cp -p $STARTDIR/squashfs-root/usr/local/include/wiringPi.h $SRC/include
 
 if [ -d $SRC/lib ]; then
 	rm -rf $SRC/lib
 fi
 mkdir -p $SRC/lib
 
-cp -p $STARTDIR/../wiringpi/wiringpi/wiringPi/libwiringPi.a $SRC/lib
+if [ -d $STARTDIR/squashfs-root ]; then
+	rm -rf $STARTDIR/squashfs-root
+fi
+
+wget -q -O - http://picoreplayer.sourceforge.net/tcz_repo/8.x/armv6/tcz/wiringpi.tcz > $STARTDIR/wiringpi.tcz
+unsquashfs -n -d $STARTDIR/squashfs-root wiringpi.tcz
+
+cp -p $STARTDIR/squashfs-root/usr/local/lib/libwiringPi.so $SRC/lib
 cp -p $STARTDIR/../lirc/liblirc_client.a $SRC/lib
 
 echo "Compiling..."
@@ -77,7 +90,11 @@ mkdir -p $OUTPUT/usr/local/etc/init.d >> $LOG
 cp -p $STARTDIR/squeezelite.init.d $OUTPUT/usr/local/etc/init.d/squeezelite >> $LOG
 chmod 755 $OUTPUT/usr/local/etc/init.d/squeezelite >> $LOG
 
-cd $OUTPUT/.. >> $LOG
+cd $OUTPUT >> $LOG
+
+find * -not -type d > $STARTDIR/${TCZ}.list
+
+cd $STARTDIR >> $LOG
 
 if [ -f $TCZ ]; then
 	rm $TCZ >> $LOG
