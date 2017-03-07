@@ -16,7 +16,7 @@
 pcp_html_head "Xtras Command Line" "GE"
 
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_xtras
 
 pcp_httpd_query_string_no_decode

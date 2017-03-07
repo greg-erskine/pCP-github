@@ -16,7 +16,7 @@
 pcp_html_head "xtras" "GE"
 
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_xtras
 
 #========================================================================================

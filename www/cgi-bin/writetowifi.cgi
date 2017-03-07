@@ -45,7 +45,7 @@ ORIG_RPI3INTWIFI=$RPI3INTWIFI
 pcp_html_head "Write WIFI Settings" "SBP" "20" "wifi.cgi"
 
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_httpd_query_string
 pcp_save_to_config
 

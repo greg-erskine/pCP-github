@@ -13,7 +13,7 @@
 pcp_html_head "xtras" "GE"
 
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_xtras
 
 echo '<p>This page displays the Raspberry Pi diagnostics page for all Squeezelite players found on LMS.</p>'

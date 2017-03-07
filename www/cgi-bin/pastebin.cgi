@@ -18,7 +18,7 @@ pcp_html_head "pastebin" "GE"
 
 pcp_banner
 pcp_navigation
-pcp_running_string
+pcp_running_script
 
 pcp_httpd_query_string
 FILE=$($HTTPD -d $FILE)
