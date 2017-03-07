@@ -135,6 +135,9 @@ fi
 mksquashfs $LUAOUTPUT $LUATCZ -all-root -no-progress >> $LOG
 md5sum `basename $LUATCZ` > $LUATCZ.md5.txt
 
+cd $LUAOUTPUT >> $LOG
+find * -not -type d > $OUTPUT/../${LUATCZ}.list
+ 
 cd $OUTPUT/../
 ./split-jivelite-tcz.sh
 
