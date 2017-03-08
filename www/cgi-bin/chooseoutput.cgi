@@ -35,6 +35,13 @@ pcp_table_top "Choose output"
 if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $ORIG_AUDIO: '$ORIG_AUDIO'<br />'
 	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
+	echo '                 [ DEBUG ] $DTOVERLAY: '$DTOVERLAY'<br />'
+	echo '                 [ DEBUG ] $PARAMS1: '$PARAMS1'<br />'
+	echo '                 [ DEBUG ] $PARAMS2: '$PARAMS2'<br />'
+	echo '                 [ DEBUG ] $PARAMS3: '$PARAMS3'<br />'
+	echo '                 [ DEBUG ] $PARAMS4: '$PARAMS4'<br />'
+	echo '                 [ DEBUG ] $PARAMS5: '$PARAMS5'<br />'
+	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
 	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'</p>'
 fi
 
@@ -107,12 +114,7 @@ if [ $CHANGED ]; then
 	#esac
 	#========================================================================================
 
-	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
-		echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-		echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
-		echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
-	fi
+	
 
 		if [ "$AUDIO" = "USB" ]; then
 		STRING1='INFO: USB is chosen. Please check that the OUTPUT field is correct. Press Ok to check, and then reboot'
@@ -123,6 +125,18 @@ if [ $CHANGED ]; then
 	pcp_squeezelite_start
 	pcp_save_to_config
 	pcp_read_chosen_audio
+if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
+		echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
+		echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
+		echo '                 [ DEBUG ] $DTOVERLAY: '$DTOVERLAY'<br />'
+		echo '                 [ DEBUG ] $PARAMS1: '$PARAMS1'<br />'
+		echo '                 [ DEBUG ] $PARAMS2: '$PARAMS2'<br />'
+		echo '                 [ DEBUG ] $PARAMS3: '$PARAMS3'<br />'
+		echo '                 [ DEBUG ] $PARAMS4: '$PARAMS4'<br />'
+		echo '                 [ DEBUG ] $PARAMS5: '$PARAMS5'<br />'
+		echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
+	fi
 	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated config.cfg" "cat $CONFIGCFG" 380
 	pcp_backup
 fi
