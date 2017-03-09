@@ -46,6 +46,7 @@
 #	Original.
 
 . pcp-functions
+. pcp-soundcard-functions  # reset needs soundcard functions too.
 #. $CONFIGCFG
 
 # Restore sparams variable value from config.cfg so it is not overwritten with default values
