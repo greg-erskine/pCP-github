@@ -30,7 +30,7 @@ firmware-atheros firmware-ralinkwifi firmware-rpi3-wireless libiw libnl ncurses 
 wifi wireless_tools wpa_supplicant ca-certificates"
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
-pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi libts"
+pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi libts wiringpi"
 
 archive(){
 	echo "${YELLOW}*****************************************************************"

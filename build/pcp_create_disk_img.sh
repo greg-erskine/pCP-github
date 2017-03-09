@@ -576,11 +576,70 @@ check_config_txt(){
 	return ${FAIL}
 }
 
-check_deps(){
+
+function readfile(){
+	while read -r line
+	do
+		if [[ $line =~ ^\ +$ ]] || [ -z $line ] ;then
+			nothing=0
+		else
+			j=0
+			EXT="$line"
+			# Indents based on nested depth of dep
+			while [ $j -ne $TABLEVEL ]; do
+				echo -n "  "
+				let j=j+1
+			done
+			if [[ $line =~ .*KERNEL.* ]]; then
+				FILEv6=$(echo $line | sed "s/KERNEL/${KERNELV6%^*}/")
+				FILEv7=$(echo $line | sed "s/KERNEL/${KERNELV7%^*}/")
+				echo -n "${BLUE}  $FILEv6 "
+				[ -e "$FILEv6" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
+				# Indents based on nested depth of dep
+				j=0
+				while [ $j -ne $TABLEVEL ]; do
+					echo -n "  "
+					let j=j+1
+				done
+				echo -n "${BLUE}  $FILEv7 "
+				[ -e "$FILEv7" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
+         elif [ -e $EXT ]; then
+				echo "${BLUE}  $EXT ${GREEN}OK${NORMAL}"
+         else
+            FAIL=1
+				echo "${BLUE}  $EXT ${RED}ERROR${NORMAL}"
+         fi
+            let TABLEVEL=TABLEVEL+1
+            getdep $EXT
+            let TABLEVEL=TABLEVEL-1
+        fi
+    done < "$1"
+}
+
+function getdep(){
+    [ -e ${1}.dep ] && readfile ${1}.dep
+}
+
+check_deps() {
+	cd ${PART2}/tce/optional
+	echo "${BLUE}[ INFO ] Checking Layered Dependancies."
+   echo ""
+   TABLEVEL=0
+   FAIL=0
+   for I in `ls -1 *.dep|sort -f`; do
+		echo "${BLUE}  Checking $I"
+      let TABLEVEL=TABLEVEL+1
+      readfile $I
+      TABLEVEL=0
+	done
+	cd $BUILDROOT
+}
+
+check_deps_old(){
 	cd ${PART2}/tce/optional
 	echo "${BLUE} [ INFO ] Checking Dependancies."
 	for I in `ls -1 *.dep`; do
-		echo -n "${BLUE}    [ INFO ] Checking $I."
+		echo -n "${BLUE}    [ INFO ] Checking $I"
 		FAIL=0
 		while read -r LINE; do
 			#check for a malformed dep file
@@ -636,10 +695,12 @@ case $PCP in
 esac
 #*******************************************************************************************
 
+echo "${BLUE}*******************************************************************************************"
+echo ""
 echo "${GREEN}[ INFO ] Starting ${YELLOW}${PCP} ${GREEN}image build for ${YELLOW}${PIVERS}.${NORMAL}"
-echo
+echo ""
 while true; do
-	read -p "${GREEN}[ INFO ] Do you need to setup the image file at ${YELLOW}/tmp/${PCP}.img? ${NORMAL}" yn
+	read -p "${GREEN}[ INFO ] Do you need to setup the image file at ${YELLOW}/tmp/${PCP}.img? ${NORMAL}(y)es, (n)o " yn
 	case $yn in
 		[Yy]* ) pcp_setup_image; break;;
 		[Nn]* ) break;;
@@ -649,21 +710,25 @@ done
 
 mount_loops
 
-echo
+echo ""
+echo "${BLUE}*******************************************************************************************"
+echo ""
 echo "${GREEN}[ INFO ] Ready to Populate the Image."
 while true; do
-	read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
+	read -p "${BLUE}Do you wish to continue? ${NORMAL}(y)es, (n)o " yn
 	case $yn in
 		[Yy]* ) break;;
 		[Nn]* ) abort;;
 		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
 	esac
 done
-echo 
-echo "${GREEN}[ INFO ] Preparing to populate the boot partition of /tmp/${PCP}.img...${NORMAL}"
-
 echo
-echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv6 KERNEL${GREEN} version to use for starting module file listings"
+echo "${GREEN}[ INFO ] Preparing to populate the boot partition of /tmp/${PCP}.img...${NORMAL}"
+echo ""
+echo "${BLUE}*******************************************************************************************"
+echo ""
+
+echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv6 KERNEL${GREEN} version to use for the image."
 select KERNELV6 in $(ls -r --sort=time ${BUILDROOT}/pcp/pcpCore/armv6/kernel/);
 do
 	if [ "$KERNELV6" != "" ]; then
@@ -679,7 +744,7 @@ do
 	fi
 done
 echo
-echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv7 KERNEL${GREEN} version to use for starting module file listings"
+echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv7 KERNEL${GREEN} version to use for the image."
 select KERNELV7 in $(ls -r --sort=time ${BUILDROOT}/pcp/pcpCore/armv7/kernel/);
 do
 	if [ "$KERNELV7" != "" ]; then
@@ -695,15 +760,35 @@ do
 	fi
 done
 
-#Check to be sure the config.txt matches the kernel, 
+#Check to be sure the config.txt matches the kernel,
 #For now pcpCore and pcpAudioCore use the same file names for initrd and kernels
 check_config_txt
 [ $? -ne 0 ] && exit 1
 
-copy_boot_part1 
+echo ""
+echo "${BLUE}*******************************************************************************************"
+echo ""
+echo "${GREEN}[ INFO ] Ready to Populate the Image."
+while true; do
+	read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
+	case $yn in
+		[Yy]* ) break;;
+		[Nn]* ) abort;;
+		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
+	esac
+done
+echo 
+echo "${GREEN}[ INFO ] Preparing to populate the boot partition of /tmp/${PCP}.img...${NORMAL}"
+
+copy_boot_part1
 copy_part2
 build_mydata
 check_deps
+
+
+########Insert building of insitu update files
+
+
 
 echo "${GREEN}Done building image. Evaluate mounted image if needed. Press enter to continue."
 read key
@@ -715,4 +800,7 @@ cd /tmp
 md5sum ${PCP}.img > ${PCP}.img.md5.txt
 zip -9 ${PCP}.zip ${PCP}.img*
 
+echo ""
+echo "DONE"
+echo ""
 exit 0
