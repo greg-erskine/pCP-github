@@ -2,6 +2,7 @@
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
+#	Changed rpi3 wifi disable to overlay. PH.
 
 # Version: 3.00 2016-07-01 PH
 #	Changed name for RPi3 internal wifi firmware extension
@@ -115,11 +116,11 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
 	pcp_mount_mmcblk0p1
 	if [ "$RPI3INTWIFI" = "off" ]; then
 		# Add a blacklist for brcmfmac
-		sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+		echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
 	else
-		sed -i 's/blacklist=brcmfmac//g' $CMDLINETXT
+		sed -i '/dtoverlay=pi3-disable-wifi/d' $CONFIGTXT
 	fi
-	pcp_textarea "" "cat $CMDLINETXT" 100
+	[ $DEBUG -eq 1 ] && pcp_textarea "" "cat $CONFIGTXT" 100
 	pcp_umount_mmcblk0p1
 	pcp_backup
 	pcp_reboot_required

@@ -3,6 +3,7 @@
 # Version: 3.20 2017-03-08
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
+#	Changed rpi3 disable wifi to overlays on new config start. PH
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -197,7 +198,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	pcp_timezone
 	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	[ "$RPI3INTWIFI" = "off" ] && echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
 	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI

@@ -3,6 +3,7 @@
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
+#	Changed rpi3 wifi disable to overlay. PH.
 
 # Version: 3.02 2016-09-15
 #	Minor update. GE.
@@ -324,7 +325,7 @@ if [ $(pcp_rpi_is_model_3B) -eq 0 ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will blacklist the driver in /mnt/mmcblk0p1/cmdline.txt.</p>'
+	echo '                    <p>This will load an overlay that disables RPi3 onboard wifi.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
