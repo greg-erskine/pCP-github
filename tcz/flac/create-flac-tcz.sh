@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FLAC=flac
-FLACVERSION=1.3.1
+FLACVERSION=1.3.2
 SRC=$FLAC-$FLACVERSION
 STARTDIR=`pwd`
 LOG=$PWD/config.log

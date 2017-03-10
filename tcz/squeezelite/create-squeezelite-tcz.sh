@@ -45,7 +45,7 @@ fi
 mkdir -p $SRC/include
 
 bsdtar -C$SRC/include -xf $STARTDIR/../ffmpeg/ffmpeg-3.1.7-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../flac/flac-1.3.1-headers.tar.gz
+bsdtar -C$SRC/include -xf $STARTDIR/../flac/flac-1.3.2-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../ogg/libogg-1.3.2-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../vorbis/libvorbis-1.3.5-headers.tar.gz
 bsdtar -C$SRC/include -xf $STARTDIR/../mad/libmad-0.15.1b-headers.tar.gz
