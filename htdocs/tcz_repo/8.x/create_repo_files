@@ -1,0 +1,149 @@
+#!/bin/bash
+
+ARMV7="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv7/tcz"
+ARMV6="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv6/tcz"
+
+# ANSI COLORS
+CRE="$(echo -e '\r\033[K')"
+RED="$(echo -e '\033[1;31m')"
+GREEN="$(echo -e '\033[1;32m')"
+YELLOW="$(echo -e '\033[1;33m')"
+BLUE="$(echo -e '\033[1;34m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+CYAN="$(echo -e '\033[1;36m')"
+WHITE="$(echo -e '\033[1;37m')"
+NORMAL="$(echo -e '\033[0;39m')"
+
+REPO=($ARMV6 $ARMV7)
+#REPO=("testfiles")
+PWD=`pwd`
+
+function readfile(){
+	while read -r line
+	do
+		if [[ $line =~ ^\ +$ ]] || [ -z $line ] ;then
+			nothing=0		
+		else
+			EXT="$line"
+			j=0		
+			while [ $j -ne $TABLEVEL ]; do
+				echo -n "   " >> $TREEFILE
+				let j=j+1
+			done
+			echo $EXT >> $TREEFILE
+			let TABLEVEL=TABLEVEL+1
+			getdep $EXT
+			let TABLEVEL=TABLEVEL-1
+		fi
+	done < "$1"
+}
+
+function getdep(){
+	[ -e ${1}.dep ] && readfile ${1}.dep
+}
+
+STOP=0
+
+for i in ${REPO[@]}; do
+	cd ${i}
+	echo "${BLUE}Entering REPO ${YELLOW}${i}${NORMAL}"
+	echo "${BLUE}Checking MD5's on all repo files${NORMAL}"
+	for j in `ls -1 *.md5.txt`; do
+		md5sum -cw --quiet $j
+		if [ $? -eq 1 ]; then
+			echo "${RED}MD5 Error on ${j}.${NORMAL}"
+			STOP=1
+		fi
+	done
+	[ $STOP -eq 1 ] && echo "Resolve MD5 issues for script to proceed"
+done
+[ $STOP -eq 1 ] && exit 1
+echo "${GREEN}MD5's all check out"
+echo ""
+for i in ${REPO[@]}; do
+	cd ${i}
+	echo "${BLUE}Entering REPO ${YELLOW}${i}${NORMAL}"
+	echo ""
+	echo "${BLUE}Createing info.lst for ${YELLOW}${i}"
+	[ -e info.lst ] && rm info.lst
+	for j in `ls -1 *.info|sort -f`; do
+	   basename "$j" .info >> info.lst
+	done
+	echo "${BLUE}gzipping ${YELLOW}info.lst"
+	gzip -c9 info.lst > info.lst.gz
+	echo "${GREEN}Done"
+
+	echo "${BLUE}Creating sizelist for ${YELLOW}${i}"
+	ls -l *.tcz | awk '{print $9, $5}' > sizelist
+	echo "${BLUE}gzipping ${YELLOW}sizelist"
+	gzip -c9 sizelist > sizelist.gz
+	echo "${GREEN}Done"
+
+	echo "${BLUE}Creating tags.db for ${YELLOW}${i}"
+	echo ""
+	rm tags.db
+	touch tags.db
+	for i in $(ls -1 *.tcz); do
+		[ -f $i.info ] && TAG=$(grep Tags $i.info | sed 's/.info:Tags://') || TAG=""
+		if [ "$TAG" = "" ]; then
+			echo -e "$i\tNONE" >> tags.db
+		else
+			grep -H Tags $i.info | sed 's/.info:Tags://' >>tags.db
+		fi
+	done
+	echo "${BLUE}gzipping ${YELLOW}tags.db"
+	gzip -f9 tags.db
+	echo "${GREEN}Done"
+
+	echo "${BLUE}Creating Dep Trees for ${YELLOW}${i}"
+	TABLEVEL=0
+	TREEFILE=""
+	for i in `ls -1 *.dep|sort -f`; do
+		TREEFILE=`echo $i | sed s/.dep//`.tree
+		[ -e $TREEFILE ] && rm -f $TREEFILE
+		echo $i | sed s/.dep// >> $TREEFILE
+		let TABLEVEL=TABLEVEL+1
+		readfile $i
+		TABLEVEL=0
+	done
+	echo "${GREEN}Done"
+	echo ""
+
+	echo "${BLUE}Creating PCP Dep files for pcp-load ${YELLOW}"
+	for i in `ls -1 *.tcz|sort -f`; do
+		if [ -f $i.dep ]; then
+		#			echo "copy dep to dep.pcp for $i"
+			diff -q -N $i.dep $i.dep.pcp &>/dev/null
+			[ $? -eq 1 ] && cp -f $i.dep $i.dep.pcp
+		else
+			if [ -f $i.dep.pcp ]; then
+				grep -q "BOGUS.tcz" $i.dep.pcp
+				[ $? -eq 1 ] && rm -f $i.dep.pcp
+			fi 
+			if [ ! -f $i.dep.pcp ]; then
+		#				echo "need to create bogus.dep.pcp for $i"
+				echo "BOGUS.tcz" > $i.dep.pcp
+			fi
+		fi
+	done
+	
+	echo "${GREEN}Done"
+	echo ""
+
+	echo "${BLUE}Creating PCP md5.db file for pcp-update ${YELLOW}"
+	rm -f md5.db.*
+	touch md5.db
+	for i in `ls -1 *.tcz.md5.txt|sort -f`; do
+		cat $i >> md5.db
+	done
+	gzip md5.db
+
+	echo "${GREEN}Done"
+	echo ""
+
+done
+
+cd $PWD
+
+echo "${GREEN}ALL DONE!!!${NORMAL}"
+

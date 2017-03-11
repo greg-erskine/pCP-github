@@ -1,0 +1,219 @@
+#/bin/sh
+
+# ANSI COLORS
+CRE="$(echo -e '\r\033[K')"
+RED="$(echo -e '\033[1;31m')"
+GREEN="$(echo -e '\033[1;32m')"
+YELLOW="$(echo -e '\033[1;33m')"
+BLUE="$(echo -e '\033[1;34m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+CYAN="$(echo -e '\033[1;36m')"
+WHITE="$(echo -e '\033[1;37m')"
+NORMAL="$(echo -e '\033[0;39m')"
+
+red='\e[1;31m'
+green='\e[1;32m'
+yellow='\e[1;33m'
+blue='\e[1;34m'
+magenta='\e[1;35m'
+cyan='\e[1;36m'
+end='\e[0m'
+
+TCE_REPO="http://repo.tinycorelinux.net"
+#PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+#For now use the armv7 repo
+
+#This list does not include kernel modules
+TCE_EXT="alsa-utils alsa libasound busybox-httpd dialog openssh openssl readline libedit \
+firmware-atheros firmware-ralinkwifi firmware-rpi3-wireless libiw libnl ncurses \
+wifi wireless_tools wpa_supplicant ca-certificates"
+
+#PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
+#pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi libts wiringpi"
+
+archive(){
+	echo "${YELLOW}*****************************************************************"
+	echo " Archiving current state - Saved in Users Home Directory"
+	echo "*****************************************************************"
+	echo "${BLUE}"
+	
+	DATESTAMP=$(date +%m%d%Y%H%M)
+	tar -zc --exclude="archive*" -f ~/archive-extentions-${DATESTAMP}.tgz *
+
+	echo " Archive contains"
+	echo ""
+	tar tvf ~/archive-extentions-${DATESTAMP}.tgz
+	echo ""
+
+	echo "${YELLOW}*****************************************************************"
+	echo " Done Archiving"
+	echo "*****************************************************************"
+	echo ""
+}
+
+function readfile(){
+    while read -r line
+    do
+        if [[ $line =~ ^\ +$ ]] || [ -z $line ] ;then
+            nothing=0
+        else
+			j=1
+            EXT="$line"
+            while [ $j -ne $TABLEVEL ]; do
+                echo -n "  "
+                let j=j+1
+            done
+			echo -n "${BLUE}   $EXT "
+			if [[ $line =~ .*KERNEL.* ]]; then
+				echo "${GREEN}KERNEL MODULE - OK${NORMAL}"
+			elif [ -e $EXT ]; then
+					echo "${GREEN}OK${NORMAL}"
+			else
+				FAIL=1
+				echo "${RED}Fail${NORMAL}"
+			fi
+            let TABLEVEL=TABLEVEL+1
+            getdep $EXT
+            let TABLEVEL=TABLEVEL-1
+        fi
+    done < "$1"
+}
+
+function getdep(){
+    [ -e ${1}.dep ] && readfile ${1}.dep
+}
+
+dependancy_check(){
+	echo "${YELLOW}*****************************************************************"
+	echo " Checking all dependancies"
+	echo "*****************************************************************"
+	echo ""
+	TABLEVEL=0
+	FAIL=0
+	for I in `ls -1 *.dep|sort -f`; do
+		echo "${BLUE}[ INFO ] Checking $I."
+		let TABLEVEL=TABLEVEL+1
+		readfile $I
+		TABLEVEL=0
+	done
+
+	echo "${YELLOW}*****************************************************************"
+	echo " Done checking dependancies"
+	[ $FAIL -ne 0 ] && echo "${RED} There was an ERROR on at least one dependency${YELLOW}"
+	echo "*****************************************************************"
+	echo ""
+}
+
+check_updates(){
+	echo "${YELLOW}*****************************************************************"
+	echo " Checking for Updates"
+	echo "*****************************************************************"
+	echo ""
+#	REPOS=(TCE PCP)
+	REPOS=(TCE)
+	
+	for R in ${REPOS[@]}; do
+		eval REPO_ADDR=\${${R}_REPO} 
+		eval EXTENSIONS=\${${R}_EXT}
+		echo "${BLUE}[ INFO ] Checking files from $R Repo: ${REPO_ADDR}"
+		for I in ${EXTENSIONS}; do
+			printf "${blue}  [ INFO] Checking: %-25s" "${I}"
+			rm -f /tmp/${I}*
+			wget ${REPO_ADDR}/${TCE_VER}/${I}.tcz.md5.txt -P /tmp >/dev/null 2>&1
+			if [ $? -ne 0 ]; then
+				echo "${RED}ERROR downloading ${REPO_ADDR}/${TCE_VER}/${I}.tcz.md5.txt"
+			else		
+				diff -q ${I}.tcz.md5.txt /tmp/${I}.tcz.md5.txt >/dev/null 2>&1
+				if [ $? -ne 0 ]; then
+					echo -e "${YELLOW} Different md5 signature found."
+					echo "${BLUE}"
+					while true; do
+						read -p "Do you want to update Extension? (y/n)" yn
+						case $yn in
+							[Yy]* ) UPDATE=1; break;;
+							[Nn]* ) UPDATE=0; break;;
+							* ) echo "Please answer yes or no.";;
+						esac
+					done
+					if [ $UPDATE -eq 1 ]; then
+						FAIL=0
+						for FILE_EXT in $(echo "tcz.dep tcz.info tcz.list tcz"); do
+							wget ${REPO_ADDR}/${TCE_VER}/${I}.${FILE_EXT} -P /tmp >/dev/null 2>&1
+							if [ $? -ne 0 ]; then
+								case ${I}.${FILE_EXT} in
+									*.dep) echo "${YELLOW}    ${I}.${FILE_EXT} not found.${YELLOW}";;
+									*) FAIL=1; echo "${RED}    Error on ${I}.${FILE_EXT}${YELLOW}";;
+								esac
+							fi
+						done
+						if [ $FAIL -eq 0 ]; then
+							cd /tmp
+							md5sum -c --quiet ${I}.tcz.md5.txt
+							[ $? -eq 0 ] && mv -f /tmp/${I}* ${EXTENSION_DIR} || FAIL=1
+							cd ${EXTENSION_DIR}
+						fi
+						if [ $FAIL -ne 0 ]; then
+							echo "${RED} Error downloading part of ${I}, extension not updated.{$YELLOW}"
+						fi
+					fi
+					if [ $UPDATE -eq 0 ] || [ $FAIL -ne 0 ]; then  
+						rm -f /tmp/${I}*
+					fi
+				else
+					echo -e "${GREEN} Extension version Matches"
+				fi
+			fi
+		done
+	done
+	echo "${YELLOW}*****************************************************************"
+	echo " Done checking for updates"
+	echo "*****************************************************************"
+	echo ""
+}
+
+########################### Main ######################################
+cd ~
+cd REPO/armv6/tcz
+EXTENSION_DIR=$(pwd)
+TCE_VER="8.x/armv6/tcz"
+
+while true; do
+	read -p "Do you wish to archive files? (y/n)" yn
+	case $yn in
+			[Yy]* ) archive; break;;
+			[Nn]* ) break;;
+			* ) echo "Please answer yes or no.";;
+		esac
+done
+echo ""
+
+while true; do
+	read -p "Do you wish to update armv6 extensions? (y/n)" yn
+	case $yn in
+			[Yy]* ) check_updates; break;;
+			[Nn]* ) break;;
+			* ) echo "Please answer yes or no.";;
+		esac
+done
+echo ""
+
+dependancy_check
+
+cd ~
+cd REPO/armv7/tcz
+EXTENSION_DIR=$(pwd)
+TCE_VER="8.x/armv7/tcz"
+
+while true; do
+	read -p "Do you wish to update armv7 extensions? (y/n)" yn
+	case $yn in
+			[Yy]* ) check_updates; break;;
+			[Nn]* ) break;;
+			* ) echo "Please answer yes or no.";;
+		esac
+done
+echo ""
+
+dependancy_check
+
+echo "${NORMAL}"

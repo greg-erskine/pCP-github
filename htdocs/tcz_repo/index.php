@@ -82,7 +82,7 @@ foreach ($files as $file){
 		echo '      <p>' . filetype($file) .'</p>';
 		echo '    </td>';
 		echo '  </tr>';
-	} else if($file != "" && $file != "." && $file != ".." && $file != "index.php" && $file != ".htaccess" && $file != "error_log" && $file != "cgi-bin" && $file != "create_repo_files" && $file != "repo.htm" ) {
+	} else if($file != "" && $file != "." && $file != ".." && $file != "index.php" && $file != ".htaccess" && $file != "error_log" && $file != "cgi-bin" && $file != "create_repo_files" && $file != "repo.htm" && $file != "update_repo" ) {
 		$ft = filetype($file);
 		echo '  <tr>';
 		echo '    <td class="n">';
