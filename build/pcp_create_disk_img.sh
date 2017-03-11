@@ -665,8 +665,6 @@ check_deps_old(){
 	cd $BUILDROOT
 }
 
-
-
 #*******************************************************************************************
 #******************************************START********************************************
 #*******************************************************************************************
@@ -770,7 +768,7 @@ echo "${BLUE}*******************************************************************
 echo ""
 echo "${GREEN}[ INFO ] Ready to Populate the Image."
 while true; do
-	read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
+	read -p "${BLUE}Do you wish to continue (y)es, (n)o ? ${NORMAL}" yn
 	case $yn in
 		[Yy]* ) break;;
 		[Nn]* ) abort;;
@@ -785,15 +783,34 @@ copy_part2
 build_mydata
 check_deps
 
-
-########Insert building of insitu update files
-
-
-
 echo "${GREEN}Done building image. Evaluate mounted image if needed. Press enter to continue."
 read key
-unmount_loops
 
+echo ""
+echo "${BLUE}*******************************************************************************************"
+echo ""
+while true; do
+   read -p "${BLUE}Do you want to create insitu update packages? (y)es, (n)o ? ${NORMAL}" yn
+   case $yn in
+      [Yy]* ) SKIP_INSITU=0; break;;
+      [Nn]* ) SKIP_INSITU=1; break;;
+      * ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
+   esac
+done
+echo
+echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_boot.tar.gz${NORMAL}"
+cd $PART1
+tar zcf /tmp/${PCP}_boot.tar.gz .
+echo
+echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
+cd $PART2/tce
+#Build the tce package excluding all kernel module extensions
+tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
+echo
+echo "${GREEN}Done building insitu update packages."
+
+cd $BUILDROOT
+unmount_loops
 
 cd /tmp
 [ -f ${PCP}.zip ] && rm ${PCP}.zip
