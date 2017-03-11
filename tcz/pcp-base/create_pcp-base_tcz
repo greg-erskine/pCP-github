@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+TCZ=pcp-base.tcz
+TCZINFO=${TCZ}.info
+VERSION=3.20
+
 
 BASEWD=$(pwd)
 EXT="pcp-base"
@@ -23,6 +28,16 @@ md5sum ${TCZ} > ${TCZ}.md5.txt
 echo "$EXT contains"
 unsquashfs -ll ${TCZ}
 
+echo -e "Title:\t\t$TCZ" > $TCZINFO
+echo -e "Description:\tpiCorePlayer Base Scripts." >> $TCZINFO
+echo -e "Version:\t$VERSION" >> $TCZINFO
+echo -e "Author:\t\tVarious, see script files" >> $TCZINFO
+echo -e "Original-site:" >> $TCZINFO
+echo -e "Copying-policy:\tSee scripts for details" >> $TCZINFO
+echo -e "Size:\t\t$(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+
 echo
 while true; do
    read -p "Do you want to upload to sourceforge project-web [y/n]? " yn
@@ -35,7 +50,7 @@ done
 
 REPO="web.sourceforge.net"
 LOCATION_v6="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv6/tcz/"
-LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv6/tcz/"
+LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv7/tcz/"
 
 read -p "Enter your sourceforge username: " USER
 # Would need to use linux expect to use passwords
