@@ -55,7 +55,7 @@
 DEBUGLOG="/var/log/pcp_debug.log"
 
 pcp_debug_log() {
-	sudo echo $1 >>$DEBUGLOG
+	echo $1 | sudo tee -a $DEBUGLOG > /dev/null
 }
 
 pcp_debug_log "$0 - Running pcp-functions..."
