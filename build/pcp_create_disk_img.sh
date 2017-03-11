@@ -351,7 +351,7 @@ copy_part2(){
 #	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/RTL_firmware/firmware-rtlwifi ${PART2}/tce/optional/firmware-rtlwifi 1001.50 664
 #	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/libts-tcz/libts ${PART2}/tce/optional/libts 1001.50 664
 
-	MOD_TCZ="alsa-modules irda net-usb touchscreen wireless"
+	MOD_TCZ="alsa-modules irda net-usb wireless"
 	for I in $MOD_TCZ; do
 		pcp_tcz_cp ${BUILDROOT}/pcp/pcpCore/armv6/extensions/${KERNELV6}/${I}-${KERNELV6%^*} ${PART2}/tce/optional/${I}-${KERNELV6%^*} 1001.50 664
 		pcp_tcz_cp ${BUILDROOT}/pcp/pcpCore/armv7/extensions/${KERNELV7}/${I}-${KERNELV7%^*} ${PART2}/tce/optional/${I}-${KERNELV7%^*} 1001.50 664

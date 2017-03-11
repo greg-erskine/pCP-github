@@ -30,7 +30,7 @@ firmware-atheros firmware-ralinkwifi firmware-rpi3-wireless libiw libnl ncurses 
 wifi wireless_tools wpa_supplicant ca-certificates"
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
-pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi libts wiringpi"
+pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi wiringpi"
 
 archive(){
 	echo "${YELLOW}*****************************************************************"
@@ -46,9 +46,6 @@ archive(){
 	tar tvf archive/extentions-${DATESTAMP}.tgz
 	echo ""
 
-	read -p "Press Enter to remove files and continue" key
-	rm -f *.tcz*
-	
 	echo "${YELLOW}*****************************************************************"
 	echo " Done Archiving"
 	echo "*****************************************************************"
