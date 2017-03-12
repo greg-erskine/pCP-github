@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-03-12
 #	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
 #	Added shini conf parser. SBP.
+#	Suppress already mounted message during do_rebootstuff newconfig process. PH.
 
 # Version: 3.11 2017-01-20
 #	Fixed the issue with shairport not working when using USB cards. SBP.
@@ -88,7 +89,8 @@ pcp_enable_HDMI() {
 # Section that controls loading of DAC overlays
 #----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
-	pcp_mount_mmcblk0p1
+	# if noumount, disk is probably already mounted....supress output
+	[ "$1" == "noumount" ] && pcp_mount_mmcblk0p1 > /dev/null 2>&1 || pcp_mount_mmcblk0p1
 	pcp_disable_HDMI
 	pcp_disable_i2s
 	pcp_enable_i2s
