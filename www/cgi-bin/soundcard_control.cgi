@@ -32,10 +32,12 @@ case "$ACTION" in
 	Test)
 		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
-		pcp_selected_soundcontrol
 		pcp_generic_card_control
 	;;
 	Backup)
+		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
+		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
+		pcp_generic_card_control
 		AUDIO="$ORIG_AUDIO"
 		CARD="$ORIG_CARD"
 		OUTPUT="$ORIG_OUTPUT"
@@ -47,8 +49,6 @@ case "$ACTION" in
 	;;
 	0dB)
 		sudo amixer -c $CARD sset $SSET 0dB >/dev/null 2>&1
-		pcp_selected_soundcontrol
-#		pcp_soundcontrol
 		pcp_generic_card_control
 	;;	
 	Select)

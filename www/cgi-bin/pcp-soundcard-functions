@@ -109,22 +109,25 @@ pcp_read_chosen_audio() {
 pcp_generic_card_control() {
 	case "$GENERIC_CARD" in
 		TI51XX)
-			DSP="DSP Program,0"
-			FILTER1="Low latency IIR with de-emphasis"
-			FILTER2="FIR interpolation with de-emphasis"
-			FILTER3="High attenuation with de-emphasis"
-			FILTER4="Fixed process flow"
-			FILTER5="Ringing-less low latency FIR"
+			amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || echo DSPfound="no" 
+			if [ "$DSPfound" = "yes" ]; then
+				DSP="DSP Program,0"
+				FILTER1="Low latency IIR with de-emphasis"
+				FILTER2="FIR interpolation with de-emphasis"
+				FILTER3="High attenuation with de-emphasis"
+				FILTER4="Fixed process flow"
+				FILTER5="Ringing-less low latency FIR"
+			fi
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
 			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
 
 			case "$DSPFILTER" in
-				FILTER1) FILTER="Low latency IIR with de-emphasis" ;;
-				FILTER2) FILTER="FIR interpolation with de-emphasis" ;;
-				FILTER3) FILTER="High attenuation with de-emphasis" ;;
-				FILTER4) FILTER="Fixed process flow" ;;
-				FILTER5) FILTER="Ringing-less low latency FIR" ;;
+				FILTER1) FILTER="$FILTER1" ;;
+				FILTER2) FILTER="$FILTER2" ;;
+				FILTER3) FILTER="$FILTER3" ;;
+				FILTER4) FILTER="$FILTER4" ;;
+				FILTER5) FILTER="$FILTER5" ;;
 			esac
 
 			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
