@@ -111,7 +111,7 @@ pcp_read_chosen_audio() {
 pcp_generic_card_control() {
 	case "$GENERIC_CARD" in
 		TI51XX)
-			amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || echo DSPfound="no" 
+			amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || DSPfound="no" 
 			if [ "$DSPfound" = "yes" ]; then
 				DSP="DSP Program,0"
 				FILTER1="Low latency IIR with de-emphasis"
@@ -255,7 +255,9 @@ pcp_blank_audio_conf() {
 	CONTROL_PAGE=""
 	LISTNAME=""
 	DTOVERLAY=""
-	TEXT=""
+	TEXT1=""
+	TEXT2=""
+	TEXT3=""
 	SSET=""
 	PARAMS1=""
 	PARAMS2=""

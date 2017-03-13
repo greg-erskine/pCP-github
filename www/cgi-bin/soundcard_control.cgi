@@ -84,6 +84,8 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] filter3:        '$FILTER3'<br />'
 	echo '                 [ DEBUG ] filter4:        '$FILTER4'<br />'
 	echo '                 [ DEBUG ] filter5:        '$FILTER5'<br />'
+	echo '                 [ DEBUG ] TEXT1 is:       '$TEXT1'<br />'
+	echo '                 [ DEBUG ] TEXT2 is:       '$TEXT2'<br />'
 	echo '                 [ DEBUG ] Actual vol is:  '$ACTUAL_VOL'<br />'
 	echo '                 [ DEBUG ] Actual db is:   '$ACTUAL_DB'<br />'
 	echo '                 [ DEBUG ] Actual Filter:  '$ACTUAL_FILTER'<br />'
@@ -217,12 +219,47 @@ echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Select the parameters you want to add to dtoverlay for your DAC. <b>Then a reboot is needed.</b></p>'
 echo '                    <ul>'
-echo '                      <li>'"$TEXT"'</li>'
+echo '                      <li>'"$TEXT1"'</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 fi
+
+if [ x"$TEXT2" != x ]; then 
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+pcp_incr_id
+echo '                <td>'
+echo '                  <p><b>Notes for your DAC&nbsp;&nbsp;</b>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>'"$TEXT2"'</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+fi
+
+if [ x"$TEXT3" != x ]; then 
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+pcp_incr_id
+echo '                <td>'
+echo '                  <p><b>Additional info&nbsp;&nbsp;</b>'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <ul>'
+echo '                      <li>'"$TEXT3"'</li>'
+echo '                    </ul>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+fi
+
 }
 
 #========================================================================================
