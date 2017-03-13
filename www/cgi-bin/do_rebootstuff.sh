@@ -157,6 +157,7 @@ echo "${GREEN}Done.${NORMAL}"
 # Read from config file.
 echo -n "${BLUE}Loading configuration file... ${NORMAL}"
 . $CONFIGCFG
+	ORIG_AUDIO="$AUDIO"
 echo "${GREEN}Done.${NORMAL}"
 
 # Set default respository incase it has been set to something non-standard.
@@ -660,4 +661,7 @@ if [ "$JIVELITE" = "yes" ]; then
 fi
 
 echo "${BLUE}crond syncing time... ${NORMAL}"
+
+unset ORIG_AUDIO
+
 
