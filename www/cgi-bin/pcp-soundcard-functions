@@ -153,10 +153,8 @@ pcp_generic_card_control() {
 		;;
 
 		ONBOARD)
-			CARD="ALSA"
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
-			TEXT=""
 		;;
 
 #		ES9023)
@@ -258,6 +256,7 @@ pcp_blank_audio_conf() {
 	TEXT1=""
 	TEXT2=""
 	TEXT3=""
+	TEXT4=""
 	SSET=""
 	PARAMS1=""
 	PARAMS2=""
