@@ -211,33 +211,20 @@ pcp_soundcard_parameter_options() {
 		echo '                  <input type="submit" name="ACTION" value="Select">'
 		echo '                </td>'
 		echo '              </tr>'
+	fi
+
+	if [ x"$TEXT1" != x ]; then 
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
+		pcp_incr_id
 		echo '                <td>'
-		echo '                  <p><b>Parameters available for your DAC&nbsp;&nbsp;</b>'
+		echo '                  <p><b>Parameters and notes for your DAC&nbsp;&nbsp;</b>'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>Select the parameters you want to add to dtoverlay for your DAC. <b>Then a reboot is needed.</b></p>'
 		echo '                    <ul>'
-		echo '                      <li>'"$TEXT1"'</li>'
-		echo '                    </ul>'
-		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
-	fi
-
-	if [ x"$TEXT2" != x ]; then 
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		pcp_incr_id
-		echo '                <td>'
-		echo '                  <p><b>Notes for your DAC&nbsp;&nbsp;</b>'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <ul>'
-		I=2
+		I=1
 		while true; do
 			eval TEST="\${TEXT${I}}"
 			if [ x"$TEST" != x ]; then 
