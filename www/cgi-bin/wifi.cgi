@@ -304,7 +304,7 @@ echo '                    <p>Recommended: WPA or WPA2</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-if [ $(pcp_rpi_is_model_3B) -eq 0 ]; then
+if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); then
 	case "$RPI3INTWIFI" in
 		on) RPI3WIFIyes="checked" ;;
 		off) RPI3WIFIno="checked" ;;
@@ -314,18 +314,18 @@ if [ $(pcp_rpi_is_model_3B) -eq 0 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>RPi3B Built-in Wifi</p>'
+	echo '                  <p>RPi Built-in Wifi</p>'
 	echo '                </td>'
 	echo '                <td class="column380">'
 	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPI3WIFIyes'>On&nbsp;'
 	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPI3WIFIno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Turn off Raspberry Pi 3B built-in wifi card&nbsp;&nbsp;'
+	echo '                  <p>Turn off Raspberry Pi 3B / Zero-W built-in wifi card&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will load an overlay that disables RPi3 onboard wifi.</p>'
+	echo '                    <p>This will load an overlay that disables RPi3/Zero-W onboard wifi.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
