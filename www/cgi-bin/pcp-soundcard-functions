@@ -253,10 +253,6 @@ pcp_blank_audio_conf() {
 	CONTROL_PAGE=""
 	LISTNAME=""
 	DTOVERLAY=""
-	TEXT1=""
-	TEXT2=""
-	TEXT3=""
-	TEXT4=""
 	SSET=""
 	PARAMS1=""
 	PARAMS2=""
@@ -264,4 +260,14 @@ pcp_blank_audio_conf() {
 	PARAMS4=""
 	PARAMS5=""
 	RPI_MODEL=""
-}
+	I=1
+	while true; do
+		eval TEST="\${TEXT${I}}"
+		if [ x"$TEST" != x ]; then 
+			eval TEXT${I}=""
+			I=$((I+1))
+		else
+			break
+		fi
+	done
+	}
