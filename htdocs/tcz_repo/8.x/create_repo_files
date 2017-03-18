@@ -44,6 +44,7 @@ function getdep(){
 
 STOP=0
 
+echo "${YELLOW}***************************${CYAN} MD5 CHECKS ${YELLOW}***********************************" 
 for i in ${REPO[@]}; do
 	cd ${i}
 	echo "${BLUE}Entering REPO ${YELLOW}${i}${NORMAL}"
@@ -60,6 +61,9 @@ done
 [ $STOP -eq 1 ] && exit 1
 echo "${GREEN}MD5's all check out"
 echo ""
+echo "${YELLOW}***************************${CYAN} MD5 CHECKS DONE ${YELLOW}***********************************" 
+echo ""
+echo "${YELLOW}***************************${CYAN} CREATE REPO BROWSER FILES ${YELLOW}***********************************" 
 for i in ${REPO[@]}; do
 	cd ${i}
 	echo "${BLUE}Entering REPO ${YELLOW}${i}${NORMAL}"
@@ -81,14 +85,14 @@ for i in ${REPO[@]}; do
 
 	echo "${BLUE}Creating tags.db for ${YELLOW}${i}"
 	echo ""
-	rm tags.db
+	[ -f tags.db ] && rm -f tags.db
 	touch tags.db
-	for i in $(ls -1 *.tcz); do
+	for j in $(ls -1 *.tcz); do
 		[ -f $i.info ] && TAG=$(grep Tags $i.info | sed 's/.info:Tags://') || TAG=""
 		if [ "$TAG" = "" ]; then
-			echo -e "$i\tNONE" >> tags.db
+			echo -e "$j\tNONE" >> tags.db
 		else
-			grep -H Tags $i.info | sed 's/.info:Tags://' >>tags.db
+			grep -H Tags $j.info | sed 's/.info:Tags://' >>tags.db
 		fi
 	done
 	echo "${BLUE}gzipping ${YELLOW}tags.db"
@@ -98,31 +102,31 @@ for i in ${REPO[@]}; do
 	echo "${BLUE}Creating Dep Trees for ${YELLOW}${i}"
 	TABLEVEL=0
 	TREEFILE=""
-	for i in `ls -1 *.dep|sort -f`; do
-		TREEFILE=`echo $i | sed s/.dep//`.tree
+	for j in `ls -1 *.dep|sort -f`; do
+		TREEFILE=`echo $j | sed s/.dep//`.tree
 		[ -e $TREEFILE ] && rm -f $TREEFILE
-		echo $i | sed s/.dep// >> $TREEFILE
+		echo $j | sed s/.dep// >> $TREEFILE
 		let TABLEVEL=TABLEVEL+1
-		readfile $i
+		readfile $j
 		TABLEVEL=0
 	done
 	echo "${GREEN}Done"
 	echo ""
 
 	echo "${BLUE}Creating PCP Dep files for pcp-load ${YELLOW}"
-	for i in `ls -1 *.tcz|sort -f`; do
-		if [ -f $i.dep ]; then
-		#			echo "copy dep to dep.pcp for $i"
-			diff -q -N $i.dep $i.dep.pcp &>/dev/null
-			[ $? -eq 1 ] && cp -f $i.dep $i.dep.pcp
+	for j in `ls -1 *.tcz|sort -f`; do
+		if [ -f $j.dep ]; then
+		#			echo "copy dep to dep.pcp for $j"
+			diff -q -N $j.dep $j.dep.pcp &>/dev/null
+			[ $? -eq 1 ] && cp -f $j.dep $j.dep.pcp
 		else
-			if [ -f $i.dep.pcp ]; then
-				grep -q "BOGUS.tcz" $i.dep.pcp
-				[ $? -eq 1 ] && rm -f $i.dep.pcp
+			if [ -f $j.dep.pcp ]; then
+				grep -q "BOGUS.tcz" $j.dep.pcp
+				[ $? -eq 1 ] && rm -f $j.dep.pcp
 			fi 
-			if [ ! -f $i.dep.pcp ]; then
-		#				echo "need to create bogus.dep.pcp for $i"
-				echo "BOGUS.tcz" > $i.dep.pcp
+			if [ ! -f $j.dep.pcp ]; then
+		#				echo "need to create bogus.dep.pcp for $j"
+				echo "BOGUS.tcz" > $j.dep.pcp
 			fi
 		fi
 	done
@@ -133,15 +137,15 @@ for i in ${REPO[@]}; do
 	echo "${BLUE}Creating PCP md5.db file for pcp-update ${YELLOW}"
 	rm -f md5.db.*
 	touch md5.db
-	for i in `ls -1 *.tcz.md5.txt|sort -f`; do
-		cat $i >> md5.db
+	for j in `ls -1 *.tcz.md5.txt|sort -f`; do
+		cat $j >> md5.db
 	done
 	gzip md5.db
 
 	echo "${GREEN}Done"
 	echo ""
-
 done
+echo "${YELLOW}***************************${CYAN} CREATE REPO BROWSER FILES ${YELLOW}***********************************" 
 
 cd $PWD
 
