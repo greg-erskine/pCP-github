@@ -38,7 +38,7 @@
 DEBUG=0
 
 #Have to set this before you run the script
-PCP="piCorePlayer3.20alpha3"
+PCP="piCorePlayer3.20beta2"
 
 BUILDROOT="/home/paul"
 
@@ -797,17 +797,19 @@ while true; do
       * ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
    esac
 done
-echo
-echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_boot.tar.gz${NORMAL}"
-cd $PART1
-tar zcf /tmp/${PCP}_boot.tar.gz .
-echo
-echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
-cd $PART2/tce
-#Build the tce package excluding all kernel module extensions
-tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
-echo
-echo "${GREEN}Done building insitu update packages."
+if [ ${SKIP_INSITU} -eq 0 ]; then
+	echo
+	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_boot.tar.gz${NORMAL}"
+	cd $PART1
+	tar zcf /tmp/${PCP}_boot.tar.gz .
+	echo
+	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
+	cd $PART2/tce
+	#Build the tce package excluding all kernel module extensions
+	tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
+	echo
+	echo "${GREEN}Done building insitu update packages."
+fi
 
 cd $BUILDROOT
 unmount_loops
