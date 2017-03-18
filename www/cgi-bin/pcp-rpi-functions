@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
-# Version: 3.20 2017-03-11
+# Version: 3.20 2017-03-18
 #	Fixed pcp-xxx-functions issues. GE.
 #	Added RPi2B v1.2. CM3, and ZeroW. PH.
 
@@ -180,7 +180,7 @@ pcp_rpi_model_unknown() {
 # The shortname is a unique identifier intended to be used with pastebin uploading
 pcp_rpi_shortname() {
 	pcp_rpi_details
-	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ]; then
+	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ] || [ "$MODEL" = "ZERO-W" ]; then
 		SHORTMAC=$(pcp_wlan0_mac_address)
 	else
 		SHORTMAC=$(pcp_eth0_mac_address)
