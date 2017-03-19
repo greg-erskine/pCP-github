@@ -656,6 +656,29 @@ pcp_main_hotfix() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_hotfix
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------HotFix----------------------------------------
+pcp_main_update_pcpbase() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Update" action="updatebase.cgi" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Update" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_update_pcpbase
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Developer mode fieldset-----------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'
@@ -673,6 +696,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
+
 
 #------------------------------------------Reset ALL-------------------------------------
 pcp_main_reset_all() {

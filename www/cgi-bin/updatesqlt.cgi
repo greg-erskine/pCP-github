@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-03-19
 #	Fixed pcp-xxx-functions issues. GE.
+#	Change Full Update to use pcp-update. PH.
 
 # Version: 3.10 2017-01-04
 #	Changes for Squeezelite extension. PH.
@@ -109,31 +110,19 @@ case "${ACTION}" in
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
 
-		pcp_table_top "Updating Squeezelite and all libraries"
+		pcp_table_top "Updating Squeezelite and any needed dependencies"
 		echo '                <textarea class="inform" style="height:150px">'
-		echo '[ INFO ] Updating Squeezelite extension.'
-		echo '[ INFO ] a reboot will be required to complete.'
 
-		TMP_UPG="/tmp/upgrade"
-		rm -rf ${TMP_UPG}
-		mkdir ${TMP_UPG}
-		chown tc.staff ${TMP_UPG}
-
-		if [ $DEBUG -eq 1 ]; then
-			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz 2>&1
-			[ $? -eq 0 ] && FAIL=0 || FAIL=1
-		else
-			sudo -u tc pcp-load -r $PCP_REPO -w ${TMP_UPG}/pcp-squeezelite.tcz
-			[ $? -eq 0 ] && FAIL=0 || FAIL=1
-		fi
-		if [ $FAIL -eq 0 ]; then
-			mkdir -p ${PACKAGEDIR}/upgrade
-			mv ${TMP_UPG}/* ${PACKAGEDIR}/upgrade
-			chown -R tc.staff ${PACKAGEDIR}/upgrade
-			sync
+		pcp-update pcp-squeezelite
+		TEST=$?
+		if [ $TEST -eq 2 ]; then
+			echo '[ INFO ] There is no update for squeezelite at this time.'
+			REBOOT_REQUIRED=0
+		elif [ $TEST -eq 1 ]; then
+			echo '[ ERROR ] There was an error updating squeezelite, please try again later'
+			REBOOT_REQUIRED=0
+		else 
 			REBOOT_REQUIRED=1
-		else
-			echo '[ INFO ] Reloading old squeezelite extension'
 		fi
 		echo '                </textarea>'
 		pcp_table_end

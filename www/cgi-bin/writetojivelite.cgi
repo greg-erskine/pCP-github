@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-11
+# Version: 3.20 2017-03-19
 #	Fixed pcp-xxx-functions issues. GE.
 #	Updated jivelite to PCP_Repo. PH.
 
@@ -218,8 +218,30 @@ case "$OPTION" in
 				REBOOT_REQUIRED=0
 			;;
 			Update)
-				echo '<p class="info">[ INFO ] Update not implemented yet......</p>'
-				REBOOT_REQUIRED=0
+				# Use full space requirement for jivelite, incase many extensions need updated
+				pcp_sufficient_free_space 34000
+				if [ $? -eq 0 ]; then
+					echo '                <textarea class="inform" style="height:150px">'
+					pcp-update pcp-jivelite.tcz
+					TEST=$?
+					if [ $TEST -eq 2 ]; then
+						echo '[ INFO ] There is no update for jivelite at this time.'
+						REBOOT_REQUIRED=0
+					elif [ $TEST -eq 1 ]; then
+						echo '[ ERROR ] There was an error updating jivelite, please try again later'
+						REBOOT_REQUIRED=0
+					else 
+						REBOOT_REQUIRED=1
+					fi
+					for i in $(/mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz); do
+						pcp-update $i
+						if [ $? -eq 0 ]; then
+							echo '[ INFO ] There was an update to VU Meters.'
+							REBOOT_REQUIRED=1
+						fi
+					done
+					echo '                </textarea>'
+				fi
 			;;
 			*)
 				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] JIVELITE: '$JIVELITE'<br />'
