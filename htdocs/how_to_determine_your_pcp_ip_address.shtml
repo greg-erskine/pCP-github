@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- Start of pcp_html_head -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>pCP - How-to determine your piCorePlayer IP address</title>
+  <meta name="author" content="GE'">
+  <meta name="description" content="pCP - How-to determine your piCorePlayer IP address">
+  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <script src="../js/piCorePlayer.js"></script>
+</head>
+<body>
+<!-- End of pcp_html_head -->
+<!--#include virtual="pcp_banner.html" -->
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table class="bggrey percent100">
+            <tr>
+              <td>
+                <h1>How-to determine your piCorePlayer IP address</h1>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <ul>
+                  <li><a href="#boot_console">Boot console</a></li>
+                  <li><a href="#ip_scanner">IP scanner</a></li>
+                  <li><a href="#router">Router</a></li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table  id="boot_console" class="bggrey percent100">
+            <legend>Boot console</legend>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>1.</p>
+              </td>
+              <td>
+                <p>Look at the boot console.</p>
+                <p>The IP address will be displayed at the end of the boot process.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/pcp_ip_address_bootlog.png" alt="boot screen" /></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table  id="ip_scanner" class="bggrey percent100">
+            <legend>IP scanner</legend>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>1.</p>
+              </td>
+              <td>
+                <p>Use an IP scanner on your computer.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p></p>
+              </td>
+              <td>
+                <p><img src="../images/pcp_ip_address_scanner.png" alt="boot screen" /></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table  id="router" class="bggrey percent100">
+            <legend>Router</legend>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>1.</p>
+              </td>
+              <td>
+                <p>Check your router to see what IP address has been assigned.</p>
+                <p>DHCP on your router will have assigned an IP address from the defined DHCP range.</p>
+                <p>Check your router manual for instructions.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <legend>More information</legend>
+          <!-- -------------------------------------------------------------------- -->
+          <ul>
+            <li><a href="http://www.advanced-ip-scanner.com/" target="_blank">Advanced IP Scanner - Windows</a> &#8599;</li>
+            <li><a href="https://nmap.org/" target="_blank">nmap - Linux, Mac OS X and Windows</a> &#8599;</li>
+          </ul>
+          <!-- -------------------------------------------------------------------- -->
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<!--#include virtual="pcp_footer.html" -->
+<!--#include virtual="pcp_copyright.html" -->
+
+</body>
+</html>

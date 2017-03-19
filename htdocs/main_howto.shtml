@@ -31,28 +31,37 @@
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column420">
-                <p><a href="how_to_download_pcp.shtml">How-to download piCorePlayer</a></p>
+                <p><a href="how_to_download_pcp.shtml">Download piCorePlayer</a></p>
               </td>
               <td>
-                <p><a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</a></p>
+                <p><a href="how_to_burn_pcp_onto_a_sd_card.shtml">Burn piCorePlayer onto a SD card</a></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
               <td class="column420">
-                <p><a href="how_to_edit_config_txt.shtml">How-to edit config.txt</a></p>
+                <p><a href="how_to_access_pcp_via_ssh.shtml">Access piCorePlayer via ssh</a></p>
               </td>
               <td>
-                <p><a href="how_to_access_pcp_via_ssh.shtml">How-to access piCorePlayer via ssh</a></p>
+                <p><a href="how_to_edit_config_txt.shtml">Edit config.txt</a></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column420">
-                <p><a href="how_to_setup_wifi_on_pcp_without_ethernet.shtml">How-to setup wifi on piCorePlayer without Ethernet</a></p>
+                <p><a href="how_to_setup_wifi_on_pcp_without_ethernet.shtml">Setup wifi on piCorePlayer without Ethernet</a></p>
               </td>
               <td>
-                <p><a href="how_to_use_pcp_mode_settings.shtml">How-to use piCorePlayer mode setting</a></p>
+                <p><a href="how_to_use_pcp_mode_settings.shtml">Use piCorePlayer mode setting</a></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column420">
+                <p><a href="how_to_determine_your_pcp_ip_address.shtml">Determine your piCorePlayer's IP Address.</a></p>
+              </td>
+              <td>
+                <p></p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
