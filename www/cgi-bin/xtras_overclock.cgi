@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-03-22
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
 #	Added underclocking. GE.
@@ -47,7 +47,7 @@
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
-#. $CONFIGCFG
+. pcp-rpi-functions
 
 pcp_html_head "xtras overclocking" "GE"
 
@@ -55,6 +55,59 @@ pcp_banner
 pcp_xtras
 pcp_running_script
 pcp_httpd_query_string
+
+RPITYPE=$(pcp_rpi_type)
+
+#========================================================================================
+# Generate warning message
+#----------------------------------------------------------------------------------------
+pcp_warning_message() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Warning</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b></p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">It can be dangerous to play with overclocking.</li>'
+	echo '                  <li style="color:white">Excessive overclocking can cause your Raspberry Pi to become unstable.</li>'
+	echo '                  <li style="color:white">Setting "force turbo" may set warranty bit.</li>'
+	echo '                  <li style="color:white">Do not transfer SD card bewteen different model Raspberry Pi.</li>'
+	echo '                </ul>'
+	echo '                <p style="color:white"><b>Note:</b></p>'
+	echo '                <ul>'
+
+	MESSAGEPI0='<li style="color:white">Raspberry Pi Model 0: Underclocking only.</li>'
+	MESSAGEPI1='<li style="color:white">Raspberry Pi Model 1: Overclocking and underclocking.</li>'
+	MESSAGEPI2='<li style="color:white">Raspberry Pi Model 2: Overclocking and underclocking.</li>'
+	MESSAGEPI3='<li style="color:white">Raspberry Pi Model 3: Underclocking only.</li>'
+
+	case $RPITYPE in
+		0) MESSAGEPI0='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 0: Underclocking only. &gt;&gt;</b></li>' ;;
+		1) MESSAGEPI1='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 1: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
+		2) MESSAGEPI2='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 2: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
+		3) MESSAGEPI3='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 3: Underclocking only. &gt;&gt;</b></li>' ;;
+	esac
+
+	echo "                  $MESSAGEPI0"
+	echo "                  $MESSAGEPI1"
+	echo "                  $MESSAGEPI2"
+	echo "                  $MESSAGEPI3"
+
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
 
 #========================================================================================
 # Routines
@@ -99,7 +152,7 @@ pcp_set_gpu_memory_default() {
 
 pcp_display_current() {
 	echo -n '<p style="font-family:courier">'
-	for FILE in $(ls /sys/devices/system/cpu/cpu0/cpufreq/); do
+	for FILE in $(ls /sys/devices/system/cpu/cpu0/cpufreq/ | grep -v stats); do
 		echo -n $FILE': '
 		cat /sys/devices/system/cpu/cpu0/cpufreq/$FILE
 		echo '<br />'
@@ -132,7 +185,7 @@ pcp_start_save() {
 	. $CONFIGCFG
 
 	#========================================================================================
-	# Official overclocking data from raspi-config (Rasbian 2016-03-18)
+	# Official overclocking data from raspi-config - Rasbian
 	#----------------------------------------------------------------------------------------
 	#  RPi0
 	#     "None"
@@ -150,7 +203,7 @@ pcp_start_save() {
 	#----------------------------------------------------------------------------------------
 
 	#========================================================================================
-	# Under clocking data
+	# Underclocking data
 	#----------------------------------------------------------------------------------------
 	#  RPi0
 	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
@@ -162,7 +215,7 @@ pcp_start_save() {
 	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
 	#----------------------------------------------------------------------------------------
 
-	case $(pcp_rpi_type) in
+	case $RPITYPE in
 		0)
 			case "$ADVOVERCLOCK" in
 				Under) pcp_set_overclock Under 600 250 400 0 ;;
@@ -183,17 +236,17 @@ pcp_start_save() {
 		;;
 		2)
 			case "$ADVOVERCLOCK" in
-				Under)  pcp_set_overclock Under 600 250 400 0 ;;
-				None) pcp_set_overclock_default ;;
-				High) pcp_set_overclock High 1000 500 500 2 ;;
-				*)    pcp_set_overclock_default ;;
+				Under) pcp_set_overclock Under 600 250 400 0 ;;
+				None)  pcp_set_overclock_default ;;
+				High)  pcp_set_overclock High 1000 500 500 2 ;;
+				*)     pcp_set_overclock_default ;;
 			esac
 		;;
 		3)
 			case "$ADVOVERCLOCK" in
-				Under)  pcp_set_overclock Under 600 250 400 0 ;;
-				None) pcp_set_overclock_default ;;
-				*)    pcp_set_overclock_default ;;
+				Under) pcp_set_overclock Under 600 250 400 0 ;;
+				None)  pcp_set_overclock_default ;;
+				*)     pcp_set_overclock_default ;;
 			esac
 		;;
 	esac
@@ -215,14 +268,15 @@ pcp_start_save() {
 		*)       [ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid gpu memory option: '$GPUMEMORY'</p>' ;;
 	esac
 
-	[ $DEBUG -eq 1 ] && pcp_check_config_txt
-	[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="info">[ INFO ] Force turbo set</p>' || echo '<p class="error">[ ERROR ] Force turbo NOT set</p>'
-	[ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="info">[ INFO ] Over voltage set</p>' || echo '<p class="error">[ ERROR ] Over voltage NOT set</p>'
-	[ $(pcp_check_force_turbo) -eq 0 ] && [ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="error">[ ERROR ] Warranty bit will be set if you reboot</p>'
-
-	#echo '<p class="info">Revision: '$(pcp_rpi_revision)'</p>'
-	[ $(pcp_rpi_warranty) -eq 0 ] &&
-	echo '<p class="error">[ ERROR ] Warranty bit is already set: '$(pcp_rpi_revision)'</p>' || echo '<p class="info">[ INFO ] Warranty bit is NOT set: '$(pcp_rpi_revision)'</p>'
+	if [ $DEBUG -eq 1 ]; then
+		pcp_check_config_txt
+		[ $(pcp_check_force_turbo) -eq 0 ] && echo '<p class="debug">[ DEBUG ] Force turbo set</p>' || echo '<p class="debug">[ DEBUG ] Force turbo NOT set</p>'
+		[ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="debug">[ DEBUG ] Over voltage set</p>' || echo '<p class="debug">[ DEBUG ] Over voltage NOT set</p>'
+		[ $(pcp_check_force_turbo) -eq 0 ] && [ $(pcp_check_over_voltage) -eq 0 ] && echo '<p class="debug">[ DEBUG ] Warranty bit will be set if you reboot</p>'
+		[ $(pcp_rpi_warranty) -eq 0 ] &&
+			echo '<p class="debug">[ DEBUG ] Warranty bit is already set: '$(pcp_rpi_revision)'</p>' ||
+			echo '<p class="debug">[ DEBUG ] Warranty bit is NOT set: '$(pcp_rpi_revision)'</p>'
+	fi
 
 	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
 	pcp_umount_mmcblk0p1 >/dev/null 2>&1
@@ -231,9 +285,9 @@ pcp_start_save() {
 pcp_check_config_txt() {
 	for I in arm_freq= core_freq= sdram_freq= over_voltage= force_turbo= gpu_mem=; do
 		if cat $CONFIGTXT | grep $I >/dev/null 2>&1; then
-			echo '<p class="info">[ INFO ] "'$I'" found in '$CONFIGTXT'</p>'
+			echo '<p class="debug">[ DEBUG ] "'$I'" found in '$CONFIGTXT'</p>'
 		else
-			echo '<p class="error">[ ERROR ] "'$I'" NOT found in '$CONFIGTXT'</p>'
+			echo '<p class="debug">[ DEBUG ] "'$I'" NOT found in '$CONFIGTXT'</p>'
 		fi
 	done
 }
@@ -255,36 +309,6 @@ pcp_check_over_voltage() {
 }
 
 #========================================================================================
-# Generate warning message
-#----------------------------------------------------------------------------------------
-pcp_warning_message() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Warning</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
-	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> It can be dangerous to play with overclocking.</p>'
-	echo '                <ul>'
-	echo '                  <li style="color:white">Only suitable for Raspberry Pi Model 1 and Model 2.</li>'
-	echo '                  <li style="color:white">Do not use for Raspberry Pi Model 0 and Model 3.</li>'
-	echo '                  <li style="color:white">Excessive overclocking can cause your Raspberry Pi to become unstable.</li>'
-	echo '                  <li style="color:white">Setting force turbo may set warranty bit.</li>'
-	echo '                </ul>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-}
-
-#========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
@@ -301,12 +325,12 @@ esac
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
 case "$ADVOVERCLOCK" in
-	Under)   OCunder="selected" ;;
-	None)    OCnone="selected" ;;
-	Modest)  OCmodest="selected" ;;
-	Medium)  OCmedium="selected" ;;
-	High)    OChigh="selected" ;;
-	Turbo)   OCturbo="selected" ;;
+	Under)  OCunder="selected" ;;
+	None)   OCnone="selected" ;;
+	Modest) OCmodest="selected" ;;
+	Medium) OCmedium="selected" ;;
+	High)   OChigh="selected" ;;
+	Turbo)  OCturbo="selected" ;;
 esac
 
 #----------------------------------------------------------------------------------------
@@ -341,19 +365,20 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Overclocking</legend>'
+echo '          <legend>Overclocking/underclocking</legend>'
 echo '          <table class="bggrey percent100">'
 echo '            <form name="overclock" action= "xtras_overclock.cgi" method="get">'
+#--------------------------------------Overclock/underclock------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Overclock</p>'
+echo '                  <p>Overclock/underclock</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select class="large16" name="ADVOVERCLOCK">'
 
-case $(pcp_rpi_type) in
+case $RPITYPE in
 	0)
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
@@ -380,7 +405,7 @@ esac
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
+echo '                  <p>Change Raspberry Pi overclocking/underclocking&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
@@ -393,6 +418,7 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------Force turbo---------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="warning">'
@@ -402,8 +428,8 @@ echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select class="large16" name="FORCETURBO">'
 echo '                    <option value="DEFAULT" '$FTdefault'>Default</option>'
-echo '                    <option value="0" '$FT0'>0</option>'
-echo '                    <option value="1" '$FT1'>1</option>'
+echo '                    <option value="1" '$FT1'>Yes</option>'
+echo '                    <option value="0" '$FT0'>No</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
@@ -411,17 +437,18 @@ echo '                  <p style="color:white">Change Raspberry Pi force turbo s
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p style="color:white">&lt;Default|0|1&gt;</p>'
+echo '                    <p style="color:white">&lt;Default|Yes|No&gt;</p>'
 echo '                    <p style="color:white"><b>Warning: </b>Setting force turbo may set warranty bit.<p>'
 echo '                    <p style="color:white">Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------Governor------------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Overclock governor</p>'
+echo '                  <p>Governor</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select class="large16" name="OCGOVERNOR">'
@@ -433,7 +460,7 @@ echo '                  <select class="large16" name="OCGOVERNOR">'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Change overclocking governor &nbsp;&nbsp;'
+echo '                  <p>Change governor &nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
@@ -442,6 +469,7 @@ echo '                    <p>Dynamically set, no reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------GPU memory----------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -468,23 +496,14 @@ echo '                    <p>Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------Buttons-------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="3">'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="3">'
-                        pcp_display_config_txt
-echo '                </td>'
-echo '              </tr>'
+#----------------------------------------------------------------------------------------
 echo '            </form>'
 echo '          </table>'
 echo '        </fieldset>'
@@ -494,9 +513,9 @@ echo '  </tr>'
 echo '</table>'
 
 if [ $DEBUG -eq 1 ]; then
-	#========================================================================================
+	#======================================================================================
 	# Display debug information
-	#----------------------------------------------------------------------------------------
+	#--------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -516,7 +535,8 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                                   [ DEBUG ] $OCmedium: '$OCmedium'<br />'
 	echo '                                   [ DEBUG ] $OChigh: '$OChigh'<br />'
 	echo '                                   [ DEBUG ] $OCturbo: '$OCturbo'<br />'
-	echo '                                   [ DEBUG ] $OCpi2: '$OCpi2'</p>'
+	echo '                                   [ DEBUG ] $OCpi2: '$OCpi2'<br />'
+	echo '                                   [ DEBUG ] $Raspberry Pi: '$RPITYPE'</p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p class="debug">[ DEBUG ] $FORCETURBO: '$FORCETURBO'<br />'
@@ -541,9 +561,34 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 if [ $MODE -ge $MODE_BETA ]; then
-	#========================================================================================
+	#====================================================================================
 	# Display current overclock settings
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form>'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Current config.txt (partial)</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	                        pcp_display_config_txt
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+
+	#====================================================================================
+	# Display current overclock settings
+	#------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -566,21 +611,21 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '  </tr>'
 	echo '</table>'
 
-	#========================================================================================
-	# Display current config.cfg
-	#----------------------------------------------------------------------------------------
+	#====================================================================================
+	# Display current config.cfg - partial
+	#------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <form>'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
-	echo '            <legend>Current config.cfg</legend>'
+	echo '            <legend>Current config.cfg (partial)</legend>'
 	echo '            <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_textarea_inform "none" "grep -C2 OVERCLOCK $CONFIGCFG" 50
+	                        pcp_textarea_inform "none" "grep -C2 OVERCLOCK $CONFIGCFG" 80
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
