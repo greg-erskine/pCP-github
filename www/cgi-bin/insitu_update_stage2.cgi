@@ -46,7 +46,16 @@ UPD_PCP="/tmp/pcp_insitu_update"
 # 35977609 bytes
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
-# Space is set in Download secion
+case "${VERSION}" in
+	piCorePlayer3.20*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=26800
+	;;
+	*)
+		SPACE_REQUIRED=15000
+		BOOT_SIZE_REQUIRED=27000
+	;;
+esac
 
 #========================================================================================
 # DEBUG info showing variables
@@ -57,7 +66,9 @@ pcp_debug_info() {
 	echo '                 [ DEBUG ] VERSION: '$VERSION'<br />'
 	echo '                 [ DEBUG ] UPD_PCP: '$UPD_PCP'<br />'
 	echo '                 [ DEBUG ] INSITU_DOWNLOAD: '$INSITU_DOWNLOAD'<br />'
-	echo '                 [ DEBUG ] SPACE_REQUIRED: '$SPACE_REQUIRED'</p>'
+	echo '                 [ DEBUG ] SPACE_REQUIRED: '$SPACE_REQUIRED'<br />'
+	echo '                 [ DEBUG ] BOOT_SPACE_REQUIRED: '$BOOT_SPACE_REQUIRED'<br />'
+	echo '                 [ DEBUG ] BOOT_SIZE: '$BOOT_SIZE'</p>'
 }
 
 #========================================================================================
@@ -141,7 +152,7 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
-	$WGET ${INSITU_DOWNLOAD}/insitu.cfg
+	$WGET ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded insitu.cfg'
 	else
@@ -270,7 +281,7 @@ pcp_get_kernel_modules() {
 		echo 'PCP_DL='$PCP_DL
 		# Do a space check based on current kernel modules installed, then doubled for safety
 		MODSIZE=0
-		for I in $(ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL)
+		for I in $(ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL); do
 			MODSIZE=$((MODSIZE+$(du -k $I | awk '{print $1}')))
 		done
 		pcp_enough_free_space $((MODSIZE * 2))
@@ -289,7 +300,6 @@ pcp_get_kernel_modules() {
 					# All kernel modules distributed from PCP_REPO
 					sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz
 					[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
-					esac
 				done
 			fi
 		else
@@ -302,9 +312,9 @@ pcp_get_kernel_modules() {
 # Download the boot files from Sourceforge
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
-	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIO}'_boot.tar.gz'
+	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIO}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIO}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIO}_boot.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -327,8 +337,8 @@ pcp_install_boot_files() {
 	pcp_save_configuration
 
 	# Untar the boot files
-	echo '[ INFO ] Untarring '${VERSION}${AUDIO}'_boot.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIO}_boot.tar.gz -C /
+	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C /mnt/mmcblk0p1/
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully untarred boot tar.'
 	else
@@ -361,9 +371,9 @@ pcp_save_configuration() {
 # Download the tce files from Sourceforge
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
-	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIO}'_tce.tar.gz'
+	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIO}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIO}_tce.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -377,9 +387,9 @@ pcp_get_tce_files() {
 #----------------------------------------------------------------------------------------
 pcp_install_tce_files() {
 	# Untar and update the tzc packages files to optional
-	echo '[ INFO ] Untarring '${VERSION}${AUDIO}'_tce.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIO}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
-
+	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_tce.tar.gz...'
+#	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz ./optional -C /mnt/mmcblk0p2/tce
 	if [ $? -eq 0 ]; then
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] tce tar result: '$?
 		echo '[  OK  ] Successfully untarred tce tar.'
@@ -394,13 +404,13 @@ pcp_install_tce_files() {
 #----------------------------------------------------------------------------------------
 pcp_finish_install() {
 	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct locations
-	sudo mkdir ${UPD_PCP}/mydata
-	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}${AUDIO}_tce.tar.gz -C ${UPD_PCP}/mydata
-	sudo tar zxvf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
+	sudo mkdir -p ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
+	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz -C ${UPD_PCP}/mydata
+	sudo tar zxvf ${UPD_PCP}/mydata/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
 
 	# Move Bootfix into location if it is present
-	if [ -f "${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/bootfix.sh" ]; then
-		sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/ /mnt/mmcblk0p2/tce/
+	if [ -f "${UPD_PCP}/mydata/bootfix/bootfix.sh" ]; then
+		sudo cp -Rf ${UPD_PCP}/mydata/bootfix/ /mnt/mmcblk0p2/tce/
 		chmod 755 /mnt/mmcblk0p2/tce/bootfix/*
 	fi
 
@@ -618,27 +628,17 @@ fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
 	case $(uname -r) in
-		#AUDIO is used to download correct package
-		*pcpAudioCore*) AUDIO="-Audio";;
-		*) AUDIO="";;
+		#AUDIOTAR is used to download correct package
+		*pcpAudioCore*) AUDIOTAR="-Audio";;
+		*) AUDIOTAR="";;
 	esac
 	echo '[ INFO ] You are downloading '${VERSION}
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 
 	case "${VERSION}" in
-		piCorePlayer3.20*)
-			#Set Free Space for the upgrade
-			SPACE_REQUIRED=15000
-			BOOT_SIZE_REQUIRED=27200
-		*)
-			SPACE_REQUIRED=15000
-			BOOT_SIZE_REQUIRED=27200
-		;;
-	esac
-
-	case "${VERSION}" in
 		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
-			[ $(printf  "%.0f" $(pcp_picoreplayer_version)) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+			VVV=$(pcp_picoreplayer_version)
+			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
 		*) ;;
 	esac

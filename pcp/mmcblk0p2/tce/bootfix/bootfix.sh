@@ -17,7 +17,8 @@ if [ -e /mnt/mmcblk0p1/oldpiversion.cfg ]; then
 	. /mnt/mmcblk0p1/oldpiversion.cfg
 	OLDVERS=$(echo "$OLDPIVERS" | cut -d ' ' -f2)
 	OLDMAJOR=$(echo "$OLDVERS" | cut -d '.' -f1)
-	OLDMINOR=$(echo "$OLDVERS" | cut -d '.' -f2)
+	tt=$(echo "$OLDVERS" | cut -d '.' -f2)
+	OLDMINOR=${tt:0:2}
 	rm -f /mnt/mmcblk0p1/oldpiversion.cfg
 else
 	#just to prevent errors, if older version is being upgraded.
@@ -26,8 +27,8 @@ else
 fi
 VERS=$(echo "$PIVERS" | cut -d ' ' -f2)
 MAJOR=$(echo "$VERS" | cut -d '.' -f1)
-MINOR=$(echo "$VERS" | cut -d '.' -f2)
-
+tt=$(echo "$VERS" | cut -d '.' -f2)
+MINOR=${tt:0:2}
 
 # Mark with Version for the update, in case we accidentally include it in an update package when not needed for that version
 #------------------------------------------------------------------------
