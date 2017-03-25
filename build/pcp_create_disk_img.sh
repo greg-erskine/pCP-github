@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Version: 0.01 2016-11-06 PH
+# Version: 0.01 2017-03-25 PH
 #	Original.
+#	Adding insitu update stuff.
 
 #========================================================================================
 # This script builds a image in /tmp, based on git, web repos and local kernel
@@ -38,7 +39,7 @@
 DEBUG=0
 
 #Have to set this before you run the script
-PCP="piCorePlayer3.20beta2"
+PCP="piCorePlayer3.20beta3"
 
 BUILDROOT="/home/paul"
 
@@ -805,6 +806,9 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
 	cd $PART2/tce
+	# pull in bootfix
+	mkdir $PART2/tce/bootfix
+	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mmcblk0p2/tce/bootfix/bootfix.sh $PART2/tce/bootfix/bootfix.sh tc.staff 775
 	#Build the tce package excluding all kernel module extensions
 	tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
 	echo
