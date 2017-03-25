@@ -59,8 +59,6 @@ pcp_debug_log() {
 	[ $DEBUG -ne 0 ] && echo $1 | sudo tee -a $DEBUGLOG > /dev/null
 }
 
-pcp_debug_log "$0 - Running pcp-functions..."
-
 #=========================================================================================
 # System wide variables
 #-----------------------------------------------------------------------------------------
@@ -126,6 +124,7 @@ pcp_variables() {
 
 pcp_config_file
 . $CONFIGCFG
+pcp_debug_log "$0 - Running pcp-functions..."
 pcp_variables
 
 #=========================================================================================
