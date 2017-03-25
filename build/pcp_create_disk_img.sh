@@ -802,14 +802,18 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_boot.tar.gz${NORMAL}"
 	cd $PART1
+	echo "BOOT Partition used size: $(du -ks 2>/dev/null| awk '{print $1}')"
+	rm -f /tmp/${PCP}_boot.tar.gz
 	tar zcf /tmp/${PCP}_boot.tar.gz .
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
 	cd $PART2/tce
 	# pull in bootfix
 	mkdir $PART2/tce/bootfix
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mmcblk0p2/tce/bootfix/bootfix.sh $PART2/tce/bootfix/bootfix.sh tc.staff 775
+	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mmcblk0p2/tce/bootfix/bootfix.sh $PART2/tce/bootfix/bootfix.sh 1001.50 775
 	#Build the tce package excluding all kernel module extensions
+	rm -f /tmp/${PCP}_tce.tar.gz
+	echo "TCE Partition used size Minus Kernel Extensions: $(du -ks --exclude=*pcpCore* --exclude=*pcpAudioCore* 2>/dev/null| awk '{print $1}')"
 	tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
 	echo
 	echo "${GREEN}Done building insitu update packages."
