@@ -67,7 +67,7 @@ pcp_debug_info() {
 	echo '                 [ DEBUG ] UPD_PCP: '$UPD_PCP'<br />'
 	echo '                 [ DEBUG ] INSITU_DOWNLOAD: '$INSITU_DOWNLOAD'<br />'
 	echo '                 [ DEBUG ] SPACE_REQUIRED: '$SPACE_REQUIRED'<br />'
-	echo '                 [ DEBUG ] BOOT_SPACE_REQUIRED: '$BOOT_SPACE_REQUIRED'<br />'
+	echo '                 [ DEBUG ] BOOT_SPACE_REQUIRED: '$BOOT_SIZE_REQUIRED'<br />'
 	echo '                 [ DEBUG ] BOOT_SIZE: '$BOOT_SIZE'</p>'
 }
 
@@ -290,6 +290,8 @@ pcp_get_kernel_modules() {
 			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
 			# Get list of kernel modules not matching current kernel
 			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $KERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
+			#Remove Backlight from Modules list, it does not exist anymore
+			sed -i '/backlight/d' /tmp/current
 			# Show the old modules that do not have a current kernel version.
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
 			echo '[ INFO ] Downloading new kernel modules: '$MODULES
@@ -314,7 +316,7 @@ pcp_get_kernel_modules() {
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIO}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else

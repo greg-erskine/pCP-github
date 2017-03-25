@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-03-25
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
 #	Changed rpi3 disable wifi to overlays on new config start. PH
+#	Fixed boot Removal of old kernel modules. PH
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -261,12 +262,14 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel.  And remove them
-	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
+	CKCORE=$(uname -r | cut -d '-' -f2)
+	CKCORE=${CKCORE%+}  #Strip the + or _v7+
+	ls /mnt/mmcblk0p2/tce/optional/*${CKCORE%_v7}*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
 	# Check onboot to be sure there are no hard kernel references.   
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
 	# Remove Dropbear extension, we are now using openssh
 	ls -1 /mnt/mmcblk0p2/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
-	sed -i '/dropbear/d' .filetool.lst
+	sed -i '/dropbear/d' /opt/.filetool.lst
 	sed -i '/dropbear/d' /mnt/mmcblk0p2/tce/onboot.lst
 	#Remove lines containing only white space
 	sed -i '/^\s*$/d' /mnt/mmcblk0p2/tce/onboot.lst
