@@ -49,7 +49,7 @@ UPD_PCP="/tmp/pcp_insitu_update"
 case "${VERSION}" in
 	piCorePlayer3.20*)
 		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=26800
+		BOOT_SIZE_REQUIRED=25500
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -420,12 +420,24 @@ pcp_finish_install() {
 	# So check that the final onboot contains all from the new version and add eventual extra from the old
 	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
 	echo "content of mnt onboot.lst before:"; cat /mnt/mmcblk0p2/tce/onboot.lst
-	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
-	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
-	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
-	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
+	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/onboot.lst
+	sort -u ${UPD_PCP}/mydata/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
+	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
 	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
 	sudo chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
+	case "${VERSION}" in
+		piCorePlayer3.20*)
+			#pcp3.20 pcp.tcz handles all pcp dependencies (non-wifi)
+			echo "Removing old boot extensions from onboot.lst:"
+			sed -i '/busybox-httpd.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/alsa.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/openssh.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/dialog.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/alsa-utils.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/pcp-squeezelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+		;;
+	esac
+	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -436,10 +448,11 @@ pcp_finish_install() {
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
 	case "${VERSION}" in
 		piCorePlayer3.20*)
-		#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
-		sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-		sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-		sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
+			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+		;;
 	esac
 	
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
@@ -484,6 +497,13 @@ outfile.close
 
 	sudo chown root:staff /opt/bootlocal.sh
 	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
+
+	case "${VERSION}" in
+		piCorePlayer3.20*)
+			#pcp3.20 made a change in card configs to shini, remove all old card conf files
+			rm -f /usr/local/etc/pcp/cards/*
+		;;
+	esac
 
 	# Update pCP by copying the content from the new version to the correct location followed by a backup
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
@@ -642,11 +662,10 @@ if [ "$ACTION" = "download" ]; then
 			VVV=$(pcp_picoreplayer_version)
 			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
-		*) ;;
 	esac
-
-	BOOT_SIZE=$(/bin/busybox fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
-	if [ "$FAIL_MSG" = "ok" ] && [ $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
+	BOOT_SIZE=$(/bin/busybox fdisk -l | grep mmcblk0p1 | tr -s " " | cut -d " " -f4 | tr -d +)
+	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
+	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"
 	fi
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_kernel_modules
