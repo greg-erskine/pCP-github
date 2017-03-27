@@ -1,10 +1,11 @@
 /* piCorePlayer style sheet
 
-Version: 3.20 2017-03-04
+Version: 3.20 2017-03-27
 	Added a.nav8, a.nav8a, a.nav8, a.nav8a, a.tab20, a.tab20a. GE
 	Added some extra .columXXX that might be useful. GE.
 	Cleaned formatting a little. GE
 	Note problem with .warning style is repeated. GE
+	Change player tab top margin. PH
 
 Version: 3.00 2016-08-09 GE
 	Added .pointer.
@@ -450,14 +451,15 @@ a.tab20, a.tab20a {
 	color:black;
 	display:block;
 	float:left;
+	margin-top:0px;
 	line-height:20px;
-	margin-top:-12px;
 	overflow:hidden;
 	text-align:center;
 	width:133px;
 }
 
 a.tab14, a.tab14a {
+	margin-top:-12px;
 	border-radius:0 0 8px 8px;
 	width:66px;
 }
