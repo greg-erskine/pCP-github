@@ -3,6 +3,7 @@
 
 # Version: 3.20 2017-03-25 PH
 #	Added SCREENROTATE fix for 3.20
+#	Removed changes for <3.00, since those would never see an insitu 3.20 upgrade
 
 # Version: 2.06 2016-06-11 PH
 #	Added Logic to determine old version.
@@ -22,8 +23,8 @@ if [ -e /mnt/mmcblk0p1/oldpiversion.cfg ]; then
 	rm -f /mnt/mmcblk0p1/oldpiversion.cfg
 else
 	#just to prevent errors, if older version is being upgraded.
-	OLDMAJOR=2
-	OLDMINOR=4
+	OLDMAJOR=3
+	OLDMINOR=11
 fi
 VERS=$(echo "$PIVERS" | cut -d ' ' -f2)
 MAJOR=$(echo "$VERS" | cut -d '.' -f1)
@@ -32,54 +33,6 @@ MINOR=${tt:0:2}
 
 # Mark with Version for the update, in case we accidentally include it in an update package when not needed for that version
 #------------------------------------------------------------------------
-# Fixes introduced in pCP2.05  All versions less than 2.05 need this fix
-if [ $OLDMAJOR -le 2 -a $OLDMINOR -lt 5 ]; then 
-	# Files that need to be in this folder are
-	#    bootfix.sh
-	#    pcp-load
-	#
-	mv /mnt/mmcblk0p2/tce/optional/pcp-load /usr/local/sbin/
-
-	#micropython inline code, do not change indentation.
-	#    Adds Trim Tags for later use
-	#    Removes the extra do_rebootstuff line added by insitu_update.cgi v2.04
-/usr/bin/micropython -c '
-import os
-import sys
-infile = open("/opt/bootlocal.sh", "r")
-outfile = open ("/tmp/bootlocal.sh", "w")
-while True:
-	ln = infile.readline()
-	if ln == "":
-		break
-	if "do_rebootstuff" in ln:
-		if "tee" in ln:
-			outfile.write("#pCPstart------\n")
-			outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh | tee -a /var/log/pcp_boot.log\n")
-			outfile.write("#pCPstop------\n")
-	else:
-		outfile.write(ln)
-infile.close
-outfile.close
-'
-	mv -f /opt/bootlocal.sh /opt/bootlocal.sh.bak
-	mv -f /tmp/bootlocal.sh /opt/bootlocal.sh
-	chmod 775 /opt/bootlocal.sh
-	chown tc:staff /opt/bootlocal.sh
-fi
-#--------------------------------------------------------------
-# Fixes needed for pCP2.06  All versions <= 2.05 need this fix
-if [ $OLDMAJOR -le 2 -a $OLDMINOR -le 5 ]; then 
-	. /mnt/mmcblk0p1/newconfig.cfg
-	[ "$JIVELITE" = "NO" ] && JIVELITE="no"
-	[ "$JIVELITE" = "YES" ] && JIVELITE="yes"
-	[ "$SCREENROTATE" = "NO" ] && SCREENROTATE="no"
-	[ "$SCREENROTATE" = "YES" ] && SCREENROTATE="yes"
-	sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" /mnt/mmcblk0p1/newconfig.cfg
-	sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" /mnt/mmcblk0p1/newconfig.cfg
-	[ -e /mnt/mmcblk0p2/tce/optional/pcp-load ] && rm -f /mnt/mmcblk0p2/tce/optional/pcp-load
-fi
-#--------------------------------------------------------------
 # Fixes needed for pCP3.20  All versions <= 3.11 need this fix
 if [ $OLDMAJOR -le 3 -a $OLDMINOR -le 11 ]; then 
 	. /mnt/mmcblk0p1/newconfig.cfg
