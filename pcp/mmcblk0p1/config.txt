@@ -13,10 +13,12 @@ kernel kernel4917.img
 [PI2]
 initramfs pcp_8.01v7.gz followkernel
 kernel kernel4917v7.img
+total_mem=1024
 
 [PI3]
 initramfs pcp_8.01v7.gz followkernel
 kernel kernel4917v7.img
+total_mem=1024
 
 [ALL]
 cmdline cmdline.txt
