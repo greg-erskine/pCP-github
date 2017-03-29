@@ -34,6 +34,12 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 
+	case $(uname -r) in
+		#AUDIOTAR is used to download correct package
+		*pcpAudioCore*) AUDIOTAR="-Audio";;
+		*) AUDIOTAR="";;
+	esac
+
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
@@ -315,8 +321,9 @@ pcp_get_kernel_modules() {
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
+	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -374,8 +381,9 @@ pcp_save_configuration() {
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
 	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
+	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -649,11 +657,6 @@ if [ "$ACTION" = "initial" ]; then
 fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
-	case $(uname -r) in
-		#AUDIOTAR is used to download correct package
-		*pcpAudioCore*) AUDIOTAR="-Audio";;
-		*) AUDIOTAR="";;
-	esac
 	echo '[ INFO ] You are downloading '${VERSION}
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 
