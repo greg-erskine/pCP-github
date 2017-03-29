@@ -284,7 +284,7 @@ pcp_get_kernel_modules() {
 		BUILD=$(getBuild)
 		KERNEL="${NEWKERNELVER}-${CURRENTKERNELCORE}"
 		PCP_DL="${PCP_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
-		echo 'PCP_DL='$PCP_DL
+		echo '[ INFO ] PCP_DL='$PCP_DL
 		# Do a space check based on current kernel modules installed, then doubled for safety
 		MODSIZE=0
 		for I in $(ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL); do
@@ -302,7 +302,7 @@ pcp_get_kernel_modules() {
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
 			echo '[ INFO ] Downloading new kernel modules: '$MODULES
 			if [ -z "${MODULES}" ]; then
-				echo '[ INFO ] All new Kernel modules for ${KERNEL} already present.'
+				echo '[ INFO ] All new Kernel modules for '${KERNEL}' already present.'
 			else
 				for EXT in ${MODULES}; do
 					# All kernel modules distributed from PCP_REPO
