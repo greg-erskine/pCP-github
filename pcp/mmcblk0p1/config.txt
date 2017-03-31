@@ -66,6 +66,9 @@ dtoverlay=pi3-disable-bt
 dtparam=i2c=on,spi=on,i2s=on
 
 #---pCP----------------------------------------------
+# pCP does not use graphics chip by default, free up most memory
+gpu_mem=64
+# onboard audio overlay
 dtparam=audio=on
 audio_pwm_mode=2
 
@@ -75,7 +78,6 @@ audio_pwm_mode=2
 #sdram_freq=
 #over_voltage=
 #force_turbo=
-#gpu_mem=
 
 # Force max current to USB
 max_usb_current=1
