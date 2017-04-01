@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-26
+# Version: 3.20 2017-03-31
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
 #	Changed rpi3 disable wifi to overlays on new config start. PH
@@ -476,6 +476,7 @@ fi
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
 if [ "$MOUNTUUID" != "no" ]; then
+	echo "${BLUE}Mounting USB Drives...${YELLOW}"
 	blkid | grep -q $MOUNTUUID
 	if [ $? -eq 0 ]; then
 		mkdir -p /mnt/$MOUNTPOINT
@@ -488,9 +489,11 @@ if [ "$MOUNTUUID" != "no" ]; then
 				OPTIONS="-v -t ntfs-3g -o permissions"
 			;;
 			vfat|fat32)
+				#if Filesystem support installed, use utf-8 charset for fat.
+				df | grep -qs ntfs
+				[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 				umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-				#Mount vfat with uid=tc gid=staff, filemod=755 utf8 characterset
-				OPTIONS="-v -t vfat -o noauto,users,exec,iocharset=utf8,umask=022"
+				OPTIONS="-v -t vfat -o noauto,users,exec,umask=022,flush${CHARSET}"
 			;;
 			*)
 				OPTIONS="-v"
@@ -511,9 +514,9 @@ fi
 
 # Mount Network Disk Selected on LMS Page
 if [ "$NETMOUNT1" = "yes" ]; then
+	echo "${BLUE}Mounting Network Drive...${YELLOW}"
 	mkdir -p /mnt/$NETMOUNT1POINT
 	chown tc.staff /mnt/$NETMOUNT1POINT
-	echo -n "${BLUE}"
 	case "$NETMOUNT1FSTYPE" in
 		cifs)
 			OPTIONS=""
@@ -529,7 +532,7 @@ if [ "$NETMOUNT1" = "yes" ]; then
 	esac
 	mount $MNTCMD
 	if [ $? -eq 0 ]; then
-		echo "${NORMAL}"
+		echo "${BLUE}Disk Mounted at /mnt/${NETMOUNT1POINT}."
 	else
 		echo "${RED}Disk Mount Error.${NORMAL}"
 		LMSMOUNTFAIL="1"
