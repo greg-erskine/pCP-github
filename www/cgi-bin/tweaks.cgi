@@ -841,7 +841,8 @@ pcp_tweaks_install_jivelite() {
 		echo '                      <li>Remove - Removes all traces of Jivelite.</li>'
 		echo '                    </ul>'
 		echo '                    <p>Jivelite may required expanding the file system.<p>'
-		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'		echo '                  </div>'
+		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
+		echo '                  </div>'
 	fi
 	echo '                </td>'
 	echo '              </tr>'
