@@ -192,7 +192,9 @@ pcp_sound_card_dropdown() {
 			pcp_soundcontrol
 			CHECKED="notselected"
 			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
+			if [ x"$LISTNAME" != x ]; then
 			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+			fi
 		done
 	fi
 }
