@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-31
+# Version: 3.20 2017-04-08
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
 #	Changed rpi3 disable wifi to overlays on new config start. PH
 #	Fixed boot Removal of old kernel modules. PH
 #	Added setting SCREENROTATE to config.txt during newconfig process. PH
 #	Reordered a few things that didn't need to be done before newconfig. PH
+#  Added check for jivelite startup to avoid confusion on updateing to new image. PH
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -671,8 +672,12 @@ if [ "$JIVELITE" = "yes" ]; then
 		export SDL_MOUSEDEV=$TSLIB_TSDEVICE
 	fi
 	export HOME=/home/tc
-	echo "${GREEN}Done.${NORMAL}"
-	sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
+	if [ -x /opt/jivelite/bin/jivelite.sh ]; then
+		echo "${GREEN}Done.${NORMAL}"
+		sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
+	else
+		echo "${RED}There is a problem with the Jivelite installation. Please remove and reinstall jivelite.${NORMAL}"
+	fi
 fi
 
 echo "${BLUE}crond syncing time... ${NORMAL}"
