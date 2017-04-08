@@ -13,8 +13,10 @@
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
-#DACLOCATION="/usr/local/etc/pcp/cards"        # <=== Should be in pcp-functions? GE.
-DACLOCATION="/home/tc/www/cgi-bin/cards"
+DACLOCATION="/usr/local/etc/pcp/cards"     # <=== Should be in pcp-functions? GE.
+#The below line is for development only.
+#DACLOCATION="/home/tc/www/cgi-bin/cards"
+############
 
 . /usr/local/bin/shini.sh
 
