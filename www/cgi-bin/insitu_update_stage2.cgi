@@ -34,11 +34,13 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 
-	case $(uname -r) in
+if [ -n $CORE ]; then
+	case $CORE in
 		#AUDIOTAR is used to download correct package
 		*pcpAudioCore*) AUDIOTAR="-Audio";;
 		*) AUDIOTAR="";;
 	esac
+fi
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
@@ -270,19 +272,23 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.20*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.9.17
+			NEWKERNELVER=4.9.21
 			PICOREVERSION=8.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
 		*)  KUPDATE=0
 		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
-		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
+#		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
 		BUILD=$(getBuild)
-		KERNEL="${NEWKERNELVER}-${CURRENTKERNELCORE}"
+		case $BUILD in
+			armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
+			armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
+		esac
 		PCP_DL="${PCP_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
 		echo '[ INFO ] PCP_DL='$PCP_DL
 		# Do a space check based on current kernel modules installed, then doubled for safety
@@ -295,18 +301,18 @@ pcp_get_kernel_modules() {
 			# Get list of kernel modules matching current kernel
 			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
 			# Get list of kernel modules not matching current kernel
-			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $KERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
+			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
 			#Remove Backlight from Modules list, it does not exist anymore
 			sed -i '/backlight/d' /tmp/current
 			# Show the old modules that do not have a current kernel version.
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
 			echo '[ INFO ] Downloading new kernel modules: '$MODULES
 			if [ -z "${MODULES}" ]; then
-				echo '[ INFO ] All new Kernel modules for '${KERNEL}' already present.'
+				echo '[ INFO ] All new Kernel modules for '${NEWKERNEL}' already present.'
 			else
 				for EXT in ${MODULES}; do
 					# All kernel modules distributed from PCP_REPO
-					sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz
+					sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${NEWKERNEL}.tcz
 					[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
 				done
 			fi
@@ -707,6 +713,12 @@ echo '</table>'
 #========================================================================================
 # Initial
 #----------------------------------------------------------------------------------------
+case $(uname -r) in
+	*pcpAudioCore*) PCPAUDIOCOREyes="checked";PCPCOREyes="";;
+	*) PCPCOREyes="checked";PCPAUDIOCORE="";;
+esac
+COL1=75
+COL2=200
 if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
@@ -714,12 +726,49 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu update</legend>'
+	echo '          <legend>piCorePlayer insitu update: Select Kernel Type and Version</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="initial" action= "'$0'" method="get">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="large18">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Standard version:</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>pcpCore Kernel&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version uses the kernel code and config from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Audio enthusiast version:</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>pcpAudioCore Kernel&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version starts with the same kernel code from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
+	echo '                    <p>The kernel is then patched with extra drivers and modifications to support additional custom DACs and higher sample rates.</p>'
+	echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="large18 center">'
 	echo '                  <select name="VERSION">'
 	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
 	echo '                  </select>'
@@ -766,6 +815,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input class="large12" type="submit" value="Next >">'
 	echo '                  <input type="hidden" name="ACTION" value="install">'
 	echo '                  <input type="hidden" name="VERSION" value="'$VERSION'">'
+	echo '                  <input type="hidden" name="CORE" value="'$CORE'">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Press the [ Next ] button to install the update files.</p>'
