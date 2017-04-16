@@ -107,15 +107,24 @@
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column150">
+                <p>SD card</p>
+              </td>
+              <td>
+                <p>Secure Digital (SD) card is a non-volatile memory card format&#8212;see
+                <a href="https://en.wikipedia.org/wiki/Secure_Digital" target="_blank">Wikipedia - Secure Digital</a> &#8599;.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column150">
                 <p>squeezelite</p>
               </td>
               <td>
                 <p>Squeezelite is a headless Squeezebox emulator for Linux/OSX/Windows&#8212;see
                 <a href="main_squeezelite.shtml">Squeezelite</a>.</p>
               </td>
-            </tr>
-            <!-- -------------------------------------------------------------------- -->
-            <tr class="odd">
+            </tr>            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
               <td class="column150">
                 <p>ssh</p>
               </td>
