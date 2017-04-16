@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-19
+# Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
 #	Updated jivelite to PCP_Repo. PH.
+#	Changed Reboot function. PH.
 
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
@@ -162,7 +163,7 @@ pcp_delete_vumeters() {
 pcp_lirc_popup() {
 	if [ "$IR_LIRC" = "yes" ]; then
 		STRING1='INFO: LIRC is enabled; you might need to remove/install LIRC again to fix problems. But first press [OK] to reboot now'
-		SCRIPT1='reboot.cgi'
+		SCRIPT1='reboot.cgi?RB=yes'
 		pcp_confirmation_required
 	else
 		pcp_reboot_required

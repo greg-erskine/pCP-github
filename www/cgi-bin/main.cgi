@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-04-16
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
+#	Changed reboot functions. PH.
 
 # Version: 3.11 2017-01-29
 #	Added button for Hotfix. PH.
@@ -309,7 +310,7 @@ pcp_main_reboot() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')" method="get">'
+	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')" method="get">'
 	echo '                  <input type="submit" value="Reboot" />'
 	echo '                </form>'
 	echo '              </td>'

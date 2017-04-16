@@ -2,6 +2,7 @@
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
+#	Fix to reloading page does not reboot pCP again. PH.
 
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
@@ -21,10 +22,21 @@ pcp_html_head "Reboot Raspberry Pi" "SBP" "5" "main.cgi"
 
 pcp_banner
 pcp_running_script
+pcp_remove_query_string
+pcp_httpd_query_string
 
-pcp_table_top "Rebooting"
-pcp_reboot
-pcp_table_middle
+case $RB in
+	yes)
+		pcp_table_top "Rebooting"
+		pcp_reboot
+		pcp_table_middle
+	;;
+	*)
+		pcp_table_top "pCP has Rebooted"
+		pcp_table_middle
+	;;
+esac
+
 pcp_go_main_button
 pcp_table_end
 
