@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.20 2017-03-25
+# Version 3.20 2017-04-19
 #	Updates for new Repo and Newer kernels
 
 # Version 3.10 2016-12-26
@@ -297,7 +297,7 @@ pcp_get_kernel_modules() {
 			MODSIZE=$((MODSIZE+$(du -k $I | awk '{print $1}')))
 		done
 		pcp_enough_free_space $((MODSIZE * 2))
-		if [ $? -eq 0 ]; then 
+		if [ "$FAIL_MSG" = "ok" ]; then
 			# Get list of kernel modules matching current kernel
 			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
 			# Get list of kernel modules not matching current kernel
@@ -316,8 +316,6 @@ pcp_get_kernel_modules() {
 					[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
 				done
 			fi
-		else
-			FAIL_MSG="Not enough space to download new Kernel Modules"
 		fi
 	fi
 }
