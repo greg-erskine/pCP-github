@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.20 2017-04-19
+# Version 3.20 2017-04-22
 #	Updates for new Repo and Newer kernels
 
 # Version 3.10 2016-12-26
@@ -461,9 +461,9 @@ pcp_finish_install() {
 	case "${VERSION}" in
 		piCorePlayer3.20*)
 			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
-			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
 		;;
 	esac
 	
@@ -519,6 +519,8 @@ outfile.close
 
 	# Update pCP by copying the content from the new version to the correct location followed by a backup
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
