@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-04-08
+# Version: 3.20 2017-04-22
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
 #	Changed rpi3 disable wifi to overlays on new config start. PH
@@ -8,6 +8,7 @@
 #	Added setting SCREENROTATE to config.txt during newconfig process. PH
 #	Reordered a few things that didn't need to be done before newconfig. PH
 #  Added check for jivelite startup to avoid confusion on updateing to new image. PH
+#	Turn HDMIPOWER to on during upgrades. PH
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -195,6 +196,8 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
 		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
 	esac
+	#During an newconfig update, turn HDMI back on. Incase there are problems.
+	HDMIPOWER="on"
 	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
@@ -249,6 +252,8 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
 		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
 	esac
+	#During an insitu update, turn HDMI back on. Incase there are problems.
+	HDMIPOWER="on"
 	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
