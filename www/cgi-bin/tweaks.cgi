@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-11
+# Version: 3.20 2017-04-22
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
 #	Updated screen rotate. GE.
 #	Added JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 #	Update jivelite install to PCP_REPO.  UPDATE PROCESS NOT FINISHED. PH.
+#	Added HDMI Power warning for high sample rates....until fixed by rpi. PH.
 
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
@@ -354,7 +355,7 @@ pcp_tweaks_hdmipower() {
 	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>HDMI power&nbsp;&nbsp;'
+	echo '                  <p>HDMI power <b>(WARNING: DO not turn power off if using 192k or higher sample rates!)</b>&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
