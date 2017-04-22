@@ -28,6 +28,16 @@
                 <h1>Frequently Asked Questions</h1>
               </td>
             </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column420">
+                <p><a href="faq_wifi does_not_work.shtml">Wifi does not work</a></p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr> 
+            <!-- -------------------------------------------------------------------- -->
           </table>
         </fieldset>
       </div>
@@ -36,7 +46,6 @@
 </table>
 
 <!--#include virtual="pcp_footer.html" -->
-<!--#include virtual="pcp_mode.html" -->
 <!--#include virtual="pcp_copyright.html" -->
 
 </body>

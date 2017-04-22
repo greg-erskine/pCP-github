@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Added find_servers. GE.
 
@@ -15,14 +18,12 @@
 # Version: 0.01 2014-10-22 GE
 #	Original.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Controls Adv" "GE"
 
-pcp_controls
 pcp_banner
 pcp_xtras
 pcp_running_script

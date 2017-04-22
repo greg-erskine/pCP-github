@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-31
+#	Revisions to pcp_lms_set_slimconfig function. PH.
+#	Fixed pcp-xxx-functions issues. GE.
+#	Updates for vfat mount permissions. PH
+
 # Version: 3.10 2017-01-06
 #	Added support for GPT disks. PH.
 
@@ -12,7 +17,6 @@
 
 . pcp-functions
 . pcp-lms-functions
-pcp_variables
 
 # Store the original values so we can see if they are changed
 ORIG_MOUNTPOINT="$MOUNTPOINT"
@@ -110,8 +114,17 @@ case "$MOUNTTYPE" in
 							echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
 							umount $DEVICE
 							OPTIONS="-v -t ntfs-3g -o permissions"
-							;;
-						*)	OPTIONS="-v";;
+						;;
+						vfat|fat32)
+							#if Filesystem support installed, use utf-8 charset for fat.
+							df | grep -qs ntfs
+							[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
+							umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+							OPTIONS="-v -t vfat -o noauto,users,exec,umask=022,flush${CHARSET}"
+						;;
+						*)
+							OPTIONS="-v"
+						;;
 					esac
 					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
 					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$MOUNTUUID' /mnt/'$MOUNTPOINT'</p>'
@@ -211,7 +224,7 @@ case "$MOUNTTYPE" in
 
 			if [ "$BADFORMAT" = "no" ]; then
 				echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
-				pcp_lms_set_slimconfig $MNT
+				pcp_lms_set_slimconfig CACHE $MNT
 				pcp_save_to_config
 				pcp_backup
 				echo ''

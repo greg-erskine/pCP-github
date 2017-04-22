@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.11 2017-01-21
 #	Added nameserver fields. GE.
 #	Added (simple) pattern for IP addresses. GE.
@@ -42,12 +45,10 @@
 #------------------------------------+-------------+-----------------+------------------+
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras - Static IP" "GE"
 
-pcp_controls
 pcp_banner
 pcp_navigation
 

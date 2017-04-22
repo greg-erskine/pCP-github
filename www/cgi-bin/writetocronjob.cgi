@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.07 2015-09-18 SBP
 #	Removed httpd decoding.
 
@@ -25,8 +28,7 @@
 
 set -f
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "Write to crontab" "SBP" "15" "tweaks.cgi"
 

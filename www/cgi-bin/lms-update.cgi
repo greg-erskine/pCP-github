@@ -1,21 +1,22 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version 3.10 2016-12-22
 #	Sourceforge repo changes. PH
 
 # Version: 2.05 2016-04-15 PH
 #	Original.
 
-. pcp-lms-functions
-. pcp-rpi-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-rpi-functions
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "LMS Update Page" "PH"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
 pcp_banner
 pcp_navigation
 pcp_running_script
@@ -88,7 +89,7 @@ esac
 pcp_incr_id
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td>'

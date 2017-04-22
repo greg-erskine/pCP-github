@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.03 2015-11-22 GE
 #	Moved to MODE_BETA.
 
@@ -10,8 +13,7 @@
 #	Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras_asound_conf" "GE"
 

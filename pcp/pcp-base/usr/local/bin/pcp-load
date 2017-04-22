@@ -203,7 +203,7 @@ recursive_scan_dep() {
 				RESULT[IDX]=name
 				IRANGE[name"#1"]=IDX
 				depfile=optional"/"name".dep"
-				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0)) {
+				if (mirror && (system("test ! -f "depfile) == 0 && system("test ! -f "optional"/"name) == 0)) {
 					# If we are using the pcp repo on sourceforge, depfiles end in .dep.pcp and must exist
 					# add /download to the end of sourceforge wget links
 					if ( mirror ~ /sourceforge/ ) {

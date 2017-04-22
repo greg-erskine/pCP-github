@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2016-12-23
 #	Remove references to SAMBA in this routine. PH.
 
@@ -12,7 +15,6 @@
 #	Original version.
 
 . pcp-functions
-pcp_variables
 
 # Store the original values so we can see if they are changed
 ORIG_LMSERVER="$LMSERVER"

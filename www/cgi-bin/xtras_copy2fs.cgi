@@ -1,16 +1,19 @@
 #!/bin/sh
 
+# Version: 3.20 2017-04-16
+#	Fixed pcp-xxx-functions issues. GE.
+#  Changed reboot functions. PH.
+
 # Version: 0.01 2015-08-28 GE
-#   Original version.
+#	Original version.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras copy2fs" "GE"
 
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_xtras
 
 pcp_httpd_query_string
@@ -63,7 +66,7 @@ pcp_toggle_row_shade
 echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td colspan="3">'
 echo '                    <input type="submit" name="SUBMIT" value="Save">'
-echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\'Reboot ''$NAME''?\',\'reboot.cgi\'')" />'
+echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
 echo '                  </td>'
 echo '                </tr>'
 echo '            </table>'

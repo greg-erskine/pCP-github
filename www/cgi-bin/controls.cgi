@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.06 2016-04-26 GE
 #	Code tidyup.
 
@@ -18,10 +21,9 @@
 # Version: 0.01 2014-06-27 GE
 #	Original.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Controls" "GE"
 

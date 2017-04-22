@@ -23,6 +23,8 @@
       <div class="row">
         <fieldset>
           <h1>Getting started - Getting piCorePlayer up and running on your Raspberry Pi.</h1>
+          <p>If you are using wired ethernet and DHCP, then by "default" piCorePlayer will just work through the Audio out jack
+             on the Raspberry Pi. It will appear on LMS as player called piCorePlayer.</p>
           <table class="bggrey percent100">
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
@@ -40,7 +42,7 @@
                 <p>2.</p>
               </td>
               <td>
-                <p>Burn image to a SD card (ie. using Win32Diskimager).</p>
+                <p>Burn image to a SD card&#8212;see <a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -49,39 +51,72 @@
                 <p>3.</p>
               </td>
               <td>
-                <p>Insert the SD card, a LAN cable into Raspberry Pi and apply power.</p>
+                <p>Insert the SD card and LAN cable into Raspberry Pi, then apply power.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>4.</p>
               </td>
               <td>
-                <p>Out of the box, the analog audio via the 3.5mm jack will be working.</p>
+                <p>A piCorePlayer should appear in LMS called "piCorePlayer". It can be controlled just like any other Squeezebox player, via:</p> 
+                <ul>
+                  <li>Logitech Media Server (LMS) web interface</li>
+                  <li>Software on your smartphone (ie. iPeng)</li>
+                  <li>Duet Controller</li>
+                  <li>Squeezebox Radio</li>
+                  <li>Squeezebox Touch</li>
+                  <li>piCorePlayer Simple Controls</li>
+                  <li>piCorePlayer with jivelite</li>
+                  <li>Squeezeslave on PC</li>
+                </ul>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
-              <td class="column20">
+              <td class="column20" style="vertical-align: top;">
                 <p>5.</p>
               </td>
               <td>
-                <p>piCorePlayer can be controlled like any other Squeezebox player, via:</p> 
+                <p>Test "Analog audio" works.</p>
+                <p>Out of the box, analog audio via the 3.5mm jack will be working.</p>
               </td>
             </tr>
-            <tr class="even">
-              <td class="column20">
-                <p>&nbsp;</p>
+
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20" style="vertical-align: top;">
+                <p>6.</p>
               </td>
               <td>
-                <ul>
-                  <li>Logitech Media Server (LMS) web interface</li>
-                  <li>software on your smartphone (ie. iPeng)</li>
-                  <li>Duet Controller</li>
-                  <li>Squeezebox Radio</li>
-                  <li>Squeezebox Touch</li>
-                </ul>
+                <p>Select [Squeezelite Setting] > Choose audio output > Audio output.</p>
+                <p>Click [Save].</p>
+                <p>Click [Yes] when requested to "Reboot piCorePlayer".</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20" style="vertical-align: top;">
+                <p>7.</p>
+              </td>
+              <td>
+                <p>Select [Squeezelite Setting] > Change Squeezelite settings > Name of your player.</p>
+                <p>Type player name.</p>
+                <p>Click [Save].</p>
+                <p>Click [Yes] when requested to "Restart Squeezelite".</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20" style="vertical-align: top;">
+                <p>8.</p>
+              </td>
+              <td>
+                <p>Select [Tweaks] > pCP System Tweaks > Host name.</p>
+                <p>Type host name.</p>
+                <p>Click [Save].</p>
+                <p>Click [Yes] when requested to "Reboot piCorePlayer".</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -93,7 +128,6 @@
 </table>
 
 <!--#include virtual="pcp_footer.html" -->
-<!--#include virtual="pcp_mode.html" -->
 <!--#include virtual="pcp_copyright.html" -->
 
 </body>

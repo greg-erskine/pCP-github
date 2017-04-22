@@ -10,6 +10,10 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
+# Version: 3.20 2017-04-16
+#	Fixed pcp-xxx-functions issues. GE.
+#	Updated for 3.11 to be able to insitu update to 3.20. PH
+
 # version: 3.11 2017-01-21
 #	Updates for Hotfixes based on piversion.cfg. PH.
 #	Added Hotfix3.11. PH.
@@ -18,11 +22,8 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
 
 pcp_html_head "Fix pCP" "GE"
-
-DEBUG=1
 
 pcp_banner
 pcp_navigation
@@ -89,6 +90,55 @@ pcp_do_fixes200() {
 	pcp_do_fix_2
 	pcp_do_fix_3
 	pcp_do_fix_4
+}
+
+pcp_do_fixes_311() {
+	#Leading / is removed
+	#EXE files get set to root.staff mode 755
+	HF_FILES_EXE="home/tc/www/cgi-bin/insitu_update_stage1.cgi"
+	HFDIR="/tmp/hf"
+	HOTFIX="hotfix311a.tgz"
+	HOTFIXMD5="${HOTFIX}.md5.txt"
+	echo "[ INFO ] Retreiving Hotfix 3.11a."
+	rm -rf ${HFDIR}
+	mkdir -p ${HFDIR}
+	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIX} -O ${HFDIR}/${HOTFIX}
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded' ${HOTFIX}
+	else
+		echo '[ ERROR ] Error downloading '${HOTFIX}
+		FAIL_MSG="Error downloading ${HOTFIX}"
+	fi
+	echo "[ INFO ] Retreiving Hotfix 3.11a md5sum"
+	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIXMD5} -O ${HFDIR}/${HOTFIXMD5}
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded' ${HOTFIXMD5}
+	else
+		echo '[ ERROR ] Error downloading '${HOTFIXMD5}
+		FAIL_MSG="Error downloading ${HOTFIX}"
+	fi
+	if [ "$FAIL_MSG" = "ok" ]; then
+		echo "[ INFO ] Verifying Hotfix 3.11a"
+		cd ${HFDIR}
+		md5sum -sc ${HOTFIXMD5}
+		if [ $? -eq 0 ]; then
+			echo '[ INFO ] Hotfix Verified.'
+		else
+			echo '[ ERROR ] '$HOTFIX' verification failed.'
+			FAIL_MSG="$HOTFIX verification failed."
+		fi
+	fi
+#Apply the Fix
+	if [ "$FAIL_MSG" = "ok" ]; then
+		echo '[ INFO ] Extracting Hotfix 3.11a'
+		tar xf ${HOTFIX}
+		for EXE in ${HF_FILES_EXE}; do
+			dos2unix $EXE
+			chown tc:staff $EXE
+			chmod 750 $EXE
+			cp -fp $EXE /${EXE} 
+		done
+	fi
 }
 
 pcp_do_fixes_310() {
@@ -413,6 +463,11 @@ if [ "$ACTION" = "fix" ]; then
 			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
 			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Please Reselect sound card if using USB or HDMI.'
 			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Please reinstall shairport-sync for final step.'
+		;;
+		3.11*)
+			echo '[ INFO ] Hotfix for pCP 3.10 to allow insitu_update to 3.20.'
+			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_311
+			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
 		;;
 		*)
 			# No Fixes for this version

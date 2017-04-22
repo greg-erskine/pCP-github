@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- Start of pcp_html_head -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>pCP - How-to </title>
+  <meta name="author" content="GE'">
+  <meta name="description" content="pCP - How-to ">
+  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <script src="../js/piCorePlayer.js"></script>
+</head>
+<body>
+<!-- End of pcp_html_head -->
+<!--#include virtual="pcp_banner.html" -->
+
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <table class="bggrey percent100">
+            <tr>
+              <td>
+                <h1>How-to </h1>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>1.</p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>2.</p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>3.</p>
+              </td>
+              <td>
+                <p></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>4.</p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column20">
+                <p>5.</p>
+              </td>
+              <td>
+                <p></p>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
+              <td class="column20">
+                <p>6.</p>
+              </td>
+              <td>
+                <p></p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td colspan="2">
+                <p>Next: </p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+          </table>
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<!--#include virtual="pcp_footer.html" -->
+<!--#include virtual="pcp_copyright.html" -->
+
+</body>
+</html>

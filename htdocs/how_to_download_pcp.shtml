@@ -34,7 +34,7 @@
                 <p>1.</p>
               </td>
               <td>
-                <p>Go to the piCorePlayer Google Download web page&#8212;go to <a href="https://sites.google.com/site/picoreplayer/home/download" target="_blank">piCorePlayer Download</a>.</p>
+                <p>Go to the piCorePlayer Google Download web page&#8212;go to <a href="https://sites.google.com/site/picoreplayer/home/download" target="_blank">piCorePlayer Download</a> &#8599;.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -77,13 +77,22 @@
                 <p>6.</p>
               </td>
               <td>
-                <p>Go to your local download location and unzip piCorePlayer image.</p>
+                <p>Go to your local download location.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
+              <td class="column20">
+                <p>7.</p>
+              </td>
+              <td>
+                <p>Unzip the piCorePlayer image.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
+            <tr class="odd">
               <td colspan="2">
-                <p>Next: <a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</a>.</p>
+                <p><b>Next: </b><a href="how_to_burn_pcp_onto_a_sd_card.shtml">How-to burn piCorePlayer onto a SD card</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -95,7 +104,6 @@
 </table>
 
 <!--#include virtual="pcp_footer.html" -->
-<!--#include virtual="pcp_mode.html" -->
 <!--#include virtual="pcp_copyright.html" -->
 
 </body>

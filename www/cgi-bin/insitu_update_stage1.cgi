@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version 3.20 2017-03-25
+#	Removed code that is not used until stage2. PH.
+#	Change stage2 download to work with web based repo location. PH.
+
 # Version 3.10 2016-12-26
 #	Sourceforge repo changes. PH
 
@@ -8,7 +12,6 @@
 #	Split from insitu_update.cgi to download new updater before updates.
 
 . pcp-functions
-pcp_variables
 
 pcp_html_head "Update pCP" "GE"
 
@@ -23,16 +26,6 @@ FAIL_MSG="ok"
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
-
-#========================================================================================
-#      382 - insitu.cfg
-# 21044878 - piCorePlayer2.00_boot.tar.gz
-# 14932349 - piCorePlayer2.00_tce.tar.gz
-# --------
-# 35977609 bytes
-#----------------------------------------------------------------------------------------
-#SPACE_REQUIRED=$((35977609 * 2 / 1000))
-SPACE_REQUIRED=21044
 
 #========================================================================================
 # DEBUG info showing variables
@@ -71,58 +64,6 @@ pcp_sourceforge_indicator() {
 }
 
 #========================================================================================
-# Check for extension - display reload extension warning message
-#----------------------------------------------------------------------------------------
-pcp_check_for_extension() {
-	EXTENSION=$1
-	if [ -f "/usr/local/tce.installed/${EXTENSION}" ]; then
-		echo '[ WARN ] *** You may need to REINSTALL '$EXTENSION' ***'
-	fi
-}
-
-pcp_check_for_all_extensions() {
-	pcp_check_for_extension jivelite
-	pcp_check_for_extension shairport-sync
-	pcp_check_for_extension alsaequal
-	pcp_check_for_extension slimserver
-}
-
-#========================================================================================
-# Check for free space - set FAIL_MSG if insufficient space is available
-#----------------------------------------------------------------------------------------
-pcp_enough_free_space() {
-	INITSPACE=0
-	REQUIRED_SPACE=$1
-	FREE_SPACE=$(pcp_free_space k)
-	if [ $FREE_SPACE -gt $REQUIRED_SPACE ]; then
-		echo '[  OK  ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k'
-	else
-		echo '[ ERROR ] Free space: '$FREE_SPACE'k - Required space: '$REQUIRED_SPACE'k'
-		echo '[ ERROR ] Not enough free space - try expanding your partition.'
-		FAIL_MSG="Not enough free space - try expanding your partition."
-		INITSPACE=1
-	fi
-}
-
-#========================================================================================
-# Prepare download directories - Do we really need boot and tce directory???
-#----------------------------------------------------------------------------------------
-pcp_create_download_directory() {
-	if [ -d $UPD_PCP ]; then
-		sudo rm -rf $UPD_PCP
-		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
-	fi
-	sudo mkdir -m 755 $UPD_PCP
-	[ $? -ne 0 ] && FAIL_MSG="Can not make directory $UPD_PCP"
-	sudo mkdir ${UPD_PCP}/boot
-	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/boot"
-	sudo mkdir ${UPD_PCP}/tce
-	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/tce"
-	sudo mkdir ${UPD_PCP}/mydata
-	[ $? -ne 0 ] && FAIL_MSG="Can not make directory ${UPD_PCP}/mydata"
-}
-
-#========================================================================================
 # Download the new update script from Sourceforge - insitu_update_stage2.cgi
 #----------------------------------------------------------------------------------------
 pcp_get_newinstaller() {
@@ -130,15 +71,21 @@ pcp_get_newinstaller() {
 	sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
 	echo '[ INFO ] Step 2B. - Downloading the new Update script...'
 
-	PACKAGES="insitu_update_stage2.cgi"
-	DL_REPO=${INSITU_DOWNLOAD}
-	TARGETDIR=${PCPHOME}
-	pcp_download_package >/dev/null 2>&1
+	# The web storage does not allow for cgi downloads.  
+	PACKAGE="insitu_update_stage2.gz"
+	$WGET ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1 
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new Update script.'
-		sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
-		sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
-		sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"
+		gunzip ${PCPHOME}/${PACKAGE}
+		if [ $? -eq 0 ]; then
+			mv ${PCPHOME}/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
+			sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
+			sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
+			sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"
+		else
+			echo '[ ERROR ] Downloaded pdate script is corrupted.'
+			FAIL_MSG="Downloaded script is corrupted."
+		fi
 	else
 		echo '[ ERROR ] Error downloading the Update script.'
 		FAIL_MSG="Error downloading the Update script"
@@ -216,15 +163,9 @@ case "$ACTION" in
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_sourceforge_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_create_download_directory
-		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		;;
 	download)
 		STEP="Step 2 - Downloading files"
-		pcp_warning_message
-		;;
-	install)
-		STEP="Step 3 - Installing files"
 		pcp_warning_message
 		;;
 	*)

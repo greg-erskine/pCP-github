@@ -1,22 +1,22 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.02 2015-06-02 GE
 #	Minor updates.
 
 # Version: 0.01 2015-02-17 GE
 #   Original version.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "xtras_dosfsck" "GE"
 
-pcp_controls
 pcp_banner
 pcp_navigation
-pcp_mode_lt_beta
 pcp_running_script
 pcp_httpd_query_string
 

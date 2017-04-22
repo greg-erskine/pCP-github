@@ -39,7 +39,9 @@
                 <p>jivelite</p>
               </td>
               <td>
-                <p>Touch screen graphical user interface that works like a Logitech Touch.</p>
+                <p>A touch screen graphical user interface that works like the Logitech Squeezebox Touch.</p>
+                <p>A community Logitech Media Server (LMS) control application&#8212;see
+                <a href="main_jivelite.shtml">Jivelite</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -48,7 +50,8 @@
                 <p>LMS</p>
               </td>
               <td>
-                <p>Logitech Media Server (formally Slimserver, SqueezeCentre and Squeezebox Server).</p>
+                <p>Logitech Media Server (formally Slimserver, SqueezeCentre and Squeezebox Server)&#8212;see
+                <a href="main_lms.shtml">LMS</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -57,7 +60,8 @@
                 <p>pCP</p>
               </td>
               <td>
-                <p>piCorePlayer.</p>
+                <p>piCorePlayer&#8212;see
+                <a href="main_picoreplayer.shtml">piCorePlayer</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -66,7 +70,8 @@
                 <p>piCore</p>
               </td>
               <td>
-                <p>A version of TinyCore for the Raspberry Pi.</p>
+                <p>A version of Tiny Core Linux for the Raspberry Pi&#8212;see
+                <a href="http://tinycorelinux.net/" target="_blank">Tiny Core Linux</a> &#8599;.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -75,7 +80,8 @@
                 <p>piCorePlayer</p>
               </td>
               <td>
-                <p>Squeezebox replacement using Raspberry Pi. piCore + squeezelite. Many more options.</p>
+                <p>Squeezebox replacement using Raspberry Pi + piCore + squeezelite + web interface&#8212;see
+                <a href="main_picoreplayer.shtml">piCorePlayer</a>.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
@@ -93,21 +99,32 @@
                 <p>Raspberry Pi</p>
               </td>
               <td>
-                <p>Cheap credit card sized computer that makes an excellent basis for a streaming music player&#8212;see
-                <a href="https://www.raspberrypi.org/" target="_blank">Raspberry Pi Foundation</a>.</p>
+                <p>Cheap credit card sized computer&#8212;see
+                <a href="https://www.raspberrypi.org/" target="_blank">Raspberry Pi Foundation</a> &#8599;.</p>
+                <p>The Raspberry Pi makes an excellent hardware platform for piCorePlayer.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column150">
-                <p>squeezelite</p>
+                <p>SD card</p>
               </td>
               <td>
-                <p>Software that makes your computer work like a Logitech Squeezebox.</p>
+                <p>Secure Digital (SD) card is a non-volatile memory card format&#8212;see
+                <a href="https://en.wikipedia.org/wiki/Secure_Digital" target="_blank">Wikipedia - Secure Digital</a> &#8599;.</p>
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
+              <td class="column150">
+                <p>squeezelite</p>
+              </td>
+              <td>
+                <p>Squeezelite is a headless Squeezebox emulator for Linux/OSX/Windows&#8212;see
+                <a href="main_squeezelite.shtml">Squeezelite</a>.</p>
+              </td>
+            </tr>            <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
               <td class="column150">
                 <p>ssh</p>
               </td>
@@ -124,7 +141,6 @@
 </table>
 
 <!--#include virtual="pcp_footer.html" -->
-<!--#include virtual="pcp_mode.html" -->
 <!--#include virtual="pcp_copyright.html" -->
 
 </body>

@@ -1,6 +1,9 @@
 #!/bin/sh
 # Sound diagnostics script
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 
@@ -35,7 +38,7 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
+. pcp-rpi-functions
 . pcp-pastebin-functions
 
 # Local variables

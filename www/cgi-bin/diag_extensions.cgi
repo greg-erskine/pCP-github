@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Original version.
 
@@ -8,10 +11,9 @@
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Diagnostics extensions" "GE"
 
@@ -88,12 +90,10 @@ pcp_message() {
 #----------------------------------------------------------------------------------------
 pcp_downloaded_extensions() {
 	VERSION=$(echo ${KERNELVER} | awk -F"-" '{print $1}')
-	echo alsa-modules-${VERSION}-piCore+.tcz     > $EXTENLIST
-	echo alsa-modules-${VERSION}-piCore_v7+.tcz >> $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore+.tcz     > $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore_v7+.tcz >> $EXTENLIST
 	echo alsa-utils.tcz                         >> $EXTENLIST
 	echo alsa.tcz                               >> $EXTENLIST
-	echo backlight-${VERSION}-piCore+.tcz       >> $EXTENLIST
-	echo backlight-${VERSION}-piCore_v7+.tcz    >> $EXTENLIST
 	echo busybox-httpd.tcz                      >> $EXTENLIST
 	echo dialog.tcz                             >> $EXTENLIST
 	echo firmware-atheros.tcz                   >> $EXTENLIST
@@ -114,11 +114,11 @@ pcp_downloaded_extensions() {
 	echo openssh.tcz                            >> $EXTENLIST
 	echo openssl.tcz                            >> $EXTENLIST
 	echo readline.tcz                           >> $EXTENLIST
-	echo touchscreen-${VERSION}-piCore+.tcz     >> $EXTENLIST
-	echo touchscreen-${VERSION}-piCore_v7+.tcz  >> $EXTENLIST
+	echo touchscreen-${VERSION}-pcpCore+.tcz     >> $EXTENLIST
+	echo touchscreen-${VERSION}-pcpCore_v7+.tcz  >> $EXTENLIST
 	echo wifi.tcz                               >> $EXTENLIST
-	echo wireless-${VERSION}-piCore+.tcz        >> $EXTENLIST
-	echo wireless-${VERSION}-piCore_v7+.tcz     >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore+.tcz        >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore_v7+.tcz     >> $EXTENLIST
 	echo wireless_tools.tcz                     >> $EXTENLIST
 	echo wpa_supplicant.tcz                     >> $EXTENLIST
 	unset VERSION
@@ -290,7 +290,6 @@ pcp_check_extension libcofi.tcz
 #----------------------------------------------------------------------------------------
 pcp_message "Raspberry Pi Touch Screen"
 #--------------------------------------
-pcp_check_extension backlight-${KERNELVER}.tcz
 pcp_check_extension touchscreen-${KERNELVER}.tcz
 pcp_check_extension libts.tcz
 #----------------------------------------------------------------------------------------

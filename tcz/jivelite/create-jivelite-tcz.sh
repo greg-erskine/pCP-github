@@ -135,6 +135,9 @@ fi
 mksquashfs $LUAOUTPUT $LUATCZ -all-root -no-progress >> $LOG
 md5sum `basename $LUATCZ` > $LUATCZ.md5.txt
 
+cd $LUAOUTPUT >> $LOG
+find * -not -type d > $OUTPUT/../${LUATCZ}.list
+ 
 cd $OUTPUT/../
 ./split-jivelite-tcz.sh
 
@@ -149,3 +152,4 @@ echo -e "Size:\t\t$(ls -lk pcp-$JIVELITE.tcz | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
 echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
 
+./create-vumeters-tcz.sh

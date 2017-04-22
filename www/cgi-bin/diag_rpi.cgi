@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
@@ -40,9 +43,8 @@
 # Version: 0.01 2014-10-22 GE
 #	Original.
 
-. pcp-rpi-functions
 . pcp-functions
-pcp_variables
+. pcp-rpi-functions
 . pcp-pastebin-functions
 
 pcp_html_head "Raspberry Pi Diagnostics" "GE"
@@ -291,7 +293,7 @@ echo '          <table class="bggrey percent100">'
 #-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
@@ -313,7 +315,7 @@ echo '            </tr>'
 #-------------------------------------Row 2----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p>Build options:</p>'
 echo '              </td>'
 echo '              <td colspan="5">'
@@ -423,7 +425,7 @@ echo '            <tr class="'$ROWSHADE'">'
                         pcp_red_cross "Internet not found."
                     fi
 
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
@@ -436,7 +438,7 @@ echo '              </td>'
                         pcp_red_cross "Sourceforge not accessible."
                     fi
 
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td>'

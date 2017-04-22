@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.02 2016-09-21
 #	Added default button. SBP.
 #	Added more help txt. SBP.
@@ -39,10 +42,9 @@
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Add piCore extension" "GE"
 

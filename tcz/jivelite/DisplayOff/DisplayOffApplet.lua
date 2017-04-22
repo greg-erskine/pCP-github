@@ -100,7 +100,7 @@ local off = "1"
 
 -- enable backlight on on a timer because the first revision of the official Pi display
 -- isn't fast enough to handle backlight on directly/has a hardware bug/something else?
-local timerOn = Timer(100,
+local timerOn = Timer(600,
     function()
         Framework:setUpdateScreen(true)
         if tonumber(_read("/sys/class/backlight/rpi_backlight/bl_power")) == tonumber(off) then

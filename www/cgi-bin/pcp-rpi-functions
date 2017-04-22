@@ -2,6 +2,10 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer
 
+# Version: 3.20 2017-03-18
+#	Fixed pcp-xxx-functions issues. GE.
+#	Added RPi2B v1.2. CM3, and ZeroW. PH.
+
 # Version: 0.12 2016-05-08 GE
 #	Added Raspberry Pi TYPE.
 
@@ -42,6 +46,8 @@
 # Version: 0.01 2014-10-22 GE
 #	Original.
 
+pcp_debug_log "$0 - Running pcp-rpi-functions..."
+
 #=========================================================================================
 # Determine revisions and features of Raspberry Pi
 #-----------------------------------------------------------------------------------------
@@ -58,12 +64,12 @@
 
 # For RPi2:
 #    [USER:8] [NEW:1] [MEMSIZE:3] [MANUFACTURER:4] [PROCESSOR:4] [TYPE:8] [REV:4]
-#    NEW            23: will be 1 for the new scheme, 0 for the old scheme
+#    NEW            23: will be 1 for the new scheme, 0 for the old scheme, rpi zero=9
 #    MEMSIZE        20: 0=256M    1=512M    2=1G
 #    MANUFACTURER   16: 0=SONY    1=EGOMAN  2=EMBEST
 #    PROCESSOR      12: 0=2835    1=2836    
 #    TYPE           04: 0=MODELA  1=MODELB  2=MODELA+   3=MODELB+  4=MODEL 2B  5=ALPHA???
-#                       6=CM      7=???     8=MODEL 3B  9=ZERO
+#                       6=CM      7=???     8=MODEL 3B  9=ZERO     a=CM3       c=ZERO-W
 #    REV            00: 0=REV0    1=REV1    2=REV2
 
 #    *a21041
@@ -81,28 +87,32 @@ pcp_rpi_revision() {
 
 pcp_rpi_details() {
 	case $(pcp_rpi_revision) in
-		*Beta)  TYPE=1;  MODEL=B;    PCBREV=Beta; MEMORY=256;;
-		*0002)  TYPE=1;  MODEL=B;    PCBREV=1;    MEMORY=256;;
-		*0003)  TYPE=1;  MODEL=B;    PCBREV=1+;   MEMORY=256;;
-		*0004)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=256;;
-		*0005)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=256;;
-		*0006)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=256;;
-		*0007)  TYPE=1;  MODEL=A;    PCBREV=2;    MEMORY=256;;
-		*0008)  TYPE=1;  MODEL=A;    PCBREV=2;    MEMORY=256;;
-		*0009)  TYPE=1;  MODEL=A;    PCBREV=2;    MEMORY=256;;
-		*000d)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=512;;
-		*000e)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=512;;
-		*000f)  TYPE=1;  MODEL=B;    PCBREV=2;    MEMORY=512;;
-		*0010)  TYPE=1;  MODEL=B+;   PCBREV=1.2;  MEMORY=512;;
-		*0011)  TYPE=1;  MODEL=CM;   PCBREV=1.0;  MEMORY=512;;
-		*0012)  TYPE=1;  MODEL=A+;   PCBREV=1;    MEMORY=256;;
-		*0013)  TYPE=1;  MODEL=B+;   PCBREV=1.2;  MEMORY=512;;
-		*0014)  TYPE=1;  MODEL=CM;   PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
-		*0015)  TYPE=1;  MODEL=A+;   PCBREV=1.1;  MEMORY=256;;
-		*041)   TYPE=2;  MODEL=2B;   PCBREV=1;    MEMORY=1024;;
-		*092)   TYPE=0;  MODEL=ZERO; PCBREV=1.2;  MEMORY=512;;
-		*082)   TYPE=3;  MODEL=3B;   PCBREV=1.2;  MEMORY=1024;;		# a22082
-		*)      TYPE=99; MODEL=?;    PCBREV=?;    MEMORY=?;;
+		*Beta)  TYPE=1;  MODEL=B;      PCBREV=Beta; MEMORY=256;;
+		*0002)  TYPE=1;  MODEL=B;      PCBREV=1;    MEMORY=256;;
+		*0003)  TYPE=1;  MODEL=B;      PCBREV=1+;   MEMORY=256;;
+		*0004)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;;
+		*0005)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;;
+		*0006)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;;
+		*0007)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;;
+		*0008)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;;
+		*0009)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;;
+		*000d)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;;
+		*000e)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;;
+		*000f)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;;
+		*0010)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;;
+		*0011)  TYPE=1;  MODEL=CM;     PCBREV=1.0;  MEMORY=512;;
+		*0012)  TYPE=1;  MODEL=A+;     PCBREV=1;    MEMORY=256;;
+		*0013)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;;
+		*0014)  TYPE=1;  MODEL=CM;     PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
+		*0015)  TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=256;;
+		*041)   TYPE=2;  MODEL=2B;     PCBREV=1;    MEMORY=1024;;
+		*042)   TYPE=2;  MODEL=2B;     PCBREV=1.2;  MEMORY=1024;;
+		*092)   TYPE=0;  MODEL=ZERO;   PCBREV=1.2;  MEMORY=512;;
+		*093)   TYPE=0;  MODEL=ZERO;   PCBREV=1.3;  MEMORY=512;;
+		*082)   TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;;		# a22082
+		*0a0)   TYPE=3;  MODEL=CM3;    PCBREV=1;    MEMORY=1024;;
+		*0c1)   TYPE=0;  MODEL=ZERO-W; PCBREV=1;    MEMORY=512;;
+		*)      TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;;
 	esac
 
 	case "${MODEL}${PCBREV}" in
@@ -111,9 +121,11 @@ pcp_rpi_details() {
 		B2)    HARDWARE=BCM2708; ETHER=1; USB=2; LED=5; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
 		A2)    HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=2; PIN3=1; PIN5=2; PIN13=27; I2C=1; P5=8; P6=2;;
 		B+*)   HARDWARE=BCM2708; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		CM3*)  HARDWARE=BCM2710; ETHER=0; USB=0; LED=X; P2PINS=0; HOLES=0; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		CM*)   HARDWARE=BCM2708; ETHER=0; USB=0; LED=X; P2PINS=0; HOLES=0; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		A+*)   HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=1; PIN5=2; PIN13=X;  I2C=X; P5=X; P6=X;;
-		2B*)   HARDWARE=BCM2709; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		2B1.2) HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		2B1)   HARDWARE=BCM2709; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		ZERO*) HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		3B*)   HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*)     HARDWARE=X;       ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
@@ -168,7 +180,7 @@ pcp_rpi_model_unknown() {
 # The shortname is a unique identifier intended to be used with pastebin uploading
 pcp_rpi_shortname() {
 	pcp_rpi_details
-	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ]; then
+	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ] || [ "$MODEL" = "ZERO-W" ]; then
 		SHORTMAC=$(pcp_wlan0_mac_address)
 	else
 		SHORTMAC=$(pcp_eth0_mac_address)
@@ -207,6 +219,11 @@ pcp_rpi_is_model_CM() {
 	[ "$MODEL" = "CM" ] && echo 0 || echo 1
 }
 
+pcp_rpi_is_model_CM3() {
+	pcp_rpi_details
+	[ "$MODEL" = "CM3" ] && echo 0 || echo 1
+}
+
 pcp_rpi_is_model_Aplus() {
 	pcp_rpi_details
 	[ "$MODEL" = "A+" ] && echo 0 || echo 1
@@ -220,6 +237,11 @@ pcp_rpi_is_model_2B() {
 pcp_rpi_is_model_zero() {
 	pcp_rpi_details
 	[ "$MODEL" = "ZERO" ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_model_zerow() {
+	pcp_rpi_details
+	[ "$MODEL" = "ZERO-W" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_3B() {

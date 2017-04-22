@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.20 2017-04-16
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+#	Changed reboot functions. PH.
+
 # Version: 3.11 2017-01-29
 #	Added button for Hotfix. PH.
 
@@ -11,105 +16,16 @@
 # Version: 3.00 2016-07-08
 #	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
 
-# Version: 2.06 2016-05-22
-#	Fixed a few typos. GE.
-
-# Version: 2.05 2016-04-30
-#	Added double quotes when comparing strings. GE.
-#	Added pcp_main_update_config. GE.
-#	Moved to developer mode: pcp_main_copy2fs, pcp_main_dosfsck, pcp_main_reset_all, pcp_main_restore_all. GE.
-#   Changes to insitu_update section. GE.
-
-# Version: 0.22 2016-03-10 GE
-#	Added squeezelite version to more> help.
-#	Added LMS indicator.
-
-# Version: 0.21 2016-02-26 GE
-#	Renamed Squeezelite [Save] button to [Install].
-#	Added "Build options" to update squeezelite.
-#	Changed indicators to tick and cross.
-
-# Version: 0.20 2016-02-03 GE
-#	Changed Insitu update.
-
-# Version: 0.19 2016-01-15 GE
-#	Updated "Update pCP" help text.
-
-# Version: 0.18 2016-01-07 GE
-#	Added check for version of Ralphy's squeezelite.
-#	Added Shairport indicator and restart option.
-
-# Version: 0.17 2015-12-09 SBP
-#	Removed Update Triode's version of Squeezelite.
-#	Updated download and update Ralphy's version of Squeezelite.
-
-# Version: 0.16 2015-09-20 GE
-#	Added fieldsets around Advanced, Beta and Developer modes.
-#	Fixed pcp_main_reset_all routine.
-
-# Version: 0.15 2015-08-29 GE
-#	Revised modes.
-#	Turned pcp_picoreplayers tabs on in normal mode.
-#	Changed reboot, shutdown and backup messages.
-#	Added warning message on reset all.
-
-# Version: 0.14 2015-07-01 GE
-#	Added pcp_mode tabs.
-#	Added pcp_picoreplayers tabs.
-#	Removed some unnecessary code.
-
-# Version: 0.13 2015-05-11 GE
-#	Now uses pcp_start_row_shade, pcp_start_row_shade and pcp_incr_id
-#	Added Extensions, Extras, Debug and Diagnostics buttons.
-#	Added Static IP to Main piCorePlayer operations.
-
-# Version: 0.12 2015-02-20 GE
-#	Moved Disable GUI, Stop Squeezelite, Backup and Shutdown to Developers operations.
-#	Added Reset ALL and Restore ALL to Developers operations.
-
-# Version: 0.11 2015-01-26 SBP
-#	Added Disable GUI.
-
-# Version: 0.10 2014-12-20 GE
-#	Modified Squeezelite running indicator.
-
-# Version: 0.09 2014-12-09 GE
-#	HTML5 formatted.
-
-# Version: 0.08 2014-12-08 SBP
-#	Revised button order.
-#	Added Squeezelite running indicator.
-#	Reformatted.
-
-# Version: 0.07 2014-10-22 GE
-#	Using pcp_html_head now.
-
-# Version: 0.06 2014-10-09 GE
-#	Revised uptime delay to use seconds.
-
-# Version: 0.05 2014-10-08 GE
-#	Size of input buttons controlled through input[type=submit] style.
-
-# Version: 0.04 2014-10-02 GE
-#	Added uptime delay before pcp_squeezelite_status is checked.
-
-# Version: 0.03 2014-09-20 GE
-#	Modified HTML to improve cross browser support.
-
-# Version: 0.02 2014-08-22 GE
-#	Added check for pcp_squeezelite_status.
-
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
+. pcp-lms-functions
 
 pcp_html_head "Main Page" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_picoreplayers_toolbar
+pcp_controls
 pcp_banner
 pcp_navigation
 
@@ -147,7 +63,7 @@ pcp_main_squeezelite_indication() {
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 centre">'
+	echo '              <td class="column150 center">'
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
@@ -186,7 +102,7 @@ pcp_main_lms_indication() {
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 centre">'
+	echo '              <td class="column150 center">'
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
@@ -217,7 +133,7 @@ pcp_main_shairport_indication() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 centre">'
+	echo '              <td class="column150 center">'
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
@@ -394,7 +310,7 @@ pcp_main_reboot() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')" method="get">'
+	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')" method="get">'
 	echo '                  <input type="submit" value="Reboot" />'
 	echo '                </form>'
 	echo '              </td>'
@@ -741,6 +657,29 @@ pcp_main_hotfix() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_hotfix
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------HotFix----------------------------------------
+pcp_main_update_pcpbase() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Update" action="updatebase.cgi" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Update" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_update_pcpbase
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Developer mode fieldset-----------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'
@@ -758,6 +697,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
+
 
 #------------------------------------------Reset ALL-------------------------------------
 pcp_main_reset_all() {

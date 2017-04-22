@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Added Advanced Options button. GE.
 #	Cleaned Audio selection and made a dynamic drop-down list. SBP.
@@ -17,125 +21,19 @@
 #	Removed & from $STRING. GE.
 #	Standardised/expanded <input> tags. GE.
 
-# Version: 0.25 2016-05-23
-#	Added multi ALSA_PARAMS. GE.
-#	Added 0 value for Priority, Close output and Power On/Off GPIO settings. SBP.
-
-# Version: 0.24 2016-03-29
-#	Fixed $VISUALISER and $IR_LIRC. PH.
-#	Changed log location to /var/log. GE.
-
-# Version: 0.23 2016-03-14 GE
-#	Updated -e option.
-#	Updated -U option.
-#	Updated -V option.
-#	Added -G option.
-#	Added -S option.
-#	Revised various help messages.
-#	Updated -G option for Output Active High or Low. PH.
-#	Updated $VISUALISER and $IR_LIRC.
-
-# Version: 0.22 2016-02-22 GE
-#	Updated for Raspberry Pi Zero.
-#	Added support for raspidac3 and rpi_dac.
-
-# Version: 0.21 2016-02-09 SBP
-#	Change Output settings for alsaequal.
-
-# Version: 0.20 2015-09-20 GE
-#	Added -e option.
-#	Added -U option (not working).
-#	Added -V option (not working).
-
-# Version: 0.19 2015-09-16 SBP
-#	Added Raspberry Pi Model A.
-
-# Version: 0.18 2015-09-01 GE
-#	Fixed bug in pcp_squeezelite_alsa.
-
-# Version: 0.17 2015-08-29 SBP
-#	Removed pcp_squeezelite_visualiser.
-#	Revised modes.
-#	Turned pcp_picoreplayers tabs on in normal mode.
-#	Revised initial mode settings.
-
-# Version: 0.16 2015-07-01 GE
-#	Added pcp_mode tabs.
-#	Added pcp_picoreplayers tabs.
-
-# Version: 0.15 2015-06-05 GE
-#	Started adding HTML5 input field validation.
-#	Added pcp_incr_id and pcp_start_row_shade.
-#	Improved debug level setting.
-#	Removed some unnecessary code.
-
-# Version: 0.14 2015-03-13 GE
-#	Updated and fixed spelling of the Visualiser option.
-#	Added pcp_rpi_model_unknown checks.
-
-# Version: 0.13 2015-03-06 GE
-#	Updated help.
-
-# Version: 0.12 2015-02-27 SBP
-#	Added RPi2 support.
-
-# Version: 0.11 2015-02-09 GE
-#	Added Squeezelite command string.
-#	Added copyright.
-#	Updated descriptions and more/less help.
-#	Removed maxsize=26 for player name.
-
-# Version: 0.10 2015-01-23 SBP
-#	Added CLOSEOUT.
-#	Minor cosmetic changes.
-
-# Version: 0.09 2014-12-08 GE
-#	HTML5 formatting.
-
-# Version: 0.08 2014-12-08 SBP
-#	Added support for Raspberry Pi Model A+.
-
-# Version: 0.07 2014-10-22 GE
-#	Using pcp_html_head now.
-#	Added more comments to various options.
-#	Changed remaining double quotes to single quotes.
-#	Added logic to only display valid options.
-
-# Version: 0.06 2014-10-10 SBP
-#	Revised audio options.
-
-# Version: 0.05 2014-10-09 GE
-#	Revised uptime delay to use seconds.
-
-# Version: 0.04 2014-10-02 GE
-#	Added uptime delay before pcp_squeezelite_status is checked.
-
-# Version: 0.03 2014-09-26 GE
-#	Modified HTML to improve cross browser support.
-#	Added more> function.
-
-# Version: 0.02 2014-09-06 SBP
-#	Changed selection of output to a dropdown list.
-#	Added support for the B+ I2S-cards.
-#	Graphical changes in Squeezelite table.
-
-# Version: 0.02 2014-08-22 GE
-#	Added check for pcp_squeezelite_status.
-
 # Version: 0.01 2014-06-25 GE
 #	Original.
 
+. pcp-functions
+. pcp-rpi-functions
 . pcp-soundcard-functions
 . pcp-lms-functions
-. pcp-rpi-functions
-. pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "Squeezelite Settings" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_picoreplayers_toolbar
+pcp_controls
 pcp_banner
 pcp_navigation
 
@@ -209,7 +107,6 @@ fi
 #========================================================================================
 # Populate sound card drop-down options
 #---------------------------------------------------------------------------------------- 
-#[ ! -e /tmp/dropdown.cfg ] && pcp_sound_card_dropdown             #<--- To speed up loading of page it is only run if dropdown list is not already generated. Not fully working as the selected card does not change
 pcp_sound_card_dropdown
  
 #========================================================================================
@@ -224,25 +121,19 @@ echo '          <fieldset>'
 echo '            <legend>Choose audio output</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Audio output-------------------------------
-
 pcp_incr_id
 pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>Audio output</p>'
 echo '                </td>'
-echo '                <td class="column350">'
+echo '                <td class="column250">'
 echo '                  <select name="AUDIO">'
 
-#============================================================================================
-# Dynamic dropdown list generator
-#--------------------------------------------------------------------------------------------
 awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
-#==============================End dynamic dropdown===========================================
 
 echo '                  </select>'
 echo '                </td>'
-
 echo '                <td>'
 echo '                  <p>Select Audio output&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -252,7 +143,6 @@ echo '                    <p>Set Audio output before changing Squeezelite settin
 echo '                    <p>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
 echo '                  </div>'
 echo '                </td>'
-
 echo '              </tr>'
 echo '              <tr>'
 echo '                <td colspan="2">'
@@ -260,15 +150,16 @@ echo '                  <input type="submit"'
 echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
-if [ $MODE -ge $MODE_BETA ]; then
-. $CONFIGCFG
-#pcp_soundcontrol
+
+pcp_selected_soundcontrol
+if [ x"" != x"$CONTROL_PAGE" ]; then
 	echo '                  <input class="large16"'
 	echo '                         type="button"'
-	echo '                         value="Advanced Options"'
+	echo '                         value="Audio card control"'
 	echo '                         onClick="location.href='\'''$CONTROL_PAGE''\''"'
 	echo '                  >'
 fi
+
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -641,7 +532,6 @@ pcp_squeezelite_max_sample() {
 	echo '                         name="MAX_RATE"'
 	echo '                         value="'$MAX_RATE'"'
 	echo '                         title="Max sample rate"'
-#	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -675,7 +565,6 @@ pcp_squeezelite_upsample_settings() {
 	echo '                         name="UPSAMPLE"'
 	echo '                         value="'$UPSAMPLE'"'
 	echo '                         title="Upsample settings"'
-#	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -937,7 +826,6 @@ pcp_squeezelite_unmute() {
 	echo '                         name="UNMUTE"'
 	echo '                         value="'$UNMUTE'"'
 	echo '                         title="Unmute ALSA control"'
-#	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                </td>'
@@ -983,7 +871,6 @@ pcp_squeezelite_volume() {
 	echo '                         name="ALSAVOLUME"'
 	echo '                         value="'$ALSAVOLUME'"'
 	echo '                         title="ALSA volume control"'
-#	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -1073,7 +960,6 @@ pcp_squeezelite_power_script() {
 	echo '                         name="POWER_SCRIPT"'
 	echo '                         value="'$POWER_SCRIPT'"'
 	echo '                         title="Power On/Off script"'
-#	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -1107,7 +993,6 @@ pcp_squeezelite_various_input() {
 	echo '                         name="OTHER"'
 	echo '                         value="'$OTHER'"'
 	echo '                         title="Add your other input"'
-#	echo '                         pattern="[xxx]"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.05 2015-09-19 SBP
 #	Removed httpd decoding.
 
@@ -19,8 +22,7 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "Write Overclock to Config" "SBP" "15" "tweaks.cgi"
 

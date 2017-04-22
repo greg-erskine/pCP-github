@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Enhanced format. GE.
 #	Set mmap=1 for all configurations. GE.
@@ -11,50 +14,13 @@
 # Version: 3.00 2016-07-04
 #	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
 
-# Version: 0.11 2016-03-25 GE
-#	Updated raspidac3 settings, CARD=Card.
-
-# Version: 0.10 2016-02-21 SBP
-#	Modified CARDNO.
-#	Set OUTPUT to equal for alsaequal.
-#	Added support for raspidac3 and rpi_dac.
-
-# Version: 0.09 2016-01-15 GE
-#	Deleted Reboot button.
-
-# Version: 0.08 2015-10-09 SBP
-#	Removed httpd decoding.
-#	Added pcp_reboot_required.
-#	Added _nohtml to mount and umount routines.
-
-# Version: 0.07 2015-06-10 SBP
-#	Modified to handle quotes around variables more consistently.
-
-# Version: 0.06 2014-12-11 GE
-#	HTML5 formatting.
-
-# Version: 0.05 2014-11-03 SBP
-#	Added support for the HiFiBerry AMP.
-
-# Version: 0.04 2014-10-24 GE
-#	Added textareas.
-#	Using pcp_html_head now.
-#	Minor tidyup.
-
-# Version: 0.03 2014-09-25 SBP
-#	Added support for the HiFiBerry DAC+ and Digi+.
-#   Added support for the IQaudIO+ DAC.
-
-# Version: 0.02 2014-08-08 GE
-#	Major clean up.
-
 # Version: 0.01 SBP
 #	Original.
 
-. pcp-soundcard-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-soundcard-functions
+#. $CONFIGCFG
+
 # Store the original values so we can see if they are changed
 ORIG_AUDIO="$AUDIO"
 
@@ -68,6 +34,13 @@ pcp_table_top "Choose output"
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $ORIG_AUDIO: '$ORIG_AUDIO'<br />'
+	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
+	echo '                 [ DEBUG ] $DTOVERLAY: '$DTOVERLAY'<br />'
+	echo '                 [ DEBUG ] $PARAMS1: '$PARAMS1'<br />'
+	echo '                 [ DEBUG ] $PARAMS2: '$PARAMS2'<br />'
+	echo '                 [ DEBUG ] $PARAMS3: '$PARAMS3'<br />'
+	echo '                 [ DEBUG ] $PARAMS4: '$PARAMS4'<br />'
+	echo '                 [ DEBUG ] $PARAMS5: '$PARAMS5'<br />'
 	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
 	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'</p>'
 fi
@@ -141,12 +114,7 @@ if [ $CHANGED ]; then
 	#esac
 	#========================================================================================
 
-	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
-		echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-		echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
-		echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
-	fi
+	
 
 		if [ "$AUDIO" = "USB" ]; then
 		STRING1='INFO: USB is chosen. Please check that the OUTPUT field is correct. Press Ok to check, and then reboot'
@@ -157,6 +125,18 @@ if [ $CHANGED ]; then
 	pcp_squeezelite_start
 	pcp_save_to_config
 	pcp_read_chosen_audio
+if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $AUDIO: '$AUDIO'<br />'
+		echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
+		echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
+		echo '                 [ DEBUG ] $DTOVERLAY: '$DTOVERLAY'<br />'
+		echo '                 [ DEBUG ] $PARAMS1: '$PARAMS1'<br />'
+		echo '                 [ DEBUG ] $PARAMS2: '$PARAMS2'<br />'
+		echo '                 [ DEBUG ] $PARAMS3: '$PARAMS3'<br />'
+		echo '                 [ DEBUG ] $PARAMS4: '$PARAMS4'<br />'
+		echo '                 [ DEBUG ] $PARAMS5: '$PARAMS5'<br />'
+		echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
+	fi
 	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated config.cfg" "cat $CONFIGCFG" 380
 	pcp_backup
 fi

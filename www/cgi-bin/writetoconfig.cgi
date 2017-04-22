@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.10 2017-01-06
 #	Enhanced format. GE.
 #	Removed pcp_multi_alsa_mmap. GE.
@@ -43,8 +46,8 @@
 #	Original.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-soundcard-functions  # reset needs soundcard functions too.
+#. $CONFIGCFG
 
 # Restore sparams variable value from config.cfg so it is not overwritten with default values
 PARAM1="$SPARAMS1"

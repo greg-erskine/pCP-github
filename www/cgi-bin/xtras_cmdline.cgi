@@ -1,20 +1,22 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.02 2016-05-09 GE
 #	Renamed variable HTPPD to HTTPD.
 
 # Version: 0.01 2016-02-19 GE
 #	Original version.
 
-. pcp-lms-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Xtras Command Line" "GE"
 
 pcp_banner
-pcp_running_string
+pcp_running_script
 pcp_xtras
 
 pcp_httpd_query_string_no_decode

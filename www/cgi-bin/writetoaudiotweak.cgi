@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+#	Fixed remove alsaeq function. SBP.
+
 # Version: 3.11 2017-01-24
 #	Set CLOSEOUT empty when removing Shairport. PH.
 
@@ -10,50 +15,10 @@
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
 
-# Version: 0.13 2016-03-30 SBP
-#	Added warning pop-up box for setting output value when removing ALSAeq.
-
-# Version: 0.12 2016-03-25 SBP
-#	Added 0xf FIQ-Split acceleration.
-
-# Version: 0.11 2016-03-19 SBP
-#	Added dwc_otg.fiq_fsm_enable.
-
-# Version: 0.10 2016-02-26 SBP
-#	Added SQUEEZELITE section.
-
-# Version: 0.09 2016-02-20 GE
-#	Fixed sourceforge redirection issue.
-
-# Version: 0.08 2016-02-09 SBP
-#	Updated CARDNO.
-
-# Version: 0.07 2016-01-29 SBP
-#	Activated ALSA Equalizer.
-
-# Version: 0.06 2016-01-07 SBP
-#	Added ALSA Equalizer.
-#	Added Shairport-sync.
-
-# Version: 0.05 2015-09-19 SBP
-#	Removed httpd decoding.
-
-# Version: 0.04 2015-06-06 GE
-#	Remove multiple spaces from CONFIGCFG.
-#	Removed duplicate ALSA output level section.
-
-# Version: 0.03 2015-01-28 GE
-#	Included changefiq.sh.
-
-# Version: 0.02 2014-12-10 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
 # Version: 0.01 2014-08-06 SBP
 #	Original version.
 
 . pcp-functions
-pcp_variables
 
 # Store the original values so we can see if they are changed
 ORIG_ALSAeq=$ALSAeq
@@ -144,7 +109,7 @@ pcp_download_alsaequal() {
 pcp_remove_alsaequal() {
 	echo '<p class="info">[ INFO ] Removing ALSA Equalizer...</p>'
 	sudo -u tc tce-audit builddb
-	sudo -u tc tce-audit delete pcp-shairportsync.tcz
+	sudo -u tc tce-audit delete alsaequal.tcz
 	sudo rm -f /home/tc/.alsaequal.bin
 	REBOOT_REQUIRED=1
 }

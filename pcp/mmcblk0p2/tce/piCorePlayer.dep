@@ -1,11 +1,7 @@
-openssh.tcz
-busybox-httpd.tcz
-alsa.tcz
-alsa-utils.tcz
+pcp.tcz
 firmware-atheros.tcz
 firmware-brcmwifi.tcz
 firmware-rpi3-wireless.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
 wifi.tcz
-pcp-squeezelite.tcz

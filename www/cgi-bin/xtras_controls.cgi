@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.02 2015-10-02 GE
 #	Added pcp_lms_controls.
 
@@ -15,13 +19,12 @@
 
 . pcp-functions
 . pcp-lms-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 pcp_html_head "xtras_controls" "GE"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_picoreplayers_toolbar
+pcp_controls
 pcp_banner
 pcp_xtras
 pcp_mode_lt_developer

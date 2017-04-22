@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-31
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+#	Added UTF8 Note. PH.
+
+# Version: 3.12 2017-01-29
+#	Added --nomysqueezebox option for lms. PH.
+
 # Version: 3.11 2017-01-28
 #	Added Workgroup to Samba. PH.
 #	Updated freespace requirements. PH.
@@ -36,16 +44,15 @@
 # Version: 0.01 2016-01-30 SBP
 #	Original.
 
-. pcp-lms-functions
-. pcp-rpi-functions
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-rpi-functions
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "LMS Main Page" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_picoreplayers_toolbar
+pcp_controls
 pcp_banner
 pcp_navigation
 pcp_running_script
@@ -64,6 +71,7 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 [ -n "$PREFS" ] || PREFS=${TCEDIR}/slimserver/prefs
 [ -n "$LMSUSER" ] || LMSUSER=tc
 [ -n "$LMSGROUP" ] || LMSGROUP=staff
+[ -n "$OPTIONS" ] || OPTIONS=""
 
 LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
@@ -73,7 +81,7 @@ WGET="/bin/busybox wget"
 
 pcp_install_lms() {
 	echo '[ INFO ] Downloading LMS...'
-	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz 
+	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz
 	if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 		echo '[ INFO ] Installing LMS...'
 		sudo -u tc pcp-load -i slimserver.tcz
@@ -386,6 +394,15 @@ case "$ACTION" in
 		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba restart" 40
 		pcp_table_end
 	;;
+	Mysb)
+		echo '[ INFO ] Setting --nomysqueezebox commandline option...'
+		case $NOMYSB in
+			yes) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" ADD;;
+			no) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" DEL;;
+			*)pcp_warning_message;;
+		esac
+		[ -f $CFG_FILE ] && . $CFG_FILE
+	;;
 	*)
 		pcp_warning_message
 	;;
@@ -393,14 +410,14 @@ esac
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
-# logic to activate/inactivate buttons depending upon whether LMS is installed or not 
+# logic to activate/inactivate buttons depending upon whether LMS is installed or not
 if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
 	DISABLED=""
 else
 	DISABLED="disabled"
 fi
 
-# logic to activate/inactivate buttons depending upon whether LMS cache is present or not 
+# logic to activate/inactivate buttons depending upon whether LMS cache is present or not
 if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
 	DISABLECACHE=""
 else
@@ -456,7 +473,7 @@ esac
 pcp_incr_id
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 centre">'
+echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td>'
@@ -722,6 +739,37 @@ pcp_update_lms() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
 
+#-------------------------------nomysqueezebox-------------------------------------------
+pcp_lms_no_mysb() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	case $OPTIONS in
+		*--nomysqueezebox*) NOMYSByes="checked";;
+		*) NOMYSBno="checked";;
+	esac
+	echo '            <form name="Nomysb" action="'$0'" method="get">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="Mysb" '$DISABLED'>No MySB</button>'
+	echo '                </td>'
+	echo '                <td class="column100">'
+	echo '                  <input class="small1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes' >Yes'
+	echo '                  <input class="small1" type="radio" name="NOMYSB" value="no" '$NOMYSBno' >No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set --nomysqueezebox commandline option for LMS.&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>If enabled, this tells LMS to not use any mysqueezebox integrations.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_lms_no_mysb
+#----------------------------------------------------------------------------------------
+
 #-------------------------------Show LMS logs--------------------------------------------
 pcp_lms_show_logs() {
 	pcp_incr_id
@@ -729,7 +777,7 @@ pcp_lms_show_logs() {
 	echo '            <form name="Show" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Show Logs" />'
+	echo '                  <input type="submit" value="Show Logs" '$DISABLED'/>'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
@@ -833,7 +881,7 @@ pcp_slimserver_persistence() {
 		echo '                  <p>Network Disk</p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL3'">'
-		if [ -n "$NETyes" -a  ! -d /mnt/"$NETMOUNT1POINT"/slimserver ]; then
+		if [ -n "$NETyes" -a ! -d /mnt/"$NETMOUNT1POINT"/slimserver ]; then
 			echo '                  <p>Disk Not Found, LMS Disabled</p>'
 		else
 			echo '                  <p>/mnt/'$NETMOUNT1POINT'/slimserver</p>'
@@ -999,6 +1047,7 @@ pcp_mount_usbdrives() {
 	echo '                    <p>The drive will be mounted by UUID to this path and will be automounted on startup.</p>'
 	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
 	echo '                    <p>Do not use hardware device names like sda1 or mmcblk0.</p>'
+	echo '                    <p>For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1045,7 +1094,7 @@ pcp_mount_usbdrives() {
 				SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f5 | tr -d +)
 				SIZExB="${SIZE}B"
 			fi
-			
+
 			case "$MOUNTUUID" in
 				"$UUID")
 					UUIDyes="checked"
@@ -1121,7 +1170,7 @@ pcp_mount_usbdrives() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td  class="column150 center">'
+	echo '                  <td class="column150 center">'
 	if [ "$LMSDATA" = "usbmount" ]; then
 		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set USB Mount</button>'
 		echo '                  </td>'
@@ -1136,6 +1185,11 @@ pcp_mount_usbdrives() {
 	else
 		echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
 		echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
+		if [ "$NTFS" = "no" ]; then
+			echo '                  </td>'
+			echo '                  <td  class="colspan5">'
+			echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
+		fi
 	fi
 	echo '                  </td>'
 	echo '                </tr>'
@@ -1327,7 +1381,7 @@ pcp_samba() {
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 centre">'
+	echo '                <td class="column150 center">'
 	echo '                  <p class="'$CLASS'">'$SMBINDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td>'
@@ -1380,14 +1434,14 @@ pcp_samba() {
 
 	if [ "$SAMBA" != "disabled" ]; then
 		if [ -f $SAMBACONF ]; then
-#			This will read the config file. 
+#			This will read the config file.
 			GLOBAL=0
 			SC=0
 			trimval() {
-				echo $1 | cut -d '=' -f2 | xargs 
+				echo $1 | cut -d '=' -f2 | xargs
 			}
 			trimshare() {
-				echo $1 | tr -d '[]' 
+				echo $1 | tr -d '[]'
 			}
 
 			while read LINE; do
@@ -1403,7 +1457,7 @@ pcp_samba() {
 					*);;
 				esac
 			done < $SAMBACONF
-		fi	
+		fi
 		echo '            <table class="bggrey percent100">'
 		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
 		pcp_incr_id
@@ -1488,7 +1542,7 @@ pcp_samba() {
 		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		if [ "$STATUS" = "running" ]; then 
+		if [ "$STATUS" = "running" ]; then
 			PWDISABLE=""
 		else
 			PWDISABLE="disabled"
@@ -1617,7 +1671,7 @@ pcp_samba() {
 		echo '                    document.getElementById(Box).value = "";'
 		echo '                  }'
 		echo '                </script>'
-			
+
 		#--------------------------------------Submit button-------------------------------------
 		pcp_toggle_row_shade
 		echo '                <tr class="'$ROWSHADE'">'

@@ -1,10 +1,18 @@
 #!/bin/sh
 
+# Version: 3.20 2017-04-22
+#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
+#	Fixed pcp-xxx-functions issues. GE.
+#	Updated screen rotate. GE.
+#	Added JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
+#	Update jivelite install to PCP_REPO.  UPDATE PROCESS NOT FINISHED. PH.
+#	Added HDMI Power warning for high sample rates....until fixed by rpi. PH.
+
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
 
 # Version: 3.01 2016-08-20
-#   Modified User Command Strings to display using javascript
+#	Modified User Command Strings to display using javascript. PH.
 
 # Version: 3.00 2016-08-10
 #	Added LIRC IR remote controls. SBP.
@@ -13,129 +21,29 @@
 #	Modified User commands. GE.
 #	Added WOL interface. GE.
 
-# Version: 0.26 2016-05-30
-#	Added pcp_tweaks_hdmipower. GE.
-#	Added Reset Jivelite configuration. PH.
-#	Changed overclock to enable only for RPi1. GE.
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO). GE.
-#	Renamed variable HTPPD to HTTPD. GE.
-
-# Version: 0.25 2016-04-23 GE
-#	Added pcp_tweaks_playertabs and pcp_tweaks_lmscontrols.
-
-# Version: 0.24 2016-03-27 SBP
-#	Added 0xf FIQ-Split acceleration.
-#	Changed LMS Web Port to Advanced mode.
-
-# Version: 0.23 2016-03-10 GE
-#	Fixed Auto start favorite pull-down list.
-#	Added LMS Web Port.
-#	Added dwc_otg.fiq_fsm_enable.
-
-# Version: 0.22 2016-02-26 GE
-#	Increased size of Custom Cron Command field.
-#	Increased size of User Command fields.
-#	Added Clear button to User commands.
-#	Added squeezelite autostart option.
-
-# Version: 0.21 2016-01-29 SBP
-#	Activated alsaeqaual feature.
-#	Added configure button to xtras_alsaequal.cgi
-
-# Version: 0.20 2016-01-18 GE
-#	Minor update to alsaequal.
-
-# Version: 0.19 2016-01-04 SBP
-#	Added ALSA Equalizer.
-#	Added Shairport-sync.
-
-# Version: 0.18 2015-11-23 GE
-#	Fixed auto favorites for decode $HTTPD change and LMS 7.9
-#	Fixed Autostart LMS and User commands.
-#	Added VU Meters.
-
-# Version: 0.17 2015-10-06 SBP
-#	Added Screen rotate routine.
-
-# Version: 0.16 2015-08-29 GE
-#	Revised modes.
-#	Turned pcp_picoreplayers tabs on in normal mode.
-#	Turned overclocking on for RPI2B if in beta mode.
-#	Updated some help messages.
-#	Revised initial mode settings.
-
-# Version: 0.15 2015-07-01 GE
-#	Added pcp_mode tabs.
-#	Added pcp_picoreplayers tabs.
-
-# Version: 0.14 2015-06-25 SBP
-#	Added Custom cron command.
-
-# Version: 0.13 2015-06-08 GE
-#	Started adding HTML5 input field validation.
-#	Removed some unnecessary code.
-#	Added more help to custom ALSA.
-
-# Version: 0.12 2015-05-11 GE
-#	Removed shairport option.
-#	Added debug code for auto start favorite.
-
-# Version: 0.11 2015-03-29 GE
-#	Added shairport (mode = 99).
-#	Added $ROWSHADE variable. Thought it would be easier.
-#	Added pcp_incr_id and pcp_start_row_shade.
-
-# Version: 0.10 2015-03-24 SBP
-#	Added jivelite support.
-
-# Version: 0.09 2015-02-27 SBP
-#	Removed overclock option for RPi2 boards.
-#	Removed mode = 4 for User command feature.
-
-# Version: 0.08 2015-02-19 GE
-#	Updated Auto start favorite.
-#	Added User commands.
-#	Minor html updates through out.
-#	Added more/less help to Schedule CRON jobs.
-#	Added copyright.
-
-# Version: 0.07 2015-01-04 GE
-#	Updated Auto start LMS.
-
-# Version: 0.06 2014-12-14 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-#	Major reformatting.
-#	Moved debug information to appropriate locations.
-
-# Version: 0.05 2014-10-02 GE
-#	Activated $MODE = 5 for AUTOSTARTLMS.
-
-# Version: 0.04 2014-09-10 GE
-#	Reformatted html.
-
-# Version: 0.03 2014-09-09 GE
-#	Added Auto start LMS command.
-
-# Version: 0.02 2014-09-06 SBP
-#	Added cronjob.
-
 # Version: 0.01 2014-08-06 GE
 #	Original version.
 
 set -f
-. pcp-lms-functions
+
 . pcp-functions
 . pcp-rpi-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_html_head "Tweaks" "SBP"
 
-[ $MODE -ge $MODE_NORMAL ] && pcp_picoreplayers
-[ $MODE -ge $MODE_ADVANCED ] && pcp_controls
+pcp_picoreplayers_toolbar
+pcp_controls
 pcp_banner
 pcp_navigation
+
+pcp_tweaks_padding() {
+	echo '            <tr class="padding '$ROWSHADE'">'
+	echo '              <td></td>'
+	echo '              <td></td>'
+	echo '            </tr>'
+}
 
 #========================================================================================
 # pCP System Tweaks
@@ -447,7 +355,7 @@ pcp_tweaks_hdmipower() {
 	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>HDMI power&nbsp;&nbsp;'
+	echo '                  <p>HDMI power <b>(WARNING: DO not turn power off if using 192k or higher sample rates!)</b>&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -861,6 +769,18 @@ pcp_tweaks_auto_start() {
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
+# logic to activate/inactivate buttons depending upon whether LMS is installed or not
+if [ -f /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz ]; then
+	JLDISABLED=""
+else
+	JLDISABLED="disabled"
+fi
+# Function to check the Jivelite radio button according to config file
+case "$JIVELITE" in
+	yes) JIVEyes="checked" ;;
+	no) JIVEno="checked" ;;
+esac
+
 if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -873,56 +793,62 @@ fi
 #---------------------------------------Jivelite-----------------------------------------
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
-pcp_tweaks_jivelite() {
-	case "$JIVELITE" in
-		yes) JIVEyes="selected" ;;
-		no) JIVEno="selected" ;;
-	esac
-
+pcp_tweaks_install_jivelite() {
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="jivelite" action= "writetojivelite.cgi" method="get">'
+	echo '            <form name="jivelite" action="writetojivelite.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
+	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Jivelite</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="JIVELITE">'
-	echo '                    <option value="yes" '$JIVEyes'>Jivelite enabled</option>'
-	echo '                    <option value="no" '$JIVEno'>Jivelite disabled</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Enable/disable Jivelite&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
-	echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
-	echo '                    <p>A reboot after installation is needed.<p>'
-	echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
-	echo '                    <ul>'
-	echo '                      <li>Jivelite enabled - Downloads and installs Jivelite.</li>'
-	echo '                      <li>Jivelite disabled - Removes all traces of Jivelite.</li>'
-	echo '                    </ul>'
-	echo '                    <p>Jivelite may use all the free space which will prevent insitu upgrade from working.<p>'
-	echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
-	echo '                  </div>'
+	echo '                <td class="column120 center">'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
+	if [ ! -f /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz ]; then
+		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                </td>'
+		echo '                <td class="column120 center">'
+		echo '                </td>'
+		echo '                <td class="column120 left">'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Install Jivelite on pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>This will install Jivelite and VuMeters on pCP.</p>'
+		echo '                  </div>'
+		
+	else
+		echo '                  <input type="submit" name="ACTION" value="Update" />'
+		echo '                </td>'
+		echo '                <td class="column120 center">'
+		echo '                  <input type="submit" name="ACTION" value="Reset">'
+		echo '                </td>'
+		echo '                <td class="column120 left">'
+		echo '                  <input type="submit" name="ACTION" value="Remove" />'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
+		echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
+		echo '                    <p>A reboot after installation is needed.<p>'
+		echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
+		echo '                    <ul>'
+		echo '                      <li>Install - Downloads and installs Jivelite.</li>'
+		echo '                      <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot Required.</li>'
+		echo '                      <li>Reset - Resets Jivelite preferences.</li>'
+		echo '                      <li>Remove - Removes all traces of Jivelite.</li>'
+		echo '                    </ul>'
+		echo '                    <p>Jivelite may required expanding the file system.<p>'
+		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
+		echo '                  </div>'
+	fi
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	[ $MODE -ge $MODE_ADVANCED -a "$JIVELITE" = "yes" ] &&
-	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-	echo '                </td>'
-	echo '              </tr>'
+	pcp_tweaks_padding
 	echo '            </form>'
-	echo '          </table>'
-
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
@@ -931,7 +857,38 @@ pcp_tweaks_jivelite() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_jivelite
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
+
+#-----------------------------------Enable/disable autostart of Jivelite----------------------
+pcp_tweaks_enable_jivelite() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Select" action="writetojivelite.cgi" method="get">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column120 center">'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
+	echo '                  <input type="hidden" name="ACTION" value="Onboot" />'
+	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED' />'
+	echo '                </td>'
+	echo '                <td class="column250 center">'
+	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="JIVELITE" value="no" '$JIVEno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Automatic start of Jivelite when pCP boots&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Yes - will enable automatic start of Jivelite when pCP boots.</p>'
+	echo '                    <p>No - will disable automatic start of Jivelite when pCP boots.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_enable_jivelite
+#----------------------------------------------------------------------------------------
 
 #---------------------------------------VU Meters----------------------------------------
 # Function to download/install/delete Jivelite VU Meters
@@ -944,11 +901,12 @@ pcp_tweaks_vumeter() {
 	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
+	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
+	echo '                <td class="column120">'
 	echo '                  <p>Jivelite VU Meter</p>'
 	echo '                </td>'
-	echo '                <td class="column210">'
+	echo '                <td class="column250">'
 	echo '                  <select class="large16" name="VUMETER">'
 
 	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter | grep .tcz$ )
@@ -980,6 +938,7 @@ pcp_tweaks_vumeter() {
 	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
+	pcp_tweaks_padding
 	echo '            </form>'
 	echo '          </table>'
 
@@ -1026,46 +985,38 @@ pcp_tweaks_vumeter() {
 [ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
-#---------------------------------------Screen rotate------------------------------------
+#---------------------------------------Screen rotatation--------------------------------
 pcp_tweaks_screenrotate() {
 	case "$SCREENROTATE" in
-		yes) SCREENyes="selected" ;;
-		no) SCREENno="selected" ;;
+		0|no) SCREEN0="checked" ;;
+		180|yes) SCREEN180="checked" ;;
 	esac
 
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
 	pcp_incr_id
-	pcp_start_row_shade
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Rotate screen</p>'
+	echo '                <td class="column120 center">'
+	echo '                  <input type="submit" name="SUBMIT" value="Set Rotation">'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="SCREENROTATE">'
-	echo '                    <option value="yes" '$SCREENyes'>Rotate screen</option>'
-	echo '                    <option value="no" '$SCREENno'>Default screen rotation</option>'
-	echo '                  </select>'
+	echo '                <td class="column200 center">'
+	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="0" '$SCREEN0'>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="180" '$SCREEN180'>180'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Rotate screen if upside down&nbsp;&nbsp;'
+	echo '                  <p>Screen rotation (0|180)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Allows to rotate piCorePlayer if upside down.</p>'
-	echo '                    <p>A reboot after any change is needed.<p>'
-	echo '                    <p><b>Note:</b> For some screen mounts piCorePlayer is shown upside down.</p>'
+	echo '                    <p>Allows you to rotate the screen if the display is upside down.</p>'
+	echo '                    <p>A reboot is required to activate the changes.<p>'
+	echo '                    <p><b>Note:</b> On some (most) screen mounts, the screen is actually upside down.</p>'
 	echo '                    <ul>'
-	echo '                      <li>Rotate screen - will flip the view 180 degrees.</li>'
-	echo '                      <li>Default screen orientation.</li>'
+	echo '                      <li>0 - brown ribbon cable at bottom of screen.</li>'
+	echo '                      <li>180 - brown ribbon cable at top of screen (default).</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
@@ -1080,6 +1031,45 @@ pcp_tweaks_screenrotate() {
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+
+#---------------------------------------Screen Size--------------------------------------XXXXXXXXXXXX
+pcp_tweaks_screensize() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column120">'
+	echo '                  <input type="submit" name="SUBMIT" value="Set Size">'
+	echo '                </td>'
+	echo '                <td class="column150">'
+	echo '                  <p>Width: <input class="large6" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
+	echo '                </td>'
+	echo '                <td class="column150">'
+	echo '                  <p>Height: <input class="large6" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
+	echo '                </td>'
+
+	echo '                <td>'
+	echo '                  <p>Screen size&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Allows you to set a custom Jivelite screen size.</p>'
+	echo '                    <p>Zero/Zero uses the default screen resolution.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		echo '<p class="debug">[ DEBUG ] $JL_SCREEN_WIDTH: '$JL_SCREEN_WIDTH'<br />'
+		echo '                           $JL_SCREEN_HEIGHT: '$JL_SCREEN_HEIGHT'</p>'
+		echo '<!-- End of debug info -->'
+	fi
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_tweaks_screensize
+
 #----------------------------------------------------------------------------------------
 
 if [ $MODE -ge $MODE_NORMAL ]; then

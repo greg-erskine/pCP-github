@@ -1,0 +1,157 @@
+#!/bin/sh
+#
+# Version 3.20 2017-03-19
+#	First Version. PH.
+#
+
+usage() {
+echo ""
+echo "Usage: $0 query <extension>"
+echo ""
+echo "    keyword query is optional, and will just check extension for update"
+echo ""
+echo "    exit codes:"
+echo "       0 - Extension Update Complete"
+echo "       1 - Any Error"
+echo "       2 - Base extension not needing to be updated"
+echo "       3 - Query - update needed"
+echo ""
+exit 1
+}
+
+readfile() {
+	while read -r line
+	do
+		if [ -z $( echo $line | sed -r 's/[[:space:]]+//') ] ;then
+			nothing=0
+		else
+			echo "$line" >> $DEPLIST
+			getdep $line
+		fi
+	done < "$1"
+}
+
+getdep() {
+	EXT=$(echo $1 | sed "s/KERNEL/${KERNELVER}/")
+	if [ -f ${DL_DIR}/${EXT}.dep ]; then
+		readfile ${DL_DIR}/${EXT}.dep 
+	else
+		if [ ! -f "${DL_DIR}/${EXT}.dep.pcp" ]; then 
+			wget ${REPO_ADDR}/${TCE_VER}/${EXT}.dep.pcp -P $DL_DIR >/dev/null 2>&1
+			if [ $? -eq 0 ]; then
+				while read -r line; do
+					case $line in
+						*BOGUS*)break;;
+						*)	cp -f $DL_DIR/${EXT}.dep.pcp $DL_DIR/${EXT}.dep
+							readfile $DL_DIR/${EXT}.dep
+							break
+						;;
+					esac
+				done < $DL_DIR/${EXT}.dep.pcp
+			else
+				echo "[ ERROR ] There was a problem downloading dependency ${REPO_ADDR}/${TCE_VER}/${EXT}.dep.pcp"
+				exit 1
+			fi
+		fi
+	fi	
+}
+
+build_full_deps() {
+	rm -f $DEPLIST
+	getdep ${I}
+	tmp=`mktemp`
+	[ -f $DEPLIST ] && sort -u $DEPLIST > $tmp
+	mv -f $tmp $DEPLIST
+	rm -f $DL_DIR/*.dep.pcp
+}
+
+check_updates() {
+	I=$(echo $1 | sed "s/KERNEL/${KERNELVER}/")
+	R=PCP
+	eval REPO_ADDR=\${${R}_REPO}
+	printf "[ INFO ] Checking: %-40s" "${I}"
+	wget ${REPO_ADDR}/${TCE_VER}/${I}.md5.txt -P $DL_DIR >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo "[ ERROR ] downloading ${REPO_ADDR}/${TCE_VER}/${I}.md5.txt"
+		FAIL=1
+	else
+		diff -q ${I}.md5.txt $DL_DIR/${I}.md5.txt >/dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			echo " Update Required."
+			if [ $UPDATE -eq 1 ]; then
+				#Build Full Deps from REPO
+				if [ x"$2" = "xFIRST" ]; then
+					STORE=$I
+					build_full_deps $I
+					while read -r line; do
+						check_updates $line
+					done < $DEPLIST
+					I=$STORE
+				fi
+				wget ${REPO_ADDR}/${TCE_VER}/${I} -P $DL_DIR >/dev/null 2>&1
+				if [ $? -ne 0 ]; then
+					FAIL=1
+					echo "[ Error ] downloading on ${I}"
+				fi
+				if [ $FAIL -eq 0 ]; then
+					cd $DL_DIR
+					[ -d $UPGRADE_DIR ] || mkdir -p $UPGRADE_DIR
+					md5sum -cs ${I}.md5.txt
+					[ $? -eq 0 ] && mv -f $DL_DIR/${I}* ${UPGRADE_DIR} || FAIL=1
+					cd ${EXTENSION_DIR}
+				fi
+			else
+				#Query Only Requested
+				#Update needed exit code 3
+				exit 2
+			fi
+
+			if [ $UPDATE -eq 0 ] || [ $FAIL -ne 0 ]; then
+				rm -rf $DL_DIR
+			fi
+		else
+			echo " Extension version Matches"
+			# Base extension not needing to be updated exit code 2
+			[ x"$2" = "xFIRST" ] && exit 2
+		fi
+	fi
+}
+
+########################### Main ######################################
+. /etc/init.d/tc-functions
+
+#TCE_REPO="http://repo.tinycorelinux.net"
+PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+
+cd /mnt/mmcblk0p2/tce/optional
+EXTENSION_DIR=$(pwd)
+UPGRADE_DIR=${EXTENSION_DIR}/upgrade
+DL_DIR="/tmp/upgrade_ext"
+DEPLIST="/tmp/newdep.lst"
+KERNELVER=$(uname -r)
+[ ! -d $DL_DIR ] && mkdir -p $DL_DIR || sudo rm -rf $DL_DIR/*
+sudo rm $DEPLIST
+
+#For now use the armv7 repo, need to pull from tc-functions
+TCE_VER="$(getMajorVer).x/$(getBuild)/tcz"
+FAIL=0
+
+[ -z "$1" ] && usage
+
+if [ "$1" = "query" ]; then 
+	UPDATE=0
+	shift
+else 
+	UPDATE=1
+fi
+echo "[ INFO ] Checking for Updates"
+echo ""
+check_updates "${1%.tcz}.tcz" "FIRST"
+echo "[ INFO ] Done checking for updates"
+echo ""
+
+if [ $FAIL -ne 0 ]; then
+	exit 1
+fi
+echo "[ INFO ] Reboot is required to complete update."
+exit 0

@@ -1,25 +1,8 @@
 #!/bin/sh
 
-#=========================================================================================
-# This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp-functions
-# from your web browser.
-#
-# During testing, it is a pain to turn debugging on and off by editing pcp-functions
-# in a text editor. Problem solved!
-#
-# Options:
-#	$DEBUG   d=[0|1]
-#	$TEST    t=[0-9]
-#	$MODE    m=[0-99]
-#	ALL      a=[0|1]
-#
-# Examples:
-#	Turn debug on:   http://192.168.1.xxx/cgi-bin/debug.cgi?d=1
-#	Turn debug off:  http://192.168.1.xxx/cgi-bin/debug.cgi?d=0
-#	Turn all off:    http://192.168.1.xxx/cgi-bin/debug.cgi?a=0
-#
-#	Use the interactive mode.
-#-----------------------------------------------------------------------------------------
+# Version: 3.20 2017-03-08 GE
+#	Moved variables DEBUG, TEST and MODE to config.cfg. GE.
+#	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 0.04 2015-08-16 GE
 #	Revised sed to match a tab in front of DEBUG, TEST and MODE.
@@ -34,10 +17,27 @@
 # Version: 0.01 2014-10-24 GE
 #	Original.
 
-. pcp-lms-functions
+#=========================================================================================
+# This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in config.cfg
+# from your web browser.
+#
+# Options:
+#	$DEBUG   d=[0|1]
+#	$TEST    t=[0-9]
+#	$MODE    m=[0-100]
+#	ALL      a=[0]
+#
+# Examples:
+#	Turn debug on:   http://192.168.1.xxx/cgi-bin/debug.cgi?d=1
+#	Turn debug off:  http://192.168.1.xxx/cgi-bin/debug.cgi?d=0
+#	Turn all off:    http://192.168.1.xxx/cgi-bin/debug.cgi?a=0
+#
+#	Use the interactive mode.
+#-----------------------------------------------------------------------------------------
+
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+. pcp-lms-functions
+#. $CONFIGCFG
 
 pcp_httpd_query_string
 
@@ -45,21 +45,15 @@ pcp_httpd_query_string
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_debug_save() {
-	sed -i "s/\(\\tDEBUG=\).*/\1$d/" ${PCPHOME}/pcp-functions
-	sed -i "s/\(\\tTEST=\).*/\1$t/" ${PCPHOME}/pcp-functions
-	sed -i "s/\(\\tMODE=\).*/\1$m/" ${PCPHOME}/pcp-functions
+	pcp_write_var_to_config DEBUG $d
+	pcp_write_var_to_config TEST $t
+	pcp_write_var_to_config MODE $m
 } 
 
 pcp_debug_reset() {
-	sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
-	sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
-	sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
-}
-
-pcp_debug_set() {
-	sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
-	sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
-	sed -i "s/\(\\tMODE=\).*/\11/" ${PCPHOME}/pcp-functions
+	pcp_write_var_to_config DEBUG 0
+	pcp_write_var_to_config TEST 0
+	pcp_write_var_to_config MODE $MODE_INITIAL
 }
 
 #========================================================================================
@@ -69,21 +63,19 @@ pcp_debug_cli() {
 	if [ x"" != x"$QUERY_STRING" ]; then
 		case "$QUERY_STRING" in
 			d=[01])
-				sed -i "s/\(\\tDEBUG=\).*/\1$d/" ${PCPHOME}/pcp-functions
+				pcp_write_var_to_config DEBUG $d
 			;;
 			t=[0-9])
-				sed -i "s/\(\\tTEST=\).*/\1$t/" ${PCPHOME}/pcp-functions
+				pcp_write_var_to_config TEST $t
 			;;
 			m=100|m=[0-9][0-9]|m=[0-9]) 
-				sed -i "s/\(\\tMODE=\).*/\1$m/" ${PCPHOME}/pcp-functions
+				pcp_write_var_to_config MODE $m
 			;;
-			a=[01])
-				sed -i "s/\(\\tDEBUG=\).*/\1$a/" ${PCPHOME}/pcp-functions
-				sed -i "s/\(\\tTEST=\).*/\1$a/" ${PCPHOME}/pcp-functions
-				sed -i "s/\(\\tMODE=\).*/\1$a/" ${PCPHOME}/pcp-functions
+			a=[0])
+				pcp_debug_reset
 			;;
 			*)
-				[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] XX Invalid option: '$QUERY_STRING'</p>'
+				[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid option: '$QUERY_STRING'</p>'
 			;;
 		esac
 	fi
@@ -94,7 +86,6 @@ pcp_debug_cli() {
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Save) pcp_debug_save ;;
-	Set*) pcp_debug_set ;;
 	Res*) pcp_debug_reset ;;
 esac
 
@@ -108,12 +99,14 @@ esac
 
 pcp_html_head "Debug" "GE"
 
+# Command line mode and exit
 if [ x"" != x"$QUERY_STRING" ] && [ x"" = x"$SUBMIT" ]; then
 	echo '<body onload="javascript:location.href=document.referrer;">'
 	pcp_debug_cli
 	exit 0
 fi
 
+# Web page mode
 pcp_controls
 pcp_banner
 pcp_navigation
@@ -123,9 +116,14 @@ pcp_running_script
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	echo '<p class="debug">[ DEBUG ] DEBUG: '$DEBUG' d: '$d'<br />'
-	echo '                 [ DEBUG ] TEST: '$TEST' t: '$t'<br />'
-	echo '                 [ DEBUG ] MODE: '$MODE' m: '$m'<br />'
+	echo '<p class="debug">[ DEBUG ] DEBUG: '$DEBUG'<br />'
+	echo '                 [ DEBUG ] d: '$d'<br />'
+	echo '                 [ DEBUG ] MODE: '$MODE'<br />'
+	echo '                 [ DEBUG ] m: '$m'<br />'
+	echo '                 [ DEBUG ] TEST: '$TEST'<br />'
+	echo '                 [ DEBUG ] t: '$t'<br />'
+	echo '                 [ DEBUG ] D0SELECTED: '$D0SELECTED'<br />'
+	echo '                 [ DEBUG ] D1SELECTED: '$D1SELECTED'<br />'
 	echo '                 [ DEBUG ] SUBMIT: '$SUBMIT'</p>'
 fi
 
@@ -140,12 +138,13 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Set debug options</legend>'
 echo '            <table class="bggrey percent100">'
+#--------------------------------------DEBUG---------------------------------------------
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
+echo '                <td class="column100">'
 echo '                  <p>DEBUG</p>'
 echo '                </td>'
-echo '                <td class="column210">'
+echo '                <td class="column150">'
 echo '                  <input class="small1" type="radio" name="d" value="1" '$D1SELECTED'>On&nbsp;'
 echo '                  <input class="small1" type="radio" name="d" value="0" '$D0SELECTED'>Off'
 echo '                </td>'
@@ -153,38 +152,62 @@ echo '                <td>'
 echo '                  <p>Set DEBUG on or off.</p>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------MODE----------------------------------------------
+case "$MODE" in
+	0) MODEinitial="selected" ;;
+	10) MODEbasic="selected" ;;
+	20) MODEnormal="selected" ;;
+	30) MODEdvanced="selected" ;;
+	40) MODEbeta="selected" ;;
+	100) MODEdeveloper="selected" ;;
+esac
+
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column100">'
+echo '                  <p>MODE</p>'
+echo '                </td>'
 echo '                <td class="column150">'
+echo '                  <select class="large10" name="m">'
+echo '                    <option value="0" '$MODEinitial'>Initial</option>'
+echo '                    <option value="10" '$MODEbasic'>Basic</option>'
+echo '                    <option value="20" '$MODEnormal'>Normal</option>'
+echo '                    <option value="30" '$MODEdvanced'>Advanced</option>'
+echo '                    <option value="40" '$MODEbeta'>Beta</option>'
+echo '                    <option value="100" '$MODEdeveloper'>Developer</option>'
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set MODE level.</p>'
+echo '                </td>'
+echo '              </tr>'
+#--------------------------------------TEST----------------------------------------------
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column100">'
 echo '                  <p>TEST</p>'
 echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input type="number" name="t" value='$TEST' min="0" max="9">'
+echo '                <td class="column150">'
+echo '                  <input type="number"'
+echo '                         name="t"'
+echo '                         value="'$TEST'"'
+echo '                         min="0"'
+echo '                         max="9"'
+echo '                  >'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set TEST level [0-9].</p>'
 echo '                </td>'
 echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>MODE</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input type="number" name="m" value='$MODE' min="0" max="100">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set MODE level [0-100].</p>'
-echo '                </td>'
-echo '              </tr>'
+#--------------------------------------BUTTONS-------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                  <input type="submit" name="SUBMIT" value="Set all">'
 echo '                  <input type="submit" name="SUBMIT" value="Reset all">'
 echo '                </td>'
 echo '              </tr>'
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'

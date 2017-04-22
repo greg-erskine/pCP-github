@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-08
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.00 2016-07-29
 #	Fixed issue with pcp_bootcode_equal_add. GE.
 #	Revised handling of multiple spaces. GE.
@@ -12,8 +15,7 @@
 #	Original version. GE.
 
 . pcp-functions
-pcp_variables
-. $CONFIGCFG
+#. $CONFIGCFG
 
 USER=""
 TZ=""

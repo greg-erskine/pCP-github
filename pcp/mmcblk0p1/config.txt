@@ -2,26 +2,26 @@
 # http://www.raspberrypi.org/documentation/configuration/config-txt.md
 # Some settings may impact device functionality. See link above for details
 
-
 [PI0]
-initramfs pcp_8.0.gz followkernel
-kernel kernel4439.img
+initramfs pcp_8.01.gz followkernel
+kernel kernel4921.img
 
 [PI1]
-initramfs pcp_8.0.gz followkernel
-kernel kernel4439.img
+initramfs pcp_8.01.gz followkernel
+kernel kernel4921.img
 
 [PI2]
-initramfs pcp_8.0v7.gz followkernel
-kernel kernel4439v7.img
+initramfs pcp_8.01v7.gz followkernel
+kernel kernel4921v7.img
+total_mem=1024
 
 [PI3]
-initramfs pcp_8.0v7.gz followkernel
-kernel kernel4439v7.img
+initramfs pcp_8.01v7.gz followkernel
+kernel kernel4921v7.img
+total_mem=1024
 
 [ALL]
 cmdline cmdline.txt
-
 
 # uncomment if you get no picture on HDMI for a default "safe" mode
 #hdmi_safe=1
@@ -65,8 +65,10 @@ dtoverlay=pi3-disable-bt
 #----------------------------------------------------
 dtparam=i2c=on,spi=on,i2s=on
 
-
 #---pCP----------------------------------------------
+# pCP does not use graphics chip by default, free up most memory
+gpu_mem=64
+# onboard audio overlay
 dtparam=audio=on
 audio_pwm_mode=2
 
@@ -76,14 +78,13 @@ audio_pwm_mode=2
 #sdram_freq=
 #over_voltage=
 #force_turbo=
-#gpu_mem=
 
 # Force max current to USB
 max_usb_current=1
 
 # Remove audio hiss
 # disable_audio_dither=1
+
+# Screen rotation 0 => 0 degrees, 2 => 180 degrees
 lcd_rotate=2
 
-# This will eventually become the default, but until then.
-dtoverlay=i2s-mmap

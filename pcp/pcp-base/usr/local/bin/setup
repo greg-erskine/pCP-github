@@ -1,5 +1,8 @@
 #!/bin/sh +x
 
+# Version: 3.20 2017-03-07
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 3.02 2016-08-29 PH
 #	Updated Static IP to wait for USB ethernet to be detected
 
@@ -17,11 +20,10 @@
 
 BACKTITLE="piCorePlayer Basic Setup"
 
-PCPHOME=/home/tc/www/cgi-bin
-STATICIP=/opt/eth0.sh
+PCPHOME="/home/tc/www/cgi-bin"
+STATICIP="/opt/eth0.sh"
 
-. $PCPHOME/pcp-functions
-pcp_variables
+. ${PCPHOME}/pcp-functions
 
 DIALOG_OK=0
 DIALOG_CANCEL=1
@@ -137,30 +139,30 @@ pcp_main_menu() {
 			WIFICHANGED=1
 			pcp_wifi_menu
 			pcp_main_menu
-			;;
+		;;
 		Static*)
 			STATICIPCHANGED=1
 			pcp_dhcp_menu
 			pcp_main_menu
-			;;
+		;;
 		WebGUI)
 			WEBGUICHANGED=1
 			pcp_webgui_menu
-			;;
+		;;
 		Backup)
 			pcp_backup_nohtml >/dev/null 2>&1
 			pcp_main_menu
-			;;
+		;;
 		Reboot)
 			clear
 			echo "Rebooting $NAME..."
 			sudo reboot
-			;;
+		;;
 		Shutdown)
 			clear
 			echo "Shutting down $NAME..."
 			exitcheck.sh
-			;;
+		;;
 	esac
 }
 
@@ -365,7 +367,7 @@ pcp_write_script() {
 #----------------------------------------------------------------------------------------
 pcp_edit_localboot() {
 	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /opt/bootlocal.sh...'
-	#ugly permission hack, ownership is messed up and you cannot sudo with redirected output
+	# Ugly permission hack, ownership is messed up and you cannot sudo with redirected output
 	sudo chown root.staff /opt
 	sudo chmod 775 /opt
 	sudo chmod g+s /opt

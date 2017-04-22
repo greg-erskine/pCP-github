@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-07
+#	Moved Mode/Test/Debug to config. PH.
+#	Fixed pcp-xxx-functions issues. GE.
+
 # Version: 0.03 2016-04-26 GE
 #	Added rescan (rs1) and wipecache (rs0).
 #	Revised pcp_cli_help.
@@ -50,91 +54,102 @@ pcp_cli_help() {
 	echo "-----------------------------------------------------------------------------------------"
 }
 
+# Note: Need to use $WWWROOT someday.
+. /home/tc/www/cgi-bin/pcp-functions
 . /home/tc/www/cgi-bin/pcp-lms-functions
 
 case "$1" in
 	play)
 		pcp_lms_play
-		;;
+	;;
 	stop)
 		pcp_lms_stop
-		;;
+	;;
 	up)
 		pcp_lms_volume_up
-		;;
+	;;
 	down)
 		pcp_lms_volume_down
-		;;
+	;;
 	next)
 		pcp_lms_next
-		;;
+	;;
 	prev)
 		pcp_lms_prev
-		;;
+	;;
 	rand*)
 		pcp_lms_randomplay
-		;;
+	;;
 	power)
 		pcp_lms_power $2
-		;;
+	;;
 	volume)
 		pcp_lms_volume_set $2
-		;;
+	;;
 	rs1|rescan)
 		pcp_lms_rescan
-		;;
+	;;
 	rs0|wipecache)
 		pcp_lms_wipecache
-		;;
+	;;
 	bu|backup)
 		pcp_backup_nohtml
-		;;
+	;;
 	sd|shutdown)
 		exitcheck.sh
-		;;
+	;;
 	bs|backdown)
 		pcp_backup_nohtml
 		exitcheck.sh
-		;;
+	;;
 	rb|reboot)
 		sudo reboot
-		;;
+	;;
 	br|backreboot)
 		pcp_backup_nohtml
 		sudo reboot
-		;;
+	;;
 	d0)
-		sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
-		;;
+		DEBUG=0
+		pcp_save_to_config
+	;;
 	d1)
-		sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
-		;;
+		DEBUG=1
+		pcp_save_to_config
+	;;
 	m0)
-		sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
-		;;
+		MODE=0
+		pcp_save_to_config
+	;;
 	m100)
-		sed -i "s/\(\\tMODE=\).*/\1100/" ${PCPHOME}/pcp-functions
-		;;
+		MODE=100
+		pcp_save_to_config
+	;;
 	t0)
-		sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
-		;;
+		TEST=0
+		pcp_save_to_config
+	;;
 	t1)
-		sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
-		;;
+		TEST=1
+		pcp_save_to_config
+	;;
 	t3)
-		sed -i "s/\(\\tTEST=\).*/\13/" ${PCPHOME}/pcp-functions
-		;;
+		TEST=3
+		pcp_save_to_config
+	;;
 	a0)
-		sed -i "s/\(\\tDEBUG=\).*/\10/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tMODE=\).*/\10/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tTEST=\).*/\10/" ${PCPHOME}/pcp-functions
-		;;
+		DEBUG=0
+		MODE=0
+		TEST=0
+		pcp_save_to_config
+	;;
 	a1)
-		sed -i "s/\(\\tDEBUG=\).*/\11/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tMODE=\).*/\140/" ${PCPHOME}/pcp-functions
-		sed -i "s/\(\\tTEST=\).*/\11/" ${PCPHOME}/pcp-functions
-		;;
+		DEBUG=1
+		MODE=40
+		TEST=1
+		pcp_save_to_config
+	;;
 	*)
 		pcp_cli_help 
-		;;
+	;;
 esac

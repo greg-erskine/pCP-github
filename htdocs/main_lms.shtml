@@ -25,7 +25,15 @@
           <table class="bggrey percent100">
             <tr>
               <td>
-                <h1>LMS</h1>
+                <h1>Logitech Media Server (LMS)</h1>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p>Logitech Media Server (LMS) is the server software that powers networked audio players from Logitech including Squeezebox, Radio, Boom, Receiver, Transporter and various third party hardware devices that use Squeezelite.</p>
+                <p>LMS is Open Source Software written in Perl and it runs on pretty much any platform that Perl runs on, including Linux, Mac OSX, Solaris and Windows.</p>
+                <p>LMS was formally known as Squeezebox Server, SqueezeCentre and SlimServer.</p>
+                <p><b>Installation: </b>LMS can be installed on piCorePlayer via the [Tweaks] page on the piCorePlayer web interface.</p>
               </td>
             </tr>
           </table>
@@ -35,8 +43,27 @@
   </tr>
 </table>
 
+<table class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <legend>More information</legend>
+          <!-- -------------------------------------------------------------------- -->
+          <ul>
+            <!-- wiki -->
+            <li><a href="http://wiki.slimdevices.com/index.php/Logitech_Media_Server" target="_blank">Logitech Media Server (LMS)</a> &#8599;</li>
+            <!-- Source -->
+            <li><a href="http://downloads.slimdevices.com/LogitechMediaServer_v7.9.0/" target="_blank">Logitech Media Server (LMS) v7.9.0 source</a> &#8599;</li>
+          </ul>
+          <!-- -------------------------------------------------------------------- -->
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
 <!--#include virtual="pcp_footer.html" -->
-<!--#include virtual="pcp_mode.html" -->
 <!--#include virtual="pcp_copyright.html" -->
 
 </body>
