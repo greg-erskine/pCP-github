@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-19
+# Version: 3.20 2017-04-17
 #	Fixed pcp-xxx-functions issues. GE.
 #	Change Full Update to use pcp-update. PH.
 
@@ -45,7 +45,7 @@ RESULT=0
 #----------------------------------------------------------------------------------------
 
 pcp_end() {
-	pcp_squeezelite_start
+	[ $REBOOT_REQUIRED -eq 0 ] &&	pcp_squeezelite_start
 	echo '</body>'
 	echo '</html>'
 	exit
@@ -121,7 +121,8 @@ case "${ACTION}" in
 		elif [ $TEST -eq 1 ]; then
 			echo '[ ERROR ] There was an error updating squeezelite, please try again later'
 			REBOOT_REQUIRED=0
-		else 
+		else
+			echo '[ INFO ] A reboot is required to complete the update.'
 			REBOOT_REQUIRED=1
 		fi
 		echo '                </textarea>'

@@ -27,13 +27,14 @@
               <td>
                 <h1>piCorePlayer</h1>
                 <p>piCorePlayer is a software emulation of a Squeeezebox network music player that runs exclusively on the Raspberry Pi.</p>
+                <p>piCorePlayer is designed as a headless music player, much like the Squeezebox Duet. Optionally, a keyboard and monitor or touch screen can be added if desired.</p>
                 <p>piCorePlayer uses piCore linux, a very small embedded Linux distribution that runs in RAM. After the initial
                    setup, it only reads the SD card. This gives you a very robust system that, like most embedded systems, is very
                    unlikely to corrupt your SD card. This enables you can simply cut the power without the need of a complex
                    shutdown procedure.</p>
                 <p><b>piCorePlayer can be used in 3 ways:</b></p>
                 <ol>
-                  <li>As a Squeezebox player that connects to your existing Logitech Media Server (LMS).</li>
+                  <li>As a Squeezebox network music player that connects to your existing Logitech Media Server (LMS).</li>
                   <li>As a Logitech Media Server (LMS).</li>
                   <li>A combined Squeezebox player and Logitech Media Server (LMS).</li>
                 </ol>
@@ -58,7 +59,7 @@
                   <li>Supports I2S to Analog out.</li>
                   <li>Supports I2S to S/PDIF out.</li>
                   <li>Supports USB DACs up to 24 bit/192 khz.</li>
-                  <li>Supports various Infrared Remotes.</li>
+                  <li>Supports various Infrared Remotes via LIRC.</li>
                   <li>Supports additional extensions, such as LMS, Shairport, ALSAequal and nano.</li>
                   <li>Compatible with your existing Logitech Squeezebox devices.</li>
                   <li>piCorePlayer CLI for enhanced command line and scripting.</li>

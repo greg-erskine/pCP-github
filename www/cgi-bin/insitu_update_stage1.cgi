@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.20 2017-03-21
+# Version 3.20 2017-03-25
 #	Removed code that is not used until stage2. PH.
 #	Change stage2 download to work with web based repo location. PH.
 
@@ -26,16 +26,6 @@ FAIL_MSG="ok"
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
-
-#========================================================================================
-#      382 - insitu.cfg
-# 21044878 - piCorePlayer2.00_boot.tar.gz
-# 14932349 - piCorePlayer2.00_tce.tar.gz
-# --------
-# 35977609 bytes
-#----------------------------------------------------------------------------------------
-#SPACE_REQUIRED=$((35977609 * 2 / 1000))
-SPACE_REQUIRED=21044
 
 #========================================================================================
 # DEBUG info showing variables
@@ -82,12 +72,13 @@ pcp_get_newinstaller() {
 	echo '[ INFO ] Step 2B. - Downloading the new Update script...'
 
 	# The web storage does not allow for cgi downloads.  
-	PACKAGE="insitu_update_stage2.cgi.gz"
+	PACKAGE="insitu_update_stage2.gz"
 	$WGET ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1 
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new Update script.'
 		gunzip ${PCPHOME}/${PACKAGE}
 		if [ $? -eq 0 ]; then
+			mv ${PCPHOME}/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
 			sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
 			sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
 			sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"

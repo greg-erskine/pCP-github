@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.20 2017-04-22
+#	Updates for new Repo and Newer kernels
+
 # Version 3.10 2016-12-26
 #	Changes for shairport-sync.  Incomplete PH
 #	Sourceforge repo changes. PH
@@ -20,7 +23,6 @@
 
 . /etc/init.d/tc-functions
 . pcp-functions
-pcp_variables
 
 pcp_html_head "Update pCP" "GE"
 
@@ -31,6 +33,14 @@ pcp_httpd_query_string
 
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
+
+if [ -n $CORE ]; then
+	case $CORE in
+		#AUDIOTAR is used to download correct package
+		*pcpAudioCore*) AUDIOTAR="-Audio";;
+		*) AUDIOTAR="";;
+	esac
+fi
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
@@ -44,7 +54,16 @@ UPD_PCP="/tmp/pcp_insitu_update"
 # 35977609 bytes
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
-SPACE_REQUIRED=21044
+case "${VERSION}" in
+	piCorePlayer3.20*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=25500
+	;;
+	*)
+		SPACE_REQUIRED=15000
+		BOOT_SIZE_REQUIRED=27000
+	;;
+esac
 
 #========================================================================================
 # DEBUG info showing variables
@@ -55,7 +74,9 @@ pcp_debug_info() {
 	echo '                 [ DEBUG ] VERSION: '$VERSION'<br />'
 	echo '                 [ DEBUG ] UPD_PCP: '$UPD_PCP'<br />'
 	echo '                 [ DEBUG ] INSITU_DOWNLOAD: '$INSITU_DOWNLOAD'<br />'
-	echo '                 [ DEBUG ] SPACE_REQUIRED: '$SPACE_REQUIRED'</p>'
+	echo '                 [ DEBUG ] SPACE_REQUIRED: '$SPACE_REQUIRED'<br />'
+	echo '                 [ DEBUG ] BOOT_SPACE_REQUIRED: '$BOOT_SIZE_REQUIRED'<br />'
+	echo '                 [ DEBUG ] BOOT_SIZE: '$BOOT_SIZE'</p>'
 }
 
 #========================================================================================
@@ -139,7 +160,7 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
-	$WGET ${INSITU_DOWNLOAD}/insitu.cfg/download -O ${UPD_PCP}/insitu.cfg
+	$WGET ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded insitu.cfg'
 	else
@@ -248,39 +269,53 @@ pcp_get_kernel_modules() {
 			NEWKERNELVER=4.4.20
 			PICOREVERSION=8.x
 		;;
+		piCorePlayer3.20*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			NEWKERNELVER=4.9.21
+			PICOREVERSION=8.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
 		*)  KUPDATE=0
 		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
-		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
+#		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
+		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
 		BUILD=$(getBuild)
 		case $BUILD in
-			armv6) KERNEL="${NEWKERNELVER}-piCore+" ;;
-			armv7) KERNEL="${NEWKERNELVER}-piCore_v7+" ;;
-			*) FAIL_MSG="Kernel Version Error" ;;
+			armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
+			armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
 		esac
-		TCE_DL="${TCE_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
 		PCP_DL="${PCP_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
-		echo 'TCE_DL='$TCE_DL
-		echo 'PCP_DL='$PCP_DL
-		# Get list of kernel modules matching current kernel
-		ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
-		# Get list of kernel modules not matching current kernel
-		ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz | grep $KERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
-		# Show the old modules that do not have a current kernel version.
-		MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
-		echo '[ INFO ] Downloading new kernel modules: '$MODULES
-		if [ -z "${MODULES}" ]; then
-			echo '[ INFO ] All new Kernel modules for ${KERNEL} already present.'
-		else
-			for EXT in ${MODULES}; do
-				# All kernel modules distributed from PCP_REPO
-				sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${KERNEL}.tcz
-				[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
-				esac
-			done
+		echo '[ INFO ] PCP_DL='$PCP_DL
+		# Do a space check based on current kernel modules installed, then doubled for safety
+		MODSIZE=0
+		for I in $(ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL); do
+			MODSIZE=$((MODSIZE+$(du -k $I | awk '{print $1}')))
+		done
+		pcp_enough_free_space $((MODSIZE * 2))
+		if [ "$FAIL_MSG" = "ok" ]; then
+			# Get list of kernel modules matching current kernel
+			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
+			# Get list of kernel modules not matching current kernel
+			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
+			#Remove Backlight from Modules list, it does not exist anymore
+			sed -i '/backlight/d' /tmp/current
+			# Show the old modules that do not have a current kernel version.
+			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
+			echo '[ INFO ] Downloading new kernel modules: '$MODULES
+			if [ -z "${MODULES}" ]; then
+				echo '[ INFO ] All new Kernel modules for '${NEWKERNEL}' already present.'
+			else
+				for EXT in ${MODULES}; do
+					# All kernel modules distributed from PCP_REPO
+					sudo -u tc pcp-load -w -u ${PCP_DL} ${EXT}-${NEWKERNEL}.tcz
+					[ $? -ne 0 ] && FAIL_MSG="Error downloading new Kernel Modules"
+				done
+			fi
 		fi
 	fi
 }
@@ -289,9 +324,10 @@ pcp_get_kernel_modules() {
 # Download the boot files from Sourceforge
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
-	echo '[ INFO ] Step 4A. - Downloading '$VERSION'_boot.tar.gz'
+	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
+	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}_boot.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -314,8 +350,8 @@ pcp_install_boot_files() {
 	pcp_save_configuration
 
 	# Untar the boot files
-	echo '[ INFO ] Untarring '${VERSION}'_boot.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}_boot.tar.gz -C /
+	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C /mnt/mmcblk0p1/
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully untarred boot tar.'
 	else
@@ -348,9 +384,10 @@ pcp_save_configuration() {
 # Download the tce files from Sourceforge
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
-	echo '[ INFO ] Step 4B. - Downloading '$VERSION'_tce.tar.gz'
+	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
+	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}_tce.tar.gz
+	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -363,30 +400,10 @@ pcp_get_tce_files() {
 # Install the tce files
 #----------------------------------------------------------------------------------------
 pcp_install_tce_files() {
-	# Delete all the kernel specific files in the optional directory - so no stray files are left    <------------Now we need to add a check which kernel-specific files we can delete during the first boot. When the new kernel is in use.
-	#sudo rm -rf /mnt/mmcblk0p2/tce/optional/*piCore*.*
-	#[ $? -eq 0 ] || FAIL_MSG="Error removing kernel specific files."
-
-	#	pcp_remove_shairport.old() {  Need to figure out how we want to remove the old shairport
-	#	echo '<p class="info">[ INFO ] Removing Shairport...'
-	#	/usr/local/etc/init.d/shairport-sync stop >/dev/null 2>&1
-	#	sudo pkill shairport-sync
-	#	sudo rm -f /mnt/mmcblk0p2/tce/shairport-sync
-	#	sudo rm -f /mnt/mmcblk0p2/tce/optional/avahi.tcz*
-	#	sudo rm -f /mnt/mmcblk0p2/tce/optional/dbus.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/expat2.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libattr.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libavahi.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libcap.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libcofi.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/libdaemon.tcz*
-	# sudo rm -f /mnt/mmcblk0p2/tce/optional/nss-mdns.tcz*
-}
-	
 	# Untar and update the tzc packages files to optional
-	echo '[ INFO ] Untarring '${VERSION}'_tce.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
-
+	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_tce.tar.gz...'
+#	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz ./optional -C /mnt/mmcblk0p2/tce
 	if [ $? -eq 0 ]; then
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] tce tar result: '$?
 		echo '[  OK  ] Successfully untarred tce tar.'
@@ -401,13 +418,13 @@ pcp_install_tce_files() {
 #----------------------------------------------------------------------------------------
 pcp_finish_install() {
 	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct locations
-	sudo mkdir ${UPD_PCP}/mydata
-	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}_tce.tar.gz -C ${UPD_PCP}/mydata
-	sudo tar zxvf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
+	sudo mkdir -p ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
+	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz -C ${UPD_PCP}/mydata
+	sudo tar zxvf ${UPD_PCP}/mydata/mydata.tgz -C ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
 
 	# Move Bootfix into location if it is present
-	if [ -f "${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/bootfix.sh" ]; then
-		sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/bootfix/ /mnt/mmcblk0p2/tce/
+	if [ -f "${UPD_PCP}/mydata/bootfix/bootfix.sh" ]; then
+		sudo cp -Rf ${UPD_PCP}/mydata/bootfix/ /mnt/mmcblk0p2/tce/
 		chmod 755 /mnt/mmcblk0p2/tce/bootfix/*
 	fi
 
@@ -415,12 +432,24 @@ pcp_finish_install() {
 	# So check that the final onboot contains all from the new version and add eventual extra from the old
 	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
 	echo "content of mnt onboot.lst before:"; cat /mnt/mmcblk0p2/tce/onboot.lst
-	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
-	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
-	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/onboot.lst
-	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
+	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/onboot.lst
+	sort -u ${UPD_PCP}/mydata/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
+	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
 	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
 	sudo chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
+	case "${VERSION}" in
+		piCorePlayer3.20*)
+			#pcp3.20 pcp.tcz handles all pcp dependencies (non-wifi)
+			echo "Removing old boot extensions from onboot.lst:"
+			sed -i '/busybox-httpd.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/alsa.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/openssh.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/dialog.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/alsa-utils.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/pcp-squeezelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+		;;
+	esac
+	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -429,7 +458,15 @@ pcp_finish_install() {
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst > /opt/.filetool.lst
 	sudo chown root:staff /opt/.filetool.lst
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
-
+	case "${VERSION}" in
+		piCorePlayer3.20*)
+			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
+			sed -i 'usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+		;;
+	esac
+	
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
 	sudo chown root:staff /opt/.xfiletool.lst
@@ -470,26 +507,28 @@ outfile.close
 	sudo chown root:staff /opt/bootlocal.sh
 	chmod 775 /opt/bootlocal.sh
 
-#	sudo cat /opt/bootlocal.sh >> ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh
-#	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/bootlocal.sh > /opt/bootlocal.sh
 	sudo chown root:staff /opt/bootlocal.sh
 	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
 
-	#update of the config.cfg file is done via newconfig and do_rebootstuff after next reboot as it always have been done
+	case "${VERSION}" in
+		piCorePlayer3.20*)
+			#pcp3.20 made a change in card configs to shini, remove all old card conf files
+			rm -f /usr/local/etc/pcp/cards/*
+		;;
+	esac
 
 	# Update pCP by copying the content from the new version to the correct location followed by a backup
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
+	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pcp/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/
-
-	# Copy possible new content from the new untarred tce directory except directories.
-	# sudo cp /${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/* /mnt/mmcblk0p2/tce
-	# sudo cp -f /home/tc/www/cgi-bin/insitu_update_new.cgi /home/tc/www/cgi-bin/insitu_update.cgi     # This is because otherwise the old version will be used
 
 	sudo chown -R tc:staff /home/tc/www
 	sudo chmod u=rwx,g=rx,o= /home/tc/www/cgi-bin/*
@@ -497,6 +536,8 @@ outfile.close
 	sudo chmod u=rw,g=r,o= /home/tc/www/images/*
 	sudo chmod u=rw,g=r,o= /home/tc/www/js/*
 	sudo chmod u=rw,g=r,o= /home/tc/www/index.html
+	sudo chown tc.staff /usr/local/etc/pcp/cards/*
+	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
@@ -564,10 +605,8 @@ pcp_html_end() {
 	pcp_copyright
 
 	if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
-		#pcp_finish_install
 		pcp_reboot_required
 	fi
-
 	echo '</body>'
 	echo '</html>'
 	exit
@@ -620,28 +659,27 @@ echo '                  <textarea class="inform" style="height:130px">'
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
 	echo '[ INFO ] '$SOURCEFORGE_STATUS
-	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
-	pcp_enough_free_space $SPACE_REQUIRED
-	pcp_check_for_all_extensions
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
 fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
-	echo '[ INFO ] You are downloading '$VERSION
+	echo '[ INFO ] You are downloading '${VERSION}
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
-	pcp_enough_free_space $SPACE_REQUIRED
 
 	case "${VERSION}" in
 		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
-			[ $(printf  "%.0f" $(pcp_picoreplayer_version)) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+			VVV=$(pcp_picoreplayer_version)
+			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
-		*) ;;
 	esac
-
-	echo '[ INFO ] You are downloading '$VERSION
-	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
-	pcp_enough_free_space $SPACE_REQUIRED
+	BOOT_SIZE=$(/bin/busybox fdisk -l | grep mmcblk0p1 | tr -s " " | cut -d " " -f4 | tr -d +)
+	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
+	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
+		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"
+	fi
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_kernel_modules
+	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
+
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_boot_files
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_tce_files
 	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
@@ -675,6 +713,12 @@ echo '</table>'
 #========================================================================================
 # Initial
 #----------------------------------------------------------------------------------------
+case $(uname -r) in
+	*pcpAudioCore*) PCPAUDIOCOREyes="checked";PCPCOREyes="";;
+	*) PCPCOREyes="checked";PCPAUDIOCORE="";;
+esac
+COL1=75
+COL2=200
 if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
@@ -682,12 +726,49 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu update</legend>'
+	echo '          <legend>piCorePlayer insitu update: Select Kernel Type and Version</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="initial" action= "'$0'" method="get">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="large18">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Standard version:</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>pcpCore Kernel&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version uses the kernel code and config from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Audio enthusiast version:</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>pcpAudioCore Kernel&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version starts with the same kernel code from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
+	echo '                    <p>The kernel is then patched with extra drivers and modifications to support additional custom DACs and higher sample rates.</p>'
+	echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="large18 center">'
 	echo '                  <select name="VERSION">'
 	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
 	echo '                  </select>'
@@ -734,6 +815,7 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input class="large12" type="submit" value="Next >">'
 	echo '                  <input type="hidden" name="ACTION" value="install">'
 	echo '                  <input type="hidden" name="VERSION" value="'$VERSION'">'
+	echo '                  <input type="hidden" name="CORE" value="'$CORE'">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Press the [ Next ] button to install the update files.</p>'

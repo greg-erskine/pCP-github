@@ -1,9 +1,14 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-04-22
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
 #	Changed rpi3 disable wifi to overlays on new config start. PH
+#	Fixed boot Removal of old kernel modules. PH
+#	Added setting SCREENROTATE to config.txt during newconfig process. PH
+#	Reordered a few things that didn't need to be done before newconfig. PH
+#  Added check for jivelite startup to avoid confusion on updateing to new image. PH
+#	Turn HDMIPOWER to on during upgrades. PH
 
 # Version: 3.10 2017-01-02
 #	Added Samba Server Support. PH
@@ -145,29 +150,16 @@
 #	Original.
 
 BACKUP=0
-. /home/tc/www/cgi-bin/pcp-functions
-. /home/tc/www/cgi-bin/pcp-soundcard-functions
-
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
-echo -n "${BLUE}Loading pcp-functions... ${NORMAL}"
-pcp_variables
+echo -n "${BLUE}Loading pcp-functions...and pCP configuration file.${NORMAL}"
+. /home/tc/www/cgi-bin/pcp-functions
+. /home/tc/www/cgi-bin/pcp-soundcard-functions
 echo "${GREEN}Done.${NORMAL}"
 
-# Read from config file.
-echo -n "${BLUE}Loading configuration file... ${NORMAL}"
-. $CONFIGCFG
-	ORIG_AUDIO="$AUDIO"
-echo "${GREEN}Done.${NORMAL}"
+ORIG_AUDIO="$AUDIO"
 
-# Set default respository incase it has been set to something non-standard.
-echo -n "${BLUE}Setting piCore repository... ${NORMAL}"
-pcp_reset_repository
-echo "${GREEN}Done.${NORMAL}"
-
-echo "${GREEN}Generating drop-down list... ${NORMAL}"
-pcp_sound_card_dropdown &
-
+#****************Upgrade Process Start *********************************
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
@@ -188,7 +180,7 @@ fi
 
 # Check if newconfig.cfg is present
 if [ -f $MNTUSB/newconfig.cfg ]; then
-	echo -n "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
+	echo "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
 	. $CONFIGCFG
@@ -200,10 +192,16 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	pcp_timezone
 	pcp_write_to_host
 	[ "$RPI3INTWIFI" = "off" ] && echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
+	case "$SCREENROTATE" in
+		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
+		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
+	esac
+	#During an newconfig update, turn HDMI back on. Incase there are problems.
+	HDMIPOWER="on"
 	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
-	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
 	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
@@ -212,6 +210,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
 	sudo reboot
+	exit 0
 else
 	echo -n "${YELLOW}  newconfig.cfg not found on sda1.${NORMAL}"
 fi
@@ -230,7 +229,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 		pcp_backup_nohtml >/dev/null 2>&1
 	fi
 
-	echo -n "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
+	echo "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
 	. $CONFIGCFG
@@ -249,10 +248,16 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_timezone
 	pcp_write_to_host
 	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
+	case "$SCREENROTATE" in
+		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
+		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
+	esac
+	#During an insitu update, turn HDMI back on. Incase there are problems.
+	HDMIPOWER="on"
 	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
-	echo -n "${BLUE}Loading I2S modules... ${NORMAL}"
+	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
 	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
@@ -261,12 +266,14 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel.  And remove them
-	ls /mnt/mmcblk0p2/tce/optional/*piCore*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
+	CKCORE=$(uname -r | cut -d '-' -f2)
+	CKCORE=${CKCORE%+}  #Strip the + or _v7+
+	ls /mnt/mmcblk0p2/tce/optional/*${CKCORE%_v7}*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
 	# Check onboot to be sure there are no hard kernel references.   
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
 	# Remove Dropbear extension, we are now using openssh
 	ls -1 /mnt/mmcblk0p2/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
-	sed -i '/dropbear/d' .filetool.lst
+	sed -i '/dropbear/d' /opt/.filetool.lst
 	sed -i '/dropbear/d' /mnt/mmcblk0p2/tce/onboot.lst
 	#Remove lines containing only white space
 	sed -i '/^\s*$/d' /mnt/mmcblk0p2/tce/onboot.lst
@@ -275,11 +282,22 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
 	sudo reboot
+	exit 0
 else
 	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
 fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
+#****************Upgrade Process End *********************************
+
+# Set default respository incase it has been set to something non-standard.
+echo -n "${BLUE}Setting piCore repository... ${NORMAL}"
+pcp_reset_repository &
+echo "${GREEN}Done.${NORMAL}"
+
+echo -n "${BLUE}Generating drop-down list... ${NORMAL}"
+pcp_sound_card_dropdown &
+echo "${GREEN}Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
 if [ "$WIFI" = "on" ]; then
@@ -382,12 +400,12 @@ echo -n "${YELLOW}Waiting for soundcards to populate."
 CNT=1
 until aplay -l | grep -q PLAYBACK 2>&1
 do
-	if [ $((CNT++)) -gt 20 ]; then
+	if [ $((CNT++)) -gt 40 ]; then
 		echo "${RED} Failed ($CNT).${NORMAL}"
 		break
 	else
 		echo -n "."
-		sleep 1
+		sleep 0.5
 	fi
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
@@ -464,6 +482,7 @@ fi
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
 if [ "$MOUNTUUID" != "no" ]; then
+	echo "${BLUE}Mounting USB Drives...${YELLOW}"
 	blkid | grep -q $MOUNTUUID
 	if [ $? -eq 0 ]; then
 		mkdir -p /mnt/$MOUNTPOINT
@@ -476,9 +495,11 @@ if [ "$MOUNTUUID" != "no" ]; then
 				OPTIONS="-v -t ntfs-3g -o permissions"
 			;;
 			vfat|fat32)
+				#if Filesystem support installed, use utf-8 charset for fat.
+				df | grep -qs ntfs
+				[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 				umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-				#Mount vfat with uid=tc gid=staff, filemod=755 utf8 characterset
-				OPTIONS="-v -t vfat -o iocharset=utf8,uid=1001,gid=50,umask=022"
+				OPTIONS="-v -t vfat -o noauto,users,exec,umask=022,flush${CHARSET}"
 			;;
 			*)
 				OPTIONS="-v"
@@ -499,9 +520,9 @@ fi
 
 # Mount Network Disk Selected on LMS Page
 if [ "$NETMOUNT1" = "yes" ]; then
+	echo "${BLUE}Mounting Network Drive...${YELLOW}"
 	mkdir -p /mnt/$NETMOUNT1POINT
 	chown tc.staff /mnt/$NETMOUNT1POINT
-	echo -n "${BLUE}"
 	case "$NETMOUNT1FSTYPE" in
 		cifs)
 			OPTIONS=""
@@ -517,7 +538,7 @@ if [ "$NETMOUNT1" = "yes" ]; then
 	esac
 	mount $MNTCMD
 	if [ $? -eq 0 ]; then
-		echo "${NORMAL}"
+		echo "${BLUE}Disk Mounted at /mnt/${NETMOUNT1POINT}."
 	else
 		echo "${RED}Disk Mount Error.${NORMAL}"
 		LMSMOUNTFAIL="1"
@@ -656,12 +677,14 @@ if [ "$JIVELITE" = "yes" ]; then
 		export SDL_MOUSEDEV=$TSLIB_TSDEVICE
 	fi
 	export HOME=/home/tc
-	echo "${GREEN}Done.${NORMAL}"
-	sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
+	if [ -x /opt/jivelite/bin/jivelite.sh ]; then
+		echo "${GREEN}Done.${NORMAL}"
+		sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
+	else
+		echo "${RED}There is a problem with the Jivelite installation. Please remove and reinstall jivelite.${NORMAL}"
+	fi
 fi
 
 echo "${BLUE}crond syncing time... ${NORMAL}"
 
 unset ORIG_AUDIO
-
-

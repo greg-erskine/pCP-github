@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.20 2017-03-29
+#	Fixed issue with equalizer and shairport-sync. Still an issue if using USB DAC, equalizer and shairport-sync
+
 # Version: 3.11 2017-01-20
 #	Fixed the issue with shairport not working when using USB cards. SBP.
 
@@ -23,12 +26,17 @@ DESC="Shairport-sync player"
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
 . /usr/local/sbin/config.cfg
 pcp_soundcontrol
+EQOUTPUT="$OUTPUT"
 . /usr/local/sbin/config.cfg
 
 if [ ! -z $SSET ]; then
 	SH_CONTROL='-c '"$SSET"''
 else
 	SH_CONTROL=''
+fi
+
+if [ "$OUTPUT" = "equal" ]; then
+    OUTPUT="$EQOUTPUT"
 fi
 
 case "$1" in

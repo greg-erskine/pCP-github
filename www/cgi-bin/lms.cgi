@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-03-31
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
+#	Added UTF8 Note. PH.
 
 # Version: 3.12 2017-01-29
 #	Added --nomysqueezebox option for lms. PH.
@@ -1046,6 +1047,7 @@ pcp_mount_usbdrives() {
 	echo '                    <p>The drive will be mounted by UUID to this path and will be automounted on startup.</p>'
 	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
 	echo '                    <p>Do not use hardware device names like sda1 or mmcblk0.</p>'
+	echo '                    <p>For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1168,7 +1170,7 @@ pcp_mount_usbdrives() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td  class="column150 center">'
+	echo '                  <td class="column150 center">'
 	if [ "$LMSDATA" = "usbmount" ]; then
 		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set USB Mount</button>'
 		echo '                  </td>'
@@ -1183,6 +1185,11 @@ pcp_mount_usbdrives() {
 	else
 		echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
 		echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
+		if [ "$NTFS" = "no" ]; then
+			echo '                  </td>'
+			echo '                  <td  class="colspan5">'
+			echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
+		fi
 	fi
 	echo '                  </td>'
 	echo '                </tr>'

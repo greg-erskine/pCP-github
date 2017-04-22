@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
+# Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
+#  Changed reboot functions. PH.
 
 # Version: 0.01 2015-08-28 GE
 #	Original version.
@@ -65,7 +66,7 @@ pcp_toggle_row_shade
 echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td colspan="3">'
 echo '                    <input type="submit" name="SUBMIT" value="Save">'
-echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\'Reboot ''$NAME''?\',\'reboot.cgi\'')" />'
+echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
 echo '                  </td>'
 echo '                </tr>'
 echo '            </table>'

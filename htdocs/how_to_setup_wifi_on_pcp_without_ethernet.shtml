@@ -30,10 +30,20 @@
             </tr>
             <tr>
               <td>
-                <p>There are 2 situations where these methods will be useful:</p>
+                <p>There are situations where these methods will be useful:</p>
                 <ol>
-                  <li>You have a Raspberry Pi without in-built ethernet.</li>
+                  <li>You have a Raspberry Pi without built-in ethernet (ie. RPiA, RPiA+, RPi0, RPi0W).</li>
+                  <li>You have a Raspberry Pi with built-in wifi (ie. RPi3, RPi0W).</li>
                   <li>Wired ethernet is not available.</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <ul>
+                  <li><a href="#newconfig">Add newconfig.cfg to boot partition on PC</a></li>
+                  <li><a href="#setup">Using setup with keyboard and monitor</a></li>
+                  <li><a href="#more">More Information</a></li>
                 </ul>
               </td>
             </tr>
@@ -44,13 +54,13 @@
   </tr>
 </table>
 
-<table class="bggrey">
+<table id="newconfig" class="bggrey">
   <tr>
     <td>
       <div class="row">
         <fieldset>
           <table class="bggrey percent100">
-            <legend>Add "newconfig.cfg" to boot partition on PC</legend>
+            <legend>Add newconfig.cfg to boot partition on PC</legend>
              <!-- -------------------------------------------------------------------- -->
             <tr class="even">
               <td class="column20" style="vertical-align: top;">
@@ -122,7 +132,7 @@ ENCRYPTION="WPA"
   </tr>
 </table>
 
-<table class="bggrey">
+<table id="setup" class="bggrey">
   <tr>
     <td>
       <div class="row">
@@ -287,6 +297,24 @@ ENCRYPTION="WPA"
     </td>
   </tr>
 </table>
+
+<table id="more" class="bggrey">
+  <tr>
+    <td>
+      <div class="row">
+        <fieldset>
+          <legend>More information</legend>
+          <!-- -------------------------------------------------------------------- -->
+          <ul>
+            <li><a href="faq_wifi does_not_work.shtml">FAQ - Wifi does not work</a></li>
+           </ul>
+          <!-- -------------------------------------------------------------------- -->
+        </fieldset>
+      </div>
+    </td>
+  </tr>
+</table>
+
 
 <!--#include virtual="pcp_footer.html" -->
 <!--#include virtual="pcp_copyright.html" -->

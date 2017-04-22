@@ -13,8 +13,10 @@
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
-DACLOCATION="/usr/local/etc/pcp/cards"        # <=== Should be in pcp-functions? GE.
+DACLOCATION="/usr/local/etc/pcp/cards"     # <=== Should be in pcp-functions? GE.
+#The below line is for development only.
 #DACLOCATION="/home/tc/www/cgi-bin/cards"
+############
 
 . /usr/local/bin/shini.sh
 
@@ -192,7 +194,9 @@ pcp_sound_card_dropdown() {
 			pcp_soundcontrol
 			CHECKED="notselected"
 			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
+			if [ x"$LISTNAME" != x ]; then
 			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+			fi
 		done
 	fi
 }
