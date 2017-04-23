@@ -456,6 +456,13 @@ pcp_finish_install() {
 			sed -i '/dialog.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			sed -i '/alsa-utils.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
 			sed -i '/pcp-squeezelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/^jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			if [ -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz ]; then
+				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz
+				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz.dep /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.dep
+				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.md5.txt
+				echo "pcp-jivelite.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+			fi
 		;;
 	esac
 	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
