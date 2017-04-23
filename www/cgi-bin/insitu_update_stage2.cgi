@@ -137,6 +137,15 @@ pcp_enough_free_space() {
 	fi
 }
 
+#=========================================================================================
+# Reboot popups - need to be self contained
+#-----------------------------------------------------------------------------------------
+pcp_reboot_required() {
+   echo '<script language="javascript">'
+   echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')'
+   echo '</script>'
+}
+
 #========================================================================================
 # Prepare download directories - Do we really need boot and tce directory???
 #----------------------------------------------------------------------------------------
