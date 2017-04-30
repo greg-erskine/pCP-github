@@ -73,6 +73,10 @@ local pCP_2_0_reboot_cmd = "/usr/local/sbin/pcp rb"
 local pCP_2_0_shutdown_cmd = "/usr/local/sbin/pcp sd"
 local pCP_2_0_save_cmd = "/usr/local/sbin/pcp bu"
 
+local pCP_3_2_reboot_cmd = "/usr/local/bin/pcp rb"
+local pCP_3_2_shutdown_cmd = "/usr/local/bin/pcp sd"
+local pCP_3_2_save_cmd = "/usr/local/bin/pcp bu"
+
 local pCP_default_reboot_cmd = "sudo reboot"
 local pCP_default_shutdown_cmd = "sudo poweroff"
 local pCP_default_save_cmd = "sudo filetool.sh -b"
@@ -655,7 +659,9 @@ function rebootPi(self, menuItem)
                     label:setValue("")
                     text:setValue(self:string("LABEL_REBOOTING"))
                elseif state == -1 then
-                    if pcpVersion >= 2.00 then
+                    if pcpVersion >= 3.20 then
+                        os.execute(pCP_3_2_reboot_cmd)
+                    elseif pcpVersion >= 2.00 then
                         os.execute(pCP_2_0_reboot_cmd)
                     elseif pcpVersion >= 1.22 then
                         os.execute(pCP_1_22_reboot_cmd)
@@ -709,7 +715,10 @@ function shutdownPi(self, menuItem)
                elseif state == -1 then
                     -- should we disconnect player from server before shutdown????
                     appletManager:callService("disconnectPlayer")
-                    if pcpVersion >= 2.00 then
+                    if pcpVersion >= 3.20 then
+			_write(pCP_display_backlight, "1")
+			os.execute(pCP_3_2_shutdown_cmd)
+                    elseif pcpVersion >= 2.00 then
                         -- turn off display!
                         -- code from Ralphy's DisplayOffApplet.lua
                         -- no need to remember the current state
@@ -813,7 +822,9 @@ function saveToSDCard(self, menuItem)
         local state = "not saved"
         popup:addTimer(1000, function()
                 if state == "not saved" then
-                    if pcpVersion >= 2.00 then
+                    if pcpVersion >= 3.20 then
+                        os.execute(pCP_3_2_save_cmd)
+                    elseif pcpVersion >= 2.00 then
                         os.execute(pCP_2_0_save_cmd)
                     elseif pcpVersion >= 1.22 then
                         os.execute(pCP_1_22_save_cmd)
