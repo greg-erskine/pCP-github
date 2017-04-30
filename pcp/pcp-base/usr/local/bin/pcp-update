@@ -1,5 +1,8 @@
 #!/bin/sh
 #
+# Version 3.201 2017-04-30
+#	Added downloading information. PH.
+#
 # Version 3.20 2017-03-19
 #	First Version. PH.
 #
@@ -88,10 +91,14 @@ check_updates() {
 					done < $DEPLIST
 					I=$STORE
 				fi
+				echo ""
+				printf "[ INFO ] Downloading: %-37s" "${I}"
 				wget ${REPO_ADDR}/${TCE_VER}/${I} -P $DL_DIR >/dev/null 2>&1
 				if [ $? -ne 0 ]; then
 					FAIL=1
-					echo "[ Error ] downloading on ${I}"
+					echo " Error downloading!"
+				else
+					echo " OK"
 				fi
 				if [ $FAIL -eq 0 ]; then
 					cd $DL_DIR
@@ -130,7 +137,7 @@ DL_DIR="/tmp/upgrade_ext"
 DEPLIST="/tmp/newdep.lst"
 KERNELVER=$(uname -r)
 [ ! -d $DL_DIR ] && mkdir -p $DL_DIR || sudo rm -rf $DL_DIR/*
-sudo rm $DEPLIST
+[ -f $DEPLIST ] && sudo rm $DEPLIST
 
 #For now use the armv7 repo, need to pull from tc-functions
 TCE_VER="$(getMajorVer).x/$(getBuild)/tcz"

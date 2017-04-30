@@ -2,7 +2,7 @@
 
 TCZ=pcp-base.tcz
 TCZINFO=${TCZ}.info
-VERSION=3.20
+VERSION=3.201
 
 
 BASEWD=$(pwd)
@@ -28,15 +28,15 @@ md5sum ${TCZ} > ${TCZ}.md5.txt
 echo "$EXT contains"
 unsquashfs -ll ${TCZ}
 
-echo -e "Title:\t\t$TCZ" > $TCZINFO
-echo -e "Description:\tpiCorePlayer Base Scripts." >> $TCZINFO
-echo -e "Version:\t$VERSION" >> $TCZINFO
-echo -e "Author:\t\tVarious, see script files" >> $TCZINFO
+echo -e "Title:          $TCZ" > $TCZINFO
+echo -e "Description:    piCorePlayer Base Scripts." >> $TCZINFO
+echo -e "Version:        $VERSION" >> $TCZINFO
+echo -e "Author:         Various, see script files" >> $TCZINFO
 echo -e "Original-site:" >> $TCZINFO
-echo -e "Copying-policy:\tSee scripts for details" >> $TCZINFO
-echo -e "Size:\t\t$(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+echo -e "Copying-policy: See scripts for details" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Extension_by:   piCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore 8.x" >> $TCZINFO
 
 echo
 while true; do
