@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-04-30
+#	Changed vfat mounts.  PH.
+
 # Version: 3.20 2017-03-31
 #	Revisions to pcp_lms_set_slimconfig function. PH.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -120,7 +123,7 @@ case "$MOUNTTYPE" in
 							df | grep -qs ntfs
 							[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 							umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-							OPTIONS="-v -t vfat -o noauto,users,exec,umask=022,flush${CHARSET}"
+							OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
 						;;
 						*)
 							OPTIONS="-v"

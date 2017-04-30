@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-04-30
+#	Changed vfat mounts....again. PH.
+
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
@@ -27,127 +30,6 @@
 #	Adjusted Mount point permissions for SCP. PH
 #	Changed Kernel Module update to handle individual modules. PH
 #	Updated LIRC section. GE
-
-# Version: 2.06 2016-06-04 GE
-#	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
-#	Added HDMIPOWER.
-#	Moved bootfix script so it only starts after an insitu update.
-#	Changed script so backup is only initiated when somthing needs saving
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
-#	Changed location of Bootfix
-#	Activated Kernel Module Updates during insitu update.
-#	Updated Mount lines
-
-# Version: 2.05 2016-04-30 PH
-#	Added firmware-brcmfmac43430.tcz
-#	Added Mount for LMS Server Drive
-#	Modified IQaudIO amp control
-#	Changed if LMS Server is Enabled, Start before Squeezelite
-#	Added Network Share Mount
-#	Added download of kernel modules during insitu upgrade. Currently inactive for 2.05
-#   Added bootfix routine to correct certain update issues during first boot.
-
-# Version: 0.26 2016-02-26 GE
-#	Added firmware-brcmwifi.tcz.
-#	Added IR startup.
-#	Changed squeezelite startup code.
-
-# Version: 0.25 2016-02-02 SBP
-#	Reordered custom alsactl restore.
-#	Added LMS startup.
-
-# Version: 0.24 2016-01-06 SBP
-#	Added dbus, avahi and shairport-sync startup routines.
-
-# Version: 0.23 2015-10-27 SBP
-#	Added touchscreeen controls for Jivelite.
-
-# Version: 0.22 2015-09-24 SBP
-#	Updated newconfig.cfg routines.
-#	Updated Waiting for soundcards to populate routine.
-#	Added ln -s /usr/local/bin/scp /usr/bin/scp.
-
-# Version: 0.21 2015-08-23 SBP
-#	Enabling DT loading of audio cards.
-#	Changed /usr/local/sbin/dropbearmulti to /usr/local/bin/dropbearmulti.
-
-# Version: 0.20 2015-07-09 SBP
-#	Revised method of loading wifi firmware.
-
-# Version: 0.19 2015-07-04 GE
-#	Added dropbear fix to allow scp to work between piCorePlayers.
-
-# Version: 0.18 2015-06-25 SBP
-#	Added script that automatically set correct timezone.
-
-# Version: 0.17 2015-06-04 GE
-#	Renamed $pCPHOME to $PCPHOME.
-#	Minor updates.
-
-# Version: 0.16 2015-05-21 SBP
-#	Use saved custom ALSA settings after pCP updating.
-
-# Version: 0.16 2015-05-10 GE
-#	Added wait for network before starting squeezelite.
-
-# Version: 0.15 2015-05-06 SBP
-#	Added logic to skip not needed options.
-
-# Version: 0.14 2015-04-05 SBP
-#	Added logic to wait for soundcards and restart squeezelite if not properly started.
-
-# Version: 0.13 2015-03-24 SBP
-#	Added section to load wifi for wifi only based systems (like RPi-A+).
-#	Revised program startup order.
-
-# Version: 0.12 2015-02-15 SBP
-#	Updated order.
-
-# Version: 0.11 2015-02-09 GE
-#	Added pcp_auto_start_fav.
-#	Added stop/start crond.
-#	Added pcp_user_commands.
-#	Moved timezone before essential stuff.
-#	Added ANSI colours to messages.
-
-# Version: 0.10 2015-01-06 SBP
-#	Removed unneeded piCorePlayer.dep check
-
-# Version: 0.09 2014-12-09 SBP
-#	Added support for the HiFiBerry AMP card.
-#	Moved saving to config file from extern newconfig to pcp-functions.
-#	Moved loading correct audio modules to pcp-functions.
-
-# Version: 0.08 2014-10-09 SBP
-#	Added Analog/HDMI output selection (moved from enable/disablehdmi.sh)
-
-# Version: 0.07 2014-10-07 GE
-#	Added echos for booting debugging purposes.
-
-# Version: 0.06 2014-09-28 SBP
-#	Added support for the HiFiBerry+ and IQaudIO+ cards. Improved the custom ALSA settings logic.
-
-# Version: 0.05 2014-09-04 GE
-#	Added cron-job variables and LMS auto-start variable.
-
-# Version: 0.06 2014-09-09 GE
-#	Added pcp_auto_start_lms at end of script.
-
-# Version: 0.05 2014-09-04 GE
-#	Added timezone function.
-
-# Version: 0.04 2014-08-31 SBP
-#	Minor formatting.
-
-# Version: 0.03 2014-08-30 SBP
-#	Clean up + added analog amixer use.
-#	Improved the alsamixer use.
-
-# Version: 0.02 2014-08-26 GE
-#	Clean up.
-
-# Version: 0.01 2014-06-25 SBP
-#	Original.
 
 BACKUP=0
 # Read from pcp-functions file
@@ -499,7 +381,7 @@ if [ "$MOUNTUUID" != "no" ]; then
 				df | grep -qs ntfs
 				[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 				umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-				OPTIONS="-v -t vfat -o noauto,users,exec,umask=022,flush${CHARSET}"
+				OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
 			;;
 			*)
 				OPTIONS="-v"
