@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.21 2017-04-30
+#	Allow for custom configuration in config.txt. PH
+
 # Version 3.20 2017-04-22
 #	Updates for new Repo and Newer kernels
 
@@ -351,13 +354,13 @@ pcp_get_boot_files() {
 pcp_install_boot_files() {
 	echo '[ INFO ] Installing boot files...'
 	pcp_mount_mmcblk0p1_nohtml
+	pcp_save_custom_boot_config
 
 	# Delete all files from the boot partition
 	sudo rm -rf /mnt/mmcblk0p1/*
 	[ $? -eq 0 ] || FAIL_MSG="Error deleting files /mnt/mmcblk0p1/*"
 
 	pcp_save_configuration
-
 	# Untar the boot files
 	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
 	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C /mnt/mmcblk0p1/
@@ -367,7 +370,7 @@ pcp_install_boot_files() {
 		echo '[ ERROR ] Error untarring boot tar. Result: '$?
 		FAIL_MSG="Error untarring boot tar."
 	fi
-
+	pcp_restore_custom_boot_config
 	pcp_umount_mmcblk0p1_nohtml
 }
 
@@ -387,6 +390,82 @@ pcp_save_configuration() {
 	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
 
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
+}
+
+pcp_save_custom_boot_config() {
+	echo '[ INFO ] Scanning config.txt for custom boot configuration.'
+/usr/bin/micropython -c '
+import os
+import sys
+infile = open("/mnt/mmcblk0p1/config.txt", "r")
+outfile = open ("/tmp/custom_config.txt", "w")
+CUT=0
+FOUND=0
+while True:
+	ln = infile.readline()
+	if ln == "":
+		break
+	if CUT == 0:
+		if "Begin-Custom" in ln:
+			CUT=1
+	else:
+		if "End-Custom" in ln:
+			CUT=0
+		else:
+			outfile.write(ln)
+			FOUND=1
+infile.close
+outfile.close
+if FOUND == 0:
+	os.remove("/tmp/custom_config.txt")
+'
+
+	[ $? -eq 0 ] || FAIL_MSG="Error saving custom boot configuration."
+	[ "$FAIL_MSG" = "ok" -a -f "/tmp/custom_config.txt" ] && echo '[  OK  ] Your custom boot configuration saved.' || echo '[  OK  ] No custom boot configuration found.'
+}
+
+pcp_restore_custom_boot_config() {
+	if [ -f "/tmp/custom_config.txt" ]; then
+		echo '[ INFO ] Restoring custom boot configuration to config.txt.'
+		rm -f /tmp/config.txt
+		[ $DEBUG -eq 1 ] && echo '[DEBUG] Current config.txt'; cat /mnt/mmcblk0p1/config.txt
+/usr/bin/micropython -c '
+import os
+import sys
+infile = open("/mnt/mmcblk0p1/config.txt", "r")
+infilecustom = open("/tmp/custom_config.txt", "r")
+outfile = open("/tmp/config.txt", "w")
+INS=0
+def writecustom():
+	while True:
+		ln1 = infilecustom.readline()
+		if ln1 == "":
+			break
+		outfile.write(ln1)
+
+while True:
+	ln = infile.readline()
+	if ln == "":
+		break
+	outfile.write(ln)
+	if "Begin-Custom" in ln:
+		INS=1
+		writecustom()
+if INS == 0:
+	#Custom Tags not found in the new config.txt, add section in.
+	outfile.write("#Custom Configuration Area, for config settings that are not managed by pCP.\n")
+	outfile.write("#pCP will retain these settings during insitu-update\n")
+	outfile.write("#---Begin-Custom-(Do not alter Begin or End Tags)-----\n")
+	writecustom()
+	outfile.write("#---End-Custom----------------------------------------\n")
+
+infile.close
+infilecustom.close
+outfile.close
+'
+	cp -f /tmp/config.txt /mnt/mmcblk0p1/config.txt
+	[ $DEBUG -eq 1 ] && echo '[DEBUG] New config.txt'; cat /mnt/mmcblk0p1/config.txt
+	fi
 }
 
 #========================================================================================

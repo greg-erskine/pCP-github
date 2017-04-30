@@ -88,3 +88,7 @@ max_usb_current=1
 # Screen rotation 0 => 0 degrees, 2 => 180 degrees
 lcd_rotate=2
 
+#Custom Configuration Area, for config settings that are not managed by pCP.
+#pCP will retain these settings during insitu-update
+#---Begin-Custom-(Do not alter Begin or End Tags)-----
+#---End-Custom----------------------------------------
