@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-01-05
+#	Added Analoque and Analoque Boost, Alsa Simple Controls. SBP.
+
 # Version: 3.20 2017-03-13
 #	Fixed pcp-xxx-functions issues. GE.
 #	Added Extra Text fields. SBP
@@ -33,6 +36,18 @@ case "$ACTION" in
 	Test)
 		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
+		
+		if [ x"$SMCFILTER1" = x"" ]; then
+			sudo amixer -c $CARD sset 'Analogue' 0 >/dev/null 2>&1
+			else 
+			sudo amixer -c $CARD sset 'Analogue' $SMCFILTER1 >/dev/null 2>&1
+		fi
+
+		if [ x"$SMCFILTER2" = x"" ]; then 
+			sudo amixer -c $CARD sset 'Analogue Playback Boost' 0 >/dev/null 2>&1
+			else
+			sudo amixer -c $CARD sset 'Analogue Playback Boost' $SMCFILTER2 >/dev/null 2>&1
+		fi
 		pcp_generic_card_control
 	;;
 	Backup)
@@ -146,6 +161,21 @@ pcp_soundcard_DSP_options() {
 	pcp_toggle_row_shade
 }
 
+#--------------------------------------Simple Mixer Controls analoque volume options--------------------------------
+# Only show these options if filters are an option for current sound card.
+pcp_soundcard_SMC_Analoque_options() {
+	if [ x"$SMC_ANALOQUE" != x"" ]; then
+		pcp_toggle_row_shade
+		echo ' <p><b>Simple Mixer Controls:&nbsp;&nbsp;</b><br>'
+		[ x"$SMC_ANALOQUE" != x"" ] && echo ' <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOQUE_CHECK"'><label for="SMC_ANALOQUE"> 'Toggle a 6 dB increase on analoque output level'</label><br>'
+		[ x"$SMC_ANALOQUE_BOOST" != x"" ] && echo ' <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOQUE_BOOST_CHECK"'><label for="SMC_ANALOQUE_BOOST"> 'Toggle a 0.80 dB increase on analoque output level'</label><br>'
+		#----------------------------------------------------------------------------------------
+
+	fi
+	pcp_toggle_row_shade
+}
+
+
 #--------------------------------------Show Buttons for Volume selection-------------------
 # Only show this if ALSA volume control is possible
 
@@ -252,7 +282,7 @@ echo '            <form name="manual_adjust" action="'$0'" method="get">'
 pcp_start_row_shade
 pcp_incr_id
 
-[ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENERIC_CARD" = "HIFIBERRY_AMP" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
+[ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENERIC_CARD" = "HIFIBERRY_AMP" ] && pcp_soundcard_DSP_options && pcp_soundcard_SMC_Analoque_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
 [ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 

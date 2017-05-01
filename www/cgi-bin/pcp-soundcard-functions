@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-01-05
+#	Added Analoque and Analoque Boost, Alsa Simple Controls. SBP.
+
 # Version: 3.20 2017-03-12
 #	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
 #	Added shini conf parser. SBP.
@@ -148,6 +151,26 @@ pcp_generic_card_control() {
 				Fixed) FILTER4_CHECK="checked" ;;
 				Ringing-less) FILTER5_CHECK="checked" ;;
 			esac
+
+
+			#Logic that will check for Simple mixer controls Analoque and Analoque Playback Boost
+				#SMC_ANALOQUE=$(amixer -c $CARD sget Analoque | grep "Capabilities: pvolume"aw)
+			#Actual setting for these Analoque controls:
+				SMC_ANALOQUE=$(amixer -c $CARD sget 'Analogue' | grep "Front Left:" | awk '{ print $4 }')
+				SMC_ANALOQUE_BOOST=$(amixer -c 1 sget 'Analogue Playback Boost' | grep "Front Left:" | awk '{ print $3 }')
+
+			# Logic to make checked radiobuttons
+			case "$SMC_ANALOQUE" in 
+				0) SMC_ANALOQUE_CHECK="" ;;
+				1) SMC_ANALOQUE_CHECK="checked" ;;
+			esac
+
+			case "$SMC_ANALOQUE_BOOST" in 
+				0) SMC_ANALOQUE_BOOST_CHECK="" ;;
+				1) SMC_ANALOQUE_BOOST_CHECK="checked" ;;
+			esac
+
+			
 		;;
 
 		HIFIBERRY_AMP)
