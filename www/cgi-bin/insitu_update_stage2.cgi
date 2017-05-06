@@ -556,9 +556,9 @@ pcp_finish_install() {
 	case "${VERSION}" in
 		piCorePlayer3.20*)
 			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
-			sed -i 'usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
 		;;
 	esac
 	
