@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.21 2017-04-30
+# Version 3.21 2017-05-06
 #	Allow for custom configuration in config.txt. PH
 
 # Version 3.20 2017-04-22
@@ -61,6 +61,10 @@ case "${VERSION}" in
 	piCorePlayer3.20*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=25500
+	;;
+	piCorePlayer3.21*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=25540
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -288,6 +292,13 @@ pcp_get_kernel_modules() {
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
+		piCorePlayer3.21*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			NEWKERNELVER=4.9.26
+			PICOREVERSION=8.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
 		*)  KUPDATE=0
 		;;
 	esac
@@ -354,6 +365,11 @@ pcp_get_boot_files() {
 pcp_install_boot_files() {
 	echo '[ INFO ] Installing boot files...'
 	pcp_mount_mmcblk0p1_nohtml
+	cd /mnt/mmcblk0p1
+	[ -f /tmp/osbackup.tar ] && rm -f /tmp/osbackup.tar
+	echo '[ INFO ] Backing up old OS...'
+	tar -cf /tmp/osbackup.tar *
+	cd
 	pcp_save_custom_boot_config
 
 	# Delete all files from the boot partition
@@ -363,14 +379,17 @@ pcp_install_boot_files() {
 	pcp_save_configuration
 	# Untar the boot files
 	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C /mnt/mmcblk0p1/
-	if [ $? -eq 0 ]; then
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C /mnt/mmcblk0p1/ 2>&1; TST=$?
+	if [ $TST -eq 0 ]; then
 		echo '[  OK  ] Successfully untarred boot tar.'
+		pcp_restore_custom_boot_config
 	else
-		echo '[ ERROR ] Error untarring boot tar. Result: '$?
+		echo '[ ERROR ] Error untarring boot tar. Result: '$TST
 		FAIL_MSG="Error untarring boot tar."
+		echo '[ INFO ] Restoring old OS...'
+		rm -rf /mnt/mmcblk0p1/*
+		tar -xf /tmp/osbackup.tar -C /mnt/mmcblk0p1/
 	fi
-	pcp_restore_custom_boot_config
 	pcp_umount_mmcblk0p1_nohtml
 }
 
@@ -398,7 +417,7 @@ pcp_save_custom_boot_config() {
 import os
 import sys
 infile = open("/mnt/mmcblk0p1/config.txt", "r")
-outfile = open ("/tmp/custom_config.txt", "w")
+outfile = open("/tmp/custom_config.txt", "w")
 CUT=0
 FOUND=0
 while True:
@@ -417,11 +436,14 @@ while True:
 infile.close
 outfile.close
 if FOUND == 0:
-	os.remove("/tmp/custom_config.txt")
+	os.system("rm -f /tmp/custom_config.txt")
 '
-
 	[ $? -eq 0 ] || FAIL_MSG="Error saving custom boot configuration."
-	[ "$FAIL_MSG" = "ok" -a -f "/tmp/custom_config.txt" ] && echo '[  OK  ] Your custom boot configuration saved.' || echo '[  OK  ] No custom boot configuration found.'
+	if [ "$FAIL_MSG" = "ok" -a -f "/tmp/custom_config.txt" ]; then
+		echo '[  OK  ] Your custom boot configuration saved.' 
+	else
+		echo '[  OK  ] No custom boot configuration found.'
+	fi
 }
 
 pcp_restore_custom_boot_config() {
