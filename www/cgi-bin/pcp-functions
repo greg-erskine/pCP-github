@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.21 2017-05-06
+#	Added note for TEST 3 Active in footer. PH.
+
 # Version: 3.20 2017-04-16
 #	Updated SCREENROTATE default value. GE.
 #	Added Help tab to pcp_picoreplayers toolbar. GE.
@@ -525,6 +528,7 @@ pcp_footer() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p class="footer">
+					'$([ $TEST -eq 3 ] && echo "BETA REPO Active |")'
 					'$NAME' |
 					piCorePlayer v'$(pcp_picoreplayer_version)' |
 					linux '$(pcp_linux_release)' |
