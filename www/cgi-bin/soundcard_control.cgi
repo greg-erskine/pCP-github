@@ -31,6 +31,12 @@ pcp_selected_soundcontrol
 #pcp_soundcontrol
 pcp_generic_card_control
 
+#Check for onboard soundcard presence: 
+aplay -l | grep bcm2835 >/dev/null 2>&1 
+ACTUAL_ONBOARD_STATUS=$?
+[ $ACTUAL_ONBOARD_STATUS = 0 ] && ONBOARD_SND=On || ONBOARD_SND=Off
+[ $ONBOARD_SND = On ] && ONBOARD_SOUND_CHECK=checked || ONBOARD_SOUND_CHECK="" 
+
 #========================================ACTIONS=========================================
 case "$ACTION" in
 	Test)
@@ -78,6 +84,25 @@ case "$ACTION" in
 		pcp_backup
 		pcp_reboot_required
 	;;
+	Onboard)
+		#Check for changes in onboard status as we dont want to mount and umount if not needed
+		SELECTED_BOARD=On
+		[ x"$ONBOARD" = x"" ] && SELECTED_BOARD=Off
+		if [ "$ONBOARD_SND" != "$SELECTED_BOARD" ]; then 
+		pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+			if [ "$ONBOARD" = "On" ]; then 
+				pcp_re_enable_analog
+				else
+				pcp_disable_analog
+				sudo rmmod snd_bcm2835 
+			fi
+		pcp_umount_mmcblk0p1
+		pcp_save_to_config
+		pcp_backup
+		pcp_reboot_required
+		fi
+	;;
+
 esac
 #----------------------------------------------------------------------------------------
 
@@ -207,8 +232,6 @@ pcp_Volume_filter_buttons() {
 		echo '                </td>'
 		echo '              </tr>'
 	fi
-	#echo '            </form>'
-	#echo '          </table>'
 }
 
 #--------------------------------------Parameter options--------------------------------
@@ -274,6 +297,32 @@ pcp_soundcard_parameter_options() {
 
 }
 
+#--------------------------------------Enable/disable build-in analoq sound-------------------
+# Enable/diable onboard sound
+pcp_disable_enable_buildin_sound() {
+	if [ x"$SMC_ANALOQUE" != x"" ]; then
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		pcp_incr_id
+		echo '                <td>'
+		echo ' <p><b>Enable/disable onboard soundcard (after a reboot)&nbsp;&nbsp;</b><br>'
+		echo ' <input type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'><label for="ONBOARD_SOUND"> 'When checked - Onboard soundcard is always enabled.'</label>&nbsp;&nbsp;' 
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Enable (whith check) or disasable (no check) the onboard analoq soundcard. <b>Then a reboot is needed.</b></p>'
+		echo '                  </div>'
+		echo '                  <input type="submit" name="ACTION" value="Onboard">'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
+}
+
+
+
+
+
+
 #========================================================================================
 # Build the Table
 #----------------------------------------------------------------------------------------
@@ -287,7 +336,7 @@ pcp_incr_id
 [ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
 
 [ x"$GENERIC_CARD" = x"" ] && echo "$TEXT"
-
+pcp_disable_enable_buildin_sound
 pcp_table_end
 #-----------------------------------------------------------------------------------------
 
