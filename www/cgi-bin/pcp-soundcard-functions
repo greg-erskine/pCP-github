@@ -157,7 +157,7 @@ pcp_generic_card_control() {
 				#SMC_ANALOQUE=$(amixer -c $CARD sget Analoque | grep "Capabilities: pvolume"aw)
 			#Actual setting for these Analoque controls:
 				SMC_ANALOQUE=$(amixer -c $CARD sget 'Analogue' | grep "Front Left:" | awk '{ print $4 }')
-				SMC_ANALOQUE_BOOST=$(amixer -c 1 sget 'Analogue Playback Boost' | grep "Front Left:" | awk '{ print $3 }')
+				SMC_ANALOQUE_BOOST=$(amixer -c $CARD sget 'Analogue Playback Boost' | grep "Front Left:" | awk '{ print $3 }')
 
 			# Logic to make checked radiobuttons
 			case "$SMC_ANALOQUE" in 
