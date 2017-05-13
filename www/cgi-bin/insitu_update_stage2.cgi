@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.21 2017-05-06
+# Version 3.21 2017-05-12
 #	Allow for custom configuration in config.txt. PH
 
 # Version 3.20 2017-04-22
@@ -562,6 +562,7 @@ pcp_finish_install() {
 				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz
 				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz.dep /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.dep
 				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.md5.txt
+				sed -i '/backlight/d' /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.dep
 				echo "pcp-jivelite.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 			fi
 		;;
@@ -576,7 +577,7 @@ pcp_finish_install() {
 	sudo chown root:staff /opt/.filetool.lst
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
 	case "${VERSION}" in
-		piCorePlayer3.20*)
+		piCorePlayer3.2*)
 			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
 			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
 			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
