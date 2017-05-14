@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.21 2017-04-30
+# Version: 3.21 2017-05-13
 #	Changed vfat mounts.  PH.
+#	Fixed util-linux button download function. PH
 
 # Version: 3.20 2017-03-31
 #	Revisions to pcp_lms_set_slimconfig function. PH.
@@ -34,7 +35,7 @@ ORIG_NETMOUNT1PASS="$NETMOUNT1PASS"
 ORIG_NETMOUNT1OPTIONS="$NETMOUNT1OPTIONS"
 ORIG_LMSDATA="$LMSDATA"
 
-pcp_html_head "Write to Disk Mounts" "PH" 
+pcp_html_head "Write to Disk Mounts" "PH"
 
 pcp_banner
 pcp_running_script
@@ -52,7 +53,7 @@ REBOOT_REQUIRED="0"
 pcp_move_LMS_cache() {
 	sudo cp -avr $1 $2 >/dev/null 2>&1
 	[ "$?" = "0" ] && sudo rm -rf $1 || echo '<p class="error">[ ERROR ] File Copy Error.</p>'
-	
+
 	#Remove old Symlinks to the data location.  Will be recreated when LMS is started.
 	sudo rm -f /usr/local/slimserver/Cache
 	sudo rm -f /usr/local/slimserver/prefs
@@ -74,7 +75,7 @@ pcp_do_umount () {
 		fi
 	fi
 }
-	
+
 #========================================================================================
 # Mounts section
 #----------------------------------------------------------------------------------------
@@ -85,8 +86,13 @@ pcp_table_top "Write to mount"
 if [ "${ACTION}" = "gptfdisk" ]; then 
 	MOUNTTYPE="skip"
 	EXTN="util-linux.tcz"
-	pcp_textarea_inform "none" "sudo -u tc pcp-load -i $EXTN" 50
-fi	
+	if [ -f $PACKAGEDIR/$EXTN ]; then
+		pcp_textarea_inform "none" "sudo -u tc pcp-load -i $EXTN" 50
+		echo $EXTN >> $ONBOOTLST
+	else
+		pcp_textarea_inform "none" "sudo -u tc pcp-load -wi $EXTN" 50
+	fi
+fi
 
 case "$MOUNTTYPE" in
 	localdisk)
@@ -152,7 +158,7 @@ case "$MOUNTTYPE" in
 
 		ORIG_CHECK="${ORIG_NETMOUNT1POINT}${ORIG_NETMOUNT1}${ORIG_NETMOUNT1IP}${ORIG_NETMOUNT1SHARE}${ORIG_NETMOUNT1FSTYPE}${ORIG_NETMOUNT1USER}${ORIG_NETMOUNT1PASS}${ORIG_NETMOUNT1OPTIONS}"
 		CHECK="${NETMOUNT1POINT}${NETMOUNT1}${NETMOUNT1IP}${NETMOUNT1SHARE}${NETMOUNT1FSTYPE}${NETMOUNT1USER}${NETMOUNT1PASS}${NETMOUNT1OPTIONS}"
-		
+
 		if [ "$ORIG_CHECK" = "$CHECK" ]; then
 			echo '<p class="info">[ INFO ] Mount configuration unchanged.</p>'
 		else
@@ -231,7 +237,7 @@ case "$MOUNTTYPE" in
 				pcp_save_to_config
 				pcp_backup
 				echo ''
-				
+
 				if [ "$ACTION" = "Move" ]; then
 					#========================================================================================
 					# Move LMS cache and prefs section
@@ -251,7 +257,7 @@ case "$MOUNTTYPE" in
 			else
 				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storate. (i.e. ext4)</p>'
 			fi
-		fi	
+		fi
 	;;
 	skip)
 	;;
