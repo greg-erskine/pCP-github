@@ -28,7 +28,7 @@ begin remote
  
       begin codes
           KEY_LEFTBRACE		0x10		# Home (go_nowplaying)
-          KEY_U			0x12		# Mute
+          KEY_C			0x12		# Mute (pause)
           KEY_POWER		0x11		# Power
           KEY_UP		0x1A		# Up
           KEY_DOWN		0x1B		# Down
