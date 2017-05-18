@@ -44,7 +44,8 @@ mkdir -p $OUTPUT/opt/jivelite/lib
 cp -pr lib $OUTPUT/opt/jivelite
 cp -pr share $OUTPUT/opt/jivelite
 
-# Install shared libraries from squeezeplay build
+# Install shared libraries from installed squeezeplay-fb_7.8.0~982_armhf.deb debian package.
+# Justboom Smart remote OK segfault fixed in r982.
 cd /opt/squeezeplay/lib
 tar -cf - libexpat.so* libfreetype.so* libjpeg.so* libpng.so* libpng12.so* libSDL_gfx.so* libSDL_image-1.2.so.* libSDL_ttf-2.0.so* libSDL-1.2.so* | (cd $OUTPUT/opt/jivelite/lib; tar -xvf -)
 
