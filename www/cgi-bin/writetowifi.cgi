@@ -116,7 +116,7 @@ if [ "$WIFI" = "off" ]; then
 fi
 
 if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
-	pcp_mount_mmcblk0p1
+	pcp_mount_bootpart
 	if [ "$RPI3INTWIFI" = "off" ]; then
 		# Add a blacklist for brcmfmac
 		echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
@@ -124,7 +124,7 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
 		sed -i '/dtoverlay=pi3-disable-wifi/d' $CONFIGTXT
 	fi
 	[ $DEBUG -eq 1 ] && pcp_textarea "" "cat $CONFIGTXT" 100
-	pcp_umount_mmcblk0p1
+	pcp_umount_bootpart
 	pcp_backup
 	pcp_reboot_required
 fi

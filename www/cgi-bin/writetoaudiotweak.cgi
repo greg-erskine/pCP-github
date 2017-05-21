@@ -205,12 +205,12 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 			#sudo ./disableotg.sh
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg_speed=1
 				sed -i 's/dwc_otg.speed=1 //g' $CMDLINETXT
-				pcp_umount_mmcblk0p1
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -219,7 +219,7 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 			#sudo ./enableotg.sh
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg_speed=1
@@ -227,7 +227,7 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 
 				# Add dwc_otg_speed=1
 				sed -i '1 s/^/dwc_otg.speed=1 /' $CMDLINETXT
-				pcp_umount_mmcblk0p1
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -256,13 +256,13 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 		Default)
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# dwc_otg.fiq_fsm_enable=0
 				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' $CMDLINETXT
 				[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-				pcp_umount_mmcblk0p1
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -270,7 +270,7 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 		Disabled)
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg.fiq_fsm_enable=0
@@ -279,7 +279,7 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 				# Add dwc_otg.fiq_fsm_enable=0
 				sed -i '1 s/^/dwc_otg.fiq_fsm_enable=0 /' $CMDLINETXT
 				[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-				pcp_umount_mmcblk0p1
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -371,7 +371,7 @@ if [ "$ORIG_FIQ" != "$FIQ" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FIG is: '$ORIG_FIQ'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] FIQ is: '$FIQ'</p>'
 
-	pcp_mount_mmcblk0p1
+	pcp_mount_bootpart
 
 	if mount | grep $VOLUME; then
 		# Remove fiq settings
@@ -380,7 +380,7 @@ if [ "$ORIG_FIQ" != "$FIQ" ]; then
 		sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' $CMDLINETXT
 
 		[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-		pcp_umount_mmcblk0p1
+		pcp_umount_bootpart
 	else
 		echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 	fi

@@ -90,11 +90,11 @@ pcp_textarea_inform "Squeezelite Output devices" "${SQLT_BIN} -l" 150 log
 pcp_textarea_inform "Squeezelite Volume controls" "${SQLT_BIN} -L" 150 log
 pcp_textarea_inform "Squeezelite process" 'ps -o args | grep -v grep | grep squeezelite' 60 log
 
-pcp_mount_mmcblk0p1 >/dev/null 2>&1
+pcp_mount_bootpart >/dev/null 2>&1
 if mount >/dev/null 2>&1 | grep $VOLUME; then
 	pcp_textarea_inform "Current config.txt" "cat $CONFIGTXT" 150 log
 	pcp_textarea_inform "Current cmdline.txt" "cat $CMDLINETXT" 150 log
-	pcp_umount_mmcblk0p1 >/dev/null 2>&1
+	pcp_umount_bootpart >/dev/null 2>&1
 fi
 
 pcp_textarea_inform "Current config.cfg" "cat $CONFIGCFG" 150 log

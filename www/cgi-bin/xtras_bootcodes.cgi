@@ -114,7 +114,7 @@ pcp_html_end(){
 }
 
 # Backup cmdline.txt if one does not exist. Use ssh to restore.
-pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+pcp_mount_bootpart_nohtml >/dev/null 2>&1
 [ ! -f ${CMDLINETXT}.bak ] && pcp_backup_cmdlinetxt
 
 case "$SUBMIT" in
@@ -2583,7 +2583,7 @@ cat $CMDLINETXT | awk '
 
 echo '</textarea>'
 
-pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+pcp_umount_bootpart_nohtml >/dev/null 2>&1
 
 #----------------------------------------------------------------------------------------
 echo '          </table>'

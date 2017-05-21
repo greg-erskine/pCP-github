@@ -1225,7 +1225,7 @@ pcp_running_script() {
 #=========================================================================================
 # Mounting/unmounting devices
 #-----------------------------------------------------------------------------------------
-pcp_mount_mmcblk0p1() {
+pcp_mount_bootpart() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep $VOLUME; then
 		echo '<p class="error">[ WARN ] '$VOLUME' already mounted.</p>'
@@ -1236,7 +1236,7 @@ pcp_mount_mmcblk0p1() {
 	fi
 }
 
-pcp_umount_mmcblk0p1() {
+pcp_umount_bootpart() {
 	# Unmount mmcblk0p1
 	sync
 	sync
@@ -1244,7 +1244,7 @@ pcp_umount_mmcblk0p1() {
 	sudo umount $DEVICE
 }
 
-pcp_mount_mmcblk0p1_nohtml() {
+pcp_mount_bootpart_nohtml() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep >/dev/null $VOLUME; then
 		echo '[ WARN ] '$VOLUME' already mounted.'
@@ -1254,7 +1254,7 @@ pcp_mount_mmcblk0p1_nohtml() {
 	fi
 }
 
-pcp_umount_mmcblk0p1_nohtml() {
+pcp_umount_bootpart_nohtml() {
 	# Unmount mmcblk0p1
 	sync
 	sync
@@ -1525,9 +1525,9 @@ pcp_reset_config_to_defaults() {
 	pcp_update_config_to_defaults
 
 	# Remove timezone stuff
-	pcp_mount_mmcblk0p1_nohtml
+	pcp_mount_bootpart_nohtml
 	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
-	pcp_umount_mmcblk0p1_nohtml
+	pcp_umount_bootpart_nohtml
 	sudo rm -f /etc/sysconfig/timezone
 
 	# Remove Jivelite stuff

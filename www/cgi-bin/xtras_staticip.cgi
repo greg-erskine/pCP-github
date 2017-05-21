@@ -78,11 +78,11 @@ pcp_edit_bootlocal() {
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing '$CMDLINETXT'...</p>'
-	pcp_mount_mmcblk0p1 "nohtml" >/dev/null
+	pcp_mount_bootpart "nohtml" >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
 		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' $CMDLINETXT
-		pcp_umount_mmcblk0p1 "nohtml" >/dev/null
+		pcp_umount_bootpart "nohtml" >/dev/null
 	else
 		[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 	fi
@@ -276,7 +276,7 @@ pcp_read_script
 #========================================================================================
 # Look for nodhcp boot code in /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
-pcp_mount_mmcblk0p1 "nohtml" >/dev/null
+pcp_mount_bootpart "nohtml" >/dev/null
 if mount | grep $VOLUME >/dev/null; then
 	cat $CMDLINETXT | grep nodhcp >/dev/null
 	case $? in
@@ -291,7 +291,7 @@ if mount | grep $VOLUME >/dev/null; then
 			DHCP="on"
 		;;
 	esac
-	pcp_umount_mmcblk0p1 "nohtml" >/dev/null
+	pcp_umount_bootpart "nohtml" >/dev/null
 else
 	[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 fi
@@ -605,9 +605,9 @@ if [ $DEBUG -ge 1 ]; then
 	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_mount_mmcblk0p1 "nohtml" >/dev/null
+	                        pcp_mount_bootpart "nohtml" >/dev/null
 	                        pcp_textarea_inform "none" "cat $CMDLINETXT" 25
-	                        pcp_umount_mmcblk0p1 "nohtml" >/dev/null
+	                        pcp_umount_bootpart "nohtml" >/dev/null
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'

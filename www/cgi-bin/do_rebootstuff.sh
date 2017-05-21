@@ -83,7 +83,7 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	# Read variables from newconfig and save to config.
 	sudo dos2unix -u $MNTUSB/newconfig.cfg
 	. $MNTUSB/newconfig.cfg
-	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	pcp_mount_bootpart_nohtml >/dev/null 2>&1
 	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
 	pcp_timezone
 	pcp_write_to_host
@@ -114,7 +114,7 @@ echo "${GREEN} Done.${NORMAL}"
 
 # Check if a newconfig.cfg file is present on Boot partition - requested by SqueezePlug and CommandorROR and used for insitu update
 echo "${BLUE}Checking for newconfig.cfg on $BOOTDEV... ${NORMAL}"
-pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+pcp_mount_bootpart_nohtml >/dev/null 2>&1
 if [ -f $BOOTMNT/newconfig.cfg ]; then
 
 	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
@@ -182,7 +182,7 @@ if [ -f $BOOTMNT/newconfig.cfg ]; then
 else
 	echo -n "${YELLOW}  newconfig.cfg not found on $BOOTMNT.${NORMAL}"
 fi
-pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+pcp_umount_bootpart_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 #****************Upgrade Process End *********************************
 
@@ -470,9 +470,9 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
 	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
 	pcp_save_to_config
-	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	pcp_mount_bootpart_nohtml >/dev/null 2>&1
 	pcp_set_timezone >/dev/null 2>&1
-	pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+	pcp_umount_bootpart_nohtml >/dev/null 2>&1
 	TZ=$TIMEZONE
 	BACKUP=1
 	echo "${GREEN}Done.${NORMAL}"

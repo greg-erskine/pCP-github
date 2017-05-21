@@ -95,12 +95,12 @@ pcp_enable_HDMI() {
 #----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
 	# if noumount, disk is probably already mounted....supress output
-	[ "$1" == "noumount" ] && pcp_mount_mmcblk0p1 > /dev/null 2>&1 || pcp_mount_mmcblk0p1
+	[ "$1" == "noumount" ] && pcp_mount_bootpart > /dev/null 2>&1 || pcp_mount_bootpart
 	pcp_disable_HDMI
 	pcp_disable_i2s
 	pcp_enable_i2s
 	# This is to allow no unmount of mmcblk0p1 during booting with newconfig.cfg
-	[ "$1" != "noumount" ] && pcp_umount_mmcblk0p1
+	[ "$1" != "noumount" ] && pcp_umount_bootpart
 }
 
 #========================================================================================

@@ -55,10 +55,10 @@ pcp_httpd_query_string
 
 pcp_table_top "Changing hostname"
 echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
-pcp_mount_mmcblk0p1
+pcp_mount_bootpart
 pcp_write_to_host
 [ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 70
-pcp_umount_mmcblk0p1
+pcp_umount_bootpart
 pcp_save_to_config
 pcp_backup
 

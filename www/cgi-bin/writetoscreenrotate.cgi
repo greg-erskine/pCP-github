@@ -37,14 +37,14 @@ pcp_table_top "Rotate screen"
 
 case "$SCREENROTATE" in
 	0|no)
-		pcp_mount_mmcblk0p1
+		pcp_mount_bootpart
 		sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT
-		pcp_umount_mmcblk0p1
+		pcp_umount_bootpart
 	;;
 	180|yes)
-		pcp_mount_mmcblk0p1
+		pcp_mount_bootpart
 		sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT
-		pcp_umount_mmcblk0p1
+		pcp_umount_bootpart
 	;;
 	*)
 		echo '[ ERROR ] Error setting $SCREENROTATE to '$SCREENROTATE
