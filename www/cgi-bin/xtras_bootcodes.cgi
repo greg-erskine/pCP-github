@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -2544,7 +2547,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# $CMDLINETXT - /mnt/mmcblkop1/cmdline.txt
+# $CMDLINETXT - /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
 pcp_start_row_shade
 echo '<table class="bggrey">'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-04-17
 #	Fixed pcp-xxx-functions issues. GE.
 #	Change Full Update to use pcp-update. PH.
@@ -81,8 +84,8 @@ case "${ACTION}" in
 		else
 			echo '[ INFO ] Updating Squeezelite extension'
 			rm -f /usr/local/tce.installed/pcp-squeezelite
-			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz /tmp
-			mv -f /mnt/mmcblk0p2/tce/optional/pcp-squeezelite.tcz.md5.txt /tmp
+			mv -f $PACKAGEDIR/pcp-squeezelite.tcz /tmp
+			mv -f $PACKAGEDIR/pcp-squeezelite.tcz.md5.txt /tmp
 			if [ $DEBUG -eq 1 ]; then
 				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz 2>&1
 			else
@@ -92,8 +95,8 @@ case "${ACTION}" in
 			if [ $? -ne 0 ]; then
 				DLERROR=1
 				echo '[ ERROR ] Download unsuccessful, try again later!'
-				mv -f /tmp/pcp-squeezelite.tcz /mnt/mmcblk0p2/tce/optional
-				mv -f /tmp/pcp-squeezelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional
+				mv -f /tmp/pcp-squeezelite.tcz $PACKAGEDIR
+				mv -f /tmp/pcp-squeezelite.tcz.md5.txt $PACKAGEDIR
 			else
 				rm -f /tmp/pcp-squeezelite.tcz*
 			fi

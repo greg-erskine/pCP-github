@@ -1,6 +1,9 @@
 #!/bin/sh
 # Diagnostics script
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -101,7 +104,7 @@ pcp_textarea_inform "Current shutdown.sh" "cat $SHUTDOWN" 150 log
 pcp_textarea_inform "" "dmesg" 300 log
 pcp_textarea_inform "Current /opt/.filetool.lst" "cat /opt/.filetool.lst" 300 log
 pcp_textarea_inform "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
-pcp_textarea_inform "Backup mydata" "tar tzf /mnt/mmcblk0p2/tce/mydata.tgz" 300 log
+pcp_textarea_inform "Backup mydata" "tar tzf /$TCEMNT/tce/mydata.tgz" 300 log
 pcp_textarea_inform "lsmod" "lsmod" 300 log
 pcp_textarea_inform "Directory of www/cgi-bin" "ls -al" 300 log
 

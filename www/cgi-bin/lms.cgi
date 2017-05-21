@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-31
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -82,13 +85,13 @@ WGET="/bin/busybox wget"
 pcp_install_lms() {
 	echo '[ INFO ] Downloading LMS...'
 	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz
-	if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+	if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '[ INFO ] Installing LMS...'
 		sudo -u tc pcp-load -i slimserver.tcz
-		sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+		sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
+		sudo echo 'slimserver.tcz' >> $ONBOOTLST
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] LMS is added to onboot.lst'
-		[ $DEBUG -eq 1 ] && cat /mnt/mmcblk0p2/tce/onboot.lst
+		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
 	fi
 }
 
@@ -96,11 +99,11 @@ pcp_remove_lms() {
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete slimserver.tcz
-	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 }
 
 pcp_remove_lms_cache() {
-	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
+	sudo rm -rf $TCEMNT/tce/slimserver/
 	sudo rm -rf /mnt/"$NETMOUNT1POINT"/slimserver/
 	sudo rm -rf /mnt/"$MOUNTPOINT"/slimserver/
 }
@@ -117,13 +120,13 @@ pcp_install_fs() {
 	RESULT=0
 	echo '[ INFO ] Downloaded additional filesystem support.</p>'
 	sudo -u tc pcp-load -r $PCP_REPO -w ntfs-3g.tcz
-	if [ -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
+	if [ -f $TCEMNT/tce/optional/ntfs-3g.tcz ]; then
 		echo '[ INFO ] Loading filesystem extensions'
 		sudo -u tc tce-load -i ntfs-3g.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	fi
 	if [ $RESULT -eq 0 ]; then
-		echo "ntfs-3g.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo "ntfs-3g.tcz" >> $ONBOOTLST
 		echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
 	else
 		echo '[ ERROR ] Extensions not loaded, try again later!</p>'
@@ -132,9 +135,9 @@ pcp_install_fs() {
 
 pcp_remove_fs() {
 	echo '[ INFO ] Removing Extensions</p>'
-	rm -f /mnt/mmcblk0p2/tce/optional/ntfs-3g*
-	rm -f /mnt/mmcblk0p2/tce/optional/filesystems*
-	sed -i '/ntfs-3g.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	rm -f $TCEMNT/tce/optional/ntfs-3g*
+	rm -f $TCEMNT/tce/optional/filesystems*
+	sed -i '/ntfs-3g.tcz/d' $ONBOOTLST
 	echo '[ INFO ] Extensions Removed, Reboot to Finish</p>'
 }
 
@@ -150,7 +153,7 @@ pcp_install_samba4() {
 		echo '<p>'
 	fi
 	if [ $RESULT -eq 0 ]; then
-		echo "samba4.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo "samba4.tcz" >> $ONBOOTLST
 		echo '[ INFO ] Samba Support Loaded...</p>'
 		cat << EOF > /usr/local/etc/init.d/samba
 #!/bin/sh
@@ -238,7 +241,7 @@ EOF
 
 pcp_remove_samba4() {
 	echo '[ INFO ] Removing Extensions</p>'
-	sed -i '/samba4.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sed -i '/samba4.tcz/d' $ONBOOTLST
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete samba4.tcz
 	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
@@ -262,7 +265,7 @@ case "$ACTION" in
 		case "$LMSDATA" in
 			usbmount) MNT="/mnt/$MOUNTPOINT";;
 			netmount1) MNT="/mnt/$NETMOUNT1POINT";;
-			default) MNT="/mnt/mmcblk0p2";;
+			default) MNT="$TCEMNT";;
 		esac
 		pcp_table_top "Logitech Media Server (LMS)"
 		echo '                <textarea class="inform" style="height:40px">'
@@ -304,7 +307,7 @@ case "$ACTION" in
 		if [ $? -eq 0 ] ; then
 			echo '                <textarea class="inform" style="height:160px">'
 			pcp_install_lms
-			if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+			if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 				LMSERVER="yes"
 				pcp_save_to_config
 				pcp_backup "nohtml"
@@ -411,14 +414,14 @@ esac
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
 # logic to activate/inactivate buttons depending upon whether LMS is installed or not
-if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 	DISABLED=""
 else
 	DISABLED="disabled"
 fi
 
 # logic to activate/inactivate buttons depending upon whether LMS cache is present or not
-if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
+if [ -d $TCEMNT/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
 	DISABLECACHE=""
 else
 	DISABLECACHE="disabled"
@@ -588,7 +591,7 @@ pcp_lms_install_lms() {
 	echo '            <form name="Install" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+	if [ ! -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
 		echo '                <td>'
@@ -905,9 +908,9 @@ pcp_slimserver_persistence() {
 	echo '                  <p>Local SDCard</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>/mnt/mmcblk0p2/tce/slimserver</p>'
+	echo '                  <p>$TCEMNT/tce/slimserver</p>'
 	echo '                </td>'
-	if [ -d /mnt/mmcblk0p2/tce/slimserver/Cache ]; then
+	if [ -d $TCEMNT/tce/slimserver/Cache ]; then
 		echo '                <td class="column'$COL4'">'
 		echo '                  <p>There is a Cache folder found on this drive</p>'
 		echo '                </td>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -38,14 +41,14 @@ REBOOT_REQUIRED=0
 pcp_enable_lms() {
 	echo '<p class="info">[ INFO ] Enabling automatic start of LMS...</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
-	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
+	sudo echo 'slimserver.tcz' >> $ONBOOTLST
 }
 
 pcp_disable_lms() {
 	echo '<p class="info">[ INFO ] Disabling automatic start of LMS...</p>'
 #	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
-	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 }
 
 pcp_lms_update() {
@@ -56,8 +59,8 @@ pcp_lms_update() {
 
 pcp_restore_LMS_cache() {
 	sudo /usr/local/etc/init.d/slimserver stop
-	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/Cache/
-	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/prefs/
+	sudo rm -rf $TCEMNT/tce/slimserver/Cache/
+	sudo rm -rf $TCEMNT/tce/slimserver/prefs/
 	echo '<p class="info">[ INFO ] LMS is now using SD-card to store its values...</p>'
 	echo '<p class="info">[ INFO ] LMS will automatically rescan your library again...</p>'
 	sudo /usr/local/etc/init.d/slimserver start

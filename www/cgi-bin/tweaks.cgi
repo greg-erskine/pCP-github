@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-04-22
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -770,7 +773,7 @@ pcp_tweaks_auto_start() {
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
 # logic to activate/inactivate buttons depending upon whether LMS is installed or not
-if [ -f /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz ]; then
+if [ -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
 	JLDISABLED=""
 else
 	JLDISABLED="disabled"
@@ -802,7 +805,7 @@ pcp_tweaks_install_jivelite() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column120 center">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz ]; then
+	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
 		echo '                <td class="column120 center">'
@@ -895,7 +898,7 @@ pcp_tweaks_enable_jivelite() {
 #----------------------------------------------------------------------------------------
 pcp_tweaks_vumeter() {
 
-	LOADED_VU_METER=$( cat /mnt/mmcblk0p2/tce/onboot.lst | grep VU_Meter )
+	LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
 
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
@@ -909,7 +912,7 @@ pcp_tweaks_vumeter() {
 	echo '                <td class="column250">'
 	echo '                  <select class="large16" name="VUMETER">'
 
-	                          VUMETERS=$(ls /mnt/mmcblk0p2/tce/optional/ | grep VU_Meter | grep .tcz$ )
+	                          VUMETERS=$(ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
 	                          for i in $VUMETERS
 	                          do
 	                            [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
@@ -1417,7 +1420,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Adds "dwc_otg.speed=1" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>Adds "dwc_otg.speed=1" to cmdline.txt on the boot Device</p>'
 	echo '                    <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
 	echo '                    <p>Often needed for C-Media based DACs if sound is crackling.</p>'
 	echo '                  </div>'
@@ -1452,7 +1455,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Adds "dwc_otg.fiq_fsm_enable=0" to /mnt/mmcblk0p1/cmdline.txt</p>'
+	echo '                    <p>Adds "dwc_otg.fiq_fsm_enable=0" to cmdline.txt on the boot device</p>'
 	echo '                    <p>The USB controller can have issues with external DACs. If set to 0 the new FIQ_FSM driver is disabled and the old NOP FIQ is used.</p>'
 	echo '                    <p>This is needed for Emotiva XMC-1 DAC.</p>'
 	echo '                  </div>'

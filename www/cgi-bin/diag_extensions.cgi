@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -195,7 +198,7 @@ echo "[ INFO  ] The list of standard extensions must be maintained MANUALLY." | 
 pcp_downloaded_extensions
 for i in $(cat $EXTENLIST)
 do
-	if [ -f /mnt/mmcblk0p2/tce/optional/${i} ]; then
+	if [ -f /$TCDMNT/tce/optional/${i} ]; then
 		[ $VERBOSE ] && echo "[ FOUND ] $i" | tee -a $LOG
 	else
 		echo "[ MISSING ] $i" | tee -a $LOG
@@ -228,7 +231,7 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 echo '                <textarea class="inform" style="height:300px">'
 
-EXTNS=$(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+EXTNS=$(ls $TCEMNT/tce/optional/*.tcz | awk -F 'optional/' '{print $2}')
 
 for i in $EXTNS
 do
@@ -251,7 +254,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 echo "" >> $LOG
-pcp_write_to_log "Downloaded extensions" "ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g'"
+pcp_write_to_log "Downloaded extensions" "ls $TCEMNT/tce/optional/*.tcz | awk -F 'optional/' '{print $2}'"
 pcp_write_to_log "Installed extensions" "tce-status -i"
 pcp_write_to_log "Uninstalled extensions" "tce-status -u"
 

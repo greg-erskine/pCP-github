@@ -2,6 +2,9 @@
 # pcp-pastebin-functions
 # These are the common pastebin functions used by piCorePlayer
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -69,7 +72,7 @@ pcp_install_wget() {
 	if [ $? -eq 0 ]; then
 		echo 'wget.tcz already installed.'
 	else
-		if [ ! -f /mnt/mmcblk0p2/tce/optional/wget.tcz ]; then
+		if [ ! -f $TCEMNT/tce/optional/wget.tcz ]; then
 			echo 'wget.tcz downloading... '
 			sudo -u tc tce-load -w wget.tcz
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'

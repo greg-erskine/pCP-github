@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -141,7 +144,7 @@ pcp_html_end() {
 #----------------------------------------------------------------------------------------
 pcp_delete_file() {
 	echo -n '[ INFO ] Deleting '$1'... '
-	rm -f /mnt/mmcblk0p2/tce/optional/${1}
+	rm -f $TCEMNT/tce/optional/${1}
 	[ $? -eq 0 ] || FAIL_MSG="Cannot delete ${1}."
 	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -28,7 +31,7 @@ pcp_httpd_query_string
 pcp_save_to_config
 
 #========================================================================================
-# Write to mmcblk0p1/config.txt
+# Write to BOOTMNT/config.txt
 #----------------------------------------------------------------------------------------
 pcp_table_top "Rotate screen"
 

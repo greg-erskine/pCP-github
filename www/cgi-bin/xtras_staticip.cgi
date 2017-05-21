@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -74,7 +77,7 @@ pcp_edit_bootlocal() {
 # Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt ($CMDLINETXT)
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing '$CMDLINETXT'...</p>'
 	pcp_mount_mmcblk0p1 "nohtml" >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
@@ -278,12 +281,12 @@ if mount | grep $VOLUME >/dev/null; then
 	cat $CMDLINETXT | grep nodhcp >/dev/null
 	case $? in
 		0)
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code found in /mnt/mmcblk0p1/cmdline.txt.</p>'
+			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code found in '$CMDLINETXT'.</p>'
 			NODHCPYES="checked"
 			DHCP="off"
 		;;
 		*)
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code not found in /mnt/mmcblk0p1/cmdline.txt.</p>'
+			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code not found in '$CMDLINETXT'.</p>'
 			NODHCPNO="checked"
 			DHCP="on"
 		;;
@@ -598,12 +601,12 @@ if [ $DEBUG -ge 1 ]; then
 	echo '      <form name="cmdline.txt" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
-	echo '            <legend>Current /mnt/mmcblk0p1/cmdline.txt</legend>'
+	echo '            <legend>Current '$CMDLINETXT'</legend>'
 	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        pcp_mount_mmcblk0p1 "nohtml" >/dev/null
-	                        pcp_textarea_inform "none" "cat /mnt/mmcblk0p1/cmdline.txt" 25
+	                        pcp_textarea_inform "none" "cat $CMDLINETXT" 25
 	                        pcp_umount_mmcblk0p1 "nohtml" >/dev/null
 	echo '                </td>'
 	echo '              </tr>'

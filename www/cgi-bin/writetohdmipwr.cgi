@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -26,7 +29,7 @@ pcp_install_rpi_vc() {
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] rpi-vc.tcz already installed.'
 	else
-		if [ ! -f /mnt/mmcblk0p2/tce/optional/rpi-vc.tcz ]; then
+		if [ ! -f $PACKAGEDIR/rpi-vc.tcz ]; then
 			echo -n '[ INFO ] rpi-vc.tcz downloading... '
 			sudo -u tc $TCELOAD -w rpi-vc.tcz 2>&1 >/dev/null
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'

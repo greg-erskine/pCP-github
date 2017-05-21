@@ -1,5 +1,8 @@
 #!/bin/sh +x
 
+# Version: 3.21 2017-05-20
+#	Changes for booting from USB on rpi3. PH.
+
 # Version: 3.20 2017-03-07
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -43,7 +46,7 @@ which dialog
 if [ $? = 0 ]; then
 	echo 'dialog.tcz already installed.'
 else
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/dialog.tcz ]; then
+	if [ ! -f $PACKAGEDIR/dialog.tcz ]; then
 		if [ $(pcp_internet_accessible) = 0 ]; then
 			echo 'dialog.tcz downloading...'
 			tce-load -w dialog.tcz
@@ -307,7 +310,7 @@ pcp_get_static_ip_status() {
 	[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	if mount | grep $VOLUME >/dev/null 2>&1; then
-		grep nodhcp /mnt/mmcblk0p1/cmdline.txt >/dev/null 2>&1
+		grep nodhcp $CMDLINETXT >/dev/null 2>&1
 		[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
 		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	fi
@@ -384,8 +387,8 @@ pcp_nodhcp_bootcode() {
 	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...'
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	if mount | grep $VOLUME >/dev/null; then
-		sed -i 's/nodhcp //g' /mnt/mmcblk0p1/cmdline.txt
-		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' /mnt/mmcblk0p1/cmdline.txt
+		sed -i 's/nodhcp //g' $CMDLINETXT
+		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' $CMDLINETXT
 		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	else
 		[ $DEBUG = 1 ] && echo '[ ERROR ] '$VOLUME' not mounted'

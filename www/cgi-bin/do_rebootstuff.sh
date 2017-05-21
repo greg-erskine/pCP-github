@@ -2,6 +2,7 @@
 
 # Version: 3.21 2017-04-30
 #	Changed vfat mounts....again. PH.
+#	Set boot/tce device from /etc/sysconfig/tcedir link
 
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
@@ -31,6 +32,16 @@
 #	Changed Kernel Module update to handle individual modules. PH
 #	Updated LIRC section. GE
 
+#Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
+TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+BOOTDEV=${TCEDEV%%?}1
+BOOTMNT=${TCEMNT%%?}1
+echo "TCEDEV=$TCEDEV" > /var/bootdevice
+echo "TCEMNT=$TCEMNT" >> /var/bootdevice
+echo "BOOTDEV=$BOOTDEV" >> /var/bootdevice
+echo "BOOTMNT=$BOOTMNT" >> /var/bootdevice
+
 BACKUP=0
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
@@ -45,18 +56,21 @@ ORIG_AUDIO="$AUDIO"
 # Mount USB stick if present
 echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
 
+####Modify this to check other SDA devices if BOOTED from USB######
 # Check if sda1 is mounted, otherwise mount it.
 MNTUSB=/mnt/sda1
-if mount | grep $MNTUSB; then
-	echo "${YELLOW}  /dev/sda1 already mounted.${NORMAL}"
-else
-	# Check if sda1 is inserted before trying to mount it.
-	if [ -e /dev/sda1 ]; then
-		[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
-		echo "${YELLOW}  Trying to mount /dev/sda1.${RED}"
-		sudo mount /dev/sda1 >/dev/null 2>&1
+if [ "$BOOTMNT" = "$MNTUSB" ]; then
+	if mount | grep $MNTUSB; then
+		echo "${YELLOW}  /dev/sda1 already mounted.${NORMAL}"
 	else
-	echo "${YELLOW}  No USB Device detected in /dev/sda1${NORMAL}"
+		# Check if sda1 is inserted before trying to mount it.
+		if [ -e /dev/sda1 ]; then
+			[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
+			echo "${YELLOW}  Trying to mount /dev/sda1.${RED}"
+			sudo mount /dev/sda1 >/dev/null 2>&1
+		else
+		echo "${YELLOW}  No USB Device detected in /dev/sda1${NORMAL}"
+		fi
 	fi
 fi
 
@@ -98,16 +112,16 @@ else
 fi
 echo "${GREEN} Done.${NORMAL}"
 
-# Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
-echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
+# Check if a newconfig.cfg file is present on Boot partition - requested by SqueezePlug and CommandorROR and used for insitu update
+echo "${BLUE}Checking for newconfig.cfg on $BOOTDEV... ${NORMAL}"
 pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
-if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
+if [ -f $BOOTMNT/newconfig.cfg ]; then
 
 	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-	if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
+	if [ -f $TCEMNT/tce/bootfix/bootfix.sh ]; then
 		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-		/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
-		rm -rf /mnt/mmcblk0p2/tce/bootfix
+		$TCEMNT/tce/bootfix/bootfix.sh
+		rm -rf $TCEMNT/tce/bootfix
 		pcp_backup_nohtml >/dev/null 2>&1
 	fi
 
@@ -116,16 +130,16 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_update_config_to_defaults
 	. $CONFIGCFG
 	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
-	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
-	. /mnt/mmcblk0p1/newconfig.cfg
+	sudo dos2unix -u $BOOTMNT/newconfig.cfg
+	. $BOOTMNT/newconfig.cfg
 
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
-	sudo cp /mnt/mmcblk0p1/asound.conf /etc/ >/dev/null 2>&1
-	sudo rm -f /mnt/mmcblk0p1/asound.conf >/dev/null 2>&1
-	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
-	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
+	sudo cp $BOOTMNT/asound.conf /etc/ >/dev/null 2>&1
+	sudo rm -f $BOOTMNT/asound.conf >/dev/null 2>&1
+	sudo cp $BOOTMNT/asound.state /var/lib/alsa/ >/dev/null 2>&1
+	sudo rm $BOOTMNT/asound.state >/dev/null 2>&1
 	#-----------------------------------------------------------------------------------------
 	pcp_timezone
 	pcp_write_to_host
@@ -144,21 +158,21 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_save_to_config
-	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
+	sudo rm -f $BOOTMNT/newconfig.cfg
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel.  And remove them
 	CKCORE=$(uname -r | cut -d '-' -f2)
 	CKCORE=${CKCORE%+}  #Strip the + or _v7+
-	ls /mnt/mmcblk0p2/tce/optional/*${CKCORE%_v7}*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
+	ls $TCEMNT/tce/optional/*${CKCORE%_v7}*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
 	# Check onboot to be sure there are no hard kernel references.   
-	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
+	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' $ONBOOTLST
 	# Remove Dropbear extension, we are now using openssh
-	ls -1 /mnt/mmcblk0p2/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
+	ls -1 $TCEMNT/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
 	sed -i '/dropbear/d' /opt/.filetool.lst
-	sed -i '/dropbear/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sed -i '/dropbear/d' $ONBOOTLST
 	#Remove lines containing only white space
-	sed -i '/^\s*$/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sed -i '/^\s*$/d' $ONBOOTLST
 	# should we put a copy of bootlog in the home directory???????
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
@@ -166,7 +180,7 @@ if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
 	sudo reboot
 	exit 0
 else
-	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
+	echo -n "${YELLOW}  newconfig.cfg not found on $BOOTMNT.${NORMAL}"
 fi
 pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
@@ -183,13 +197,13 @@ echo "${GREEN}Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
 if [ "$WIFI" = "on" ]; then
-	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
+	if grep -Fxq "wifi.tcz" $ONBOOTLST; then
 		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
 	else
 		# Add wifi related modules back
 		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
 		BACKUP=1
-		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+		sudo fgrep -vxf $ONBOOTLST $TCEMNT/tce/piCorePlayer.dep >> $ONBOOTLST
 
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
