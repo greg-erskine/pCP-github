@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.21 2017-05-28
+#	Modifcations for installing to bootdevice. i.e. USB boot. PH.
+
 # Version 3.20 2017-03-25
 #	Removed code that is not used until stage2. PH.
 #	Change stage2 download to work with web based repo location. PH.
@@ -107,7 +110,6 @@ pcp_warning_message() {
 	echo '              <td>'
 	echo '                <p style="color:white"><b>Warning:</b> Assume an insitu update will overwrite ALL the data on your SD card.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Any additional extensions may need to be reinstalled i.e. LMS, jivelite, shairport-sync, alsaequal.</li>'
 	echo '                  <li style="color:white">Any user modified or added files may be lost.</li>'
 	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
 	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
