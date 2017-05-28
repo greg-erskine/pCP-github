@@ -53,38 +53,63 @@ echo "${GREEN}Done.${NORMAL}"
 ORIG_AUDIO="$AUDIO"
 
 #****************Upgrade Process Start *********************************
-# Mount USB stick if present
-echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
-
-####Modify this to check other SDA devices if BOOTED from USB######
-# Check if sda1 is mounted, otherwise mount it.
-MNTUSB=/mnt/sda1
-if [ "$BOOTMNT" = "$MNTUSB" ]; then
-	if mount | grep $MNTUSB; then
-		echo "${YELLOW}  /dev/sda1 already mounted.${NORMAL}"
+# Mount USB stick if present.  Build list of usb stick 1st partitions
+# Check each partition for newconfig.cfg.  The first one found stops the search
+NEWCONFIGFOUND=0
+NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
+for DISK in $NEWCFGLIST; do
+	echo "${BLUE}Checking for newconfig.cfg on $DISK... ${NORMAL}"
+	# Check if $DISK is mounted, otherwise mount it.
+	if mount | grep ${DISK}; then
+		eval ${DISK}WASMNT=1
 	else
-		# Check if sda1 is inserted before trying to mount it.
-		if [ -e /dev/sda1 ]; then
-			[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
-			echo "${YELLOW}  Trying to mount /dev/sda1.${RED}"
-			sudo mount /dev/sda1 >/dev/null 2>&1
-		else
-		echo "${YELLOW}  No USB Device detected in /dev/sda1${NORMAL}"
+		eval ${DISK}WASMNT=0
+		[ -d /mnt/$DISK ] || mkdir -p /mnt/$DISK
+		echo "${YELLOW}  Trying to mount /dev/${DISK}.${RED}"
+		mount /dev/$DISK >/dev/null 2>&1
+	fi
+	if [ -f /mnt/$DISK/newconfig.cfg ]; then
+		echo "${YELLOW}  newconfig.cfg found on ${DISK}.${NORMAL}"
+		NEWCONFIGFOUND=1
+		ln -s /mnt/$DISK /tmp/newconfig
+	else
+		echo "${YELLOW}  newconfig.cfg not found on ${DISK}.${NORMAL}"
+		if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
+			umount /mnt/$DISK
 		fi
 	fi
-fi
+	[ $NEWCONFIGFOUND -eq 1 ] && break
+done	
 
-# Check if newconfig.cfg is present
-if [ -f $MNTUSB/newconfig.cfg ]; then
-	echo "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
+# Check if newconfig.cfg was found in search
+if [ $NEWCONFIGFOUND -eq 1 ]; then
+	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
+	if [ -f $TCEMNT/tce/bootfix/bootfix.sh ]; then
+		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
+		$TCEMNT/tce/bootfix/bootfix.sh
+		rm -rf $TCEMNT/tce/bootfix
+		pcp_backup_nohtml >/dev/null 2>&1
+	fi
+	#=========================================================================================
+	# Copy ALSA settings back so they are restored after an update
+	#-----------------------------------------------------------------------------------------
+	if [ -f /tmp/newconfig/asound.conf ]; then
+		sudo cp /tmp/newconfig/asound.conf /etc/ 
+		sudo mv -f /tmp/newconfig/asound.conf /tmp/newconfig/usedasound.conf
+	fi
+	if [ -f /tmp/newconfig/asound.state ]; then
+		sudo cp /tmp/newconfig/asound.state /var/lib/alsa/
+		sudo mv -f /tmp/newconfig/asound.state /tmp/newconfig/usedasound.state
+	fi
+	#-----------------------------------------------------------------------------------------
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
 	. $CONFIGCFG
 	# Read variables from newconfig and save to config.
-	sudo dos2unix -u $MNTUSB/newconfig.cfg
-	. $MNTUSB/newconfig.cfg
+	sudo dos2unix -u /tmp/newconfig/newconfig.cfg
+	. /tmp/newconfig/newconfig.cfg
 	pcp_mount_bootpart_nohtml >/dev/null 2>&1
-	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
+	sudo mv -f /tmp/newconfig/newconfig.cfg /tmp/newconfig/usedconfig.cfg
 	pcp_timezone
 	pcp_write_to_host
 	[ "$RPI3INTWIFI" = "off" ] && echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
@@ -102,87 +127,22 @@ if [ -f $MNTUSB/newconfig.cfg ]; then
 	pcp_read_chosen_audio noumount
 	echo "${GREEN}Done.${NORMAL}"
 	pcp_save_to_config
-	pcp_backup_nohtml >/dev/null 2>&1
-	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
-	sleep 3
-	sudo reboot
-	exit 0
-else
-	echo -n "${YELLOW}  newconfig.cfg not found on sda1.${NORMAL}"
-fi
-echo "${GREEN} Done.${NORMAL}"
 
-# Check if a newconfig.cfg file is present on Boot partition - requested by SqueezePlug and CommandorROR and used for insitu update
-echo "${BLUE}Checking for newconfig.cfg on $BOOTDEV... ${NORMAL}"
-pcp_mount_bootpart_nohtml >/dev/null 2>&1
-if [ -f $BOOTMNT/newconfig.cfg ]; then
-
-	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-	if [ -f $TCEMNT/tce/bootfix/bootfix.sh ]; then
-		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-		$TCEMNT/tce/bootfix/bootfix.sh
-		rm -rf $TCEMNT/tce/bootfix
-		pcp_backup_nohtml >/dev/null 2>&1
-	fi
-
-	echo "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
-	# Make a new config files with default values and read it
-	pcp_update_config_to_defaults
-	. $CONFIGCFG
-	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
-	sudo dos2unix -u $BOOTMNT/newconfig.cfg
-	. $BOOTMNT/newconfig.cfg
-
-	#=========================================================================================
-	# Copy ALSA settings back so they are restored after an update
-	#-----------------------------------------------------------------------------------------
-	sudo cp $BOOTMNT/asound.conf /etc/ >/dev/null 2>&1
-	sudo rm -f $BOOTMNT/asound.conf >/dev/null 2>&1
-	sudo cp $BOOTMNT/asound.state /var/lib/alsa/ >/dev/null 2>&1
-	sudo rm $BOOTMNT/asound.state >/dev/null 2>&1
-	#-----------------------------------------------------------------------------------------
-	pcp_timezone
-	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
-	case "$SCREENROTATE" in
-		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
-		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
-	esac
-	#During an insitu update, turn HDMI back on. Incase there are problems.
-	HDMIPOWER="on"
-	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
-	pcp_save_to_config
-	pcp_disable_HDMI
-	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
-	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
-	pcp_read_chosen_audio noumount
-	echo "${GREEN}Done.${NORMAL}"
-	pcp_save_to_config
-	sudo rm -f $BOOTMNT/newconfig.cfg
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel.  And remove them
-	CKCORE=$(uname -r | cut -d '-' -f2)
-	CKCORE=${CKCORE%+}  #Strip the + or _v7+
-	ls $TCEMNT/tce/optional/*${CKCORE%_v7}*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
+	ls $TCEMNT/tce/optional/*.tcz* | grep -E '(pcpCore)|(pcpAudioCore)' | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
 	# Check onboot to be sure there are no hard kernel references.   
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' $ONBOOTLST
-	# Remove Dropbear extension, we are now using openssh
-	ls -1 $TCEMNT/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
-	sed -i '/dropbear/d' /opt/.filetool.lst
-	sed -i '/dropbear/d' $ONBOOTLST
 	#Remove lines containing only white space
 	sed -i '/^\s*$/d' $ONBOOTLST
-	# should we put a copy of bootlog in the home directory???????
+
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
 	sudo reboot
 	exit 0
-else
-	echo -n "${YELLOW}  newconfig.cfg not found on $BOOTMNT.${NORMAL}"
 fi
-pcp_umount_bootpart_nohtml >/dev/null 2>&1
 echo "${GREEN} Done.${NORMAL}"
 #****************Upgrade Process End *********************************
 
