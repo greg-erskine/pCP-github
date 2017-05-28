@@ -125,7 +125,7 @@ echo '            <legend>Boot partition information</legend>'
 echo '            <table class="bggrey percent100">'
 echo '              <tr class="odd">'
 echo '                <td>'
-                        pcp_textarea_inform "none" "dosfsck -vrf  /dev/mmcblk0p1" 300
+                        pcp_textarea_inform "none" "dosfsck -vrf  ${BOOTDEV}" 300
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="odd">'
