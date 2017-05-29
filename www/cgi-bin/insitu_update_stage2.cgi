@@ -207,7 +207,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.21*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.9.27
+			NEWKERNELVER=4.9.30
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
@@ -284,24 +284,31 @@ pcp_install_boot_files() {
 	cd
 	pcp_save_custom_boot_config
 
-	# Delete all files from the boot partition
-	sudo rm -rf $BOOTMNT
-	[ $? -eq 0 ] || FAIL_MSG="Error deleting files ${BOOTMNT}/*"
-
-	pcp_save_configuration
-	# Untar the boot files
-	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1; TST=$?
-	if [ $TST -eq 0 ]; then
-		echo '[  OK  ] Successfully untarred boot tar.'
-		pcp_restore_custom_boot_config
-	else
-		echo '[ ERROR ] Error untarring boot tar. Result: '$TST
-		FAIL_MSG="Error untarring boot tar."
+	if [ "$FAIL_MSG" = "ok" ]; then
+		# Delete all files from the boot partition
+		sudo rm -rf ${BOOTMNT}/*
+		[ $? -eq 0 ] || FAIL_MSG="Error deleting files ${BOOTMNT}/*"
+		pcp_save_configuration
+	fi
+	if [ "$FAIL_MSG" = "ok" ]; then
+		# Untar the boot files
+		echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
+		sudo tar -xvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1
+		TST=$?
+		if [ $TST -eq 0 ]; then
+			echo '[  OK  ] Successfully untarred boot tar.'
+			pcp_restore_custom_boot_config
+		else
+			echo '[ ERROR ] Error untarring boot tar. Result: '$TST
+			FAIL_MSG="Error untarring boot tar."
+		fi
+	fi
+	if [ "$FAIL_MSG" != "ok" ]; then
 		echo '[ INFO ] Restoring old OS...'
 		rm -rf ${BOOTMNT}/*
 		tar -xf /tmp/osbackup.tar -C ${BOOTMNT}/
 	fi
+
 	pcp_umount_bootpart_nohtml
 }
 
@@ -324,11 +331,21 @@ pcp_save_configuration() {
 }
 
 pcp_save_custom_boot_config() {
+	for i in `cat $CMDLINETXT`; do
+		case $i in
+			*=*)
+				case $i in
+					waitusb*)   WAITUSB=${i#*=} ;;
+				esac
+			;;
+		esac
+	done
+	cp -f ${BOOTMNT}/config.txt /tmp/orig_config.txt 2>&1
 	echo '[ INFO ] Scanning config.txt for custom boot configuration.'
 /usr/bin/micropython -c '
 import os
 import sys
-infile = open("${BOOTMNT}/config.txt", "r")
+infile = open("/tmp/orig_config.txt", "r")
 outfile = open("/tmp/custom_config.txt", "w")
 CUT=0
 FOUND=0
@@ -359,14 +376,19 @@ if FOUND == 0:
 }
 
 pcp_restore_custom_boot_config() {
+	#remove old waitusb value
+	sudo sed -i 's/\(waitusb=\)\S*[ ]\+//g' $CMDLINETXT
+	sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
+	pcp_clean_cmdlinetxt
 	if [ -f "/tmp/custom_config.txt" ]; then
+		cp -f ${BOOTMNT}/config.txt /tmp/upgraded_config.txt
 		echo '[ INFO ] Restoring custom boot configuration to config.txt.'
 		rm -f /tmp/config.txt
 		[ $DEBUG -eq 1 ] && echo '[DEBUG] Current config.txt'; cat ${BOOTMNT}/config.txt
 /usr/bin/micropython -c '
 import os
 import sys
-infile = open("${BOOTMNT}/config.txt", "r")
+infile = open("/tmp/upgraded_config.txt", "r")
 infilecustom = open("/tmp/custom_config.txt", "r")
 outfile = open("/tmp/config.txt", "w")
 INS=0
