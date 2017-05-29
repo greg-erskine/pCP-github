@@ -1,7 +1,8 @@
 #!/bin/sh +x
 
-# Version: 3.21 2017-05-20
+# Version: 3.21 2017-05-29
 #	Changes for booting from USB on rpi3. PH.
+#	Forward compatability for pcp_mount_mmcblk0p1. PH.
 
 # Version: 3.20 2017-03-07
 #	Fixed pcp-xxx-functions issues. GE.
@@ -27,6 +28,21 @@ PCPHOME="/home/tc/www/cgi-bin"
 STATICIP="/opt/eth0.sh"
 
 . ${PCPHOME}/pcp-functions
+
+if [ ! $(type -t pcp_mount_mmcblk0p1) ]; then
+        pcp_mount_mmcblk0p1() {
+                pcp_mount_bootpart
+        }
+        pcp_mount_mmcblk0p1_nohtml() {
+                pcp_mount_bootpart_nohtml
+        }
+        pcp_umount_mmcblk0p1() {
+                pcp_umount_bootpart
+        }
+        pcp_umount_mmcblk0p1_nohtml() {
+                pcp_umount_bootpart_nohtml
+        }
+fi
 
 DIALOG_OK=0
 DIALOG_CANCEL=1
