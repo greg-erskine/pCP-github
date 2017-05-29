@@ -22,6 +22,13 @@
 #	Added Copy entire update /sbin directory to location (pcp-load), Bootfix, and changed bootlocal.sh processing.
 #	Added oldpiversion.cfg to allow bootfix to know what the old version was.
 
+#Needed when upgrading from 3.20
+#Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
+TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+BOOTDEV=${TCEDEV%%?}1
+BOOTMNT=${TCEMNT%%?}1
+
 . /etc/init.d/tc-functions
 . pcp-functions
 
