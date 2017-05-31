@@ -331,6 +331,7 @@ pcp_save_configuration() {
 }
 
 pcp_save_custom_boot_config() {
+	WAITUSB=0
 	for i in `cat $CMDLINETXT`; do
 		case $i in
 			*=*)
@@ -378,7 +379,7 @@ if FOUND == 0:
 pcp_restore_custom_boot_config() {
 	#remove old waitusb value
 	sudo sed -i 's/\(waitusb=\)\S*[ ]\+//g' $CMDLINETXT
-	sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
+	[ $WAITUSB -gt 0 ] && sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
 	pcp_clean_cmdlinetxt
 	if [ -f "/tmp/custom_config.txt" ]; then
 		cp -f ${BOOTMNT}/config.txt /tmp/upgraded_config.txt
