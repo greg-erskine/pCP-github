@@ -28,9 +28,29 @@ TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 BOOTDEV=${TCEDEV%%?}1
 BOOTMNT=${TCEMNT%%?}1
+echo "TCEDEV=$TCEDEV" > /var/bootdevice
+echo "TCEMNT=$TCEMNT" >> /var/bootdevice
+echo "BOOTDEV=$BOOTDEV" >> /var/bootdevice
+echo "BOOTMNT=$BOOTMNT" >> /var/bootdevice
 
 . /etc/init.d/tc-functions
 . pcp-functions
+
+#pcp <3.21 will not understand bootpart
+if [ ! $(type -t pcp_mount_bootpart) ]; then
+        pcp_mount_bootpart() {
+                pcp_mount_mmcblk0p1
+        }
+        pcp_mount_bootpart_nohtml() {
+                pcp_mount_pcp_mount_mmcblk0p1_nohtml
+        }
+        pcp_umount_bootpart() {
+                pcp_umount_pcp_mount_mmcblk0p1
+        }
+        pcp_umount_bootpart_nohtml() {
+                pcp_umount_pcp_mount_mmcblk0p1_nohtml
+        }
+fi
 
 pcp_html_head "Update pCP" "GE"
 
