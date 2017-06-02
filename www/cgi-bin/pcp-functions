@@ -80,7 +80,11 @@ pcp_variables() {
 	# The following are standard piCorePlayer variables, do NOT edit!
 	# Note: This section is ONLY for variables as it can be run multiple times.
 	#-------------------------------------------------------------------------------------
-	. /var/bootdevice
+	#Name of device that has tce.  Assume boot is partition 1 of that device.
+	TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	BOOTDEV=${TCEDEV%%?}1
+	BOOTMNT=${TCEMNT%%?}1
 	CONFIGTXT="$BOOTMNT/config.txt"
 	CMDLINETXT="$BOOTMNT/cmdline.txt"
 	BOOTLOCAL="/opt/bootlocal.sh"

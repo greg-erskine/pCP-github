@@ -32,16 +32,6 @@
 #	Changed Kernel Module update to handle individual modules. PH
 #	Updated LIRC section. GE
 
-#Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
-TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
-TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
-BOOTDEV=${TCEDEV%%?}1
-BOOTMNT=${TCEMNT%%?}1
-echo "TCEDEV=$TCEDEV" > /var/bootdevice
-echo "TCEMNT=$TCEMNT" >> /var/bootdevice
-echo "BOOTDEV=$BOOTDEV" >> /var/bootdevice
-echo "BOOTMNT=$BOOTMNT" >> /var/bootdevice
-
 BACKUP=0
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"

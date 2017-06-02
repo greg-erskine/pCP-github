@@ -28,10 +28,6 @@ TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 BOOTDEV=${TCEDEV%%?}1
 BOOTMNT=${TCEMNT%%?}1
-echo "TCEDEV=$TCEDEV" > /var/bootdevice
-echo "TCEMNT=$TCEMNT" >> /var/bootdevice
-echo "BOOTDEV=$BOOTDEV" >> /var/bootdevice
-echo "BOOTMNT=$BOOTMNT" >> /var/bootdevice
 
 . /etc/init.d/tc-functions
 . pcp-functions
