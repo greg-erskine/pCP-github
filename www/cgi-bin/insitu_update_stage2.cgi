@@ -38,18 +38,18 @@ echo "BOOTMNT=$BOOTMNT" >> /var/bootdevice
 
 #pcp <3.21 will not understand bootpart
 if [ ! $(type -t pcp_mount_bootpart) ]; then
-        pcp_mount_bootpart() {
-                pcp_mount_mmcblk0p1
-        }
-        pcp_mount_bootpart_nohtml() {
-                pcp_mount_pcp_mount_mmcblk0p1_nohtml
-        }
-        pcp_umount_bootpart() {
-                pcp_umount_pcp_mount_mmcblk0p1
-        }
-        pcp_umount_bootpart_nohtml() {
-                pcp_umount_pcp_mount_mmcblk0p1_nohtml
-        }
+	pcp_mount_bootpart() {
+		pcp_mount_mmcblk0p1
+	}
+	pcp_mount_bootpart_nohtml() {
+		pcp_mount_mmcblk0p1_nohtml
+	}
+	pcp_umount_bootpart() {
+		pcp_umount_mmcblk0p1
+	}
+	pcp_umount_bootpart_nohtml() {
+		pcp_umount_mmcblk0p1_nohtml
+	}
 fi
 
 pcp_html_head "Update pCP" "GE"
