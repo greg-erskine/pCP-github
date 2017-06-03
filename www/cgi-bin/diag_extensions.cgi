@@ -198,7 +198,7 @@ echo "[ INFO  ] The list of standard extensions must be maintained MANUALLY." | 
 pcp_downloaded_extensions
 for i in $(cat $EXTENLIST)
 do
-	if [ -f /$TCDMNT/tce/optional/${i} ]; then
+	if [ -f /$TCEMNT/tce/optional/${i} ]; then
 		[ $VERBOSE ] && echo "[ FOUND ] $i" | tee -a $LOG
 	else
 		echo "[ MISSING ] $i" | tee -a $LOG
