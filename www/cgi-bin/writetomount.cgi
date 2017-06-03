@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-13
+# Version: 3.21 2017-05-20
 #	Changed vfat mounts.  PH.
 #	Fixed util-linux button download function. PH
+#  Changed to allow booting from USB on RPI3. PH.
 
 # Version: 3.20 2017-03-31
 #	Revisions to pcp_lms_set_slimconfig function. PH.
@@ -208,7 +209,7 @@ case "$MOUNTTYPE" in
 			case "$ORIG_LMSDATA" in
 				usbmount) ORIG_MNT="/mnt/$MOUNTPOINT/slimserver";;
 				netmount1) ORIG_MNT="/mnt/$NETMOUNT1POINT/slimserver";;
-				default) ORIG_MNT="/mnt/mmcblk0p2/tce/slimserver";;
+				default) ORIG_MNT="$TCEMNT/tce/slimserver";;
 			esac
 			BADFORMAT="no"
 			case "$LMSDATA" in
@@ -228,7 +229,7 @@ case "$MOUNTTYPE" in
 						*);;
 					esac
 					;;
-				default) MNT="/mnt/mmcblk0p2/tce/slimserver";;
+				default) MNT="$TCEMNT/tce/slimserver";;
 			esac
 
 			if [ "$BADFORMAT" = "no" ]; then

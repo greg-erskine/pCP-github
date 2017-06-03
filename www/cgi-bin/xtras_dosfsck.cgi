@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -42,7 +45,7 @@ pcp_check_dosfsck() {
 	if [ $? -eq 0 ]; then
 		echo 'dosfstools.tcz already installed.'
 	else
-		if [ ! -f /mnt/mmcblk0p2/tce/optional/dosfstools.tcz ]; then
+		if [ ! -f $PACKAGEDIR/dosfstools.tcz ]; then
 			echo 'dosfstools.tcz downloading... '
 			sudo -u tc tce-load -w dosfstools.tcz
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
@@ -60,7 +63,7 @@ pcp_check_dosfsck() {
 # Delete dosfstools.tcz
 #========================================================================================
 if [ $OPT -eq 1 ]; then
-	rm -f /mnt/mmcblk0p2/tce/optional/dosfstools.*
+	rm -f $PACKAGEDIR/dosfstools.*
 fi
 
 #========================================================================================
@@ -68,7 +71,7 @@ fi
 #----------------------------------------------------------------------------------------
 pcp_dosfsck() {
 	echo '<textarea class="inform" rows="10">'
-	dosfsck -a /dev/mmcblk0p1
+	dosfsck -a $BOOTDEV
 	echo '</textarea>'
 }
 
@@ -122,7 +125,7 @@ echo '            <legend>Boot partition information</legend>'
 echo '            <table class="bggrey percent100">'
 echo '              <tr class="odd">'
 echo '                <td>'
-                        pcp_textarea_inform "none" "dosfsck -vrf  /dev/mmcblk0p1" 300
+                        pcp_textarea_inform "none" "dosfsck -vrf  ${BOOTDEV}" 300
 echo '                </td>'
 echo '              </tr>'
 echo '              <tr class="odd">'

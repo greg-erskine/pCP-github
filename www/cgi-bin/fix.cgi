@@ -10,6 +10,9 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
 #	Updated for 3.11 to be able to insitu update to 3.20. PH
@@ -45,8 +48,8 @@ REBOOT_REQUIRED=0
 pcp_do_fix_1() {
 	echo "[ INFO ] Applying fix_1"
 	echo "[ INFO ] Adding oprnssl to onboot.lst"
-	sudo sed -i '/openssl.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo echo 'openssl.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/openssl.tcz/d' $ONBOOTLST
+	sudo echo 'openssl.tcz' >> $ONBOOTLST
 }
 
 pcp_do_fix_2() {

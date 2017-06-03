@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -252,7 +255,7 @@ pcp_generate_report() {
 	(echo $0; date) > $LOG
 	cat /etc/motd >>$LOG
 	echo "" >>$LOG
-	pcp_write_to_log "Downloaded extensions" "ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g'"
+	pcp_write_to_log "Downloaded extensions" "ls $PACKAGEDIR/*.tcz | awk -F 'optional/' '{print $2}'"
 	pcp_write_to_log "Installed extensions" "tce-status -i"
 	pcp_write_to_log "Uninstalled extensions" "tce-status -u"
 }
@@ -674,7 +677,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '                <td class="column300">'
 	echo '                  <select class="large22" name="EXTN">'
 
-                              for E in $(ls /mnt/mmcblk0p2/tce/optional/*.tcz | sed 's/\/mnt\/mmcblk0p2\/tce\/optional\///g')
+                              for E in $(ls $PACKAGEDIR/*.tcz | awk -F 'optional/' '{print $2}')
                               do
                                 [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
                                 echo '                    <option value="'$E'" '$SELECTED'>'$E'</option>'
@@ -743,7 +746,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
 	echo '                      <li>Lists all extensions that are currently installed.</li>'
-	echo '                      <li>These extensions are usually loaded at boot via /mnt/mmcblk0p2/tce/onboot.lst.</li>'
+	echo '                      <li>These extensions are usually loaded at boot via $ONBOOTLST.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'

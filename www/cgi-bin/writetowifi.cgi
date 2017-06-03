@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 #	Changed rpi3 wifi disable to overlay. PH.
@@ -78,12 +81,12 @@ pcp_textarea "" "cat $WIFIDB" 40
 #----------------------------------------------------------------------------------------
 if [ "$WIFI" = "on" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] wifi is on. Updating onboot.lst...</p>'
-	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
+	if grep -Fxq "wifi.tcz" $ONBOOTLST; then
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Wifi modules already loaded.</p>'
 	else
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Loading wifi firmware and modules.</p>'
 		# Add wifi related modules back
-		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+		sudo fgrep -vxf $ONBOOTLST $TCEMNT/tce/piCorePlayer.dep >> $ONBOOTLST
 
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo '<p class="info">[ INFO ] Atheros firmware loaded.</p>' || echo '<p class="error">[ ERROR ] Atheros firmware load error.</p>'
@@ -103,17 +106,17 @@ fi
 
 if [ "$WIFI" = "off" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] wifi is off. Removing wifi extensions...</p>'
-	sudo sed -i '/firmware-atheros.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-brcmwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-rpi3-wireless.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-ralinkwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/firmware-rtlwifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/wireless/d' /mnt/mmcblk0p2/tce/onboot.lst
-	sudo sed -i '/wifi.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/wireless/d' $ONBOOTLST
+	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
 fi
 
 if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
-	pcp_mount_mmcblk0p1
+	pcp_mount_bootpart
 	if [ "$RPI3INTWIFI" = "off" ]; then
 		# Add a blacklist for brcmfmac
 		echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
@@ -121,14 +124,14 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
 		sed -i '/dtoverlay=pi3-disable-wifi/d' $CONFIGTXT
 	fi
 	[ $DEBUG -eq 1 ] && pcp_textarea "" "cat $CONFIGTXT" 100
-	pcp_umount_mmcblk0p1
+	pcp_umount_bootpart
 	pcp_backup
 	pcp_reboot_required
 fi
 
 pcp_textarea "" "cat $CONFIGCFG" 150
-pcp_textarea "" "cat /mnt/mmcblk0p2/tce/onboot.lst" 150
-pcp_textarea "" "cat /mnt/mmcblk0p2/tce/piCorePlayer.dep" 150
+pcp_textarea "" "cat $ONBOOTLST" 150
+pcp_textarea "" "cat $TCEMNT/tce/piCorePlayer.dep" 150
 
 pcp_backup
 

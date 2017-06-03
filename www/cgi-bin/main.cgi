@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-04-16
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -258,7 +261,7 @@ pcp_main_update_sqlt() {
 #------------------------------------------Install/Remove FFMPEG-------------------------
 pcp_main_ffmpeg() {
 
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/pcp-libffmpeg.tcz ]; then
+	if [ ! -f /$TCEMNT/tce/optional/pcp-libffmpeg.tcz ]; then
 		VERSIONsmall="selected"
 	else
 		VERSIONlarge="selected"

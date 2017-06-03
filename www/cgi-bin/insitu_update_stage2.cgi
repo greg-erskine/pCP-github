@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version 3.21 2017-05-12
+# Version 3.21 2017-05-28
 #	Allow for custom configuration in config.txt. PH
+#  Modifcations for installing to bootdevice. i.e. USB boot. PH.
 
 # Version 3.20 2017-04-22
 #	Updates for new Repo and Newer kernels
@@ -21,11 +22,31 @@
 #	Added Copy entire update /sbin directory to location (pcp-load), Bootfix, and changed bootlocal.sh processing.
 #	Added oldpiversion.cfg to allow bootfix to know what the old version was.
 
-# Version 2.05 2016-04-17 SBP
-#	Currently a copy of the old insitu_update.cgi.
+#Needed when upgrading from 3.20
+#Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
+TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+BOOTDEV=${TCEDEV%%?}1
+BOOTMNT=${TCEMNT%%?}1
 
 . /etc/init.d/tc-functions
 . pcp-functions
+
+#pcp <3.21 will not understand bootpart
+if [ ! $(type -t pcp_mount_bootpart) ]; then
+	pcp_mount_bootpart() {
+		pcp_mount_mmcblk0p1
+	}
+	pcp_mount_bootpart_nohtml() {
+		pcp_mount_mmcblk0p1_nohtml
+	}
+	pcp_umount_bootpart() {
+		pcp_umount_mmcblk0p1
+	}
+	pcp_umount_bootpart_nohtml() {
+		pcp_umount_mmcblk0p1_nohtml
+	}
+fi
 
 pcp_html_head "Update pCP" "GE"
 
@@ -111,23 +132,6 @@ pcp_sourceforge_indicator() {
 }
 
 #========================================================================================
-# Check for extension - display reload extension warning message
-#----------------------------------------------------------------------------------------
-pcp_check_for_extension() {
-	EXTENSION=$1
-	if [ -f "/usr/local/tce.installed/${EXTENSION}" ]; then
-		echo '[ WARN ] *** You may need to REINSTALL '$EXTENSION' ***'
-	fi
-}
-
-pcp_check_for_all_extensions() {
-	pcp_check_for_extension jivelite
-	pcp_check_for_extension shairport-sync
-	pcp_check_for_extension alsaequal
-	pcp_check_for_extension slimserver
-}
-
-#========================================================================================
 # Check for free space - set FAIL_MSG if insufficient space is available
 #----------------------------------------------------------------------------------------
 pcp_enough_free_space() {
@@ -185,87 +189,11 @@ pcp_get_insitu_cfg() {
 	fi
 }
 
-pcp_uudecode (){
-# uudecode in GNU awk (and some others, like OpenBSD) decodes stdin to stdout
-#
-# Copyright (c) 2014, Rafael Kitover <rkitover@gmail.com>
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-# * Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ``AS IS'' AND ANY
-# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-awk=awk
-
-if command -v gawk >/dev/null; then
-	awk=gawk
-fi
-
-$awk '
-BEGIN {
-    charset=" !\"#$%&'\''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
-}
-function charval(char) {
-    return index(charset, char) + 32 - 1;
-}
-/^begin / { next }
-/^end$/   { exit }
-{
-    cnt = substr($0, 1, 1);
-    if (cnt == "`") next;
-    cnt = charval(cnt) - 32;
-    enc = substr($0, 2, length($0) - 1);
-    chars = 0;
-    pos   = 1;
-    while (chars < cnt) {
-        grp = substr(enc, pos, 4);
-        gsub(/`/, " ", grp); # zero bytes
-        c1 = charval(substr(grp, 1, 1)) - 32;
-        c2 = charval(substr(grp, 2, 1)) - 32;
-        c3 = charval(substr(grp, 3, 1)) - 32;
-        c4 = charval(substr(grp, 4, 1)) - 32;
-        chars_bits = or(c4, or(or(lshift(c3, 6), lshift(c2, 12)), lshift(c1, 18)));
-        char[1] = sprintf("%c", rshift(and(chars_bits, 16711680), 16));
-        char[2] = sprintf("%c", rshift(and(chars_bits, 65280),     8));
-        char[3] = sprintf("%c", and(chars_bits, 255));
-        for (i = 1; i <= 3 && chars < cnt; i++) {
-            printf("%s", char[i]);
-            chars++;
-        }
-        pos += 4;
-    }
-}
-'
-}
-
 #========================================================================================
 # Download kernel modules for new kernel
 #----------------------------------------------------------------------------------------
 pcp_get_kernel_modules() {
-#	Update pcp-load if needed  (This is not needed right now, but left this in for reference
-#	grep -q "Version 3.00" /usr/local/sbin/pcp-load
-#	if [ $? -ne 0 ]; then
-#		# Need to Update pcp-load
-#		MATCH=$(grep -n '^PAYLOAD:$' $0 | cut -d ':' -f 1)
-#		PAYLOAD_START=$((MATCH+1))
-#		tail -n +$PAYLOAD_START $0 | pcp_uudecode > /tmp/new-pcp-load
-#		chmod 755 /tmp/new-pcp-load
-#		cp -f /tmp/new-pcp-load /usr/local/sbin/pcp-load
-#	fi
+#	Removed uudecode, if needed look at git history on prior to pcp3.21
 	case "${VERSION}" in
 		piCorePlayer2.06)
 			# Set the below for the new kernel
@@ -295,7 +223,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.21*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.9.27
+			NEWKERNELVER=4.9.30
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
@@ -316,15 +244,15 @@ pcp_get_kernel_modules() {
 		echo '[ INFO ] PCP_DL='$PCP_DL
 		# Do a space check based on current kernel modules installed, then doubled for safety
 		MODSIZE=0
-		for I in $(ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL); do
+		for I in $(ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL); do
 			MODSIZE=$((MODSIZE+$(du -k $I | awk '{print $1}')))
 		done
 		pcp_enough_free_space $((MODSIZE * 2))
 		if [ "$FAIL_MSG" = "ok" ]; then
 			# Get list of kernel modules matching current kernel
-			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
+			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
 			# Get list of kernel modules not matching current kernel
-			ls /mnt/mmcblk0p2/tce/optional/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
+			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
 			#Remove Backlight from Modules list, it does not exist anymore
 			sed -i '/backlight/d' /tmp/current
 			# Show the old modules that do not have a current kernel version.
@@ -364,33 +292,40 @@ pcp_get_boot_files() {
 #----------------------------------------------------------------------------------------
 pcp_install_boot_files() {
 	echo '[ INFO ] Installing boot files...'
-	pcp_mount_mmcblk0p1_nohtml
-	cd /mnt/mmcblk0p1
+	pcp_mount_bootpart_nohtml
+	cd $BOOTMNT
 	[ -f /tmp/osbackup.tar ] && rm -f /tmp/osbackup.tar
 	echo '[ INFO ] Backing up old OS...'
 	tar -cf /tmp/osbackup.tar *
 	cd
 	pcp_save_custom_boot_config
 
-	# Delete all files from the boot partition
-	sudo rm -rf /mnt/mmcblk0p1/*
-	[ $? -eq 0 ] || FAIL_MSG="Error deleting files /mnt/mmcblk0p1/*"
-
-	pcp_save_configuration
-	# Untar the boot files
-	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C /mnt/mmcblk0p1/ 2>&1; TST=$?
-	if [ $TST -eq 0 ]; then
-		echo '[  OK  ] Successfully untarred boot tar.'
-		pcp_restore_custom_boot_config
-	else
-		echo '[ ERROR ] Error untarring boot tar. Result: '$TST
-		FAIL_MSG="Error untarring boot tar."
-		echo '[ INFO ] Restoring old OS...'
-		rm -rf /mnt/mmcblk0p1/*
-		tar -xf /tmp/osbackup.tar -C /mnt/mmcblk0p1/
+	if [ "$FAIL_MSG" = "ok" ]; then
+		# Delete all files from the boot partition
+		sudo rm -rf ${BOOTMNT}/*
+		[ $? -eq 0 ] || FAIL_MSG="Error deleting files ${BOOTMNT}/*"
+		pcp_save_configuration
 	fi
-	pcp_umount_mmcblk0p1_nohtml
+	if [ "$FAIL_MSG" = "ok" ]; then
+		# Untar the boot files
+		echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
+		sudo tar -xvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1
+		TST=$?
+		if [ $TST -eq 0 ]; then
+			echo '[  OK  ] Successfully untarred boot tar.'
+			pcp_restore_custom_boot_config
+		else
+			echo '[ ERROR ] Error untarring boot tar. Result: '$TST
+			FAIL_MSG="Error untarring boot tar."
+		fi
+	fi
+	if [ "$FAIL_MSG" != "ok" ]; then
+		echo '[ INFO ] Restoring old OS...'
+		rm -rf ${BOOTMNT}/*
+		tar -xf /tmp/osbackup.tar -C ${BOOTMNT}/
+	fi
+
+	pcp_umount_bootpart_nohtml
 }
 
 #=========================================================================================
@@ -398,25 +333,36 @@ pcp_install_boot_files() {
 #-----------------------------------------------------------------------------------------
 pcp_save_configuration() {
 	echo '[ INFO ] Saving configuration files.'
-	sudo cp -f /usr/local/sbin/config.cfg /mnt/mmcblk0p1/newconfig.cfg
+	sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newconfig.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
-	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
+	sudo dos2unix -u ${BOOTMNT}/newconfig.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	#save the current piversion to determine potential bootfix(es) later
 	. /usr/local/sbin/piversion.cfg
-	[ -e /mnt/mmcblk0p1/oldpiversion.cfg ] && rm -f /mnt/mmcblk0p1/oldpiversion.cfg
-	echo "OLDPIVERS=\"$PIVERS\"" > /mnt/mmcblk0p1/oldpiversion.cfg
+	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
+	echo "OLDPIVERS=\"$PIVERS\"" > ${BOOTMNT}/oldpiversion.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
 
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
 pcp_save_custom_boot_config() {
+	WAITUSB=0
+	for i in `cat $CMDLINETXT`; do
+		case $i in
+			*=*)
+				case $i in
+					waitusb*)   WAITUSB=${i#*=} ;;
+				esac
+			;;
+		esac
+	done
+	cp -f ${BOOTMNT}/config.txt /tmp/orig_config.txt 2>&1
 	echo '[ INFO ] Scanning config.txt for custom boot configuration.'
 /usr/bin/micropython -c '
 import os
 import sys
-infile = open("/mnt/mmcblk0p1/config.txt", "r")
+infile = open("/tmp/orig_config.txt", "r")
 outfile = open("/tmp/custom_config.txt", "w")
 CUT=0
 FOUND=0
@@ -447,14 +393,19 @@ if FOUND == 0:
 }
 
 pcp_restore_custom_boot_config() {
+	#remove old waitusb value
+	sudo sed -i 's/\(waitusb=\)\S*[ ]\+//g' $CMDLINETXT
+	[ $WAITUSB -gt 0 ] && sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
+	pcp_clean_cmdlinetxt
 	if [ -f "/tmp/custom_config.txt" ]; then
+		cp -f ${BOOTMNT}/config.txt /tmp/upgraded_config.txt
 		echo '[ INFO ] Restoring custom boot configuration to config.txt.'
 		rm -f /tmp/config.txt
-		[ $DEBUG -eq 1 ] && echo '[DEBUG] Current config.txt'; cat /mnt/mmcblk0p1/config.txt
+		[ $DEBUG -eq 1 ] && echo '[DEBUG] Current config.txt'; cat ${BOOTMNT}/config.txt
 /usr/bin/micropython -c '
 import os
 import sys
-infile = open("/mnt/mmcblk0p1/config.txt", "r")
+infile = open("/tmp/upgraded_config.txt", "r")
 infilecustom = open("/tmp/custom_config.txt", "r")
 outfile = open("/tmp/config.txt", "w")
 INS=0
@@ -485,8 +436,8 @@ infile.close
 infilecustom.close
 outfile.close
 '
-	cp -f /tmp/config.txt /mnt/mmcblk0p1/config.txt
-	[ $DEBUG -eq 1 ] && echo '[DEBUG] New config.txt'; cat /mnt/mmcblk0p1/config.txt
+	cp -f /tmp/config.txt ${BOOTMNT}/config.txt
+	[ $DEBUG -eq 1 ] && echo '[DEBUG] New config.txt'; cat ${BOOTMNT}/config.txt
 	fi
 }
 
@@ -512,8 +463,7 @@ pcp_get_tce_files() {
 pcp_install_tce_files() {
 	# Untar and update the tzc packages files to optional
 	echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_tce.tar.gz...'
-#	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz mnt/mmcblk0p2/tce/optional -C /
-	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz ./optional -C /mnt/mmcblk0p2/tce
+	[ "$FAIL_MSG" = "ok" ] && sudo tar -zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz ./optional -C /etc/sysconfig/tcedir
 	if [ $? -eq 0 ]; then
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] tce tar result: '$?
 		echo '[  OK  ] Successfully untarred tce tar.'
@@ -534,40 +484,40 @@ pcp_finish_install() {
 
 	# Move Bootfix into location if it is present
 	if [ -f "${UPD_PCP}/mydata/bootfix/bootfix.sh" ]; then
-		sudo cp -Rf ${UPD_PCP}/mydata/bootfix/ /mnt/mmcblk0p2/tce/
-		chmod 755 /mnt/mmcblk0p2/tce/bootfix/*
+		sudo cp -Rf ${UPD_PCP}/mydata/bootfix/ ${TCEMNT}/tce/
+		chmod 755 ${TCEMNT}/tce/bootfix/*
 	fi
 
 	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
 	# So check that the final onboot contains all from the new version and add eventual extra from the old
-	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
-	echo "content of mnt onboot.lst before:"; cat /mnt/mmcblk0p2/tce/onboot.lst
-	sudo cat /mnt/mmcblk0p2/tce/onboot.lst >> ${UPD_PCP}/mydata/onboot.lst
-	sort -u ${UPD_PCP}/mydata/onboot.lst > /mnt/mmcblk0p2/tce/onboot.lst
+	sudo chown tc:staff $ONBOOTLST
+	echo "content of mnt onboot.lst before:"; cat $ONBOOTLST
+	sudo cat $ONBOOTLST >> ${UPD_PCP}/mydata/onboot.lst
+	sort -u ${UPD_PCP}/mydata/onboot.lst > $ONBOOTLST
 	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
-	sudo chown tc:staff /mnt/mmcblk0p2/tce/onboot.lst
-	sudo chmod u=rwx,g=rwx,o=rx /mnt/mmcblk0p2/tce/onboot.lst
+	sudo chown tc:staff $ONBOOTLST
+	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
 	case "${VERSION}" in
 		piCorePlayer3.20*)
 			#pcp3.20 pcp.tcz handles all pcp dependencies (non-wifi)
 			echo "Removing old boot extensions from onboot.lst:"
-			sed -i '/busybox-httpd.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sed -i '/alsa.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sed -i '/openssh.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sed -i '/dialog.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sed -i '/alsa-utils.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sed -i '/pcp-squeezelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sed -i '/^jivelite.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			if [ -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz ]; then
-				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz
-				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz.dep /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.dep
-				mv /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.md5.txt
-				sed -i '/backlight/d' /mnt/mmcblk0p2/tce/optional/pcp-jivelite.tcz.dep
-				echo "pcp-jivelite.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/busybox-httpd.tcz/d' $ONBOOTLST
+			sed -i '/alsa.tcz/d' $ONBOOTLST
+			sed -i '/openssh.tcz/d' $ONBOOTLST
+			sed -i '/dialog.tcz/d' $ONBOOTLST
+			sed -i '/alsa-utils.tcz/d' $ONBOOTLST
+			sed -i '/pcp-squeezelite.tcz/d' $ONBOOTLST
+			sed -i '/^jivelite.tcz/d' $ONBOOTLST
+			if [ -f ${PACKAGEDIR}/jivelite.tcz ]; then
+				mv ${PACKAGEDIR}/jivelite.tcz ${PACKAGEDIR}/pcp-jivelite.tcz
+				mv ${PACKAGEDIR}/jivelite.tcz.dep ${PACKAGEDIR}/pcp-jivelite.tcz.dep
+				mv ${PACKAGEDIR}/jivelite.tcz.md5.txt ${PACKAGEDIR}/pcp-jivelite.tcz.md5.txt
+				sed -i '/backlight/d' ${PACKAGEDIR}/pcp-jivelite.tcz.dep
+				echo "pcp-jivelite.tcz" >> $ONBOOTLST
 			fi
 		;;
 	esac
-	echo "content of mnt onboot.lst after:"; cat /mnt/mmcblk0p2/tce/onboot.lst
+	echo "content of mnt onboot.lst after:"; cat $ONBOOTLST
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -676,7 +626,6 @@ pcp_warning_message() {
 	echo '              <td>'
 	echo '                <p style="color:white"><b>Warning:</b> Assume an insitu update will overwrite ALL the data on your SD card.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Any additional extensions may need to be reinstalled i.e. LMS, jivelite, shairport-sync, alsaequal.</li>'
 	echo '                  <li style="color:white">Any user modified or added files may be lost.</li>'
 	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
 	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
@@ -790,7 +739,7 @@ if [ "$ACTION" = "download" ]; then
 			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
 	esac
-	BOOT_SIZE=$(/bin/busybox fdisk -l | grep mmcblk0p1 | tr -s " " | cut -d " " -f4 | tr -d +)
+	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | tr -s " " | cut -d " " -f4 | tr -d +)
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"

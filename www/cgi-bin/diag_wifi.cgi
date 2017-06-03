@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -94,7 +97,7 @@ pcp_diag_wifi_install_lsusb() {
 	if [ $? -eq 0 ]; then
 		echo 'usbutils.tcz already installed.'
 	else
-		if [ ! -f /mnt/mmcblk0p2/tce/optional/usbutils.tcz ]; then
+		if [ ! -f /$TCEMNT/tce/optional/usbutils.tcz ]; then
 			echo 'usbutils.tcz downloading... '
 			sudo -u tc tce-load -w usbutils.tcz
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'

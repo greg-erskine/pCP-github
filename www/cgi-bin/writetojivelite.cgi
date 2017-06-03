@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
 #	Updated jivelite to PCP_Repo. PH.
@@ -153,7 +156,7 @@ pcp_install_vumeter() {
 pcp_delete_vumeters() {
 	echo '<p class="info">[ INFO ] Removing VU Meters...</p>'
 	sudo -u tc tce-audit builddb
-	for i in $(/mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz); do
+	for i in $($PACKAGEDIR/VU_Meter*.tcz); do
 		sudo -u tc tce-audit delete $i
 	done
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meter from onboot.lst...</p>'
@@ -186,7 +189,7 @@ case "$OPTION" in
 				if [ $? -eq 0 ] ; then
 					echo '                <textarea class="inform" style="height:300px">'
 					pcp_download_jivelite
-					if [ -f /mnt/mmcblk0p2/tce/optional/${JIVELITE_TCZ} ]; then
+					if [ -f $PACKAGEDIR/${JIVELITE_TCZ} ]; then
 						pcp_install_jivelite
 						JIVELITE="yes"
 						VISUALISER="yes"
@@ -234,7 +237,7 @@ case "$OPTION" in
 					else 
 						REBOOT_REQUIRED=1
 					fi
-					for i in $(/mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz); do
+					for i in $(PACKAGEDIR/VU_Meter*.tcz); do
 						pcp-update $i
 						if [ $? -eq 0 ]; then
 							echo '[ INFO ] There was an update to VU Meters.'

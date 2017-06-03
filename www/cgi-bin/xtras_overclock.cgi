@@ -161,18 +161,18 @@ pcp_display_current() {
 }
 
 pcp_display_config_txt() {
-	pcp_mount_mmcblk0p1 >/dev/null 2>&1
+	pcp_mount_bootpart >/dev/null 2>&1
 	echo '<textarea class="inform" style="height:80px">'
 	sed -n '/uncomment to overclock/{n;p;n;p;n;p;n;p;n;p;n;p}' $CONFIGTXT
 	echo '</textarea>'
-	pcp_umount_mmcblk0p1 >/dev/null 2>&1
+	pcp_umount_bootpart >/dev/null 2>&1
 }
 
 pcp_start_save() {
 	pcp_save_to_config
 	pcp_backup >/dev/null 2>&1
 
-	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	pcp_mount_bootpart_nohtml >/dev/null 2>&1
 
 	if mount | grep $VOLUME >/dev/null 2>&1; then
 		[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
@@ -279,7 +279,7 @@ pcp_start_save() {
 	fi
 
 	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
-	pcp_umount_mmcblk0p1 >/dev/null 2>&1
+	pcp_umount_bootpart >/dev/null 2>&1
 }
 
 pcp_check_config_txt() {
@@ -336,7 +336,7 @@ esac
 #----------------------------------------------------------------------------------------
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
-pcp_mount_mmcblk0p1 >/dev/null 2>&1
+pcp_mount_bootpart >/dev/null 2>&1
 FORCETURBO=$(cat $CONFIGTXT | grep force_turbo)
 
 case "$FORCETURBO" in
@@ -356,7 +356,7 @@ case "$GPUMEMORY" in
 	gpu_mem=256) GM256="selected" ;;
 esac
 
-pcp_umount_mmcblk0p1 >/dev/null 2>&1
+pcp_umount_bootpart >/dev/null 2>&1
 
 pcp_warning_message
 

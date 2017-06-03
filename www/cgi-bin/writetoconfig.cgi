@@ -107,7 +107,7 @@ pcp_update() {
 }
 
 #pcp_multi_alsa_mmap() {
-#	pcp_mount_mmcblk0p1
+#	pcp_mount_bootpart
 #	if [ $ALSA_PARAMS4 -eq 1 ]; then
 #		echo '<p class="info">[ INFO ] Adding i2s-mmap to config.txt...</p>'
 #		grep dtoverlay=i2s-mmap $CONFIGTXT >/dev/null 2>&1
@@ -117,7 +117,7 @@ pcp_update() {
 #	else
 #		echo '<p class="info">[ INFO ] Deleting i2s-mmap from config.txt...</p>'
 #		sed -i '/dtoverlay=i2s-mmap/d' $CONFIGTXT
-#		pcp_umount_mmcblk0p1
+#		pcp_umount_bootpart
 #	fi
 #}
 

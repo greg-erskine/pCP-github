@@ -89,14 +89,14 @@ case "$ACTION" in
 		SELECTED_BOARD=On
 		[ x"$ONBOARD" = x"" ] && SELECTED_BOARD=Off
 		if [ "$ONBOARD_SND" != "$SELECTED_BOARD" ]; then 
-		pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+		pcp_mount_bootpart_nohtml >/dev/null 2>&1
 			if [ "$ONBOARD" = "On" ]; then 
 				pcp_re_enable_analog
 				else
 				pcp_disable_analog
 				sudo rmmod snd_bcm2835 
 			fi
-		pcp_umount_mmcblk0p1
+		pcp_umount_bootpart
 		pcp_save_to_config
 		pcp_backup
 		pcp_reboot_required

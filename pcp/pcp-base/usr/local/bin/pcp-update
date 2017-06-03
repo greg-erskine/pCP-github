@@ -1,5 +1,8 @@
 #!/bin/sh
 #
+# Version 3.21 2017-05-20
+#	Use /etc/sysconfig/tcedir. PH.
+
 # Version 3.201 2017-04-30
 #	Added downloading information. PH.
 #
@@ -130,7 +133,7 @@ check_updates() {
 #TCE_REPO="http://repo.tinycorelinux.net"
 PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
 
-cd /mnt/mmcblk0p2/tce/optional
+cd /etc/sysconfig/tcedir/optional
 EXTENSION_DIR=$(pwd)
 UPGRADE_DIR=${EXTENSION_DIR}/upgrade
 DL_DIR="/tmp/upgrade_ext"

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -111,7 +114,7 @@ pcp_html_end(){
 }
 
 # Backup cmdline.txt if one does not exist. Use ssh to restore.
-pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+pcp_mount_bootpart_nohtml >/dev/null 2>&1
 [ ! -f ${CMDLINETXT}.bak ] && pcp_backup_cmdlinetxt
 
 case "$SUBMIT" in
@@ -2544,7 +2547,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# $CMDLINETXT - /mnt/mmcblkop1/cmdline.txt
+# $CMDLINETXT - /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
 pcp_start_row_shade
 echo '<table class="bggrey">'
@@ -2580,7 +2583,7 @@ cat $CMDLINETXT | awk '
 
 echo '</textarea>'
 
-pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+pcp_umount_bootpart_nohtml >/dev/null 2>&1
 
 #----------------------------------------------------------------------------------------
 echo '          </table>'
