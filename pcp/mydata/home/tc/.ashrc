@@ -12,12 +12,10 @@ export EDITOR
 PS1='\[\033[01;32m\]\u@\h:\[\033[00m\]\[\033[01;34m\]\w\$\[\033[00m\] '
 export PS1
 
-if [ -f /var/bootdevice ]; then
-	. /var/bootdevice
-else
-	BOOTMNT=/mnt/mmcblk0p1
-	TCEMNT=/mnt/mmcblk0p2
-fi
+TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+BOOTDEV=${TCEDEV%%?}1
+BOOTMNT=${TCEMNT%%?}1
 
 # Alias definitions.
 #
