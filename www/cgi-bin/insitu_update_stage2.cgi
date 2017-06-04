@@ -578,13 +578,6 @@ outfile.close
 	sudo chown root:staff /opt/bootlocal.sh
 	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
 
-	case "${VERSION}" in
-		piCorePlayer3.20*)
-			#pcp3.20 made a change in card configs to shini, remove all old card conf files
-			rm -f /usr/local/etc/pcp/cards/*
-		;;
-	esac
-
 	# Update pCP by copying the content from the new version to the correct location followed by a backup
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
