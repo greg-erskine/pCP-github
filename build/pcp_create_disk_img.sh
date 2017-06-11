@@ -419,6 +419,8 @@ build_mydata(){
 	find ${MYDATA}/home/tc/www/* -not -type d | xargs chmod 644
 	find ${MYDATA}/home/tc/www/cgi-bin/* -not -type d | xargs chmod 755
 
+	#insitu update stage 2 is downloaded on demand.
+	rm -f ${MYDATA}/home/tc/www/cgi-bin/insitu_update_stage2.cgi
 
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/opt/bootlocal.sh ${MYDATA}/opt/bootlocal.sh 0.50 775
 	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/opt/bootsync.sh ${MYDATA}/opt/bootsync.sh 0.50 775
