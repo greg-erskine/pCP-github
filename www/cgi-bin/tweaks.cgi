@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-20
+# Version: 3.21 2017-06-06
 #	Changed to allow booting from USB on RPI3. PH.
+#	Removed HDMI Power warning for high sample rates....this is fixed in kernel/firmware. PH.
 
 # Version: 3.20 2017-04-22
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -358,7 +359,7 @@ pcp_tweaks_hdmipower() {
 	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>HDMI power <b>(WARNING: DO not turn power off if using 192k or higher sample rates!)</b>&nbsp;&nbsp;'
+	echo '                  <p>HDMI power&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
