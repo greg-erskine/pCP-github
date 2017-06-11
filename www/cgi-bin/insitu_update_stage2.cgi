@@ -2,7 +2,7 @@
 
 # Version 3.21 2017-05-28
 #	Allow for custom configuration in config.txt. PH
-#  Modifcations for installing to bootdevice. i.e. USB boot. PH.
+#	Modifcations for installing to bootdevice. i.e. USB boot. PH.
 
 # Version 3.20 2017-04-22
 #	Updates for new Repo and Newer kernels
@@ -529,9 +529,13 @@ pcp_finish_install() {
 	case "${VERSION}" in
 		piCorePlayer3.2*)
 			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
-			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+		;;
+		piCorePlayer3.21)
+			#Changed in pCP3.21 to usr/local/etc/pcp
+			sed -i 'usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
 		;;
 	esac
 	
