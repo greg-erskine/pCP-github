@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-20
+# Version: 3.21 2017-06-10
 #	Changed vfat mounts.  PH.
 #	Fixed util-linux button download function. PH
-#  Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPI3. PH.
+#	Support multiple USB mounts. PH
 
 # Version: 3.20 2017-03-31
 #	Revisions to pcp_lms_set_slimconfig function. PH.
@@ -24,8 +25,6 @@
 . pcp-lms-functions
 
 # Store the original values so we can see if they are changed
-ORIG_MOUNTPOINT="$MOUNTPOINT"
-ORIG_MOUNTUUID="$MOUNTUUID"
 ORIG_NETMOUNT1POINT="$NETMOUNT1POINT"
 ORIG_NETMOUNT1="$NETMOUNT1"
 ORIG_NETMOUNT1IP="$NETMOUNT1IP"
@@ -63,7 +62,7 @@ pcp_move_LMS_cache() {
 
 pcp_do_umount () {
 	if [ -d $1 ]; then
-		df | grep -qs $1
+		df | grep -qws $1
 		if [ "$?" = "0" ]; then
 			umount $1
 			if [ "$?" = "0" ]; then
@@ -73,6 +72,8 @@ pcp_do_umount () {
 				echo '<p class="error">[ERROR] Diskmount Options Saved Reboot to Mount.</p>'
 				REBOOT_REQUIRED="1"
 			fi
+		else
+			echo '<p class="info">[ INFO ] New Mount Point '$1' is not in use.</p>' 
 		fi
 	fi
 }
@@ -97,57 +98,135 @@ fi
 
 case "$MOUNTTYPE" in
 	localdisk)
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTPOINT is: '$ORIG_MOUNTPOINT'</p>'
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTPOINT is: '$MOUNTPOINT'</p>'
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTUUID is: '$ORIG_MOUNTUUID'</p>'
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTUUID is: '$MOUNTUUID'</p>'
-
-		if [ "$ORIG_MOUNTPOINT" = "$MOUNTPOINT" -a "$ORIG_MOUNTUUID" = "$MOUNTUUID" ]; then
-			echo '<p class="info">[ INFO ] Mount Options Unchanged.</p>'
-		else
-			echo '<p class="info">[ INFO ] Mount Point is set to: '$MOUNTPOINT'</p>'
-			echo '<p class="info">[ INFO ] Mount UUID is set to: '$MOUNTUUID'</p>'
-
-			echo '<p class="info">[ INFO ] Checking Old Mount Point.</p>'
-			pcp_do_umount /mnt/$ORIG_MOUNTPOINT
-
-			if [ "$MOUNTUUID" != "no" -a "$REBOOT_REQUIRED" = "0" ]; then
-				echo '<p class="info">[ INFO ] Checking new Mount Point.</p>'
-				pcp_do_umount /mnt/$MOUNTPOINT 
-
-				if [ "$REBOOT_REQUIRED" = "0" ]; then
-					[ ! -d /mnt/$MOUNTPOINT ] && mkdir -p /mnt/$MOUNTPOINT
-					DEVICE=$(blkid -U $MOUNTUUID)
-					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
-					case "$FSTYPE" in
-						ntfs) 
-							echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
-							umount $DEVICE
-							OPTIONS="-v -t ntfs-3g -o permissions"
-						;;
-						vfat|fat32)
-							#if Filesystem support installed, use utf-8 charset for fat.
-							df | grep -qs ntfs
-							[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
-							umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-							OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
-						;;
-						*)
-							OPTIONS="-v"
-						;;
-					esac
-					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
-					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$MOUNTUUID' /mnt/'$MOUNTPOINT'</p>'
-					mount $OPTIONS --uuid $MOUNTUUID /mnt/$MOUNTPOINT
-					if [ $? -eq 0 ]; then
-						echo '<p class="info">[ INFO ] Disk Mounted Successfully.</p>'
-					else
-						echo '<p class="error">[ERROR] Disk Mount Error, Try to Reboot.</p>'
-						REBOOT_REQUIRED="1"
+		#	READ Conf file
+		if [ -f  ${USBMOUNTCONF} ]; then
+			SC=0
+			while read LINE; do
+				case $LINE in
+					[*)SC=$((SC+1));;
+					*USBDISK*) eval ORIG_USBDISK${SC}=$(pcp_trimval "${LINE}");;
+					*POINT*) eval ORIG_MOUNTPOINT${SC}=$(pcp_trimval "${LINE}");;
+					*UUID*) eval ORIG_MOUNTUUID${SC}=$(pcp_trimval "${LINE}");;
+					*);;
+				esac
+			done < $USBMOUNTCONF
+		fi
+		
+		# Match ORIG values from config to current set passed on HTML
+		MNTCHANGED=0
+		I=1
+		while [ $I -le $NUMDRIVES ]; do
+			eval MNTCHANGED${I}=0
+			THISUU=$(eval echo "\${MOUNTUUID${I}}")
+			THISPNT=$(eval echo "\${MOUNTPOINT${I}}")
+			THISENA=$(eval echo "\${USBDISK${I}}")
+			J=1
+			FOUND=0
+			while [ $J -le $SC ]; do
+				[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] I,J ='$I','$J'</p>'
+				ORIGUU=$(eval echo "\${ORIG_MOUNTUUID${J}}")
+				ORIGPNT=$(eval echo "\${ORIG_MOUNTPOINT${J}}")
+				ORIGENA=$(eval echo "\${ORIG_USBDISK${J}}")
+				if [ "$THISUU" = "$ORIGUU" ]; then
+					FOUND=1
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG UU is: '$ORIGUU'</p>'
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] This UU is: '$THISUU'</p>'
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_USBDISK is: '$ORIGENA'</p>'
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] This USBDISK is: '$THISENA'</p>'
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTPOINT is: '$ORIGPNT'</p>'
+					[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] This MOUNTPOINT is: '$THISPNT'</p>'
+					if [ "$THISPNT" != "$ORIGPNT" -o "$THISENA" != "$ORIGENA" ]; then
+						MNTCHANGED=1
+						eval MNTCHANGED${I}=1
+						eval OLDMOUNTPOINT${I}=$ORIGPNT
+						eval OLDUSBDISK${I}=$ORIGENA
+					fi
+					J=$SC
+				fi
+				J=$((J+1))
+			done
+			[ $FOUND -eq 0 -a "$THISENA" != "" ] && eval MNTCHANGED${I}=1
+			I=$((I+1))
+		done
+		I=1
+		while [ $I -le $NUMDRIVES ]; do
+			NEWUU=$(eval echo "\${MOUNTUUID${I}}")
+			NEWENA=$(eval echo "\${USBDISK${I}}")
+			NEWPNT=$(eval echo "\${MOUNTPOINT${I}}")
+			OLDENA=$(eval echo "\${OLDUSBDISK${I}}")
+			OLDPNT=$(eval echo "\${OLDMOUNTPOINT${I}}")
+			CHANGED=$(eval echo "\${MNTCHANGED${I}}")
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTUUID'${I}' is: '$NEWUU'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_USBDISK'${I}' is: '$OLDENA'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] USBDISK'${I}' is: '$NEWENA'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTPOINT'${I}' is: '$OLDPNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNTPOINT'${I}' is: '$NEWPNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MOUNT CHANGED'${I}'='$CHANGED'</p>'
+			if [ $CHANGED -eq 0 ]; then
+				echo '<p class="info">[ INFO ] Mount Options Unchanged for Disk '$NEWUU'.</p>'
+			else
+				MNTCHANGED=1
+				echo '<p class="info">[ INFO ] Mount options have changed for Disk '$NEWUU'.</p>'
+				echo '<p class="info">[ INFO ] Mount Point is set to: '$NEWPNT'</p>'
+				if [ "$OLDPNT" != "" ]; then
+					echo '<p class="info">[ INFO ] Unmounting Old Mount Point: /mnt/'$OLDPNT'.</p>'
+					pcp_do_umount /mnt/$OLDPNT
+				fi
+				if [ $CHANGED -eq 1 -a "$REBOOT_REQUIRED" = "0" ]; then
+					if [ "$NEWENA" != "" ]; then
+						echo '<p class="info">[ INFO ] Checking new Mount Point.</p>'
+						pcp_do_umount /mnt/$NEWPNT 
+						if [ "$REBOOT_REQUIRED" = "0" ]; then
+							[ ! -d /mnt/$NEWPNT ] && mkdir -p /mnt/$NEWPNT
+							DEVICE=$(blkid -U $NEWUU)
+							FSTYPE=$(blkid -U $NEWUU | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+							case "$FSTYPE" in
+								ntfs) 
+									echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
+									umount $DEVICE
+									OPTIONS="-v -t ntfs-3g -o permissions"
+								;;
+								vfat|fat32)
+									#if Filesystem support installed, use utf-8 charset for fat.
+									df | grep -qs ntfs
+									[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
+									umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+									OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
+								;;
+								*)
+									OPTIONS="-v"
+								;;
+							esac
+							echo '<p class="info">[ INFO ] Mounting Disk.</p>'
+							[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
+							echo '<p class="info">[ INFO ] '
+							mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT
+							if [ $? -eq 0 ]; then
+								echo '</p><p class="info">[ INFO ] Disk Mounted Successfully.</p>'
+							else
+								echo '</p><p class="error">[ERROR] Disk Mount Error, Try to Reboot.</p>'
+								REBOOT_REQUIRED="1"
+							fi
+						fi
 					fi
 				fi
 			fi
-			pcp_save_to_config
+			I=$((I+1))
+		done
+		
+		if [ $MNTCHANGED -eq 1 ]; then
+			rm -f $USBMOUNTCONF
+			I=1
+			while [ $I -le $NUMDRIVES ]
+			do
+				if [ $(eval echo \${MOUNTUUID${I}}) != "" ]; then
+					echo "[$I]" >> $USBMOUNTCONF
+					eval echo "USBDISK=\${USBDISK${I}}" >> $USBMOUNTCONF
+					eval echo "MOUNTPOINT=\${MOUNTPOINT${I}}" >> $USBMOUNTCONF
+					eval echo "MOUNTUUID=\${MOUNTUUID${I}}" >> $USBMOUNTCONF
+				fi
+				I=$((I+1))
+			done
 			pcp_backup
 		fi
 	;;
@@ -207,14 +286,18 @@ case "$MOUNTTYPE" in
 			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
 		else
 			case "$ORIG_LMSDATA" in
-				usbmount) ORIG_MNT="/mnt/$MOUNTPOINT/slimserver";;
+				usb:*) DEV=$(blkid | grep ${ORIG_LMSDATA:5} | cut -d ':' -f1)
+					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
+					ORIG_MNT="$TMP/slimserver"
+				;;
 				netmount1) ORIG_MNT="/mnt/$NETMOUNT1POINT/slimserver";;
 				default) ORIG_MNT="$TCEMNT/tce/slimserver";;
 			esac
 			BADFORMAT="no"
 			case "$LMSDATA" in
-				usbmount) 
-					MNT="/mnt/$MOUNTPOINT/slimserver"
+				usb:*) DEV=$(blkid | grep ${LMSDATA:4} | cut -d ':' -f1)
+					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
+					MNT="$TMP/slimserver"
 					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 					case $FSTYPE in
 						msdos|fat|vfat|fat32)BADFORMAT="yes";;
@@ -269,6 +352,7 @@ esac
 
 echo '<hr>'
 
+[ "$DEBUG" = "1" ] && pcp_textarea "Current $USBMOUNTCONF" "cat $USBMOUNTCONF" 150
 [ "$DEBUG" = "1" ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
 [ "$REBOOT_REQUIRED" = "1" ] && pcp_reboot_required

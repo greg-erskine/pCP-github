@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.21 2017-04-30
+# Version: 3.21 2017-06-10
 #	Changed vfat mounts....again. PH.
 #	Set boot/tce device from /etc/sysconfig/tcedir link
+#	Support multiple USB mounts. PH
 
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
@@ -115,8 +116,15 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
 	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
-	echo "${GREEN}Done.${NORMAL}"
+	# If MOUNTUUID and MOUNTPOINT Exist in newconfig, then create a usbdrives.conf
+	if [ "$MOUNTUUID" != "no" -a "$MOUNTPOINT" != "" ]; then
+		echo "[newconfig]" >> $USBMOUNTCONF
+		echo "USBDISK=enabled" >> $USBMOUNTCONF
+		echo "MOUNTPOINT=${MOUNTPOINT}" >> $USBMOUNTCONF
+		echo "MOUNTUUID=${MOUNTUUID}" >> $USBMOUNTCONF
+	fi
 	pcp_save_to_config
+	echo "${GREEN}Done.${NORMAL}"
 
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
@@ -327,41 +335,63 @@ fi
 
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
-if [ "$MOUNTUUID" != "no" ]; then
+#	READ Conf file
+if [ -f  ${USBMOUNTCONF} ]; then
 	echo "${BLUE}Mounting USB Drives...${YELLOW}"
-	blkid | grep -q $MOUNTUUID
-	if [ $? -eq 0 ]; then
-		mkdir -p /mnt/$MOUNTPOINT
-		chown tc.staff /mnt/$MOUNTPOINT
-		DEVICE=$(blkid -U $MOUNTUUID)
-		FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
-		case "$FSTYPE" in
-			ntfs)
-				umount $DEVICE  #ntfs cannot be dual mounted
-				OPTIONS="-v -t ntfs-3g -o permissions"
-			;;
-			vfat|fat32)
-				#if Filesystem support installed, use utf-8 charset for fat.
-				df | grep -qs ntfs
-				[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
-				umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-				OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
-			;;
-			*)
-				OPTIONS="-v"
-			;;
+	SC=0
+	while read LINE; do
+		case $LINE in
+			[*)SC=$((SC+1));;
+			*USBDISK*) eval USBDISK${SC}=$(pcp_trimval "${LINE}");;
+			*POINT*) eval MOUNTPOINT${SC}=$(pcp_trimval "${LINE}");;
+			*UUID*) eval MOUNTUUID${SC}=$(pcp_trimval "${LINE}");;
+			*);;
 		esac
-		mount $OPTIONS --uuid $MOUNTUUID /mnt/$MOUNTPOINT
-		if [ $? -eq 0 ]; then
-			echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT.${NORMAL}"
-		else
-			echo "${RED}Disk Mount Error.${NORMAL}"
-			LMSMOUNTFAIL="1"
+	done < $USBMOUNTCONF
+	I=0
+	while [ $I -le $SC ]; do
+		ENABLED=$(eval echo "\${USBDISK${I}}")
+		if [ "$ENABLED" != "" ]; then
+			POINT=$(eval echo "\${MOUNTPOINT${I}}")
+			UUID=$(eval echo "\${MOUNTUUID${I}}")
+			blkid | grep -q $UUID
+			if [ $? -eq 0 ]; then
+				mkdir -p /mnt/$POINT
+				chown tc.staff /mnt/$POINT
+				DEVICE=$(blkid -U $UUID)
+				FSTYPE=$(blkid -U $UUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+				case "$FSTYPE" in
+					ntfs)
+						umount $DEVICE  #ntfs cannot be dual mounted
+						OPTIONS="-v -t ntfs-3g -o permissions"
+					;;
+					vfat|fat32)
+						#if Filesystem support installed, use utf-8 charset for fat.
+						df | grep -qs ntfs
+						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
+						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+						OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
+					;;
+					*)
+						OPTIONS="-v"
+					;;
+				esac
+				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
+				mount $OPTIONS --uuid $UUID /mnt/$POINT
+				if [ $? -eq 0 ]; then
+					echo "${BLUE}Disk Mounted at /mnt/$POINT.${NORMAL}"
+				else
+					echo "${RED}Disk Mount Error.${NORMAL}"
+					LMSMOUNTFAIL="1"
+				fi
+			else
+				 echo "${RED}Disk ${UUID} Not Found, Please insert drive and Reboot${NORMAL}"
+				 LMSMOUNTFAIL="1"
+			fi
 		fi
-	else
-		 echo "${RED}Disk ${MOUNTUUID} Not Found, Please insert drive and Reboot${NORMAL}"
-		 LMSMOUNTFAIL="1"
-	fi
+		I=$((I+1))
+	done
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Mount Network Disk Selected on LMS Page
