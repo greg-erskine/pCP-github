@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.21 2017-06-10
+# Version: 3.21 2017-06-18
 #	Changed vfat mounts....again. PH.
 #	Set boot/tce device from /etc/sysconfig/tcedir link
-#	Support multiple USB mounts. PH
+#	Support multiple USB mounts. PH.
+#	Support multiple Network mounts. PH.
 
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
@@ -70,7 +71,7 @@ for DISK in $NEWCFGLIST; do
 		fi
 	fi
 	[ $NEWCONFIGFOUND -eq 1 ] && break
-done	
+done
 
 # Check if newconfig.cfg was found in search
 if [ $NEWCONFIGFOUND -eq 1 ]; then
@@ -122,6 +123,17 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		echo "USBDISK=enabled" >> $USBMOUNTCONF
 		echo "MOUNTPOINT=${MOUNTPOINT}" >> $USBMOUNTCONF
 		echo "MOUNTUUID=${MOUNTUUID}" >> $USBMOUNTCONF
+	fi
+	if [ "$NETMOUNT1" != "no" -a "$NETMOUNT1POINT" != "" ]; then
+		echo "[newconfig]" >> $NETMOUNTCONF
+		echo "NETENABLE=enabled" >> $NETMOUNTCONF
+		echo "NETMOUNTPOINT=${NETMOUNT1POINT}" >> $NETMOUNTCONF
+		echo "NETMOUNTIP=${NETMOUNT1IP}" >> $NETMOUNTCONF
+		echo "NETMOUNTSHARE=${NETMOUNT1SHARE}" >> $NETMOUNTCONF
+		echo "NETMOUNTFSTYPE=${NETMOUNT1FSTYPE}" >> $NETMOUNTCONF
+		echo "NETMOUNTUSER=${NETMOUNT1USER}" >> $NETMOUNTCONF
+		echo "NETMOUNTPASS=${NETMOUNT1PASS}" >> $NETMOUNTCONF
+		echo "NETMOUNTOPTIONS=${NETMOUNT1OPTIONS}" >> $NETMOUNTCONF
 	fi
 	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
@@ -395,30 +407,59 @@ if [ -f  ${USBMOUNTCONF} ]; then
 fi
 
 # Mount Network Disk Selected on LMS Page
-if [ "$NETMOUNT1" = "yes" ]; then
+if [ -f  ${NETMOUNTCONF} ]; then
 	echo "${BLUE}Mounting Network Drive...${YELLOW}"
-	mkdir -p /mnt/$NETMOUNT1POINT
-	chown tc.staff /mnt/$NETMOUNT1POINT
-	case "$NETMOUNT1FSTYPE" in
-		cifs)
-			OPTIONS=""
-			[ "$NETMOUNT1USER" != "" ] && OPTIONS="${OPTIONS}username=${NETMOUNT1USER},"
-			[ "$NETMOUNT1PASS" != "" ] && OPTIONS="${OPTIONS}password=${NETMOUNT1PASS},"
-			OPTIONS="${OPTIONS}${NETMOUNT1OPTIONS}"
-			MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
-		;;
-		nfs)
-			OPTIONS="addr=${NETMOUNT1IP},nolock,${NETMOUNT1OPTIONS}"
-			MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS $NETMOUNT1IP:$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
-		;;
-	esac
-	mount $MNTCMD
-	if [ $? -eq 0 ]; then
-		echo "${BLUE}Disk Mounted at /mnt/${NETMOUNT1POINT}."
-	else
-		echo "${RED}Disk Mount Error.${NORMAL}"
-		LMSMOUNTFAIL="1"
-	fi
+	NUMNET=0
+	while read LINE; do
+		case $LINE in
+			[*) NUMNET=$((NUMNET+1));;
+			*NETENABLE*) eval NETENABLE${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTPOINT*) eval NETMOUNTPOINT${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTIP*) eval NETMOUNTIP${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTSHARE*) eval NETMOUNTSHARE${NUMNET}=$(pcp_trimval "${LINE}");;
+			*FSTYPE*) eval NETMOUNTFSTYPE${NUMNET}=$(pcp_trimval "${LINE}");;
+			*PASS*) eval NETMOUNTPASS${NUMNET}=$(pcp_trimval "${LINE}");;
+			*USER*) eval NETMOUNTUSER${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTOPTIONS*) eval NETMOUNTOPTIONS${NUMNET}=$(echo "${LINE}" | awk -F= '{ st = index($0,"=");print substr($0,st+1)}');;
+			*);;
+		esac
+	done < $NETMOUNTCONF
+	I=1
+	while [ $I -le $NUMNET ]; do
+		if [ $(eval echo "\${NETENABLE${I}}") = "yes" ]; then
+			PNT=$(eval echo \${NETMOUNTPOINT${I}})
+			IP=$(eval echo \${NETMOUNTIP${I}})
+			SHARE=$(eval echo \${NETMOUNTSHARE${I}})
+			FSTYPE=$(eval echo \${NETMOUNTFSTYPE${I}})
+			USER=$(eval echo \${NETMOUNTUSER${I}})
+			PASS=$(eval echo \${NETMOUNTPASS${I}})
+			OPTIONS=$(eval echo \${NETMOUNTOPTIONS${I}})
+			mkdir -p /mnt/$PNT
+			chown tc.staff /mnt/$PNT
+			case "$FSTYPE" in
+				cifs)
+					OPTS=""
+					[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
+					[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
+					OPTS="${OPTS}${OPTIONS}"
+					MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
+				;;
+				nfs)
+					OPTS="addr=${IP},nolock,${OPTIONS}"
+					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
+				;;
+			esac
+			mount $MNTCMD
+			if [ $? -eq 0 ]; then
+				echo "${BLUE}Disk Mounted at /mnt/${PNT}."
+			else
+				echo "${RED}Disk Mount Error.${NORMAL}"
+				LMSMOUNTFAIL="1"
+			fi
+		fi
+		I=$((I+1))
+	done
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # If running an LMS Server Locally, start squeezelite later

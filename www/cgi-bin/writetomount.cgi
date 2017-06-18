@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 3.21 2017-06-10
+# Version: 3.21 2017-06-18
 #	Changed vfat mounts.  PH.
-#	Fixed util-linux button download function. PH
+#	Fixed util-linux button download function. PH.
 #	Changed to allow booting from USB on RPI3. PH.
-#	Support multiple USB mounts. PH
+#	Support multiple USB mounts. PH.
+#	Support multiple Network mounts. PH.
 
 # Version: 3.20 2017-03-31
 #	Revisions to pcp_lms_set_slimconfig function. PH.
@@ -25,14 +26,6 @@
 . pcp-lms-functions
 
 # Store the original values so we can see if they are changed
-ORIG_NETMOUNT1POINT="$NETMOUNT1POINT"
-ORIG_NETMOUNT1="$NETMOUNT1"
-ORIG_NETMOUNT1IP="$NETMOUNT1IP"
-ORIG_NETMOUNT1SHARE="$NETMOUNT1SHARE"
-ORIG_NETMOUNT1FSTYPE="$NETMOUNT1FSTYPE"
-ORIG_NETMOUNT1USER="$NETMOUNT1USER"
-ORIG_NETMOUNT1PASS="$NETMOUNT1PASS"
-ORIG_NETMOUNT1OPTIONS="$NETMOUNT1OPTIONS"
 ORIG_LMSDATA="$LMSDATA"
 
 pcp_html_head "Write to Disk Mounts" "PH"
@@ -231,37 +224,91 @@ case "$MOUNTTYPE" in
 		fi
 	;;
 	networkshare)
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNT1 is: '$ORIG_NETMOUNT1'</p>'
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNT1 is: '$NETMOUNT1'</p>'
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNT1 is: '$ORIG_NETMOUNT1POINT'</p>'
-		[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNT1 is: '$NETMOUNT1POINT'</p>'
+		NETMNTCHANGED=0
+		NN=0
+		if [ -f  ${NETMOUNTCONF} ]; then
+			while read LINE; do
+				case $LINE in
+					[*) NN=$((NN+1));;
+					*NETENABLE*) TST=$(pcp_trimval "${LINE}"); [ "$TST" = "no" ] && TST=""; eval ORIG_NETENABLE${NN}="$TST";;
+					*MOUNTPOINT*) eval ORIG_NETMOUNTPOINT${NN}=$(pcp_trimval "${LINE}");;
+					*MOUNTIP*) eval ORIG_NETMOUNTIP${NN}=$(pcp_trimval "${LINE}");;
+					*MOUNTSHARE*) eval ORIG_NETMOUNTSHARE${NN}=$(pcp_trimval "${LINE}");;
+					*FSTYPE*) eval ORIG_NETMOUNTFSTYPE${NN}=$(pcp_trimval "${LINE}");;
+					*PASS*) eval ORIG_NETMOUNTPASS${NN}=$(pcp_trimval "${LINE}");;
+					*USER*) eval ORIG_NETMOUNTUSER${NN}=$(pcp_trimval "${LINE}");;
+					*MOUNTOPTIONS*) eval ORIG_NETMOUNTOPTIONS${NN}=$(echo "${LINE}" | awk -F= '{ st = index($0,"=");print substr($0,st+1)}');;
+					*);;
+				esac
+			done < $NETMOUNTCONF
+		fi
 
-		ORIG_CHECK="${ORIG_NETMOUNT1POINT}${ORIG_NETMOUNT1}${ORIG_NETMOUNT1IP}${ORIG_NETMOUNT1SHARE}${ORIG_NETMOUNT1FSTYPE}${ORIG_NETMOUNT1USER}${ORIG_NETMOUNT1PASS}${ORIG_NETMOUNT1OPTIONS}"
-		CHECK="${NETMOUNT1POINT}${NETMOUNT1}${NETMOUNT1IP}${NETMOUNT1SHARE}${NETMOUNT1FSTYPE}${NETMOUNT1USER}${NETMOUNT1PASS}${NETMOUNT1OPTIONS}"
+		I=1
+		while [ $I -le $NUMNET ]; do
+			ENABLE=$(eval echo \${NETENABLE${I}})
+			PNT=$(eval echo \${NETMOUNTPOINT${I}})
+			IP=$(eval echo \${NETMOUNTIP${I}})
+			SHARE=$(eval echo \${NETMOUNTSHARE${I}})
+			FSTYPE=$(eval echo \${NETMOUNTFSTYPE${I}})
+			USER=$(eval echo \${NETMOUNTUSER${I}})
+			PASS=$(eval echo \${NETMOUNTPASS${I}})
+			OPTIONS=$(eval echo \${NETMOUNTOPTIONS${I}})
 
-		if [ "$ORIG_CHECK" = "$CHECK" ]; then
-			echo '<p class="info">[ INFO ] Mount configuration unchanged.</p>'
-		else
-			echo '<p class="info">[ INFO ] Checking Old Mount Point.</p>'
-			pcp_do_umount /mnt/$ORIG_NETMOUNT1POINT
-			if [ "$NETMOUNT1" != "no" -a "$REBOOT_REQUIRED" = "0" ]; then
-				echo '<p class="info">[ INFO ] Checking new Mount Point.</p>'
-				pcp_do_umount /mnt/$NETMOUNT1POINT 
+			OLDENABLE=$(eval echo \${ORIG_NETENABLE${I}})
+			OLDPNT=$(eval echo \${ORIG_NETMOUNTPOINT${I}})
+			OLDIP=$(eval echo \${ORIG_NETMOUNTIP${I}})
+			OLDSHARE=$(eval echo \${ORIG_NETMOUNTSHARE${I}})
+			OLDFSTYPE=$(eval echo \${ORIG_NETMOUNTFSTYPE${I}})
+			OLDUSER=$(eval echo \${ORIG_NETMOUNTUSER${I}})
+			OLDPASS=$(eval echo \${ORIG_NETMOUNTPASS${I}})
+			OLDOPTIONS=$(eval echo \${ORIG_NETMOUNTOPTIONS${I}})
 
-				if [ "$REBOOT_REQUIRED" = "0" ]; then
+			ORIG_CHECK="${OLDENABLE}${OLDPNT}${OLDIP}${OLDSHARE}${OLDFSTYPE}${OLDUSER}${OLDPASS}${OLDOPTIONS}"
+			CHECK="${ENABLE}${PNT}${IP}${SHARE}${FSTYPE}${USER}${PASS}${OPTIONS}"
+			[ "$CHECK" = "nfs" -o "$CHECK" = "cifs" ] && CHECK=""
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] CHECK is: '$CHECK'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_CHECK is: '$ORIG_CHECK'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETENABLE'${I}' is: '$ENABLE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETENABLE'${I}' is: '$OLDENABLE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTPOINT'${I}' is: '$PNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTPOINT'${I}' is: '$OLDPNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTIP'${I}' is: '$IP'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTIP'${I}' is: '$OLDIP'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTSHARE'${I}' is: '$SHARE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTSHARE'${I}' is: '$OLDSHARE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTFSTYPE'${I}' is: '$FSTYPE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTFSTYPE'${I}' is: '$OLDFSTYPE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTUSER'${I}' is: '$USER'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTUSER'${I}' is: '$OLDUSER'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTPASS'${I}' is: '$PASS'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTPASS'${I}' is: '$OLDPASS'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] NETMOUNTOPTIONS'${I}' is: '$OPTIONS'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTOPTIONS'${I}' is: '$OLDOPTIONS'</p>'
+			if [ "$ORIG_CHECK" = "$CHECK" ]; then
+				[ "$CHECK" != "" ] && echo '<p class="info">[ INFO ] Mount configuration unchanged for '$IP':/'$SHARE'</p>'
+			else
+				NETMNTCHANGED=1
+				echo '<p class="info">[ INFO ] Mount configuration changed for '$IP':/'$SHARE'</p>'
+				if [ "$OLDPNT" != "" ]; then
+					echo '<p class="info">[ INFO ] Unmounting Old Mount Point: /mnt/'$OLDPNT'.</p>'
+					pcp_do_umount /mnt/$OLDPNT
+				fi
+				if [ "$ENABLE" != "" -a "$REBOOT_REQUIRED" = "0" ]; then
+					echo '<p class="info">[ INFO ] Checking new Mount Point /mnt/'$PNT'.</p>'
+					pcp_do_umount /mnt/$PNT 
 					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
-					[ ! -d /mnt/$NETMOUNT1POINT ] && mkdir -p /mnt/$NETMOUNT1POINT
-					case "$NETMOUNT1FSTYPE" in
+					[ ! -d /mnt/$PNT ] && mkdir -p /mnt/$PNT
+					case "$FSTYPE" in
 						cifs)
-							OPTIONS=""
-							[ "$NETMOUNT1USER" != "" ] && OPTIONS="${OPTIONS}username=${NETMOUNT1USER},"
-							[ "$NETMOUNT1PASS" != "" ] && OPTIONS="${OPTIONS}password=${NETMOUNT1PASS},"
-							OPTIONS="${OPTIONS}${NETMOUNT1OPTIONS}"
-							MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
+							OPTS=""
+							[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
+							[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
+							OPTS="${OPTS}${OPTIONS}"
+							MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
 						;;
 						nfs)
-							OPTIONS="addr=${NETMOUNT1IP},nolock,${NETMOUNT1OPTIONS}"
-							MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS $NETMOUNT1IP:$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
+							OPTS="addr=${IP},nolock,${OPTIONS}"
+							MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
 						;;
 					esac
 					echo '<p class="info">[INFO] mount '$MNTCMD'</p>'
@@ -274,7 +321,28 @@ case "$MOUNTTYPE" in
 					fi
 				fi
 			fi
-			pcp_save_to_config
+			I=$((I+1))
+		done
+
+		if [ $NETMNTCHANGED -eq 1 ]; then
+			rm -f $NETMOUNTCONF
+			I=1
+			while [ $I -le $NUMNET ]; do
+				if [ "$(eval echo \${NETMOUNTPOINT${I}})" != "" ]; then
+					echo "[$I]" >> $NETMOUNTCONF
+					ENABLE=$(eval echo \${NETENABLE${I}})
+					[ "$ENABLE" = "" ] && ENABLE="no"
+					echo "NETENABLE=$ENABLE" >> $NETMOUNTCONF
+					eval echo "NETMOUNTPOINT=\${NETMOUNTPOINT${I}}" >> $NETMOUNTCONF
+					eval echo "NETMOUNTIP=\${NETMOUNTIP${I}}" >> $NETMOUNTCONF
+					eval echo "NETMOUNTSHARE=\${NETMOUNTSHARE${I}}" >> $NETMOUNTCONF
+					eval echo "NETMOUNTFSTYPE=\${NETMOUNTFSTYPE${I}}" >> $NETMOUNTCONF
+					eval echo "NETMOUNTUSER=\${NETMOUNTUSER${I}}" >> $NETMOUNTCONF
+					eval echo "NETMOUNTPASS=\${NETMOUNTPASS${I}}" >> $NETMOUNTCONF
+					eval echo "NETMOUNTOPTIONS=\${NETMOUNTOPTIONS${I}}" >> $NETMOUNTCONF
+				fi
+				I=$((I+1))
+			done
 			pcp_backup
 		fi
 	;;
@@ -290,7 +358,9 @@ case "$MOUNTTYPE" in
 					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
 					ORIG_MNT="$TMP/slimserver"
 				;;
-				netmount1) ORIG_MNT="/mnt/$NETMOUNT1POINT/slimserver";;
+				net:*) TMP=$(mount | grep -w ${ORIG_LMSDATA:4} | cut -d ' ' -f3)
+					ORIG_MNT="${TMP}/slimserver"
+				;;
 				default) ORIG_MNT="$TCEMNT/tce/slimserver";;
 			esac
 			BADFORMAT="no"
@@ -300,18 +370,18 @@ case "$MOUNTTYPE" in
 					MNT="$TMP/slimserver"
 					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 					case $FSTYPE in
-						msdos|fat|vfat|fat32)BADFORMAT="yes";;
-						*)BADFORMAT="no";;
+						msdos|fat|vfat|fat32) BADFORMAT="yes";;
+						*) BADFORMAT="no";;
 					esac
-					;;
-				netmount1)
-					MNT="/mnt/$NETMOUNT1POINT/slimserver"
-					FSTYPE=$NETMOUNT1FSTYPE
+				;;
+				net:*) TMP=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f3)
+					MNT="${TMP}/slimserver"
+					FSTYPE=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f5)
 					case "$FSTYPE" in
 						cifs)echo '<p class="warn">[ WARN ] CIFS partitions may not work with LMS Cache.</p>';;
 						*);;
 					esac
-					;;
+				;;
 				default) MNT="$TCEMNT/tce/slimserver";;
 			esac
 
@@ -321,7 +391,6 @@ case "$MOUNTTYPE" in
 				pcp_save_to_config
 				pcp_backup
 				echo ''
-
 				if [ "$ACTION" = "Move" ]; then
 					#========================================================================================
 					# Move LMS cache and prefs section
@@ -335,6 +404,7 @@ case "$MOUNTTYPE" in
 					if [ -d $ORIG_MNT ]; then
 						echo '<p class="info">[ INFO ] Moving Data from '$ORIG_MNT' to '$MNT'</p>'
 						pcp_move_LMS_cache $ORIG_MNT $MNT
+						echo '<p class="ok">[  OK  ] DONE</p>'
 					fi
 					[ "$WASRUNNING" = "1" ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
 				fi
@@ -353,6 +423,7 @@ esac
 echo '<hr>'
 
 [ "$DEBUG" = "1" ] && pcp_textarea "Current $USBMOUNTCONF" "cat $USBMOUNTCONF" 150
+[ "$DEBUG" = "1" ] && pcp_textarea "Current $NETMOUNTCONF" "cat $NETMOUNTCONF" 150
 [ "$DEBUG" = "1" ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
 [ "$REBOOT_REQUIRED" = "1" ] && pcp_reboot_required

@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.21 2017-06-10
+# Version: 3.21 2017-06-18
 #	Added note for TEST 3 Active in footer. PH.
 #	Changed to allow booting from USB on RPI3. PH.
-#	Support multiple USB mounts. PH
+#	Support multiple USB mounts. PH.
+#	Support multiple Network mounts. PH.
 
 # Version: 3.20 2017-04-16
 #	Updated SCREENROTATE default value. GE.
@@ -105,6 +106,7 @@ pcp_variables() {
 	PACKAGEDIR="/etc/sysconfig/tcedir/optional"
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
+	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 
 	#-------------------------------------------------------------------------------------
 	# Define modes
@@ -1382,15 +1384,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMSDATA=\).*/\1\"$LMSDATA\"/" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1=\).*|\1\"$NETMOUNT1\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1POINT=\).*|\1\"$NETMOUNT1POINT\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1IP=\).*|\1\"$NETMOUNT1IP\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1SHARE=\).*|\1\"$NETMOUNT1SHARE\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1FSTYPE=\).*|\1\"$NETMOUNT1FSTYPE\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1USER=\).*|\1\"$NETMOUNT1USER\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1PASS=\).*|\1\"$NETMOUNT1PASS\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1OPTIONS=\).*|\1\"$NETMOUNT1OPTIONS\"|" $CONFIGCFG
+	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
@@ -1491,14 +1485,6 @@ JL_SCREEN_HEIGHT="0"
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"
-NETMOUNT1POINT=""
-NETMOUNT1="no"
-NETMOUNT1IP=""
-NETMOUNT1SHARE=""
-NETMOUNT1FSTYPE=""
-NETMOUNT1USER=""
-NETMOUNT1PASS=""
-NETMOUNT1OPTIONS=""
 SQLT_VERSION="basic"
 SQUEEZELITE="yes"
 POWER_GPIO=""
