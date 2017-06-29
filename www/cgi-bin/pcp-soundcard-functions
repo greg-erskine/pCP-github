@@ -259,7 +259,9 @@ __shini_parsed() {
 
 pcp_soundcontrol() {
 	# Parse
+	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal" 
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
 
 #========================================================================================
@@ -268,7 +270,10 @@ pcp_soundcontrol() {
 pcp_selected_soundcontrol() {
 	pcp_blank_audio_conf
 	. "$CONFIGCFG"
+
+	[ $OUTPUT = "equal" ] && OUTPUT1="equal"
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
 
 pcp_blank_audio_conf() {
