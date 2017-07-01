@@ -533,7 +533,7 @@ pcp_finish_install() {
 			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
 			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
 		;;
-		piCorePlayer3.21)
+		piCorePlayer3.21*)
 			#Changed in pCP3.21 to usr/local/etc/pcp
 			sed -i 'usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
 		;;
@@ -736,7 +736,7 @@ if [ "$ACTION" = "download" ]; then
 			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
 	esac
-	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | tr -s " " | cut -d " " -f4 | tr -d +)
+	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"

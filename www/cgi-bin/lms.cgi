@@ -4,6 +4,7 @@
 #	Changed to allow booting from USB on RPI3. PH.
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
+#	Strip bootable flag from fdisk output. PH.
 
 # Version: 3.20 2017-03-31
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -1065,12 +1066,16 @@ pcp_mount_usbdrives() {
 	fdisk -V 2>&1 | grep -q -i busybox
 	[ $? -eq 0 ] && BBFDISK=1 || BBFDISK=0
 	# Read config file
+	NUM_USB_CONF=0
+	NUM_USB_CONF_ENABLED=0
 	if [ -f  ${USBMOUNTCONF} ]; then
-		NUM_USB_CONF=0
 		while read LINE; do
 			case $LINE in
 				[*)NUM_USB_CONF=$((NUM_USB_CONF+1));;
-				*USBDISK*) eval USBDISK${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
+				*USBDISK*)
+					eval USBDISK${NUM_USB_CONF}=$(pcp_trimval "${LINE}")
+					[ $(eval echo \${USBDISK${NUM_USB_CONF}}) = "enabled" ] && $((NUM_USB_CONF_ENABLED+1))
+					;;
 				*POINT*) eval MOUNTPOINT${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
 				*UUID*) eval MOUNTUUID${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
 				*);;
@@ -1146,10 +1151,10 @@ pcp_mount_usbdrives() {
 			UUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $I -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			if [ $BBFDISK -eq 1 ]; then
-				SIZE=$(fdisk -l | grep $I | tr -s " " | cut -d " " -f4 | tr -d +)
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
 				[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
 			else
-				SIZE=$(fdisk -l | grep $I | tr -s " " | cut -d " " -f5 | tr -d +)
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f5 | tr -d +)
 				SIZExB="${SIZE}B"
 			fi
 			# Compare to previously configured drives from USBMOUNTCONF
@@ -1247,7 +1252,7 @@ pcp_mount_usbdrives() {
 		echo '                  </td>'
 		echo '              </tr>'
 	fi
-	if [ "$DISKFOUND" = "no" ]; then
+	if [ "$DISKFOUND" = "no" -a $NUM_USB_CONF_ENABLED -gt 0 ]; then
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column'$COL1' center">'

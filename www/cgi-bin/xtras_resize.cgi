@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-20
+# Version: 3.21 2017-07-01
 #	Changed to allow booting from USB on RPI3. PH.
+#	Make sure we are using busybox fdisk and strip bootable flag from output. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -40,17 +41,19 @@ pcp_convert_to_mbytes() {
 	echo ${1:0:$LEN}
 }
 
+FDISK="/bin/busybox fdisk"
+
 #========================================================================================
 # Logic determining actual size, maximum possible size
 #----------------------------------------------------------------------------------------
-P1_ACTUAL_SIZE_BYTES=$(fdisk -l $BOOTDEV | grep ${BOOTDEV}: | awk '{ print $5 }')
-P2_ACTUAL_SIZE_BYTES=$(fdisk -l $TCEDEV | grep ${TCEDEV}: | awk '{ print $5 }')
+P1_ACTUAL_SIZE_BYTES=$($FDISK -l $BOOTDEV | grep ${BOOTDEV}: | sed 's/*//' | awk '{ print $5 }')
+P2_ACTUAL_SIZE_BYTES=$($FDISK -l $TCEDEV | grep ${TCEDEV}: | sed 's/*//' | awk '{ print $5 }')
 case $BOOTDEV in
 	*sd?*)
-		SD_MAX_SIZE_BYTES=$(fdisk -l ${BOOTDEV%%?} | grep ${BOOTDEV%%?}: | awk '{ print $5 }')
+		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%?} | grep ${BOOTDEV%%?}: | sed 's/*//' | awk '{ print $5 }')
 	;;
 	*mmcblk*)
-		SD_MAX_SIZE_BYTES=$(fdisk -l ${BOOTDEV%%??} | grep ${BOOTDEV%%??}: | awk '{ print $5 }')
+		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%??} | grep ${BOOTDEV%%??}: | sed 's/*//' | awk '{ print $5 }')
 	;;
 esac
 
