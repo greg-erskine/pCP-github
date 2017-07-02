@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.21 2017-06-18
+# Version: 3.21 2017-07-02
 #	Added note for TEST 3 Active in footer. PH.
 #	Changed to allow booting from USB on RPI3. PH.
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
+#	Add ability to set column class on pcp_table functions. PH.
 
 # Version: 3.20 2017-04-16
 #	Updated SCREENROTATE default value. GE.
@@ -825,7 +826,7 @@ pcp_table_top() {
 	echo '        <legend>'$1'</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '              <td '$2'>'
 }
 
 pcp_table_middle() {
@@ -833,7 +834,7 @@ pcp_table_middle() {
 	echo '            </tr>'
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '              <td '$1'>'
 }
 
 pcp_table_end() {
