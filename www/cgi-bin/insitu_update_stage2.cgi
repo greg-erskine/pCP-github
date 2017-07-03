@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.21 2017-05-28
+# Version 3.21 2017-07-03
 #	Allow for custom configuration in config.txt. PH
 #	Modifcations for installing to bootdevice. i.e. USB boot. PH.
 
@@ -223,7 +223,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.21*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.9.31
+			NEWKERNELVER=4.9.35
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
@@ -394,8 +394,8 @@ if FOUND == 0:
 
 pcp_restore_custom_boot_config() {
 	#remove old waitusb value
-	sudo sed -i 's/\(waitusb=\)\S*[ ]\+//g' $CMDLINETXT
-	[ $WAITUSB -gt 0 ] && sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
+	sudo sed -r -i 's/waitusb[=][0-9]+//g' $CMDLINETXT
+	[ $WAITUSB -gt 0 ] && sudo sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
 	pcp_clean_cmdlinetxt
 	if [ -f "/tmp/custom_config.txt" ]; then
 		cp -f ${BOOTMNT}/config.txt /tmp/upgraded_config.txt
@@ -498,8 +498,8 @@ pcp_finish_install() {
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
 	case "${VERSION}" in
-		piCorePlayer3.20*)
-			#pcp3.20 pcp.tcz handles all pcp dependencies (non-wifi)
+		piCorePlayer3.2*)
+			#>pcp3.20 pcp.tcz handles all pcp dependencies (non-wifi)
 			echo "Removing old boot extensions from onboot.lst:"
 			sed -i '/busybox-httpd.tcz/d' $ONBOOTLST
 			sed -i '/alsa.tcz/d' $ONBOOTLST
@@ -587,7 +587,7 @@ outfile.close
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
-
+	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.ashrc /home/tc/.ashrc
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal

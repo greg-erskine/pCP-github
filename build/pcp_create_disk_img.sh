@@ -10,18 +10,18 @@
 #   1. Make sure picoreplayer git is checked out to correct branch
 #   2. Run script as root
 #
-# Image/Partition 1 is 25MB
+# Image/Partition 1 is 32MB
 # Image/Partition 2 is 48MB
 # Total image size is Automatically built on the above sizes
 #
 #	Image is built with 4 Heads and 16 Sectors
 #
 #    Device          Boot Start    End   Blocks  Id System
-# /tmp/pCPImage.img1       2048  53247   51200  25M  c W95 FAT32 (LBA)
-# /tmp/pCPImage.img2      53248 151551   98304  48M 83 Linux
+# /tmp/pCPImage.img1       8192  73727   65536  32M  c W95 FAT32 (LBA)
+# /tmp/pCPImage.img2      73728 172031   98304  48M 83 Linux
 #========================================================================================
 #
-# - PIVERSION is checked for similarity (i.e. 3.03 will match 3.03a, but not 3.02)
+# - PIVERS is used to set image name
 #
 # TO DO:
 # - Image name and loops usage on commandline.  Not done yet for recovery (ref next TODO)
@@ -31,15 +31,11 @@
 # - dosfstools.tcz is not in piCore 8.x repo
 # - Logging
 # - More error traps and recovery.  Mainly around loop devices and errors
-# - Make the insitu update packages.
 # - Kake config.txt with both pcpCore and pcpAudioCore so kernel and initrd names are different.
 # - Pull kernel build into this directory and put image and kernel scripts into the pcp git.
 #----------------------------------------------------------------------------------------
 
 DEBUG=0
-
-#Have to set this before you run the script
-PCP="piCorePlayer3.21beta4"
 
 BUILDROOT="/home/paul"
 
@@ -60,6 +56,7 @@ CYAN="$(echo -e '\033[1;36m')"
 WHITE="$(echo -e '\033[1;37m')"
 NORMAL="$(echo -e '\033[0;39m')"
 
+echo
 echo "${GREEN}[ INFO ] This creates a new image file in /tmp ready to burn to SD card for piCorePlayer.${NORMAL}"
 echo "${GREEN}[ INFO ] 1. pCP git is local.${NORMAL}"
 echo "${GREEN}[ INFO ] 2. update the extensions in the build/tcz-for-image before building image.${NORMAL}"
@@ -81,6 +78,22 @@ if [ $? -ne 0 ]; then
 	echo "Use download script to download needed extensions before running this script.${NORMAL}"
 	exit 1
 fi
+
+#Set the pCP version
+. ../pcp/mydata/usr/local/sbin/piversion.cfg
+
+echo "Select the pCP version"
+select i in Plain Audio;
+do
+	case $i in
+		Plain) PCP="$(echo $PIVERS | tr -d [[:space:]])";;
+		Audio) PCP="$(echo $PIVERS | tr -d [[:space:]])-Audio";;
+	esac
+	break
+done
+echo "*****************************************************************"
+echo
+echo "Building image for $PCP"
 
 #========================================================================================
 # Check for dosfstools.tcz and download and install
@@ -293,8 +306,8 @@ EOF
 	rsync --files-from=${FILELIST} ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mmcblk0p1 $PART1
 
 	chmod -R 777 $PART1
-	dos2unix ${PART1}/config.txt
-	dos2unix ${PART1}/cmdline.txt
+	dos2unix -q -s ${PART1}/config.txt
+	dos2unix -q -s ${PART1}/cmdline.txt
 
 }
 
@@ -305,7 +318,7 @@ pcp_txt_cp() {
 	#FILEMOD=$4
 
 	cp -f $1 $2
-	dos2unix $2
+	dos2unix -q -s $2
 	chown $3 $2
 	chmod $4 $2
 }
@@ -392,11 +405,11 @@ build_mydata(){
 	chown 0.50 ${MYDATA}/etc/sysconfig/*
 	chmod 664 ${MYDATA}/etc/sysconfig/*
 
-	find ${MYDATA}/etc -not -type d | xargs -r dos2unix
+	find ${MYDATA}/etc -not -type d | xargs -r dos2unix -s -q
 
 	find ${MYDATA}/usr/local/etc/pcp -type d | xargs -r chown 0.50
 
-	find ${MYDATA}/usr/local/etc/pcp -not -type d | xargs -r dos2unix
+	find ${MYDATA}/usr/local/etc/pcp -not -type d | xargs -r dos2unix -q -s
 	find ${MYDATA}/usr/local/etc/pcp -not -type d | xargs -r chown 0.50
 	find ${MYDATA}/usr/local/etc/pcp -not -type d | xargs -r chmod 664
 
@@ -414,10 +427,10 @@ build_mydata(){
 
 	#Copy the www folder
 	cp -dR --preserve=all ${BUILDROOT}/git/picoreplayer-picoreplayer/www/* ${MYDATA}/home/tc/www
-	find ${MYDATA}/home/tc/www/* -not -type d | xargs dos2unix
-	find ${MYDATA}/home/tc/www/* -not -type d | xargs chown 1001.50
-	find ${MYDATA}/home/tc/www/* -not -type d | xargs chmod 644
-	find ${MYDATA}/home/tc/www/cgi-bin/* -not -type d | xargs chmod 755
+	find ${MYDATA}/home/tc/www/* -not -type d | xargs -r dos2unix -q -s
+	find ${MYDATA}/home/tc/www/* -not -type d | xargs -r chown 1001.50
+	find ${MYDATA}/home/tc/www/* -not -type d | xargs -r chmod 644
+	find ${MYDATA}/home/tc/www/cgi-bin/* -not -type d | xargs -r chmod 755
 
 	#insitu update stage 2 is downloaded on demand.
 	rm -f ${MYDATA}/home/tc/www/cgi-bin/insitu_update_stage2.cgi
@@ -456,13 +469,13 @@ build_mydata(){
 	chmod 755 ${MYDATA}/opt
 	chmod g+s ${MYDATA}/opt
 
-	echo "${GREEN}Ready to compress mydata. Evaluate mounted image if needed. Press enter to continue."
+	echo "${GREEN}Ready to compress mydata. Evaluate mounted image if needed. Press enter to continue.${BLUE}"
 	read key
 
 	PWD=`pwd`
 	cd ${MYDATA}
 	rm -f ${PART2}/tce/mydata.tgz
-	tar zcf ${PART2}/tce/mydata.tgz *
+	tar zvcf ${PART2}/tce/mydata.tgz *
 	cd $PWD
 
 	chown 1001.50 ${PART2}/tce/mydata.tgz
@@ -778,7 +791,7 @@ while true; do
 		* ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
 	esac
 done
-echo 
+echo
 echo "${GREEN}[ INFO ] Preparing to populate the boot partition of /tmp/${PCP}.img...${NORMAL}"
 
 copy_boot_part1
@@ -819,6 +832,8 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
 	echo
 	echo "${GREEN}Done building insitu update packages."
+	# remove bootfix from the image
+	rm -rf $PART2/tce/bootfix
 fi
 
 cd $BUILDROOT
