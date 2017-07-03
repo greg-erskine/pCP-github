@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 3.21 2017-07-02
-#	Added Analoque and Analoque Boost, Alsa Simple Controls. SBP.
+# Version: 3.21 2017-07-03
+#	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
 #	Added Mixer controls for Allo Piano Plus. PH.
 #	Added HTML formatting. PH.
 
@@ -61,15 +61,18 @@ case "$ACTION" in
 		fi
 # -------------------Allo Piano Plus Dac Controls--------------------
 		case "$PIANOSUBMODE" in
-			"2.0"|Dual*) OK=1;;
+			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /tmp/out 2>&1;;
+			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" > /tmp/out 2>&1;;
 			"2.1"|"2.2")
 				df | grep -q "allo-piano"
-				[ $? -eq 0 ] && OK=1 || OK=0
-				echo '<p class="error">[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.</p>'
+				if [ $? -eq 0 ]; then
+					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /tmp/out 2>&1
+				else
+					echo '<p class="error">[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.</p>'
+				fi
 			;;
-			*) OK=0;;
+			*);;
 		esac
-		[ $OK -eq 1 ] && sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /tmp/out 2>&1
 
 		if [ "$PIANOLOWPASS" != "" ]; then 
 			sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
@@ -204,30 +207,28 @@ pcp_soundcard_DSP_options() {
 
 #--------------------------------------Simple Mixer Controls analoque volume options--------------------------------
 # Only show these options if filters are an option for current sound card.
-pcp_soundcard_SMC_Analoque_options() {
-	if [ x"$SMC_ANALOQUE" != x"" ]; then
+pcp_soundcard_SMC_Analogue_options() {
+	if [ x"$SMC_ANALOGUE" != x"" ]; then
 		echo '            <tr class="'$ROWSHADE'_tight">'
 		echo '              <td class="colspan 3">'
 		echo '                <p><b>Simple Mixer Controls:&nbsp;&nbsp;</b></p>'
 		echo '              </td>'
 		echo '            </tr>'
-		if [ x"$SMC_ANALOQUE" != x"" ]; then
+		echo '            <tr class="'$ROWSHADE'_tight">'
+		echo '              <td class="'$COL1'">'
+		echo '                <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOGUE_CHECK"'>'
+		echo '              </td>'
+		echo '              <td class="'$COL2'">'
+		echo '                <p>Toggle a 6 dB increase on analogue output level</p>'
+		echo '              </td>'
+		echo '            </tr>'
+		if [ x"$SMC_ANALOGUE_BOOST" != x"" ]; then
 			echo '            <tr class="'$ROWSHADE'_tight">'
 			echo '              <td class="'$COL1'">'
-			echo '                <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOQUE_CHECK"'>'
+			echo '                <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOGUE_BOOST_CHECK"'>'
 			echo '              </td>'
 			echo '              <td class="'$COL2'">'
-			echo '                <p>Toggle a 6 dB increase on analoque output level</p>'
-			echo '              </td>'
-			echo '            </tr>'
-		fi
-		if [ x"$SMC_ANALOQUE_BOOST" != x"" ]; then
-			echo '            <tr class="'$ROWSHADE'_tight">'
-			echo '              <td class="'$COL1'">'
-			echo '                <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOQUE_BOOST_CHECK"'>'
-			echo '              </td>'
-			echo '              <td class="'$COL2'">'
-			echo '                <p>Toggle a 0.80 dB increase on analoque output level</p>'
+			echo '                <p>Toggle a 0.80 dB increase on analogue output level</p>'
 			echo '              </td>'
 			echo '            </tr>'
 		fi
@@ -238,6 +239,9 @@ pcp_soundcard_SMC_Analoque_options() {
 
 pcp_allo_piano_plus_custom_controls(){
 	SUBMODE=$(amixer -c $CARD sget "Subwoofer mode" | grep "Item0" | awk -F\' '{print $2}')
+	[ $DEBUG -eq 1 ] && echo '<p class="error">[MODE] Submode='$SUBMODE':</p>'
+	[ "$SUBMODE" = "None" ] && SUBMODE=$(amixer -c $CARD sget "Dual Mode" | grep "Item0" | awk -F\' '{print $2}')
+	[ $DEBUG -eq 1 ] && echo '<p class="error">[MODE] Dual Mode='$SUBMODE':</p>'
 	LOWPASS=$(amixer -c $CARD sget "Lowpass" | grep "Item0" | awk -F\' '{print $2}')
 
 	echo '            <tr class="'$ROWSHADE'">'
@@ -248,7 +252,7 @@ pcp_allo_piano_plus_custom_controls(){
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL1'">'
 	echo '                <select class="large10" name="PIANOSUBMODE" >'
-	for I in "2.0" "2.1" "2.2" "Dual Stereo" "Dual Mono"; do
+	for I in "2.0" "2.1" "2.2" "Dual-Stereo" "Dual-Mono"; do
 		[ "$SUBMODE" = "$I" ] && SELECT="selected" || SELECT=""
 		echo '                  <option value="'$I'" '$SELECT'>'$I'</option>'
 	done
@@ -264,34 +268,42 @@ pcp_allo_piano_plus_custom_controls(){
 	echo '                    <li><b>2.0</b> - Subwoofer Outputs are not used. All frequencies sent to Left/Right connectors</li>'
 	echo '                    <li><b>2.1</b> - Subwoofer Mono Output.  Use crossover frequency to control.</li>'
 	echo '                    <li><b>2.2</b> - Subwoofer Stereo Output.  Use crossover frequency to control.</li>'
-	echo '                    <li><b>Dual Stereo</b> - All Frequencies are sent to both DACS.  All Connectors Active</li>'
-	echo '                    <li><b>Dual Mono</b> - Left and Right channels are split between DACs.  LEFT and SUB Right are used.</li>'
+	echo '                    <li><b>Dual-Stereo</b> - All Frequencies are sent to both DACS.  All Connectors Active</li>'
+	echo '                    <li><b>Dual-Mono</b> - Left and Right channels are split between DACs.  LEFT and SUB Right are used.</li>'
 	echo '                    <li>2.1 and 2.2 modes require firmware-allo-piano.tcz from the piCorePlayer Repository using the <a href='/cgi-bin/xtras_extensions.cgi'>Extension Browser</a>.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '                </p>'
 	echo '              </td>'
 	echo '            </tr>'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COL1'">'
-	echo '                <select class="large10" name="PIANOLOWPASS" >'
-	I=60    #Lowpass frequencies from 60 to 200, in increments of 10
-	while [ $I -le 200 ]; do
-		[ "$LOWPASS" = "$I" ] && SELECT="selected" || SELECT=""
-		echo '                  <option value="'$I'" '$SELECT'>'$I'</option>'
-		I=$((I+10))
-	done
-	echo '                </select>'
-	echo '              </td>'
-	echo '              <td class="'$COL2'">'
-	echo '                <p>Set the Subwoofer Crossover Frequency when in 2.1 or 2.2 mode.</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	case $SUBMODE in
+		2.*)
+			echo '            <tr class="'$ROWSHADE'">'
+			echo '              <td class="'$COL1'">'
+			echo '                <select class="large10" name="PIANOLOWPASS" >'
+			I=60    #Lowpass frequencies from 60 to 200, in increments of 10
+			while [ $I -le 200 ]; do
+				[ "$LOWPASS" = "$I" ] && SELECT="selected" || SELECT=""
+				echo '                  <option value="'$I'" '$SELECT'>'$I'</option>'
+				I=$((I+10))
+			done
+			echo '                </select>'
+			echo '              </td>'
+			echo '              <td class="'$COL2'">'
+			echo '                <p>Set the Subwoofer Crossover Frequency when in 2.1 or 2.2 mode.</p>'
+			echo '              </td>'
+			echo '            </tr>'
+			SUBVOLTEXT="Sub Output Level"
+			VOLTEXT="L/R "
+		;;
+		Dual-Mono)SUBVOLTEXT="Right Output Level"; VOLTEXT="LEFT ";;
+		Dual-Stereo)SUBVOLTEXT="Sub L/R Output Level"; VOLTEXT="L/R ";
+	esac
 	ACTUAL_SUB_VOL=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 	ACTUAL_SUB_DB=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL1'">'
-	echo '                <p><b>Sub Output Level</b></p>'
+	echo '                <p><b>'$SUBVOLTEXT'</b></p>'
 	echo '              </td>'
 	echo '              <td>'
 	echo '                <p style="height:12px">'
@@ -319,7 +331,7 @@ pcp_soundcard_volume_options() {
 	if [ x"$ACTUAL_VOL" != x"" ]; then
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="'$COL1'">'
-		echo '                <p><b>Output Level</b></p>'
+		echo '                <p><b>'${VOLTEXT}'Output Level</b></p>'
 		echo '              </td>'
 		echo '              <td>'
 		echo '                <p style="height:12px">'
@@ -425,7 +437,7 @@ pcp_soundcard_parameter_options() {
 #--------------------------------------Enable/disable build-in analoq sound-------------------
 # Enable/diable onboard sound
 pcp_disable_enable_buildin_sound() {
-	if [ x"$SMC_ANALOQUE" != x"" ]; then
+	if [ "$GENERIC_CARD" != "ONBOARD" ]; then
 		pcp_start_row_shade
 		pcp_incr_id
 		pcp_table_top "Raspberry Pi Builtin Audio" "colspan=\"2\""
@@ -456,7 +468,7 @@ pcp_table_top "Alsa Mixer Adjustment for: $LISTNAME" "colspan=\"2\""
 
 if [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENERIC_CARD" = "HIFIBERRY_AMP" ]; then 
 	pcp_soundcard_DSP_options
-	pcp_soundcard_SMC_Analoque_options
+	pcp_soundcard_SMC_Analogue_options
 	[ "$AUDIO" = "allo_piano_dac_plus" ] && pcp_allo_piano_plus_custom_controls
 	pcp_soundcard_volume_options
 	pcp_Volume_filter_buttons 
