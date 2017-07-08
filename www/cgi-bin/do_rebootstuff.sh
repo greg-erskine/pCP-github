@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# Version: 3.21 2017-06-18
+# Version: 3.21 2017-07-08
 #	Changed vfat mounts....again. PH.
 #	Set boot/tce device from /etc/sysconfig/tcedir link
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
+#	Updated insitu_update process. Copy of log saved to tcedir/pcp_insitu_upgrade.log. PH.
 
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
@@ -75,23 +76,29 @@ done
 
 # Check if newconfig.cfg was found in search
 if [ $NEWCONFIGFOUND -eq 1 ]; then
+	echo "${BLUE}[ INFO ] Processing saved Configuration file from ${DISK}...${NORMAL}"
 	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
 	if [ -f $TCEMNT/tce/bootfix/bootfix.sh ]; then
-		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
+		echo -n "${BLUE}[ INFO ] Fixing any issues after insitu update.${NORMAL}"
 		$TCEMNT/tce/bootfix/bootfix.sh
 		rm -rf $TCEMNT/tce/bootfix
 		pcp_backup_nohtml >/dev/null 2>&1
+		echo "${GREEN}Done.${NORMAL}"
 	fi
 	#=========================================================================================
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
 	if [ -f /tmp/newconfig/asound.conf ]; then
+		echo -n "${BLUE}[ INFO ] Restoring asound.conf...${NORMAL}"
 		sudo cp /tmp/newconfig/asound.conf /etc/ 
 		sudo mv -f /tmp/newconfig/asound.conf /tmp/newconfig/usedasound.conf
+		echo "${GREEN}Done.${NORMAL}"
 	fi
 	if [ -f /tmp/newconfig/asound.state ]; then
+		echo -n "${BLUE}[ INFO ] Restoring custom alsa asound.state...${NORMAL}"
 		sudo cp /tmp/newconfig/asound.state /var/lib/alsa/
 		sudo mv -f /tmp/newconfig/asound.state /tmp/newconfig/usedasound.state
+		echo "${GREEN}Done.${NORMAL}"
 	fi
 	#-----------------------------------------------------------------------------------------
 	# Make a new config files with default values and read it
@@ -104,29 +111,47 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	sudo mv -f /tmp/newconfig/newconfig.cfg /tmp/newconfig/usedconfig.cfg
 	pcp_timezone
 	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
-	case "$SCREENROTATE" in
-		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
-		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
-	esac
+	######## This section deals with adding dtoverlays back to config.txt based
+		# Disable RPI3 or ZeroW internal wifi
+		if [ "$RPI3INTWIFI" = "off" ]; then
+			echo -n "${BLUE}[ INFO ] Disabling rpi internal wifi...${NORMAL}"
+			echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT
+			echo "${GREEN}Done.${NORMAL}"
+		fi
+		# Set Screen Rotate
+		echo -n "${BLUE}[ INFO ] Setting Screen Rotation...${NORMAL}"
+		case "$SCREENROTATE" in
+			0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
+			180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
+		esac
+		echo "${GREEN}Done.${NORMAL}"
+		# Setup LIRC overlay
+		if [ "$IR_LIRC" = "yes" ]; then
+			echo -n "${BLUE}[ INFO ] Adding lirc-rpi overlay to config.txt... ${NORMAL}"
+			sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+			if [ "$IR_GPIO_OUT" = "" ]; then
+				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
+			else
+				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+			fi
+			echo "${GREEN}Done.${NORMAL}"
+		fi
+	######## CONFIG.TXT Section End
 	#During an newconfig update, turn HDMI back on. Incase there are problems.
 	HDMIPOWER="on"
-	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
-	pcp_save_to_config
-	pcp_disable_HDMI
-	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
-	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
-	pcp_read_chosen_audio noumount
 	# If MOUNTUUID and MOUNTPOINT Exist in newconfig, then create a usbdrives.conf
 	if [ "$MOUNTUUID" != "no" -a "$MOUNTPOINT" != "" ]; then
+		echo -n "${BLUE}[ INFO ] Upgrading USB mount configuration files.${NORMAL}"
 		echo "[newconfig]" >> $USBMOUNTCONF
 		echo "USBDISK=enabled" >> $USBMOUNTCONF
 		echo "MOUNTPOINT=${MOUNTPOINT}" >> $USBMOUNTCONF
 		echo "MOUNTUUID=${MOUNTUUID}" >> $USBMOUNTCONF
+		echo "${GREEN}Done.${NORMAL}"
 	fi
 	if [ "$NETMOUNT1" != "no" -a "$NETMOUNT1POINT" != "" ]; then
+		echo -n "${BLUE}[ INFO ] Upgrading Network mount configuration files.${NORMAL}"
 		echo "[newconfig]" >> $NETMOUNTCONF
-		echo "NETENABLE=enabled" >> $NETMOUNTCONF
+		echo "NETENABLE=yes" >> $NETMOUNTCONF
 		echo "NETMOUNTPOINT=${NETMOUNT1POINT}" >> $NETMOUNTCONF
 		echo "NETMOUNTIP=${NETMOUNT1IP}" >> $NETMOUNTCONF
 		echo "NETMOUNTSHARE=${NETMOUNT1SHARE}" >> $NETMOUNTCONF
@@ -134,7 +159,14 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		echo "NETMOUNTUSER=${NETMOUNT1USER}" >> $NETMOUNTCONF
 		echo "NETMOUNTPASS=${NETMOUNT1PASS}" >> $NETMOUNTCONF
 		echo "NETMOUNTOPTIONS=${NETMOUNT1OPTIONS}" >> $NETMOUNTCONF
+		echo "${GREEN}Done.${NORMAL}"
 	fi
+	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	pcp_save_to_config
+	pcp_disable_HDMI
+	echo -n "${BLUE}[ INFO ] Setting Soundcard from newconfig... ${NORMAL}"
+	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
+	pcp_read_chosen_audio noumount
 	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
 
@@ -148,12 +180,14 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	sed -i '/^\s*$/d' $ONBOOTLST
 
 	pcp_backup_nohtml >/dev/null 2>&1
+	echo -n "${BLUE}[ INFO ] Saving a copy of the upgrade log to ${YELLOW}${TCEMNT}/pcp_insitu_upgrade.log ${BLUE}... ${NORMAL}"
+	cp -f /var/log/pcp_boot.log ${TCEMNT}/tce/pcp_insitu_upgrade.log
+	echo "${GREEN}Done.${NORMAL}"
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
 	sudo reboot
 	exit 0
 fi
-echo "${GREEN} Done.${NORMAL}"
 #****************Upgrade Process End *********************************
 
 # Set default respository incase it has been set to something non-standard.
