@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-20
+# Version: 3.21 2017-07-08
 #	Changed to allow booting from USB on RPI3. PH.
+#	Updates for Alsaequal cardnumber
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -22,6 +23,7 @@
 #	Original version.
 
 . pcp-functions
+. pcp-soundcard-functions
 
 # Store the original values so we can see if they are changed
 ORIG_ALSAeq=$ALSAeq
@@ -125,30 +127,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
 
 	# Determination of the number of the current sound-card
-
-	# If output is analog or HDMI then find the number of the used ALSA-card
-	if [ "$AUDIO" = "Analog" ] || [ "$AUDIO" = "HDMI" ]; then
-		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
-	fi
-
-	#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----
-	if [ "$AUDIO" != "Analog" ] && [ "$AUDIO" != "HDMI" ]; then
-		CARDNO=1
-	fi
-
-	# If output is different from analog or HDMI then find the number of the non-ALSA card
-	#	aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-	#-- Code below is not fully working as I2S DACs needs a reboot to show up ---------------------------------
-	#	if [ $? = 0 ]; then
-	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-	#			CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
-	#		fi
-	#	else
-	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-	#			CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
-	#		fi
-	#	fi
-	# ---------------------------------------------------------------------------------------------------------
+	pcp_find_card_number   #This probably isn't necessary, as we will check at boot time, when using alsaequal
 
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'
@@ -161,10 +140,6 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 			if grep -Fxq "alsaequal.tcz" $ONBOOTLST; then
 				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSA equalizer modules already loaded.</p>'
 			else
-				sudo sed -i '/alsaequal.tcz/d' $ONBOOTLST
-				sudo echo "alsaequal.tcz" >> $ONBOOTLST
-				sudo sed -i '/caps/d' $ONBOOTLST
-				sudo echo "caps-0.4.5.tcz" >> $ONBOOTLST
 				pcp_download_alsaequal
 				OUTPUT="equal"
 			fi

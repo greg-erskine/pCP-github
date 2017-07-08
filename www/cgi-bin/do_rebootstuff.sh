@@ -6,6 +6,7 @@
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
 #	Updated insitu_update process. Copy of log saved to tcedir/pcp_insitu_upgrade.log. PH.
+#	Added cardnumber detection for use with aslaequal. PH.
 
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
@@ -336,6 +337,13 @@ if [ $? -eq 0 ] && [ "$AUDIO" = "HDMI" ]; then
 	sudo amixer cset numid=3 2 >/dev/null 2>&1
 fi
 echo "${GREEN}Done.${NORMAL}"
+
+if [ "$OUTPUT" = "equal" ]; then
+	echo -n "${BLUE}Checking proper card number for Alsaequal... ${NORMAL}"
+	pcp_find_card_number
+	sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 # Start the essential stuff for piCorePlayer
 echo -n "${YELLOW}Waiting for network."

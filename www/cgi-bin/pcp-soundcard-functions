@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.21 2017-07-02
+# Version: 3.21 2017-07-08
 #	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
+#	Added Cardnumber routine to keep alsaequal working with selected card. PH.
 
 # Version: 3.20 2017-03-12
 #	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
@@ -215,10 +216,21 @@ pcp_sound_card_dropdown() {
 			CHECKED="notselected"
 			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
 			if [ x"$LISTNAME" != x ]; then
-			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+				echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
 			fi
 		done
 	fi
+}
+
+# Find card number for asound.conf when using alsaequal
+pcp_find_card_number() {
+	pcp_blank_audio_conf
+	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	case $CARD in
+		USB*) CARDNAME="USB";;
+		*) CARDNAME=$(echo $OUTPUT | cut -d '=' -f2);;
+	esac
+	CARDNO=$(cat /proc/asound/cards | grep '\[' | grep $CARDNAME | cut -d ' ' -f2)
 }
 
 #========================================================================================
