@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-28
+# Version: 3.21 2017-07-11
 #	Added save to usb disk other than boot device.
 
 # Version: 3.20 2017-03-08
@@ -27,13 +27,16 @@
 
 USBDRIVES=$(blkid -o device | grep -E 'sd[a-z]1' | awk -F '/dev/' '{print $2}')
 
+# Use the last disk found, it is more than likely one that was just inserted
 USB_FOUND=0
 for DISK in $USBDRIVES; do
 	case $BOOTDEV in
 		/dev/$DISK);;
-		*) USB_FOUND=1; MNT_USB="/mnt/$DISK"; DEV_USB="/dev/$DISK"; break;;
+		*) USB_FOUND=1; MNT_USB="/mnt/$DISK"; DEV_USB="/dev/$DISK";;
 	esac
 done
+
+[ $USB_FOUND -eq 0 ] && DEV_USB="No Device Found"
 
 FAIL_MSG="OK"
 WAS_MOUNTED=0
@@ -90,7 +93,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Coping configuration file to USB device ('$MNT_USB')</legend>'
+echo '          <legend>Coping configuration file to USB device ('$DEV_USB')</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -99,12 +102,13 @@ echo '                  <textarea class="inform" style="height:100px">'
 #----------------------------------------------------------------------------------------
 
 if [ $USB_FOUND -eq 1 ]; then
-	if mount | grep $MNT_USB >/dev/null 2>&1; then
-		echo '[  OK  ] USB device is already mounted.'
+	if mount | grep $DEV_USB >/dev/null 2>&1; then
+		MNT_USB=$(mount | grep $DEV_USB | awk -F ' ' '{print $3}')
+		echo '[  OK  ] USB device is already mounted at '$MNT_USB
 		WAS_MOUNTED=1
 		IS_MOUNTED=1
 	else
-		echo -n '[ INFO ] Mounting USB device...'
+		echo -n '[ INFO ] Mounting USB device at '$MNT_USB'...'
 		sudo mount $DEV_USB
 		[ $? -eq 0 ] && IS_MOUNTED=1 && echo " OK" || echo ""
 		sleep 1
