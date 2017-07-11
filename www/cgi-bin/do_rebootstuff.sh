@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.21 2017-07-08
+# Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
 #	Set boot/tce device from /etc/sysconfig/tcedir link
 #	Support multiple USB mounts. PH.
@@ -387,6 +387,10 @@ if [ "$IR_LIRC" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+echo -n "${BLUE}Starting Openssh server... ${NORMAL}"
+/usr/local/etc/init.d/openssh start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
+
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
 #	READ Conf file
@@ -491,13 +495,25 @@ if [ -f  ${NETMOUNTCONF} ]; then
 					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
 				;;
 			esac
-			mount $MNTCMD
-			if [ $? -eq 0 ]; then
-				echo "${BLUE}Disk Mounted at /mnt/${PNT}."
-			else
-				echo "${RED}Disk Mount Error.${NORMAL}"
-				LMSMOUNTFAIL="1"
-			fi
+			RETRIES=3  #Retry network mounts, incase of power failure, and all devices restarting.
+			while [ $RETRIES -gt 0 ]; do
+				mount $MNTCMD
+				if [ $? -eq 0 ]; then
+					RETRIES=0
+					echo "${BLUE}Disk Mounted at /mnt/${PNT}."
+				else
+					RETRIES=$((RETRIES-1))
+					if [ $RETRIES -eq 0 ]; then
+						echo "${RED}Disabling network mount from server at ${IP}${NORMAL}"
+						cp -f $NETMOUNTCONF /tmp/netconf
+						cat /tmp/netconf | awk '/^\[/ {m++}{if(m=='$I')sub("NETENABLE\=yes","NETENABLE\=no")}1' > $NETMOUNTCONF
+						LMSMOUNTFAIL="1"
+					else
+						echo "${RED}Disk Mount Error, Retrying $RETRIES more times......sleeping 10 seconds${YELLOW}"
+						sleep 10
+					fi
+				fi
+			done
 		fi
 		I=$((I+1))
 	done
@@ -512,11 +528,6 @@ if [ "$LMSERVER" != "yes" ]; then
 		echo "${GREEN}Done.${NORMAL}"
 	fi
 fi
-
-echo -n "${BLUE}Starting Openssh server... ${NORMAL}"
-/usr/local/etc/init.d/openssh start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
-
 
 if [ "$SHAIRPORT" = "yes" ]; then
 	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
