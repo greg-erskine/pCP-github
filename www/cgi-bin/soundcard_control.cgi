@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.21 2017-07-03
+# Version: 3.21 2017-07-15
 #	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
 #	Added Mixer controls for Allo Piano Plus. PH.
 #	Added HTML formatting. PH.
@@ -61,23 +61,19 @@ case "$ACTION" in
 		fi
 # -------------------Allo Piano Plus Dac Controls--------------------
 		case "$PIANOSUBMODE" in
-			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /tmp/out 2>&1;;
-			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" > /tmp/out 2>&1;;
+			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /dev/null 2>&1;;
+			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" > /dev/null 2>&1;;
 			"2.1"|"2.2")
 				df | grep -q "allo-piano"
 				if [ $? -eq 0 ]; then
-					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /tmp/out 2>&1
+					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /dev/null 2>&1
 				else
 					echo '<p class="error">[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.</p>'
 				fi
 			;;
 			*);;
 		esac
-
-		if [ "$PIANOLOWPASS" != "" ]; then 
-			sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
-		fi
-
+		[ "$PIANOLOWPASS" != "" ] && sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
 		[ "$VoIinputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VoIinputSubName'%' >/dev/null 2>&1
 # -------------------Allo Piano Plus Dac Controls--------------------
 		pcp_generic_card_control
@@ -270,14 +266,14 @@ pcp_allo_piano_plus_custom_controls(){
 	echo '                    <li><b>2.2</b> - Subwoofer Stereo Output.  Use crossover frequency to control.</li>'
 	echo '                    <li><b>Dual-Stereo</b> - All Frequencies are sent to both DACS.  All Connectors Active</li>'
 	echo '                    <li><b>Dual-Mono</b> - Left and Right channels are split between DACs.  LEFT and SUB Right are used.</li>'
-	echo '                    <li>2.1 and 2.2 modes require firmware-allo-piano.tcz from the piCorePlayer Repository using the <a href='/cgi-bin/xtras_extensions.cgi'>Extension Browser</a>.</li>'
+	echo '                    <li>2.1 and 2.2 modes require firmware-allo-piano.tcz from the piCorePlayer Repository using the <a href="/cgi-bin/xtras_extensions.cgi?MYMIRROR=http%3A%2F%2Fpicoreplayer.sourceforge.net%2Ftcz_repo%2F&SUBMIT=Set">Extension Browser</a>.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '                </p>'
 	echo '              </td>'
 	echo '            </tr>'
 	case $SUBMODE in
-		2.*)
+		2.1|2.2)
 			echo '            <tr class="'$ROWSHADE'">'
 			echo '              <td class="'$COL1'">'
 			echo '                <select class="large10" name="PIANOLOWPASS" >'
@@ -299,28 +295,33 @@ pcp_allo_piano_plus_custom_controls(){
 		Dual-Mono)SUBVOLTEXT="Right Output Level"; VOLTEXT="LEFT ";;
 		Dual-Stereo)SUBVOLTEXT="Sub L/R Output Level"; VOLTEXT="L/R ";
 	esac
-	ACTUAL_SUB_VOL=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
-	ACTUAL_SUB_DB=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COL1'">'
-	echo '                <p><b>'$SUBVOLTEXT'</b></p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p style="height:12px">'
-	echo '                  <input class="large36"'
-	echo '                         id="VoIinputSubid"'
-	echo '                         type="range"'
-	echo '                         name="VoIinputSubName"'
-	echo '                         value='"$ACTUAL_SUB_VOL"''
-	echo '                         min="1"'
-	echo '                         max="100"'
-	echo '                         oninput="VoIOutputSubid.value = VoIinputSubid.value">'
-	echo '                </p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <output name="VolOutputSubName" id="VoIOutputSubid">'"$ACTUAL_SUB_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
-	echo '              </td>'
-	echo '            </tr>'
+	case $SUBMODE in
+		2.0);;
+		*)
+			ACTUAL_SUB_VOL=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_SUB_DB=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+			echo '            <tr class="'$ROWSHADE'">'
+			echo '              <td class="'$COL1'">'
+			echo '                <p><b>'$SUBVOLTEXT'</b></p>'
+			echo '              </td>'
+			echo '              <td>'
+			echo '                <p style="height:12px">'
+			echo '                  <input class="large36"'
+			echo '                         id="VoIinputSubid"'
+			echo '                         type="range"'
+			echo '                         name="VoIinputSubName"'
+			echo '                         value='"$ACTUAL_SUB_VOL"''
+			echo '                         min="1"'
+			echo '                         max="100"'
+			echo '                         oninput="VoIOutputSubid.value = VoIinputSubid.value">'
+			echo '                </p>'
+			echo '              </td>'
+			echo '              <td>'
+			echo '                <output name="VolOutputSubName" id="VoIOutputSubid">'"$ACTUAL_SUB_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
+			echo '              </td>'
+			echo '            </tr>'
+		;;
+	esac
 	row_padding
 	pcp_toggle_row_shade
 }
