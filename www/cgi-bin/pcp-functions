@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.22 2017-07-21
+#	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
+
 # Version: 3.21 2017-07-02
 #	Added note for TEST 3 Active in footer. PH.
 #	Changed to allow booting from USB on RPI3. PH.
@@ -524,6 +527,11 @@ pcp_navigation() {
 }
 
 pcp_footer() {
+	BETAREPOACTIVE='<a class="error" href="debug.cgi?t=0">BETA REPO Active</a> |'
+
+	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
+	SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
+
 	if [ -f /etc/sysconfig/timezone ]; then
 		. /etc/sysconfig/timezone
 		TIMESTAMP=$(TZ=$TZ date)
@@ -531,15 +539,12 @@ pcp_footer() {
 		TIMESTAMP="No Timezone"
 	fi
 
-	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
-	SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
-
 	echo '<!-- Start of pcp_footer -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p class="footer">
-					'$([ $TEST -eq 3 ] && echo "BETA REPO Active |")'
+					'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
 					'$NAME' |
 					piCorePlayer v'$(pcp_picoreplayer_version)' |
 					linux '$(pcp_linux_release)' |
