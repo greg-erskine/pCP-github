@@ -2,6 +2,7 @@
 
 # Version: 3.22 2017-07-22
 #	Added Internet check IP. GE.
+#	Added rotdash button. GE.
 
 # Version: 3.21 2017-06-06
 #	Changed to allow booting from USB on RPI3. PH.
@@ -309,7 +310,7 @@ pcp_tweaks_lmscontrols() {
 	esac
 
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	echo '            <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -386,7 +387,7 @@ pcp_tweaks_hdmipower() {
 #----------------------------------------------LMS Web Port------------------------------
 pcp_tweaks_lmswebport() {
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	echo '            <form name="lmswebport" action="writetoconfig.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -426,10 +427,10 @@ pcp_tweaks_lmswebport() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Internet OK IP------------------------------------
-pcp_tweaks_internet_ok_ip() {
+#--------------------------------------Internet Check IP------------------------------------
+pcp_tweaks_internet_check_ip() {
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	echo '            <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -489,7 +490,48 @@ pcp_tweaks_internet_ok_ip() {
 	echo '            </form>'
 	echo '          </table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_internet_ok_ip
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_internet_check_ip
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------rotdash-------------------------------------------
+pcp_tweaks_rotdash() {
+	case "$ROTDASH" in
+		yes) ROTDASHyes="checked" ;;
+		no) ROTDASHno="checked" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="rotdash" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Replace rotating dash</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="ROTDASH" value="yes" '$ROTDASHyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="ROTDASH" value="no" '$ROTDASHno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Replace the default rotating dash with a new one&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The default rotating dash displays -/|\ while the new one displays .....</p>'
+	echo '                    <p>You can see the difference when doing a backup for example.</p>'
+	echo '                    <p><b>Note:</b> Requires a reboot to activate.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_rotdash
 #----------------------------------------------------------------------------------------
 
 echo '        </fieldset>'

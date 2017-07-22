@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.22 2017-07-23
+#	Added pcp_create_rotdash. GE.
+
 # Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
 #	Set boot/tce device from /etc/sysconfig/tcedir link
@@ -74,6 +77,15 @@ for DISK in $NEWCFGLIST; do
 	fi
 	[ $NEWCONFIGFOUND -eq 1 ] && break
 done
+
+#========================================================================================
+# Replace default rotdash
+#----------------------------------------------------------------------------------------
+if [ "$ROTDASH" = "yes" ]; then
+	echo -n "${BLUE}[ INFO ] Replacing existing rotdash.${NORMAL}"
+	pcp_create_rotdash &
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 # Check if newconfig.cfg was found in search
 if [ $NEWCONFIGFOUND -eq 1 ]; then
