@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -52,10 +55,10 @@ pcp_httpd_query_string
 
 pcp_table_top "Changing hostname"
 echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
-pcp_mount_mmcblk0p1
+pcp_mount_bootpart
 pcp_write_to_host
-[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current /mnt/mmcblk0p1/cmdline.txt" "cat /mnt/mmcblk0p1/cmdline.txt" 70
-pcp_umount_mmcblk0p1
+[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 70
+pcp_umount_bootpart
 pcp_save_to_config
 pcp_backup
 

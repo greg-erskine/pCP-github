@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.21 2017-07-08
+#	Changed to allow booting from USB on RPI3. PH.
+#	Updates for Alsaequal cardnumber
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -19,6 +23,7 @@
 #	Original version.
 
 . pcp-functions
+. pcp-soundcard-functions
 
 # Store the original values so we can see if they are changed
 ORIG_ALSAeq=$ALSAeq
@@ -122,30 +127,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
 
 	# Determination of the number of the current sound-card
-
-	# If output is analog or HDMI then find the number of the used ALSA-card
-	if [ "$AUDIO" = "Analog" ] || [ "$AUDIO" = "HDMI" ]; then
-		CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | grep 'ALSA' | awk '{print $1}')
-	fi
-
-	#-- Code below need improving as I2S DACs and USB-DAC at the same time possibly gets wrong card number-----
-	if [ "$AUDIO" != "Analog" ] && [ "$AUDIO" != "HDMI" ]; then
-		CARDNO=1
-	fi
-
-	# If output is different from analog or HDMI then find the number of the non-ALSA card
-	#	aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
-	#-- Code below is not fully working as I2S DACs needs a reboot to show up ---------------------------------
-	#	if [ $? = 0 ]; then
-	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-	#			CARDNO=$(sudo cat /proc/asound/cards | sed '/ALSA/d' | grep '\[' | awk '{print $1}')
-	#		fi
-	#	else
-	#		if [ $AUDIO != Analog ] && [ $AUDIO != HDMI ]; then
-	#			CARDNO=$(sudo cat /proc/asound/cards | grep '\[' | awk '{print $1}')
-	#		fi
-	#	fi
-	# ---------------------------------------------------------------------------------------------------------
+	pcp_find_card_number   #This probably isn't necessary, as we will check at boot time, when using alsaequal
 
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'
@@ -155,13 +137,9 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	case "$ALSAeq" in
 		yes)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
-			if grep -Fxq "alsaequal.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
+			if grep -Fxq "alsaequal.tcz" $ONBOOTLST; then
 				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSA equalizer modules already loaded.</p>'
 			else
-				sudo sed -i '/alsaequal.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-				sudo echo "alsaequal.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
-				sudo sed -i '/caps/d' /mnt/mmcblk0p2/tce/onboot.lst
-				sudo echo "caps-0.4.5.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
 				pcp_download_alsaequal
 				OUTPUT="equal"
 			fi
@@ -170,8 +148,8 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 		no)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
 			OUTPUT=""
-			sudo sed -i '/alsaequal.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-			sudo sed -i '/caps/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sudo sed -i '/alsaequal.tcz/d' $ONBOOTLST
+			sudo sed -i '/caps/d' $ONBOOTLST
 			pcp_remove_alsaequal
 			STRING1='You have removed ALSA equalizer. Please fill out the OUTPUT field on the Squeezelite page. Press OK to go back and change or Cancel to continue'
 			SCRIPT1=squeezelite.cgi
@@ -202,12 +180,12 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 			#sudo ./disableotg.sh
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg_speed=1
-				sed -i 's/dwc_otg.speed=1 //g' /mnt/mmcblk0p1/cmdline.txt
-				pcp_umount_mmcblk0p1
+				sed -i 's/dwc_otg.speed=1 //g' $CMDLINETXT
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -216,15 +194,15 @@ if [ "$ORIG_CMD" != "$CMD" ]; then
 			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
 			#sudo ./enableotg.sh
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg_speed=1
-				sed -i 's/dwc_otg.speed=1 //g' /mnt/mmcblk0p1/cmdline.txt
+				sed -i 's/dwc_otg.speed=1 //g' $CMDLINETXT
 
 				# Add dwc_otg_speed=1
-				sed -i '1 s/^/dwc_otg.speed=1 /' /mnt/mmcblk0p1/cmdline.txt
-				pcp_umount_mmcblk0p1
+				sed -i '1 s/^/dwc_otg.speed=1 /' $CMDLINETXT
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -253,13 +231,13 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 		Default)
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# dwc_otg.fiq_fsm_enable=0
-				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' /mnt/mmcblk0p1/cmdline.txt
+				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' $CMDLINETXT
 				[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-				pcp_umount_mmcblk0p1
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -267,16 +245,16 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 		Disabled)
 			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
 
-			pcp_mount_mmcblk0p1
+			pcp_mount_bootpart
 
 			if mount | grep $VOLUME; then
 				# Remove dwc_otg.fiq_fsm_enable=0
-				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' /mnt/mmcblk0p1/cmdline.txt
+				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' $CMDLINETXT
 
 				# Add dwc_otg.fiq_fsm_enable=0
-				sed -i '1 s/^/dwc_otg.fiq_fsm_enable=0 /' /mnt/mmcblk0p1/cmdline.txt
+				sed -i '1 s/^/dwc_otg.fiq_fsm_enable=0 /' $CMDLINETXT
 				[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-				pcp_umount_mmcblk0p1
+				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
@@ -328,13 +306,13 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 	case "$SHAIRPORT" in
 		yes)
 			echo '<p class="info">[ INFO ] Shairport-sync will be enabled.</p>'
-			if [ -f /mnt/mmcblk0p2/tce/optional/pcp-shairportsync.tcz ]; then
+			if [ -f $PACKAGEDIR/pcp-shairportsync.tcz ]; then
 				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Shairport-sync already loaded.</p>'
-				echo "pcp-shairportsync.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+				echo "pcp-shairportsync.tcz" >> $ONBOOTLST
 			else
 				pcp_download_shairport
 				if [ $? -eq 0 ]; then
-					echo "pcp-shairportsync.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+					echo "pcp-shairportsync.tcz" >> $ONBOOTLST
 					/usr/local/etc/init.d/shairport-sync start
 				fi
 			fi
@@ -344,7 +322,7 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 			REBOOT_REQUIRED=1
 			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
 			pcp_remove_shairport
-			sed -i '/pcp-shairportsync.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+			sed -i '/pcp-shairportsync.tcz/d' $ONBOOTLST
 			sync
 			CLOSEOUT=""
 		;;
@@ -368,16 +346,16 @@ if [ "$ORIG_FIQ" != "$FIQ" ]; then
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FIG is: '$ORIG_FIQ'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] FIQ is: '$FIQ'</p>'
 
-	pcp_mount_mmcblk0p1
+	pcp_mount_bootpart
 
 	if mount | grep $VOLUME; then
 		# Remove fiq settings
-		sed -i 's/dwc_otg.fiq_fsm_mask=0x[1-8F] \+//g' /mnt/mmcblk0p1/cmdline.txt
+		sed -i 's/dwc_otg.fiq_fsm_mask=0x[1-8F] \+//g' $CMDLINETXT
 		# Add FIQ settings from config file
-		sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' /mnt/mmcblk0p1/cmdline.txt
+		sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' $CMDLINETXT
 
 		[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
-		pcp_umount_mmcblk0p1
+		pcp_umount_bootpart
 	else
 		echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 	fi

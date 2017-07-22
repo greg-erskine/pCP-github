@@ -4,20 +4,20 @@
 
 [PI0]
 initramfs pcp_8.01.gz followkernel
-kernel kernel4921.img
+kernel kernel4935.img
 
 [PI1]
 initramfs pcp_8.01.gz followkernel
-kernel kernel4921.img
+kernel kernel4935.img
 
 [PI2]
 initramfs pcp_8.01v7.gz followkernel
-kernel kernel4921v7.img
+kernel kernel4935v7.img
 total_mem=1024
 
 [PI3]
 initramfs pcp_8.01v7.gz followkernel
-kernel kernel4921v7.img
+kernel kernel4935v7.img
 total_mem=1024
 
 [ALL]
@@ -67,7 +67,10 @@ dtparam=i2c=on,spi=on,i2s=on
 
 #---pCP----------------------------------------------
 # pCP does not use graphics chip by default, free up most memory
-gpu_mem=64
+gpu_mem=16
+initial_turbo=60
+disable_pvt=1
+
 # onboard audio overlay
 dtparam=audio=on
 audio_pwm_mode=2
@@ -88,3 +91,7 @@ max_usb_current=1
 # Screen rotation 0 => 0 degrees, 2 => 180 degrees
 lcd_rotate=2
 
+#Custom Configuration Area, for config settings that are not managed by pCP.
+#pCP will retain these settings during insitu-update
+#---Begin-Custom-(Do not alter Begin or End Tags)-----
+#---End-Custom----------------------------------------

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-07-11
+#	Added save to usb disk other than boot device.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -22,8 +25,19 @@
 
 . pcp-functions
 
-MNT_SDA1="/mnt/sda1"
-DEV_SDA1="/dev/sda1"
+USBDRIVES=$(blkid -o device | grep -E 'sd[a-z]1' | awk -F '/dev/' '{print $2}')
+
+# Use the last disk found, it is more than likely one that was just inserted
+USB_FOUND=0
+for DISK in $USBDRIVES; do
+	case $BOOTDEV in
+		/dev/$DISK);;
+		*) USB_FOUND=1; MNT_USB="/mnt/$DISK"; DEV_USB="/dev/$DISK";;
+	esac
+done
+
+[ $USB_FOUND -eq 0 ] && DEV_USB="No Device Found"
+
 FAIL_MSG="OK"
 WAS_MOUNTED=0
 IS_MOUNTED=0
@@ -50,16 +64,12 @@ pcp_html_end() {
 	echo '                <p>'$FAIL_MSG'</p>'
 	echo '              </td>'
 	echo '            </tr>'
-
-	if [ "${FAIL_MSG:0:2}" = "OK" ] ; then
-		pcp_toggle_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td>'
-		                      pcp_go_main_button
-		echo '              </td>'
-		echo '            </tr>'
-	fi
-
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+						  pcp_go_main_button
+	echo '              </td>'
+	echo '            </tr>'
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -83,7 +93,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Coping configuration file to USB device ('$MNT_SDA1')</legend>'
+echo '          <legend>Coping configuration file to USB device ('$DEV_USB')</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -91,23 +101,26 @@ echo '                <td>'
 echo '                  <textarea class="inform" style="height:100px">'
 #----------------------------------------------------------------------------------------
 
-if mount | grep $MNT_SDA1 >/dev/null 2>&1; then
-	echo '[  OK  ] USB device is already mounted.'
-	WAS_MOUNTED=1
-	IS_MOUNTED=1
-else
-	echo -n '[ INFO ] Mounting USB device...'
-	sudo mount $DEV_SDA1
-	[ $? -eq 0 ] && IS_MOUNTED=1 && echo " OK" || echo ""
-	sleep 1
+if [ $USB_FOUND -eq 1 ]; then
+	if mount | grep $DEV_USB >/dev/null 2>&1; then
+		MNT_USB=$(mount | grep $DEV_USB | awk -F ' ' '{print $3}')
+		echo '[  OK  ] USB device is already mounted at '$MNT_USB
+		WAS_MOUNTED=1
+		IS_MOUNTED=1
+	else
+		echo -n '[ INFO ] Mounting USB device at '$MNT_USB'...'
+		sudo mount $DEV_USB
+		[ $? -eq 0 ] && IS_MOUNTED=1 && echo " OK" || echo ""
+		sleep 1
+	fi
 fi
 
 if [ $IS_MOUNTED -eq 1 ]; then
 	echo -n '[ INFO ] Copying configuration file to USB device...'
-	[ -f ${MNT_SDA1}/newconfig.cfg ] && sudo mv ${MNT_SDA1}/newconfig.cfg ${MNT_SDA1}/newconfig.cfg~
-	sudo /bin/cp -f /usr/local/sbin/config.cfg ${MNT_SDA1}/newconfig.cfg
+	[ -f ${MNT_USB}/newconfig.cfg ] && sudo mv ${MNT_USB}/newconfig.cfg ${MNT_USB}/newconfig.cfg~
+	sudo /bin/cp -f /usr/local/sbin/config.cfg ${MNT_USB}/newconfig.cfg
 	[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
-	if [ -f ${MNT_SDA1}/newconfig.cfg ]; then
+	if [ -f ${MNT_USB}/newconfig.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'
 		FAIL_MSG="OK - Your configuration file has been saved to your USB device."
 		echo '[ NOTE ] If you boot with this USB device attached, this configuration file will used.'
@@ -119,13 +132,14 @@ if [ $IS_MOUNTED -eq 1 ]; then
 	sync
 	if [ $WAS_MOUNTED -eq 0 ]; then
 		echo -n '[ INFO ] Unmounting USB device...'
-		sudo umount $DEV_SDA1
+		sudo umount $DEV_USB
 		[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed unmount USB device."
 	else
 		echo '[  OK  ] Leaving USB device mounted.'
 	fi
 else
 	echo '[ ERROR ] USB device is not mounted.'
+	echo '[ ERROR ] This routine will not save to the Boot Device if booting from USB'
 	echo '[ ERROR ] Insert USB device and try again.'
 	FAIL_MSG='USB device is not mounted - Insert USB device and try again.'
 fi

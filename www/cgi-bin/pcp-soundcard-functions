@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.21 2017-07-08
+#	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
+#	Added Cardnumber routine to keep alsaequal working with selected card. PH.
+
 # Version: 3.20 2017-03-12
 #	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
 #	Added shini conf parser. SBP.
@@ -92,12 +96,12 @@ pcp_enable_HDMI() {
 #----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
 	# if noumount, disk is probably already mounted....supress output
-	[ "$1" == "noumount" ] && pcp_mount_mmcblk0p1 > /dev/null 2>&1 || pcp_mount_mmcblk0p1
+	[ "$1" == "noumount" ] && pcp_mount_bootpart > /dev/null 2>&1 || pcp_mount_bootpart
 	pcp_disable_HDMI
 	pcp_disable_i2s
 	pcp_enable_i2s
 	# This is to allow no unmount of mmcblk0p1 during booting with newconfig.cfg
-	[ "$1" != "noumount" ] && pcp_umount_mmcblk0p1
+	[ "$1" != "noumount" ] && pcp_umount_bootpart
 }
 
 #========================================================================================
@@ -148,6 +152,23 @@ pcp_generic_card_control() {
 				Fixed) FILTER4_CHECK="checked" ;;
 				Ringing-less) FILTER5_CHECK="checked" ;;
 			esac
+
+			#Logic that will check for Simple mixer controls Analogue and Analogue Playback Boost
+				#SMC_ANALOGUE=$(amixer -c $CARD sget Analogue | grep "Capabilities: pvolume"aw)
+			#Actual setting for these Analogue controls:
+				SMC_ANALOGUE=$(amixer -c $CARD sget 'Analogue' | grep "Front Left:" | awk '{ print $4 }')
+				SMC_ANALOGUE_BOOST=$(amixer -c $CARD sget 'Analogue Playback Boost' | grep "Front Left:" | awk '{ print $3 }')
+
+			# Logic to make checked radiobuttons
+			case "$SMC_ANALOGUE" in 
+				0) SMC_ANALOGUE_CHECK="" ;;
+				1) SMC_ANALOGUE_CHECK="checked" ;;
+			esac
+
+			case "$SMC_ANALOGUE_BOOST" in 
+				0) SMC_ANALOGUE_BOOST_CHECK="" ;;
+				1) SMC_ANALOGUE_BOOST_CHECK="checked" ;;
+			esac
 		;;
 
 		HIFIBERRY_AMP)
@@ -195,10 +216,21 @@ pcp_sound_card_dropdown() {
 			CHECKED="notselected"
 			[ "$AUDIO" = "$CONF_AUDIO" ] && CHECKED="selected"
 			if [ x"$LISTNAME" != x ]; then
-			sudo echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
+				echo "${AUDIO}:${CHECKED}:${LISTNAME}:${RPI_MODEL}" >> /tmp/dropdown.cfg
 			fi
 		done
 	fi
+}
+
+# Find card number for asound.conf when using alsaequal
+pcp_find_card_number() {
+	pcp_blank_audio_conf
+	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	case $CARD in
+		USB*) CARDNAME="USB";;
+		*) CARDNAME=$(echo $OUTPUT | cut -d '=' -f2);;
+	esac
+	CARDNO=$(cat /proc/asound/cards | grep '\[' | grep $CARDNAME | cut -d ' ' -f2)
 }
 
 #========================================================================================
@@ -236,7 +268,9 @@ __shini_parsed() {
 
 pcp_soundcontrol() {
 	# Parse
+	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal" 
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
 
 #========================================================================================
@@ -245,7 +279,10 @@ pcp_soundcontrol() {
 pcp_selected_soundcontrol() {
 	pcp_blank_audio_conf
 	. "$CONFIGCFG"
+
+	[ $OUTPUT = "equal" ] && OUTPUT1="equal"
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
 
 pcp_blank_audio_conf() {

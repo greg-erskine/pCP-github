@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -141,7 +144,7 @@ pcp_html_end() {
 #----------------------------------------------------------------------------------------
 pcp_delete_file() {
 	echo -n '[ INFO ] Deleting '$1'... '
-	rm -f /mnt/mmcblk0p2/tce/optional/${1}
+	rm -f $TCEMNT/tce/optional/${1}
 	[ $? -eq 0 ] || FAIL_MSG="Cannot delete ${1}."
 	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
 }
@@ -161,7 +164,7 @@ pcp_lirc_install() {
 	sudo chown tc:staff /home/tc/.lircrc
 
 	# Add lirc-rpi dtoverlay to config.txt
-	pcp_mount_mmcblk0p1_nohtml
+	pcp_mount_bootpart_nohtml
 	echo '[ INFO ] Adding lirc-rpi overlay to config.txt... '
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 	if [ "$IR_GPIO_OUT" = "" ]; then
@@ -169,7 +172,7 @@ pcp_lirc_install() {
 	else
 		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 	fi
-	pcp_umount_mmcblk0p1_nohtml
+	pcp_umount_bootpart_nohtml
 
 	# Add lirc conf to the .filetool.lst
 	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
@@ -207,10 +210,10 @@ pcp_lirc_uninstall() {
 
 	rm -f /home/tc/.lircrc
 
-	pcp_mount_mmcblk0p1_nohtml
+	pcp_mount_bootpart_nohtml
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=lirc-rpi removed." || FAIL_MSG="Can not remove dtoverlay=lirc-rpi."
-	pcp_umount_mmcblk0p1_nohtml
+	pcp_umount_bootpart_nohtml
 
 	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
 	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
@@ -603,7 +606,7 @@ if [ "$ACTION" != "Initial" ]; then
 	if [ "$ACTION" = "Save" ]; then
 		echo '                  <textarea class="inform" style="height:50px">'
 		[ "$FAIL_MSG" = "ok" ] && pcp_save_to_config
-		pcp_mount_mmcblk0p1_nohtml
+		pcp_mount_bootpart_nohtml
 		echo '[ INFO ] Changing '$CONFIGTXT'... '
 		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 		if [ "$IR_GPIO_OUT" = "" ]; then
@@ -611,7 +614,7 @@ if [ "$ACTION" != "Initial" ]; then
 		else
 			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 		fi
-		pcp_umount_mmcblk0p1_nohtml
+		pcp_umount_bootpart_nohtml
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
 	fi
@@ -635,10 +638,10 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $IR_GPIO_IN: '$IR_GPIO_IN'<br />'
 	echo '                 [ DEBUG ] $IR_GPIO_OUT: '$IR_GPIO_OUT'<br />'
 	echo '                 [ DEBUG ] $IR_DEVICE: '$IR_DEVICE'</p>'
-	pcp_mount_mmcblk0p1
+	pcp_mount_bootpart
 	echo '<p class="info">[ INFO ] Last few lines of config.txt</p>'
 	pcp_textarea_inform "none" "tail -2 $CONFIGTXT" "30"
-	pcp_umount_mmcblk0p1
+	pcp_umount_bootpart
 	pcp_table_end
 fi
 

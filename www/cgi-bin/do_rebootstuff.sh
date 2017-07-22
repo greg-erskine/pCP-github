@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Version: 3.21 2017-07-11
+#	Changed vfat mounts....again. PH.
+#	Set boot/tce device from /etc/sysconfig/tcedir link
+#	Support multiple USB mounts. PH.
+#	Support multiple Network mounts. PH.
+#	Updated insitu_update process. Copy of log saved to tcedir/pcp_insitu_upgrade.log. PH.
+#	Added cardnumber detection for use with aslaequal. PH.
+
 # Version: 3.20 2017-04-22
 #	Added crond message. GE
 #	Updates for vfat mount permissions. PH
@@ -28,127 +36,6 @@
 #	Changed Kernel Module update to handle individual modules. PH
 #	Updated LIRC section. GE
 
-# Version: 2.06 2016-06-04 GE
-#	Changed order so httpd is started after LMS and added check for LMS running before starting Squeezelite
-#	Added HDMIPOWER.
-#	Moved bootfix script so it only starts after an insitu update.
-#	Changed script so backup is only initiated when somthing needs saving
-#	Fixed JIVELITE, SCREENROTATE variables (YES/NO).
-#	Changed location of Bootfix
-#	Activated Kernel Module Updates during insitu update.
-#	Updated Mount lines
-
-# Version: 2.05 2016-04-30 PH
-#	Added firmware-brcmfmac43430.tcz
-#	Added Mount for LMS Server Drive
-#	Modified IQaudIO amp control
-#	Changed if LMS Server is Enabled, Start before Squeezelite
-#	Added Network Share Mount
-#	Added download of kernel modules during insitu upgrade. Currently inactive for 2.05
-#   Added bootfix routine to correct certain update issues during first boot.
-
-# Version: 0.26 2016-02-26 GE
-#	Added firmware-brcmwifi.tcz.
-#	Added IR startup.
-#	Changed squeezelite startup code.
-
-# Version: 0.25 2016-02-02 SBP
-#	Reordered custom alsactl restore.
-#	Added LMS startup.
-
-# Version: 0.24 2016-01-06 SBP
-#	Added dbus, avahi and shairport-sync startup routines.
-
-# Version: 0.23 2015-10-27 SBP
-#	Added touchscreeen controls for Jivelite.
-
-# Version: 0.22 2015-09-24 SBP
-#	Updated newconfig.cfg routines.
-#	Updated Waiting for soundcards to populate routine.
-#	Added ln -s /usr/local/bin/scp /usr/bin/scp.
-
-# Version: 0.21 2015-08-23 SBP
-#	Enabling DT loading of audio cards.
-#	Changed /usr/local/sbin/dropbearmulti to /usr/local/bin/dropbearmulti.
-
-# Version: 0.20 2015-07-09 SBP
-#	Revised method of loading wifi firmware.
-
-# Version: 0.19 2015-07-04 GE
-#	Added dropbear fix to allow scp to work between piCorePlayers.
-
-# Version: 0.18 2015-06-25 SBP
-#	Added script that automatically set correct timezone.
-
-# Version: 0.17 2015-06-04 GE
-#	Renamed $pCPHOME to $PCPHOME.
-#	Minor updates.
-
-# Version: 0.16 2015-05-21 SBP
-#	Use saved custom ALSA settings after pCP updating.
-
-# Version: 0.16 2015-05-10 GE
-#	Added wait for network before starting squeezelite.
-
-# Version: 0.15 2015-05-06 SBP
-#	Added logic to skip not needed options.
-
-# Version: 0.14 2015-04-05 SBP
-#	Added logic to wait for soundcards and restart squeezelite if not properly started.
-
-# Version: 0.13 2015-03-24 SBP
-#	Added section to load wifi for wifi only based systems (like RPi-A+).
-#	Revised program startup order.
-
-# Version: 0.12 2015-02-15 SBP
-#	Updated order.
-
-# Version: 0.11 2015-02-09 GE
-#	Added pcp_auto_start_fav.
-#	Added stop/start crond.
-#	Added pcp_user_commands.
-#	Moved timezone before essential stuff.
-#	Added ANSI colours to messages.
-
-# Version: 0.10 2015-01-06 SBP
-#	Removed unneeded piCorePlayer.dep check
-
-# Version: 0.09 2014-12-09 SBP
-#	Added support for the HiFiBerry AMP card.
-#	Moved saving to config file from extern newconfig to pcp-functions.
-#	Moved loading correct audio modules to pcp-functions.
-
-# Version: 0.08 2014-10-09 SBP
-#	Added Analog/HDMI output selection (moved from enable/disablehdmi.sh)
-
-# Version: 0.07 2014-10-07 GE
-#	Added echos for booting debugging purposes.
-
-# Version: 0.06 2014-09-28 SBP
-#	Added support for the HiFiBerry+ and IQaudIO+ cards. Improved the custom ALSA settings logic.
-
-# Version: 0.05 2014-09-04 GE
-#	Added cron-job variables and LMS auto-start variable.
-
-# Version: 0.06 2014-09-09 GE
-#	Added pcp_auto_start_lms at end of script.
-
-# Version: 0.05 2014-09-04 GE
-#	Added timezone function.
-
-# Version: 0.04 2014-08-31 SBP
-#	Minor formatting.
-
-# Version: 0.03 2014-08-30 SBP
-#	Clean up + added analog amixer use.
-#	Improved the alsamixer use.
-
-# Version: 0.02 2014-08-26 GE
-#	Clean up.
-
-# Version: 0.01 2014-06-25 SBP
-#	Original.
-
 BACKUP=0
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
@@ -160,134 +47,148 @@ echo "${GREEN}Done.${NORMAL}"
 ORIG_AUDIO="$AUDIO"
 
 #****************Upgrade Process Start *********************************
-# Mount USB stick if present
-echo "${BLUE}Checking for newconfig.cfg on sda1... ${NORMAL}"
-
-# Check if sda1 is mounted, otherwise mount it.
-MNTUSB=/mnt/sda1
-if mount | grep $MNTUSB; then
-	echo "${YELLOW}  /dev/sda1 already mounted.${NORMAL}"
-else
-	# Check if sda1 is inserted before trying to mount it.
-	if [ -e /dev/sda1 ]; then
-		[ -d /mnt/sda1 ] || mkdir -p /mnt/sda1
-		echo "${YELLOW}  Trying to mount /dev/sda1.${RED}"
-		sudo mount /dev/sda1 >/dev/null 2>&1
+# Mount USB stick if present.  Build list of usb stick 1st partitions
+# Check each partition for newconfig.cfg.  The first one found stops the search
+NEWCONFIGFOUND=0
+NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
+for DISK in $NEWCFGLIST; do
+	echo "${BLUE}Checking for newconfig.cfg on $DISK... ${NORMAL}"
+	# Check if $DISK is mounted, otherwise mount it.
+	if mount | grep ${DISK}; then
+		eval ${DISK}WASMNT=1
 	else
-	echo "${YELLOW}  No USB Device detected in /dev/sda1${NORMAL}"
+		eval ${DISK}WASMNT=0
+		[ -d /mnt/$DISK ] || mkdir -p /mnt/$DISK
+		echo "${YELLOW}  Trying to mount /dev/${DISK}.${RED}"
+		mount /dev/$DISK >/dev/null 2>&1
 	fi
-fi
+	if [ -f /mnt/$DISK/newconfig.cfg ]; then
+		echo "${YELLOW}  newconfig.cfg found on ${DISK}.${NORMAL}"
+		NEWCONFIGFOUND=1
+		ln -s /mnt/$DISK /tmp/newconfig
+	else
+		echo "${YELLOW}  newconfig.cfg not found on ${DISK}.${NORMAL}"
+		if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
+			umount /mnt/$DISK
+		fi
+	fi
+	[ $NEWCONFIGFOUND -eq 1 ] && break
+done
 
-# Check if newconfig.cfg is present
-if [ -f $MNTUSB/newconfig.cfg ]; then
-	echo "${YELLOW}  newconfig.cfg found on sda1.${NORMAL}"
+# Check if newconfig.cfg was found in search
+if [ $NEWCONFIGFOUND -eq 1 ]; then
+	echo "${BLUE}[ INFO ] Processing saved Configuration file from ${DISK}...${NORMAL}"
+	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
+	if [ -f $TCEMNT/tce/bootfix/bootfix.sh ]; then
+		echo -n "${BLUE}[ INFO ] Fixing any issues after insitu update.${NORMAL}"
+		$TCEMNT/tce/bootfix/bootfix.sh
+		rm -rf $TCEMNT/tce/bootfix
+		pcp_backup_nohtml >/dev/null 2>&1
+		echo "${GREEN}Done.${NORMAL}"
+	fi
+	#=========================================================================================
+	# Copy ALSA settings back so they are restored after an update
+	#-----------------------------------------------------------------------------------------
+	if [ -f /tmp/newconfig/asound.conf ]; then
+		echo -n "${BLUE}[ INFO ] Restoring asound.conf...${NORMAL}"
+		sudo cp /tmp/newconfig/asound.conf /etc/ 
+		sudo mv -f /tmp/newconfig/asound.conf /tmp/newconfig/usedasound.conf
+		echo "${GREEN}Done.${NORMAL}"
+	fi
+	if [ -f /tmp/newconfig/asound.state ]; then
+		echo -n "${BLUE}[ INFO ] Restoring custom alsa asound.state...${NORMAL}"
+		sudo cp /tmp/newconfig/asound.state /var/lib/alsa/
+		sudo mv -f /tmp/newconfig/asound.state /tmp/newconfig/usedasound.state
+		echo "${GREEN}Done.${NORMAL}"
+	fi
+	#-----------------------------------------------------------------------------------------
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
 	. $CONFIGCFG
 	# Read variables from newconfig and save to config.
-	sudo dos2unix -u $MNTUSB/newconfig.cfg
-	. $MNTUSB/newconfig.cfg
-	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
-	sudo mv $MNTUSB/newconfig.cfg $MNTUSB/usedconfig.cfg
+	sudo dos2unix -u /tmp/newconfig/newconfig.cfg
+	. /tmp/newconfig/newconfig.cfg
+	pcp_mount_bootpart_nohtml >/dev/null 2>&1
+	sudo mv -f /tmp/newconfig/newconfig.cfg /tmp/newconfig/usedconfig.cfg
 	pcp_timezone
 	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
-	case "$SCREENROTATE" in
-		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
-		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
-	esac
+	######## This section deals with adding dtoverlays back to config.txt based
+		# Disable RPI3 or ZeroW internal wifi
+		if [ "$RPI3INTWIFI" = "off" ]; then
+			echo -n "${BLUE}[ INFO ] Disabling rpi internal wifi...${NORMAL}"
+			echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT
+			echo "${GREEN}Done.${NORMAL}"
+		fi
+		# Set Screen Rotate
+		echo -n "${BLUE}[ INFO ] Setting Screen Rotation...${NORMAL}"
+		case "$SCREENROTATE" in
+			0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
+			180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
+		esac
+		echo "${GREEN}Done.${NORMAL}"
+		# Setup LIRC overlay
+		if [ "$IR_LIRC" = "yes" ]; then
+			echo -n "${BLUE}[ INFO ] Adding lirc-rpi overlay to config.txt... ${NORMAL}"
+			sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+			if [ "$IR_GPIO_OUT" = "" ]; then
+				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
+			else
+				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+			fi
+			echo "${GREEN}Done.${NORMAL}"
+		fi
+	######## CONFIG.TXT Section End
 	#During an newconfig update, turn HDMI back on. Incase there are problems.
 	HDMIPOWER="on"
+	# If MOUNTUUID and MOUNTPOINT Exist in newconfig, then create a usbdrives.conf
+	if [ "$MOUNTUUID" != "no" -a "$MOUNTPOINT" != "" ]; then
+		echo -n "${BLUE}[ INFO ] Upgrading USB mount configuration files.${NORMAL}"
+		echo "[newconfig]" >> $USBMOUNTCONF
+		echo "USBDISK=enabled" >> $USBMOUNTCONF
+		echo "MOUNTPOINT=${MOUNTPOINT}" >> $USBMOUNTCONF
+		echo "MOUNTUUID=${MOUNTUUID}" >> $USBMOUNTCONF
+		echo "${GREEN}Done.${NORMAL}"
+	fi
+	if [ "$NETMOUNT1" != "no" -a "$NETMOUNT1POINT" != "" ]; then
+		echo -n "${BLUE}[ INFO ] Upgrading Network mount configuration files.${NORMAL}"
+		echo "[newconfig]" >> $NETMOUNTCONF
+		echo "NETENABLE=yes" >> $NETMOUNTCONF
+		echo "NETMOUNTPOINT=${NETMOUNT1POINT}" >> $NETMOUNTCONF
+		echo "NETMOUNTIP=${NETMOUNT1IP}" >> $NETMOUNTCONF
+		echo "NETMOUNTSHARE=${NETMOUNT1SHARE}" >> $NETMOUNTCONF
+		echo "NETMOUNTFSTYPE=${NETMOUNT1FSTYPE}" >> $NETMOUNTCONF
+		echo "NETMOUNTUSER=${NETMOUNT1USER}" >> $NETMOUNTCONF
+		echo "NETMOUNTPASS=${NETMOUNT1PASS}" >> $NETMOUNTCONF
+		echo "NETMOUNTOPTIONS=${NETMOUNT1OPTIONS}" >> $NETMOUNTCONF
+		echo "${GREEN}Done.${NORMAL}"
+	fi
 	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
-	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
+	echo -n "${BLUE}[ INFO ] Setting Soundcard from newconfig... ${NORMAL}"
 	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
+	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
-	pcp_save_to_config
-	pcp_backup_nohtml >/dev/null 2>&1
-	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
-	sleep 3
-	sudo reboot
-	exit 0
-else
-	echo -n "${YELLOW}  newconfig.cfg not found on sda1.${NORMAL}"
-fi
-echo "${GREEN} Done.${NORMAL}"
 
-# Check if a newconfig.cfg file is present on mmcblk0p1 - requested by SqueezePlug and CommandorROR and used for insitu update
-echo "${BLUE}Checking for newconfig.cfg on mmcblk0p1... ${NORMAL}"
-pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
-if [ -f /mnt/mmcblk0p1/newconfig.cfg ]; then
-
-	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
-	if [ -f /mnt/mmcblk0p2/tce/bootfix/bootfix.sh ]; then
-		echo "${GREEN}Fixing issues after insitu update.${NORMAL}"
-		/mnt/mmcblk0p2/tce/bootfix/bootfix.sh
-		rm -rf /mnt/mmcblk0p2/tce/bootfix
-		pcp_backup_nohtml >/dev/null 2>&1
-	fi
-
-	echo "${YELLOW}  newconfig.cfg found on mmcblk0p1.${NORMAL}"
-	# Make a new config files with default values and read it
-	pcp_update_config_to_defaults
-	. $CONFIGCFG
-	# Read variables from newconfig, set timezone, do audio stuff save to config and backup.
-	sudo dos2unix -u /mnt/mmcblk0p1/newconfig.cfg
-	. /mnt/mmcblk0p1/newconfig.cfg
-
-	#=========================================================================================
-	# Copy ALSA settings back so they are restored after an update
-	#-----------------------------------------------------------------------------------------
-	sudo cp /mnt/mmcblk0p1/asound.conf /etc/ >/dev/null 2>&1
-	sudo rm -f /mnt/mmcblk0p1/asound.conf >/dev/null 2>&1
-	sudo cp /mnt/mmcblk0p1/asound.state /var/lib/alsa/ >/dev/null 2>&1
-	sudo rm /mnt/mmcblk0p1/asound.state >/dev/null 2>&1
-	#-----------------------------------------------------------------------------------------
-	pcp_timezone
-	pcp_write_to_host
-	[ "$RPI3INTWIFI" = "off" ] && sed -i 's/$/ blacklist=brcmfmac/' $CMDLINETXT 
-	case "$SCREENROTATE" in
-		0|no) sed -i "s/\(lcd_rotate=\).*/\10/" $CONFIGTXT;;
-		180|yes) sed -i "s/\(lcd_rotate=\).*/\12/" $CONFIGTXT;;
-	esac
-	#During an insitu update, turn HDMI back on. Incase there are problems.
-	HDMIPOWER="on"
-	#pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
-	pcp_save_to_config
-	pcp_disable_HDMI
-	echo -n "${BLUE}Setting Soundcard from newconfig... ${NORMAL}"
-	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
-	pcp_read_chosen_audio noumount
-	echo "${GREEN}Done.${NORMAL}"
-	pcp_save_to_config
-	sudo rm -f /mnt/mmcblk0p1/newconfig.cfg
 	#cleanup all old kernel modules
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel.  And remove them
-	CKCORE=$(uname -r | cut -d '-' -f2)
-	CKCORE=${CKCORE%+}  #Strip the + or _v7+
-	ls /mnt/mmcblk0p2/tce/optional/*${CKCORE%_v7}*.tcz* | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
+	ls $TCEMNT/tce/optional/*.tcz* | grep -E '(pcpCore)|(pcpAudioCore)' | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
 	# Check onboot to be sure there are no hard kernel references.   
-	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' /mnt/mmcblk0p2/tce/onboot.lst
-	# Remove Dropbear extension, we are now using openssh
-	ls -1 /mnt/mmcblk0p2/tce/optional | grep dropbear | xargs -r -I {} rm -f {}
-	sed -i '/dropbear/d' /opt/.filetool.lst
-	sed -i '/dropbear/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' $ONBOOTLST
 	#Remove lines containing only white space
-	sed -i '/^\s*$/d' /mnt/mmcblk0p2/tce/onboot.lst
-	# should we put a copy of bootlog in the home directory???????
+	sed -i '/^\s*$/d' $ONBOOTLST
+
 	pcp_backup_nohtml >/dev/null 2>&1
+	echo -n "${BLUE}[ INFO ] Saving a copy of the upgrade log to ${YELLOW}${TCEMNT}/pcp_insitu_upgrade.log ${BLUE}... ${NORMAL}"
+	cp -f /var/log/pcp_boot.log ${TCEMNT}/tce/pcp_insitu_upgrade.log
+	echo "${GREEN}Done.${NORMAL}"
 	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
 	sleep 3
 	sudo reboot
 	exit 0
-else
-	echo -n "${YELLOW}  newconfig.cfg not found on mmcblk0p1.${NORMAL}"
 fi
-pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
-echo "${GREEN} Done.${NORMAL}"
 #****************Upgrade Process End *********************************
 
 # Set default respository incase it has been set to something non-standard.
@@ -301,13 +202,13 @@ echo "${GREEN}Done.${NORMAL}"
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
 if [ "$WIFI" = "on" ]; then
-	if grep -Fxq "wifi.tcz" /mnt/mmcblk0p2/tce/onboot.lst; then
+	if grep -Fxq "wifi.tcz" $ONBOOTLST; then
 		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
 	else
 		# Add wifi related modules back
 		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
 		BACKUP=1
-		sudo fgrep -vxf /mnt/mmcblk0p2/tce/onboot.lst /mnt/mmcblk0p2/tce/piCorePlayer.dep >> /mnt/mmcblk0p2/tce/onboot.lst
+		sudo fgrep -vxf $ONBOOTLST $TCEMNT/tce/piCorePlayer.dep >> $ONBOOTLST
 
 		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
@@ -437,6 +338,13 @@ if [ $? -eq 0 ] && [ "$AUDIO" = "HDMI" ]; then
 fi
 echo "${GREEN}Done.${NORMAL}"
 
+if [ "$OUTPUT" = "equal" ]; then
+	echo -n "${BLUE}Checking proper card number for Alsaequal... ${NORMAL}"
+	pcp_find_card_number
+	sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
 # Start the essential stuff for piCorePlayer
 echo -n "${YELLOW}Waiting for network."
 CNT=1
@@ -479,70 +387,137 @@ if [ "$IR_LIRC" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+echo -n "${BLUE}Starting Openssh server... ${NORMAL}"
+/usr/local/etc/init.d/openssh start >/dev/null 2>&1
+echo "${GREEN}Done.${NORMAL}"
+
 # Mount USB Disk Selected on LMS Page
 LMSMOUNTFAIL="0"
-if [ "$MOUNTUUID" != "no" ]; then
+#	READ Conf file
+if [ -f  ${USBMOUNTCONF} ]; then
 	echo "${BLUE}Mounting USB Drives...${YELLOW}"
-	blkid | grep -q $MOUNTUUID
-	if [ $? -eq 0 ]; then
-		mkdir -p /mnt/$MOUNTPOINT
-		chown tc.staff /mnt/$MOUNTPOINT
-		DEVICE=$(blkid -U $MOUNTUUID)
-		FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
-		case "$FSTYPE" in
-			ntfs)
-				umount $DEVICE  #ntfs cannot be dual mounted
-				OPTIONS="-v -t ntfs-3g -o permissions"
-			;;
-			vfat|fat32)
-				#if Filesystem support installed, use utf-8 charset for fat.
-				df | grep -qs ntfs
-				[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
-				umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-				OPTIONS="-v -t vfat -o noauto,users,exec,umask=022,flush${CHARSET}"
-			;;
-			*)
-				OPTIONS="-v"
-			;;
+	SC=0
+	while read LINE; do
+		case $LINE in
+			[*)SC=$((SC+1));;
+			*USBDISK*) eval USBDISK${SC}=$(pcp_trimval "${LINE}");;
+			*POINT*) eval MOUNTPOINT${SC}=$(pcp_trimval "${LINE}");;
+			*UUID*) eval MOUNTUUID${SC}=$(pcp_trimval "${LINE}");;
+			*);;
 		esac
-		mount $OPTIONS --uuid $MOUNTUUID /mnt/$MOUNTPOINT
-		if [ $? -eq 0 ]; then
-			echo "${BLUE}Disk Mounted at /mnt/$MOUNTPOINT.${NORMAL}"
-		else
-			echo "${RED}Disk Mount Error.${NORMAL}"
-			LMSMOUNTFAIL="1"
+	done < $USBMOUNTCONF
+	I=0
+	while [ $I -le $SC ]; do
+		ENABLED=$(eval echo "\${USBDISK${I}}")
+		if [ "$ENABLED" != "" ]; then
+			POINT=$(eval echo "\${MOUNTPOINT${I}}")
+			UUID=$(eval echo "\${MOUNTUUID${I}}")
+			blkid | grep -q $UUID
+			if [ $? -eq 0 ]; then
+				mkdir -p /mnt/$POINT
+				chown tc.staff /mnt/$POINT
+				DEVICE=$(blkid -U $UUID)
+				FSTYPE=$(blkid -U $UUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+				case "$FSTYPE" in
+					ntfs)
+						umount $DEVICE  #ntfs cannot be dual mounted
+						OPTIONS="-v -t ntfs-3g -o permissions"
+					;;
+					vfat|fat32)
+						#if Filesystem support installed, use utf-8 charset for fat.
+						df | grep -qs ntfs
+						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
+						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+						OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
+					;;
+					*)
+						OPTIONS="-v"
+					;;
+				esac
+				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
+				mount $OPTIONS --uuid $UUID /mnt/$POINT
+				if [ $? -eq 0 ]; then
+					echo "${BLUE}Disk Mounted at /mnt/$POINT.${NORMAL}"
+				else
+					echo "${RED}Disk Mount Error.${NORMAL}"
+					LMSMOUNTFAIL="1"
+				fi
+			else
+				 echo "${RED}Disk ${UUID} Not Found, Please insert drive and Reboot${NORMAL}"
+				 LMSMOUNTFAIL="1"
+			fi
 		fi
-	else
-		 echo "${RED}Disk ${MOUNTUUID} Not Found, Please insert drive and Reboot${NORMAL}"
-		 LMSMOUNTFAIL="1"
-	fi
+		I=$((I+1))
+	done
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # Mount Network Disk Selected on LMS Page
-if [ "$NETMOUNT1" = "yes" ]; then
+if [ -f  ${NETMOUNTCONF} ]; then
 	echo "${BLUE}Mounting Network Drive...${YELLOW}"
-	mkdir -p /mnt/$NETMOUNT1POINT
-	chown tc.staff /mnt/$NETMOUNT1POINT
-	case "$NETMOUNT1FSTYPE" in
-		cifs)
-			OPTIONS=""
-			[ "$NETMOUNT1USER" != "" ] && OPTIONS="${OPTIONS}username=${NETMOUNT1USER},"
-			[ "$NETMOUNT1PASS" != "" ] && OPTIONS="${OPTIONS}password=${NETMOUNT1PASS},"
-			OPTIONS="${OPTIONS}${NETMOUNT1OPTIONS}"
-			MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS //$NETMOUNT1IP/$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
-		;;
-		nfs)
-			OPTIONS="addr=${NETMOUNT1IP},nolock,${NETMOUNT1OPTIONS}"
-			MNTCMD="-v -t $NETMOUNT1FSTYPE -o $OPTIONS $NETMOUNT1IP:$NETMOUNT1SHARE /mnt/$NETMOUNT1POINT"
-		;;
-	esac
-	mount $MNTCMD
-	if [ $? -eq 0 ]; then
-		echo "${BLUE}Disk Mounted at /mnt/${NETMOUNT1POINT}."
-	else
-		echo "${RED}Disk Mount Error.${NORMAL}"
-		LMSMOUNTFAIL="1"
-	fi
+	NUMNET=0
+	while read LINE; do
+		case $LINE in
+			[*) NUMNET=$((NUMNET+1));;
+			*NETENABLE*) eval NETENABLE${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTPOINT*) eval NETMOUNTPOINT${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTIP*) eval NETMOUNTIP${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTSHARE*) eval NETMOUNTSHARE${NUMNET}=$(pcp_trimval "${LINE}");;
+			*FSTYPE*) eval NETMOUNTFSTYPE${NUMNET}=$(pcp_trimval "${LINE}");;
+			*PASS*) eval NETMOUNTPASS${NUMNET}=$(pcp_trimval "${LINE}");;
+			*USER*) eval NETMOUNTUSER${NUMNET}=$(pcp_trimval "${LINE}");;
+			*MOUNTOPTIONS*) eval NETMOUNTOPTIONS${NUMNET}=$(echo "${LINE}" | awk -F= '{ st = index($0,"=");print substr($0,st+1)}');;
+			*);;
+		esac
+	done < $NETMOUNTCONF
+	I=1
+	while [ $I -le $NUMNET ]; do
+		if [ $(eval echo "\${NETENABLE${I}}") = "yes" ]; then
+			PNT=$(eval echo \${NETMOUNTPOINT${I}})
+			IP=$(eval echo \${NETMOUNTIP${I}})
+			SHARE=$(eval echo \${NETMOUNTSHARE${I}})
+			FSTYPE=$(eval echo \${NETMOUNTFSTYPE${I}})
+			USER=$(eval echo \${NETMOUNTUSER${I}})
+			PASS=$(eval echo \${NETMOUNTPASS${I}})
+			OPTIONS=$(eval echo \${NETMOUNTOPTIONS${I}})
+			mkdir -p /mnt/$PNT
+			chown tc.staff /mnt/$PNT
+			case "$FSTYPE" in
+				cifs)
+					OPTS=""
+					[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
+					[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
+					OPTS="${OPTS}${OPTIONS}"
+					MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
+				;;
+				nfs)
+					OPTS="addr=${IP},nolock,${OPTIONS}"
+					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
+				;;
+			esac
+			RETRIES=3  #Retry network mounts, incase of power failure, and all devices restarting.
+			while [ $RETRIES -gt 0 ]; do
+				mount $MNTCMD
+				if [ $? -eq 0 ]; then
+					RETRIES=0
+					echo "${BLUE}Disk Mounted at /mnt/${PNT}."
+				else
+					RETRIES=$((RETRIES-1))
+					if [ $RETRIES -eq 0 ]; then
+						echo "${RED}Disabling network mount from server at ${IP}${NORMAL}"
+						cp -f $NETMOUNTCONF /tmp/netconf
+						cat /tmp/netconf | awk '/^\[/ {m++}{if(m=='$I')sub("NETENABLE\=yes","NETENABLE\=no")}1' > $NETMOUNTCONF
+						LMSMOUNTFAIL="1"
+					else
+						echo "${RED}Disk Mount Error, Retrying $RETRIES more times......sleeping 10 seconds${YELLOW}"
+						sleep 10
+					fi
+				fi
+			done
+		fi
+		I=$((I+1))
+	done
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 # If running an LMS Server Locally, start squeezelite later
@@ -553,11 +528,6 @@ if [ "$LMSERVER" != "yes" ]; then
 		echo "${GREEN}Done.${NORMAL}"
 	fi
 fi
-
-echo -n "${BLUE}Starting Openssh server... ${NORMAL}"
-/usr/local/etc/init.d/openssh start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
-
 
 if [ "$SHAIRPORT" = "yes" ]; then
 	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
@@ -574,9 +544,9 @@ if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
 	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
 	pcp_save_to_config
-	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
+	pcp_mount_bootpart_nohtml >/dev/null 2>&1
 	pcp_set_timezone >/dev/null 2>&1
-	pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
+	pcp_umount_bootpart_nohtml >/dev/null 2>&1
 	TZ=$TIMEZONE
 	BACKUP=1
 	echo "${GREEN}Done.${NORMAL}"

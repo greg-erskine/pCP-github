@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
 #  Changed reboot functions. PH.
@@ -23,14 +26,14 @@ pcp_httpd_query_string
 #----------------------------------------------------------------------------------------
 case "$COPY2FS" in
 	yes)
-		touch /mnt/mmcblk0p2/tce/copy2fs.flg
+		touch $TCEMNT/tce/copy2fs.flg
 	;;
 	no)
-		rm -f /mnt/mmcblk0p2/tce/copy2fs.flg
+		rm -f $TCEMNT/tce/copy2fs.flg
 	;;
 esac
 
-[ -f /mnt/mmcblk0p2/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
+[ -f $TCEMNT/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
 
 #========================================================================================
 # copy2fs form

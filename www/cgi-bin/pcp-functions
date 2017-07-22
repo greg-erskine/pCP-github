@@ -2,6 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.21 2017-07-02
+#	Added note for TEST 3 Active in footer. PH.
+#	Changed to allow booting from USB on RPI3. PH.
+#	Support multiple USB mounts. PH.
+#	Support multiple Network mounts. PH.
+#	Add ability to set column class on pcp_table functions. PH.
+
 # Version: 3.20 2017-04-16
 #	Updated SCREENROTATE default value. GE.
 #	Added Help tab to pcp_picoreplayers toolbar. GE.
@@ -76,8 +83,13 @@ pcp_variables() {
 	# The following are standard piCorePlayer variables, do NOT edit!
 	# Note: This section is ONLY for variables as it can be run multiple times.
 	#-------------------------------------------------------------------------------------
-	CONFIGTXT="/mnt/mmcblk0p1/config.txt"
-	CMDLINETXT="/mnt/mmcblk0p1/cmdline.txt"
+	#Name of device that has tce.  Assume boot is partition 1 of that device.
+	TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	BOOTDEV=${TCEDEV%%?}1
+	BOOTMNT=${TCEMNT%%?}1
+	CONFIGTXT="$BOOTMNT/config.txt"
+	CMDLINETXT="$BOOTMNT/cmdline.txt"
 	BOOTLOCAL="/opt/bootlocal.sh"
 	BOOTSYNC="/opt/bootsync.sh"
 	SHUTDOWN="/opt/shutdown.sh"
@@ -86,14 +98,16 @@ pcp_variables() {
 	HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
 	WIFIDB="/home/tc/wifi.db"
-	ONBOOTLST="/mnt/mmcblk0p2/tce/onboot.lst"
-	VOLUME="/mnt/mmcblk0p1"
-	DEVICE="/dev/mmcblk0p1"
+	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
+	VOLUME="$BOOTMNT"
+	DEVICE="$BOOTDEV"
 	UPD_PCP="/tmp/upd_picoreplayer"
 	PCPHOME="/home/tc/www/cgi-bin"
 	LOGDIR="/var/log"
-	PACKAGEDIR="/mnt/mmcblk0p2/tce/optional"
+	PACKAGEDIR="/etc/sysconfig/tcedir/optional"
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
+	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
+	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 
 	#-------------------------------------------------------------------------------------
 	# Define modes
@@ -123,7 +137,7 @@ pcp_variables() {
 	#-------------------------------------------------------------------------------------
 	# Set Squeezelite variable to binary location.
 	#-------------------------------------------------------------------------------------
-	[ -f /mnt/mmcblk0p2/tce/squeezelite ] && SQLT_BIN=/mnt/mmcblk0p2/tce/squeezelite || SQLT_BIN=/usr/local/bin/squeezelite
+	[ -f /etc/sysconfig/tcedir/squeezelite ] && SQLT_BIN=/etc/sysconfig/tcedir/squeezelite || SQLT_BIN=/usr/local/bin/squeezelite
 }
 
 pcp_config_file
@@ -185,17 +199,17 @@ pcp_red_cross() {
 }
 
 #=========================================================================================
-# Free space on /mnt/mmcblk0p2
+# Free space on tce mount device  default:/mnt/mmcblk0p2
 #  - k = kilobytes free
 #  - m = megabytes free
 #  - p = percentage free
 #-----------------------------------------------------------------------------------------
 pcp_free_space() {
 	case "$1" in
-		k) set -- $(/bin/busybox df -k | grep mmcblk0p2); echo $4 ;;
-		m) set -- $(/bin/busybox df -m | grep mmcblk0p2); echo $4 ;;
-		p) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $5 | sed 's/%//' ;;
-		*) set -- $(/bin/busybox df -h | grep mmcblk0p2); echo $4 ;;
+		k) set -- $(/bin/busybox df -k | grep $TCEDEV); echo $4 ;;
+		m) set -- $(/bin/busybox df -m | grep $TCEDEV); echo $4 ;;
+		p) set -- $(/bin/busybox df -h | grep $TCEDEV); echo $5 | sed 's/%//' ;;
+		*) set -- $(/bin/busybox df -h | grep $TCEDEV); echo $4 ;;
 	esac
 }
 
@@ -525,6 +539,7 @@ pcp_footer() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p class="footer">
+					'$([ $TEST -eq 3 ] && echo "BETA REPO Active |")'
 					'$NAME' |
 					piCorePlayer v'$(pcp_picoreplayer_version)' |
 					linux '$(pcp_linux_release)' |
@@ -793,6 +808,11 @@ pcp_write_to_host() {
 	sed -i '1 s/^/host='${HOST}' /' $CMDLINETXT
 }
 
+# Used in reading config files Returns value right of the =
+pcp_trimval() {
+	echo $1 | cut -d '=' -f2 | xargs
+}
+
 #========================================================================================
 # Create table routines
 #----------------------------------------------------------------------------------------
@@ -806,7 +826,7 @@ pcp_table_top() {
 	echo '        <legend>'$1'</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '              <td '$2'>'
 }
 
 pcp_table_middle() {
@@ -814,7 +834,7 @@ pcp_table_middle() {
 	echo '            </tr>'
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '              <td '$1'>'
 }
 
 pcp_table_end() {
@@ -1192,7 +1212,7 @@ pcp_backup_nohtml() {
 }
 
 pcp_check_mydata() {
-	SIZE=$(ls -l /mnt/mmcblk0p2/tce/mydata.tgz | awk '{print $5}')
+	SIZE=$(ls -l /etc/sysconfig/tcedir/mydata.tgz | awk '{print $5}')
 	echo $SIZE
 }
 
@@ -1219,7 +1239,7 @@ pcp_running_script() {
 #=========================================================================================
 # Mounting/unmounting devices
 #-----------------------------------------------------------------------------------------
-pcp_mount_mmcblk0p1() {
+pcp_mount_bootpart() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep $VOLUME; then
 		echo '<p class="error">[ WARN ] '$VOLUME' already mounted.</p>'
@@ -1230,7 +1250,7 @@ pcp_mount_mmcblk0p1() {
 	fi
 }
 
-pcp_umount_mmcblk0p1() {
+pcp_umount_bootpart() {
 	# Unmount mmcblk0p1
 	sync
 	sync
@@ -1238,7 +1258,7 @@ pcp_umount_mmcblk0p1() {
 	sudo umount $DEVICE
 }
 
-pcp_mount_mmcblk0p1_nohtml() {
+pcp_mount_bootpart_nohtml() {
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep >/dev/null $VOLUME; then
 		echo '[ WARN ] '$VOLUME' already mounted.'
@@ -1248,7 +1268,7 @@ pcp_mount_mmcblk0p1_nohtml() {
 	fi
 }
 
-pcp_umount_mmcblk0p1_nohtml() {
+pcp_umount_bootpart_nohtml() {
 	# Unmount mmcblk0p1
 	sync
 	sync
@@ -1256,9 +1276,9 @@ pcp_umount_mmcblk0p1_nohtml() {
 	sudo umount $DEVICE
 }
 
-# CHECK:
-	VOLUME=/mnt/mmcblk0p1
-	DEVICE=/dev/mmcblk0p1
+# CHECK:  This is defined above in pcp-variables
+#	VOLUME=/mnt/mmcblk0p1
+#	DEVICE=/dev/mmcblk0p1
 
 pcp_mount_device() {
 	# Check if device is mounted otherwise mount it
@@ -1365,17 +1385,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $CONFIGCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMSDATA=\).*/\1\"$LMSDATA\"/" $CONFIGCFG
-	sudo sed -i "s/\(MOUNTPOINT=\).*/\1\"$MOUNTPOINT\"/" $CONFIGCFG
-	sudo sed -i "s/\(MOUNTUUID=\).*/\1\"$MOUNTUUID\"/" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1=\).*|\1\"$NETMOUNT1\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1POINT=\).*|\1\"$NETMOUNT1POINT\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1IP=\).*|\1\"$NETMOUNT1IP\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1SHARE=\).*|\1\"$NETMOUNT1SHARE\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1FSTYPE=\).*|\1\"$NETMOUNT1FSTYPE\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1USER=\).*|\1\"$NETMOUNT1USER\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1PASS=\).*|\1\"$NETMOUNT1PASS\"|" $CONFIGCFG
-	sudo sed -i "s|\(NETMOUNT1OPTIONS=\).*|\1\"$NETMOUNT1OPTIONS\"|" $CONFIGCFG
+	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
@@ -1476,16 +1486,6 @@ JL_SCREEN_HEIGHT="0"
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"
-MOUNTPOINT=""
-MOUNTUUID="no"
-NETMOUNT1POINT=""
-NETMOUNT1="no"
-NETMOUNT1IP=""
-NETMOUNT1SHARE=""
-NETMOUNT1FSTYPE=""
-NETMOUNT1USER=""
-NETMOUNT1PASS=""
-NETMOUNT1OPTIONS=""
 SQLT_VERSION="basic"
 SQUEEZELITE="yes"
 POWER_GPIO=""
@@ -1514,26 +1514,27 @@ SPARAMS5=""
 EOF
 }
 
+#This is a developer routine only, do not use in normal scripts
 pcp_reset_config_to_defaults() {
 	pcp_update_config_to_defaults
 
 	# Remove timezone stuff
-	pcp_mount_mmcblk0p1_nohtml
+	pcp_mount_bootpart_nohtml
 	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
-	pcp_umount_mmcblk0p1_nohtml
+	pcp_umount_bootpart_nohtml
 	sudo rm -f /etc/sysconfig/timezone
 
 	# Remove Jivelite stuff
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/jivelite.tcz.md5.txt
+	sudo rm -f $TCEMNT/tce/optional/pcp-jivelite.tcz
+	sudo rm -f $TCEMNT/tce/optional/pcp-jivelite.tcz.md5.txt
 	sudo rm -rf /home/tc/.jivelite
 	sudo rm -rf /opt/jivelite
 	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 
 	# Remove VU_Meter stuff
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz
-	sudo rm -f /mnt/mmcblk0p2/tce/optional/VU_Meter*.tcz.md5.txt
+	sudo rm -f $TCEMNT/tce/optional/VU_Meter*.tcz
+	sudo rm -f $TCEMNT/tce/optional/VU_Meter*.tcz.md5.txt
 
 	# Remove wifi stuff
 	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST

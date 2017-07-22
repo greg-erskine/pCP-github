@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 3.21 2017-07-01
+	Added _tight row spacing for tables. PH
+
 Version: 3.20 2017-03-27
 	Added a.nav8, a.nav8a, a.nav8, a.nav8a, a.tab20, a.tab20a. GE
 	Added some extra .columXXX that might be useful. GE.
@@ -126,13 +129,13 @@ h2 {
 }
 
 /* This is for odd and even striped tables */
-.odd, .even, .warning{
+.odd, .even, .warning, .even_tight, .odd_tight{
 	background:#d8d8d8;
 	border:0;
 	display:block;
 }
 
-.even {
+.even, .even_tight {
 	background:#eaeaea;
 }
 
@@ -144,6 +147,12 @@ h2 {
 	margin-bottom:5px;
 	margin-top:5px;
 }
+
+.even_tight td p, .odd_tight td p {
+	margin-bottom:0px;
+	margin-top:0px;
+}
+
 
 /* More and less help feature */
 .more {

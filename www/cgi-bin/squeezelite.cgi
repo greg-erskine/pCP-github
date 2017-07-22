@@ -481,7 +481,7 @@ pcp_squeezelite_xcodec() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_xcodec
+[ $MODE -ge $MODE_ADVANCED ] && pcp_squeezelite_xcodec
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Priority setting----------------------------------
@@ -943,7 +943,7 @@ pcp_squeezelite_power_gpio() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO ) -eq 0 ] && pcp_squeezelite_power_gpio
+[ $MODE -ge $MODE_ADVANCED ] && [ $(pcp_squeezelite_build_option GPIO ) -eq 0 ] && pcp_squeezelite_power_gpio
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off Script-------------------------------
@@ -976,7 +976,7 @@ pcp_squeezelite_power_script() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && [ $(pcp_squeezelite_build_option GPIO) -eq 0 ] && pcp_squeezelite_power_script
+[ $MODE -ge $MODE_ADVANCED ] && [ $(pcp_squeezelite_build_option GPIO) -eq 0 ] && pcp_squeezelite_power_script
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Various input-------------------------------------

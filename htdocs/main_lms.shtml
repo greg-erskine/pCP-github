@@ -34,6 +34,7 @@
                 <p>LMS is Open Source Software written in Perl and it runs on pretty much any platform that Perl runs on, including Linux, Mac OSX, Solaris and Windows.</p>
                 <p>LMS was formally known as Squeezebox Server, SqueezeCentre and SlimServer.</p>
                 <p><b>Installation: </b>LMS can be installed on piCorePlayer via the [Tweaks] page on the piCorePlayer web interface.</p>
+                <p><b>Note: </b>The default version of LMS will be 7.9.0.  If you would like to move to 7.9.1. <a href="how_to_upgrade_lms.shtml">Manually upgrade Logitech Media Server to 7.9.1</a></p>
               </td>
             </tr>
           </table>

@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 3.21 2017-06-18
+#	Changed to allow booting from USB on RPI3. PH.
+#	Support multiple USB mounts. PH.
+#	Support multiple Network mounts. PH.
+#	Strip bootable flag from fdisk output. PH.
+
 # Version: 3.20 2017-03-31
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -47,7 +53,6 @@
 . pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "LMS Main Page" "SBP"
 
@@ -82,13 +87,13 @@ WGET="/bin/busybox wget"
 pcp_install_lms() {
 	echo '[ INFO ] Downloading LMS...'
 	sudo -u tc pcp-load -r $PCP_REPO -w slimserver.tcz
-	if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+	if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '[ INFO ] Installing LMS...'
 		sudo -u tc pcp-load -i slimserver.tcz
-		sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-		sudo echo 'slimserver.tcz' >> /mnt/mmcblk0p2/tce/onboot.lst
+		sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
+		sudo echo 'slimserver.tcz' >> $ONBOOTLST
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] LMS is added to onboot.lst'
-		[ $DEBUG -eq 1 ] && cat /mnt/mmcblk0p2/tce/onboot.lst
+		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
 	fi
 }
 
@@ -96,13 +101,14 @@ pcp_remove_lms() {
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete slimserver.tcz
-	sudo sed -i '/slimserver.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 }
 
 pcp_remove_lms_cache() {
-	sudo rm -rf /mnt/mmcblk0p2/tce/slimserver/
-	sudo rm -rf /mnt/"$NETMOUNT1POINT"/slimserver/
-	sudo rm -rf /mnt/"$MOUNTPOINT"/slimserver/
+	sudo rm -rf $TCEMNT/tce/slimserver/
+	for I in $(find /mnt -maxdepth 1 | grep -Ev 'mmcblk0p[1-9]'); do
+		[ -d $I/slimserver ] && rm -rf $I/slimserver/
+	done
 }
 
 pcp_lms_padding() {
@@ -117,13 +123,13 @@ pcp_install_fs() {
 	RESULT=0
 	echo '[ INFO ] Downloaded additional filesystem support.</p>'
 	sudo -u tc pcp-load -r $PCP_REPO -w ntfs-3g.tcz
-	if [ -f /mnt/mmcblk0p2/tce/optional/ntfs-3g.tcz ]; then
+	if [ -f $TCEMNT/tce/optional/ntfs-3g.tcz ]; then
 		echo '[ INFO ] Loading filesystem extensions'
 		sudo -u tc tce-load -i ntfs-3g.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	fi
 	if [ $RESULT -eq 0 ]; then
-		echo "ntfs-3g.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo "ntfs-3g.tcz" >> $ONBOOTLST
 		echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
 	else
 		echo '[ ERROR ] Extensions not loaded, try again later!</p>'
@@ -132,10 +138,10 @@ pcp_install_fs() {
 
 pcp_remove_fs() {
 	echo '[ INFO ] Removing Extensions</p>'
-	rm -f /mnt/mmcblk0p2/tce/optional/ntfs-3g*
-	rm -f /mnt/mmcblk0p2/tce/optional/filesystems*
-	sed -i '/ntfs-3g.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
-	echo '[ INFO ] Extensions Removed, Reboot to Finish</p>'
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete ntfs-3g.tcz
+	sed -i '/ntfs-3g.tcz/d' $ONBOOTLST
+	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
 }
 
 pcp_install_samba4() {
@@ -150,7 +156,7 @@ pcp_install_samba4() {
 		echo '<p>'
 	fi
 	if [ $RESULT -eq 0 ]; then
-		echo "samba4.tcz" >> /mnt/mmcblk0p2/tce/onboot.lst
+		echo "samba4.tcz" >> $ONBOOTLST
 		echo '[ INFO ] Samba Support Loaded...</p>'
 		cat << EOF > /usr/local/etc/init.d/samba
 #!/bin/sh
@@ -238,7 +244,7 @@ EOF
 
 pcp_remove_samba4() {
 	echo '[ INFO ] Removing Extensions</p>'
-	sed -i '/samba4.tcz/d' /mnt/mmcblk0p2/tce/onboot.lst
+	sed -i '/samba4.tcz/d' $ONBOOTLST
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete samba4.tcz
 	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
@@ -260,9 +266,10 @@ REBOOT_REQUIRED=0
 case "$ACTION" in
 	Start)
 		case "$LMSDATA" in
-			usbmount) MNT="/mnt/$MOUNTPOINT";;
-			netmount1) MNT="/mnt/$NETMOUNT1POINT";;
-			default) MNT="/mnt/mmcblk0p2";;
+			usb:*|net:*) [ -f /home/tc/.slimserver.cfg ] && . /home/tc/.slimserver.cfg
+				MNT=$(echo $CACHE | awk -F"/" '{$2="/"$2"/"; print $2$3}')
+			;;
+			default) MNT="$TCEMNT";;
 		esac
 		pcp_table_top "Logitech Media Server (LMS)"
 		echo '                <textarea class="inform" style="height:40px">'
@@ -272,7 +279,7 @@ case "$ACTION" in
 			echo -n '[ INFO ] '
 			sudo /usr/local/etc/init.d/slimserver start
 		else
-			echo '[ ERROR ] LMS data disk not mounted, LMS will not start.'
+			echo '[ ERROR ] LMS data disk not mounted at '$MNT', LMS will not start.'
 		fi
 		echo '                </textarea>'
 		pcp_table_end
@@ -304,7 +311,7 @@ case "$ACTION" in
 		if [ $? -eq 0 ] ; then
 			echo '                <textarea class="inform" style="height:160px">'
 			pcp_install_lms
-			if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+			if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 				LMSERVER="yes"
 				pcp_save_to_config
 				pcp_backup "nohtml"
@@ -411,21 +418,22 @@ esac
 
 #--------Set Variables that need to be checked after the above Case Statement -----------
 # logic to activate/inactivate buttons depending upon whether LMS is installed or not
-if [ -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
-	DISABLED=""
+if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
+	DISABLE_LMS=""
 else
-	DISABLED="disabled"
+	DISABLE_LMS="disabled"
 fi
 
 # logic to activate/inactivate buttons depending upon whether LMS cache is present or not
-if [ -d /mnt/mmcblk0p2/tce/slimserver ] || [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ] || [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
+TMP=$(find /mnt -type d -maxdepth 3 | grep slimserver/Cache)
+if [ -d $TCEMNT/tce/slimserver -o "$TMP" != "" ]; then
 	DISABLECACHE=""
 else
 	DISABLECACHE="disabled"
 fi
 
 df | grep -qs ntfs
-[ "$?" = "0" ] && NTFS="yes" || NTFS="no"
+[ "$?" = "0" ] && EXTRAFSYS="yes" || EXTRAFSYS="no"
 
 #========================================================================================
 # Main table
@@ -503,7 +511,7 @@ pcp_lms_enable_lms() {
 	echo '            <form name="Select" action="writetolms.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS autostart" '$DISABLED' />'
+	echo '                  <input type="submit" value="LMS autostart" '$DISABLE_LMS' />'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
@@ -536,7 +544,7 @@ pcp_lms_configure_lms() {
 	echo '            <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Configure LMS" '$DISABLED' />'
+	echo '                  <input type="submit" value="Configure LMS" '$DISABLE_LMS' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Configure LMS&nbsp;&nbsp;'
@@ -588,7 +596,7 @@ pcp_lms_install_lms() {
 	echo '            <form name="Install" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	if [ ! -f /mnt/mmcblk0p2/tce/optional/slimserver.tcz ]; then
+	if [ ! -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
 		echo '                <td>'
@@ -647,7 +655,7 @@ pcp_lms_start_lms() {
 	echo '            <form name="Start" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLED' />'
+	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_LMS' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Start LMS&nbsp;&nbsp;'
@@ -671,7 +679,7 @@ pcp_lms_stop_lms() {
 	echo '            <form name="Stop" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Stop" '$DISABLED' />'
+	echo '                  <input type="submit" name="ACTION" value="Stop" '$DISABLE_LMS' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Stop LMS&nbsp;&nbsp;'
@@ -695,7 +703,7 @@ pcp_lms_restart_lms() {
 	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLED' />'
+	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_LMS' />'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart LMS&nbsp;&nbsp;'
@@ -723,7 +731,7 @@ pcp_update_lms() {
 	echo '            <form name="Update" action="lms-update.cgi">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS Update" '$DISABLED'>'
+	echo '                  <input type="submit" value="LMS Update" '$DISABLE_LMS'>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
@@ -750,7 +758,7 @@ pcp_lms_no_mysb() {
 	echo '            <form name="Nomysb" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <button type="submit" name="ACTION" value="Mysb" '$DISABLED'>No MySB</button>'
+	echo '                  <button type="submit" name="ACTION" value="Mysb" '$DISABLE_LMS'>No MySB</button>'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes' >Yes'
@@ -777,7 +785,7 @@ pcp_lms_show_logs() {
 	echo '            <form name="Show" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Show Logs" '$DISABLED'/>'
+	echo '                  <input type="submit" value="Show Logs" '$DISABLE_LMS'/>'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
@@ -842,52 +850,64 @@ pcp_slimserver_persistence() {
 	NETyes=""
 	DEFyes=""
 	case "$LMSDATA" in
-		usbmount) USByes="checked";;
-		netmount1) NETyes="checked";;
 		default) DEFyes="checked";;
+		*);; #USB and NET checked will be set later.
 	esac
-	if [ "$MOUNTUUID" != "no" -o -n "$USByes" ]; then
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column'$COL1' center">'
-		echo '                  <input class="small1" type="radio" name="LMSDATA" value="usbmount" '$USByes'>'
-		echo '                </td>'
-		echo '                <td class="column'$COL2'">'
-		echo '                  <p>USB Disk</p>'
-		echo '                </td>'
-		echo '                <td class="column'$COL3'">'
-		if [ -n "$USByes" -a  ! -d /mnt/"$MOUNTPOINT"/slimserver ]; then
-			echo '                  <p>Disk Not Found, LMS Disabled</p>'
-		else
-			echo '                  <p>/mnt/'$MOUNTPOINT'/slimserver</p>'
-		fi
-		echo '                </td>'
-		if [ -d /mnt/"$MOUNTPOINT"/slimserver/Cache ]; then
-			echo '                <td class="column'$COL4'">'
-			echo '                  <p>There is a Cache folder found on this drive</p>'
+	LMSMNTFOUND=0
+	for I in $(mount | grep -E '/dev/sd[a-z]' | cut -d ' ' -f1); do
+		if [ "$I" != "${BOOTDEV}" -a "$I" != "${TCEDEV}" ]; then
+			USBMOUNT=$(mount | grep -w $I | cut -d ' ' -f3)
+			USBUUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
+			USBmnt="usb:${USBUUID}"
+			if [ "$LMSDATA" = "$USBmnt" ]; then
+				USByes="checked"
+				LMSMNTFOUND=1
+			else
+				USByes=""
+			fi
+			pcp_toggle_row_shade
+			echo '              <tr class="'$ROWSHADE'">'
+			echo '                <td class="column'$COL1' center">'
+			echo '                  <input class="small1" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
 			echo '                </td>'
-		else
-			echo '                <td></td>'
+			echo '                <td class="column'$COL2'">'
+			echo '                  <p>USB Disk</p>'
+			echo '                </td>'
+			echo '                <td class="column'$COL3'">'
+			echo '                  <p>'${USBMOUNT}'/slimserver</p>'
+			echo '                </td>'
+			if [ -d ${USBMOUNT}/slimserver/Cache ]; then
+				echo '                <td class="column'$COL4'">'
+				echo '                  <p>There is a Cache folder found on this drive</p>'
+				echo '                </td>'
+			else
+				echo '                <td></td>'
+			fi
+			echo '              </tr>'
 		fi
-		echo '              </tr>'
-	fi
-	if [ "$NETMOUNT1" = "yes" -o -n "$NETyes" ]; then
+	done
+
+	for I in $(mount | grep -E 'cifs|nfs' | cut -d ' ' -f1); do
+		NETMOUNT=$(mount | grep -w $I | cut -d ' ' -f3)
+		NETmnt="net:${I}"
+		if [ "$LMSDATA" = "$NETmnt" ]; then
+			NETyes="checked"
+			LMSMNTFOUND=1
+		else
+			Netyes=""
+		fi
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column'$COL1' center">'
-		echo '                  <input class="small1" type="radio" name="LMSDATA" value="netmount1" '$NETyes'>'
+		echo '                  <input class="small1" type="radio" name="LMSDATA" value="'$NETmnt'" '$NETyes'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL2'">'
 		echo '                  <p>Network Disk</p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL3'">'
-		if [ -n "$NETyes" -a ! -d /mnt/"$NETMOUNT1POINT"/slimserver ]; then
-			echo '                  <p>Disk Not Found, LMS Disabled</p>'
-		else
-			echo '                  <p>/mnt/'$NETMOUNT1POINT'/slimserver</p>'
-		fi
+		echo '                  <p>'${NETMOUNT}'/slimserver</p>'
 		echo '                </td>'
-		if [ -d /mnt/"$NETMOUNT1POINT"/slimserver/Cache ]; then
+		if [ -d ${NETMOUNT}/slimserver/Cache ]; then
 			echo '                <td class="column'$COL4'">'
 			echo '                  <p>There is a Cache folder found on this drive</p>'
 			echo '                </td>'
@@ -895,19 +915,42 @@ pcp_slimserver_persistence() {
 			echo '                <td></td>'
 		fi
 		echo '              </tr>'
-	fi
+	done
+
+	case "${LMSDATA:0:4}" in
+		usb:|net:)
+			if [ $LMSMNTFOUND -eq 0 ]; then
+				[ -f /home/tc/.slimserver.cfg ] && . /home/tc/.slimserver.cfg
+				pcp_toggle_row_shade
+				echo '              <tr class="'$ROWSHADE'">'
+				echo '                <td class="column'$COL1' center">'
+				echo '                  <input class="small1" type="radio" name="LMSDATA" value="'${LMSDATA}'" checked disabled>'
+				echo '                </td>'
+				echo '                <td class="column'$COL2'">'
+				echo '                  <p>'$(echo ${LMSDATA:0:3} | tr [a-z] [A-Z])' Disk</p>'
+				echo '                </td>'
+				echo '                <td colspan="2">'
+				TMP=$(echo $CACHE | awk -F"/" '{$2="/"$2"/"; print $2$3}')
+				echo '                  <p>'$(echo ${LMSDATA:0:3} | tr [a-z] [A-Z])' Disk '${LMSDATA:4}' Not Mounted on '$TMP', LMS will not start</p>'
+				echo '                </td>'
+				echo '              </tr>'
+			fi
+		;;
+		*);;
+	esac
+	
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
 	echo '                  <input class="small1" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Local SDCard</p>'
+	echo '                  <p>pCP Boot Disk</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>/mnt/mmcblk0p2/tce/slimserver</p>'
+	echo '                  <p>'$TCEMNT'/tce/slimserver</p>'
 	echo '                </td>'
-	if [ -d /mnt/mmcblk0p2/tce/slimserver/Cache ]; then
+	if [ -d $TCEMNT/tce/slimserver/Cache ]; then
 		echo '                <td class="column'$COL4'">'
 		echo '                  <p>There is a Cache folder found on this drive</p>'
 		echo '                </td>'
@@ -959,16 +1002,16 @@ pcp_extra_filesys() {
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-	DISABLE="0"
-	for i in `mount | awk '{print $5}'`; do
-		case "$i" in
+	DISABLE_REMOVEFS="0"
+	for I in `mount | awk '{print $5}'`; do
+		case "$I" in
 			*fat*|*squash*|proc|tmpfs|sysfs|devpts|ext*) ;;
-			*) DISABLE="1" ;;
+			*) DISABLE_REMOVEFS="1" ;;
 		esac
 	done
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	if [ "$NTFS" = "no" ]; then
+	if [ "$EXTRAFSYS" = "no" ]; then
 		echo '                    <button type="submit" name="ACTION" value="Install_FS">Install</button>'
 		echo '                  </td>'
 		echo '                  <td>'
@@ -980,7 +1023,7 @@ pcp_extra_filesys() {
 		echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
 		echo '                    <p>These extra filesystems include network and ntfs filesystems.</p>'
 		echo '                  </div>'
-	elif [ "$DISABLE" = "0" ]; then
+	elif [ "$DISABLE_REMOVEFS" = "0" ]; then
 		echo '                  <button type="submit" name="ACTION" value="Remove_FS">Remove</button>'
 		echo '                </td>'
 		echo '                <td>'
@@ -1000,7 +1043,7 @@ pcp_extra_filesys() {
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>Unable to remove additional Filesystem Support from pCP.</p>'
-		echo '                    <p>as there are currently active mounts using this support</p>'
+		echo '                    <p>as there are currently active drives mounted using this support.</p>'
 		echo '                  </div>'
 	fi
 	echo '                </td>'
@@ -1022,6 +1065,23 @@ pcp_extra_filesys() {
 pcp_mount_usbdrives() {
 	fdisk -V 2>&1 | grep -q -i busybox
 	[ $? -eq 0 ] && BBFDISK=1 || BBFDISK=0
+	# Read config file
+	NUM_USB_CONF=0
+	NUM_USB_CONF_ENABLED=0
+	if [ -f  ${USBMOUNTCONF} ]; then
+		while read LINE; do
+			case $LINE in
+				[*)NUM_USB_CONF=$((NUM_USB_CONF+1));;
+				*USBDISK*)
+					eval USBDISK${NUM_USB_CONF}=$(pcp_trimval "${LINE}")
+					[ $(eval echo \${USBDISK${NUM_USB_CONF}}) = "enabled" ] && $((NUM_USB_CONF_ENABLED+1))
+					;;
+				*POINT*) eval MOUNTPOINT${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
+				*UUID*) eval MOUNTUUID${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
+				*);;
+			esac
+		done < $USBMOUNTCONF
+	fi
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1033,21 +1093,19 @@ pcp_mount_usbdrives() {
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100">'
-	echo '                  <p>Mount Point</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <p>/mnt/ <input class="large12" type="text" name="MOUNTPOINT" value="'$MOUNTPOINT'" required pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
-	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>This is the mount point for the below drive.&nbsp;&nbsp;'
+	echo '                  <p>Mount USB Disk&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The drive will be mounted by UUID to this path and will be automounted on startup.</p>'
-	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
-	echo '                    <p>Do not use hardware device names like sda1 or mmcblk0.</p>'
-	echo '                    <p>For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
+	echo '                    <p>If Checked, the USB disk will be mounted by to the mount point and will be automounted on startup.</p>'
+	echo '                    <p>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                    <p>&nbsp;&nbsp;&nbsp;Do not use hardware device names like sda1 or mmcblk0.</p>'
+	echo '                    <p>All other fields are for identification purposes.</p>'
+	echo '                    <br />'
+	echo '                    <p>GPT Partitioned disks require the additional util-linux.tcz extension.</p>'
+	echo '                    <p>UTF-8 Support for fat32 requires the additional filesystem extensions.</p>'
+	
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1057,16 +1115,18 @@ pcp_mount_usbdrives() {
 	COL2="150"
 	COL3="100"
 	COL4="100"
-	COL5="300"
-	COL6="100"
+	COL5="75"
+	COL6="300"
+	COL7="75"
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
-	echo '                <td class="column'$COL2'"><p><b>Device</b></p></td>'
-	echo '                <td class="column'$COL3'"><p><b>Label</b></p></td>'
-	echo '                <td class="column'$COL4'"><p><b>FS Type</b></p></td>'
-	echo '                <td class="column'$COL5'"><p><b>UUID</b></p></td>'
-	echo '                <td class="column'$COL6'"><p><b>Size</b></p></td>'
+	echo '                <td class="column'$COL2'"><p><b>Mount Point</b></p></td>'
+	echo '                <td class="column'$COL3'"><p><b>Device</b></p></td>'
+	echo '                <td class="column'$COL4'"><p><b>Label</b></p></td>'
+	echo '                <td class="column'$COL5'"><p><b>FS Type</b></p></td>'
+	echo '                <td class="column'$COL6'"><p><b>UUID</b></p></td>'
+	echo '                <td class="column'$COL7'"><p><b>Size</b></p></td>'
 	echo '              </tr>'
 
 	DISKFOUND="no"
@@ -1079,68 +1139,105 @@ pcp_mount_usbdrives() {
 			NOUUIDyes=""
 		;;
 	esac
-
+	# Find all USB devices currently attached to system
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
-	for i in $ALLPARTS; do
-		if [ "$i" != "/dev/mmcblk0p1" -a "$i" != "/dev/mmcblk0p2" ]; then
-			PART=$i
-			LBL=$(blkid $i -s LABEL| awk -F"LABEL=" '{print $NF}' | tr -d "\"")
-			UUID=$(blkid $i -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
-			PTTYPE=$(blkid $i -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+	NUM_USB_ATTACHED=0
+	for I in $ALLPARTS; do
+		# Do not show the boot Drive
+		if [ "$I" != "${BOOTDEV}" -a "$I" != "${TCEDEV}" ]; then
+			NUM_USB_ATTACHED=$((NUM_USB_ATTACHED+1))
+			PART=$I
+			LBL=$(blkid $I -s LABEL| awk -F"LABEL=" '{print $NF}' | tr -d "\"")
+			UUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
+			PTTYPE=$(blkid $I -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			if [ $BBFDISK -eq 1 ]; then
-				SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f4 | tr -d +)
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
 				[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
 			else
-				SIZE=$(fdisk -l | grep $i | tr -s " " | cut -d " " -f5 | tr -d +)
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f5 | tr -d +)
 				SIZExB="${SIZE}B"
 			fi
-
-			case "$MOUNTUUID" in
-				"$UUID")
-					UUIDyes="checked"
-					DISKFOUND="yes"
-				;;
-				*) UUIDyes=""
+			# Compare to previously configured drives from USBMOUNTCONF
+			J=1
+			while [ $J -le $NUM_USB_CONF ]
+			do
+				MNT=$(eval echo "\${MOUNTUUID${J}}")
+				case "$MNT" in
+					"$UUID")
+						TST=$(eval echo "\${USBDISK${J}}")
+						if [ "$TST" != "" ]; then 
+							USBDISKyes="checked"
+							REQUIRED="required"
+						fi
+						DISKFOUND="yes"
+						PNT=$(eval echo "\${MOUNTPOINT${J}}")
+						break
+					;;
+					*)  USBDISKyes=""
+						PNT=""
+						REQUIRED=""
+					;;
+				esac
+			J=$((J+1))
+			done
+			pcp_toggle_row_shade
+			case "$PTTYPE" in
+				*fat*|ext*) DISABLE="";;
+				*)	if [ "$EXTRAFSYS" = "no" ]; then
+						DISABLE="Disabled"
+						UUID="Please install extra Filesystems"
+					else
+						DISABLE=""
+					fi
 				;;
 			esac
-			pcp_toggle_row_shade
-			if [ "$NTFS" = "no" ]; then
-				case "$PTTYPE" in
-					*fat*|ext*) DISABLE="";;
-					*) DISABLE="Disabled"; UUID="Please install extra Filesystems" ;;
-				esac
+
+			#Keepenabled is due to sumitting a disabled checkbox does not submit current value
+			if [ "${LMSDATA:4}" = "$UUID" ]; then
+				DISABLE="disabled"
+				KEEPENABLED="USBDISK${NUM_USB_ATTACHED}"
 			fi
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
-			echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="'$UUID'" '$UUIDyes' '$DISABLE'>'
+			echo '                    <input class="small1" type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
+			echo '                    <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL2'">'
-			echo '                    <p>'$PART'</p>'
+			echo '                    <p>/mnt/ <input class="large6" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL3'">'
-			echo '                    <p>'$LBL'</p>'
+			echo '                    <p>'$PART'</p>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL4'">'
-			echo '                    <p>'$PTTYPE'</p>'
+			echo '                    <p>'$LBL'</p>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL5'">'
-			echo '                    <p>'$UUID'</p>'
+			echo '                    <p>'$PTTYPE'</p>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL6'">'
+			echo '                    <p>'$UUID'</p>'
+			echo '                  </td>'
+			echo '                  <td class="column'$COL7'">'
 			echo '                    <p>'$SIZExB'</p>'
 			echo '                  </td>'
 			echo '                </tr>'
 		fi
 	done
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="MOUNTUUID" value="no" '$NOUUIDyes'>'
-	echo '                </td>'
-	echo '                <td colspan="5">'
-	echo '                  <p>Disk Mount Disabled</p>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '                <script type="text/javascript">'
+	echo '                  function setrequired(id) {'
+	echo '                    var box = "USB";'
+	echo '                    var Box = box.concat(id);'
+	echo '                    var box1 = "USBPOINT";'
+	echo '                    var Box1 = box1.concat(id);'
+	echo '                    if (document.getElementById(Box).checked){'
+	echo '                      document.getElementById(Box1).setAttribute("required", "");'
+	echo '                    }'
+	echo '                    else {'
+	echo '                      document.getElementById(Box1).required = false;'
+	echo '                    }'
+	echo '                  }'
+	echo '                </script>'
+
 	fdisk -l | grep -q "Found valid GPT"
 	if [ $? -eq 0 ]; then
 		pcp_toggle_row_shade
@@ -1155,11 +1252,11 @@ pcp_mount_usbdrives() {
 		echo '                  </td>'
 		echo '              </tr>'
 	fi
-	if [ "$DISKFOUND" = "no" ]; then
+	if [ "$DISKFOUND" = "no" -a $NUM_USB_CONF_ENABLED -gt 0 ]; then
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column'$COL1' center">'
-		echo '                    <input class="small1" type="radio" name="MOUNTUUID" value="no" checked>'
+		echo '                    <input class="small1" type="checkbox" name="MOUNTUUID" value="no" checked>'
 		echo '                  </td>'
 		echo '                  <td colspan="5">'
 		echo '                    <p>Previously selected disk '$MOUNTUUID' not Found. Please Insert and Reboot system, or select a new Disk</p>'
@@ -1171,26 +1268,30 @@ pcp_mount_usbdrives() {
 	pcp_toggle_row_shade
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td class="column150 center">'
-	if [ "$LMSDATA" = "usbmount" ]; then
-		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set USB Mount</button>'
-		echo '                  </td>'
-		echo '                  <td  class="colspan5">'
-		echo '                    <p> LMS is currently using this disk for Data.&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="'$ID'" class="less">'
-		echo '                      <p>Must Move LMS Data to another disk (SDcard or Network Share).</p>'
-		echo '                      <p>in order to change this mount.</p>'
-		echo '                    </div>'
-	else
-		echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
-		echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
-		if [ "$NTFS" = "no" ]; then
-			echo '                  </td>'
+	echo '                    <input type="hidden" name="MOUNTTYPE" value="localdisk">'
+	echo '                    <input type="hidden" name="NUMDRIVES" value="'$NUM_USB_ATTACHED'">'
+	echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
+	echo '                  </td>'
+	case $LMSDATA in
+		usb*)
+			# Checkbox is disabled due to lms using for cache storage, Keep the specific box enabled
+			echo '                  <input type="hidden" name="'$KEEPENABLED'" value="enabled">'
 			echo '                  <td  class="colspan5">'
-			echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
-		fi
-	fi
+			echo '                    <p> LMS is currently using disk '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
+			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                    </p>'
+			echo '                    <div id="'$ID'" class="less">'
+			echo '                      <p>Must Move LMS Data to another disk (SDcard or Network Share).</p>'
+			echo '                      <p>in order to change this mount.</p>'
+			echo '                    </div>'
+		;;
+		*)
+			if [ "$EXTRAFSYS" = "no" ]; then
+				echo '                  <td  class="colspan5">'
+				echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
+			fi
+		;;
+	esac
 	echo '                  </td>'
 	echo '                </tr>'
 #----------------------------------------------------------------------------------------
@@ -1208,117 +1309,193 @@ pcp_mount_usbdrives() {
 # Network Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_netdrives() {
+	NUM_NET_CONF=0
+	if [ -f  ${NETMOUNTCONF} ]; then
+		while read LINE; do
+			case $LINE in
+				[*) NUM_NET_CONF=$((NUM_NET_CONF+1));;
+				*NETENABLE*) eval NETENABLE${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*MOUNTPOINT*) eval NETMOUNTPOINT${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*MOUNTIP*) eval NETMOUNTIP${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*MOUNTSHARE*) eval NETMOUNTSHARE${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*FSTYPE*) eval NETMOUNTFSTYPE${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*PASS*) eval NETMOUNTPASS${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*USER*) eval NETMOUNTUSER${NUM_NET_CONF}=$(pcp_trimval "${LINE}");;
+				*MOUNTOPTIONS*) eval NETMOUNTOPTIONS${NUM_NET_CONF}=$(echo "${LINE}" | awk -F= '{ st = index($0,"=");print substr($0,st+1)}');;
+				*);;
+			esac
+		done < $NETMOUNTCONF
+	fi
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
-	echo '        <fieldset>'
+	if [ "$EXTRAFSYS" = "no" ]; then
+		echo '        <fieldset disabled="disabled">'
+	else
+		echo '        <fieldset>'
+	fi
 	echo '          <legend>Setup Network Disk Mount</legend>'
 	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column100">'
-	echo '                  <p class="row">Mount Point</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <p>/mnt/ <input class="large12" type="text" name="NETMOUNT1POINT" value="'$NETMOUNT1POINT'" required pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
-	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>This is the mount point for the below network share.&nbsp;&nbsp;'
+	echo '                  <p>Mount Remote Network Share&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The network share will be mounted by to this path and will be automounted on startup.</p>'
-	echo '                    <p>Alpha-numeric pathnames required (up to 32 characters).</p>'
-	echo '                    <p>Do not use hardware device names like sda1 or mmcblk0.</p>'
+	echo '                    <p>If Checked, the network share will be mounted by to the mount point and will be automounted on startup.</p>'
+	echo '                    <p>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</p>'
+	echo '                    <p>&nbsp;&nbsp;&nbsp;Do not use hardware device names like sda1 or mmcblk0.</p>'
 	echo '                    <p>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</p>'
-	echo '                    <p>&#60;Server Share&#62 for CIFS is the share name only (DO not use /).</p>'
-	echo '                    <p>&#60;Server Share&#62 for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
-	echo '                    <p>&#60;Options&#62 are a comma delimited list of mount options. Ref mount man pages.</p>'
+	echo '                    <p>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</p>'
+	echo '                    <p>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
+	echo '                    <p>&#60;Username&#62; Username if needed for cifs mount.</p>'
+	echo '                    <p>&#60;Password&#62; Password if needed for cifs mount.</p>'
+	echo '                    <p>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
-
-	case "$NETMOUNT1" in
-		yes)
-			NETMOUNT1yes="checked"
-			NETMOUNT1no=""
-		;;
-		*)
-			NETMOUNT1yes=""
-			NETMOUNT1no="checked"
-		;;
-	esac
-
 	echo '            <table class="bggrey percent100">'
 	COL1="75"
 	COL2="150"
-	COL3="110"
+	COL3="120"
 	COL4="100"
 	COL5="100"
 	COL6="100"
-	COL7="150"
+	COL7="100"
+	COL8="150"
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
-	echo '                <td class="column'$COL2'"><p><b>Server IP Address</b></p></td>'
-	echo '                <td class="column'$COL3'"><p><b>Server Share</b></p></td>'
-	echo '                <td class="column'$COL4'"><p><b>Share Type</b></p></td>'
-	echo '                <td class="column'$COL5'"><p><b>Username<b></p></td>'
-	echo '                <td class="column'$COL6'"><p><b>Password</b></p></td>'
-	echo '                <td class="column'$COL7'"><p><b>Options</b></p></td>'
+	echo '                <td class="column'$COL2'"><p><b>Mount Point</b></p></td>'
+	echo '                <td class="column'$COL3'"><p><b>IP Address</b></p></td>'
+	echo '                <td class="column'$COL4'"><p><b>Share Name</b></p></td>'
+	echo '                <td class="column'$COL5'"><p><b>Share Type</b></p></td>'
+	echo '                <td class="column'$COL6'"><p><b>Username<b></p></td>'
+	echo '                <td class="column'$COL7'"><p><b>Password</b></p></td>'
+	echo '                <td class="column'$COL8'"><p><b>Options</b></p></td>'
 	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="yes" '$NETMOUNT1yes'>'
-	echo '                </td>'
-	echo '                <td class="column'$COL2'">'
-	echo '                  <input class="large10" type="text" name="NETMOUNT1IP" value="'$NETMOUNT1IP'" title="Enter the IP Address of the Remote Server" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
-	echo '                </td>'
-	echo '                <td class="column'$COL3'">'
-	echo '                  <input class="large8" type="text" name="NETMOUNT1SHARE" value="'$NETMOUNT1SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" pattern="^[a-zA-Z0-9_/]{1,32}$">'
-	echo '                </td>'
-	echo '                <td class="column'$COL4'">'
 
-	case "$NETMOUNT1FSTYPE" in
-		cifs) CIFS1yes="selected" ;;
-		nfs) NFS1yes="selected" ;;
-	esac
+	I=1
+	NUM_NET_CONF=$((NUM_NET_CONF+1))  # Adds a blank line to the form fields
+	while [ $I -le $NUM_NET_CONF ]; do
+		TST=$(eval echo \${NETENABLE${I}})
+		case "$TST" in
+			yes|no)
+				[ "$TST" = "yes" ] && NETENABLEyes="checked" || NETENABLEyes=""
+				REQUIRED="required"
+				PNT=$(eval echo \${NETMOUNTPOINT${I}})
+				IP=$(eval echo \${NETMOUNTIP${I}})
+				SHARE=$(eval echo \${NETMOUNTSHARE${I}})
+				FSTYPE=$(eval echo \${NETMOUNTFSTYPE${I}})
+				USER=$(eval echo \${NETMOUNTUSER${I}})
+				PASS=$(eval echo \${NETMOUNTPASS${I}})
+				OPTIONS=$(eval echo \${NETMOUNTOPTIONS${I}})
+			;;
+			*)
+				NETENABLEyes=""
+				REQUIRED=""
+				PNT=""
+				IP=""
+				SHARE=""
+				FSTYPE=""
+				USER=""
+				PASS=""
+				OPTIONS=""
+			;;
+		esac
+		if [ "${LMSDATA:4}" = "//${IP}/${SHARE}" ]; then
+			DISABLE="disabled"
+			KEEPENABLED="NETENABLE${I}"
+		else
+			DISABLE=""
+		fi
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column'$COL1' center">'
+		echo '                  <input class="small1" type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
+		echo '                </td>'
+		echo '                <td class="column'$COL2'">'
+		echo '                  <p>/mnt/<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
+		echo '                </td>'
+		echo '                <td class="column'$COL3'">'
+		echo '                  <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
+		echo '                </td>'
+		echo '                <td class="column'$COL4'">'
+		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" '$REQUIRED' pattern="^[a-zA-Z0-9_/]{1,32}$">'
+		echo '                </td>'
+		echo '                <td class="column'$COL5'">'
 
-	echo '                  <select class="large6" name="NETMOUNT1FSTYPE" title="Only cifs(samba) and nfs shares are supported">'
-	echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
-	echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td class="column'$COL5'">'
-	echo '                  <input class="large6" type="text" name="NETMOUNT1USER" value="'$NETMOUNT1USER'" title="Enter the Username for the remote share.&#13;Not used with NFS">'
-	echo '                </td>'
-	echo '                <td class="column'$COL6'">'
-	echo '                  <input class="large6" type="text" name="NETMOUNT1PASS" value="'$NETMOUNT1PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS">'
-	echo '                </td>'
-	echo '                <td class="column'$COL7'">'
-	echo '                  <input class="large15" type="text" name="NETMOUNT1OPTIONS" value="'$NETMOUNT1OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="NETMOUNT1" value="no" '$NETMOUNT1no'>'
-	echo '                </td>'
-	echo '                <td colspan="6">'
-	echo '                  <p>Net Mount Disabled</p>'
-	echo '                </td>'
-	echo '              </tr>'
+		case "$FSTYPE" in
+			cifs) CIFS1yes="selected"; USERdisable="";;
+			nfs) NFS1yes="selected"; USERdisable="Disabled" ;;
+		esac
+
+		echo '                  <select class="large6" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only cifs(samba) and nfs shares are supported" onchange="setfstype('${I}')">'
+		echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
+		echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
+		echo '                  </select>'
+		echo '                </td>'
+		echo '                <td class="column'$COL6'">'
+		echo '                  <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
+		echo '                </td>'
+		echo '                <td class="column'$COL7'">'
+		echo '                  <input class="large6" type="text" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
+		echo '                </td>'
+		echo '                <td class="column'$COL8'">'
+		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
+		echo '                </td>'
+		echo '              </tr>'
+		I=$((I+1))
+	done
+	echo '                <script type="text/javascript">'
+	echo '                  function setnetrequired(id) {'
+	echo '                    var box = "NET";'
+	echo '                    var Box = box.concat(id);'
+	echo '                    var box1 = "NETPOINT";'
+	echo '                    var Box1 = box1.concat(id);'
+	echo '                    var box2 = "NETIP";'
+	echo '                    var Box2 = box2.concat(id);'
+	echo '                    var box3 = "NETSHARE";'
+	echo '                    var Box3 = box3.concat(id);'
+	echo '                    if (document.getElementById(Box).checked){'
+	echo '                      document.getElementById(Box1).setAttribute("required", "");'
+	echo '                      document.getElementById(Box2).setAttribute("required", "");'
+	echo '                      document.getElementById(Box3).setAttribute("required", "");'
+	echo '                    }'
+	echo '                    else {'
+	echo '                      document.getElementById(Box1).required = false;'
+	echo '                      document.getElementById(Box2).required = false;'
+	echo '                      document.getElementById(Box3).required = false;'
+	echo '                    }'
+	echo '                  }'
+	echo '                  function setfstype(id) {'
+	echo '                    var box = "NETFS";'
+	echo '                    var Box = box.concat(id);'
+	echo '                    var box1 = "NETUSER";'
+	echo '                    var Box1 = box1.concat(id);'
+	echo '                    var box2 = "NETPASS";'
+	echo '                    var Box2 = box2.concat(id);'
+	echo '                    if (document.getElementById(Box).value == "nfs" ){'
+	echo '                      document.getElementById(Box1).setAttribute("disabled", "");'
+	echo '                      document.getElementById(Box2).setAttribute("disabled", "");'
+	echo '                    }'
+	echo '                    else {'
+	echo '                      document.getElementById(Box1).disabled = false;'
+	echo '                      document.getElementById(Box2).disabled = false;'
+	echo '                    }'
+	echo '                  }'
+	echo '                </script>'
 #--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	if [ "$NTFS" = "no" ]; then
+	if [ "$EXTRAFSYS" = "no" ]; then
 		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
 		echo '                  </td>'
 		echo '                  <td  class="colspan5">'
@@ -1328,11 +1505,14 @@ pcp_mount_netdrives() {
 		echo '                    <div id="'$ID'" class="less">'
 		echo '                      <p>Please add additional filesystems using the option above.</p>'
 		echo '                    </div>'
-	elif [ "$LMSDATA" = "netmount1" ]; then
-		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
+	elif [ "${LMSDATA:0:4}" = "net:" ]; then
+		echo '                    <input type="hidden" name="'$KEEPENABLED'" value="yes">'
+		echo '                    <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+		echo '                    <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
+		echo '                    <button type="submit" name="ACTION" value="Save">Set NET Mount</button>'
 		echo '                  </td>'
 		echo '                  <td  class="colspan5">'
-		echo '                    <p>LMS is currently using this disk for Data.&nbsp;&nbsp;'
+		echo '                    <p> LMS is currently using network drive '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
 		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                    </p>'
 		echo '                    <div id="'$ID'" class="less">'
@@ -1341,6 +1521,7 @@ pcp_mount_netdrives() {
 		echo '                    </div>'
 	else
 		echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+		echo '                  <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
 		echo '                  <button type="submit" name="ACTION" value="Save">Set NET Mount</button>'
 	fi
 	echo '                </td>'
@@ -1437,9 +1618,7 @@ pcp_samba() {
 #			This will read the config file.
 			GLOBAL=0
 			SC=0
-			trimval() {
-				echo $1 | cut -d '=' -f2 | xargs
-			}
+
 			trimshare() {
 				echo $1 | tr -d '[]'
 			}
@@ -1447,11 +1626,11 @@ pcp_samba() {
 			while read LINE; do
 				case $LINE in
 					*global*) GLOBAL=1;;
-					netbios*) NETBIOS=$(trimval "${LINE}");;
-					workgroup*) WGROUP=$(trimval "${LINE}");;
+					netbios*) NETBIOS=$(pcp_trimval "${LINE}");;
+					workgroup*) WGROUP=$(pcp_trimval "${LINE}");;
 					[*)	SC=$((SC+1)); eval SHARE${SC}=$(trimshare "${LINE}");;
-					path*) eval SHAREPATH${SC}=$(trimval "${LINE}");;
-					create\ mask*) eval SHAREMASK${SC}=$(trimval "${LINE}");;
+					path*) eval SHAREPATH${SC}=$(pcp_trimval "${LINE}");;
+					create\ mask*) eval SHAREMASK${SC}=$(pcp_trimval "${LINE}");;
 					writeable*) eval SHARERO${SC}="no";;
 					read\ only*) eval SHARERO${SC}="yes";;
 					*);;

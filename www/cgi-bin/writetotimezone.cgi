@@ -7,7 +7,7 @@
 #	Enhanced formatting. GE.
 
 # Version: 0.05 2015-09-18 SBP
-#	Added pcp_save_to_config, pcp_mount_mmcblk0p1 and pcp_umount_mmcblk0p1.
+#	Added pcp_save_to_config, pcp_mount_bootpart and pcp_umount_bootpart.
 #	Removed httpd decoding.
 
 # Version: 0.04 2015-06-25 SBP
@@ -37,9 +37,9 @@ pcp_httpd_query_string
 pcp_table_top "Changing timezone"
 echo '<p class="info">[ INFO ] Setting Timezone to '$TIMEZONE'</p>'
 pcp_save_to_config
-pcp_mount_mmcblk0p1
+pcp_mount_bootpart
 pcp_set_timezone
-pcp_umount_mmcblk0p1
+pcp_umount_bootpart
 
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Local time: '$(date)'</p>'
 

@@ -1,6 +1,9 @@
 #!/bin/sh
 # Script run early in do_rebootstuff to fix issues occurring after an insitu update.
 
+# Version: 3.21 2017-05-20
+#	Added Bootdevice for possible USB boot on RPI3
+
 # Version: 3.20 2017-03-25 PH
 #	Added SCREENROTATE fix for 3.20
 #	Removed changes for <3.00, since those would never see an insitu 3.20 upgrade
@@ -14,13 +17,13 @@
 
 . /home/tc/www/cgi-bin/pcp-functions
 . /usr/local/sbin/piversion.cfg
-if [ -e /mnt/mmcblk0p1/oldpiversion.cfg ]; then
-	. /mnt/mmcblk0p1/oldpiversion.cfg
+if [ -e $BOOTMNT/oldpiversion.cfg ]; then
+	. $BOOTMNT/oldpiversion.cfg
 	OLDVERS=$(echo "$OLDPIVERS" | cut -d ' ' -f2)
 	OLDMAJOR=$(echo "$OLDVERS" | cut -d '.' -f1)
 	tt=$(echo "$OLDVERS" | cut -d '.' -f2)
 	OLDMINOR=${tt:0:2}
-	rm -f /mnt/mmcblk0p1/oldpiversion.cfg
+	rm -f $BOOTMNT/oldpiversion.cfg
 else
 	#just to prevent errors, if older version is being upgraded.
 	OLDMAJOR=3
@@ -35,9 +38,9 @@ MINOR=${tt:0:2}
 #------------------------------------------------------------------------
 # Fixes needed for pCP3.20  All versions <= 3.11 need this fix
 if [ $OLDMAJOR -le 3 -a $OLDMINOR -le 11 ]; then 
-	. /mnt/mmcblk0p1/newconfig.cfg
+	. $BOOTMNT/newconfig.cfg
 	[ "$SCREENROTATE" = "no" ] && SCREENROTATE="180"
 	[ "$SCREENROTATE" = "yes" ] && SCREENROTATE="0"
-	sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" /mnt/mmcblk0p1/newconfig.cfg
+	sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $BOOTMNT/newconfig.cfg
 fi
 #fixes needed in order to update to pCPversion - add below

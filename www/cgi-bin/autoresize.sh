@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.21 2017-05-20
+#	Changed to allow booting from USB on RPI3. PH.
+
 # Version: 3.10 2017-01-06
 #	Added selectable partition size. SBP.
 
@@ -9,22 +12,37 @@
 SCRATCH="/home/tc"
 #DEBUG=TRUE
 
-[ $DEBUG ] && fdisk -l /dev/mmcblk0
+TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+BOOTDEV=${TCEDEV%%?}1
+
+case $BOOTDEV in
+	*/sd?*)
+		[ $DEBUG ] && fdisk -l ${BOOTDEV%%?}
+		DEVICE=${BOOTDEV%%?}
+	;;
+	*mmcblk*)
+		[ $DEBUG ] && fdisk -l ${BOOTDEV%%??}
+		DEVICE=${BOOTDEV%%??}
+	;;
+	*)
+		[ $DEBUG ] echo "ERROR in device"
+	;;
+esac
 
 #========================================================================================
 # fdisk routine
 #----------------------------------------------------------------------------------------
 pcp_fdisk() {
 	[ $DEBUG ] && clear
-	LAST_PARTITION_NUM=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | cut -c14)
-	PARTITION_START=$(fdisk -l /dev/mmcblk0 | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2)
+	LAST_PARTITION_NUM=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
+	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2)
 	P2_SIZE="+${PARTITION_SIZE}M"
 
 	echo 'Last partition:  '$LAST_PARTITION_NUM
 	echo 'Partition start: '$PARTITION_START
 	echo 'Partition size:  '$P2_SIZE
 
-	fdisk /dev/mmcblk0 <<EOF
+	fdisk $DEVICE <<EOF
 p
 d
 $LAST_PARTITION_NUM
@@ -44,7 +62,7 @@ EOF
 pcp_resize2fs() {
 	[ $DEBUG ] && clear
 	echo 'resize2fs can take a couple of minutes. Please wait...'
-	sudo resize2fs /dev/mmcblk0p2
+	sudo resize2fs $TCEDEV
 	[ $DEBUG ] && pcp_pause
 }
 

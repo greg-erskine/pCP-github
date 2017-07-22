@@ -33,7 +33,7 @@ pcp_save_to_config
 
 pcp_backup
 
-pcp_mount_mmcblk0p1
+pcp_mount_bootpart
 
 if mount | grep $VOLUME; then
 	echo '<p class="info">[ INFO ] '$VOLUME' is mounted.</p>'
@@ -72,7 +72,7 @@ esac
 
 [ $DEBUG -eq 1 ] && pcp_show_config_txt
 
-pcp_umount_mmcblk0p1
+pcp_umount_bootpart
 
 . $CONFIGCFG
 

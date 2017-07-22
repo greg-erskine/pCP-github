@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.21 2017-07-01
+#	Changed to allow booting from USB on RPI3. PH.
+#	Make sure we are using busybox fdisk and strip bootable flag from output. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -22,7 +26,6 @@
 #   Original version.
 
 . pcp-functions
-#. $CONFIGCFG
 
 pcp_html_head "xtras_resize" "GE" "30" "main.cgi"
 
@@ -38,12 +41,21 @@ pcp_convert_to_mbytes() {
 	echo ${1:0:$LEN}
 }
 
+FDISK="/bin/busybox fdisk"
+
 #========================================================================================
 # Logic determining actual size, maximum possible size
 #----------------------------------------------------------------------------------------
-P1_ACTUAL_SIZE_BYTES=$(fdisk -l /dev/mmcblk0p1 | grep dev/mmcblk0p1: | awk '{ print $5 }')
-P2_ACTUAL_SIZE_BYTES=$(fdisk -l /dev/mmcblk0p2 | grep dev/mmcblk0p2: | awk '{ print $5 }')
-SD_MAX_SIZE_BYTES=$(fdisk -l /dev/mmcblk0 | grep /dev/mmcblk0: | awk '{ print $5 }')
+P1_ACTUAL_SIZE_BYTES=$($FDISK -l $BOOTDEV | grep ${BOOTDEV}: | sed 's/*//' | awk '{ print $5 }')
+P2_ACTUAL_SIZE_BYTES=$($FDISK -l $TCEDEV | grep ${TCEDEV}: | sed 's/*//' | awk '{ print $5 }')
+case $BOOTDEV in
+	*sd?*)
+		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%?} | grep ${BOOTDEV%%?}: | sed 's/*//' | awk '{ print $5 }')
+	;;
+	*mmcblk*)
+		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%??} | grep ${BOOTDEV%%??}: | sed 's/*//' | awk '{ print $5 }')
+	;;
+esac
 
 P1_ACTUAL_SIZE=$(pcp_convert_to_mbytes $P1_ACTUAL_SIZE_BYTES)
 P2_ACTUAL_SIZE=$(pcp_convert_to_mbytes $P2_ACTUAL_SIZE_BYTES)
@@ -98,7 +110,7 @@ if [ "$SUBMIT" = "Resize" ]; then
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td>'
 	echo '                <textarea class="inform" style="height:110px">'
-	                        echo '[ INFO ] New mmcblk0p2 partition size will be: '$NEW_SIZE' MB'
+	                        echo '[ INFO ] New '$TCEDEV' partition size will be: '$NEW_SIZE' MB'
 	                        echo '[ INFO ] Resizing the partition is occuring, please wait...'
 	                        echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 	                        touch /home/tc/fdisk_required
@@ -183,7 +195,7 @@ else
 		echo '            <table class="bggrey percent100">'
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		                        pcp_textarea_inform "none" "df -h /dev/mmc*" 50
+		                        pcp_textarea_inform "none" "df -h ${TCEMNT}" 50
 		echo '                </td>'
 		echo '              </tr>'
 		pcp_toggle_row_shade

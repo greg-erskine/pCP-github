@@ -29,7 +29,9 @@ echo "Compiling..."
 
 echo "Creating $TCZ..."
 mkdir -p $OUTPUT/usr/local/sbin >> $LOG
+mkdir -p $OUTPUT/usr/local/bin >> $LOG
 cp -p $SRC/shairport-sync $OUTPUT/usr/local/sbin/shairport-sync >> $LOG
+cp -p $SRC/shairport-sync-metadata-reader/shairport-sync-metadata-reader $OUTPUT/usr/local/bin/ >> $LOG
 
 mkdir -p $OUTPUT/usr/local/etc/init.d >> $LOG
 cp -p $SRC/../shairport-sync-init.d $OUTPUT/usr/local/etc/init.d/shairport-sync >> $LOG

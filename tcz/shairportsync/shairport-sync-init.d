@@ -44,6 +44,7 @@ case "$1" in
 		echo "Starting $DESC: $PNAME..."
 		start-stop-daemon --start --quiet --exec $DAEMON \
 						  -- -a $NAME -o alsa -S soxr -d -D -R \
+						  --metadata-pipename=/tmp/shairport-sync-metadata --get-coverart \
 						  -- -d $OUTPUT $SH_CONTROL
 	;;
 	stop)
