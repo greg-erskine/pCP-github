@@ -110,15 +110,23 @@ case "$1" in
 		$0 start
 		;;
 	status)
-		# Now checking for squeezelite daemon is running?
-		PID=$(ps -ef | grep $DAEMON | grep -v grep | awk '{ print $1 }')
-		if [ 0$PID -gt 0 ]; then
-				echo "$PNAME is running. PID=$PID"
-				exit 0
-		else
-				echo "$PNAME not running."
-				exit 1
+		# Check if our squeezelite daemon is running.
+		if [ -f $PIDFILE ]; then
+			PID=`cat $PIDFILE`
+
+			PIDS=`pgrep $DAEMON | awk '{printf "%s ", $1}'`
+
+			for GOTPID in $PIDS; do
+				if [ x"$GOTPID" = x"$PID" ]; then
+					echo "$PNAME is running. PID=$PID"
+					exit 0
+				fi
+			done
 		fi
+
+		echo "$PNAME not running."
+		exit 1
+
 		;;
 	*)
 		echo
