@@ -2,6 +2,7 @@
 
 # Version: 3.22 2017-07-23
 #	Added pcp_create_rotdash. GE.
+#	Fixed spaces in SSID. PH.
 
 # Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
@@ -231,7 +232,7 @@ if [ "$WIFI" = "on" ]; then
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  RPi3B Broadcom firmware loaded.${NORMAL}" || echo "${RED}  RPi3B Broadcom firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  RPi Broadcom firmware loaded.${NORMAL}" || echo "${RED}  RPi Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"
