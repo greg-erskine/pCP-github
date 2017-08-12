@@ -248,23 +248,17 @@ if [ "$WIFI" = "on" ]; then
 	if [ x"" = x"$SSID" ]; then
 		break
 	else
+		# Escape any spaces in the SSID
 		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
 		# Change SSSID back to SSID
 		SSID=$SSSID
 		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /tmp/wifi.db
-	fi
-	if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
-		echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
-	else
-		BACKUP=1
-		# Only add backslash if not empty
-		echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
-		if [ x"" = x"$SSID" ]; then
-			break
+		if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
+			echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
 		else
-			SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-			# Change SSSID back to SSID
-			SSID=$SSSID
+			BACKUP=1
+			# Only add backslash if not empty
+			echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
 			sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
 		fi
 	fi
