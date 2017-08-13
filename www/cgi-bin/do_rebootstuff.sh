@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.22 2017-07-23
+# Version: 3.22 2017-08-13
 #	Added pcp_create_rotdash. GE.
 #	Fixed spaces in SSID. PH.
+#	Changed Netmounts to support shares with spaces. PH.
 
 # Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
@@ -495,16 +496,16 @@ if [ -f  ${NETMOUNTCONF} ]; then
 					[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
 					[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
 					OPTS="${OPTS}${OPTIONS}"
-					MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
+					MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 				;;
 				nfs)
 					OPTS="addr=${IP},nolock,${OPTIONS}"
-					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
+					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 				;;
 			esac
 			RETRIES=3  #Retry network mounts, incase of power failure, and all devices restarting.
 			while [ $RETRIES -gt 0 ]; do
-				mount $MNTCMD
+				/bin/sh -c "mount ${MNTCMD}"
 				if [ $? -eq 0 ]; then
 					RETRIES=0
 					echo "${BLUE}Disk Mounted at /mnt/${PNT}."

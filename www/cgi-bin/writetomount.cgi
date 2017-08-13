@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.22 2017-08-13
+#	Changed Netmounts to support shares with spaces. PH.
+
 # Version: 3.21 2017-06-18
 #	Changed vfat mounts.  PH.
 #	Fixed util-linux button download function. PH.
@@ -226,6 +229,8 @@ case "$MOUNTTYPE" in
 	networkshare)
 		NETMNTCHANGED=0
 		NN=0
+		# Process the $QUERY_STRING Not decoding NETMOUNTSHAREs
+		eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { if ($i ~ /^NETMOUNTSHARE/) printf "%s\"\n",$i} }' | sed 's/=/="/')
 		if [ -f  ${NETMOUNTCONF} ]; then
 			while read LINE; do
 				case $LINE in
@@ -304,15 +309,15 @@ case "$MOUNTTYPE" in
 							[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
 							[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
 							OPTS="${OPTS}${OPTIONS}"
-							MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
+							MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 						;;
 						nfs)
 							OPTS="addr=${IP},nolock,${OPTIONS}"
-							MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
+							MNTCMD="-v -t $FSTYPE -o $OPTS $IP:\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 						;;
 					esac
 					echo '<p class="info">[INFO] mount '$MNTCMD'</p>'
-					mount $MNTCMD
+					/bin/sh -c "mount ${MNTCMD}"
 					if [ $? -eq 0 ]; then
 						echo '<p class="info">[ INFO ] Disk Mounted Successfully.</p>'
 					else

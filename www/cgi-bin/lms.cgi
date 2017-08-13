@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.22 2017-08-13
+#	Changed Netmounts to support shares with spaces. PH.
+
 # Version: 3.21 2017-06-18
 #	Changed to allow booting from USB on RPI3. PH.
 #	Support multiple USB mounts. PH.
@@ -1426,11 +1429,11 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 		echo '                </td>'
 		echo '                <td class="column'$COL4'">'
-		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" '$REQUIRED' pattern="^[a-zA-Z0-9_/]{1,32}$">'
+		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" '$REQUIRED' pattern="^[a-zA-Z0-9_\-\ ]{1,32}$">'
 		echo '                </td>'
 		echo '                <td class="column'$COL5'">'
 
-		case "$FSTYPE" in
+	case "$FSTYPE" in
 			cifs) CIFS1yes="selected"; USERdisable="";;
 			nfs) NFS1yes="selected"; USERdisable="Disabled" ;;
 		esac
@@ -1450,6 +1453,11 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
 		echo '                </td>'
 		echo '              </tr>'
+		echo '              <script type="text/javascript">'
+		echo '                var share = "'${SHARE}'";'
+		echo '                ShareBox = "NETSHARE'${I}'";'
+		echo '                document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
+		echo '              </script>'
 		I=$((I+1))
 	done
 	echo '                <script type="text/javascript">'
