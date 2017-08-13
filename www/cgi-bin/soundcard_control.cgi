@@ -289,15 +289,13 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '                <p>Set the Subwoofer Crossover Frequency when in 2.1 or 2.2 mode.</p>'
 			echo '              </td>'
 			echo '            </tr>'
-			SUBVOLTEXT="Sub Output Level"
-			VOLTEXT="L/R "
 		;;
-		Dual-Mono)SUBVOLTEXT="Right Output Level"; VOLTEXT="LEFT ";;
-		Dual-Stereo)SUBVOLTEXT="Sub L/R Output Level"; VOLTEXT="L/R ";
 	esac
 	case $SUBMODE in
-		2.0);;
+		2.0|Dual-Mono|Dual-Stereo) VOLTEXT="Master ";;
 		*)
+			SUBVOLTEXT="Sub Output Level"
+			VOLTEXT="Primary "
 			ACTUAL_SUB_VOL=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 			ACTUAL_SUB_DB=$(amixer -c $CARD sget "Subwoofer" | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
 			echo '            <tr class="'$ROWSHADE'">'
