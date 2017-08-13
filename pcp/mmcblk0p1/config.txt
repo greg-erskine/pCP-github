@@ -4,20 +4,20 @@
 
 [PI0]
 initramfs pcp_8.01.gz followkernel
-kernel kernel4935.img
+kernel kernel4941.img
 
 [PI1]
 initramfs pcp_8.01.gz followkernel
-kernel kernel4935.img
+kernel kernel4941.img
 
 [PI2]
 initramfs pcp_8.01v7.gz followkernel
-kernel kernel4935v7.img
+kernel kernel4941v7.img
 total_mem=1024
 
 [PI3]
 initramfs pcp_8.01v7.gz followkernel
-kernel kernel4935v7.img
+kernel kernel4941v7.img
 total_mem=1024
 
 [ALL]
