@@ -890,9 +890,8 @@ pcp_slimserver_persistence() {
 		fi
 	done
 
-	for I in $(mount | grep -E 'cifs|nfs' | cut -d ' ' -f1); do
-		NETMOUNT=$(mount | grep -w $I | cut -d ' ' -f3)
-		NETmnt="net:${I}"
+	for NETMOUNT in $(mount | grep -E 'cifs|nfs' | awk -F' on ' '{print $2}' | cut -d ' ' -f1); do
+		NETmnt="net:${NETMOUNT}"
 		if [ "$LMSDATA" = "$NETmnt" ]; then
 			NETyes="checked"
 			LMSMNTFOUND=1

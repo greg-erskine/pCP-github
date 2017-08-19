@@ -47,7 +47,8 @@ REBOOT_REQUIRED="0"
 #--------------------------------------------------------------------------------------------------------
 
 pcp_move_LMS_cache() {
-	sudo cp -avr $1 $2 >/dev/null 2>&1
+	DEST=$(echo "$2" | sed 's/slimserver//')
+	sudo cp -avr $1 $DEST >/dev/null 2>&1
 	[ "$?" = "0" ] && sudo rm -rf $1 || echo '<p class="error">[ ERROR ] File Copy Error.</p>'
 
 	#Remove old Symlinks to the data location.  Will be recreated when LMS is started.
@@ -363,9 +364,7 @@ case "$MOUNTTYPE" in
 					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
 					ORIG_MNT="$TMP/slimserver"
 				;;
-				net:*) TMP=$(mount | grep -w ${ORIG_LMSDATA:4} | cut -d ' ' -f3)
-					ORIG_MNT="${TMP}/slimserver"
-				;;
+				net:*) ORIG_MNT="${ORIG_LMSDATA:4}/slimserver";;
 				default) ORIG_MNT="$TCEMNT/tce/slimserver";;
 			esac
 			BADFORMAT="no"
@@ -379,8 +378,8 @@ case "$MOUNTTYPE" in
 						*) BADFORMAT="no";;
 					esac
 				;;
-				net:*) TMP=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f3)
-					MNT="${TMP}/slimserver"
+				net:*) 
+					MNT="${LMSDATA:4}/slimserver"
 					FSTYPE=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f5)
 					case "$FSTYPE" in
 						cifs)echo '<p class="warn">[ WARN ] CIFS partitions may not work with LMS Cache.</p>';;
