@@ -143,7 +143,7 @@ cd $OUTPUT/../
 ./split-jivelite-tcz.sh
 
 echo -e "Title:\t\tpcp-$JIVELITE.tcz" > $TCZINFO
-echo -e "Description:\tLightweight headless squeezebox player." >> $TCZINFO
+echo -e "Description:\tCommunity squeezebox controller." >> $TCZINFO
 echo -e "Version:\t$JIVELITEVERSION" >> $TCZINFO
 echo -e "Commit:\t\t$(cd $SRC; git show | grep commit | awk '{print $2}')" >> $TCZINFO
 echo -e "Authors:\tAdrian Smith, Ralph Irving, Michael Herger" >> $TCZINFO
