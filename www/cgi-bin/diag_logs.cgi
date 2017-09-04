@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.22 2017-08-25
+#  sed magic to clear control codes from log files. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -31,7 +34,7 @@ pcp_httpd_query_string
 # Note:
 #  LMS log filenames do not follow this standard and are located in /var/log/slimserver.
 #----------------------------------------------------------------------------------------
-PCPLOGS=$(ls "$LOGDIR" | grep pcp_ | grep log$)
+PCPLOGS=$(ls "$LOGDIR" | grep pcp_ | grep log)
 [ x"" != x"$PCPLOGS" ] && LOGS=$PCPLOGS
 
 LMSLOGS=$(cd "${LOGDIR}"; ls slimserver/*.log)
@@ -107,22 +110,14 @@ pcp_log_show() {
 		do
 			echo '            <tr>'
 			echo '              <td>'
-			                      if [ "$LOG" = "pcp_boot.log" ]; then
-			                          pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG | sed "s/\[[01]\;3[0-9]m//g"' 250
-			                      else
-			                          pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG' 250
-			                      fi
+			                          pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG | sed "s///g" | sed "s/\x0d//g" | sed -r "s/\[([0-9]{1,2}(;[0-9]{1,2}?)?)?[m|K]//g"' 250
 			echo '              </td>'
 			echo '            </tr>'
 		done
 	else
 		echo '            <tr>'
 		echo '              <td>'
-		                      if [ "$SELECTION" = "pcp_boot.log" ]; then
-		                          pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION | sed "s/\[[01]\;3[0-9]m//g"' 250
-		                      else
-		                          pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION' 250
-		                      fi
+		                          pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION | sed "s///g" | sed "s/\x0d//g" | sed -r "s/\[([0-9]{1,2}(;[0-9]{1,2}?)?)?[m|K]//g"' 250
 		echo '              </td>'
 		echo '            </tr>'
 	fi
