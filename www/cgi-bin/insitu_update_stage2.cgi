@@ -237,7 +237,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.22*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.9.41
+			NEWKERNELVER=4.9.46
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
