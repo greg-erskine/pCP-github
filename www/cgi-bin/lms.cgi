@@ -1813,22 +1813,24 @@ pcp_samba() {
 		SC=$((SC+1))
 		while [ $I -le $SC ]
 		do
+			TST=$(eval echo "\${SHARE${I}}")
+			[ "$TST" != "" ] && REQ="required" || REQ=""
 			pcp_toggle_row_shade
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
 			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
 			eval echo -n "\${SHARE${I}}"
-			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$">'
+			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$" onchange="setsmbrequired('$I')">'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL2'">'
 			echo -n '                    <input class="large12" type="text" ID="SHAREPATH'$I'" name="SHAREPATH'$I'" value="'
 			eval echo -n "\${SHAREPATH${I}}"
-			echo '" title="Enter the Path to be Shared" pattern="^[a-zA-Z0-9_/]{1,32}$">'
+			echo '" title="Enter the Path to be Shared" '$REQ' pattern="^[a-zA-Z0-9_/]{1,64}$">'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL3'">'
 			echo -n '                    <input class="large8" type="text" ID="SHAREMASK'$I'" name="SHAREMASK'$I'" value="'
 			eval echo -n "\${SHAREMASK${I}}"
-			echo '" title="Enter the File mode for new files Default=0664" pattern="^[0-7]{4}$">'
+			echo '" title="Enter the File mode for new files Default=0664" '$REQ' pattern="^[0-7]{4}$">'
 			echo '                  </td>'
 			RO=$(eval echo "\${SHARERO${I}}")
 			case "$RO" in
@@ -1855,6 +1857,22 @@ pcp_samba() {
 		echo '                    var box = "SHAREMASK";'
 		echo '                    var Box = box.concat(i);'
 		echo '                    document.getElementById(Box).value = "";'
+		echo '                  }'
+		echo '                  function setsmbrequired(id) {'
+		echo '                    var box = "SHARE";'
+		echo '                    var Box = box.concat(id);'
+		echo '                    var box1 = "SHAREPATH";'
+		echo '                    var Box1 = box1.concat(id);'
+		echo '                    var box2 = "SHAREMASK";'
+		echo '                    var Box2 = box2.concat(id);'
+		echo '                    if (document.getElementById(Box).value != ""){'
+		echo '                      document.getElementById(Box1).setAttribute("required", "");'
+		echo '                      document.getElementById(Box2).setAttribute("required", "");'
+		echo '                    }'
+		echo '                    else {'
+		echo '                      document.getElementById(Box1).required = false;'
+		echo '                      document.getElementById(Box2).required = false;'
+		echo '                    }'
 		echo '                  }'
 		echo '                </script>'
 
