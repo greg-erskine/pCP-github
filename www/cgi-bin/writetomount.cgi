@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 3.22 2017-08-13
+# Version: 3.22 2017-09-10
 #	Changed Netmounts to support shares with spaces. PH.
+#	Added checkbox to clear unused netmount conf entries. PH.
+#	Added exFat support. PH.
 
 # Version: 3.21 2017-06-18
 #	Changed vfat mounts.  PH.
@@ -190,14 +192,26 @@ case "$MOUNTTYPE" in
 									umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
 									OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
 								;;
+								exfat)
+									CHARSET=",iocharset=utf8"
+									umount $DEVICE  # need to unmount incase 1st mount is not utf8
+									OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gi=50${CHARSET}"
+								;;
 								*)
 									OPTIONS="-v"
 								;;
 							esac
 							echo '<p class="info">[ INFO ] Mounting Disk.</p>'
-							[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
-							echo '<p class="info">[ INFO ] '
-							mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT
+							case "$FSTYPE" in
+								exfat) [ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount.exfat '$OPTIONS' '$DEVICE' /mnt/'$NEWPNT'</p>' 
+									echo '<p class="info">[ INFO ] '
+									mount.exfat $OPTIONS $DEVICE /mnt/$NEWPNT
+								;;
+								*) [ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
+									echo '<p class="info">[ INFO ] '
+									mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT
+								;;
+							esac
 							if [ $? -eq 0 ]; then
 								echo '</p><p class="info">[ INFO ] Disk Mounted Successfully.</p>'
 							else
@@ -330,24 +344,30 @@ case "$MOUNTTYPE" in
 			I=$((I+1))
 		done
 
-		if [ $NETMNTCHANGED -eq 1 ]; then
+		if [ $NETMNTCHANGED -eq 1 -o "$CLEARUNUSED" = "yes" ]; then
 			rm -f $NETMOUNTCONF
 			I=1
+			J=1
 			while [ $I -le $NUMNET ]; do
 				if [ "$(eval echo \${NETMOUNTPOINT${I}})" != "" ]; then
-					echo "[$I]" >> $NETMOUNTCONF
 					ENABLE=$(eval echo \${NETENABLE${I}})
-					[ "$ENABLE" = "" ] && ENABLE="no"
-					echo "NETENABLE=$ENABLE" >> $NETMOUNTCONF
-					eval echo "NETMOUNTPOINT=\${NETMOUNTPOINT${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTIP=\${NETMOUNTIP${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTSHARE=\${NETMOUNTSHARE${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTFSTYPE=\${NETMOUNTFSTYPE${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTUSER=\${NETMOUNTUSER${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTPASS=\${NETMOUNTPASS${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTOPTIONS=\${NETMOUNTOPTIONS${I}}" >> $NETMOUNTCONF
+					if [ "$ENABLE" = "" -a "$CLEARUNUSED" = "yes" ]; then
+						J=$((J-1)) #Decrement the Counter written to the conf file
+					else
+						[ "$ENABLE" = "" ] && ENABLE="no"
+						echo "[$J]" >> $NETMOUNTCONF
+						echo "NETENABLE=$ENABLE" >> $NETMOUNTCONF
+						eval echo "NETMOUNTPOINT=\${NETMOUNTPOINT${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTIP=\${NETMOUNTIP${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTSHARE=\${NETMOUNTSHARE${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTFSTYPE=\${NETMOUNTFSTYPE${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTUSER=\${NETMOUNTUSER${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTPASS=\${NETMOUNTPASS${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTOPTIONS=\${NETMOUNTOPTIONS${I}}" >> $NETMOUNTCONF
+					fi
 				fi
 				I=$((I+1))
+				J=$((J+1))
 			done
 			pcp_backup
 		fi

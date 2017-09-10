@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 3.22 2017-08-13
+# Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
+#	Added checkbox to clear unused netmount conf entries. PH.
+#	Added Exfat Support. PH.
 
 # Version: 3.21 2017-06-18
 #	Changed to allow booting from USB on RPI3. PH.
@@ -130,12 +132,12 @@ pcp_install_fs() {
 		echo '[ INFO ] Loading filesystem extensions'
 		sudo -u tc tce-load -i ntfs-3g.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-	fi
-	if [ $RESULT -eq 0 ]; then
-		echo "ntfs-3g.tcz" >> $ONBOOTLST
-		echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
-	else
-		echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+		if [ $RESULT -eq 0 ]; then
+			echo "ntfs-3g.tcz" >> $ONBOOTLST
+			echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
+		else
+			echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+		fi
 	fi
 }
 
@@ -144,6 +146,31 @@ pcp_remove_fs() {
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete ntfs-3g.tcz
 	sed -i '/ntfs-3g.tcz/d' $ONBOOTLST
+	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
+}
+
+pcp_install_exfat() {
+	RESULT=0
+	echo '[ INFO ] Downloaded exFat filesystem support.</p>'
+	sudo -u tc pcp-load -r $PCP_REPO -w pcp-exfat-utils.tcz
+	if [ -f $TCEMNT/tce/optional/pcp-exfat-utils.tcz ]; then
+		echo '[ INFO ] Loading exfat extensions'
+		sudo -u tc tce-load -i pcp-exfat-utils.tcz
+		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
+		if [ $RESULT -eq 0 ]; then
+			echo "pcp-exfat-utils.tcz" >> $ONBOOTLST
+			echo '[ INFO ] exFat filesystem support loaded...</p>'
+		else
+			echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+		fi
+	fi
+}
+
+pcp_remove_exfat() {
+	echo '[ INFO ] Removing Extensions</p>'
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete pcp-exfat-utils.tcz
+	sed -i '/pcp-exfat-utils.tcz/d' $ONBOOTLST
 	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
 }
 
@@ -364,6 +391,24 @@ case "$ACTION" in
 		pcp_table_top "Removing extra file system support"
 		echo '                <textarea class="inform" style="height:80px">'
 		pcp_remove_fs
+		echo '                </textarea>'
+		pcp_table_end
+		REBOOT_REQUIRED=1
+	;;
+	Install_EXFAT)
+		pcp_table_top "Installing exFat file system support"
+		pcp_sufficient_free_space 170
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:80px">'
+			pcp_install_exfat
+			echo '                </textarea>'
+			pcp_table_end
+		fi
+	;;
+	Remove_EXFAT)
+		pcp_table_top "Removing exFat file system support"
+		echo '                <textarea class="inform" style="height:80px">'
+		pcp_remove_exfat
 		echo '                </textarea>'
 		pcp_table_end
 		REBOOT_REQUIRED=1
@@ -1005,9 +1050,11 @@ pcp_extra_filesys() {
 	pcp_incr_id
 	pcp_start_row_shade
 	DISABLE_REMOVEFS="0"
+	DISABLE_REMOVEEXFAT="0"
 	for I in `mount | awk '{print $5}'`; do
 		case "$I" in
-			*fat*|*squash*|proc|tmpfs|sysfs|devpts|ext*) ;;
+			fat*|vfat|*squash*|proc|tmpfs|sysfs|devpts|ext*) ;;
+			exfat|fuseblk) DISABLE_REMOVEEXFAT="1";;
 			*) DISABLE_REMOVEFS="1" ;;
 		esac
 	done
@@ -1047,6 +1094,52 @@ pcp_extra_filesys() {
 		echo '                    <p>Unable to remove additional Filesystem Support from pCP.</p>'
 		echo '                    <p>as there are currently active drives mounted using this support.</p>'
 		echo '                  </div>'
+	fi
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	if [ "$EXTRAFSYS" = "yes" ]; then
+		pcp_incr_id
+		pcp_toggle_row_shade
+		[ -x /usr/local/sbin/mount.exfat ] && EXFATFS="yes" || EXFATFS="no"
+		if [ "$EXFATFS" = "no" ]; then
+			echo '                    <button type="submit" name="ACTION" value="Install_EXFAT">Install exFat</button>'
+			echo '                  </td>'
+			echo '                  <td>'
+			echo '                    <p>Install exFat filesystem for pCP&nbsp;&nbsp;'
+			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                    </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>This will install Filesystem support for pCP.</p>'
+			echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
+			echo '                    <p>This is only for exFat Support.</p>'
+			echo '                  </div>'
+		elif [ "$DISABLE_REMOVEEXFAT" = "0" ]; then
+			echo '                  <button type="submit" name="ACTION" value="Remove_EXFAT">Remove exFat</button>'
+			echo '                </td>'
+			echo '                <td>'
+			echo '                  <p>Remove additional Filesystems from pCP&nbsp;&nbsp;'
+			echo '                     <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>This will remove exFat Support from pCP.</p>'
+			echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
+			echo '                  </div>'
+		else
+			echo '                  <button type="submit" name="ACTION" value="Remove_EXFAT" Disabled>Remove exFat</button>'
+			echo '                </td>'
+			echo '                <td>'
+			echo '                  <p>exFat Filesystems are in Use&nbsp;&nbsp;'
+			echo '                     <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>Unable to remove exFat Filesystem Support from pCP.</p>'
+			echo '                    <p>as there are currently active drives mounted using this support.</p>'
+			echo '                  </div>'
+		fi
 	fi
 	echo '                </td>'
 	echo '              </tr>'
@@ -1184,7 +1277,15 @@ pcp_mount_usbdrives() {
 			done
 			pcp_toggle_row_shade
 			case "$PTTYPE" in
-				*fat*|ext*) DISABLE="";;
+				fat*|vfat|ext*) DISABLE="";;
+				exfat)
+					if [ ! -x /usr/local/sbin/mount.exfat ]; then
+						DISABLE="Disabled"
+						UUID="Please install exfat-utils.tcz"
+					else
+						DISABLE=""
+					fi
+				;;
 				*)	if [ "$EXTRAFSYS" = "no" ]; then
 						DISABLE="Disabled"
 						UUID="Please install extra Filesystems"
@@ -1497,7 +1598,16 @@ pcp_mount_netdrives() {
 	echo '                    }'
 	echo '                  }'
 	echo '                </script>'
-#--------------------------------------Submit button-------------------------------------
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="checkbox" name="CLEARUNUSED" value="yes">'
+	echo '                </td>'
+	echo '                <td class="colspan7">'
+	echo '                  <p> Check this box to clear configuration data for unused shares.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'

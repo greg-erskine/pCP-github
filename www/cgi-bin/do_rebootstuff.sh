@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.22 2017-08-13
+# Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
 #	Fixed spaces in SSID. PH.
 #	Changed Netmounts to support shares with spaces. PH.
+#	Added exFat Support. PH.
 
 # Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
@@ -438,12 +439,20 @@ if [ -f  ${USBMOUNTCONF} ]; then
 						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
 						OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
 					;;
+					exfat)
+						CHARSET=",iocharset=utf8"
+						umount $DEVICE  # need to unmount incase 1st mount is not utf8
+						OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gi=50${CHARSET}"
+					;;
 					*)
 						OPTIONS="-v"
 					;;
 				esac
 				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
-				mount $OPTIONS --uuid $UUID /mnt/$POINT
+				case "$FSTYPE" in
+					exfat) mount.exfat $OPTIONS $DEVICE /mnt/$POINT;;
+					*) mount $OPTIONS --uuid $UUID /mnt/$POINT;;
+				esac
 				if [ $? -eq 0 ]; then
 					echo "${BLUE}Disk Mounted at /mnt/$POINT.${NORMAL}"
 				else
