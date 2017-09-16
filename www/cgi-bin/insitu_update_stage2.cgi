@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.22 2017-08-13
-#	New Version
+# Version 3.22 2017-09-16
+#	Updates for Kernel 4.9.50
 
 # Version 3.21 2017-07-03
 #	Allow for custom configuration in config.txt. PH
@@ -237,7 +237,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.22*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.9.46
+			NEWKERNELVER=4.9.50
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
