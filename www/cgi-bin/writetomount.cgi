@@ -195,7 +195,7 @@ case "$MOUNTTYPE" in
 								exfat)
 									CHARSET=",iocharset=utf8"
 									umount $DEVICE  # need to unmount incase 1st mount is not utf8
-									OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gi=50${CHARSET}"
+									OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
 								;;
 								*)
 									OPTIONS="-v"
