@@ -902,7 +902,7 @@ pcp_slimserver_persistence() {
 		*);; #USB and NET checked will be set later.
 	esac
 	LMSMNTFOUND=0
-	for I in $(mount | grep -E '/dev/sd[a-z]' | cut -d ' ' -f1); do
+	for I in $(mount | grep -E '/dev/(sd[a-z]|mmcblk0p[3-9])' | cut -d ' ' -f1); do
 		if [ "$I" != "${BOOTDEV}" -a "$I" != "${TCEDEV}" ]; then
 			USBMOUNT=$(mount | grep -w $I | cut -d ' ' -f3)
 			USBUUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
@@ -919,7 +919,10 @@ pcp_slimserver_persistence() {
 			echo '                  <input class="small1" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
 			echo '                </td>'
 			echo '                <td class="column'$COL2'">'
-			echo '                  <p>USB Disk</p>'
+			case $I in
+				/dev/sd*) echo '                  <p>USB Disk</p>';;
+				/dev/mmcblk0p*) echo '                  <p>microSD Card</p>';;
+			esac
 			echo '                </td>'
 			echo '                <td class="column'$COL3'">'
 			echo '                  <p>'${USBMOUNT}'/slimserver</p>'
@@ -1208,7 +1211,7 @@ pcp_mount_usbdrives() {
 	echo '            <table class="bggrey percent100">'
 	COL1="75"
 	COL2="150"
-	COL3="100"
+	COL3="120"
 	COL4="100"
 	COL5="75"
 	COL6="300"
