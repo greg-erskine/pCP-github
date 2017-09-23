@@ -380,7 +380,7 @@ case "$MOUNTTYPE" in
 			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
 		else
 			case "$ORIG_LMSDATA" in
-				usb:*) DEV=$(blkid | grep ${ORIG_LMSDATA:5} | cut -d ':' -f1)
+				usb:*) DEV=$(blkid | grep ${ORIG_LMSDATA:4} | cut -d ':' -f1)
 					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
 					ORIG_MNT="$TMP/slimserver"
 				;;
@@ -392,7 +392,7 @@ case "$MOUNTTYPE" in
 				usb:*) DEV=$(blkid | grep ${LMSDATA:4} | cut -d ':' -f1)
 					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
 					MNT="$TMP/slimserver"
-					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+					FSTYPE=$(blkid -U ${LMSDATA:4} | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 					case $FSTYPE in
 						msdos|fat|vfat|fat32) BADFORMAT="yes";;
 						*) BADFORMAT="no";;
@@ -408,6 +408,11 @@ case "$MOUNTTYPE" in
 				;;
 				default) MNT="$TCEMNT/tce/slimserver";;
 			esac
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MNT is: '$ORIG_MNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MNT is: '$MNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] DEV is: '$DEV'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] FSTYPE is: '$FSTYPE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] BADFORMAT is: '$BADFORMAT'</p>'
 
 			if [ "$BADFORMAT" = "no" ]; then
 				echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
@@ -433,7 +438,7 @@ case "$MOUNTTYPE" in
 					[ "$WASRUNNING" = "1" ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
 				fi
 			else
-				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storate. (i.e. ext4)</p>'
+				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storage. (i.e. ext4)</p>'
 			fi
 		fi
 	;;
