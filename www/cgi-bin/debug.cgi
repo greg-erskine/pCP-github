@@ -1,25 +1,28 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08 GE
-#	Moved variables DEBUG, TEST and MODE to config.cfg. GE.
+# Version: 3.22 2017-07-21
+#	Updated TEST mode. GE.
+
+# Version: 3.20 2017-03-08
+#	Moved variables $DEBUG, $TEST and $MODE to config.cfg. GE.
 #	Fixed pcp-xxx-functions issues. GE.
 
-# Version: 0.04 2015-08-16 GE
-#	Revised sed to match a tab in front of DEBUG, TEST and MODE.
+# Version: 0.04 2015-08-16
+#	Revised sed to match a tab in front of DEBUG, TEST and MODE. GE.
 
-# Version: 0.03 2015-07-01 GE
-#	Made to work in non-interactive mode.
+# Version: 0.03 2015-07-01
+#	Made to work in non-interactive mode. GE.
 
-# Version: 0.02 2015-06-04 GE
-#	Added interaction mode.
-#	Renamed $pCPHOME to $PCPHOME.
+# Version: 0.02 2015-06-04
+#	Added interaction mode. GE.
+#	Renamed $pCPHOME to $PCPHOME. GE.
 
-# Version: 0.01 2014-10-24 GE
-#	Original.
+# Version: 0.01 2014-10-24
+#	Original. GE.
 
 #=========================================================================================
-# This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in config.cfg
-# from your web browser.
+# This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in config.cfg from
+# your web browser.
 #
 # Options:
 #	$DEBUG   d=[0|1]
@@ -27,17 +30,17 @@
 #	$MODE    m=[0-100]
 #	ALL      a=[0]
 #
-# Examples:
+# Non-interactive examples:
 #	Turn debug on:   http://192.168.1.xxx/cgi-bin/debug.cgi?d=1
 #	Turn debug off:  http://192.168.1.xxx/cgi-bin/debug.cgi?d=0
 #	Turn all off:    http://192.168.1.xxx/cgi-bin/debug.cgi?a=0
 #
-#	Use the interactive mode.
+# Interactive mode example:
+#	http://192.168.1.xxx/cgi-bin/debug.cgi
 #-----------------------------------------------------------------------------------------
 
 . pcp-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_httpd_query_string
 
@@ -48,7 +51,7 @@ pcp_debug_save() {
 	pcp_write_var_to_config DEBUG $d
 	pcp_write_var_to_config TEST $t
 	pcp_write_var_to_config MODE $m
-} 
+}
 
 pcp_debug_reset() {
 	pcp_write_var_to_config DEBUG 0
@@ -68,7 +71,7 @@ pcp_debug_cli() {
 			t=[0-9])
 				pcp_write_var_to_config TEST $t
 			;;
-			m=100|m=[0-9][0-9]|m=[0-9]) 
+			m=100|m=[0-9][0-9]|m=[0-9])
 				pcp_write_var_to_config MODE $m
 			;;
 			a=[0])
@@ -82,7 +85,7 @@ pcp_debug_cli() {
 }
 
 #========================================================================================
-# Respond to interactive Save, Set all and Reset all buttons
+# Respond to interactive [Save] and [Reset all] buttons.
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Save) pcp_debug_save ;;
@@ -92,21 +95,16 @@ esac
 sync
 . pcp-functions
 
-case "$DEBUG" in
-	0) D0SELECTED=checked ;;
-	1) D1SELECTED=checked ;;
-esac
-
 pcp_html_head "Debug" "GE"
 
-# Command line mode and exit
+# Non-interactive (Command line) mode and exit
 if [ x"" != x"$QUERY_STRING" ] && [ x"" = x"$SUBMIT" ]; then
 	echo '<body onload="javascript:location.href=document.referrer;">'
 	pcp_debug_cli
 	exit 0
 fi
 
-# Web page mode
+# Interactive (Web page) mode
 pcp_controls
 pcp_banner
 pcp_navigation
@@ -122,8 +120,6 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] m: '$m'<br />'
 	echo '                 [ DEBUG ] TEST: '$TEST'<br />'
 	echo '                 [ DEBUG ] t: '$t'<br />'
-	echo '                 [ DEBUG ] D0SELECTED: '$D0SELECTED'<br />'
-	echo '                 [ DEBUG ] D1SELECTED: '$D1SELECTED'<br />'
 	echo '                 [ DEBUG ] SUBMIT: '$SUBMIT'</p>'
 fi
 
@@ -139,6 +135,11 @@ echo '          <fieldset>'
 echo '            <legend>Set debug options</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------DEBUG---------------------------------------------
+case "$DEBUG" in
+	0) D0SELECTED=checked ;;
+	1) D1SELECTED=checked ;;
+esac
+
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column100">'
@@ -149,7 +150,7 @@ echo '                  <input class="small1" type="radio" name="d" value="1" '$
 echo '                  <input class="small1" type="radio" name="d" value="0" '$D0SELECTED'>Off'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Set DEBUG on or off.</p>'
+echo '                  <p>Set DEBUG: [on|off].</p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------MODE----------------------------------------------
@@ -178,25 +179,44 @@ echo '                    <option value="100" '$MODEdeveloper'>Developer</option
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Set MODE level.</p>'
+echo '                  <p>Set MODE level: [Initial|Basic|Normal|Advanced|Beta|Developer].</p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------TEST----------------------------------------------
+case "$TEST" in
+	0) TEST0="selected" ;;
+	1) TEST1="selected" ;;
+	2) TEST2="selected" ;;
+	3) TEST3="selected" ;;
+	4) TEST4="selected" ;;
+	5) TEST5="selected" ;;
+	6) TEST6="selected" ;;
+	7) TEST7="selected" ;;
+	8) TEST8="selected" ;;
+	9) TEST9="selected" ;;
+esac
+
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column100">'
 echo '                  <p>TEST</p>'
 echo '                </td>'
 echo '                <td class="column150">'
-echo '                  <input type="number"'
-echo '                         name="t"'
-echo '                         value="'$TEST'"'
-echo '                         min="0"'
-echo '                         max="9"'
-echo '                  >'
+echo '                  <select class="large10" name="t">'
+echo '                    <option value="0" '$TEST0'>0</option>'
+echo '                    <option value="1" '$TEST1'>1</option>'
+echo '                    <option value="2" '$TEST2'>2</option>'
+echo '                    <option value="3" '$TEST3'>3</option>'
+echo '                    <option value="4" '$TEST4'>4</option>'
+echo '                    <option value="5" '$TEST5'>5</option>'
+echo '                    <option value="6" '$TEST6'>6</option>'
+echo '                    <option value="7" '$TEST7'>7</option>'
+echo '                    <option value="8" '$TEST8'>8</option>'
+echo '                    <option value="9" '$TEST9'>9</option>'
+echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Set TEST level [0-9].</p>'
+echo '                  <p>Set TEST level: [0-9].</p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------BUTTONS-------------------------------------------

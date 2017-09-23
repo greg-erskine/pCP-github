@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.22 2017-07-22
+#	Added Internet check IP. GE.
+#	Added rotdash button. GE.
+
 # Version: 3.21 2017-06-06
 #	Changed to allow booting from USB on RPI3. PH.
 #	Removed HDMI Power warning for high sample rates....this is fixed in kernel/firmware. PH.
@@ -33,7 +37,6 @@ set -f
 . pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "Tweaks" "SBP"
 
@@ -307,7 +310,7 @@ pcp_tweaks_lmscontrols() {
 	esac
 
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	echo '            <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -342,8 +345,8 @@ pcp_tweaks_lmscontrols() {
 #----------------------------------------------HDMI Power--------------------------------
 pcp_tweaks_hdmipower() {
 	case "$HDMIPOWER" in
-		on) HDMIPOWERyes="checked" ;;
-		off) HDMIPOWERno="checked" ;;
+		on) HDMIPOWERon="checked" ;;
+		off) HDMIPOWERoff="checked" ;;
 	esac
 
 	echo '          <table class="bggrey percent100">'
@@ -355,17 +358,17 @@ pcp_tweaks_hdmipower() {
 	echo '                  <p>HDMI power</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERyes'>On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERno'>Off'
+	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERon'>On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERoff'>Off'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>HDMI power&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Power off HDMI to save some power.</p>'
+	echo '                    <p>Powering off HDMI to save a little power.</p>'
 	echo '                    <p>Using this option will download and install rpi-vc.tcz.</p>'
-	echo '                    <p>Reboot required.</p>'
+	echo '                    <p>A reboot will be required.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -384,7 +387,7 @@ pcp_tweaks_hdmipower() {
 #----------------------------------------------LMS Web Port------------------------------
 pcp_tweaks_lmswebport() {
 	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	echo '            <form name="lmswebport" action="writetoconfig.cgi" method="get">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -392,7 +395,13 @@ pcp_tweaks_lmswebport() {
 	echo '                  <p>LMS Web Port</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="number" name="LMSWEBPORT" value="'$LMSWEBPORT'" min="9001" max="9999">'
+	echo '                  <input class="large16"'
+	echo '                         type="number"'
+	echo '                         name="LMSWEBPORT"'
+	echo '                         value="'$LMSWEBPORT'"'
+	echo '                         min="9001"'
+	echo '                         max="9999"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Enter non-default LMS Web Port number&nbsp;&nbsp;'
@@ -417,6 +426,114 @@ pcp_tweaks_lmswebport() {
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
+
+#--------------------------------------Internet Check IP------------------------------------
+pcp_tweaks_internet_check_ip() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Internet check IP</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="INTERNET_CHECK_IP"'
+	echo '                         value="'$INTERNET_CHECK_IP'"'
+	echo '                         title="[xxx.xxx.xxx.xxx]"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"'
+	echo '                  >'
+
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enter non-default Internet check IP address&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;IP address&gt;</p>'
+	echo '                    <p><b>Default:</b> blank or 8.8.8.8</p>'
+	echo '                    <p>piCorePlayer uses this IP address to confirm that it has Internet access.</p>'
+	echo '                    <p>You only have to set this if 8.8.8.8 is not usuable.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '                <td class="column150">'
+		echo '                  <input type="submit" name="SUBMIT" value="Save">'
+		echo '                </td>'
+
+		if [ $(pcp_internet_accessible) -eq 0 ]; then
+			pcp_green_tick "Internet found."
+		else
+			pcp_red_cross "Internet not found."
+		fi
+
+		echo '                <td class="column210 center">'
+		echo '                  <p class="'$CLASS'">'$INDICATOR'</p>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>'$STATUS'</p>'
+		echo '                </td>'
+	else
+		echo '                <td colspan="3">'
+		echo '                  <input type="submit" name="SUBMIT" value="Save">'
+		echo '                </td>'
+	fi
+
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_internet_check_ip
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------rotdash-------------------------------------------
+pcp_tweaks_rotdash() {
+	case "$ROTDASH" in
+		yes) ROTDASHyes="checked" ;;
+		no) ROTDASHno="checked" ;;
+	esac
+
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="rotdash" action="writetoconfig.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Replace rotating dash</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="ROTDASH" value="yes" '$ROTDASHyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="ROTDASH" value="no" '$ROTDASHno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Replace the default rotating dash with a new one&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The default rotating dash displays -/|\ while the new one displays .....</p>'
+	echo '                    <p>You can see the difference when doing a backup for example.</p>'
+	echo '                    <p><b>Note:</b> Requires a reboot to activate.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_tweaks_rotdash
+#----------------------------------------------------------------------------------------
+
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -455,7 +572,7 @@ pcp_tweaks_wol() {
 	echo '          <legend>Wake-on-LAN (WOL)</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
-	#----------------------------------------------------------------------------------------
+	#----------------------------------WOL---------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -475,7 +592,7 @@ pcp_tweaks_wol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
+	#----------------------------------LMS NIC-----------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -509,7 +626,7 @@ pcp_tweaks_wol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
+	#----------------------------------LMS MAC address---------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -538,7 +655,7 @@ pcp_tweaks_wol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
+	#----------------------------------Submit button-----------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="2">'
@@ -555,6 +672,7 @@ pcp_tweaks_wol() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_wol
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Auto start tweaks
@@ -924,7 +1042,7 @@ pcp_tweaks_vumeter() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Select Jivelite VU Meter (Joggler Skin only)&nbsp;&nbsp;'
+	echo '                  <p>Select Jivelite VU Meter (Joggler/Grid Skins only)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -1068,7 +1186,7 @@ pcp_tweaks_screensize() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $JL_SCREEN_WIDTH: '$JL_SCREEN_WIDTH'<br />'
-		echo '                           $JL_SCREEN_HEIGHT: '$JL_SCREEN_HEIGHT'</p>'
+		echo '                 [ DEBUG ] $JL_SCREEN_HEIGHT: '$JL_SCREEN_HEIGHT'</p>'
 		echo '<!-- End of debug info -->'
 	fi
 }

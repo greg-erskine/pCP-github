@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.22 2017-09-10
+#	Changed Netmounts to support shares with spaces. PH.
+#	Added checkbox to clear unused netmount conf entries. PH.
+#	Added exFat support. PH.
+
 # Version: 3.21 2017-06-18
 #	Changed vfat mounts.  PH.
 #	Fixed util-linux button download function. PH.
@@ -44,7 +49,8 @@ REBOOT_REQUIRED="0"
 #--------------------------------------------------------------------------------------------------------
 
 pcp_move_LMS_cache() {
-	sudo cp -avr $1 $2 >/dev/null 2>&1
+	DEST=$(echo "$2" | sed 's/slimserver//')
+	sudo cp -avr $1 $DEST >/dev/null 2>&1
 	[ "$?" = "0" ] && sudo rm -rf $1 || echo '<p class="error">[ ERROR ] File Copy Error.</p>'
 
 	#Remove old Symlinks to the data location.  Will be recreated when LMS is started.
@@ -186,14 +192,26 @@ case "$MOUNTTYPE" in
 									umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
 									OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
 								;;
+								exfat)
+									CHARSET=",iocharset=utf8"
+									umount $DEVICE  # need to unmount incase 1st mount is not utf8
+									OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
+								;;
 								*)
 									OPTIONS="-v"
 								;;
 							esac
 							echo '<p class="info">[ INFO ] Mounting Disk.</p>'
-							[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
-							echo '<p class="info">[ INFO ] '
-							mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT
+							case "$FSTYPE" in
+								exfat) [ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount.exfat '$OPTIONS' '$DEVICE' /mnt/'$NEWPNT'</p>' 
+									echo '<p class="info">[ INFO ] '
+									mount.exfat $OPTIONS $DEVICE /mnt/$NEWPNT
+								;;
+								*) [ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
+									echo '<p class="info">[ INFO ] '
+									mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT
+								;;
+							esac
 							if [ $? -eq 0 ]; then
 								echo '</p><p class="info">[ INFO ] Disk Mounted Successfully.</p>'
 							else
@@ -226,6 +244,8 @@ case "$MOUNTTYPE" in
 	networkshare)
 		NETMNTCHANGED=0
 		NN=0
+		# Process the $QUERY_STRING Not decoding NETMOUNTSHAREs
+		eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { if ($i ~ /^NETMOUNTSHARE/) printf "%s\"\n",$i} }' | sed 's/=/="/')
 		if [ -f  ${NETMOUNTCONF} ]; then
 			while read LINE; do
 				case $LINE in
@@ -304,15 +324,15 @@ case "$MOUNTTYPE" in
 							[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
 							[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
 							OPTS="${OPTS}${OPTIONS}"
-							MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
+							MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 						;;
 						nfs)
 							OPTS="addr=${IP},nolock,${OPTIONS}"
-							MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
+							MNTCMD="-v -t $FSTYPE -o $OPTS $IP:\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 						;;
 					esac
 					echo '<p class="info">[INFO] mount '$MNTCMD'</p>'
-					mount $MNTCMD
+					/bin/sh -c "mount ${MNTCMD}"
 					if [ $? -eq 0 ]; then
 						echo '<p class="info">[ INFO ] Disk Mounted Successfully.</p>'
 					else
@@ -324,24 +344,30 @@ case "$MOUNTTYPE" in
 			I=$((I+1))
 		done
 
-		if [ $NETMNTCHANGED -eq 1 ]; then
+		if [ $NETMNTCHANGED -eq 1 -o "$CLEARUNUSED" = "yes" ]; then
 			rm -f $NETMOUNTCONF
 			I=1
+			J=1
 			while [ $I -le $NUMNET ]; do
 				if [ "$(eval echo \${NETMOUNTPOINT${I}})" != "" ]; then
-					echo "[$I]" >> $NETMOUNTCONF
 					ENABLE=$(eval echo \${NETENABLE${I}})
-					[ "$ENABLE" = "" ] && ENABLE="no"
-					echo "NETENABLE=$ENABLE" >> $NETMOUNTCONF
-					eval echo "NETMOUNTPOINT=\${NETMOUNTPOINT${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTIP=\${NETMOUNTIP${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTSHARE=\${NETMOUNTSHARE${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTFSTYPE=\${NETMOUNTFSTYPE${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTUSER=\${NETMOUNTUSER${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTPASS=\${NETMOUNTPASS${I}}" >> $NETMOUNTCONF
-					eval echo "NETMOUNTOPTIONS=\${NETMOUNTOPTIONS${I}}" >> $NETMOUNTCONF
+					if [ "$ENABLE" = "" -a "$CLEARUNUSED" = "yes" ]; then
+						J=$((J-1)) #Decrement the Counter written to the conf file
+					else
+						[ "$ENABLE" = "" ] && ENABLE="no"
+						echo "[$J]" >> $NETMOUNTCONF
+						echo "NETENABLE=$ENABLE" >> $NETMOUNTCONF
+						eval echo "NETMOUNTPOINT=\${NETMOUNTPOINT${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTIP=\${NETMOUNTIP${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTSHARE=\${NETMOUNTSHARE${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTFSTYPE=\${NETMOUNTFSTYPE${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTUSER=\${NETMOUNTUSER${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTPASS=\${NETMOUNTPASS${I}}" >> $NETMOUNTCONF
+						eval echo "NETMOUNTOPTIONS=\${NETMOUNTOPTIONS${I}}" >> $NETMOUNTCONF
+					fi
 				fi
 				I=$((I+1))
+				J=$((J+1))
 			done
 			pcp_backup
 		fi
@@ -354,13 +380,11 @@ case "$MOUNTTYPE" in
 			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
 		else
 			case "$ORIG_LMSDATA" in
-				usb:*) DEV=$(blkid | grep ${ORIG_LMSDATA:5} | cut -d ':' -f1)
+				usb:*) DEV=$(blkid | grep ${ORIG_LMSDATA:4} | cut -d ':' -f1)
 					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
 					ORIG_MNT="$TMP/slimserver"
 				;;
-				net:*) TMP=$(mount | grep -w ${ORIG_LMSDATA:4} | cut -d ' ' -f3)
-					ORIG_MNT="${TMP}/slimserver"
-				;;
+				net:*) ORIG_MNT="${ORIG_LMSDATA:4}/slimserver";;
 				default) ORIG_MNT="$TCEMNT/tce/slimserver";;
 			esac
 			BADFORMAT="no"
@@ -368,14 +392,14 @@ case "$MOUNTTYPE" in
 				usb:*) DEV=$(blkid | grep ${LMSDATA:4} | cut -d ':' -f1)
 					TMP=$(mount | grep -w $DEV | cut -d ' ' -f3)
 					MNT="$TMP/slimserver"
-					FSTYPE=$(blkid -U $MOUNTUUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
+					FSTYPE=$(blkid -U ${LMSDATA:4} | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 					case $FSTYPE in
 						msdos|fat|vfat|fat32) BADFORMAT="yes";;
 						*) BADFORMAT="no";;
 					esac
 				;;
-				net:*) TMP=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f3)
-					MNT="${TMP}/slimserver"
+				net:*) 
+					MNT="${LMSDATA:4}/slimserver"
 					FSTYPE=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f5)
 					case "$FSTYPE" in
 						cifs)echo '<p class="warn">[ WARN ] CIFS partitions may not work with LMS Cache.</p>';;
@@ -384,6 +408,11 @@ case "$MOUNTTYPE" in
 				;;
 				default) MNT="$TCEMNT/tce/slimserver";;
 			esac
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] ORIG_MNT is: '$ORIG_MNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] MNT is: '$MNT'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] DEV is: '$DEV'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] FSTYPE is: '$FSTYPE'</p>'
+			[ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] BADFORMAT is: '$BADFORMAT'</p>'
 
 			if [ "$BADFORMAT" = "no" ]; then
 				echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
@@ -409,7 +438,7 @@ case "$MOUNTTYPE" in
 					[ "$WASRUNNING" = "1" ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
 				fi
 			else
-				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storate. (i.e. ext4)</p>'
+				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storage. (i.e. ext4)</p>'
 			fi
 		fi
 	;;

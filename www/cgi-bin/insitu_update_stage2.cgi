@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.22 2017-09-16
+#	Updates for Kernel 4.9.50
+
 # Version 3.21 2017-07-03
 #	Allow for custom configuration in config.txt. PH
 #	Modifcations for installing to bootdevice. i.e. USB boot. PH.
@@ -86,6 +89,10 @@ case "${VERSION}" in
 	piCorePlayer3.21*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=25540
+	;;
+	piCorePlayer3.22*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=25650
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -224,6 +231,13 @@ pcp_get_kernel_modules() {
 			# Set the below for the new kernel
 			KUPDATE=1
 			NEWKERNELVER=4.9.35
+			PICOREVERSION=8.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
+		piCorePlayer3.22*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			NEWKERNELVER=4.9.50
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;

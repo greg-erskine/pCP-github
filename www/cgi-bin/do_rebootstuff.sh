@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 3.22 2017-09-10
+#	Added pcp_create_rotdash. GE.
+#	Fixed spaces in SSID. PH.
+#	Changed Netmounts to support shares with spaces. PH.
+#	Added exFat Support. PH.
+
 # Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
 #	Set boot/tce device from /etc/sysconfig/tcedir link
@@ -74,6 +80,15 @@ for DISK in $NEWCFGLIST; do
 	fi
 	[ $NEWCONFIGFOUND -eq 1 ] && break
 done
+
+#========================================================================================
+# Replace default rotdash
+#----------------------------------------------------------------------------------------
+if [ "$ROTDASH" = "yes" ]; then
+	echo -n "${BLUE}[ INFO ] Replacing existing rotdash.${NORMAL}"
+	pcp_create_rotdash &
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 # Check if newconfig.cfg was found in search
 if [ $NEWCONFIGFOUND -eq 1 ]; then
@@ -219,7 +234,7 @@ if [ "$WIFI" = "on" ]; then
 		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  RPi3B Broadcom firmware loaded.${NORMAL}" || echo "${RED}  RPi3B Broadcom firmware load error.${NORMAL}"
+		[ $? -eq 0 ] && echo "${YELLOW}  RPi Broadcom firmware loaded.${NORMAL}" || echo "${RED}  RPi Broadcom firmware load error.${NORMAL}"
 		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
 		[ $? -eq 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
 		echo "${GREEN} Done.${NORMAL}"
@@ -236,23 +251,17 @@ if [ "$WIFI" = "on" ]; then
 	if [ x"" = x"$SSID" ]; then
 		break
 	else
+		# Escape any spaces in the SSID
 		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
 		# Change SSSID back to SSID
 		SSID=$SSSID
 		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /tmp/wifi.db
-	fi
-	if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
-		echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
-	else
-		BACKUP=1
-		# Only add backslash if not empty
-		echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
-		if [ x"" = x"$SSID" ]; then
-			break
+		if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
+			echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
 		else
-			SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-			# Change SSSID back to SSID
-			SSID=$SSSID
+			BACKUP=1
+			# Only add backslash if not empty
+			echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
 			sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
 		fi
 	fi
@@ -430,12 +439,20 @@ if [ -f  ${USBMOUNTCONF} ]; then
 						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
 						OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
 					;;
+					exfat)
+						CHARSET=",iocharset=utf8"
+						umount $DEVICE  # need to unmount incase 1st mount is not utf8
+						OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
+					;;
 					*)
 						OPTIONS="-v"
 					;;
 				esac
 				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
-				mount $OPTIONS --uuid $UUID /mnt/$POINT
+				case "$FSTYPE" in
+					exfat) mount.exfat $OPTIONS $DEVICE /mnt/$POINT;;
+					*) mount $OPTIONS --uuid $UUID /mnt/$POINT;;
+				esac
 				if [ $? -eq 0 ]; then
 					echo "${BLUE}Disk Mounted at /mnt/$POINT.${NORMAL}"
 				else
@@ -488,16 +505,16 @@ if [ -f  ${NETMOUNTCONF} ]; then
 					[ "$USER" != "" ] && OPTS="${OPTS}username=${USER},"
 					[ "$PASS" != "" ] && OPTS="${OPTS}password=${PASS},"
 					OPTS="${OPTS}${OPTIONS}"
-					MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/$SHARE /mnt/$PNT"
+					MNTCMD="-v -t $FSTYPE -o $OPTS //$IP/\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 				;;
 				nfs)
 					OPTS="addr=${IP},nolock,${OPTIONS}"
-					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:$SHARE /mnt/$PNT"
+					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 				;;
 			esac
 			RETRIES=3  #Retry network mounts, incase of power failure, and all devices restarting.
 			while [ $RETRIES -gt 0 ]; do
-				mount $MNTCMD
+				/bin/sh -c "mount ${MNTCMD}"
 				if [ $? -eq 0 ]; then
 					RETRIES=0
 					echo "${BLUE}Disk Mounted at /mnt/${PNT}."

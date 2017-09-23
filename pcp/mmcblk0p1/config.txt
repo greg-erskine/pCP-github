@@ -4,20 +4,20 @@
 
 [PI0]
 initramfs pcp_8.01.gz followkernel
-kernel kernel4935.img
+kernel kernel4950.img
 
 [PI1]
 initramfs pcp_8.01.gz followkernel
-kernel kernel4935.img
+kernel kernel4950.img
 
 [PI2]
 initramfs pcp_8.01v7.gz followkernel
-kernel kernel4935v7.img
+kernel kernel4950v7.img
 total_mem=1024
 
 [PI3]
 initramfs pcp_8.01v7.gz followkernel
-kernel kernel4935v7.img
+kernel kernel4950v7.img
 total_mem=1024
 
 [ALL]
@@ -58,8 +58,6 @@ cmdline cmdline.txt
 # uncomment for composite PAL
 #sdtv_mode=2
 
-[PI3]
-dtoverlay=pi3-disable-bt
 
 [ALL]
 #----------------------------------------------------
@@ -74,6 +72,9 @@ disable_pvt=1
 # onboard audio overlay
 dtparam=audio=on
 audio_pwm_mode=2
+
+#Disable Bluetooth on both rpi3 and rpi0W
+dtoverlay=pi3-disable-bt
 
 # uncomment to overclock the arm. 700 MHz is the default.
 #arm_freq=
