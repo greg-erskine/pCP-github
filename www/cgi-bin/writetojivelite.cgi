@@ -107,7 +107,7 @@ pcp_delete_jivelite() {
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from .xfiletool.lst</p>'
 	sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 	JIVELITE="no"
-	VISULISER="no"
+	VISUALISER="no"
 	pcp_save_to_config
 }
 

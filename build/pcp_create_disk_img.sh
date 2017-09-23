@@ -432,6 +432,9 @@ build_mydata(){
 	find ${MYDATA}/home/tc/www/* -not -type d | xargs -r chmod 644
 	find ${MYDATA}/home/tc/www/cgi-bin/* -not -type d | xargs -r chmod 755
 
+	# This has a binary character in the sed regex, need to force the conversion.  Does not remove the binary character.
+	dos2unix -q -f ${MYDATA}/home/tc/www/cgi-bin/diag_logs.cgi
+
 	#insitu update stage 2 is downloaded on demand.
 	rm -f ${MYDATA}/home/tc/www/cgi-bin/insitu_update_stage2.cgi
 

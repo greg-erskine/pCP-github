@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Version: 3.22 2017-09-16
+#	Changed Netmounts to support shares with spaces. PH.
+#	Added checkbox to clear unused netmount conf entries. PH.
+#	Added Exfat Support. PH.
+
 # Version: 3.21 2017-06-18
 #	Changed to allow booting from USB on RPI3. PH.
 #	Support multiple USB mounts. PH.
@@ -127,12 +132,12 @@ pcp_install_fs() {
 		echo '[ INFO ] Loading filesystem extensions'
 		sudo -u tc tce-load -i ntfs-3g.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
-	fi
-	if [ $RESULT -eq 0 ]; then
-		echo "ntfs-3g.tcz" >> $ONBOOTLST
-		echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
-	else
-		echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+		if [ $RESULT -eq 0 ]; then
+			echo "ntfs-3g.tcz" >> $ONBOOTLST
+			echo '[ INFO ] Filesystem support including NTFS loaded...</p>'
+		else
+			echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+		fi
 	fi
 }
 
@@ -141,6 +146,31 @@ pcp_remove_fs() {
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete ntfs-3g.tcz
 	sed -i '/ntfs-3g.tcz/d' $ONBOOTLST
+	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
+}
+
+pcp_install_exfat() {
+	RESULT=0
+	echo '[ INFO ] Downloaded exFat filesystem support.</p>'
+	sudo -u tc pcp-load -r $PCP_REPO -w pcp-exfat-utils.tcz
+	if [ -f $TCEMNT/tce/optional/pcp-exfat-utils.tcz ]; then
+		echo '[ INFO ] Loading exfat extensions'
+		sudo -u tc tce-load -i pcp-exfat-utils.tcz
+		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
+		if [ $RESULT -eq 0 ]; then
+			echo "pcp-exfat-utils.tcz" >> $ONBOOTLST
+			echo '[ INFO ] exFat filesystem support loaded...</p>'
+		else
+			echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+		fi
+	fi
+}
+
+pcp_remove_exfat() {
+	echo '[ INFO ] Removing Extensions</p>'
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete pcp-exfat-utils.tcz
+	sed -i '/pcp-exfat-utils.tcz/d' $ONBOOTLST
 	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
 }
 
@@ -361,6 +391,24 @@ case "$ACTION" in
 		pcp_table_top "Removing extra file system support"
 		echo '                <textarea class="inform" style="height:80px">'
 		pcp_remove_fs
+		echo '                </textarea>'
+		pcp_table_end
+		REBOOT_REQUIRED=1
+	;;
+	Install_EXFAT)
+		pcp_table_top "Installing exFat file system support"
+		pcp_sufficient_free_space 170
+		if [ $? -eq 0 ] ; then
+			echo '                <textarea class="inform" style="height:80px">'
+			pcp_install_exfat
+			echo '                </textarea>'
+			pcp_table_end
+		fi
+	;;
+	Remove_EXFAT)
+		pcp_table_top "Removing exFat file system support"
+		echo '                <textarea class="inform" style="height:80px">'
+		pcp_remove_exfat
 		echo '                </textarea>'
 		pcp_table_end
 		REBOOT_REQUIRED=1
@@ -854,7 +902,7 @@ pcp_slimserver_persistence() {
 		*);; #USB and NET checked will be set later.
 	esac
 	LMSMNTFOUND=0
-	for I in $(mount | grep -E '/dev/sd[a-z]' | cut -d ' ' -f1); do
+	for I in $(mount | grep -E '/dev/(sd[a-z]|mmcblk0p[3-9])' | cut -d ' ' -f1); do
 		if [ "$I" != "${BOOTDEV}" -a "$I" != "${TCEDEV}" ]; then
 			USBMOUNT=$(mount | grep -w $I | cut -d ' ' -f3)
 			USBUUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
@@ -871,7 +919,10 @@ pcp_slimserver_persistence() {
 			echo '                  <input class="small1" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
 			echo '                </td>'
 			echo '                <td class="column'$COL2'">'
-			echo '                  <p>USB Disk</p>'
+			case $I in
+				/dev/sd*) echo '                  <p>USB Disk</p>';;
+				/dev/mmcblk0p*) echo '                  <p>microSD Card</p>';;
+			esac
 			echo '                </td>'
 			echo '                <td class="column'$COL3'">'
 			echo '                  <p>'${USBMOUNT}'/slimserver</p>'
@@ -887,9 +938,8 @@ pcp_slimserver_persistence() {
 		fi
 	done
 
-	for I in $(mount | grep -E 'cifs|nfs' | cut -d ' ' -f1); do
-		NETMOUNT=$(mount | grep -w $I | cut -d ' ' -f3)
-		NETmnt="net:${I}"
+	for NETMOUNT in $(mount | grep -E 'cifs|nfs' | awk -F' on ' '{print $2}' | cut -d ' ' -f1); do
+		NETmnt="net:${NETMOUNT}"
 		if [ "$LMSDATA" = "$NETmnt" ]; then
 			NETyes="checked"
 			LMSMNTFOUND=1
@@ -1003,9 +1053,11 @@ pcp_extra_filesys() {
 	pcp_incr_id
 	pcp_start_row_shade
 	DISABLE_REMOVEFS="0"
+	DISABLE_REMOVEEXFAT="0"
 	for I in `mount | awk '{print $5}'`; do
 		case "$I" in
-			*fat*|*squash*|proc|tmpfs|sysfs|devpts|ext*) ;;
+			fat*|vfat|*squash*|proc|tmpfs|sysfs|devpts|ext*) ;;
+			exfat|fuseblk) DISABLE_REMOVEEXFAT="1";;
 			*) DISABLE_REMOVEFS="1" ;;
 		esac
 	done
@@ -1045,6 +1097,52 @@ pcp_extra_filesys() {
 		echo '                    <p>Unable to remove additional Filesystem Support from pCP.</p>'
 		echo '                    <p>as there are currently active drives mounted using this support.</p>'
 		echo '                  </div>'
+	fi
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	if [ "$EXTRAFSYS" = "yes" ]; then
+		pcp_incr_id
+		pcp_toggle_row_shade
+		[ -x /usr/local/sbin/mount.exfat ] && EXFATFS="yes" || EXFATFS="no"
+		if [ "$EXFATFS" = "no" ]; then
+			echo '                    <button type="submit" name="ACTION" value="Install_EXFAT">Install exFat</button>'
+			echo '                  </td>'
+			echo '                  <td>'
+			echo '                    <p>Install exFat filesystem for pCP&nbsp;&nbsp;'
+			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                    </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>This will install Filesystem support for pCP.</p>'
+			echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
+			echo '                    <p>This is only for exFat Support.</p>'
+			echo '                  </div>'
+		elif [ "$DISABLE_REMOVEEXFAT" = "0" ]; then
+			echo '                  <button type="submit" name="ACTION" value="Remove_EXFAT">Remove exFat</button>'
+			echo '                </td>'
+			echo '                <td>'
+			echo '                  <p>Remove additional Filesystems from pCP&nbsp;&nbsp;'
+			echo '                     <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>This will remove exFat Support from pCP.</p>'
+			echo '                    <p>FAT/vFAT/FAT32 ext2/3/4 are builtin to pCP by default</p>'
+			echo '                  </div>'
+		else
+			echo '                  <button type="submit" name="ACTION" value="Remove_EXFAT" Disabled>Remove exFat</button>'
+			echo '                </td>'
+			echo '                <td>'
+			echo '                  <p>exFat Filesystems are in Use&nbsp;&nbsp;'
+			echo '                     <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>Unable to remove exFat Filesystem Support from pCP.</p>'
+			echo '                    <p>as there are currently active drives mounted using this support.</p>'
+			echo '                  </div>'
+		fi
 	fi
 	echo '                </td>'
 	echo '              </tr>'
@@ -1113,7 +1211,7 @@ pcp_mount_usbdrives() {
 	echo '            <table class="bggrey percent100">'
 	COL1="75"
 	COL2="150"
-	COL3="100"
+	COL3="120"
 	COL4="100"
 	COL5="75"
 	COL6="300"
@@ -1182,7 +1280,15 @@ pcp_mount_usbdrives() {
 			done
 			pcp_toggle_row_shade
 			case "$PTTYPE" in
-				*fat*|ext*) DISABLE="";;
+				fat*|vfat|ext*) DISABLE="";;
+				exfat)
+					if [ ! -x /usr/local/sbin/mount.exfat ]; then
+						DISABLE="Disabled"
+						UUID="Please install exfat-utils.tcz"
+					else
+						DISABLE=""
+					fi
+				;;
 				*)	if [ "$EXTRAFSYS" = "no" ]; then
 						DISABLE="Disabled"
 						UUID="Please install extra Filesystems"
@@ -1426,11 +1532,11 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 		echo '                </td>'
 		echo '                <td class="column'$COL4'">'
-		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" '$REQUIRED' pattern="^[a-zA-Z0-9_/]{1,32}$">'
+		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share&#13;Do not enter / or :" '$REQUIRED' pattern="^[a-zA-Z0-9_\-\ ]{1,32}$">'
 		echo '                </td>'
 		echo '                <td class="column'$COL5'">'
 
-		case "$FSTYPE" in
+	case "$FSTYPE" in
 			cifs) CIFS1yes="selected"; USERdisable="";;
 			nfs) NFS1yes="selected"; USERdisable="Disabled" ;;
 		esac
@@ -1450,6 +1556,11 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
 		echo '                </td>'
 		echo '              </tr>'
+		echo '              <script type="text/javascript">'
+		echo '                var share = "'${SHARE}'";'
+		echo '                ShareBox = "NETSHARE'${I}'";'
+		echo '                document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
+		echo '              </script>'
 		I=$((I+1))
 	done
 	echo '                <script type="text/javascript">'
@@ -1490,7 +1601,16 @@ pcp_mount_netdrives() {
 	echo '                    }'
 	echo '                  }'
 	echo '                </script>'
-#--------------------------------------Submit button-------------------------------------
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="checkbox" name="CLEARUNUSED" value="yes">'
+	echo '                </td>'
+	echo '                <td class="colspan7">'
+	echo '                  <p> Check this box to clear configuration data for unused shares.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1806,22 +1926,24 @@ pcp_samba() {
 		SC=$((SC+1))
 		while [ $I -le $SC ]
 		do
+			TST=$(eval echo "\${SHARE${I}}")
+			[ "$TST" != "" ] && REQ="required" || REQ=""
 			pcp_toggle_row_shade
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
 			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
 			eval echo -n "\${SHARE${I}}"
-			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$">'
+			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$" onchange="setsmbrequired('$I')">'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL2'">'
 			echo -n '                    <input class="large12" type="text" ID="SHAREPATH'$I'" name="SHAREPATH'$I'" value="'
 			eval echo -n "\${SHAREPATH${I}}"
-			echo '" title="Enter the Path to be Shared" pattern="^[a-zA-Z0-9_/]{1,32}$">'
+			echo '" title="Enter the Path to be Shared" '$REQ' pattern="^[a-zA-Z0-9_/]{1,64}$">'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL3'">'
 			echo -n '                    <input class="large8" type="text" ID="SHAREMASK'$I'" name="SHAREMASK'$I'" value="'
 			eval echo -n "\${SHAREMASK${I}}"
-			echo '" title="Enter the File mode for new files Default=0664" pattern="^[0-7]{4}$">'
+			echo '" title="Enter the File mode for new files Default=0664" '$REQ' pattern="^[0-7]{4}$">'
 			echo '                  </td>'
 			RO=$(eval echo "\${SHARERO${I}}")
 			case "$RO" in
@@ -1848,6 +1970,22 @@ pcp_samba() {
 		echo '                    var box = "SHAREMASK";'
 		echo '                    var Box = box.concat(i);'
 		echo '                    document.getElementById(Box).value = "";'
+		echo '                  }'
+		echo '                  function setsmbrequired(id) {'
+		echo '                    var box = "SHARE";'
+		echo '                    var Box = box.concat(id);'
+		echo '                    var box1 = "SHAREPATH";'
+		echo '                    var Box1 = box1.concat(id);'
+		echo '                    var box2 = "SHAREMASK";'
+		echo '                    var Box2 = box2.concat(id);'
+		echo '                    if (document.getElementById(Box).value != ""){'
+		echo '                      document.getElementById(Box1).setAttribute("required", "");'
+		echo '                      document.getElementById(Box2).setAttribute("required", "");'
+		echo '                    }'
+		echo '                    else {'
+		echo '                      document.getElementById(Box1).required = false;'
+		echo '                      document.getElementById(Box2).required = false;'
+		echo '                    }'
 		echo '                  }'
 		echo '                </script>'
 
