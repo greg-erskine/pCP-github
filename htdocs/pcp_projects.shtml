@@ -74,6 +74,16 @@
               </td>
             </tr>
             <!-- -------------------------------------------------------------------- -->
+            <tr class="even">
+              <td class="column200">
+                <p><a href="http://www.pughx2.com/picore320.html" TARGET="_blank">waveshare 3.5 TFT + piCorePlayer + jivelite</a> &#8599;</p>
+              </td>
+              <td>
+                <p>As promised I (nowhinjing) have written up the torturous process of getting piCorePlayer + Jivelite to work on a small TFT screen.</p>
+                <p>See the <a href="http://forums.slimdevices.com/showthread.php?107366-picoreplayer-3-11-waveshare-3-5-TFT-jivelite-Raspberry-Pi-2B" TARGET="_blank">develpoment thread</a> on the Logitech Squeezebox forum.</p>
+              </td>
+            </tr>
+            <!-- -------------------------------------------------------------------- -->
           </table>
         </fieldset>
       </div>
