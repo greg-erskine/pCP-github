@@ -664,7 +664,10 @@ if [ "$JIVELITE" = "yes" ]; then
 		export SDL_MOUSEDEV=$TSLIB_TSDEVICE
 	fi
 	export HOME=/home/tc
-	if [ -x /opt/jivelite/bin/jivelite.sh ]; then
+	if [ -x /mnt/mmcblk0p2/tce/jivelite.sh ]; then
+		echo "${GREEN}Done.${NORMAL}"
+		sudo -E -b /mnt/mmcblk0p2/tce/jivelite.sh >/dev/null 2>&1
+	elif [ -x /opt/jivelite/bin/jivelite.sh ]; then
 		echo "${GREEN}Done.${NORMAL}"
 		sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
 	else
