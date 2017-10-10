@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.23 2017-10-02
+#	Minor cosmetic changes. GE.
+
 # Version: 3.21 2017-07-08
 #	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
 #	Added Cardnumber routine to keep alsaequal working with selected card. PH.
@@ -17,15 +20,18 @@
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
-DACLOCATION="/usr/local/etc/pcp/cards"     # <=== Should be in pcp-functions? GE.
-#The below line is for development only.
+DACLOCATION="/usr/local/etc/pcp/cards"     # <=== Should be declared in pcp-functions? GE.
+
+############
+# The below line is for development only.
 #DACLOCATION="/home/tc/www/cgi-bin/cards"
 ############
 
 . /usr/local/bin/shini.sh
 
 #========================================================================================
-# Check if we use the special Audio kernel or not. As we load special overlays if using Audio kernel
+# Check if we use the special Audio kernel or not as we load special overlays
+# if using Audio kernel
 #----------------------------------------------------------------------------------------
 pcp_AudioKernel_status() {
 	sudo  uname -a | grep pcpAudioCore > /dev/null 2>&1 && KERNELVERSION=Audiokernel || KERNELVERSION=Officialkernel
@@ -51,12 +57,13 @@ pcp_re_enable_analog() {
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
 	pcp_re_enable_analog
-		# unset DTOVERLAY both the old one that is removed on chooseoutput.cgi and the one from config.cfg to clear all traces of audio dtoverlays
-		shini_parse ${DACLOCATION}/${ORIG_AUDIO}.conf
-		[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
+	# unset DTOVERLAY both the old one that is removed on chooseoutput.cgi and
+	# the one from config.cfg to clear all traces of audio dtoverlays
+	shini_parse ${DACLOCATION}/${ORIG_AUDIO}.conf
+	[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
 
-		shini_parse ${DACLOCATION}/${AUDIO}.conf
-		[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
+	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
 }
 
 #========================================================================================
@@ -96,7 +103,7 @@ pcp_enable_HDMI() {
 #----------------------------------------------------------------------------------------
 pcp_read_chosen_audio() {
 	# if noumount, disk is probably already mounted....supress output
-	[ "$1" == "noumount" ] && pcp_mount_bootpart > /dev/null 2>&1 || pcp_mount_bootpart
+	[ "$1" = "noumount" ] && pcp_mount_bootpart > /dev/null 2>&1 || pcp_mount_bootpart
 	pcp_disable_HDMI
 	pcp_disable_i2s
 	pcp_enable_i2s
@@ -126,6 +133,7 @@ pcp_generic_card_control() {
 				FILTER4="Fixed process flow"
 				FILTER5="Ringing-less low latency FIR"
 			fi
+
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
 			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
@@ -153,13 +161,13 @@ pcp_generic_card_control() {
 				Ringing-less) FILTER5_CHECK="checked" ;;
 			esac
 
-			#Logic that will check for Simple mixer controls Analogue and Analogue Playback Boost
-				#SMC_ANALOGUE=$(amixer -c $CARD sget Analogue | grep "Capabilities: pvolume"aw)
-			#Actual setting for these Analogue controls:
-				SMC_ANALOGUE=$(amixer -c $CARD sget 'Analogue' | grep "Front Left:" | awk '{ print $4 }')
-				SMC_ANALOGUE_BOOST=$(amixer -c $CARD sget 'Analogue Playback Boost' | grep "Front Left:" | awk '{ print $3 }')
+			# Logic that will check for Simple mixer controls Analogue and Analogue Playback Boost
+			# SMC_ANALOGUE=$(amixer -c $CARD sget Analogue | grep "Capabilities: pvolume"aw)
+			# Actual setting for these Analogue controls:
+			SMC_ANALOGUE=$(amixer -c $CARD sget 'Analogue' | grep "Front Left:" | awk '{ print $4 }')
+			SMC_ANALOGUE_BOOST=$(amixer -c $CARD sget 'Analogue Playback Boost' | grep "Front Left:" | awk '{ print $3 }')
 
-			# Logic to make checked radiobuttons
+			# Logic to make checked radio buttons
 			case "$SMC_ANALOGUE" in 
 				0) SMC_ANALOGUE_CHECK="" ;;
 				1) SMC_ANALOGUE_CHECK="checked" ;;
@@ -206,7 +214,6 @@ pcp_sound_card_dropdown() {
 	if [ -e /tmp/dropdown.cfg ]; then
 		sudo sed -i 's/:selected:/:notselected:/' /tmp/dropdown.cfg
 		sudo sed -i "/${AUDIO}:/s/:notselected:/:selected:/" /tmp/dropdown.cfg
-
 	else
 		CONF_AUDIO="$AUDIO"
 		pcp_blank_audio_conf
@@ -236,10 +243,11 @@ pcp_find_card_number() {
 #========================================================================================
 # This will get us available options from the DAC
 #----------------------------------------------------------------------------------------
-old_pcp_soundcontrol() {
-	pcp_blank_audio_conf
-	echo "$AUDIO_OPTIONS_EXTRA" | grep -q "$AUDIO" && . "$DACLOCATION"/"$AUDIO".conf
-}
+
+#old_pcp_soundcontrol() {
+#	pcp_blank_audio_conf
+#	echo "$AUDIO_OPTIONS_EXTRA" | grep -q "$AUDIO" && . "$DACLOCATION"/"$AUDIO".conf
+#}
 
 # Declare a handler for parsed variables.  This is required.
 __shini_parsed() {
@@ -278,9 +286,9 @@ pcp_soundcontrol() {
 #----------------------------------------------------------------------------------------
 pcp_selected_soundcontrol() {
 	pcp_blank_audio_conf
-	. "$CONFIGCFG"
+	. $CONFIGCFG
 
-	[ $OUTPUT = "equal" ] && OUTPUT1="equal"
+	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal"
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
