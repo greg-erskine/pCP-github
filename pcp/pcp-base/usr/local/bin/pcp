@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.23 2017-10-11
+#	Added pause. GE.
+
 # Version: 3.20 2017-03-07
 #	Moved Mode/Test/Debug to config. PH.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -21,7 +24,8 @@ pcp_cli_help() {
 	echo " Squeezelite/LMS"
 	echo " ---------------"
 	echo " - pcp play           : play current track in playlist"
-	echo " - pcp stop           : stop"
+	echo " - pcp stop           : stop current track"
+	echo " - pcp pause          : pause current track"
 	echo " - pcp up             : volume up"
 	echo " - pcp down           : volume down"
 	echo " - pcp next           : next track"
@@ -64,6 +68,9 @@ case "$1" in
 	;;
 	stop)
 		pcp_lms_stop
+	;;
+	pause)
+		pcp_lms_pause
 	;;
 	up)
 		pcp_lms_volume_up
