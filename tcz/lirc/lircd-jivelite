@@ -61,7 +61,7 @@ begin remote
           KEY_LEFTBRACE            0xA25D                    ## Touch:NOW PLAYING
           KEY_G                    0xF807                    ## Size (stop)
           KEY_SEMICOLON            0x708F                    ## Browse
-          KEY_GRAVE                0x04FB                    ## Brightness (playlists)
+          KEY_L                    0x04FB                    ## Brightness (go)
           KEY_H                    0x22DD                    ## Touch:HOME
       end codes
 end remote

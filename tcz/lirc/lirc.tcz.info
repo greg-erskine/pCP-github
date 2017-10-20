@@ -1,14 +1,12 @@
-Title:          lirc.tcz
-Description:    LIRC package for remote control
-Version:        0.9.0
-Author:         lirc 
-Original-site:  http://www.lirc.org
-Copying-policy: GPL
-Size:           216kb
-Extension_by:   Ralphy: https://github.com/ralph-irving/tcz-lirc
-Tags:           IR remote control
-Comments:       Binaries only
-                ----
-                Compiled for piCore 7.x
-                ----
-Change-log:     2016/03/21 First version, (Ralphy)
+Title:		lirc.tcz
+Description:	LIRC package for remote control
+Version:	0.9.0
+Author:		Alec Leamas
+Original-site:	http://www.lirc.org
+Copying-policy:	GPL
+Size:		221184k
+Extension_by:	piCorePlayer team: https://sites.google.com/site/picoreplayer
+Tags:	IR remote control
+Comments:	Binaries only
+		Compiled for piCore 8.x
+Change-log:	Import https://github.com/ralph-irving/tcz-lirc (bda422187206a32ab524e47a3038296d817f019c)
