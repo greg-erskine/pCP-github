@@ -41,7 +41,13 @@ mkdir -p $OUTPUT/opt/jivelite/share/jive/applets/SetupWallpaper/wallpaper
 mv $OUTPUT/Jivelite/Wav35Skin $OUTPUT/opt/jivelite/share/jive/applets
 find $OUTPUT/opt/jivelite/share/jive/applets -type f -name '*.db' -exec rm {} \;
 mv $OUTPUT/Jivelite/SetupWallpaper/wallpaper/wav_* $OUTPUT/opt/jivelite/share/jive/applets/SetupWallpaper/wallpaper
+mv $OUTPUT/opt/jivelite/share/jive/applets/Wav35Skin/images/UNOFFICIAL/VUMeter/vu_analog_25seq_?.png $STARTDIR || exit 1
+
 rm -rf $OUTPUT/Jivelite
+
+cd $OUTPUT/opt/jivelite/share/jive/applets/Wav35Skin
+patch -p0 -i $STARTDIR/wav35skin-remove-nocturneWallpaper.patch || exit 2
+cd $STARTDIR
 
 echo "Creating $TCZs..."
 
@@ -67,3 +73,7 @@ echo -e "Copying-policy:\tGPL" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
 echo -e "\t\tPackaged for piCore 8.x" >> $TCZLIBINFO
+
+. ./create-default-wav35skin-tcz.sh
+
+. ./create-vumeters-wav35skin-tcz.sh
