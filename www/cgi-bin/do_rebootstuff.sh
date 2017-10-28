@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.23 2017-10-26
+#	Do not change card number if card not found in asound.conf. PH.
+
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
 #	Fixed spaces in SSID. PH.
@@ -350,7 +353,7 @@ echo "${GREEN}Done.${NORMAL}"
 if [ "$OUTPUT" = "equal" ]; then
 	echo -n "${BLUE}Checking proper card number for Alsaequal... ${NORMAL}"
 	pcp_find_card_number
-	sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
+	[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo "{$RED}Selected card not found in /etc/asound.conf."
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
