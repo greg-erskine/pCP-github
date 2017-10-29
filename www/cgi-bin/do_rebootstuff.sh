@@ -682,9 +682,10 @@ if [ "$JIVELITE" = "yes" ]; then
 		export SDL_MOUSEDEV=$TSLIB_TSDEVICE
 	fi
 	export HOME=/home/tc
-	if [ -x /mnt/mmcblk0p2/tce/jivelite.sh ]; then
+	# Alternative jivelite script, mainly used for waveshare devices.  Located on persistent partition. (/mnt/mmcblk0p2 or patition where tce is located)
+	if [ -x $TCEMNT/tce/jivelite.sh ]; then
 		echo "${GREEN}Done.${NORMAL}"
-		sudo -E -b /mnt/mmcblk0p2/tce/jivelite.sh >/dev/null 2>&1
+		sudo -E -b $TCEMNT/tce/jivelite.sh >/dev/null 2>&1
 	elif [ -x /opt/jivelite/bin/jivelite.sh ]; then
 		echo "${GREEN}Done.${NORMAL}"
 		sudo -E -b /opt/jivelite/bin/jivelite.sh >/dev/null 2>&1
