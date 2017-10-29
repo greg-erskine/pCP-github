@@ -1,16 +1,7 @@
 #!/bin/sh
 
-# Version: 3.23 2017-10-02
+# Version: 3.23 2017-10-26
 #	Minor cosmetic changes. GE.
-
-#????????????????????????????????????????????????????????????????????????????????????????
-# Steen questions:
-#   1. should $VoIinputSubName be VolInputSubName ?
-#   2. should $VoIinputName be $VolInputName ?
-#   3. should $VoIinputSubid be $VolInputSubId ?
-#   4. etc
-#   5. Can pcp_Volume_filter_buttons be changed to pcp_volume_filter_buttons ?
-#????????????????????????????????????????????????????????????????????????????????????????
 
 # Version: 3.21 2017-07-15
 #	Added Analogue and Analogue Boost, ALSA Simple Controls. SBP.
@@ -56,7 +47,7 @@ ACTUAL_ONBOARD_STATUS=$?
 #========================================ACTIONS=========================================
 case "$ACTION" in
 	Test)
-		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
+		sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 
 		if [ x"$SMCFILTER1" = x"" ]; then
@@ -85,13 +76,13 @@ case "$ACTION" in
 			*);;
 		esac
 		[ "$PIANOLOWPASS" != "" ] && sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
-		[ "$VoIinputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VoIinputSubName'%' >/dev/null 2>&1
+		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		#--------------------------------------------------------------------------------
 		pcp_generic_card_control
 	;;
 	Backup)
-		sudo amixer -c $CARD sset $SSET $VoIinputName'%' >/dev/null 2>&1
-		[ "$VoIinputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VoIinputSubName'%' >/dev/null 2>&1
+		sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 		pcp_generic_card_control
 		AUDIO="$ORIG_AUDIO"
@@ -325,17 +316,17 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '              <td>'
 			echo '                <p style="height:12px">'
 			echo '                  <input class="large36"'
-			echo '                         id="VoIinputSubid"'
+			echo '                         id="VolInputSubId"'
 			echo '                         type="range"'
-			echo '                         name="VoIinputSubName"'
+			echo '                         name="VolInputSubName"'
 			echo '                         value='"$ACTUAL_SUB_VOL"''
 			echo '                         min="1"'
 			echo '                         max="100"'
-			echo '                         oninput="VoIOutputSubid.value = VoIinputSubid.value">'
+			echo '                         oninput="VolOutputSubId.value = VolInputSubId.value">'
 			echo '                </p>'
 			echo '              </td>'
 			echo '              <td>'
-			echo '                <output name="VolOutputSubName" id="VoIOutputSubid">'"$ACTUAL_SUB_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
+			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
 			echo '              </td>'
 			echo '            </tr>'
 		;;
@@ -357,17 +348,17 @@ pcp_soundcard_volume_options() {
 		echo '              <td>'
 		echo '                <p style="height:12px">'
 		echo '                  <input class="large36"'
-		echo '                         id="VoIinputid"'
+		echo '                         id="VolInputId"'
 		echo '                         type="range"'
-		echo '                         name="VoIinputName"'
+		echo '                         name="VolInputName"'
 		echo '                         value='"$ACTUAL_VOL"''
 		echo '                         min="1"'
 		echo '                         max="100"'
-		echo '                         oninput="VoIOutputid.value = VoIinputid.value">'
+		echo '                         oninput="VolOutputId.value = VolInputId.value">'
 		echo '                </p>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <output name="VolOutputName" id="VoIOutputid">'"$ACTUAL_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_DB"'</b>'
+		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_DB"'</b>'
 		echo '              </td>'
 		echo '            </tr>'
 		row_padding
@@ -379,7 +370,7 @@ pcp_soundcard_volume_options() {
 # Show Buttons for Volume selection
 # - Only show this if ALSA volume control is possible.
 #----------------------------------------------------------------------------------------
-pcp_Volume_filter_buttons() {
+pcp_volume_filter_buttons() {
 	if [ x"$ACTUAL_VOL" != x"" ]; then
 		pcp_incr_id
 		echo '            <tr class="'$ROWSHADE'">'
@@ -498,11 +489,11 @@ if [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENE
 	pcp_soundcard_SMC_Analogue_options
 	[ "$AUDIO" = "allo_piano_dac_plus" ] && pcp_allo_piano_plus_custom_controls
 	pcp_soundcard_volume_options
-	pcp_Volume_filter_buttons
+	pcp_volume_filter_buttons
 	pcp_soundcard_parameter_options
 fi
 
-[ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_Volume_filter_buttons && pcp_soundcard_parameter_options
+[ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_volume_filter_buttons && pcp_soundcard_parameter_options
 
 [ x"$GENERIC_CARD" = x"" ] && echo "$TEXT"
 
