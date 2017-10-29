@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.23 2017-10-26
+# Version: 3.23 2017-10-29
 #	Do not change card number if card not found in asound.conf. PH.
+#	Turn off extras during upgrade if they do not exist on new image. PH
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -179,6 +180,20 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		echo "NETMOUNTPASS=${NETMOUNT1PASS}" >> $NETMOUNTCONF
 		echo "NETMOUNTOPTIONS=${NETMOUNT1OPTIONS}" >> $NETMOUNTCONF
 		echo "${GREEN}Done.${NORMAL}"
+	fi
+	# Disable alsaequal if it doesn't exists on new image.
+	if [ "$OUTPUT" = "equal" ]; then
+		if [ ! -f $TCEMNT/tce/optional/alsaequal.tcz ]; then
+			echo "${YELLOW}[ WARN ] Disabling Alsaequal, please re-install.${NORMAL}"
+			OUTPUT=""
+		fi
+	fi
+	# Disable Jivelite if it doesn't exists on new image.
+	if [ "$JIVELITE" = "yes" ]; then
+		if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
+			echo "${YELLOW}[ WARN ] Disabling Jivelite, please re-install.${NORMAL}"
+			JIVELITE="no"
+		fi
 	fi
 	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
