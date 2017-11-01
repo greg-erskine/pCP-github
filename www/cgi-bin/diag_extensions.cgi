@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5 2017-11-01
+#	Updated extension lists. PH
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -16,7 +19,6 @@
 . /etc/init.d/tc-functions
 . pcp-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "Diagnostics extensions" "GE"
 
@@ -93,11 +95,12 @@ pcp_message() {
 #----------------------------------------------------------------------------------------
 pcp_downloaded_extensions() {
 	VERSION=$(echo ${KERNELVER} | awk -F"-" '{print $1}')
-	echo alsa-modules-${VERSION}-pcpCore+.tcz     > $EXTENLIST
-	echo alsa-modules-${VERSION}-pcpCore_v7+.tcz >> $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore.tcz     > $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore_v7.tcz >> $EXTENLIST
 	echo alsa-utils.tcz                         >> $EXTENLIST
 	echo alsa.tcz                               >> $EXTENLIST
 	echo busybox-httpd.tcz                      >> $EXTENLIST
+	echo ca-certificates.tcz                    >> $EXTENLIST
 	echo dialog.tcz                             >> $EXTENLIST
 	echo firmware-atheros.tcz                   >> $EXTENLIST
 	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
@@ -106,23 +109,29 @@ pcp_downloaded_extensions() {
 	echo firmware-rtlwifi.tcz                   >> $EXTENLIST
 	echo libasound.tcz                          >> $EXTENLIST
 	echo libedit.tcz                            >> $EXTENLIST
-	echo libelf.tcz                             >> $EXTENLIST
-	echo libgcrypt.tcz                          >> $EXTENLIST
-	echo libgpg-error.tcz                       >> $EXTENLIST
 	echo libiw.tcz                              >> $EXTENLIST
 	echo libnl.tcz                              >> $EXTENLIST
-	echo libssh2.tcz                            >> $EXTENLIST
-	echo libts.tcz                              >> $EXTENLIST
 	echo ncurses.tcz                            >> $EXTENLIST
+	echo net-usb-${VERSION}-pcpCore.tcz         >> $EXTENLIST
+	echo net-usb-${VERSION}-pcpCore_v7.tcz      >> $EXTENLIST
 	echo openssh.tcz                            >> $EXTENLIST
 	echo openssl.tcz                            >> $EXTENLIST
+	echo pcp.tcz                                >> $EXTENLIST
+	echo pcp-base.tcz                           >> $EXTENLIST
+	echo pcp-libfaad2.tcz                       >> $EXTENLIST
+	echo pcp-libflac.tcz                        >> $EXTENLIST
+	echo pcp-libmad.tcz                         >> $EXTENLIST
+	echo pcp-libmpg123.tcz                      >> $EXTENLIST
+	echo pcp-libogg.tcz                         >> $EXTENLIST
+	echo pcp-libsoxr.tcz                        >> $EXTENLIST
+	echo pcp-libvorbis.tcz                      >> $EXTENLIST
+	echo pcp-squeezelite.tcz                    >> $EXTENLIST
 	echo readline.tcz                           >> $EXTENLIST
-	echo touchscreen-${VERSION}-pcpCore+.tcz     >> $EXTENLIST
-	echo touchscreen-${VERSION}-pcpCore_v7+.tcz  >> $EXTENLIST
 	echo wifi.tcz                               >> $EXTENLIST
-	echo wireless-${VERSION}-pcpCore+.tcz        >> $EXTENLIST
-	echo wireless-${VERSION}-pcpCore_v7+.tcz     >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore.tcz        >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore_v7.tcz     >> $EXTENLIST
 	echo wireless_tools.tcz                     >> $EXTENLIST
+	echo wiringpi.tcz                           >> $EXTENLIST
 	echo wpa_supplicant.tcz                     >> $EXTENLIST
 	unset VERSION
 }
@@ -287,7 +296,7 @@ pcp_set_repo ${PCP_REPO%/}
 #========================================================================================
 pcp_message "LIRC"
 #-----------------
-pcp_check_extension lirc.tcz
+pcp_check_extension pcp-lirc.tcz
 pcp_check_extension irda-${KERNELVER}.tcz
 pcp_check_extension libcofi.tcz
 #----------------------------------------------------------------------------------------
@@ -298,7 +307,10 @@ pcp_check_extension libts.tcz
 #----------------------------------------------------------------------------------------
 pcp_message "Jivelite"
 #---------------------
-pcp_check_extension jivelite_touch.tcz
+pcp_check_extension pcp-jivelite.tcz
+pcp_check_extension libts.tcz
+pcp_check_extension libcofi.tcz
+pcp_check_extension pcp-jivelite_hdskins.tcz
 pcp_check_extension VU_Meter_Kolossos_Oval.tcz
 pcp_check_extension VU_Meter_Jstraw_Dark.tcz
 pcp_check_extension VU_Meter_Jstraw_Dark_Peak.tcz
@@ -317,30 +329,33 @@ pcp_check_extension slimserver-CPAN.tcz
 pcp_check_extension perl5.tcz
 pcp_check_extension gcc_libs.tcz
 pcp_check_extension openssl.tcz
+pcp_check_extension ca-certificates.tcz
 pcp_check_extension perl_io_socket_ssl.tcz
 pcp_check_extension perl_mozilla_ca.tcz
 pcp_check_extension perl_net_ssleay.tcz
+pcp_check_extension perl_crypt_openssl_rsa.tcz
+pcp_check_extension perl_common_sense.tcz
+pcp_check_extension perl_linux_inotify2.tcz
 #----------------------------------------------------------------------------------------
 pcp_message "Broadcom USB wifi adaptor"
 #--------------------------------------
 pcp_check_extension firmware-brcmwifi.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Shairport"
+pcp_message "Shairport-sync"
 #----------------------
-pcp_check_extension avahi.tcz
-pcp_check_extension dbus.tcz
-pcp_check_extension expat2.tcz
-pcp_check_extension libattr.tcz
-pcp_check_extension libavahi.tcz
-pcp_check_extension libcap.tcz
+pcp_check_extension pcp-shairportsync.tcz
 pcp_check_extension libcofi.tcz
-pcp_check_extension libdaemon.tcz
-pcp_check_extension nss-mdns.tcz 
 #----------------------------------------------------------------------------------------
 pcp_message "ALSA equaliser"
 #---------------------------
 pcp_check_extension alsaequal.tcz
 pcp_check_extension caps-0.4.5.tcz
+#----------------------------------------------------------------------------------------
+pcp_message "networking"
+#-----------------------
+pcp_check_extension ntfs-3g.tcz
+pcp_check_extension filesystems-${KERNELVER}.tcz
+pcp_check_extension net-usb-${KERNELVER}.tcz
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -369,24 +384,18 @@ pcp_check_extension wget.tcz
 pcp_message "wifi"
 #-----------------
 pcp_check_extension firmware-atheros.tcz
-pcp_check_extension firmware-brcmwifi.tcz
+#pcp_check_extension firmware-brcmwifi.tcz
 pcp_check_extension firmware-ralinkwifi.tcz
 pcp_check_extension firmware-rpi3-wireless.tcz
 pcp_check_extension firmware-rtlwifi.tcz
 pcp_check_extension wifi.tcz
-pcp_check_extension wireless-${KERNELVER}.tcz
+#pcp_check_extension wireless-${KERNELVER}.tcz
 pcp_check_extension wireless_tools.tcz
 pcp_check_extension wpa_supplicant.tcz
 #----------------------------------------------------------------------------------------
 pcp_message "wifi diagnositcs"
 #-----------------------------
 pcp_check_extension usbutils.tcz
-#----------------------------------------------------------------------------------------
-pcp_message "networking"
-#-----------------------
-pcp_check_extension filesystems-${KERNELVER}.tcz
-pcp_check_extension ntfs-3g.tcz
-pcp_check_extension net-usb-${KERNELVER}.tcz
 #----------------------------------------------------------------------------------------
 pcp_message "Common extensions"
 #------------------------------
