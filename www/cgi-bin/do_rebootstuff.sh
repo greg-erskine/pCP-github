@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.23 2017-10-29
+# Version: 3.5 2017-11-01
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH
 
@@ -186,6 +186,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		if [ ! -f $TCEMNT/tce/optional/alsaequal.tcz ]; then
 			echo "${YELLOW}[ WARN ] Disabling Alsaequal, please re-install.${NORMAL}"
 			OUTPUT=""
+			ALSAeq="no"
 		fi
 	fi
 	# Disable Jivelite if it doesn't exists on new image.
