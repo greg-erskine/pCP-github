@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.5 2017-11-01
+#	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
+
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
 #	Added $INTERNET_CHECK_IP to config.cfg. GE.
@@ -292,27 +295,27 @@ pcp_internet_accessible() {
 }
 
 pcp_sourceforge_accessible() {
-	/bin/busybox wget -s ${PCP_REPO}/repo.htm >/dev/null 2>&1
+	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
 pcp_picore_accessible() {
-	/bin/busybox wget -s $MIRROR >/dev/null 2>&1
+	/bin/busybox wget --spider $MIRROR >/dev/null 2>&1
 	echo $?
 }
 
 pcp_pcp_repo_accessible() {
-	/bin/busybox wget -s ${PCP_REPO}/repo.htm >/dev/null 2>&1
+	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
 pcp_picore_repo_1_accessible() {
-	/bin/busybox wget -s $PICORE_REPO_1 >/dev/null 2>&1
+	/bin/busybox wget --spider $PICORE_REPO_1 >/dev/null 2>&1
 	echo $?
 }
 
 pcp_picore_repo_2_accessible() {
-	/bin/busybox wget -s $PICORE_REPO_2 >/dev/null 2>&1
+	/bin/busybox wget --spider $PICORE_REPO_2 >/dev/null 2>&1
 	echo $?
 }
 

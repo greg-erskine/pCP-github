@@ -2,6 +2,7 @@
 
 # Version: 3.5 2017-11-01
 #	Updated extension lists. PH
+#	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
 
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
@@ -75,7 +76,7 @@ pcp_set_repo() {
 }
 
 pcp_check_extension() {
-	$WGET -s "${MIRROR}/$1"
+	$WGET --spider "${MIRROR}/$1"
 	if [ $? -eq 0 ]; then
 		echo "[  OK  ] ${MIRROR}/$1" | tee -a $LOG
 	else
