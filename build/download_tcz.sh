@@ -22,7 +22,7 @@ end='\e[0m'
 TCE_REPO="http://repo.tinycorelinux.net"
 PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
 #For now use the armv7 repo
-TCE_VER="8.x/armv7/tcz"
+TCE_VER="9.x/armv7/tcz"
 
 #This list does not include kernel modules
 TCE_EXT="alsa-utils alsa busybox-httpd dialog openssh openssl readline libedit \
