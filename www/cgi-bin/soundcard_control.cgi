@@ -436,8 +436,8 @@ pcp_soundcard_parameter_options() {
 		echo '                  <ul>'
 		I=1
 		while true; do
-			eval TEST="\${TEXT${I}}"
-			if [ x"$TEST" != x ]; then
+			eval CHK="\${TEXT${I}}"
+			if [ x"$CHK" != x ]; then
 				echo -n '                    <li>'
 				eval echo -n "\${TEXT${I}}"
 				echo '</li>'

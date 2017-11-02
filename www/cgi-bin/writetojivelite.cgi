@@ -227,11 +227,11 @@ case "$OPTION" in
 				if [ $? -eq 0 ]; then
 					echo '                <textarea class="inform" style="height:150px">'
 					pcp-update pcp-jivelite.tcz
-					TEST=$?
-					if [ $TEST -eq 2 ]; then
+					CHK=$?
+					if [ $CHK -eq 2 ]; then
 						echo '[ INFO ] There is no update for jivelite at this time.'
 						REBOOT_REQUIRED=0
-					elif [ $TEST -eq 1 ]; then
+					elif [ $CHK -eq 1 ]; then
 						echo '[ ERROR ] There was an error updating jivelite, please try again later'
 						REBOOT_REQUIRED=0
 					else 

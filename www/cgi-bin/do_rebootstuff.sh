@@ -598,16 +598,16 @@ if [ "$LMSERVER" = "yes" ]; then
 			echo -n "${YELLOW}Waiting for LMS to initiate."
 			# Check response from port 3483 for Player Connects.
 			CNT=1
-			TEST=""
-			while [ "$TEST" != "E" ];
+			CHK=""
+			while [ "$CHK" != "E" ];
 			do
-				TEST=$(echo "e" | nc -w 1 -u 127.0.0.1 3483)
+				CHK=$(echo "e" | nc -w 1 -u 127.0.0.1 3483)
 				if [ $((CNT++)) -gt 20 ]; then
 					echo "${RED} LMS not running ($CNT).${NORMAL}"
 					break
 				else
 					echo -n "."
-					[ "$TEST" != "E" ] && sleep 1
+					[ "$CHK" != "E" ] && sleep 1
 				fi
 			done
 			echo "${GREEN} Done ($CNT).${NORMAL}"

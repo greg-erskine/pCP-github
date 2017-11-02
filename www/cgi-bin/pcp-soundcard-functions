@@ -311,8 +311,8 @@ pcp_blank_audio_conf() {
 	RPI_MODEL=""
 	I=1
 	while true; do
-		eval TEST="\${TEXT${I}}"
-		if [ x"$TEST" != x ]; then 
+		eval CHK="\${TEXT${I}}"
+		if [ x"$CHK" != x ]; then 
 			eval TEXT${I}=""
 			I=$((I+1))
 		else
