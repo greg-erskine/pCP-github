@@ -1,0 +1,13 @@
+Title:          caps-0.4.5.tcz
+Description:    Collection of audio plugins
+Version:        0.4.5
+Author:         Tim Goetze
+Original-site:  http://quitte.de/dsp/caps.html
+Copying-policy: COPYING
+Size:           716kB
+Extension_by:   bmarkus, Lykkedk, Gerrelt
+Tags:           SOUND LIBRARY AUDIO
+Comments:       This extension requires libasound
+                This is not the latest version, but alsaequal only works with this version (yet).
+Change-log:     ----
+Current:        2015/12/13 First version, 0.4.5
