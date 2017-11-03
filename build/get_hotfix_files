@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#Compare current branch to master
+#Ignore build htdocs and tcz directories.
+TMPLIST=$(mktemp)
+
+git diff master --name-only | grep "^www/" > $TMPLIST
+git diff master --name-only | grep "^pcp/" >> $TMPLIST
+
+cat $TMPLIST
+#nano $TMPLIST
+
+
+
+
+
+#Cleanup
+rm -f $TMPLIST
+

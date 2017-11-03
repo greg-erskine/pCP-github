@@ -41,7 +41,7 @@ fi
 echo "Setting up Sudo....."
 sudo echo
 
-AVAILINITRD=$(ls initrd)
+AVAILINITRD=$(ls -r --sort=time initrd)
 
 echo "Please Select the base initrd to use"
 select OLD in $AVAILINITRD;
@@ -82,8 +82,8 @@ else
 	exit 1
 fi
 
-OLDKERNEL=$(ls $INITRDWRK/lib/modules)
-AVAILKERNEL=$(ls modules)
+OLDKERNEL=$(ls -r --sort=time $INITRDWRK/lib/modules)
+AVAILKERNEL=$(ls -r --sort=time modules)
 
 echo "Kernel in the base initrd is $OLDKERNEL"
 echo ""
@@ -123,15 +123,16 @@ cd $BASEWD
 echo "Copying new Modules (And new or change paths have to be moved manually)"
 SRCMODPATH="modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/kernel"
 cd $SRCMODPATH
-tar -T $TMPOLDMOD -cf /tmp/$NEWKERNEL.tar
+tar --ignore-failed-read -T $TMPOLDMOD -cf /tmp/$NEWKERNEL.tar
 cd $BASEWD
 DESTMODPATH="$INITRDWRK/lib/modules/$NEWKERNEL/kernel"
 sudo mkdir -p $DESTMODPATH
 cd $DESTMODPATH
 sudo tar xf /tmp/$NEWKERNEL.tar
 echo "*****************************************************************"
-echo "initrd has been updated with modules. Please add any modules that are needed."
+echo "initrd has been updated with modules. ${GREEN}Please add any modules that are needed.${NORMAL}"
 echo "New kernel is $NEWKERNEL Located in $NEWKERNELDIR"
+echo ""
 echo "Press any key to continue"
 read key
 echo
@@ -210,8 +211,13 @@ echo "Press any key to continue, or ctrl-c to abort"
 read key
 NEWINITRDDIR=$BASEWD/initrd/$NEWKERNELDIR
 mkdir -p $NEWINITRDDIR
+cd $DESTMODPATH
+find * -not -type d > /tmp/module.lst
+sort /tmp/module.lst > $NEWINITRDDIR/module.lst
 cd $INITRDWRK
 sudo find | sudo cpio -o -H newc | gzip -9 > $NEWINITRDDIR/${NEWINITRD%.gz}.gz
+echo "Launching recompression in the background"
+advdef -z4 $NEWINITRDDIR/${NEWINITRD%.gz}.gz 2>&1 > /dev/null &
 cd $BASEWD
 echo
 echo "Cleanup - Temp Files"

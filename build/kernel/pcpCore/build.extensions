@@ -17,7 +17,7 @@
 #  new extensions will be saved in path based on the new kernel version.  Note, that you need a new kernel for this to work.
 #
 #
-#	Notes: Currently this breaks if a new kernel doesn't have at least all modules in old versions
+#	Notes: If new kernel doesn't have modules in old versions, error will be printed and module left out.
 
 
 
@@ -30,7 +30,7 @@ fi
 
 BASEWD=$(pwd)
 
-AVAILKERNEL=$(ls extensions)
+AVAILKERNEL=$(ls -r --sort=time extensions)
 
 echo "Please Select the Kernel version to use for starting module file listings"
 select OLD in $AVAILKERNEL;
@@ -46,7 +46,7 @@ do
 	fi
 done
 
-AVAILKERNEL=$(ls modules)
+AVAILKERNEL=$(ls -r --sort=time modules)
 
 echo
 echo "Starting kernel is $OLD"
@@ -81,11 +81,11 @@ SRCMODPATH="modules/${NEW}/lib/modules/${NEWKERNEL}/kernel"
 for I in ${EXT}; do
 	echo
 	echo "*****************************************************************"
-	echo "Creating Module Extension for $I-$NEWKERNEL"
+	echo "Creating Module Extension for ${YELLOW}$I-$NEWKERNEL${NORMAL}"
 	cd ${SRCMODPATH}
 	cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.list /tmp/${I}.list
 	sed -i "s|usr/local/lib/modules/$OLDKERNEL/kernel/||" /tmp/${I}.list
-	tar -T /tmp/${I}.list -cf /tmp/${I}-${NEWKERNEL}.tar
+	tar --ignore-failed-read -T /tmp/${I}.list -cf /tmp/${I}-${NEWKERNEL}.tar
 	cd ${BASEWD}
 	DESTMODPATH="extensions/${NEW}/${I}-${NEWKERNEL}/usr/local/lib/modules/${NEWKERNEL}/kernel"
 	mkdir -p ${DESTMODPATH}

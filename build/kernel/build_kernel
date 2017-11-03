@@ -9,44 +9,17 @@
 #	firmware			https://github.com/raspberrypi/firmware.git
 #	linux-git		https://github.com/raspberrypi/linux.git
 #	tools				https://github.com/raspberrypi/tools.git (Note, this is for a linux x86 based cross compiler)
+#  x-tools        current cg-ng cross compilers
+#  pcpCore        Where all the compiled kernels go.
 #
 #
+BASEWD=$(pwd)
 #  This editor is for making some build notes... 
 EDITOR="/usr/bin/notepadqq"
 #
-# Change your CC if needed.
-#for Rasperry pi arm
-export CCPREFIX="${BASEWD}/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-"
-#This is 64 bit, but only 4.8.3. based gcc
-#export CCPREFIX="${BASEWD}/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-"
-#These are built into the compiler
-#export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
 
 LINUX_GIT="linux-git"
 echo "Kernel Build Scripts"
-
-#  If you end up with different kernel trees, you can us this.
-#echo "Which Kernel would you like to use?"
-#LINUXSRC=$(find * -maxdepth 1 -type d -name "linux*")
-#select LINUX_GIT in $LINUXSRC
-#do
-#	if [ "${LINUX_GIT}" != "" ]; then
-#		echo "You picked: ${LINUX_GIT}"
-#		cd ${LINUX_GIT}
-#		echo
-#		git status
-#		cd ..
-#		echo
-#		read -p "Do you wish to continue?" yn
-#		case $yn in
-#			[Yy]* ) break;;
-#			[Nn]* ) exit 1;;
-#			* ) echo "Please answer yes or no.";;
-#		esac
-#	fi
-#done
-BASEWD=$(pwd)
-
 echo "*****************************************************************"
 echo
 echo "Working with linux source from ${LINUX_GIT}"
@@ -55,13 +28,22 @@ BUILDKERNEL=1
 PREPAREMODS=0
 
 trimval() {
-	echo $1 | cut -d '=' -f2 | xargs 
+	echo $1 | cut -d '=' -f2 | xargs
 }
 
 if [ ! -d $LINUX_GIT ]; then
 	echo "Please start in base pcp build directory $LINUX_GIT"
 	exit 1
 fi
+
+cd ${LINUX_GIT}
+git status | grep -q clean
+if [ $? -eq 1 ]; then
+	echo "Linux working branch is not clean, please fix and restart build."
+	exit 1
+fi
+
+cd $BASEWD
 
 echo "Select the Base Architecture"
 select RPIARCH in armv6 armv7;
@@ -78,6 +60,26 @@ do
 done
 echo "*****************************************************************"
 echo
+
+# Change your CC if needed.
+#
+#This is the compiler referenced https://www.raspberrypi.org/documentation/linux/kernel/building.md
+#This is 64 bit, but only 4.8.3. based gcc
+#export CCPREFIX="${BASEWD}/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-"
+#This is 32 bit, but only 4.8.3. based gcc
+#export CCPREFIX="${BASEWD}/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-"
+
+if [ "$RPIARCH" = "armv6" ]; then
+	#These are built into the compiler
+	#export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
+	CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv6-linux-gnueabihf_x64/bin/arm-bcm2708hf-linux-gnueabihf-"
+else
+	#These are built into the compiler
+	#export CFLAGS="-march=cortex-a8 -mfpu=neon-vfp4"
+	CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv7-linux-gnueabihf_x64/bin/arm-bcm2709hf-linux-gnueabihf-"
+fi
+echo "Setting Cross Compiler to:${CCPREFIX}"
+echo ""
 
 while true; do
 	read -p "Do you need to Clean the linux build tree? (y/n) " yn
@@ -104,43 +106,58 @@ if [ -f  $LINUX_GIT/.config ]; then
 	echo
 fi
 
-if [ ! -f  $LINUX_GIT/.config ]; then
-	echo "Select the previous config you would like to start with"
-	select INITCONFIG in $(ls pcpCore/$RPIARCH/configs);
-	do
-		if [ "$INITCONFIG" != "" ]; then
-			echo "You picked $INITCONFIG"
-			read -p "Do you wish to continue? (y/n) " yn
-			case $yn in
-				[Yy]* ) INITKERNEL=${INITCONFIG%^*};break;;
-				[Nn]* ) exit 1;;
-				* ) echo "Please answer yes or no.";;
-			esac
-		fi
-	done
-	xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITKERNEL}_.config.xz > $LINUX_GIT/.config
-fi
-echo
-echo "*****************************************************************"
-echo 
-while true;
-do
-	read -p "Just setup Kernel for building modules? (y/n) " yn
-	case $yn in
-		[Yy]* ) 
-			xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITCONFIG}_Module.symvers.xz > $LINUX_GIT/Module.symvers
-			xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITCONFIG}_System.map.xz > $LINUX_GIT/System.map
-			PREPAREMODS=1
-			BUILDKERNEL=0
-			break
-		;;
-		[Nn]* ) 
-			break
-		;;
-		* ) echo "Please answer yes or no."
-		;;
+cd $LINUX_GIT
+
+if [ ! -f .config ]; then
+	case $RPIARCH in
+		armv6) DEFCONFIG=bcmrpi_defconfig;;
+		armv7) DEFCONFIG=bcm2709_defconfig;;
+		*) echo "defconfig selection error"; exit 1;;
 	esac
-done	
+
+	echo "Generating config from ${DEFCONFIG}....."
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} defconfig ${DEFCONFIG}
+
+#  Not using this, we are using defconfigs
+#	echo "Select the previous config you would like to start with"
+#	select INITCONFIG in $(ls -r --sort=time pcpCore/$RPIARCH/configs);
+#	do
+#		if [ "$INITCONFIG" != "" ]; then
+#			echo "You picked $INITCONFIG"
+#			read -p "Do you wish to continue? (y/n) " yn
+#			case $yn in
+#				[Yy]* ) INITKERNEL=${INITCONFIG%^*};break;;
+#				[Nn]* ) exit 1;;
+#				* ) echo "Please answer yes or no.";;
+#			esac
+#		fi
+#	done
+#	xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITKERNEL}_.config.xz > $LINUX_GIT/.config
+fi
+
+cd ..
+
+#echo
+#echo "*****************************************************************"
+#echo 
+#while true;
+#do
+#	read -p "Just setup Kernel for building modules? (y/n) " yn
+#	case $yn in
+#		[Yy]* ) 
+#			xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITCONFIG}_Module.symvers.xz > $LINUX_GIT/Module.symvers
+#			xzcat pcpCore/${RPIARCH}/configs/${INITCONFIG}/${INITCONFIG}_System.map.xz > $LINUX_GIT/System.map
+#			PREPAREMODS=1
+#			BUILDKERNEL=0
+#			break
+#		;;
+#		[Nn]* ) 
+#			break
+#		;;
+#		* ) echo "Please answer yes or no."
+#		;;
+#	esac
+#done
 
 cd $LINUX_GIT
 
@@ -154,8 +171,12 @@ while read LINE; do
 	esac
 done < Makefile
 
+GIT_BRANCH=$(git status --porcelain -b)
+
 echo "*****************************************************************"
-echo 
+echo
+echo Current git branch: ${GIT_BRANCH}
+echo
 KVERSION=$(printf "%d.%d.%d" $VERSION $PATCHLEVEL $SUBLEVEL)
 echo "Kernel Version:$VERSION"
 echo "Kernel PatchLevel: $PATCHLEVEL"
@@ -180,7 +201,13 @@ while read LINE; do
 		*);;
 	esac
 done < .config
-KVERSION="${KVERSION}${LOCALVERSION}+"
+
+touch .scmversion
+if [ -f .scmversion ]; then
+	KVERSION="${KVERSION}${LOCALVERSION}"
+else
+	KVERSION="${KVERSION}${LOCALVERSION}+"
+fi
 echo "Building for kernel $KVERSION"
 echo 
 echo "*****************************************************************"
@@ -190,7 +217,7 @@ while true; do
 	read -p "Do you need to run \"make oldconfig\"? (y/n) " yn
 	case $yn in
 		[Yy]* ) 
-			make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 oldconfig
+			make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8 oldconfig
 			break
 		;;
 		[Nn]* ) 
@@ -206,7 +233,7 @@ while true; do
 	read -p "Do you need to run \"make menuconfig\"? (y/n) " yn
 	case $yn in
 		[Yy]* ) 
-			make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4  menuconfig
+			make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8  menuconfig
 			break
 		;;
 		[Nn]* ) 
@@ -226,6 +253,7 @@ echo "Build Notes for" >> $NOTES
 echo "Kernel $KVERSION" >> $NOTES
 echo "Date Stamp is: ${DATESTAMP}" >> $NOTES
 echo "Based on Source: ${LINUX_GIT}"  >> $NOTES
+echo "Git Branch: ${GIT_BRANCH}" >> $NOTES
 echo "*****************************************************************" >> $NOTES
 echo "Notes Saved in: $NOTES"
 $EDITOR $NOTES
@@ -235,7 +263,7 @@ echo "Press any Key to start building kernel"
 read key
 
 if [ ${PREPAREMODS} -eq 1 ]; then
-	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 prepare_modules
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8 modules_prepare
 	if [ $? -ne 0 ]; then
 		exit 1
 	fi
@@ -245,20 +273,20 @@ if [ ${PREPAREMODS} -eq 1 ]; then
 fi
 
 if [ ${BUILDKERNEL} -eq 1 ]; then
-	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 zImage
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8 zImage
 	if [ $? -ne 0 ]; then
 		echo "*****************************************************************"
 		echo "Error building Kernel.....exiting"
 		exit 1
 	fi
 
-	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 modules
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8 modules
 	if [ $? -ne 0 ]; then
 		echo "*****************************************************************"
 		echo "Error building Modules.....exiting"
 		exit 1
 	fi
-	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4 dtbs
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8 dtbs
 	if [ $? -ne 0 ]; then
 		echo "*****************************************************************"
 		echo "Error building dtbs.....exiting"
@@ -279,8 +307,8 @@ if [ ${BUILDKERNEL} -eq 1 ]; then
 		mkdir -p $KERNELPATH/headers 
 	fi
 
-	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4  INSTALL_MOD_PATH=${MODPATH} INSTALL_MOD_STRIP=1 modules_install
-	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j4  INSTALL_HDR_PATH=${KERNELPATH}/headers headers_install
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8  INSTALL_MOD_PATH=${MODPATH} INSTALL_MOD_STRIP=1 modules_install
+	make ARCH=arm CROSS_COMPILE=${CCPREFIX} -j8  INSTALL_HDR_PATH=${KERNELPATH}/headers headers_install
 
 	case $RPIARCH in
 		armv6)

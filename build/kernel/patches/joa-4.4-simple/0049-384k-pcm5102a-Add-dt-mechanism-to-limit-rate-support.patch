@@ -1,0 +1,149 @@
+From 1e0634a75fd3a5e6b99571ef8117e266156e0cd3 Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Fri, 6 May 2016 22:22:38 +0100
+Subject: [PATCH 49/63] 384k: pcm5102a: Add dt mechanism to limit rate support
+
+Provide dt param mechanism to limit sample rate support to 192k MAX.
+
+hifiberry-dac overlay is used by both their 1st gen 'B' PCM5102 boards
+and the later gen DAC+ Light ES9023. (As well as being used by several
+other third party ES9023 boards.)
+
+The PCM5102a is most certainly 352k8/384k capable.
+The ES9023 datasheet states 192k PCM MAX, but we know that most chips
+are 384k capable. (ES9023 OSC is the other factor. Datasheet requirement
+is >= 192xFS. Most ES9023 DAC HAT manufacturers use 50MHz OSC.)
+So we default to supporting 8k-192k MAX, unless dt param, '384k', is
+specified, in which case, the 8k-384k constraint is used.
+
+NB: ES9023 patch series provides migration path for HB DAC+ Light users
+
+"dtoverlay=hifiberry-dac", continues to work as before for 'B' DAC and
+DAC+ Light users with 192k max sample rate default.
+
+'B' DAC users should add dt param '384k' for 384k support. ie.
+"dtoverlay=hifiberry-dac,384k"
+
+Ideally, DAC+ Light users should be encouraged to migrate to es9023
+overlay variant, "dtoverlay=hifiberry-dacpluslight-es9023-audio".
+
+At some point in the future the pcm5102a codec should have the
+artificial 192k max default removed and default to 384k max.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/overlays/README                  |  5 +--
+ .../boot/dts/overlays/hifiberry-dac-overlay.dts    |  6 +++-
+ sound/soc/codecs/pcm5102a.c                        | 37 ++++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/overlays/README b/arch/arm/boot/dts/overlays/README
+index a2d0018..d1a52c8 100644
+--- a/arch/arm/boot/dts/overlays/README
++++ b/arch/arm/boot/dts/overlays/README
+@@ -388,8 +388,9 @@ Params: <None>
+ 
+ Name:   hifiberry-dac
+ Info:   Configures the HifiBerry DAC audio card
+-Load:   dtoverlay=hifiberry-dac
+-Params: <None>
++Load:   dtoverlay=hifiberry-dac,<param>
++Params: 384k                    Instructs the pcm5102a codec driver to support
++                                352k8 and 384k sample rates.
+ 
+ 
+ Name:   hifiberry-dacplus
+diff --git a/arch/arm/boot/dts/overlays/hifiberry-dac-overlay.dts b/arch/arm/boot/dts/overlays/hifiberry-dac-overlay.dts
+index 0b74fdc..a335b09 100644
+--- a/arch/arm/boot/dts/overlays/hifiberry-dac-overlay.dts
++++ b/arch/arm/boot/dts/overlays/hifiberry-dac-overlay.dts
+@@ -15,7 +15,7 @@
+ 	fragment@1 {
+ 		target-path = "/";
+ 		__overlay__ {
+-			pcm5102a-codec {
++			pcm5102a_codec: pcm5102a-codec {
+ 				#sound-dai-cells = <0>;
+ 				compatible = "ti,pcm5102a";
+ 				status = "okay";
+@@ -31,4 +31,8 @@
+ 			status = "okay";
+ 		};
+ 	};
++
++	__overrides__ {
++		384k = <&pcm5102a_codec>,"pcm5102a,384k?";
++	};
+ };
+diff --git a/sound/soc/codecs/pcm5102a.c b/sound/soc/codecs/pcm5102a.c
+index 6a944b5..b42bb21 100644
+--- a/sound/soc/codecs/pcm5102a.c
++++ b/sound/soc/codecs/pcm5102a.c
+@@ -21,6 +21,10 @@
+ 
+ #include <sound/soc.h>
+ 
++struct pcm5102a_priv {
++	bool rates_384k;
++};
++
+ static const u32 pcm5102a_rates[] = {
+ 	8000, 16000, 32000, 44100, 48000, 88200, 96000, 176400, 192000,
+ 	352800, 384000,
+@@ -35,6 +39,7 @@ static int pcm5102a_dai_startup(struct snd_pcm_substream *substream,
+ 	struct snd_soc_dai *dai)
+ {
+ 	struct snd_soc_codec *codec = dai->codec;
++	struct pcm5102a_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	int ret;
+ 
+ 	dev_dbg(codec->dev, "%s: set rates (8k-384k) constraint\n", __func__);
+@@ -48,6 +53,24 @@ static int pcm5102a_dai_startup(struct snd_pcm_substream *substream,
+ 		return ret;
+ 	}
+ 
++	if (!priv->rates_384k) {
++		dev_info(codec->dev,
++			 "%s: Limiting sample rate support to 192kHz MAX\n",
++			 __func__);
++
++		dev_dbg(codec->dev, "%s: set minmax (8k/192k) constraint\n",
++			__func__);
++
++		ret = snd_pcm_hw_constraint_minmax(substream->runtime,
++						   SNDRV_PCM_HW_PARAM_RATE,
++						   8000, 192000);
++		if (ret < 0) {
++			dev_err(codec->dev, "%s: Failed to set minmax "
++				"constraint: %d\n", __func__, ret);
++			return ret;
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -72,6 +95,20 @@ static struct snd_soc_codec_driver soc_codec_dev_pcm5102a;
+ 
+ static int pcm5102a_probe(struct platform_device *pdev)
+ {
++	struct pcm5102a_priv *priv;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++#ifdef CONFIG_OF
++	if (pdev->dev.of_node)
++		priv->rates_384k = of_property_read_bool(pdev->dev.of_node,
++							 "pcm5102a,384k");
++#endif
++
++	dev_set_drvdata(&pdev->dev, priv);
++
+ 	return snd_soc_register_codec(&pdev->dev, &soc_codec_dev_pcm5102a,
+ 			&pcm5102a_dai, 1);
+ }
+-- 
+2.7.4
+

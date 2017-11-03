@@ -1,0 +1,192 @@
+From 8dffba79c29920a74e33188f2a2feb63be9bfbf0 Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Thu, 19 May 2016 00:00:00 +0100
+Subject: [PATCH 61/63] simple: simple audio overlays for es9023 and pcm5102a
+
+Add 'simple' overlays for simple-card/es9023 and simple-card/pcm5102a
+combinations.
+
+eg. dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac"
+    dtoverlay=simple-es9023-audio,384k,card_name="MamboBerry"
+
+By default simple-pcm5102a-audio supports 384k. Typically,
+simple-pcm5102a-audio would be used with 1st gen HifiBerry 'B' DAC and
+Pimoroni PHAT DAC. Both have been fully tested using this driver at all
+sample rates and bit depth combos, up to 384k.
+
+simple-es9023-audio requires optional 384k dt param for 384k support.
+Default is to limit via codec constraints list to 192k.
+This driver could be used with Akkordion, Mamboberry, I-Sabre,
+HiFiBerry DAC+ Light and other ES9023 boards.
+
+This is the preferred path for HB to split the 'B' DAC and DAC+ Light
+support to separate drivers/overlays. hifiberry_dac path will continue
+to support DAC and DAC+ Light at 192k max by default, to remain
+backward compatyible.
+
+HB 'B' PCM5102A DAC, to gain 352k8/384k support...
+OLD: dtoverlay=hifiberry_dac,384k
+NEW: dtoverlay=simple-pcm5102a-audio,card_name="snd_rpi_hifiberry_dac"
+
+HB 'B+' ES9023 DAC+ Light (192k max)
+OLD: dtoverlay=hifiberry_dac
+NEW: dtoverlay=simple-es9023-audio,card_name="snd_rpi_hifiberry_dac"
+
+For backward compatibility, dtoverlay=hifiberry_dac, continues to work
+at 192k max for both TI PCM5102 and ESS ES9023 boards.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/overlays/Makefile                |  2 +
+ arch/arm/boot/dts/overlays/README                  | 14 +++++++
+ .../dts/overlays/simple-es9023-audio-overlay.dts   | 46 ++++++++++++++++++++++
+ .../dts/overlays/simple-pcm5102a-audio-overlay.dts | 46 ++++++++++++++++++++++
+ 4 files changed, 108 insertions(+)
+ create mode 100644 arch/arm/boot/dts/overlays/simple-es9023-audio-overlay.dts
+ create mode 100644 arch/arm/boot/dts/overlays/simple-pcm5102a-audio-overlay.dts
+
+diff --git a/arch/arm/boot/dts/overlays/Makefile b/arch/arm/boot/dts/overlays/Makefile
+index efa0480..f370c8e 100644
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -88,6 +88,8 @@ dtbo-$(RPI_DT_OVERLAYS) += sdhost.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += sdio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += sdio-1bit.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += sdtweak.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += simple-es9023-audio.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += simple-pcm5102a-audio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += smi.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += smi-dev.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += smi-nand.dtbo
+diff --git a/arch/arm/boot/dts/overlays/README b/arch/arm/boot/dts/overlays/README
+index c21ad70..3f09cc7 100644
+--- a/arch/arm/boot/dts/overlays/README
++++ b/arch/arm/boot/dts/overlays/README
+@@ -1163,6 +1163,20 @@ Params: overclock_50            Clock (in MHz) to use when the MMC framework
+         debug                   Enable debug output (default off)
+ 
+ 
++Name:   simple-es9023-audio
++Info:   Configures a generic board or HAT using ESS Sabre ES9023 DAC
++Load:   dtoverlay=simple-es9023-audio,<param>,<param>=<val>
++Params: 384k                    Instructs the es9023 codec driver to support
++                                352k8 and 384k sample rates.
++        card_name               Override the default, "es9023", card name.
++
++
++Name:   simple-pcm5102a-audio
++Info:   Configures a generic board or HAT using the TI PCM510x DAC
++Load:   dtoverlay=simple-pcm5102a-audio,<param>=<val>
++Params: card_name               Override the default, "pcm5102a", card name.
++
++
+ Name:   smi
+ Info:   Enables the Secondary Memory Interface peripheral. Uses GPIOs 2-25!
+ Load:   dtoverlay=smi
+diff --git a/arch/arm/boot/dts/overlays/simple-es9023-audio-overlay.dts b/arch/arm/boot/dts/overlays/simple-es9023-audio-overlay.dts
+new file mode 100644
+index 0000000..d62f853
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/simple-es9023-audio-overlay.dts
+@@ -0,0 +1,46 @@
++// Definitions for a generic board or HAT using ESS Sabre ES9023 DAC
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&i2s>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target-path = "/";
++		__overlay__ {
++			es9023_codec: es9023-codec {
++				#sound-dai-cells = <0>;
++				compatible = "ess,es9023";
++				status = "okay";
++			};
++		};
++	};
++
++	fragment@2 {
++		target = <&sound>;
++		simple_audio_card: __overlay__ {
++			compatible = "simple-audio-card";
++			simple-audio-card,format = "i2s";
++			simple-audio-card,name = "es9023";
++			status = "okay";
++			simple-audio-card,cpu {
++				sound-dai = <&i2s>;
++			};
++			simple-audio-card,codec {
++				sound-dai = <&es9023_codec>;
++			};
++		};
++	};
++
++	__overrides__ {
++		384k = <&es9023_codec>,"es9023,384k?";
++		card_name = <&simple_audio_card>,"simple-audio-card,name";
++	};
++};
+diff --git a/arch/arm/boot/dts/overlays/simple-pcm5102a-audio-overlay.dts b/arch/arm/boot/dts/overlays/simple-pcm5102a-audio-overlay.dts
+new file mode 100644
+index 0000000..c0cfef8
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/simple-pcm5102a-audio-overlay.dts
+@@ -0,0 +1,46 @@
++// Definitions for a generic board or HAT using TI PCM510x DAC
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&i2s>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target-path = "/";
++		__overlay__ {
++			pcm5102a_codec: pcm5102a-codec {
++				#sound-dai-cells = <0>;
++				compatible = "ti,pcm5102a";
++				pcm5102a,384k;
++				status = "okay";
++			};
++		};
++	};
++
++	fragment@2 {
++		target = <&sound>;
++		simple_audio_card: __overlay__ {
++			compatible = "simple-audio-card";
++			simple-audio-card,format = "i2s";
++			simple-audio-card,name = "pcm5102a";
++			status = "okay";
++			simple-audio-card,cpu {
++				sound-dai = <&i2s>;
++			};
++			simple-audio-card,codec {
++				sound-dai = <&pcm5102a_codec>;
++			};
++		};
++	};
++
++	__overrides__ {
++		card_name = <&simple_audio_card>,"simple-audio-card,name";
++	};
++};
+-- 
+2.7.4
+

@@ -1,0 +1,80 @@
+#!/bin/bash
+
+#################################################################################
+#
+# rebuild.extension
+#
+# rebuilds extensions in a selected kernel directory.
+#   -add or remove modules from extension subdirectory before running
+#
+
+if [ -d armv6 -o -d armv7 ]; then
+	echo
+	echo "Start from within the armv6 or armv7 directory"
+	echo "Usage .$0" >&2
+	exit 1
+fi
+
+BASEWD=$(pwd)
+
+AVAILKERNEL=$(ls -r --sort=time extensions)
+
+echo
+echo "Select kernel version extensions to rebuild"
+echo
+select NEW in $AVAILKERNEL;
+do
+	if [ "$NEW" != "" ]; then
+		echo "You picked $NEW"
+		read -p "Do you wish to continue?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+#MODPATH=
+NEWKERNEL=${NEW%^*}
+
+cd $BASEWD/extensions/$NEW
+LISTPATH="${BASEWD}/extensions/${OLD}"
+SRCMODPATH="modules/${NEW}/lib/modules/${NEWKERNEL}/kernel"
+
+echo $NEWKERNEL
+echo $LISTPATH
+echo $SRCMODPATH
+
+select EXT in $(find * -maxdepth 0 -type d);
+do
+	if [ "$EXT" != "" ]; then
+		echo "You picked $EXT"
+		read -p "Do you wish to continue?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+for I in ${EXT}; do
+	echo
+	echo "*****************************************************************"
+	rm -f ${I}.tcz
+	cd ${I}
+	echo "fixing directory access rights"
+	find -type d | xargs chmod -v 755
+	find usr -not -type d > ../${I}.tcz.list
+	cd ..
+	echo "Squashing Extension"
+	mksquashfs ${I} ${I}.tcz -all-root -noappend
+	md5sum ${I}.tcz > ${I}.tcz.md5.txt
+	echo "${I} Done"
+	echo
+	
+	cd $BASEWD
+	
+done
+
