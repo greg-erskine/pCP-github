@@ -416,7 +416,7 @@ build_mydata(){
 	# These files have already been copied, but this is setting ownership,type and dos2unix.
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/asound.conf ${MYDATA}/etc/asound.conf root.staff 664
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/motd ${MYDATA}/etc/motd root.staff 664
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/modprobe.conf ${MYDATA}/etc/modprobe.conf root.staff 664
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/modprobe.conf ${MYDATA}/etc/modprobe.conf root.staff 664
 
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/copywww.sh ${MYDATA}/home/tc/.local/bin/copywww.sh 1001.50 755
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/.pbtemp ${MYDATA}/home/tc/.local/bin/.pbtemp 1001.50 644

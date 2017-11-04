@@ -5,7 +5,6 @@ etc/shadow
 etc/group
 etc/gshadow
 etc/motd
-etc/modprobe.conf
 etc/asound.conf
 etc/sysconfig/wifi-wpadrv
 usr/local/etc/pointercal

@@ -77,6 +77,7 @@ cd $BASEWD
 mkdir -p extensions/$NEW
 LISTPATH="${BASEWD}/extensions/${OLD}"
 SRCMODPATH="modules/${NEW}/lib/modules/${NEWKERNEL}/kernel"
+MODPROBEPATH="${BASEWD}/../modprobe.d"
 
 for I in ${EXT}; do
 	echo
@@ -86,11 +87,19 @@ for I in ${EXT}; do
 	cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.list /tmp/${I}.list
 	sed -i "s|usr/local/lib/modules/$OLDKERNEL/kernel/||" /tmp/${I}.list
 	tar --ignore-failed-read -T /tmp/${I}.list -cf /tmp/${I}-${NEWKERNEL}.tar
+
+	if [ -d ${MODPROBEPATH}/${I} ]; then
+		cd ${MODPROBEPATH}/${I}
+		tar -cf /tmp/${I}-modprobe.tar *
+	fi
+
 	cd ${BASEWD}
 	DESTMODPATH="extensions/${NEW}/${I}-${NEWKERNEL}/usr/local/lib/modules/${NEWKERNEL}/kernel"
 	mkdir -p ${DESTMODPATH}
 	cd ${DESTMODPATH}
 	tar xf /tmp/${I}-${NEWKERNEL}.tar
+	cd ${BASEWD}/extensions/${NEW}/${I}-${NEWKERNEL}
+	[ -f /tmp/${I}-modprobe.tar ] && tar xf /tmp/${I}-modprobe.tar
 	cd ${BASEWD}
 	echo
 	echo "New module is located at "
@@ -185,8 +194,9 @@ for I in ${EXT}; do
 	cd $BASEWD
 	
 	echo "Cleaning Up"
-	rm -f /tmp/*.tar
-	rm -f /tmp/*.list
+	rm -f /tmp/${I}-${NEWKERNEL}.tar
+	rm -f /tmp/${I}-modprobe.tar
+	rm -f /tmp/${I}.list
 done
 
 echo "Done!"
