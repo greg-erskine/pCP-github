@@ -35,14 +35,14 @@ esac
 pcp_fdisk() {
 	[ $DEBUG ] && clear
 	LAST_PARTITION_NUM=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
-	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2)
+	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 4)
 	P2_SIZE="+${PARTITION_SIZE}M"
 
 	echo 'Last partition:  '$LAST_PARTITION_NUM
 	echo 'Partition start: '$PARTITION_START
 	echo 'Partition size:  '$P2_SIZE
 
-	fdisk $DEVICE <<EOF
+	fdisk -u $DEVICE <<EOF
 p
 d
 $LAST_PARTITION_NUM
