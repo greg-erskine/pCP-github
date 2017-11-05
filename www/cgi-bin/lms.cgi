@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5 2017-11-05
+#	Changes for busbybox fdisk output changes. PH.
+
 # Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
 #	Added checkbox to clear unused netmount conf entries. PH.
@@ -1161,6 +1164,7 @@ pcp_extra_filesys() {
 # USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_usbdrives() {
+	#Used to identify which fdisk, fdisk -V fails under busybox, but not util-linux.
 	fdisk -V 2>&1 | grep -q -i busybox
 	[ $? -eq 0 ] && BBFDISK=1 || BBFDISK=0
 	# Read config file
@@ -1249,7 +1253,7 @@ pcp_mount_usbdrives() {
 			UUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $I -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			if [ $BBFDISK -eq 1 ]; then
-				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
 				[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
 			else
 				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f5 | tr -d +)
