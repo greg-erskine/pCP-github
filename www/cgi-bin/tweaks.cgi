@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.50 2017-11-07
+#	Cosmetic change to jivelite install. GE.
+
 # Version: 3.22 2017-07-22
 #	Added Internet check IP. GE.
 #	Added rotdash button. GE.
@@ -891,12 +894,13 @@ pcp_tweaks_auto_start() {
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
-# logic to activate/inactivate buttons depending upon whether LMS is installed or not
+# Logic to activate/deactivate buttons depending upon whether LMS is installed or not
 if [ -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
 	JLDISABLED=""
 else
 	JLDISABLED="disabled"
 fi
+
 # Function to check the Jivelite radio button according to config file
 case "$JIVELITE" in
 	yes) JIVEyes="checked" ;;
@@ -922,34 +926,25 @@ pcp_tweaks_install_jivelite() {
 	pcp_start_row_shade
 	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column120 center">'
+	echo '                <td class="column360">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
-		echo '                <td class="column120 center">'
-		echo '                </td>'
-		echo '                <td class="column120 left">'
-		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Install Jivelite on pCP&nbsp;&nbsp;'
+		echo '                  <p>&nbsp;Install Jivelite on pCP&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will install Jivelite and VuMeters on pCP.</p>'
 		echo '                  </div>'
-		
 	else
 		echo '                  <input type="submit" name="ACTION" value="Update" />'
-		echo '                </td>'
-		echo '                <td class="column120 center">'
-		echo '                  <input type="submit" name="ACTION" value="Reset">'
-		echo '                </td>'
-		echo '                <td class="column120 left">'
+		echo '                  <input type="submit" name="ACTION" value="Reset" />'
 		echo '                  <input type="submit" name="ACTION" value="Remove" />'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
+		echo '                  <p>&nbsp;Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
@@ -959,11 +954,11 @@ pcp_tweaks_install_jivelite() {
 		echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
 		echo '                    <ul>'
 		echo '                      <li>Install - Downloads and installs Jivelite.</li>'
-		echo '                      <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot Required.</li>'
+		echo '                      <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
 		echo '                      <li>Reset - Resets Jivelite preferences.</li>'
 		echo '                      <li>Remove - Removes all traces of Jivelite.</li>'
 		echo '                    </ul>'
-		echo '                    <p>Jivelite may required expanding the file system.<p>'
+		echo '                    <p>Jivelite requires resizing the file system.<p>'
 		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
 		echo '                  </div>'
 	fi
@@ -987,13 +982,13 @@ pcp_tweaks_enable_jivelite() {
 	pcp_toggle_row_shade
 	echo '            <form name="Select" action="writetojivelite.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column120 center">'
+	echo '                <td class="column150">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
 	echo '                  <input type="hidden" name="ACTION" value="Onboot" />'
 	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED' />'
 	echo '                </td>'
-	echo '                <td class="column250 center">'
-	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="JIVELITE" value="no" '$JIVEno'>No'
 	echo '                </td>'
 	echo '                <td>'
@@ -1025,10 +1020,10 @@ pcp_tweaks_vumeter() {
 	pcp_start_row_shade
 	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column120">'
+	echo '                <td class="column150">'
 	echo '                  <p>Jivelite VU Meter</p>'
 	echo '                </td>'
-	echo '                <td class="column250">'
+	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="VUMETER">'
 
 	                          VUMETERS=$(ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
@@ -1055,9 +1050,9 @@ pcp_tweaks_vumeter() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                  <input type="submit" name="SUBMIT" value="Download">'
+	echo '                  <input type="hidden" name="OPTION" value="VUMETER" />'
+	echo '                  <input type="submit" name="SUBMIT" value="Save" />'
+	echo '                  <input type="submit" name="SUBMIT" value="Download" />'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_tweaks_padding
@@ -1119,11 +1114,11 @@ pcp_tweaks_screenrotate() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column120 center">'
+	echo '                <td class="column150">'
 	echo '                  <input type="submit" name="SUBMIT" value="Set Rotation">'
 	echo '                </td>'
-	echo '                <td class="column200 center">'
-	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="0" '$SCREEN0'>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="0" '$SCREEN0'>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="180" '$SCREEN180'>180'
 	echo '                </td>'
 	echo '                <td>'
@@ -1147,14 +1142,17 @@ pcp_tweaks_screenrotate() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
-		echo '                 [ DEBUG ] $SCREENyes: '$SCREENyes'<br />'
-		echo '                 [ DEBUG ] $SCREENno: '$SCREENno'</p>'
+		echo '                 [ DEBUG ] $SCREEN0: '$SCREEN0'<br />'
+		echo '                 [ DEBUG ] $SCREEN180: '$SCREEN180'</p>'
 		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+#----------------------------------------------------------------------------------------
 
-#---------------------------------------Screen Size--------------------------------------XXXXXXXXXXXX
+#---------------------------------------Screen Size--------------------------------------
+# Can't remember if this works or not. Did I do it? GE.
+#----------------------------------------------------------------------------------------
 pcp_tweaks_screensize() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
@@ -1170,7 +1168,6 @@ pcp_tweaks_screensize() {
 	echo '                <td class="column150">'
 	echo '                  <p>Height: <input class="large6" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
 	echo '                </td>'
-
 	echo '                <td>'
 	echo '                  <p>Screen size&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -1191,7 +1188,6 @@ pcp_tweaks_screensize() {
 	fi
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_tweaks_screensize
-
 #----------------------------------------------------------------------------------------
 
 if [ $MODE -ge $MODE_NORMAL ]; then
@@ -1210,13 +1206,9 @@ pcp_tweaks_lirc() {
 	pgrep lircd > /dev/null && IR_RUN=0
 
 	if [ $IR_RUN -eq 0 ]; then
-		IR_INDICATOR=$HEAVY_CHECK_MARK
-		CLASS="indicator_green"
-		STATUS="running"
+		pcp_green_tick "running"
 	else
-		IR_INDICATOR=$HEAVY_BALLOT_X
-		CLASS="indicator_red"
-		STATUS="not running"
+		pcp_red_cross "not running"
 	fi
 
 	#----------------------------------------------------------------------------------------
@@ -1243,8 +1235,8 @@ pcp_tweaks_lirc() {
 	echo '                <td class="column150">'
 	echo '                  <p>IR remote control</p>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                 <p class="'$CLASS'">'$IR_INDICATOR'</p>'
+	echo '                <td class="column210">'
+	echo '                 <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>LIRC IR remote control is '$STATUS' &nbsp;&nbsp;&nbsp;'
