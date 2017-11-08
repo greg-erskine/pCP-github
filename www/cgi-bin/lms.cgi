@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.5 2017-11-05
+# Version: 3.5 2017-11-08
 #	Changes for busbybox fdisk output changes. PH.
+#	Fixed ability to remove missing configured drives. PH.
 
 # Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
@@ -1173,11 +1174,14 @@ pcp_mount_usbdrives() {
 	if [ -f  ${USBMOUNTCONF} ]; then
 		while read LINE; do
 			case $LINE in
-				[*)NUM_USB_CONF=$((NUM_USB_CONF+1));;
+				[*)	NUM_USB_CONF=$((NUM_USB_CONF+1))
+					# Assume disk is not plugged in, then enable in section below.
+					eval DISKFOUND${NUM_USB_CONF}="no"
+				;;
 				*USBDISK*)
 					eval USBDISK${NUM_USB_CONF}=$(pcp_trimval "${LINE}")
 					[ $(eval echo \${USBDISK${NUM_USB_CONF}}) = "enabled" ] && $((NUM_USB_CONF_ENABLED+1))
-					;;
+				;;
 				*POINT*) eval MOUNTPOINT${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
 				*UUID*) eval MOUNTUUID${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
 				*);;
@@ -1231,16 +1235,6 @@ pcp_mount_usbdrives() {
 	echo '                <td class="column'$COL7'"><p><b>Size</b></p></td>'
 	echo '              </tr>'
 
-	DISKFOUND="no"
-	case "$MOUNTUUID" in
-		no)
-			NOUUIDyes="checked"
-			DISKFOUND="yes"
-		;;
-		*)  #the contents are a UUID
-			NOUUIDyes=""
-		;;
-	esac
 	# Find all USB devices currently attached to system
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
 	NUM_USB_ATTACHED=0
@@ -1271,7 +1265,7 @@ pcp_mount_usbdrives() {
 							USBDISKyes="checked"
 							REQUIRED="required"
 						fi
-						DISKFOUND="yes"
+						eval DISKFOUND${J}="yes"
 						PNT=$(eval echo "\${MOUNTPOINT${J}}")
 						break
 					;;
@@ -1362,17 +1356,31 @@ pcp_mount_usbdrives() {
 		echo '                  </td>'
 		echo '              </tr>'
 	fi
-	if [ "$DISKFOUND" = "no" -a $NUM_USB_CONF_ENABLED -gt 0 ]; then
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                  <td class="column'$COL1' center">'
-		echo '                    <input class="small1" type="checkbox" name="MOUNTUUID" value="no" checked>'
-		echo '                  </td>'
-		echo '                  <td colspan="5">'
-		echo '                    <p>Previously selected disk '$MOUNTUUID' not Found. Please Insert and Reboot system, or select a new Disk</p>'
-		echo '                  </td>'
-		echo '                </tr>'
-	fi
+	J=1
+	while [ $J -le $NUM_USB_CONF ]
+	do
+		if [ $(eval echo \${USBDISK${J}}) = "enabled" ]; then
+			UUID=$(eval echo "\${MOUNTUUID${J}}")
+			TST=$(eval echo "\${DISKFOUND${J}}")
+			PNT=$(eval echo "\${MOUNTPOINT${J}}")
+			if [ "$TST" = "no" ]; then
+				#Drive is actually not attached, but we needed it to be.
+				NUM_USB_ATTACHED=$((NUM_USB_ATTACHED+1))
+				pcp_toggle_row_shade
+				echo '              <tr class="'$ROWSHADE'">'
+				echo '                  <td class="column'$COL1' center">'
+				echo '                    <input class="small1" type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" checked>'
+				echo '                    <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
+				echo '                    <input type="hidden" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'">'
+				echo '                  </td>'
+				echo '                  <td colspan="5">'
+				echo '                    <p>Previously selected disk '$UUID' not Found. Please insert and reboot system, or uncheck to disable disk.</p>'
+				echo '                  </td>'
+				echo '                </tr>'
+			fi
+		fi
+	J=$((J+1))
+	done
 #--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
