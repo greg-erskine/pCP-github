@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5 2017-11-08
+#	Changed name of lirc package. PH.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -44,7 +47,7 @@ DEFAULT_IR_GPIO_OUT=""
 
 #========================================================================================
 #  335872 irda-4.1.13-piCore+.tcz
-#  221184 lirc.tczlirc.tcz
+#  221184 pcp-lirc.tcz
 #    8192 libcofi.tcz
 # --------
 #  565248
@@ -156,7 +159,7 @@ pcp_lirc_install() {
 
 	echo '[ INFO ] Installing packages for IR remote control.'
 	echo '[ INFO ] This can take a couple of minutes. Please wait...'
-	sudo -u tc pcp-load -r $PCP_REPO -wi lirc.tcz
+	sudo -u tc pcp-load -r $PCP_REPO -wi pcp-lirc.tcz
 
 	echo '[ INFO ] Updating configuration files... '
 
@@ -195,16 +198,8 @@ pcp_lirc_install() {
 #----------------------------------------------------------------------------------------
 pcp_lirc_uninstall() {
 	#Should we move this to tce-audit delete ?
-	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz
-	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file irda-${KERNEL}.tcz.md5.txt
-	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz
-	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.dep
-	[ "$FAIL_MSG" = "ok" ] && pcp_delete_file lirc.tcz.md5.txt
-
-	if [ $SHAIRPORT = "no" ]; then
-		[ "$FAIL_MSG" = "ok" ] && pcp_delete_file libcofi.tcz
-		[ "$FAIL_MSG" = "ok" ] && pcp_delete_file libcofi.tcz.md5.txt
-	fi
+	sudo -u tc tce-audit builddb
+	[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-lirc.tcz
 
 	echo '[ INFO ] Removing configuration files... '
 
