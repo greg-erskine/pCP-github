@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5 2017-11-09
+#	Fixed removal of Jivelite. SBP.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -72,12 +75,14 @@ fi
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_download_jivelite() {
+	JIVE_SUCCES=0	
 	echo '[ INFO ] Downloading Jivelite from the pCP Repository...'
 	echo '[ INFO ] Downloading will take a few minutes. Please wait...'
 
 	sudo -u tc pcp-load -r $PCP_REPO -w ${JIVELITE_TCZ}
 	if [ $? -eq 0 ]; then
 		echo '[ OK ] '$JIVELITE_TCZ' download successful.'
+		JIVE_SUCCES=1
 	else
 		echo '[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!'
 	fi
@@ -105,10 +110,11 @@ pcp_delete_jivelite() {
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from onboot.lst</p>'
 	sudo sed -i '/pcp-jivelite.tcz/d' $ONBOOTLST
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Jivelite is removed from .xfiletool.lst</p>'
-	sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
+	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 	JIVELITE="no"
 	VISUALISER="no"
 	pcp_save_to_config
+
 }
 
 pcp_download_vumeters() {
@@ -156,7 +162,7 @@ pcp_install_vumeter() {
 pcp_delete_vumeters() {
 	echo '<p class="info">[ INFO ] Removing VU Meters...</p>'
 	sudo -u tc tce-audit builddb
-	for i in $($PACKAGEDIR/VU_Meter*.tcz); do
+	for i in $(ls $PACKAGEDIR/VU_Meter*.tcz); do
 		sudo -u tc tce-audit delete $i
 	done
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Removing VU Meter from onboot.lst...</p>'
@@ -189,17 +195,18 @@ case "$OPTION" in
 				if [ $? -eq 0 ] ; then
 					echo '                <textarea class="inform" style="height:300px">'
 					pcp_download_jivelite
-					if [ -f $PACKAGEDIR/${JIVELITE_TCZ} ]; then
+
+					if [ "$JIVE_SUCCES" = "1" ]; then
 						pcp_install_jivelite
 						JIVELITE="yes"
 						VISUALISER="yes"
+						pcp_download_vumeters
+						pcp_install_default_vumeter
 						pcp_save_to_config
 						pcp_backup "nohtml"
 					else
 						echo '[ ERROR ] Error Downloading Jivelite, please try again later.'
 					fi
-					pcp_download_vumeters
-					pcp_install_default_vumeter
 					echo '                </textarea>'
 				fi
 			;;
@@ -212,6 +219,7 @@ case "$OPTION" in
 			Remove)
 				pcp_delete_jivelite
 				pcp_delete_vumeters
+				pcp_backup
 			;;
 			Reset)
 				echo '<p class="info">[ INFO ] Resetting Jivelite Configuration......</p>'
