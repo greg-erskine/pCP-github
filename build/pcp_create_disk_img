@@ -422,8 +422,8 @@ build_mydata(){
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/.pbtemp ${MYDATA}/home/tc/.local/bin/.pbtemp 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.alsaequal.presets ${MYDATA}/home/tc/.alsaequal.presets 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.ashrc ${MYDATA}/home/tc/.ashrc 1001.50 644
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
-	pcp_txt_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/pcp/mydata/home/tc/powerscript.sh ${MYDATA}/home/tc/powerscript.sh 1001.50 755
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/powerscript.sh ${MYDATA}/home/tc/powerscript.sh 1001.50 755
 
 	#Copy the www folder
 	cp -dR --preserve=all ${BUILDROOT}/../www/* ${MYDATA}/home/tc/www
