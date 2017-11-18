@@ -188,11 +188,12 @@ for I in ${EXT}; do
 		esac
 		[ $P -eq 1 ] && printf '%s%s\n' "${V1}" "${V2}" >> ${I}-${NEWKERNEL}.tcz.info
 	done < ${LISTPATH}/${I}-${OLDKERNEL}.tcz.info
+	[ -f ${I}-${NEWKERNEL}.tcz.dep ] && cp -f ${I}-${NEWKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep.pcp || echo "BOGUS.tcz" > ${I}-${NEWKERNEL}.tcz.dep.pcp
 	echo "${I}-${NEWKERNEL}.tcz Done...."
 	echo
-	
+
 	cd $BASEWD
-	
+
 	echo "Cleaning Up"
 	rm -f /tmp/${I}-${NEWKERNEL}.tar
 	rm -f /tmp/${I}-modprobe.tar
