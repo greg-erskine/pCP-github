@@ -339,6 +339,21 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
+# Start the essential stuff for piCorePlayer
+echo -n "${YELLOW}Waiting for network."
+CNT=1
+until ifconfig | grep -q Bcast
+do
+	if [ $((CNT++)) -gt 40 ]; then
+		echo -n "${RED} No network found! ${NORMAL}"
+		break
+	else
+		echo -n "."
+		sleep 0.5
+	fi
+done
+echo "${GREEN} Done ($CNT).${NORMAL}"
+
 # If Custom ALSA settings are used, then restore the settings
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 if [ "$ALSAlevelout" = "Custom" ]; then
@@ -372,21 +387,6 @@ if [ "$OUTPUT" = "equal" ]; then
 	[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo "{$RED}Selected card not found in /etc/asound.conf."
 	echo "${GREEN}Done.${NORMAL}"
 fi
-
-# Start the essential stuff for piCorePlayer
-echo -n "${YELLOW}Waiting for network."
-CNT=1
-until ifconfig | grep -q Bcast
-do
-	if [ $((CNT++)) -gt 40 ]; then
-		echo -n "${RED} No network found! ${NORMAL}"
-		break
-	else
-		echo -n "."
-		sleep 0.5
-	fi
-done
-echo "${GREEN} Done ($CNT).${NORMAL}"
 
 #==============================================================================
 # WOL="yes"|"no"
