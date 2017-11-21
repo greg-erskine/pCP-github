@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.50 2017-11-21
+#	Setting binary location in pCP web interface, Need to follow symlink for DEAMON. PH.
+
 # Version: 3.03 2016-11-14 RI
 #	Override DAEMON if a squeezelite binary installed in /mnt/mmcblk0p2/tce/.
 
@@ -42,9 +45,13 @@
 # Version: 0.01 2014-06-27 GE
 #	Original.
 
+TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 PNAME=Squeezelite
 DESC="Squeezelite player"
-[ -f /mnt/mmcblk0p2/tce/squeezelite ] && DAEMON=/mnt/mmcblk0p2/tce/squeezelite || DAEMON=/usr/local/bin/squeezelite
+# Set DAEMON to the actual binary
+[ -f $TCEMNT/tce/squeezelite ] && DAEMON=`readlink $TCEMNT/tce/squeezelite` || DAEMON=/usr/local/bin/squeezelite
+# Legacy check, incase this is the binary instead of symlink.
+[ "$DAEMON" = "" ] && DAEMON=$TCEMNT/tce/squeezelite
 PIDFILE=/var/run/squeezelite.pid
 LOGDIR=/var/log
 

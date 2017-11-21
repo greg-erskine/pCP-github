@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.50 2017-11-21
+#	Added setting of which squeezelite binary to use. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -137,6 +140,25 @@ case "$SUBMIT" in
 		fi
 		echo '<p class="info">[ INFO ] Saving config file.</p>'
 		pcp_save_to_config
+	;;
+	Binary)
+		SAVE=0
+		case $SQBINARY in
+			default) rm -f $TCEMNT/tce/squeezelite; SAVE=1;;
+			dsd) rm -f $TCEMNT/tce/squeezelite; ln -s /usr/local/bin/squeezelite-dsd $TCEMNT/tce/squeezelite; SAVE=1;;
+			custom) 
+				if [ -f $TCEMNT/tce/squeezelite-custom ]; then
+					rm -f $TCEMNT/tce/squeezelite; ln -s $TCEMNT/tce/squeezelite-custom $TCEMNT/tce/squeezelite
+					SAVE=1
+				else
+					echo '<p class="error">[ ERROR ] Custom Squeezelite not found. Copy custom binary before setting this option.</p>'
+				fi
+			;;
+		esac
+		if [ $SAVE -eq 1 ]; then
+			echo '<p class="info">[ INFO ] Saving config file.</p>'
+			pcp_save_to_config
+		fi
 	;;
 	Reset*)
 		pcp_reset

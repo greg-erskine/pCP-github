@@ -2,8 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5 2017-11-01
+# Version: 3.5 2017-11-21
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
+#	Added SQBINARY config setting. PH.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -1397,6 +1398,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
+	sudo sed -i "s/\(SQBINARY=\).*/\1\"$SQBINARY\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
@@ -1499,6 +1501,7 @@ SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"
 SQLT_VERSION="basic"
+SQBINARY="default"
 SQUEEZELITE="yes"
 POWER_GPIO=""
 POWER_OUTPUT="L"

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.50 2017-11-21
+#	Added setting of which squeezelite binary to use. PH.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -28,7 +31,6 @@
 . pcp-rpi-functions
 . pcp-soundcard-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "Squeezelite Settings" "SBP"
 
@@ -172,6 +174,7 @@ echo '  </tr>'
 #----------------------------------------------------------------------------------------
 
 . $CONFIGCFG
+
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
@@ -1036,14 +1039,113 @@ fi
 
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
+
+#========================================================================================
+# Select Squeezelite binary.  Support custom versions of squeezelite.
+#----------------------------------------------------------------------------------------
+pcp_squeezelite_binary() {
+	DEFyes=""
+	DSDyes=""
+	CUSTOMyes=""
+	# check to make sure this is really a symlink before we allow setting via web
+	[ -f $TCEMNT/tce/squeezelite -a "$(readlink $TCEMNT/tce/squeezelite)" = "" ] && DISABLE="disabled" || DISABLE=""
+	case $SQBINARY in
+		default) DEFyes="checked";;
+		dsd) DSDyes="checked";;
+		custom) CUSTOMyes="checked";;
+	esac
+
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="binary" action="writetoconfig.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Set Squeezelite Binary</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	COL1="75"
+	COL2="210"
+	COL3="380"
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
+	echo '                <td class="column'$COL2'"><p><b>Binary</b></p></td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                    <p>Select your squeezelite binary&nbsp;&nbsp;'
+	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Default and Full DSD binaries are included with pCP.</p>'
+	echo '                    <p>Almost all users will use the default binary.</p>'
+	echo '                  </div>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Standard Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>Standard Squeezelite Binary, Tried and True</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="SQBINARY" value="dsd" '$DSDyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>DSD Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>Squeezelite with full DSD patches from Daphile</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Custom Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>Save your file as '$TCEMNT'/tce/squeezelite-custom</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------Submit button-------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td  class="column150">'
+	echo '                  <button type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
+	echo '                </td>'
+	if [ $DISABLE != "" ]; then
+		echo '                <td class="cospan 2">'
+		echo '                  <p>There is a custom binary installed in the wrong location. (See custom setting above).</p>'
+		echo '                </td>'
+	fi
+	echo '              </tr>'
+	#----------------------------------------------------------------------------------------
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_binary
+#----------------------------------------------------------------------------------------
 echo '</table>'
 
 [ $DEBUG -eq 1 ] && pcp_show_config_cfg
