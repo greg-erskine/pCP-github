@@ -1,0 +1,15 @@
+#!/bin/sh
+
+[ -d /usr/local/etc/pcp ] || mkdir -p /usr/local/etc/pcp
+
+[ -f /usr/local/etc/pcp/hostapd.conf ] || busybox cp -p /usr/local/share/pcp-apmode/hostapd/hostapd.conf /usr/local/etc/pcp/hostapd.conf
+
+[ -f /usr/local/etc/pcp/dnsmasq.conf ] || busybox cp -p /usr/local/share/pcp-apmode/dnsmasq/dnsmasq.conf /usr/local/etc/pcp/dnsmasq.conf
+
+if [ -x /opt/bootlocal.sh ] ; then
+	grep -q start-hostapd /opt/bootlocal.sh
+	if [ $? -ne 0 ]; then
+		sed -i 's@#pCPstart@/usr/local/etc/init.d/pcp-apmode start 2>\&1 | tee -a /var/log/pcp_boot.log\n#pCPstart@' /opt/bootlocal.sh
+		/usr/local/bin/pcp bu
+	fi
+fi

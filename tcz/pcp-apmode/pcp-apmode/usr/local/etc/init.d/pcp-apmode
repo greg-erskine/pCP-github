@@ -1,0 +1,45 @@
+#!/bin/sh
+NAME="pcp-apmode"
+DESC="pCP AP mode"
+DAEMON=/usr/local/bin/pcp-apmode
+DAEMON1=/usr/local/bin/hostapd
+DAEMON2=/usr/local/sbin/dnsmasq
+OPTIONS=""
+DAEMON_PID=/var/run/pcp-apmode.pid
+DAEMON1_PID=/var/run/hostapd.pid
+DAEMON2_PID=/var/run/dnsmasq.pid
+
+
+case "$1" in
+	start)
+		echo "Starting $DESC: $NAME..."
+		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
+	;;
+	stop)
+		echo "Stopping $DESC: $NAME..."
+		start-stop-daemon --stop --quiet -p ${DAEMON_PID}
+		start-stop-daemon --stop --quiet --exec $DAEMON1
+		start-stop-daemon --stop --quiet --exec $DAEMON2
+	;;
+	restart)
+		echo "Restarting $DESC..."
+		start-stop-daemon --stop --quiet -p ${DAEMON_PID}
+		start-stop-daemon --stop --quiet --exec $DAEMON1
+		start-stop-daemon --stop --quiet --exec $DAEMON2
+		sleep 3
+		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
+	;;
+	status)
+		ps -ef | grep $DAEMON | grep -v grep | awk '{ print $0 }'
+		ps -ef | grep $DAEMON1 | grep -v grep | awk '{ print $0 }'
+		ps -ef | grep $DAEMON2 | grep -v grep | awk '{ print $0 }'
+	;;
+	*)
+		echo ""
+		echo -e "Usage: /usr/local/etc/init.d/`basename $0` [start|stop|restart|status]"
+		echo ""
+		exit 1
+	;;
+esac
+
+exit 0
