@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2017-12-02
+#	Add Bootscript option for soundcard setup. PH.
+
 # Version: 3.23 2017-10-02
 #	Minor cosmetic changes. GE.
 
@@ -309,6 +312,7 @@ pcp_blank_audio_conf() {
 	PARAMS4=""
 	PARAMS5=""
 	RPI_MODEL=""
+	AUDIOBOOTSCRIPT=""
 	I=1
 	while true; do
 		eval CHK="\${TEXT${I}}"

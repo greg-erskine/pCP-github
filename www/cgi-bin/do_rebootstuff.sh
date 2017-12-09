@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5 2017-11-01
+# Version: 3.5.0 2017-12-02
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH
+#	Add Bootscript option for soundcard setup. PH.
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -358,6 +359,12 @@ echo "${GREEN} Done ($CNT).${NORMAL}"
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 if [ "$ALSAlevelout" = "Custom" ]; then
 	alsactl restore
+fi
+
+# Run custom audio boot script.
+echo -n "${BLUE}Setting up audio Card... ${NORMAL}"
+if [ "$AUDIOBOOTSCRIPT" != "" ]; then
+	[ -x $AUDIOBOOTSCRIPT ] && $AUDIOBOOTSCRIPT
 fi
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here

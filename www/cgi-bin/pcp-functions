@@ -2,9 +2,10 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5 2017-11-21
+# Version: 3.5.0 2017-12-02
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
+#	Add Bootscript option for soundcard setup. PH.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -1366,6 +1367,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
 	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
+	sudo sed -i "s@\(AUDIOBOOTSCRIPT=\).*@\1\"$AUDIOBOOTSCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
 	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
 	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $CONFIGCFG
@@ -1469,6 +1471,7 @@ UNMUTE=""
 ALSAVOLUME=""
 OTHER=""
 AUDIO="Analog"
+AUDIOBOOTSCRIPT=""
 HOST="piCorePlayer"
 TIMEZONE=""
 OVERCLOCK="NONE"
