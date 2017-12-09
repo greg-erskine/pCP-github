@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5 2017-11-08
+# Version: 3.5 2017-12-09
 #	Changes for busbybox fdisk output changes. PH.
 #	Fixed ability to remove missing configured drives. PH.
+#	Add popup confirmation on clearing cache. PH.
 
 # Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
@@ -684,14 +685,15 @@ pcp_lms_remove_cache() {
 	echo '            <form name="Remove_cache" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                    <button type="submit" name="ACTION" value="Remove_cache" '$DISABLECACHE'>Remove cache</button>'
+	echo '                    <button type="submit" name="ACTION" value="Remove_cache" onclick="return confirm('\''This will remove all LMS Cache,settings and plugins.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove cache</button>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Remove LMS cache from pCP&nbsp;&nbsp;'
+	echo '                  <p>Remove LMS Cache and Preferences from pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will remove your LMS cache from pCP.</p>'
+	echo '                    <p>This will remove your the LMS cache and preferences from pCP.</p>'
+	echo '                    <p>This includes all installed plugins and settings.</p>'
 	echo '                  </div>'
 	echo '                 </td>'
 	echo '               </tr>'
