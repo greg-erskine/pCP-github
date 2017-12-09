@@ -1394,7 +1394,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                      <li>Login via ssh.</li>'
 	echo '                      <li>Use "alsamixer" to set the ALSA output level.</li>'
 	echo '                      <li>Save ALSA settings by typing "sudo alsactl store".</li>'
-	echo '                      <li>Backup ALSA settings by typing "sudo filetool.sh -b".</li>'
+	echo '                      <li>Backup ALSA settings by typing "pcp bu".</li>'
 	echo '                      <li>Select Custom option on this Tweak page.</li>'
 	echo '                    <ol>'
 	echo '                  </div>'
