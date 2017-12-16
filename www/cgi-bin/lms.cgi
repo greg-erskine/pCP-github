@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5 2017-12-09
+# Version: 3.5 2017-12-10
 #	Changes for busbybox fdisk output changes. PH.
 #	Fixed ability to remove missing configured drives. PH.
-#	Add popup confirmation on clearing cache. PH.
+#	Add popup confirmations on removing lms/cache, added extension check for startup. PH.
 
 # Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
@@ -310,6 +310,10 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:40px">'
 		mount | grep -qs $MNT
 		if [ "$?" = "0" ]; then
+			if [ ! -x /usr/local/etc/init.d/slimserver ]; then
+				echo '[ INFO ] Loading LMS extensions...'
+				sudo -u tc tce-load -i slimserver.tcz
+			fi
 			echo '[ INFO ] Starting LMS...'
 			echo -n '[ INFO ] '
 			sudo /usr/local/etc/init.d/slimserver start
@@ -564,7 +568,7 @@ pcp_lms_enable_lms() {
 	echo '            <form name="Select" action="writetolms.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS autostart" '$DISABLE_LMS' />'
+	echo '                  <button type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
@@ -660,7 +664,7 @@ pcp_lms_install_lms() {
 		echo '                    <p>This will install LMS on pCP.</p>'
 		echo '                  </div>'
 	else
-		echo '                  <input type="submit" name="ACTION" value="Remove" />'
+		echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')"/>'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Remove LMS from pCP&nbsp;&nbsp;'
