@@ -3,7 +3,14 @@
 
 checkroot
 
-WIFI_IP="10.10.10.1"
+CONFIGCFG="/usr/local/sbin/config.cfg"
+. $CONFIGCFG
+
+if [ "$AP_IP" = "" ]; then
+	WIFI_IP="10.10.10.1"
+else
+	WIFI_IP=$AP_IP
+fi
 HOSTAPDCONF=/usr/local/etc/pcp/hostapd.conf
 DNSMASQCONF=/usr/local/etc/pcp/dnsmasq.conf
 HOSTAPD_PID=/var/run/hostapd.pid
@@ -25,7 +32,7 @@ killeth0(){
 }
 
 disable_pcp_wifi(){
-	sed -i "s/\(WIFI=\).*/\1\"off\"/" /usr/local/sbin/config.cfg
+	[ $WIFI != "off" ] && sed -i "s/\(WIFI=\).*/\1\"off\"/" $CONFIGCFG
 }
 
 set_router_on(){
