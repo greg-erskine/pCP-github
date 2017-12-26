@@ -74,11 +74,14 @@ ifconfig wlan0 down
 ifconfig wlan0 add ${WIFI_IP} netmask 255.255.255.0 up
 
 [ -d /var/run/hostapd ] || mkdir -p /var/run/hostapd
-start-stop-daemon --start --quiet -m -p ${HOSTAPD_PID} -b --exec /usr/local/bin/hostapd -- -B ${HOSTAPDCONF}
+start-stop-daemon --start --quiet -m -p ${HOSTAPD_PID} -b --startas /bin/sh -- -c "exec /usr/local/bin/hostapd ${HOSTAPDCONF} >> /var/log/pcp_hostapd.log"
+
 
 [ -d /var/lib/misc ] || mkdir -p /var/lib/misc
 echo -e "${WIFI_IP}\tpcp" > /usr/local/etc/pcp/pcp_hosts
 
+[ -e /var/log/dnsmasq.log ] || touch /var/log/pcp_dnsmasq.log
+chmod 666 /var/log/pcp_dnsmasq.log
 start-stop-daemon --start --quiet -m -p ${DNSMASQ_PID} -b --exec /usr/local/sbin/dnsmasq -- -C ${DNSMASQCONF}
 
 while [ "X" = "X" ]; do
