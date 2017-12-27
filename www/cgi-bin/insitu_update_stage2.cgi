@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version 3.5.0 2017-12-27
+#	Updates for Kernel 4.14.7 and 9.x repo
+
 # Version 3.22 2017-09-16
 #	Updates for Kernel 4.9.50
 
@@ -93,6 +96,10 @@ case "${VERSION}" in
 	piCorePlayer3.22*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=25650
+	;;
+	piCorePlayer3.5.0*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=26500
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -239,6 +246,13 @@ pcp_get_kernel_modules() {
 			KUPDATE=1
 			NEWKERNELVER=4.9.50
 			PICOREVERSION=8.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
+		piCorePlayer3.5.0*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			NEWKERNELVER=4.14.7
+			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
 		*)  KUPDATE=0
@@ -747,10 +761,15 @@ if [ "$ACTION" = "download" ]; then
 	case "${VERSION}" in
 		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
 			VVV=$(pcp_picoreplayer_version)
-			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+			[ $(echo $VVV | awk -F. '{print $1}') -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
 	esac
-	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
+	# busybox 27 changed fdisk format
+	if [ $(busybox fdisk --help 2>&1 | grep "BusyBox v" | awk -F. '{print $2}') -ge 27 ]; then
+		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
+	else
+		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
+	fi
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"
