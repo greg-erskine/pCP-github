@@ -117,6 +117,7 @@ for I in ${EXT}; do
 	md5sum ${I}-${NEWKERNEL}.tcz > ${I}-${NEWKERNEL}.tcz.md5.txt
 	echo "Updating Extension Info"
 	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep
+	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep.pcp
 	rm -f ${I}-${NEWKERNEL}.tcz.info
 	while read LINE; do
 		case $LINE in
