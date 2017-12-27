@@ -27,11 +27,11 @@ TCE_VER="9.x/armv7/tcz"
 #This list does not include kernel modules
 TCE_EXT="alsa-utils alsa busybox-httpd dialog openssh openssl readline libedit \
 firmware-atheros firmware-ralinkwifi firmware-rpi3-wireless libiw libnl ncurses \
-wifi wireless_tools ca-certificates"
+wifi wireless_tools"
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
 pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi wiringpi \
-wpa_supplicant"
+wpa_supplicant ca-certificates"
 
 archive(){
 	echo "${YELLOW}*****************************************************************"
