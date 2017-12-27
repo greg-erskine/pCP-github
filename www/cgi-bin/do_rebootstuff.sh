@@ -5,6 +5,7 @@
 #	Turn off extras during upgrade if they do not exist on new image. PH
 #	Add Bootscript option for soundcard setup. PH.
 #	Add AP Mode Startup. PH.
+#	Load arc4 if doing a network mount, as it does not automatically load. PH.
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -507,6 +508,8 @@ fi
 if [ -f  ${NETMOUNTCONF} ]; then
 	echo "${BLUE}Mounting Network Drive...${YELLOW}"
 	NUMNET=0
+	#cifs does not automatically load arc4, which is in the dependancies needed for SMB3 to work
+	modprobe arc4
 	while read LINE; do
 		case $LINE in
 			[*) NUMNET=$((NUMNET+1));;
