@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-02
+# Version: 3.5.0 2017-12-26
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH
 #	Add Bootscript option for soundcard setup. PH.
+#	Add AP Mode Startup. PH.
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -234,6 +235,13 @@ echo "${GREEN}Done.${NORMAL}"
 echo -n "${BLUE}Generating drop-down list... ${NORMAL}"
 pcp_sound_card_dropdown &
 echo "${GREEN}Done.${NORMAL}"
+
+# Startup AP mode if enabled
+if [ "$APMODE" = "yes" ]; then
+	echo -n "${BLUE}Starting pCP AP Mode... ${NORMAL}"
+	[ -x /usr/local/etc/init.d/pcp-apmode ] && /usr/local/etc/init.d/pcp-apmode start || echo "[ERROR] pcp-apmode extension not loaded"
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
 if [ "$WIFI" = "on" ]; then

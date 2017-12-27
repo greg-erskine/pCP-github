@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2017-12-26
+#	Add page button for AP mode. PH.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -41,6 +44,7 @@ echo '        document.forms[0].WIFI[1].checked=true;'
 echo '        document.forms[0].SSID.disabled=true;'
 echo '        document.forms[0].PASSWORD.disabled=true;'
 echo '        document.forms[0].ENCRYPTION.disabled=true;'
+echo '        document.forms[1].APmode.disabled=false;'
 echo '    }'
 echo '    switch(encr) {'
 echo '         case "WPA":'
@@ -60,6 +64,7 @@ echo '    document.forms[0].SAVE.disabled=false;'
 echo '    document.forms[0].SSID.disabled=false;'
 echo '    document.forms[0].PASSWORD.disabled=false;'
 echo '    document.forms[0].ENCRYPTION.disabled=false;'
+echo '    document.forms[1].APmode.disabled=true;'
 echo '}'
 echo ''
 echo 'function disableWL() {'
@@ -67,6 +72,7 @@ echo '    document.forms[0].SAVE.disabled=false;'
 echo '    document.forms[0].SSID.disabled=true;'
 echo '    document.forms[0].PASSWORD.disabled=true;'
 echo '    document.forms[0].ENCRYPTION.disabled=true;'
+echo '    document.forms[1].APmode.disabled=false;'
 echo '}'
 echo ''
 echo 'function enableSAVE() {'
@@ -390,6 +396,43 @@ fi
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+#========================================================================================
+# AP Mode Page Link
+#----------------------------------------------------------------------------------------
+wifi_apmode_page(){
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>AP mode configuration page</legend>'
+	echo '          <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form action="wifi_apmode.cgi" method="get">'
+	echo '                  <input type="submit" name="APmode" value="pCP AP Mode" />'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Setup your piCorePlayer as a wifi AP.'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>Disable wifi client above to enable this button.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_BETA ] && wifi_apmode_page
 
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode

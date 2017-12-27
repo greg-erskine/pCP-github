@@ -2,10 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2017-12-02
+# Version: 3.5.0 2017-12-16
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
+#	Add APMODE config variable. PH
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -1415,6 +1416,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
+	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $CONFIGCFG
+	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $CONFIGCFG
 	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
 	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
@@ -1519,6 +1522,8 @@ FSM="Default"
 LMSCONTROLS="yes"
 PLAYERTABS="yes"
 HDMIPOWER="on"
+APMODE="no"
+AP_IP=""
 RPI3INTWIFI="on"
 SAMBA="disabled"
 WOL="no"
