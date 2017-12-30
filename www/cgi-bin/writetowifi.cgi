@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2017-12-30
+#	Added enable/disable rpi bluetooth. PH.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -10,41 +13,11 @@
 # Version: 3.00 2016-07-01 PH
 #	Changed name for RPi3 internal wifi firmware extension
 
-# Version: 2.06 2016-05-07 PH
-#	Added Blacklist for RPi3 internal wifi
-
-# Version: 0.09 2016-03-25 PH
-#   Added firmware-brcmfmac43430.tcz
-
-# Version: 0.08 2016-02-23 GE
-#	Added firmware-brcmwifi.tcz.
-
-# Version: 0.07 2015-09-19 SBP
-#	Removed httpd decoding.
-
-# Version: 0.06 2015-07-09 SBP
-#	Revised method of loading wifi firmware.
-
-# Version: 0.05 2015-06-10 GE
-#	Tidy up of code.
-
-# Version: 0.04 2015-03-24 GE
-#	Removed comments to Steen.
-
-# Version: 0.03 2015-01-06 SBP
-#	Added function to remove wifi modules from loading during boot if wifi is not chosen.
-
-# Version: 0.02 2014-12-13 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
-# Version: 0.01 2014 SBP
-#	Original version.
-
 . pcp-functions
-#. $CONFIGCFG
 
 ORIG_RPI3INTWIFI=$RPI3INTWIFI
+ORIG_RPIBLUETOOTH=$RPIBLUETOOTH
+REBOOT_REQUIRED=0
 
 pcp_html_head "Write WIFI Settings" "SBP" "20" "wifi.cgi"
 
@@ -58,7 +31,10 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
 	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
 	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'<br />'
-	echo '                 [ DEBUG ] $RPI3INTWIFI: '$RPI3INTWIFI'</p>'
+	echo '                 [ DEBUG ] $RPI3INTWIFI: '$RPI3INTWIFI'<br />'
+	echo '                 [ DEBUG ] $ORIG_RPI3INTWIFI: '$ORIG_RPI3INTWIFI'<br />'
+	echo '                 [ DEBUG ] $RPIBLUETOOTH: '$RPIBLUETOOTH'<br />'
+	echo '                 [ DEBUG ] $ORIG_RPIBLUETOOTH: '$ORIG_RPIBLUETOOTH'</p>'
 fi
 
 # Only add backslash if not empty
@@ -118,15 +94,28 @@ fi
 if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
 	pcp_mount_bootpart
 	if [ "$RPI3INTWIFI" = "off" ]; then
-		# Add a blacklist for brcmfmac
+		echo '<p class="info">[ INFO  ] Disabling rpi internal wifi.</p>'
 		echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
 	else
+		echo '<p class="info">[ INFO  ] Enabling rpi internal wifi.</p>'
 		sed -i '/dtoverlay=pi3-disable-wifi/d' $CONFIGTXT
 	fi
 	[ $DEBUG -eq 1 ] && pcp_textarea "" "cat $CONFIGTXT" 100
 	pcp_umount_bootpart
-	pcp_backup
-	pcp_reboot_required
+	REBOOT_REQUIRED=1
+fi
+if [ "$ORIG_RPIBLUETOOTH" != "$RPIBLUETOOTH" ]; then
+	pcp_mount_bootpart
+	if [ "$RPIBLUETOOTH" = "off" ]; then
+		echo '<p class="info">[ INFO  ] Disabling rpi internal bluetooth.</p>'
+		echo "dtoverlay=pi3-disable-bt" >> $CONFIGTXT 
+	else
+		echo '<p class="info">[ INFO  ] Enabling rpi internal bluetooth.</p>'
+		sed -i '/dtoverlay=pi3-disable-bt/d' $CONFIGTXT
+	fi
+	[ $DEBUG -eq 1 ] && pcp_textarea "" "cat $CONFIGTXT" 100
+	pcp_umount_bootpart
+	REBOOT_REQUIRED=1
 fi
 
 pcp_textarea "" "cat $CONFIGCFG" 150
@@ -134,6 +123,7 @@ pcp_textarea "" "cat $ONBOOTLST" 150
 pcp_textarea "" "cat $TCEMNT/tce/piCorePlayer.dep" 150
 
 pcp_backup
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 #========================================================================================
 # Connect to the wifi

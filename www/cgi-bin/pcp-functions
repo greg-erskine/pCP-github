@@ -1419,6 +1419,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $CONFIGCFG
 	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $CONFIGCFG
 	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(RPIBLUETOOTH=\).*/\1\"$RPIBLUETOOTH\"/" $CONFIGCFG
 	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
@@ -1525,6 +1526,7 @@ HDMIPOWER="on"
 APMODE="no"
 AP_IP=""
 RPI3INTWIFI="on"
+RPIBLUETOOTH="off"
 SAMBA="disabled"
 WOL="no"
 WOL_NIC=""

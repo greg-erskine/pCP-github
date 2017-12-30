@@ -6,6 +6,7 @@
 #	Add Bootscript option for soundcard setup. PH.
 #	Add AP Mode Startup. PH.
 #	Load arc4 if doing a network mount, as it does not automatically load. PH.
+#	Setup Bluetooth duruing insitu upgrade. PH.
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -135,10 +136,16 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	pcp_timezone
 	pcp_write_to_host
 	######## This section deals with adding dtoverlays back to config.txt based
-		# Disable RPI3 or ZeroW internal wifi
+		# Disable RPI3 or ZeroW internal wifi on by default from upgrade
 		if [ "$RPI3INTWIFI" = "off" ]; then
 			echo -n "${BLUE}[ INFO ] Disabling rpi internal wifi...${NORMAL}"
 			echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT
+			echo "${GREEN}Done.${NORMAL}"
+		fi
+		# Enable RPI3 or ZeroW internal bluetooth off by default from upgrade
+		if [ "$RPIBLUETOOTH" = "on" ]; then
+			echo -n "${BLUE}[ INFO ] Enabling rpi internal bluetooth...${NORMAL}"
+			sed -i '/dtoverlay=pi3-disable-bt/d' $CONFIGTXT
 			echo "${GREEN}Done.${NORMAL}"
 		fi
 		# Set Screen Rotate

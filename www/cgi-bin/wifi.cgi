@@ -2,6 +2,7 @@
 
 # Version: 3.5.0 2017-12-26
 #	Add page button for AP mode. PH.
+#	Add Bluetooth enable/disable. PH.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -77,6 +78,13 @@ echo '}'
 echo ''
 echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
+echo '}'
+echo 'function validate() {'
+echo '    if (document.setwifi.RPI3INTWIFI.value == "on" && document.setwifi.RPIBLUETOOTH.value == "on"){'
+echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
+echo '      return false;'
+echo '    }'
+echo '    return ( true );'
 echo '}'
 echo '</script>'
 
@@ -206,7 +214,8 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $SSID: '$SSID'<br />'
 	echo '                 [ DEBUG ] $PASSWORD: '$PASSWORD'<br />'
 	echo '                 [ DEBUG ] $ENCRYPTION: '$ENCRYPTION'<br />'
-	echo '                 [ DEBUG ] $RPI3INTWIFI: '$RPI3INTWIFI'</p>'
+	echo '                 [ DEBUG ] $RPI3INTWIFI: '$RPI3INTWIFI'<br />'
+	echo '                 [ DEBUG ] $RPIBLUETOOTH: '$RPIBLUETOOTH'</p>'
 fi
 
 #========================================================================================
@@ -335,10 +344,37 @@ if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); th
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#RPI Internal Bluetooth Controller
+	case "$RPIBLUETOOTH" in
+		on) RPIBLUETOOTHyes="checked" ;;
+		off) RPIBLUETOOTHno="checked" ;;
+		*);;
+	esac
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>RPi Built-in Bluetooth</p>'
+	echo '                </td>'
+	echo '                <td class="column380">'
+	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>On&nbsp;'
+	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>Off'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Turn off Raspberry Pi 3B / Zero-W built-in bluetooth&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will load an overlay that disables RPi3/Zero-W onboard bluetooth.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 fi
-echo '              <tr>'
+pcp_incr_id
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
-echo '                  <input type="submit" name="SAVE" value="Save/Connect">'
+echo '                  <input type="submit" name="SAVE" value="Save/Connect" onclick="return(validate());">'
 [ $MODE -ge $MODE_BETA ] &&
 echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 echo '                </td>'
