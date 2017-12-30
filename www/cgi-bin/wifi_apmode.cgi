@@ -168,7 +168,7 @@ case "$ACTION" in
 		echo '[ INFO ] Updating AP Mode Extensions...'
 		sudo -u tc pcp-update pcp-apmode.tcz
 		case $? in
-			0) echo '[ INFO ] Reboot Required to finish update"; REBOOT_REQUIRED=1';;
+			0) echo '[ INFO ] Reboot Required to finish update'; REBOOT_REQUIRED=1;;
 			2) echo '[ INFO ] No Update Availiable';;
 			*) echo '[ ERROR] Try again later';;
 		esac
