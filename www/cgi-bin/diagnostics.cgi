@@ -101,6 +101,7 @@ pcp_textarea_inform "Current config.cfg" "cat $CONFIGCFG" 150 log
 pcp_textarea_inform "Current bootsync.sh" "cat $BOOTSYNC" 150 log
 pcp_textarea_inform "Current bootlocal.sh" "cat $BOOTLOCAL" 150 log
 pcp_textarea_inform "Current shutdown.sh" "cat $SHUTDOWN" 150 log
+echo '<a name="dmesg"></a>'
 pcp_textarea_inform "" "dmesg" 300 log
 pcp_textarea_inform "Current /opt/.filetool.lst" "cat /opt/.filetool.lst" 300 log
 pcp_textarea_inform "Current /opt/.xfiletool.lst" "cat /opt/.xfiletool.lst" 300 log
