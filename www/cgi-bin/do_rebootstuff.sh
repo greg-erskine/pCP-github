@@ -371,17 +371,22 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
+#This routing will load the contents of the selected Card Config file.
+pcp_load_card_conf
+
 # If Custom ALSA settings are used, then restore the settings
 echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
 if [ "$ALSAlevelout" = "Custom" ]; then
 	alsactl restore
 fi
+echo "${GREEN} Done.${NORMAL}"
 
 # Run custom audio boot script.
-echo -n "${BLUE}Setting up audio Card... ${NORMAL}"
+echo -n "${BLUE}Setting up audio Card... ${YELLOW}"
 if [ "$AUDIOBOOTSCRIPT" != "" ]; then
-	[ -x $AUDIOBOOTSCRIPT ] && $AUDIOBOOTSCRIPT
+	$AUDIOBOOTSCRIPT
 fi
+echo "${GREEN} Done.${NORMAL}"
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
@@ -406,7 +411,6 @@ echo "${GREEN}Done.${NORMAL}"
 
 if [ "$OUTPUT" = "equal" ]; then
 	echo -n "${BLUE}Checking proper card number for Alsaequal... ${NORMAL}"
-	pcp_find_card_number
 	[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo "{$RED}Selected card not found in /etc/asound.conf."
 	echo "${GREEN}Done.${NORMAL}"
 fi

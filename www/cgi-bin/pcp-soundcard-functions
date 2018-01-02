@@ -232,8 +232,8 @@ pcp_sound_card_dropdown() {
 	fi
 }
 
-# Find card number for asound.conf when using alsaequal
-pcp_find_card_number() {
+# Load Card Variables from Config file, and Find card number for asound.conf when using alsaequal
+pcp_load_card_conf() {
 	pcp_blank_audio_conf
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	case $CARD in
