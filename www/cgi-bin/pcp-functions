@@ -1431,6 +1431,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $CONFIGCFG
 	sudo sed -i "s/\(INTERNET_CHECK_IP=\).*/\1\"$INTERNET_CHECK_IP\"/" $CONFIGCFG
 	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $CONFIGCFG
+	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $CONFIGCFG
 }
 
 #========================================================================================
@@ -1538,6 +1540,8 @@ SPARAMS4=""
 SPARAMS5=""
 INTERNET_CHECK_IP=""
 ROTDASH="no"
+SHAIRPORT_OUT="Please change"
+SHAIRPORT_CONTROL="Please change"
 EOF
 }
 

@@ -1351,6 +1351,14 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="no" '$SHAIRPORTno'>No'
 	echo '                </td>'
 	echo '                <td>'
+
+	if [ "$SHAIRPORT" = "yes" ]; then
+		echo '                  <p><input type="button" name="CONFIG" onClick="location.href='\'''shairportsync.cgi''\''" value="Configure">&nbsp;'
+	else
+		echo '                  <p>'
+	fi
+
+	
 	echo '                  <p>Use Shairport-sync to stream from iDevices&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
