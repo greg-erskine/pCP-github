@@ -47,25 +47,17 @@ pcp_bt_status(){
 
 REBOOT_REQUIRED=0
 case "$ACTION" in
-	Start)
-		pcp_table_top "Bluetooth"
-		echo '                <textarea class="inform" style="height:40px">'
-		if [ ! -x $DAEMON_INITD ]; then
-			echo '[ INFO ] Loading pCP AP Mode extensions...'
-			sudo -u tc tce-load -i pcp-bt.tcz
-		fi
-		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
-		echo -n '[ INFO ] '
-		sudo $DAEMON_INITD start
-		echo '                </textarea>'
-		pcp_table_end
-	;;
-	Stop)
-		pcp_table_top "Bluetooth"
-		echo '                <textarea class="inform" style="height:40px">'
-		echo '[ INFO ] Stopping Bluetooth Connect Daemon...'
-		echo -n '[ INFO ] '
-		sudo $DAEMON_INITD stop
+	Forget)
+		pcp_table_top "Bluetooth Configuration"
+		echo '                <textarea class="inform" style="height:60px">'
+		echo '[ INFO ] Forgetting Device ...'$DEVICE
+		RET=$(pcp_bt_forget_device $DEVICE)
+		case $RET in
+			0)echo '[ INFO ] Device has been removed.';pcp_backup "nohtml";;
+			1)echo '[ ERROR ] Error removing device.';;
+		esac
+		rm -f /tmp/*.out
+		rm -f /tmp/*.dd
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -93,9 +85,9 @@ case "$ACTION" in
 		if [ $? -eq 0 ]; then
 			echo '[ INFO ] Pairing Successful'
 			pcp_backup "nohtml"
-		fi
 			echo '[ INFO ] Restarting Connect Daemon'
 			sudo $DAEMON_INITD restart
+		fi
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -130,6 +122,39 @@ case "$ACTION" in
 		echo '                </textarea>'
 		pcp_table_end
 	;;
+	Select)
+		pcp_table_top "Select Previously paired device"
+		echo '                <textarea class="inform" style="height:120px">'
+		pcp_bt_write_config $DEVICE
+		echo '[ INFO ] Selecting Device: '$BTNAME
+		pcp_backup "nohtml"
+		echo '[ INFO ] Restarting Connect Daemon'
+		sudo $DAEMON_INITD restart
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	Start)
+		pcp_table_top "Bluetooth"
+		echo '                <textarea class="inform" style="height:40px">'
+		if [ ! -x $DAEMON_INITD ]; then
+			echo '[ INFO ] Loading pCP AP Mode extensions...'
+			sudo -u tc tce-load -i pcp-bt.tcz
+		fi
+		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
+		echo -n '[ INFO ] '
+		sudo $DAEMON_INITD start
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	Stop)
+		pcp_table_top "Bluetooth"
+		echo '                <textarea class="inform" style="height:40px">'
+		echo '[ INFO ] Stopping Bluetooth Connect Daemon...'
+		echo -n '[ INFO ] '
+		sudo $DAEMON_INITD stop
+		echo '                </textarea>'
+		pcp_table_end
+	;;
 	Update)
 		pcp_table_top "Update Bluetooth"
 		pcp_sufficient_free_space 4500
@@ -157,7 +182,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Wifi Access Point Configuration</legend>'
+echo '          <legend>Bluetooth Speaker Setup</legend>'
 echo '          <table class="bggrey percent100">'
 
 #------------------------------------Indication--------------------------------------
@@ -219,6 +244,7 @@ echo '                <div id="'$ID'" class="less">'
 echo '                  <ul>'
 echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Controller Power is on.</li>'
 echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Controller Power is off.</li>'
+echo '                    <li>Controller address '$BTCONTROLLER
 echo '                    <li>If the controller power remains off.</li>'
 echo '                    <li>If using Rpi internal bluetooth, make sure controller is enabled on the <a href="wifi.cgi">Wifi Page</a></li>'
 echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a></li>'
@@ -307,65 +333,7 @@ pcp_bt_install() {
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_install
 #----------------------------------------------------------------------------------------
-
-#------------------------------------------Scan AP Mode---------------------
-pcp_bt_scan() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Scan" action="'$0'">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Scan" '$DISABLE_BT'/>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Scan for Bluetooth Devices&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will Scan for Bluetooth devices, make sure the device is in pair mode.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	if [ -f /tmp/btscan.out ]; then
-		# Mark the currently paired device as selected.
-		sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
-		#Remove unneeded space
-		sed -i 's/ \#/\#/' /tmp/btscan.dd
-		PAIR_DISABLED=""
-	else
-		if [ "$BTNAME" != "" ]; then
-			echo "$BTDEVICE#$BTNAME#selected" >/tmp/btscan.dd
-		else
-			echo "0#No Device#selected" >/tmp/btscan.dd
-		fi
-		PAIR_DISABLED="disabled"
-	fi
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Pair" action="'$0'">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Pair" onclick="return confirm('\''Make sure device is in pairing mode.\n\nContinue?'\'')" '$PAIR_DISABLED'/>'
-	echo '                </td>'
-	echo '                <td class="column200">'
-	echo '                  <select name="DEVICE">'
-	awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/btscan.dd
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	if [ "$BTNAME" != "" ]; then
-		echo '                  <p>Device previosly paired, Run scan to pair to different device.</p>'
-	else
-		echo '                  <p>Run a Scan to Find Devices</p>'
-	fi
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_bt_scan
-
-#------------------------------------------Start and Stop AP Mode---------------------
+#------------------------------------------Start and Stop BT Daemon---------------------
 pcp_bt_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -422,7 +390,6 @@ pcp_bt_startstop() {
 	echo '            </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_startstop
-
 #-------------------_------------Show BT logs--------------------------------------------
 pcp_bt_show_logs() {
 	pcp_incr_id
@@ -449,6 +416,150 @@ pcp_bt_show_logs() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_bt_show_logs
 #----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Pair/Select table
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Device Pairing/Selection</legend>'
+echo '          <table class="bggrey percent100">'
+#------------------------------------------Scan/Pair BT ---------------------
+pcp_bt_scan() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Scan" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Scan" '$DISABLE_BT'/>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Scan for Bluetooth Devices&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will Scan for Bluetooth devices, make sure the device is in pair mode.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+
+	if [ -f /tmp/btscan.out ]; then
+		# Mark the currently paired device as selected.
+		sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
+		#Remove unneeded space
+		sed -i 's/ \#/\#/' /tmp/btscan.dd
+		PAIR_DISABLED=""
+	else
+		if [ "$BTNAME" != "" ]; then
+			echo "$BTDEVICE#$BTNAME#selected" >/tmp/btscan.dd
+		else
+			echo "0#No Device#selected" >/tmp/btscan.dd
+		fi
+		PAIR_DISABLED="disabled"
+	fi
+	pcp_incr_id
+	pcp_toggle_row_shade
+	if [ "$PAIR_DISABLED" = "" ]; then
+		echo '            <form name="Pair" action="'$0'">'
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 center">'
+		echo '                  <input type="submit" name="ACTION" value="Pair" onclick="return confirm('\''Make sure device is in pairing mode.\n\nContinue?'\'')" '$PAIR_DISABLED'/>'
+		echo '                </td>'
+		echo '                <td class="column200">'
+		echo '                  <select name="DEVICE">'
+		awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/btscan.dd
+		echo '                  </select>'
+		echo '                </td>'
+		echo '                <td>'
+		if [ "$BTNAME" != "" ]; then
+			echo '                  <p>Select device to pair. List also includes previously paired devices.</p>'
+		else
+			echo '                  <p>Run a Scan to Find Devices</p>'
+		fi
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </form>'
+	else
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 center"></td>'
+		echo '                <td class="colspan=2">'
+		echo '                   <p>Run scan to discover/pair to a new device.</p>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
+
+	pcp_bt_paired_devices
+	if [ -f $PAIRED_LIST ]; then
+		# Mark the currently paired device as selected.
+		sed '/^'$BTDEVICE'/! s/selected/notselected/' < $PAIRED_LIST > /tmp/paired.dd
+		#Remove unneeded space
+		sed -i 's/ \#/\#/' /tmp/paired.dd
+		SELECT_DISABLED=""
+	else
+		echo "0#No Device#selected" >/tmp/paired.dd
+		SELECT_DISABLED="disabled"
+	fi
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Select" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Select" '$SELECT_DISABLED'/>'
+	echo '                </td>'
+	echo '                <td class="column200">'
+	echo '                  <select name="DEVICE">'
+	awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/paired.dd
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	if [ "$BTNAME" != "" ]; then
+		echo '                  <p>Select from previosly paired device to change output device.</p>'
+	else
+		echo '                  <p>Run a Scan to Find Devices</p>'
+	fi
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	
+	if [ -f /tmp/paired.dd ]; then
+		FORGET_DISABLED=""
+	else
+		echo "0#No Device#selected" >/tmp/paired.dd
+		FORGET_DISABLED="disabled"
+	fi
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Forget" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Forget" onclick="return confirm('\''Forget Device.\n\nContinue?'\'')"'$SELECT_DISABLED'/>'
+	echo '                </td>'
+	echo '                <td class="column200">'
+	echo '                  <select name="DEVICE">'
+	awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/paired.dd
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Select device to forget.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	
+	
+}
+[ $MODE -ge $MODE_BETA ] && pcp_bt_scan
+
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
