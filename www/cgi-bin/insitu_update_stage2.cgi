@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.5.0 2017-12-27
-#	Updates for Kernel 4.14.7 and 9.x repo
+# Version 3.5.0 2017-01-13
+#	Updates for Kernel 4.14.13 and 9.x repo
 
 # Version 3.22 2017-09-16
 #	Updates for Kernel 4.9.50
@@ -99,7 +99,7 @@ case "${VERSION}" in
 	;;
 	piCorePlayer3.5.0*)
 		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=26500
+		BOOT_SIZE_REQUIRED=26700
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -251,7 +251,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.5.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.14.7
+			NEWKERNELVER=4.14.13
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
