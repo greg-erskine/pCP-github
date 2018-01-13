@@ -87,7 +87,7 @@ case "$ACTION" in
 		pcp_sufficient_free_space 4500
 		if [ $? -eq 0 ] ; then
 			echo '                <textarea class="inform" style="height:160px">'
-			pcp_install_apmode
+			pcp_install_cirrus
 			if [ ! -f $TCEMNT/tce/optional/rpi-cirrus-config.tcz ]; then
 				echo '[ ERROR ] Error Downloading rpi-cirrus-config.tcz, please try again later.'
 			fi
