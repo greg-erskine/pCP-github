@@ -30,9 +30,16 @@ case "$1" in
 		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
 	;;
 	status)
-		ps -ef | grep $DAEMON | grep -v grep | awk '{ print $0 }'
-		ps -ef | grep $DAEMON1 | grep -v grep | awk '{ print $0 }'
-		ps -ef | grep $DAEMON2 | grep -v grep | awk '{ print $0 }'
+		P1=$(ps -ef | grep $DAEMON | grep -v grep | awk '{ print $0 }')
+		P2=$(ps -ef | grep $DAEMON1 | grep -v grep | awk '{ print $0 }')
+		P3=$(ps -ef | grep $DAEMON2 | grep -v grep | awk '{ print $0 }')
+		[ "$P1" != "" ] && echo $P1
+		[ "$P2" != "" ] && echo $P2
+		[ "$P3" != "" ] && echo $P3
+		if [ x"$P1" = x -o x"$P2" = x -o x"$P3" = x ]; then
+			echo "Not all processes running"
+			exit 1
+		fi
 	;;
 	*)
 		echo ""

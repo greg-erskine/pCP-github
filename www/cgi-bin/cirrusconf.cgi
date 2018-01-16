@@ -1,9 +1,10 @@
 #!/bin/sh
 
 # Version: 3.5.0 2018-01-13
-#	Initial version. PH.
+#	Initial version. PH.  (Thanks to M-H for his help in debugging and testing).
 
 . pcp-functions
+. pcp-lms-functions
 
 pcp_html_head "Cirrus Audio Card Settings" "PH"
 
@@ -11,6 +12,7 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
+pcp_running_script
 pcp_remove_query_string
 pcp_httpd_query_string
 
@@ -40,12 +42,12 @@ pcp_remove_cirrus() {
 }
 
 set_cirrus_conf() {
-	[ -f /usr/lib/alsa/rpi-cirrus-functions.sh ] && . /usr/lib/alsa/rpi-cirrus-functions.sh
-	if [ x"$SPEAKERS" = "x" ]; then 
+	[ -f /usr/local/lib/alsa/rpi-cirrus-functions.sh ] && . /usr/local/lib/alsa/rpi-cirrus-functions.sh
+	if [ x"$SPEAKERS" = "x" ]; then
 		echo '[ INFO ] Setting Speakers OFF'
 		SPEAKERS=0
 		reset_speaker_out
-	else 
+	else
 		echo '[ INFO ] Setting Speakers ON'
 		playback_to_speakers
 	fi
@@ -156,11 +158,11 @@ pcp_cirrus_install() {
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Install Cirrus Logic Configuration Scripts&nbsp;&nbsp;'
+		echo '                  <p>Required: Install Cirrus Logic Configuration Extension&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>This will install Cirrus Logic Configuration Scripts.</p>'
+		echo '                    <p>This extension is required for the card to be properly configured for playback.</p>'
 		echo '                  </div>'
 	else
 		echo '                  <input type="submit" name="ACTION" value="Update" />'
@@ -193,17 +195,21 @@ SPDIF=$(cat $CIRRUSCONF | grep -e "^SPDIF=" | cut -d "=" -f2)
 pcp_incr_id
 pcp_toggle_row_shade
 
-COL1="column50 right"
-COL2="column200"
+COL1="column75 center"
+COL2="column100"
+COL3="column250"
 
 #--------------------------------------Heading-------------------------------------------
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <th class="column200 center">'
-echo '                <p>Output</p>'
-echo '              </th>'
-echo '              <th class="column210">'
-echo '                <p>Description/Help</p>'
-echo '              </th>'
+echo '              <td class="'$COL1'">'
+echo '                <p><b>Enabled</b></p>'
+echo '              </td>'
+echo '              <td class="'$COL2'">'
+echo '                <p><b>Output</b></p>'
+echo '              </td>'
+echo '              <td class="'$COL3'">'
+echo '                <p><b>Description/Help</b></p>'
+echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
@@ -215,13 +221,13 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="SPEAKERS" value="1" '$SPEAKERSyes'>'
+	echo '                  <input class="small1" type="checkbox" name="SPEAKERS" value="1" '$SPEAKERSyes $DISABLE'>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <p>Speaker</p>'
+	echo '                  <p>Speakers</p>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Output to Speaker Port</p>'
+	echo '                  <p>Output to Speakers Port</p>'
 	echo '                </td>'
 	echo '              </tr>'
 
@@ -230,7 +236,7 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="HEADSET" value="1" '$HEADSETyes'>'
+	echo '                  <input class="small1" type="checkbox" name="HEADSET" value="1" '$HEADSETyes $DISABLE'>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Headset</p>'
@@ -245,7 +251,7 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="LINEOUT" value="1" '$LINEOUTyes'>'
+	echo '                  <input class="small1" type="checkbox" name="LINEOUT" value="1" '$LINEOUTyes $DISABLE'>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Line Out</p>'
@@ -260,7 +266,7 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="SPDIF" value="1" '$SPDIFyes'>'
+	echo '                  <input class="small1" type="checkbox" name="SPDIF" value="1" '$SPDIFyes $DISABLE'>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Spdif</p>'
@@ -269,16 +275,20 @@ pcp_cirrus_configure() {
 	echo '                  <p>Output to Spdif Port</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	#--------------------------------------Submit button-------------------------------------
+#--------------------------------------Submit button-------------------------------------
+	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td class="column150 center">'
-	echo '                    <button type="submit" name="ACTION" value="Setconfig" '$DISABLE'>Set Cirrus Config</button>'
+	echo '                    <button type="submit" name="ACTION" value="Setconfig" '$DISABLE'>Set Outputs</button>'
+	echo '                  </td>'
+	echo '                  <td class="colspan=2">'
+	echo '                    <p>Enable card outputs by selecting check boxes above, then press the "Set Outputs" button</p>'
 	echo '                  </td>'
 	echo '                </tr>'
 	echo '              </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_cirrus_configure
+[ $MODE -ge $MODE_NORMAL ] && pcp_cirrus_configure
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'

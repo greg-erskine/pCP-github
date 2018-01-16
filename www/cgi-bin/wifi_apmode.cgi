@@ -108,6 +108,7 @@ case "$ACTION" in
 			pcp_install_apmode
 			if [ -f $TCEMNT/tce/optional/pcp-apmode.tcz ]; then
 				APMODE="yes"
+				AP_IP="10.10.10.1"
 				pcp_save_to_config
 				pcp_backup "nohtml"
 			else

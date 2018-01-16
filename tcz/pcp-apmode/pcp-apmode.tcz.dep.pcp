@@ -3,3 +3,8 @@ hostapd.tcz
 dnsmasq.tcz
 iptables.tcz
 firmware-rpi3-wireless.tcz
+firmware-atheros.tcz
+firmware-brcmwifi.tcz
+firmware-ralinkwifi.tcz
+firmware-rtlwifi.tcz
+wireless_tools.tcz

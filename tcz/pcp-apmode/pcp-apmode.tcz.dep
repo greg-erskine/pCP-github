@@ -7,3 +7,4 @@ firmware-atheros.tcz
 firmware-brcmwifi.tcz
 firmware-ralinkwifi.tcz
 firmware-rtlwifi.tcz
+wireless_tools.tcz
