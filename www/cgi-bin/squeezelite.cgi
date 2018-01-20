@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 3.50 2017-11-21
+# Version: 3.5.0 2018-01-20
 #	Added setting of which squeezelite binary to use. PH.
+#	Increase Alsa buffer field width, when size expressed in bytes. PH.
+#	Added dsd to codec, xcodec field. PH.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -292,7 +294,7 @@ pcp_squeezelite_alsa() {
 	                        ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 )		# m = use mmap (0|1)
 	                        ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 )		# d = opens ALSA twice
 
-	echo '                  <input class="small3"'
+	echo '                  <input class="small4"'
 	echo '                         type="text"'
 	echo '                         name="ALSA_PARAMS1"'
 	echo '                         value="'$ALSA_PARAMS1'"'
@@ -416,8 +418,8 @@ pcp_squeezelite_codec() {
 	echo '                         type="text"'
 	echo '                         name="_CODEC"'
 	echo '                         value="'$_CODEC'"'
-	echo '                         title="Restrict codec. Valid: flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
-	echo '                         pattern="[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
+	echo '                         title="Restrict codec. Valid: dsd,flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
+	echo '                         pattern="[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -435,6 +437,7 @@ pcp_squeezelite_codec() {
 	echo '                      <li>aac</li>'
 	echo '                      <li>wma</li>'
 	echo '                      <li>alac</li>'
+	echo '                      <li>dsd</li>'
 	echo '                      <li>mad, mpg for specific mp3 codec.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -457,8 +460,8 @@ pcp_squeezelite_xcodec() {
 	echo '                         type="text"'
 	echo '                         name="XCODEC"'
 	echo '                         value="'$XCODEC'"'
-	echo '                         title="Exclude codec. Valid: flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
-	echo '                         pattern="[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
+	echo '                         title="Exclude codec. Valid: dsd,flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
+	echo '                         pattern="[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -1092,10 +1095,10 @@ pcp_squeezelite_binary() {
 	echo '                  <input class="small1" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Standard Squeezelite</p>'
+	echo '                  <p>Squeezelite</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>Standard Squeezelite Binary, Tried and True</p>'
+	echo '                  <p>Standard Squeezelite Binary</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -1104,10 +1107,10 @@ pcp_squeezelite_binary() {
 	echo '                  <input class="small1" type="radio" name="SQBINARY" value="dsd" '$DSDyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>DSD Squeezelite</p>'
+	echo '                  <p>Native DSD Squeezelite</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>Squeezelite with full DSD patches from Daphile</p>'
+	echo '                  <p>Squeezelite with additional native DSD patches from Daphile</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
