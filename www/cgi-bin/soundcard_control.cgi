@@ -464,7 +464,7 @@ pcp_disable_enable_buildin_sound() {
 		echo '                <p><input type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <p>When checked - Onboard soundcard is always enabled&nbsp;&nbsp;'
+		echo '                <p>When checked - Onboard soundcard is enabled&nbsp;&nbsp;'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
