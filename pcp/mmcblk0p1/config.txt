@@ -58,8 +58,6 @@ cmdline cmdline.txt
 # uncomment for composite PAL
 #sdtv_mode=2
 
-
-[ALL]
 #----------------------------------------------------
 dtparam=i2c=on,spi=on,i2s=on
 
