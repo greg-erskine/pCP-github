@@ -1,5 +1,4 @@
 # picoreplayer squeezelite makefile
-OPTS = -DRESAMPLE -DFFMPEG -DVISEXPORT -DDSD -DGPIO -DRPI -DIR -I./include
 CFLAGS ?= -Wall -fPIC -s -O3 -march=armv6 -mfloat-abi=hard -mfpu=vfp $(OPTS)
 LDFLAGS ?= -s -lasound -lpthread -lm -ldl -lrt -L./lib -lwiringPi -llirc_client -Wl,-rpath,/usr/local/lib
 EXECUTABLE ?= squeezelite
