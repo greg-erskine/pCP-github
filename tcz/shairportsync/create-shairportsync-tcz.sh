@@ -7,8 +7,8 @@ OUTPUT=$PWD/${SPS}-build
 TCZ=pcp-${SPS}.tcz
 TCZINFO=pcp-${SPS}.tcz.info
  
-# Build requires these extra packages in addition to the debian jessie 8.3+ build tools
-# sudo apt-get install squashfs-tools
+# Build requires these extra packages in addition to the debian stretch 9.2+ build tools
+# sudo apt-get install squashfs-tools libsndfile1-dev
 
 ## Start
 echo "Most log mesages sent to $LOG... only 'errors' displayed here"
@@ -58,6 +58,6 @@ echo -e "Original-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TC
 echo -e "Copying-policy:\tGPL" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
 echo -e "Change-log:\t$(cat README.md)" >> $TCZINFO
 
