@@ -4,6 +4,7 @@
 #	Added setting of which squeezelite binary to use. PH.
 #	Increase Alsa buffer field width, when size expressed in bytes. PH.
 #	Added dsd to codec, xcodec field. PH.
+#	Change -D field based on which binary is being used. PH.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -751,36 +752,37 @@ pcp_squeezelite_log_level() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Device supports DoP-------------------------------
+#--------------------------------------Device supports DSD/DoP-------------------------------
 pcp_squeezelite_dop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Device supports DoP</p>'
+	echo '                  <p class="row">Device supports DSD/DoP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
 	echo '                         type="text"'
 	echo '                         name="DSDOUT"'
 	echo '                         value="'$DSDOUT'"'
-	echo '                         title="DoP delay"'
-	echo '                         pattern="\d*"'
+	echo '                         title="delay:format"'
+	echo '                         pattern="^\d+((:dop)|(:u8)|(:u16le)|(:u16be)|(:u32le)|(:u32be))?"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Output device supports DSD over PCM (DoP) (-D)&nbsp;&nbsp;'
+	echo '                  <p>Output device supports native DSD (-D)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;delay&gt;</p>'
+	echo '                    <p>&lt;delay&gt;:&lt;format&gt;</p>'
 	echo '                    <p>delay = optional delay switching between PCM and DoP in ms.</p>'
+	echo '                    <p>format = dop (default if not specified), u8, u16le, u16be, u32le or u32be.</p>'
 	echo '                    <p><b>Note: </b>LMS requires the DoP patch applied.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop
+[ "$SQBINARY" = "dsd" -a $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop || DSDOUT=""
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Close output setting------------------------------
@@ -1089,7 +1091,7 @@ pcp_squeezelite_binary() {
 	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                    </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Default and Full DSD binaries are included with pCP.</p>'
+	echo '                    <p>Default and DSD binaries are included with pCP.</p>'
 	echo '                    <p>Almost all users will use the default binary.</p>'
 	echo '                  </div>'
 	echo '              </tr>'
@@ -1111,10 +1113,10 @@ pcp_squeezelite_binary() {
 	echo '                  <input class="small1" type="radio" name="SQBINARY" value="dsd" '$DSDyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Native DSD Squeezelite</p>'
+	echo '                  <p>Native/Dop DSD Squeezelite</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>Squeezelite with additional native DSD patches from Daphile</p>'
+	echo '                  <p>Squeezelite with DSD(DoP or native) patches.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade

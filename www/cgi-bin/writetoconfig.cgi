@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.50 2017-11-21
+# Version: 3.5.0 2018-01-20
 #	Added setting of which squeezelite binary to use. PH.
+#	Make sure DSDOUT is not set for regular binary. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -144,8 +145,16 @@ case "$SUBMIT" in
 	Binary)
 		SAVE=0
 		case $SQBINARY in
-			default) rm -f $TCEMNT/tce/squeezelite; SAVE=1;;
-			dsd) rm -f $TCEMNT/tce/squeezelite; ln -s /usr/local/bin/squeezelite-dsd $TCEMNT/tce/squeezelite; SAVE=1;;
+			default)
+				rm -f $TCEMNT/tce/squeezelite
+				DSDOUT=""
+				SAVE=1
+			;;
+			dsd)
+				rm -f $TCEMNT/tce/squeezelite
+				ln -s /usr/local/bin/squeezelite-dsd $TCEMNT/tce/squeezelite
+				SAVE=1
+			;;
 			custom) 
 				if [ -f $TCEMNT/tce/squeezelite-custom ]; then
 					rm -f $TCEMNT/tce/squeezelite; ln -s $TCEMNT/tce/squeezelite-custom $TCEMNT/tce/squeezelite
