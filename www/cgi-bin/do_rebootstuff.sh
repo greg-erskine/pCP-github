@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-26
+# Version: 3.5.0 2018-01-25
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH
 #	Add Bootscript option for soundcard setup. PH.
@@ -342,18 +342,25 @@ echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${YELLOW}Waiting for soundcards to populate."
-CNT=1
-until aplay -l | grep -q PLAYBACK 2>&1
-do
-	if [ $((CNT++)) -gt 40 ]; then
-		echo "${RED} Failed ($CNT).${NORMAL}"
-		break
-	else
-		echo -n "."
-		sleep 0.5
-	fi
-done
+#This routine will load the contents of the selected Card Config file.
+pcp_load_card_conf
+
+echo -n "${YELLOW}Waiting for soundcard ${CARDNAME} to populate."
+if [ $CARDNAME != "BTSpeaker" ]; then
+	CNT=1
+	until aplay -l | grep '\[' | grep -q $CARDNAME 2>&1
+	do
+		if [ $((CNT++)) -gt 40 ]; then
+			echo "${RED} Failed to find $CARDNAME ($CNT).${NORMAL}"
+			break
+		else
+			echo -n "."
+			sleep 0.5
+		fi
+	done
+else
+	echo -n "${BLUE}Bluetooth Output selected..."
+fi
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
 # Start the essential stuff for piCorePlayer
@@ -371,22 +378,33 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-#This routing will load the contents of the selected Card Config file.
-pcp_load_card_conf
-
 # If Custom ALSA settings are used, then restore the settings
-echo -n "${BLUE}Starting ALSA configuration... ${NORMAL}"
+echo -n "${BLUE}Starting ALSA configuration${NORMAL}"
 if [ "$ALSAlevelout" = "Custom" ]; then
-	alsactl restore
+	# It seems the first attempt to load the state fails with some error. Looking at debug, it appears that not everything is initialized
+	# yet.  Since the state may contain extra cards, Load only the asound state for the selected card, 
+	# and make sure it completes without error.
+	CNT=1
+	until false; do
+		alsactl restore $CARDNAME
+		[ $? -eq 0 ] && break
+		if [ $((CNT++)) -gt 5 ]; then
+			echo "${RED} Alsa restore error! ${NORMAL}"
+			break
+		else
+			echo -n "."
+			sleep 0.25
+		fi
+	done
+	echo "${GREEN}($CNT)${NORMAL}"
 fi
-echo "${GREEN} Done.${NORMAL}"
 
 # Run custom audio boot script.
-echo -n "${BLUE}Setting up audio Card... ${YELLOW}"
 if [ "$AUDIOBOOTSCRIPT" != "" ]; then
+	echo -n "${BLUE}Running audio card boot script... ${YELLOW}"
 	$AUDIOBOOTSCRIPT
+	echo "${GREEN} Done.${NORMAL}"
 fi
-echo "${GREEN} Done.${NORMAL}"
 
 # Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
@@ -410,8 +428,9 @@ fi
 echo "${GREEN}Done.${NORMAL}"
 
 if [ "$OUTPUT" = "equal" ]; then
+	pcp_load_card_conf
 	echo -n "${BLUE}Checking proper card number for Alsaequal... ${NORMAL}"
-	[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo "{$RED}Selected card not found in /etc/asound.conf."
+	[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo "{$RED}Selected card not found in /proc/asound/cards."
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
