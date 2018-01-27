@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2017-12-16
+# Version: 3.5.0 2018-01-27
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
 #	Add APMODE config variable. PH
+#	Add reboot pending notification. PH.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -119,6 +120,7 @@ pcp_variables() {
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
+	REBOOT_PENDING="/tmp/rebootpending"
 
 	#------------------------------------------------------------------------------------
 	# Define modes
@@ -533,6 +535,29 @@ pcp_navigation() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_navigation toolbar -->'
+	if [ -f $REBOOT_PENDING ]; then
+		echo '<!-- Start of reboot notification toolbar -->'
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <div class="row">'
+		echo '        <fieldset>'
+		echo '          <table class="bggrey percent100">'
+		echo '            <tr class="warning">'
+		echo '              <td>'
+		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp'
+		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
+		echo '                </p>'
+		echo '              </td>'
+		echo '            </tr>'
+		echo '          </table>'
+		echo '        </fieldset>'
+		echo '      </div>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of reboot notification toolbar -->'
+	fi
 }
 
 pcp_footer() {
@@ -891,9 +916,12 @@ pcp_remove_query_string() {
 # Restart and Reboot popups
 #----------------------------------------------------------------------------------------
 pcp_reboot_required() {
-	echo '<script language="javascript">'
-	echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')'
-	echo '</script>'
+	if [ ! -f $REBOOT_PENDING ]; then
+		touch $REBOOT_PENDING
+		echo '<script language="javascript">'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nClick Cancel to manually reboot later.'\'','\''reboot.cgi?RB=yes'\'')'
+		echo '</script>'
+	fi
 }
 
 pcp_restart_required() {
