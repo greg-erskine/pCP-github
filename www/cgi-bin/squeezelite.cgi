@@ -155,14 +155,15 @@ echo '                </td>'
 echo '              </tr>'
 pcp_selected_soundcontrol
 if [ x"" != x"$CONTROL_PAGE" ]; then
+	[ -f $REBOOT_PENDING ] && CNTRL_DISABLED="disabled" || CNTRL_DISABLED=""
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <input type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''">'
+	echo '                  <input type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Audio Hardware and Mixer settings.&nbsp;&nbsp;'
+	[ -f $REBOOT_PENDING ] && echo '                  <p>Audio Hardware and Mixer settings are disabled until reboot.&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings.&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -997,7 +998,7 @@ pcp_squeezelite_various_input() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Various input</p>'
+	echo '                  <p class="row">Various Options</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
