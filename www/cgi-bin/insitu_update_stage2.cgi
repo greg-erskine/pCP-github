@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.5.0 2017-01-13
-#	Updates for Kernel 4.14.13 and 9.x repo
+# Version 3.5.0 2018-1-27
+#	Updates for Kernel 4.14.15 and 9.x repo
 
 # Version 3.22 2017-09-16
 #	Updates for Kernel 4.9.50
@@ -251,7 +251,7 @@ pcp_get_kernel_modules() {
 		piCorePlayer3.5.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
-			NEWKERNELVER=4.14.13
+			NEWKERNELVER=4.14.16
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
