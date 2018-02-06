@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-01-20
+# Version: 3.5.0 2018-02-07
 #	Added setting of which squeezelite binary to use. PH.
-#	Increase Alsa buffer field width, when size expressed in bytes. PH.
+#	Increase ALSA buffer field width, when size expressed in bytes. PH.
 #	Added dsd to codec, xcodec field. PH.
 #	Change -D field based on which binary is being used. PH.
 #	Add form some validation prior to submit. PH.
@@ -95,7 +95,8 @@ pcp_cards_controls() {
 }
 
 #========================================================================================
-# Determine which sound cards are avaiable for the various RPi boards
+# Determine which sound cards are available for the various RPi boards
+# PROBLEM???: See routines below. If RPi model is unknown, RP_MODEL will be set twice???
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
 	# RPI is P5-connetion no HAT model or unknown
@@ -145,12 +146,12 @@ awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dro
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p><b>Do this First:</b> Select Audio output, then press save&nbsp;&nbsp;'
+echo '                  <p><b>Do this First:</b> Select Audio output, then press [ Save ]&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Set Audio output before changing Squeezelite settings below.</p>'
-echo '                    <p>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
+echo '                    <p><b>Note: </b>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -164,7 +165,7 @@ if [ x"" != x"$CONTROL_PAGE" ]; then
 	echo '                  <input type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
 	echo '                </td>'
 	echo '                <td>'
-	[ -f $REBOOT_PENDING ] && echo '                  <p>Audio Hardware and Mixer settings are disabled until reboot.&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings.&nbsp;&nbsp;'
+	[ -f $REBOOT_PENDING ] && echo '                  <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -852,11 +853,6 @@ pcp_squeezelite_unmute() {
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -V option.</p>'
 
-#	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
-#	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
-
 	pcp_cards_controls
 
 	echo '                  </div>'
@@ -897,11 +893,6 @@ pcp_squeezelite_volume() {
 
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -U option.</p>'
-
-#	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
-#	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	pcp_cards_controls
 
@@ -1098,10 +1089,14 @@ pcp_squeezelite_binary() {
 	COL3="380"
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
-	echo '                <td class="column'$COL2'"><p><b>Binary</b></p></td>'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <p><b>Enabled</b></p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p><b>Binary</b></p>'
+	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                    <p>Select your squeezelite binary&nbsp;&nbsp;'
+	echo '                    <p>Select your Squeezelite Binary&nbsp;&nbsp;'
 	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                    </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -1118,7 +1113,7 @@ pcp_squeezelite_binary() {
 	echo '                  <p>Squeezelite</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>Standard Squeezelite Binary</p>'
+	echo '                  <p>Standard Squeezelite Binary.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -1127,10 +1122,10 @@ pcp_squeezelite_binary() {
 	echo '                  <input class="small1" type="radio" name="SQBINARY" value="dsd" '$DSDyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Native/Dop DSD Squeezelite</p>'
+	echo '                  <p>Native/DoP DSD Squeezelite</p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                  <p>Squeezelite with DSD(DoP or native) patches.</p>'
+	echo '                  <p>Squeezelite with DSD (DoP or native) patches.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -1145,12 +1140,12 @@ pcp_squeezelite_binary() {
 	echo '                  <p>Save your file as '$TCEMNT'/tce/squeezelite-custom</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	#--------------------------------------Submit button-------------------------------------
+	#--------------------------------------Submit button---------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td  class="column150">'
-	echo '                  <button type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
+	echo '                  <button type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite Binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
 	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 	echo '                </td>'
 	if [ $DISABLE != "" ]; then
@@ -1159,7 +1154,7 @@ pcp_squeezelite_binary() {
 		echo '                </td>'
 	fi
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
