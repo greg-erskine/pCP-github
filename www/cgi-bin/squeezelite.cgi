@@ -5,6 +5,7 @@
 #	Increase Alsa buffer field width, when size expressed in bytes. PH.
 #	Added dsd to codec, xcodec field. PH.
 #	Change -D field based on which binary is being used. PH.
+#	Add form some validation prior to submit. PH.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -1023,12 +1024,24 @@ pcp_squeezelite_various_input() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_various_input
 #----------------------------------------------------------------------------------------
 
+#========================================================================================
+# Javascript for form validation
+#----------------------------------------------------------------------------------------
+echo '<script type="text/javascript">'
+echo 'function validate() {'
+echo '    if (document.squeeze.POWER_SCRIPT.value != "" && document.squeeze.POWER_GPIO.value != ""){'
+echo '      alert("Power GPIO and Power Script must not be\ndefined at the same time.");'
+echo '      return false;'
+echo '    }'
+echo '    return ( true );'
+echo '}'
+echo '</script>'
 #--------------------------------------Submit button-------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite.">'
+echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
 echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 echo '                </td>'
 
