@@ -1028,8 +1028,8 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file">'
-echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
+echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite.">'
+echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 echo '                </td>'
 
 if [ $MODE -ge $MODE_ADVANCED ]; then
@@ -1138,7 +1138,7 @@ pcp_squeezelite_binary() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td  class="column150">'
 	echo '                  <button type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
-	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 	echo '                </td>'
 	if [ $DISABLE != "" ]; then
 		echo '                <td class="cospan 2">'

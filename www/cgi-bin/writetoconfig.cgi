@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-01-20
+# Version: 3.5.0 2018-02-04
 #	Added setting of which squeezelite binary to use. PH.
 #	Make sure DSDOUT is not set for regular binary. PH.
+#	Utilize updated pcp_restart_required. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -71,6 +72,7 @@ pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
 
 pcp_banner
 pcp_running_script
+pcp_remove_query_string
 pcp_httpd_query_string
 
 #========================================================================================
@@ -193,14 +195,14 @@ fi
 
 pcp_backup
 pcp_table_middle
-pcp_go_back_button
+[ $RESTART_REQUIRED ] || pcp_go_back_button
 pcp_table_end
 pcp_footer
 pcp_copyright
 
 sleep 1
 [ $REBOOT_REQUIRED ] && pcp_reboot_required
-[ $RESTART_REQUIRED ] && pcp_restart_required
+[ $RESTART_REQUIRED ] && pcp_restart_required $FROM_PAGE
 
 echo '</body>'
 echo '</html>'

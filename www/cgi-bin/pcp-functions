@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-01-27
+# Version: 3.5.0 2018-02-04
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
 #	Add APMODE config variable. PH
 #	Add reboot pending notification. PH.
+#	Change pcp_restart_required to non-popup, and set return page. PH.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -926,7 +927,13 @@ pcp_reboot_required() {
 
 pcp_restart_required() {
 	echo '<script language="javascript">'
-	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
+#	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
+	echo '  function restart(from_page) {'
+	echo '    var url = "restartsqlt.cgi?FROM_PAGE=";'
+	echo '    var page = url.concat(from_page);'
+	echo '    window.location = page;'
+	echo '  }'
+	echo '  restart("'$1'");'
 	echo '</script>'
 }
 
