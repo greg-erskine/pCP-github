@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-01-25
+# Version: 3.5.0 2018-02-09
 #	Do not change card number if card not found in asound.conf. PH.
-#	Turn off extras during upgrade if they do not exist on new image. PH
+#	Turn off extras during upgrade if they do not exist on new image. PH.
 #	Add Bootscript option for soundcard setup. PH.
 #	Add AP Mode Startup. PH.
 #	Load arc4 if doing a network mount, as it does not automatically load. PH.
-#	Setup Bluetooth duruing insitu upgrade. PH.
+#	Setup Bluetooth during insitu upgrade. PH.
+#	Added check for file ssh. GE.
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -16,57 +17,60 @@
 
 # Version: 3.21 2017-07-11
 #	Changed vfat mounts....again. PH.
-#	Set boot/tce device from /etc/sysconfig/tcedir link
+#	Set boot/tce device from /etc/sysconfig/tcedir link. PH.
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
 #	Updated insitu_update process. Copy of log saved to tcedir/pcp_insitu_upgrade.log. PH.
 #	Added cardnumber detection for use with aslaequal. PH.
 
 # Version: 3.20 2017-04-22
-#	Added crond message. GE
-#	Updates for vfat mount permissions. PH
-#	Changed rpi3 disable wifi to overlays on new config start. PH
-#	Fixed boot Removal of old kernel modules. PH
-#	Added setting SCREENROTATE to config.txt during newconfig process. PH
-#	Reordered a few things that didn't need to be done before newconfig. PH
-#  Added check for jivelite startup to avoid confusion on updateing to new image. PH
-#	Turn HDMIPOWER to on during upgrades. PH
+#	Added crond message. GE.
+#	Updates for vfat mount permissions. PH.
+#	Changed rpi3 disable wifi to overlays on new config start. PH.
+#	Fixed boot Removal of old kernel modules. PH.
+#	Added setting SCREENROTATE to config.txt during newconfig process. PH.
+#	Reordered a few things that didn't need to be done before newconfig. PH.
+#	Added check for jivelite startup to avoid confusion on updating to new image. PH.
+#	Turn HDMIPOWER to on during upgrades. PH.
 
 # Version: 3.10 2017-01-02
-#	Added Samba Server Support. PH
-#	Removed IQaudIO AMP unmute from here. SBP
-#	Changes for shairport-sync. Incomplete. PH
-#	Fixed newconfig.cfg process. PH
-#	Set rpi3wifi blacklist in newconfig process. PH
+#	Added Samba Server Support. PH.
+#	Removed IQaudIO AMP unmute from here. SBP.
+#	Changes for shairport-sync. Incomplete. PH.
+#	Fixed newconfig.cfg process. PH.
+#	Set rpi3wifi blacklist in newconfig process. PH.
 
 # Version: 3.02 2016-09-19
 #	Added pcp_reset_repository. GE.
 
 # Version: 3.00 2016-08-12
-#	Changed ssh server to Openssh. SBP
-#	Changed RPi3 wifi firmware extension name. SBP
-#	Added "No network found!" message. GE
-#	Adjusted Mount point permissions for SCP. PH
-#	Changed Kernel Module update to handle individual modules. PH
-#	Updated LIRC section. GE
+#	Changed ssh server to Openssh. SBP.
+#	Changed RPi3 wifi firmware extension name. SBP.
+#	Added "No network found!" message. GE.
+#	Adjusted Mount point permissions for SCP. PH.
+#	Changed Kernel Module update to handle individual modules. PH.
+#	Updated LIRC section. GE.
 
 BACKUP=0
 # Read from pcp-functions file
 echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
-echo -n "${BLUE}Loading pcp-functions...and pCP configuration file.${NORMAL}"
+echo -n "${BLUE}Loading pCP function files and pCP configuration file...${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-functions
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
 echo "${GREEN}Done.${NORMAL}"
 
 ORIG_AUDIO="$AUDIO"
 
-#****************Upgrade Process Start *********************************
-# Mount USB stick if present.  Build list of usb stick 1st partitions
-# Check each partition for newconfig.cfg.  The first one found stops the search
+#****************************************************************************************
+#*********************************Upgrade Process Start *********************************
+# Mount USB stick if present.  Build list of usb stick 1st partitions.
+# Check each partition for newconfig.cfg.  The first one found stops the search.
+#****************************************************************************************
 NEWCONFIGFOUND=0
+SSH=0
 NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 for DISK in $NEWCFGLIST; do
-	echo "${BLUE}Checking for newconfig.cfg on $DISK... ${NORMAL}"
+	echo "${BLUE}Checking for newconfig.cfg on $DISK...${NORMAL}"
 	# Check if $DISK is mounted, otherwise mount it.
 	if mount | grep ${DISK}; then
 		eval ${DISK}WASMNT=1
@@ -76,6 +80,7 @@ for DISK in $NEWCFGLIST; do
 		echo "${YELLOW}  Trying to mount /dev/${DISK}.${RED}"
 		mount /dev/$DISK >/dev/null 2>&1
 	fi
+	[ -f /mnt/${DISK}/ssh ] && SSH=1
 	if [ -f /mnt/$DISK/newconfig.cfg ]; then
 		echo "${YELLOW}  newconfig.cfg found on ${DISK}.${NORMAL}"
 		NEWCONFIGFOUND=1
@@ -88,15 +93,6 @@ for DISK in $NEWCFGLIST; do
 	fi
 	[ $NEWCONFIGFOUND -eq 1 ] && break
 done
-
-#========================================================================================
-# Replace default rotdash
-#----------------------------------------------------------------------------------------
-if [ "$ROTDASH" = "yes" ]; then
-	echo -n "${BLUE}[ INFO ] Replacing existing rotdash.${NORMAL}"
-	pcp_create_rotdash &
-	echo "${GREEN}Done.${NORMAL}"
-fi
 
 # Check if newconfig.cfg was found in search
 if [ $NEWCONFIGFOUND -eq 1 ]; then
@@ -113,13 +109,13 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	# Copy ALSA settings back so they are restored after an update
 	#-----------------------------------------------------------------------------------------
 	if [ -f /tmp/newconfig/asound.conf ]; then
-		echo -n "${BLUE}[ INFO ] Restoring asound.conf...${NORMAL}"
-		sudo cp /tmp/newconfig/asound.conf /etc/ 
+		echo -n "${BLUE}[ INFO ] Restoring ALSA asound.conf...${NORMAL}"
+		sudo cp /tmp/newconfig/asound.conf /etc/
 		sudo mv -f /tmp/newconfig/asound.conf /tmp/newconfig/usedasound.conf
 		echo "${GREEN}Done.${NORMAL}"
 	fi
 	if [ -f /tmp/newconfig/asound.state ]; then
-		echo -n "${BLUE}[ INFO ] Restoring custom alsa asound.state...${NORMAL}"
+		echo -n "${BLUE}[ INFO ] Restoring custom ALSA asound.state...${NORMAL}"
 		sudo cp /tmp/newconfig/asound.state /var/lib/alsa/
 		sudo mv -f /tmp/newconfig/asound.state /tmp/newconfig/usedasound.state
 		echo "${GREEN}Done.${NORMAL}"
@@ -157,7 +153,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		echo "${GREEN}Done.${NORMAL}"
 		# Setup LIRC overlay
 		if [ "$IR_LIRC" = "yes" ]; then
-			echo -n "${BLUE}[ INFO ] Adding lirc-rpi overlay to config.txt... ${NORMAL}"
+			echo -n "${BLUE}[ INFO ] Adding lirc-rpi overlay to config.txt...${NORMAL}"
 			sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 			if [ "$IR_GPIO_OUT" = "" ]; then
 				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
@@ -167,7 +163,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			echo "${GREEN}Done.${NORMAL}"
 		fi
 	######## CONFIG.TXT Section End
-	#During an newconfig update, turn HDMI back on. Incase there are problems.
+	# During an newconfig update, turn HDMI back on, incase there are problems.
 	HDMIPOWER="on"
 	# If MOUNTUUID and MOUNTPOINT Exist in newconfig, then create a usbdrives.conf
 	if [ "$MOUNTUUID" != "no" -a "$MOUNTPOINT" != "" ]; then
@@ -209,54 +205,65 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
-	echo -n "${BLUE}[ INFO ] Setting Soundcard from newconfig... ${NORMAL}"
+	echo -n "${BLUE}[ INFO ] Setting Soundcard from newconfig...${NORMAL}"
 	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	pcp_save_to_config
 	echo "${GREEN}Done.${NORMAL}"
 
-	#cleanup all old kernel modules
+	# Cleanup all old kernel modules.
 	CURRENTKERNEL=$(uname -r)
-	# Get list of kernel modules not matching current kernel.  And remove them
+	# Get list of kernel modules not matching current kernel and remove them.
 	ls $TCEMNT/tce/optional/*.tcz* | grep -E '(pcpCore)|(pcpAudioCore)' | grep -v $CURRENTKERNEL | xargs -r -I {} rm -f {}
-	# Check onboot to be sure there are no hard kernel references.   
+	# Check onboot to be sure there are no hard kernel references.
 	sed -i 's|[-][0-9].[0-9].*|-KERNEL.tcz|' $ONBOOTLST
-	#Remove lines containing only white space
+	# Remove lines containing only white space.
 	sed -i '/^\s*$/d' $ONBOOTLST
 
 	pcp_backup_nohtml >/dev/null 2>&1
-	echo -n "${BLUE}[ INFO ] Saving a copy of the upgrade log to ${YELLOW}${TCEMNT}/pcp_insitu_upgrade.log ${BLUE}... ${NORMAL}"
+	echo -n "${BLUE}[ INFO ] Saving a copy of the upgrade log to ${YELLOW}${TCEMNT}/pcp_insitu_upgrade.log ${BLUE}...${NORMAL}"
 	cp -f /var/log/pcp_boot.log ${TCEMNT}/tce/pcp_insitu_upgrade.log
 	echo "${GREEN}Done.${NORMAL}"
-	echo "${RED}Rebooting needed to enable your settings... ${NORMAL}"
+	echo "${RED}Rebooting needed to enable your settings...${NORMAL}"
 	sleep 3
 	sudo reboot
 	exit 0
 fi
-#****************Upgrade Process End *********************************
+#****************************************************************************************
+#***********************************Upgrade Process End *********************************
+#****************************************************************************************
 
-# Set default respository incase it has been set to something non-standard.
-echo -n "${BLUE}Setting piCore repository... ${NORMAL}"
-pcp_reset_repository &
-echo "${GREEN}Done.${NORMAL}"
-
-echo -n "${BLUE}Generating drop-down list... ${NORMAL}"
-pcp_sound_card_dropdown &
-echo "${GREEN}Done.${NORMAL}"
-
-# Startup AP mode if enabled
-if [ "$APMODE" = "yes" ]; then
-	echo -n "${BLUE}Starting pCP AP Mode... ${NORMAL}"
-	[ -x /usr/local/etc/init.d/pcp-apmode ] && /usr/local/etc/init.d/pcp-apmode start || echo "[ERROR] pcp-apmode extension not loaded"
+#========================================================================================
+# Replace default rotdash
+#----------------------------------------------------------------------------------------
+if [ "$ROTDASH" = "yes" ]; then
+	echo -n "${BLUE}[ INFO ] Replacing existing rotdash.${NORMAL}"
+	pcp_create_rotdash &
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded
+# Set default repository in case it has been set to something non-standard.
+echo -n "${BLUE}Setting piCore repository...${NORMAL}"
+pcp_reset_repository &
+echo "${GREEN}Done.${NORMAL}"
+
+echo -n "${BLUE}Generating drop-down list...${NORMAL}"
+pcp_sound_card_dropdown &
+echo "${GREEN}Done.${NORMAL}"
+
+# Startup AP mode if enabled.
+if [ "$APMODE" = "yes" ]; then
+	echo -n "${BLUE}Starting pCP AP Mode...${NORMAL}"
+	[ -x /usr/local/etc/init.d/pcp-apmode ] && /usr/local/etc/init.d/pcp-apmode start || echo "${RED}pcp-apmode extension not loaded.${NORMAL}"
+	echo "${GREEN}Done.${NORMAL}"
+fi
+
+# If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded.
 if [ "$WIFI" = "on" ]; then
 	if grep -Fxq "wifi.tcz" $ONBOOTLST; then
 		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
 	else
-		# Add wifi related modules back
+		# Add wifi related modules back.
 		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
 		BACKUP=1
 		sudo fgrep -vxf $ONBOOTLST $TCEMNT/tce/piCorePlayer.dep >> $ONBOOTLST
@@ -279,25 +286,25 @@ fi
 
 if [ "$WIFI" = "on" ]; then
 	# Save the parameters to the wifi.db
-	echo -n "${BLUE}Reading config.cfg... ${NORMAL}"
+	echo -n "${BLUE}Reading config.cfg...${NORMAL}"
 	. /usr/local/sbin/config.cfg
 	echo "${GREEN}Done.${NORMAL}"
 
-	# Check if wifi variables already are up-to-date in wifi.db so we don't need to update wifi.db and do an unwanted backup
+	# Check if wifi variables already are up-to-date in wifi.db so we don't need to update wifi.db and do an unwanted backup.
 	if [ x"" = x"$SSID" ]; then
 		break
 	else
 		# Escape any spaces in the SSID
 		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-		# Change SSSID back to SSID
+		# Change SSSID back to SSID.
 		SSID=$SSSID
 		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /tmp/wifi.db
 		if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
-			echo -n "${BLUE}Wifi.db is up-to-date... ${NORMAL}"
+			echo -n "${BLUE}Wifi.db is up-to-date...${NORMAL}"
 		else
 			BACKUP=1
-			# Only add backslash if not empty
-			echo -n "${BLUE}Updating wifi.db... ${NORMAL}"
+			# Only add backslash if not empty.
+			echo -n "${BLUE}Updating wifi.db...${NORMAL}"
 			sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
 		fi
 	fi
@@ -305,12 +312,12 @@ if [ "$WIFI" = "on" ]; then
 fi
 
 # Loading configuration file config.cfg
-echo -n "${BLUE}Loading configuration file... ${NORMAL}"
+echo -n "${BLUE}Loading configuration file...${NORMAL}"
 . $CONFIGCFG
 echo "${GREEN}Done.${NORMAL}"
 
-# Connect wifi if WIFI is on
-echo -n "${BLUE}Checking wifi... ${NORMAL}"
+# Connect wifi if WIFI is on.
+echo -n "${BLUE}Checking wifi...${NORMAL}"
 if [ "$WIFI" = "on" ]; then
 	echo "${YELLOW}  wifi is on.${NORMAL}"
 	sleep 1
@@ -319,7 +326,7 @@ if [ "$WIFI" = "on" ]; then
 	sudo iwconfig wlan0 power off >/dev/null 2>&1
 	sudo /usr/local/bin/wifi.sh -a
 
-	# Try to reconnect to wifi if failed - will try two times before continuing booting
+	# Try to reconnect to wifi if failed - will try two times before continuing booting.
 	for i in 1 2; do
 		if ifconfig wlan0 | grep -q "inet addr:"; then
 			echo "${YELLOW}  wifi is connected ($i).${NORMAL}"
@@ -338,11 +345,11 @@ if [ "$WIFI" = "on" ]; then
 fi
 echo "${GREEN}Done.${NORMAL}"
 
-echo -n "${BLUE}Loading pcp-lms-functions... ${NORMAL}"
+echo -n "${BLUE}Loading pcp-lms-functions...${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
 echo "${GREEN}Done.${NORMAL}"
 
-#This routine will load the contents of the selected Card Config file.
+# This routine will load the contents of the selected Card Config file.
 pcp_load_card_conf
 
 echo -n "${YELLOW}Waiting for soundcard ${CARDNAME} to populate."
@@ -363,13 +370,13 @@ else
 fi
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-# Start the essential stuff for piCorePlayer
+# Start the essential stuff for piCorePlayer.
 echo -n "${YELLOW}Waiting for network."
 CNT=1
 until ifconfig | grep -q Bcast
 do
 	if [ $((CNT++)) -gt 40 ]; then
-		echo -n "${RED} No network found! ${NORMAL}"
+		echo -n "${RED} No network found!${NORMAL}"
 		break
 	else
 		echo -n "."
@@ -378,18 +385,18 @@ do
 done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
-# If Custom ALSA settings are used, then restore the settings
+# If Custom ALSA settings are used, then restore the settings.
 echo -n "${BLUE}Starting ALSA configuration${NORMAL}"
 if [ "$ALSAlevelout" = "Custom" ]; then
 	# It seems the first attempt to load the state fails with some error. Looking at debug, it appears that not everything is initialized
-	# yet.  Since the state may contain extra cards, Load only the asound state for the selected card, 
+	# yet.  Since the state may contain extra cards, Load only the asound state for the selected card,
 	# and make sure it completes without error.
 	CNT=1
 	until false; do
 		alsactl restore $CARDNAME
 		[ $? -eq 0 ] && break
 		if [ $((CNT++)) -gt 5 ]; then
-			echo "${RED} Alsa restore error! ${NORMAL}"
+			echo "${RED} ALSA restore error!${NORMAL}"
 			break
 		else
 			echo -n "."
@@ -399,75 +406,84 @@ if [ "$ALSAlevelout" = "Custom" ]; then
 	echo "${GREEN}($CNT)${NORMAL}"
 fi
 
-# Run custom audio boot script.
+# Run custom audio card boot script.
 if [ "$AUDIOBOOTSCRIPT" != "" ]; then
 	echo -n "${BLUE}Running audio card boot script... ${YELLOW}"
 	$AUDIOBOOTSCRIPT
 	echo "${GREEN} Done.${NORMAL}"
 fi
 
-# Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here
+# Check for onboard sound card is card=0 and analog is chosen, so amixer is only used here.
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? -eq 0 ] && [ "$AUDIO" = "Analog" ]; then
-	# Set the analog output via audio jack
+	# Set the analog output via audio jack.
 	sudo amixer cset numid=3 1 >/dev/null 2>&1
 	if [ "$ALSAlevelout" = "Default" ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
 fi
 
-# Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled
+# Check for onboard sound card is card=0, and HDMI is chosen so HDMI amixer settings is enabled.
 aplay -l | grep 'card 0: ALSA'  >/dev/null 2>&1
 if [ $? -eq 0 ] && [ "$AUDIO" = "HDMI" ]; then
 	if [ "$ALSAlevelout" = "Default" ]; then
 		sudo amixer set PCM 400 unmute >/dev/null 2>&1
 	fi
-	# Set the analog output via HDMI out
+	# Set the analog output via HDMI out.
 	sudo amixer cset numid=3 2 >/dev/null 2>&1
 fi
 echo "${GREEN}Done.${NORMAL}"
 
 if [ "$OUTPUT" = "equal" ]; then
 	pcp_load_card_conf
-	echo -n "${BLUE}Checking proper card number for Alsaequal... ${NORMAL}"
+	echo -n "${BLUE}Checking proper card number for Alsaequal...${NORMAL}"
 	[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo "{$RED}Selected card not found in /proc/asound/cards."
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-#==============================================================================
+#========================================================================================
 # WOL="yes"|"no"
-# WOL_NIC="eth0"|"wlan0"|"wlan1"|... does wlan1 exist if e.g. user adds WiFi dongle on RPi3 with onboard WiFi enabled?
+# WOL_NIC="eth0"|"wlan0"|"wlan1"|... does wlan1 exist if user adds WiFi dongle on RPi3 with onboard WiFi enabled?
 # WOL_LMSMACADDRESS="11:22:33:44:55:66"
 # Only send LMS WOL command if LMS is not run locally
+#----------------------------------------------------------------------------------------
 if [ "$LMSERVER" != "yes" ]; then
 	if [ "$WOL" = "yes" ] && [ "$WOL_NIC" != "" ] && [ "$WOL_LMSMACADDRESS" != "" ]; then
-		# Should we check for valid MAC address or should we asume this is covered in the applet/web interface??
+		# Should we check for valid MAC address or should we assume this is covered in the applet/web interface??
 		echo -n "${BLUE}Sending WOL magic packet ($WOL_LMSMACADDRESS)...${NORMAL}"
 		sudo ether-wake -i $WOL_NIC $WOL_LMSMACADDRESS
 		echo "${GREEN}Done.${NORMAL}"
-		# sleep 10
 	fi
 fi
-#==============================================================================
 
+#========================================================================================
+# INFRARED remote control - Start lircd if needed.
+#----------------------------------------------------------------------------------------
 if [ "$IR_LIRC" = "yes" ]; then
 	if [ "$JIVELITE" = "yes" ]; then
-		echo -n "${BLUE}Starting lirc with Jivelite support... ${NORMAL}"
+		echo -n "${BLUE}Starting lirc with Jivelite support...${NORMAL}"
 		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log --uinput
 	else
-		echo -n "${BLUE}Starting lirc... ${NORMAL}"
+		echo -n "${BLUE}Starting lirc...${NORMAL}"
 		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log
 	fi
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-echo -n "${BLUE}Starting Openssh server... ${NORMAL}"
-/usr/local/etc/init.d/openssh start >/dev/null 2>&1
-echo "${GREEN}Done.${NORMAL}"
+#========================================================================================
+# Start openssh if file ssh found. $SSH set in NEWCONFIGFOUND process.
+#----------------------------------------------------------------------------------------
+if [ $SSH -eq 1 ]; then
+	echo -n "${BLUE}Starting Openssh server...${NORMAL}"
+	/usr/local/etc/init.d/openssh start >/dev/null 2>&1
+	echo "${GREEN}Done.${NORMAL}"
+fi
 
+#========================================================================================
 # Mount USB Disk Selected on LMS Page
+#----------------------------------------------------------------------------------------
 LMSMOUNTFAIL="0"
-#	READ Conf file
+# READ Conf file
 if [ -f  ${USBMOUNTCONF} ]; then
 	echo "${BLUE}Mounting USB Drives...${YELLOW}"
 	SC=0
@@ -494,11 +510,11 @@ if [ -f  ${USBMOUNTCONF} ]; then
 				FSTYPE=$(blkid -U $UUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 				case "$FSTYPE" in
 					ntfs)
-						umount $DEVICE  #ntfs cannot be dual mounted
+						umount $DEVICE  # ntfs cannot be dual mounted.
 						OPTIONS="-v -t ntfs-3g -o permissions"
 					;;
 					vfat|fat32)
-						#if Filesystem support installed, use utf-8 charset for fat.
+						# If Filesystem support installed, use utf-8 charset for fat.
 						df | grep -qs ntfs
 						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
@@ -506,7 +522,7 @@ if [ -f  ${USBMOUNTCONF} ]; then
 					;;
 					exfat)
 						CHARSET=",iocharset=utf8"
-						umount $DEVICE  # need to unmount incase 1st mount is not utf8
+						umount $DEVICE  # Need to unmount incase 1st mount is not utf8.
 						OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
 					;;
 					*)
@@ -525,7 +541,7 @@ if [ -f  ${USBMOUNTCONF} ]; then
 					LMSMOUNTFAIL="1"
 				fi
 			else
-				 echo "${RED}Disk ${UUID} Not Found, Please insert drive and Reboot${NORMAL}"
+				 echo "${RED}Disk ${UUID} Not Found, Please insert drive and Reboot.${NORMAL}"
 				 LMSMOUNTFAIL="1"
 			fi
 		fi
@@ -579,7 +595,7 @@ if [ -f  ${NETMOUNTCONF} ]; then
 					MNTCMD="-v -t $FSTYPE -o $OPTS $IP:\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 				;;
 			esac
-			RETRIES=3  #Retry network mounts, incase of power failure, and all devices restarting.
+			RETRIES=3  # Retry network mounts, in case of power failure, and all devices restarting.
 			while [ $RETRIES -gt 0 ]; do
 				/bin/sh -c "mount ${MNTCMD}"
 				if [ $? -eq 0 ]; then
@@ -588,12 +604,12 @@ if [ -f  ${NETMOUNTCONF} ]; then
 				else
 					RETRIES=$((RETRIES-1))
 					if [ $RETRIES -eq 0 ]; then
-						echo "${RED}Disabling network mount from server at ${IP}${NORMAL}"
+						echo "${RED}Disabling network mount from server at ${IP}.${NORMAL}"
 						cp -f $NETMOUNTCONF /tmp/netconf
 						cat /tmp/netconf | awk '/^\[/ {m++}{if(m=='$I')sub("NETENABLE\=yes","NETENABLE\=no")}1' > $NETMOUNTCONF
 						LMSMOUNTFAIL="1"
 					else
-						echo "${RED}Disk Mount Error, Retrying $RETRIES more times......sleeping 10 seconds${YELLOW}"
+						echo "${RED}Disk Mount Error, Retrying $RETRIES more times...sleeping 10 seconds.${YELLOW}"
 						sleep 10
 					fi
 				fi
@@ -604,27 +620,27 @@ if [ -f  ${NETMOUNTCONF} ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# If running an LMS Server Locally, start squeezelite later
+# If running an LMS Server Locally, start squeezelite later.
 if [ "$LMSERVER" != "yes" ]; then
 	if [ "$SQUEEZELITE" = "yes" ]; then
-		echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+		echo -n "${BLUE}Starting Squeezelite...${NORMAL}"
 		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
 		echo "${GREEN}Done.${NORMAL}"
 	fi
 fi
 
 if [ "$SHAIRPORT" = "yes" ]; then
-	echo -n "${BLUE}Starting Shairport daemon... ${NORMAL}"
+	echo -n "${BLUE}Starting Shairport daemon...${NORMAL}"
 	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# Automatically set the timezone
+# Automatically set the timezone.
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
-	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page... ${NORMAL}"
-	# Fetch timezone from Ubuntu's geoip server
+	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page...${NORMAL}"
+	# Fetch timezone from Ubuntu's geoip server.
 	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
-	# Translate country/city to timezone string
+	# Translate country/city to timezone string.
 	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
 	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
 	pcp_save_to_config
@@ -638,7 +654,7 @@ fi
 
 if [ "$LMSERVER" = "yes" ]; then
 	if [ "$LMSDATA" = "default" -o "$LMSMOUNTFAIL" = "0" ]; then
-		echo -n "${BLUE}Starting LMS, this can take some time... ${NORMAL}"
+		echo -n "${BLUE}Starting LMS, this can take some time...${NORMAL}"
 		sudo /usr/local/etc/init.d/slimserver start
 		echo "${GREEN}Done.${NORMAL}"
 		if [ "$SQUEEZELITE" = "yes" ]; then
@@ -660,7 +676,7 @@ if [ "$LMSERVER" = "yes" ]; then
 			done
 			echo "${GREEN} Done ($CNT).${NORMAL}"
 
-			echo -n "${BLUE}Starting Squeezelite... ${NORMAL}"
+			echo -n "${BLUE}Starting Squeezelite...${NORMAL}"
 			/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
 			echo "${GREEN}Done.${NORMAL}"
 		fi
@@ -669,9 +685,9 @@ if [ "$LMSERVER" = "yes" ]; then
 	fi
 fi
 
-# Turn HDMI power off to save ~20ma
+# Turn HDMI power off to save ~20ma.
 if [ "$HDMIPOWER" = "off" ]; then
-	echo -n "${BLUE}Powering off HDMI... ${NORMAL}"
+	echo -n "${BLUE}Powering off HDMI...${NORMAL}"
 	if which tvservice >/dev/null 2>&1; then
 		tvservice -o >/dev/null 2>&1
 		echo "${GREEN}Done.${NORMAL}"
@@ -686,43 +702,43 @@ if [ "$SAMBA" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-echo -n "${BLUE}Starting httpd web server... ${NORMAL}"
+echo -n "${BLUE}Starting httpd web server...${NORMAL}"
 /usr/local/etc/init.d/httpd start >/dev/null 2>&1
 echo "${GREEN}Done.${NORMAL}"
 
 if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
-	echo -n "${BLUE}Starting user commands... ${NORMAL}"
+	echo -n "${BLUE}Starting user commands...${NORMAL}"
 	pcp_user_commands
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ "$A_S_LMS" = "Enabled" ]; then
-	echo -n "${BLUE}Starting auto start LMS... ${NORMAL}"
+	echo -n "${BLUE}Starting auto start LMS...${NORMAL}"
 	pcp_auto_start_lms
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ "$A_S_FAV" = "Enabled" ]; then
-	echo -n "${BLUE}Starting auto start FAV... ${NORMAL}"
+	echo -n "${BLUE}Starting auto start FAV...${NORMAL}"
 	pcp_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# Save the parameters to the config file
+# Save the parameters to the config file.
 if [ $BACKUP -eq 1 ]; then
-	echo -n "${BLUE}Saving the changes... ${NORMAL}"
+	echo -n "${BLUE}Saving the changes...${NORMAL}"
 	pcp_backup_nohtml >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# Display the IP address
+# Display the IP address.
 ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_eth0_ip)${NORMAL}"
 ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_wlan0_ip)${NORMAL}"
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
 
 if [ "$JIVELITE" = "yes" ]; then
-	echo -n "${BLUE}Starting Jivelite... ${NORMAL}"
+	echo -n "${BLUE}Starting Jivelite...${NORMAL}"
 	eventno=$( cat /proc/bus/input/devices | awk '/FT5406 memory based driver/{for(a=0;a>=0;a++){getline;{if(/mouse/==1){ print $NF;exit 0;}}}}')
 	if [ x"" != x"$eventno" ];then
 		export JIVE_NOCURSOR=1
@@ -731,7 +747,7 @@ if [ "$JIVELITE" = "yes" ]; then
 		export SDL_MOUSEDEV=$TSLIB_TSDEVICE
 	fi
 	export HOME=/home/tc
-	# Alternative jivelite script, mainly used for waveshare devices.  Located on persistent partition. (/mnt/mmcblk0p2 or patition where tce is located)
+	# Alternative jivelite script, mainly used for waveshare devices.  Located on persistent partition. (/mnt/mmcblk0p2 or partition where tce is located)
 	if [ -x $TCEMNT/tce/jivelite.sh ]; then
 		echo "${GREEN}Done.${NORMAL}"
 		sudo -E -b $TCEMNT/tce/jivelite.sh >/dev/null 2>&1
@@ -743,6 +759,6 @@ if [ "$JIVELITE" = "yes" ]; then
 	fi
 fi
 
-echo "${BLUE}crond syncing time... ${NORMAL}"
+echo "${BLUE}crond syncing time...${NORMAL}"
 
 unset ORIG_AUDIO
