@@ -301,6 +301,7 @@ config.txt
 LICENCE.piCorePlayer
 README
 RELEASE
+ssh
 EOF
 
 	rsync --files-from=${FILELIST} ${BUILDROOT}/../pcp/mmcblk0p1 $PART1
