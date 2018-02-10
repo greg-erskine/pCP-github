@@ -478,6 +478,8 @@ if [ $SSH -eq 1 ]; then
 	echo -n "${BLUE}Starting Openssh server...${NORMAL}"
 	/usr/local/etc/init.d/openssh start >/dev/null 2>&1
 	echo "${GREEN}Done.${NORMAL}"
+else
+	echo -n "${YELLOW}Openssh server is disabled...${NORMAL}"
 fi
 
 #========================================================================================
