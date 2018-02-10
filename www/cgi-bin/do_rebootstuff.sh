@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-09
+# Version: 3.5.0 2018-02-10
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH.
 #	Add Bootscript option for soundcard setup. PH.
@@ -8,6 +8,7 @@
 #	Load arc4 if doing a network mount, as it does not automatically load. PH.
 #	Setup Bluetooth during insitu upgrade. PH.
 #	Added check for file ssh. GE.
+#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
 
 # Version: 3.22 2017-09-10
 #	Added pcp_create_rotdash. GE.
@@ -734,6 +735,10 @@ fi
 # Display the IP address.
 ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_eth0_ip)${NORMAL}"
 ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_wlan0_ip)${NORMAL}"
+
+echo -n "${BLUE}Setting cpu scaling governor...${NORMAL}"
+echo -n $CPUGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo "${GREEN} Done.${NORMAL}"
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
 

@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.50 2017-11-07
+# Version: 3.5.0 2018-02-10
 #	Cosmetic change to jivelite install. GE.
+#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
 
 # Version: 3.22 2017-07-22
 #	Added Internet check IP. GE.
@@ -197,6 +198,54 @@ pcp_tweaks_password() {
 [ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
 #----------------------------------------------------------------------------------------
 
+#--------------------------------------Governor------------------------------------------
+pcp_tweaks_governor() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>CPU Governor</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="CPUGOVERNOR">'
+							  for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
+								  SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+								  [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
+								  echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
+							  done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Change governor &nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Availiable CPU Governors.</b></p>'
+	echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)'&gt;</p>'
+	echo '                    <p><b>Commonly used CPU Governors.</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>ondemand = Sets the CPU frequency depending on the current system load.</li>'
+	echo '                      <li>powersave = Sets the CPU statically to the lowest frequency.</li>'
+	echo '                      <li>performance = Sets the CPU statically to the highest frequency.</li>'
+	echo '                    </ul>'
+	echo '                    <p>Dynamically set, no reboot is required.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="ACTION" value="gov">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	echo '          </table>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_governor
+
 #---------------------------------------Overclock----------------------------------------
 pcp_tweaks_overclock() {
 	case "$OVERCLOCK" in
@@ -245,6 +294,7 @@ pcp_tweaks_overclock() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="ACTION" value="oc">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save" '$DISABLED'>'
 	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'

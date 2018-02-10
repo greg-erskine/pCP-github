@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-10
+#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
+
 # Version: 3.20 2017-03-22
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -278,7 +281,6 @@ pcp_start_save() {
 			echo '<p class="debug">[ DEBUG ] Warranty bit is NOT set: '$(pcp_rpi_revision)'</p>'
 	fi
 
-	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
 	pcp_umount_bootpart >/dev/null 2>&1
 }
 
@@ -440,32 +442,6 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <p style="color:white">&lt;Default|Yes|No&gt;</p>'
 echo '                    <p style="color:white"><b>Warning: </b>Setting force turbo may set warranty bit.<p>'
 echo '                    <p style="color:white">Reboot is required.<p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Governor------------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Governor</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <select class="large16" name="OCGOVERNOR">'
-                          for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-                              SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
-                              [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
-                              echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
-                          done
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Change governor &nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)'&gt;</p>'
-echo '                    <p>Dynamically set, no reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
