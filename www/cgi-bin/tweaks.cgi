@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-10
+# Version: 3.5.0 2018-02-12
 #	Cosmetic change to jivelite install. GE.
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
 
@@ -18,7 +18,7 @@
 #	Updated screen rotate. GE.
 #	Added JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 #	Update jivelite install to PCP_REPO.  UPDATE PROCESS NOT FINISHED. PH.
-#	Added HDMI Power warning for high sample rates....until fixed by rpi. PH.
+#	Added HDMI Power warning for high sample rates....until fixed by RPi. PH.
 
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
@@ -33,8 +33,8 @@
 #	Modified User commands. GE.
 #	Added WOL interface. GE.
 
-# Version: 0.01 2014-08-06 GE
-#	Original version.
+# Version: 0.01 2014-08-06
+#	Original version. GE.
 
 set -f
 
@@ -218,13 +218,13 @@ pcp_tweaks_governor() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Change governor &nbsp;&nbsp;'
+	echo '                  <p>Change CPU Governor &nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Availiable CPU Governors.</b></p>'
-	echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)'&gt;</p>'
-	echo '                    <p><b>Commonly used CPU Governors.</b></p>'
+	echo '                    <p><b>Available CPU Governors:</b></p>'
+	echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | sed 's/ $//' | sed 's/ /|/g' )'&gt;</p>'
+	echo '                    <p><b>Commonly used CPU Governors:</b></p>'
 	echo '                    <ul>'
 	echo '                      <li>ondemand = Sets the CPU frequency depending on the current system load.</li>'
 	echo '                      <li>powersave = Sets the CPU statically to the lowest frequency.</li>'
@@ -1408,7 +1408,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '                  <p>'
 	fi
 
-	
+
 	echo '                  <p>Use Shairport-sync to stream from iDevices&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -1875,20 +1875,9 @@ pcp_tweaks_cron() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------User Commands-----------------------------
-
 pcp_tweaks_user_commands() {
-# Now done in javascript below, 
+# Now done in javascript below,
 # Quotes and & are not allowed, until writetoautostart.cgi is modified or we split out usercommands to only deal with encoded strings
-
-# Decode variables using httpd, no quotes
-#	USER_COMMAND_1=$(sudo $HTTPD -d $USER_COMMAND_1)
-#	USER_COMMAND_1=$(echo $USER_COMMAND_1 | sed 's/"/\&quot;/g')
-
-#	USER_COMMAND_2=$(sudo $HTTPD -d $USER_COMMAND_2)
-#	USER_COMMAND_2=$(echo $USER_COMMAND_2 | sed 's/"/\&quot;/g')
-
-#	USER_COMMAND_3=$(sudo $HTTPD -d $USER_COMMAND_3)
-#	USER_COMMAND_3=$(echo $USER_COMMAND_3 | sed 's/"/\&quot;/g')
 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -1969,7 +1958,7 @@ pcp_tweaks_user_commands() {
 	echo '                      <li>ls /tmp >> /tmp/directory.log</li>'
 	echo '                    </ul>'
 	echo '                    <p><b>Invalid characters:</b> &amp; &quot;</p>'
-	echo '                    <p>If starting a second instance of squeezelite - please notice that we only accepts name without empty space. So please change <b>first floor</b> to <b>first_floor</b> etc.</p>'
+	echo '                    <p>If starting a second instance of Squeezelite - notice that we only accepts name without empty space. So change <b>first floor</b> to <b>first_floor</b> etc.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
