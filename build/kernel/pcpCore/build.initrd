@@ -100,7 +100,9 @@ do
 		esac
 	fi
 done
-NEWKERNEL=${NEWKERNELDIR%^*} 
+#NEWKERNEL=${NEWKERNELDIR%^*} 
+NEWKERNEL=$(ls -1 modules/${NEWKERNELDIR}/lib/modules/)
+echo $NEWKERNEL
 
 if [ "${OLDKERNEL}" = "${NEWKERNEL}" ]; then
 	echo

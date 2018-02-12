@@ -247,6 +247,15 @@ for i in ${!options[@]}; do
 			echo "*****************************************************************"
 			echo 
 
+			case $LOCALVERSION in
+			   *Audio*)
+			      echo "Disabling Debug...."
+			      echo ""
+			      scripts/config --disable DEBUG_INFO
+			   ;;
+			   *);;
+			esac
+
 			if [ $UNATTENDED -eq 0 ]; then
 				while true; do
 					read -p "Do you need to run \"make menuconfig\"? (y/n) " yn

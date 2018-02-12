@@ -65,8 +65,12 @@ do
 done
 
 #MODPATH=
-OLDKERNEL=${OLD%^*}
-NEWKERNEL=${NEW%^*}
+#OLDKERNEL=${OLD%^*}
+#NEWKERNEL=${NEW%^*}
+OLDKERNEL=$(ls -1 modules/${OLD}/lib/modules)
+NEWKERNEL=$(ls -1 modules/${NEW}/lib/modules)
+
+
 
 cd extensions/$OLD
 

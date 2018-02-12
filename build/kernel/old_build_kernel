@@ -241,6 +241,15 @@ echo
 echo "*****************************************************************"
 echo 
 
+case $LOCALVERSION in
+	*Audio*)
+		echo "Disabling Debug...."
+		echo ""
+		scripts/config --disable DEBUG_INFO
+	;;
+	*);;
+esac
+
 while true; do
 	read -p "Do you need to run \"make oldconfig\"? (y/n) " yn
 	case $yn in
