@@ -1,17 +1,20 @@
 #!/bin/busybox ash
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
-#
-# Version 3.10 2016-12-22 PH
-#	added requirement of .dep.pcp on pcp sourceforge repo.
-#	updated for sourceforge repo change.
-#	Removed html <p> tags.
-#
-# Version 3.00 2016-08-14 PH
-# 	pcp-load modified version for piCorePlayer
-#	Options to specify REPO and Full Path on command line
-#	Updated to latest code from tce-load
-#
+
+# Version 3.5.0 2018-02-17
+#	Cleanup. GE.
+
+# Version 3.10 2016-12-22
+#	Added requirement of .dep.pcp on pcp sourceforge repo. PH.
+#	Updated for sourceforge repo change. PH.
+#	Removed html <p> tags. PH.
+
+# Version 3.00 2016-08-14
+#	pcp-load modified version for piCorePlayer. PH.
+#	Options to specify REPO and Full Path on command line. PH.
+#	Updated to latest code from tce-load. PH.
+
 . /etc/init.d/tc-functions
 useBusybox
 checknotroot
@@ -26,7 +29,7 @@ ONBOOTNAME="$(getbootparam lst 2>/dev/null)"
 TCEINSTALLED=/usr/local/tce.installed
 TCEDIR=/etc/sysconfig/tcedir
 
-abort(){
+abort() {
 	echo "Version `version`";
 	echo "Usage: ${PROG_NAME} [ -i -w -wi -wo -wil -ic -wic -wicl]{s} extensions"
 	echo "  -i   Loads local extension"
@@ -38,7 +41,7 @@ abort(){
 	echo "  Adding -s to any option will suppress OK message used by apps GUI"
 	echo -e  "\nExample usage:"
 	echo " Load local extension:"
-	echo "   ${PROG_NAME} -i /mnt/hda1/tce/optional/nano.tcz"
+	echo "   ${PROG_NAME} -i /mnt/mmcblk0p2/tce/optional/nano.tcz"
 	echo " Download into tce/optional directory, updates OnBoot and installs:"
 	echo "   ${PROG_NAME} -w -i nano.tcz"
 	echo " Download only into tce/optional directory:"
@@ -50,15 +53,15 @@ abort(){
 	exit 2
 }
 
-#replace the getMirror from tc-functions
+# Replace the getMirror from tc-functions
 getMirror() {
-BUILD=$(getBuild)
-[ -z $REPO ] && read MIRROR < /opt/tcemirror || MIRROR=$REPO
-MIRROR="${MIRROR%/}/$(getMajorVer).x/$BUILD/tcz"
-[ -z $REPO_ABS ] || MIRROR=$REPO_ABS
+	BUILD=$(getBuild)
+	[ -z $REPO ] && read MIRROR < /opt/tcemirror || MIRROR=$REPO
+	MIRROR="${MIRROR%/}/$(getMajorVer).x/$BUILD/tcz"
+	[ -z $REPO_ABS ] || MIRROR=$REPO_ABS
 }
 
-abort_to_saved_dir(){
+abort_to_saved_dir() {
 	echo "1" > /tmp/appserr
 	if [ "$BOOTING" ]; then
 		SKIP=TRUE
@@ -98,6 +101,7 @@ fetch_app() {
 	wget -T 30 -c "$MIRROR"/"$1" 1>&2
 	echo -n "[ INFO ] Checking MD5 of: ${1}....."
 	md5sum -cs "$1".md5.txt
+	# FIX THIS.
 	if [ "$?" != 0 ]; then
 		echo "FAIL"
 		rm -f $1*
@@ -110,7 +114,7 @@ fetch_app() {
 copyInstall() {
 	[ -d /mnt/test ] || sudo /bin/mkdir -p /mnt/test
 	sudo /bin/busybox.suid mount $1 /mnt/test -t squashfs -o loop,ro,bs=4096
-	if [ "$?" == 0 ]; then
+	if [ $? -eq 0 ]; then
 		if [ "$(ls -A /mnt/test)" ]; then
 			yes "$FORCE" | sudo /bin/cp -ai /mnt/test/. / 2>/dev/null
 			[ -n "`find /mnt/test/ -type d -name modules`" ] && MODULES=TRUE
@@ -163,8 +167,8 @@ install(){
 		else
 			[ -d /tmp/tcloop/"$APPNAME" ] || sudo /bin/mkdir -p /tmp/tcloop/"$APPNAME"
 			awk -v appname="/tmp/tcloop/$APPNAME" ' { if ( $2 == appname )  exit 1 }' /etc/mtab
-			[ "$?" == 1 ] || sudo /bin/busybox.suid mount "$THISAPP" /tmp/tcloop/"$APPNAME" -t squashfs -o loop,ro,bs=4096 2>&1
-			[ "$?" == 0 ] || abort_to_saved_dir
+			[ $? -eq 1 ] || sudo /bin/busybox.suid mount "$THISAPP" /tmp/tcloop/"$APPNAME" -t squashfs -o loop,ro,bs=4096 2>&1
+			[ $? -eq 0 ] || abort_to_saved_dir
 			[ "`find /tmp/tcloop/${APPNAME} -mindepth 1 -maxdepth 2 | wc -l`" -le 1 ] && EMPTYEXT=1
 
 			if [ -z "$EMPTYEXT" ]; then
@@ -213,8 +217,8 @@ recursive_scan_dep() {
 					}
 					if (system("rm -f "depfile"; wget -T 30 -c -P "optional" "dl_link" 2>/dev/null") == 0 && ! SUPPRESS) {
 						system("echo \"[ INFO ] "name".dep Downloaded.....\" 1>&2")
-						#If we downloaded a dep.pcp, rename it back to .dep
-						if (system("test -f "depfile".pcp") == 0) 
+						# If we downloaded a dep.pcp, rename it back to .dep
+						if (system("test -f "depfile".pcp") == 0)
 							system("mv -f "depfile".pcp "depfile )
 					} else if ( mirror ~ /sourceforge/ ){
 						# dep file was missing, this is a hard error
@@ -274,12 +278,12 @@ recursive_scan_dep() {
 	'
 }
 
-# Main
+# Main.
 echo "0" > /tmp/appserr
 [ -d "$TCEDIR" ] || exit 1
 [ -n "$1" ] || exit 1
 [ -f /etc/sysconfig/showapps ] && SHOWAPPS=TRUE && SUPPRESS=TRUE
-#  Check for download only
+# Check for download only.
 [ -z "$INSTALL" ] && DOWNLOAD_ONLY=1
 [ -z "$WGET" ] && [ "$INSTALL" ] && LOAD_ONLY=1
 
@@ -323,7 +327,7 @@ else
 	TARGETSLOCAL="$TARGETSLOCAL\n$EXTENSION"
 fi
 
-done # Finish the for-loop for multiple extensions
+done # Finish the for-loop for multiple extensions.
 
 cd "$FROMWHERE" || exit 1
 
@@ -343,25 +347,24 @@ do
 			app_exists "$F" "." || fetch_app "$F"
 			[ $(cat /tmp/appserr) = "1" ] && break
 			[ -f "$TCEINSTALLED/${F%.*}" ] || install "$F"
-#		done || exit 1 # subshell cannot exit directly
-		done || echo "1" > /tmp/appserr 
+#		done || exit 1 # subshell can not exit directly
+		done || echo "1" > /tmp/appserr
 	fi
 	if [ $(cat /tmp/appserr) = "1" ]; then
-		echo "[ ERROR] There was a error downloading ${EXTENSION}"
+		echo "[ ERROR ] There was a error downloading ${EXTENSION}."
 #		rm -f $EXTENSION*   Not needed here....I think
 		RETRY=$((RETRY+1))
 		if [ $RETRY -lt $MAX_RETRIES ]; then
-			echo "[ INFO ] Retrying extension ${EXTENSION}........in 5 seconds."
+			echo "[ INFO ] Retrying extension ${EXTENSION}...in 5 seconds."
 			sleep 5
 		else
-			echo "[ ERROR ]Max retries reached"
+			echo "[ ERROR ] Max retries reached."
 		fi
 	else
-		echo "[ INFO ] All Files Tested Good"
+		echo "[ INFO ] All files tested good."
 		break
 	fi
 done
-
 
 if [ "$TARGETSLOCAL" ]; then
 	TARGETSLOCAL="`echo -e $TARGETSLOCAL | awk '/\w/ {print $1}'`"
@@ -377,7 +380,7 @@ if [ "$TARGETSLOCAL" ]; then
 				abort_to_saved_dir
 			fi
 		fi
-	done || exit 1 # subshell cannot exit directly
+	done || exit 1 # subshell can not exit directly.
 fi
 
 [ "$BOOTING" ] && exit 0

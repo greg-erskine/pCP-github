@@ -1,28 +1,27 @@
 #!/bin/sh +x
 
+# Version: 3.5.0 2018-02-17
+#	Cleanup. GE.
+
 # Version: 3.21 2017-05-29
-#	Changes for booting from USB on rpi3. PH.
-#	Forward compatability for pcp_mount_mmcblk0p1. PH.
+#	Changes for booting from USB on RPi3. PH.
+#	Forward compatibility for pcp_mount_mmcblk0p1. PH.
 
 # Version: 3.20 2017-03-07
 #	Fixed pcp-xxx-functions issues. GE.
 
-# Version: 3.02 2016-08-29 PH
-#	Updated Static IP to wait for USB ethernet to be detected
+# Version: 3.02 2016-08-29
+#	Updated Static IP to wait for USB ethernet to be detected. PH.
 
-# Version: 0.04 2015-09-09 GE
-#	Added backup to pcp_write_wifi.
+# Version: 0.01 2015-05-19
+#	Original. GE.
 
-# Version: 0.03 2015-09-01 GE
-#	Added shutdown option.
+#########################################################################################
+# FIX: This script does an excessive number of backups. Very painful if backup is large.
+#########################################################################################
 
-# Version: 0.02 2015-08-26 GE
-#	Updated.
-
-# Version: 0.01 2015-05-19 GE
-#	Original.
-
-BACKTITLE="piCorePlayer Basic Setup"
+VERSION="v3.5.0"
+BACKTITLE="piCorePlayer Basic Setup - $VERSION"
 
 PCPHOME="/home/tc/www/cgi-bin"
 STATICIP="/opt/eth0.sh"
@@ -30,18 +29,18 @@ STATICIP="/opt/eth0.sh"
 . ${PCPHOME}/pcp-functions
 
 if [ ! $(type -t pcp_mount_mmcblk0p1) ]; then
-        pcp_mount_mmcblk0p1() {
-                pcp_mount_bootpart
-        }
-        pcp_mount_mmcblk0p1_nohtml() {
-                pcp_mount_bootpart_nohtml
-        }
-        pcp_umount_mmcblk0p1() {
-                pcp_umount_bootpart
-        }
-        pcp_umount_mmcblk0p1_nohtml() {
-                pcp_umount_bootpart_nohtml
-        }
+	pcp_mount_mmcblk0p1() {
+		pcp_mount_bootpart
+	}
+	pcp_mount_mmcblk0p1_nohtml() {
+		pcp_mount_bootpart_nohtml
+	}
+	pcp_umount_mmcblk0p1() {
+		pcp_umount_bootpart
+	}
+	pcp_umount_mmcblk0p1_nohtml() {
+		pcp_umount_bootpart_nohtml
+	}
 fi
 
 DIALOG_OK=0
@@ -59,16 +58,16 @@ WEBGUICHANGED=0
 # Check if dialog.tcz is installed - install if necessary.
 #----------------------------------------------------------------------------------------
 which dialog
-if [ $? = 0 ]; then
+if [ $? -eq 0 ]; then
 	echo 'dialog.tcz already installed.'
 else
 	if [ ! -f $PACKAGEDIR/dialog.tcz ]; then
-		if [ $(pcp_internet_accessible) = 0 ]; then
+		if [ $(pcp_internet_accessible) -eq 0 ]; then
 			echo 'dialog.tcz downloading...'
 			tce-load -w dialog.tcz
-			[ $? = 0 ] && echo 'dialog.tcz downloaded.' || echo 'Error downloading dialog.tcz.'
+			[ $? -eq 0 ] && echo 'dialog.tcz downloaded.' || echo 'Error downloading dialog.tcz.'
 		else
-			echo 'Error downloading dialog.tcz, cannot access Internet.'
+			echo 'Error downloading dialog.tcz, can not access Internet.'
 			exit 1
 		fi
 	else
@@ -76,7 +75,7 @@ else
 	fi
 	echo 'dialog.tcz installing... '
 	tce-load -i dialog.tcz
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo 'dialog.tcz installed.'
 	else
 		echo 'Error installing dialog.tcz.'
@@ -85,7 +84,7 @@ else
 fi
 
 #========================================================================================
-# Start message
+# Start message.
 #----------------------------------------------------------------------------------------
 pcp_start_message() {
 	dialog	--title      "Important Message!" \
@@ -95,15 +94,15 @@ pcp_start_message() {
 			--yesno      "\nThis basic piCorePlayer setup is only intended for configuration of settings that can not be set through the web GUI." \
 			10 60
 
-	[ $? = $DIALOG_OK ] || pcp_exit_program
+	[ $? -eq $DIALOG_OK ] || pcp_exit_program
 }
 
 #========================================================================================
-# Exit
+# Exit.
 #----------------------------------------------------------------------------------------
 pcp_exit_program() {
 	clear
-	if [ $WIFICHANGED = 1 ]; then
+	if [ $WIFICHANGED -eq 1 ]; then
 		echo
 		pcp_backup_nohtml
 		echo
@@ -112,7 +111,7 @@ pcp_exit_program() {
 		echo "Password: $PASSWORD"
 		echo "Security: $ENCRYPTION"
 	fi
-	if [ $STATICIPCHANGED = 1 ]; then
+	if [ $STATICIPCHANGED -eq 1 ]; then
 		echo
 		pcp_backup_nohtml
 		echo
@@ -122,7 +121,7 @@ pcp_exit_program() {
 		echo "Broadcast: $BROADCAST"
 		echo "Default gateway: $GATEWAY"
 	fi
-	if [ $WEBGUICHANGED = 1 ]; then
+	if [ $WEBGUICHANGED -eq 1 ]; then
 		echo
 		echo "Web GUI is $STATUS"
 	fi
@@ -131,7 +130,7 @@ pcp_exit_program() {
 }
 
 #========================================================================================
-# Main menu
+# Main menu.
 #----------------------------------------------------------------------------------------
 pcp_main_menu() {
 	pcp_variables
@@ -151,7 +150,7 @@ pcp_main_menu() {
 		"Shutdown"      "Shutdown $NAME" \
 	)
 
-	[ $? = $DIALOG_OK ] || pcp_exit_program
+	[ $? -eq $DIALOG_OK ] || pcp_exit_program
 
 	case $OPTION in
 		Wifi)
@@ -175,22 +174,22 @@ pcp_main_menu() {
 		Reboot)
 			clear
 			echo "Rebooting $NAME..."
-			sudo reboot
+			pcp rb
 		;;
 		Shutdown)
 			clear
 			echo "Shutting down $NAME..."
-			exitcheck.sh
+			pcp sd
 		;;
 	esac
 }
 
 #========================================================================================
-# Webgui
+# Webgui.
 #----------------------------------------------------------------------------------------
 pcp_webgui_menu() {
 	pcp_get_webgui_status
-	if [ $WEBGUI = 0 ]; then
+	if [ $WEBGUI -eq 0 ]; then
 		STATUS=Enabled.
 		BUTTON=Disable
 	else
@@ -206,8 +205,8 @@ pcp_webgui_menu() {
 			0 0
 	RESULT=$?
 
-	if [ $RESULT = $DIALOG_OK ]; then
-		if [ $BUTTON = "Enable" ]; then
+	if [ $RESULT -eq $DIALOG_OK ]; then
+		if [ "$BUTTON" = "Enable" ]; then
 			pcp_webgui_enable
 		else
 			pcp_webgui_disable
@@ -215,11 +214,11 @@ pcp_webgui_menu() {
 		pcp_webgui_menu
 	fi
 
-	[ $RESULT = $DIALOG_CANCEL ] && pcp_main_menu
+	[ $RESULT -eq $DIALOG_CANCEL ] && pcp_main_menu
 }
 
 #----------------------------------------------------------------------------------------
-# Enable webGUI
+# Enable webGUI.
 #----------------------------------------------------------------------------------------
 pcp_webgui_enable() {
 	sudo /usr/local/etc/init.d/httpd start >/dev/null 2>&1
@@ -228,7 +227,7 @@ pcp_webgui_enable() {
 }
 
 #----------------------------------------------------------------------------------------
-# Disable webGUI
+# Disable webGUI.
 #----------------------------------------------------------------------------------------
 pcp_webgui_disable() {
 	sudo /usr/local/etc/init.d/httpd stop >/dev/null 2>&1
@@ -237,22 +236,22 @@ pcp_webgui_disable() {
 }
 
 #----------------------------------------------------------------------------------------
-# Status webGUI
+# Status webGUI.
 #----------------------------------------------------------------------------------------
 pcp_get_webgui_status() {
 	WEBGUI=0
 	ps | grep -v grep | grep httpd
-	[ $? = 0 ] || WEBGUI=$(($WEBGUI + 1))
+	[ $? -eq 0 ] || WEBGUI=$(($WEBGUI + 1))
 	cat /home/tc/www/cgi-bin/do_rebootstuff.sh | grep "#/usr/local/etc/init.d/httpd"
-	[ $? = 0 ] && WEBGUI=$(($WEBGUI + 1))
+	[ $? -eq 0 ] && WEBGUI=$(($WEBGUI + 1))
 }
 
 #========================================================================================
-# Static IP
+# Static IP.
 #----------------------------------------------------------------------------------------
 pcp_dhcp_menu() {
 	pcp_get_static_ip_status
-	[ $STATISIP = 0 ] && STATUSIP=on || STATUSIP=off
+	[ $STATISIP -eq 0 ] && STATUSIP=on || STATUSIP=off
 
 	pcp_read_script
 
@@ -266,7 +265,7 @@ pcp_dhcp_menu() {
 							Default gateway: $GATEWAY \n\n" \
 			0 0
 
-	[ $? = $DIALOG_OK ] && pcp_main_menu
+	[ $? -eq $DIALOG_OK ] && pcp_main_menu
 
 	dialog	--title      "Static IP On/Off Menu" \
 			--yes-label  "On" \
@@ -275,7 +274,7 @@ pcp_dhcp_menu() {
 			--yesno      "\nTurn Static IP On or Off. \n\n" \
 			0 0
 
-	if [ $? = $DIALOG_CANCEL ]; then
+	if [ $? -eq $DIALOG_CANCEL ]; then
 		pcp_edit_localboot delete
 		pcp_nodhcp_bootcode delete
 		sudo rm -f $STATICIP
@@ -309,7 +308,7 @@ pcp_static_ip_menu() {
 	BROADCAST=$(echo ${VALUES} | awk -F, '{ print $3 }')
 	GATEWAY=$(echo ${VALUES} | awk -F, '{ print $4 }')
 
-	if [ $RESULT = $DIALOG_OK ]; then 
+	if [ $RESULT -eq $DIALOG_OK ]; then
 		pcp_edit_localboot add
 		pcp_nodhcp_bootcode add
 		pcp_write_script
@@ -323,17 +322,17 @@ pcp_get_static_ip_status() {
 	STATISIP=0
 	[ -f $STATICIP ] || STATISIP=$(($STATISIP + 1))
 	grep eth0.sh /opt/bootlocal.sh >/dev/null 2>&1
-	[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
+	[ $? -eq 0 ] || STATISIP=$(($STATISIP + 1))
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	if mount | grep $VOLUME >/dev/null 2>&1; then
 		grep nodhcp $CMDLINETXT >/dev/null 2>&1
-		[ $? = 0 ] || STATISIP=$(($STATISIP + 1))
+		[ $? -eq 0 ] || STATISIP=$(($STATISIP + 1))
 		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	fi
 }
 
 #----------------------------------------------------------------------------------------
-# Read eth0 script
+# Read eth0 script.
 #----------------------------------------------------------------------------------------
 pcp_read_script() {
 	if [ -f $STATICIP ]; then
@@ -352,7 +351,7 @@ pcp_read_script() {
 }
 
 #----------------------------------------------------------------------------------------
-# Write eth0 script
+# Write eth0 script.
 #----------------------------------------------------------------------------------------
 pcp_write_script() {
 	sudo rm -f $STATICIP
@@ -367,7 +366,7 @@ pcp_write_script() {
 	sudo echo '          NWOK=0' >>$STATICIP
 	sudo echo '          break' >>$STATICIP
 	sudo echo '  else' >>$STATICIP
-	sudo echo '          echo-n "."' >>$STATICIP
+	sudo echo '          echo -n "."' >>$STATICIP
 	sudo echo '          sleep 0.5' >>$STATICIP
 	sudo echo '  fi' >>$STATICIP
 	sudo echo 'done' >>$STATICIP
@@ -378,15 +377,14 @@ pcp_write_script() {
 	sudo echo '/etc/init.d/settime.sh &' >>$STATICIP
 	sudo echo 'fi' >>$STATICIP
 	sudo chmod ugo+x $STATICIP
-	
 }
 
 #----------------------------------------------------------------------------------------
 # Add/delete /opt/eth0.sh to bootlocal.sh
 #----------------------------------------------------------------------------------------
 pcp_edit_localboot() {
-	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /opt/bootlocal.sh...'
-	# Ugly permission hack, ownership is messed up and you cannot sudo with redirected output
+	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] Writing /opt/bootlocal.sh...'
+	# Ugly permission hack, ownership is messed up and you can not sudo with redirected output
 	sudo chown root.staff /opt
 	sudo chmod 775 /opt
 	sudo chmod g+s /opt
@@ -400,19 +398,19 @@ pcp_edit_localboot() {
 # Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
-	[ $DEBUG = 1 ] && echo '[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...'
+	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] Writing /mnt/mmcblk0p1/cmdline.txt...'
 	pcp_mount_mmcblk0p1_nohtml >/dev/null 2>&1
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
 		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' $CMDLINETXT
 		pcp_umount_mmcblk0p1_nohtml >/dev/null 2>&1
 	else
-		[ $DEBUG = 1 ] && echo '[ ERROR ] '$VOLUME' not mounted'
+		[ $DEBUG -eq 1 ] && echo '[ ERROR ] '$VOLUME' not mounted'
 	fi
 }
 
 #========================================================================================
-# wifi menu
+# wifi menu.
 #----------------------------------------------------------------------------------------
 pcp_wifi_menu() {
 	dialog	--title      "Wifi Status Menu" \
@@ -424,7 +422,7 @@ pcp_wifi_menu() {
 							Security: $ENCRYPTION \n\n" \
 			0 0
 
-	if [ $? = $DIALOG_OK ]; then
+	if [ $? -eq $DIALOG_OK ]; then
 		pcp_write_wifi
 		pcp_main_menu
 	else
@@ -435,7 +433,7 @@ pcp_wifi_menu() {
 				--yesno      "\nTurn Wifi On or Off. \n\n" \
 				0 0
 
-		if [ $? = $DIALOG_OK ]; then
+		if [ $? -eq $DIALOG_OK ]; then
 			WIFI="on"
 			pcp_wireless_menu
 		else
@@ -466,7 +464,7 @@ pcp_wireless_menu() {
 	PASSWORD=$(echo ${VALUES} | awk -F, '{ print $2 }')
 	ENCRYPTION=$(echo ${VALUES} | awk -F, '{ print $3 }')
 
-	if [ $result = $DIALOG_OK ]; then 
+	if [ $result -eq $DIALOG_OK ]; then
 		case $ENCRYPTION in
 			WEP|WPA|OPEN)
 				pcp_wifi_menu
@@ -495,7 +493,7 @@ pcp_write_wifi() {
 }
 
 #========================================================================================
-# Main
+# Main.
 #----------------------------------------------------------------------------------------
 pcp_start_message
 pcp_main_menu
