@@ -245,7 +245,7 @@ case $LOCALVERSION in
 	*Audio*)
 		echo "Disabling Debug...."
 		echo ""
-		scripts/config --disable DEBUG_INFO
+		./scripts/config --disable DEBUG_INFO
 	;;
 	*);;
 esac

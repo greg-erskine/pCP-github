@@ -368,8 +368,8 @@ copy_part2(){
 
 	MOD_TCZ="alsa-modules net-usb wireless"
 	for I in $MOD_TCZ; do
-		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}/${I}-${KERNELV6%^*} ${PART2}/tce/optional/${I}-${KERNELV6%^*} 1001.50 664
-		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}/${I}-${KERNELV7%^*} ${PART2}/tce/optional/${I}-${KERNELV7%^*} 1001.50 664
+		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}/${I}-${KERNELV6NAME} ${PART2}/tce/optional/${I}-${KERNELV6NAME} 1001.50 664
+		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}/${I}-${KERNELV7NAME} ${PART2}/tce/optional/${I}-${KERNELV7NAME} 1001.50 664
 	done
 }
 
@@ -605,8 +605,8 @@ function readfile(){
 				let j=j+1
 			done
 			if [[ $line =~ .*KERNEL.* ]]; then
-				FILEv6=$(echo $line | sed "s/KERNEL/${KERNELV6%^*}/")
-				FILEv7=$(echo $line | sed "s/KERNEL/${KERNELV7%^*}/")
+				FILEv6=$(echo $line | sed "s/KERNEL/${KERNELV6NAME}/")
+				FILEv7=$(echo $line | sed "s/KERNEL/${KERNELV7NAME}/")
 				echo -n "${BLUE}  $FILEv6 "
 				[ -e "$FILEv6" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
 				# Indents based on nested depth of dep
@@ -665,8 +665,8 @@ check_deps_old(){
 				echo $LINE | grep -q "KERNEL"
 				if [ $? -eq 0 ]; then
 					#Need to Check both Kernels
-					FILEv6=$(echo $LINE | sed "s/KERNEL/${KERNELV6%^*}/")
-					FILEv7=$(echo $LINE | sed "s/KERNEL/${KERNELV7%^*}/")
+					FILEv6=$(echo $LINE | sed "s/KERNEL/${KERNELV6NAME}/")
+					FILEv7=$(echo $LINE | sed "s/KERNEL/${KERNELV7NAME}/")
 					[ -e "$FILEv6" ] || ( FAIL=1; echo -n "${RED} ERROR on $LINE." )
 					[ -e "$FILEv7" ] || ( FAIL=1; echo -n "${RED} ERROR on $LINE." )
 				else
@@ -771,6 +771,9 @@ do
 		echo "Press Enter to reselect${GREEN}"
 	fi
 done
+
+KERNELV6NAME=$(ls -1 ${BUILDROOT}/kernel/pcpCore/armv6/modules/${KERNELV6}/lib/modules)
+KERNELV7NAME=$(ls -1 ${BUILDROOT}/kernel/pcpCore/armv7/modules/${KERNELV7}/lib/modules)
 
 #Check to be sure the config.txt matches the kernel,
 #For now pcpCore and pcpAudioCore use the same file names for initrd and kernels
