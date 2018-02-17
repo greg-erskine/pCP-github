@@ -394,6 +394,8 @@ build_mydata(){
 	cp -dR --preserve=all ${BUILDROOT}/../pcp/mydata/* ${MYDATA}/
 
 	chown 0.50 ${MYDATA}/etc
+	chmod 600 ${MYDATA}/etc/shadow
+	chmod 600 ${MYDATA}/etc/gshadow
 	chown -R 0.0 ${MYDATA}/usr
 	chown 0.50 ${MYDATA}/usr/local/bin
 	chown -R 0.50 ${MYDATA}/var
