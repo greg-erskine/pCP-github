@@ -52,7 +52,6 @@ pcp_httpd_query_string
 
 BUILD=$(getBuild)
 MIRROR="${PCP_REPO%/}/$(getMajorVer).x/$BUILD/tcz"
-
 WGET="/bin/busybox wget"
 JIVELITE_TCZ="pcp-jivelite.tcz"
 DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
@@ -60,8 +59,6 @@ AVAILABLE_VUMETERS=$($WGET $MIRROR -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort 
 
 # Reboot is default, some functions turn it off.
 REBOOT_REQUIRED=1
-
-[ pcp_pcp_repo_accessible -eq 0 ]
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] MIRROR: '$MIRROR'<br />'
