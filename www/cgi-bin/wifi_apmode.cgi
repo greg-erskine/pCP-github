@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-18
+# Version: 3.5.0 2018-02-19
 #	Initial version. PH.
 
 . pcp-functions
@@ -267,7 +267,7 @@ pcp_ap_install() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f $TCEMNT/tce/optional/pcp-apmode.tcz ]; then
-		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                  <input type="submit" name="ACTION" value="Install">'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Install AP Mode on pCP&nbsp;&nbsp;'
@@ -277,10 +277,10 @@ pcp_ap_install() {
 		echo '                    <p>This will install AP Mode on pCP.</p>'
 		echo '                  </div>'
 	else
-		echo '                  <input type="submit" name="ACTION" value="Update" />'
+		echo '                  <input type="submit" name="ACTION" value="Update">'
 		echo '                </td>'
 		echo '                <td class="column150 center">'
-		echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove AP Mode from pCP.\n\nAre you sure?'\'')"/>'
+		echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove AP Mode from pCP.\n\nAre you sure?'\'')">'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Update or Remove AP Mode from pCP&nbsp;&nbsp;'
@@ -305,7 +305,7 @@ pcp_ap_startstop() {
 	echo '            <form name="Start" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_AP'/>'
+	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_AP'>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Start AP Mode on pCP&nbsp;&nbsp;'
@@ -323,7 +323,7 @@ pcp_ap_startstop() {
 	echo '            <form name="Stop" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Stop" onclick="return confirm('\''STOP AP Mode.\n\nAre you sure?'\'')" '$DISABLE_AP'/>'
+	echo '                  <input type="submit" name="ACTION" value="Stop" onclick="return confirm('\''STOP AP Mode.\n\nAre you sure?'\'')" '$DISABLE_AP'>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Stop AP Mode on pCP&nbsp;&nbsp;'
@@ -342,7 +342,7 @@ pcp_ap_startstop() {
 	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_AP'/>'
+	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_AP'>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart AP Mode on pCP&nbsp;&nbsp;'
@@ -378,7 +378,7 @@ pcp_ap_configure(){
 	echo '                         name="AP_SSID"'
 	echo '                         value="'$AP_SSID'"'
 	echo '                         required'
-	echo '                  />'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the SSID of the AP&nbsp;&nbsp;'
@@ -402,7 +402,7 @@ pcp_ap_configure(){
 	echo '                         name="AP_CHANNEL"'
 	echo '                         value="'$AP_CHANNEL'"'
 	echo '                         required'
-	echo '                  />'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the Wireless Channel of the AP&nbsp;&nbsp;'
@@ -427,7 +427,7 @@ pcp_ap_configure(){
 	echo '                         value="'$AP_IP'"'
 	echo '                         required'
 	echo '                         pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"'
-	echo '                  />'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the IP address used for the AP&nbsp;&nbsp;'
@@ -452,7 +452,7 @@ pcp_ap_configure(){
 	echo '                         value="'$AP_PASS'"'
 	echo '                         required'
 	echo '                         pattern=".{8,63}"'
-	echo '                  />'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>WPA2 Passphrase to be used to access AP&nbsp;&nbsp;'

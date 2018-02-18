@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-18
+# Version: 3.5.0 2018-02-19
 #	Add page button for AP mode. PH.
 #	Add Bluetooth enable/disable. PH.
 #	Cosmetic cleanup. GE.
@@ -262,7 +262,7 @@ echo '                <td class="column150">'
 echo '                  <p>SSID</p>'
 echo '                </td>'
 echo '                <td class="column380">'
-echo '                  <input class="large15" type="text" name="SSID" value="'$SSID'" onChange="enableSAVE();" maxlength="32" >'
+echo '                  <input class="large15" type="text" name="SSID" value="'$SSID'" onChange="enableSAVE();" maxlength="32">'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enter your wifi network SSID&nbsp;&nbsp;'
@@ -456,7 +456,7 @@ wifi_apmode_page(){
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form action="wifi_apmode.cgi" method="get">'
-	echo '                  <input type="submit" name="APmode" value="pCP AP Mode" />'
+	echo '                  <input type="submit" name="APmode" value="pCP AP Mode">'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
