@@ -1,27 +1,27 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-26
+# Version: 3.5.0 2018-02-18
 #	Add page button for AP mode. PH.
 #	Add Bluetooth enable/disable. PH.
+#	Cosmetic cleanup. GE.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
-#	Changed rpi3 wifi disable to overlay. PH.
+#	Changed RPi3 wifi disable to overlay. PH.
 
 # Version: 3.02 2016-09-15
 #	Minor update. GE.
 
-# Version: 2.06 2016-04-27 PH
-#	Add ability to blacklist RPi3 builtin wifi
+# Version: 2.06 2016-04-27
+#	Add ability to blacklist RPi3 builtin wifi. PH.
 
-# Version: 0.01 2014-06-25 GE
-#	Original.
+# Version: 0.01 2014-06-25
+#	Original. GE.
 
 . pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "WIFI Settings" "SBP"
 
@@ -219,7 +219,7 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 #========================================================================================
-# Main
+# Main.
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -229,6 +229,7 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Set wifi configuration</legend>'
 echo '            <table class="bggrey percent100">'
+#--------------------------------------Wifi on/off---------------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -253,6 +254,7 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------SSID----------------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -275,6 +277,7 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------Password------------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -296,6 +299,7 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------Security Mode-------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -319,6 +323,7 @@ echo '                    <p>Recommended: WPA or WPA2</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#--------------------------------------Built-in Wifi-------------------------------------
 if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); then
 	case "$RPI3INTWIFI" in
 		on) RPI3WIFIyes="checked" ;;
@@ -344,7 +349,7 @@ if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); th
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#RPI Internal Bluetooth Controller
+#--------------------------------------Built-in Bluetooth--------------------------------
 	case "$RPIBLUETOOTH" in
 		on) RPIBLUETOOTHyes="checked" ;;
 		off) RPIBLUETOOTHno="checked" ;;
@@ -370,12 +375,13 @@ if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); th
 	echo '                </td>'
 	echo '              </tr>'
 fi
+#--------------------------------------Buttons------------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
 echo '                  <input type="submit" name="SAVE" value="Save/Connect" onclick="return(validate());">'
-[ $MODE -ge $MODE_BETA ] &&
+[ $MODE -ge $MODE_ADVANCED ] &&
 echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 echo '                </td>'
 echo '              </tr>'
@@ -383,7 +389,7 @@ echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
-
+#--------------------------------------Display Wifi information--------------------------
 if [ "$WIFI" = "on" ]; then
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
 	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
@@ -410,7 +416,7 @@ if [ "$WIFI" = "on" ]; then
 	echo '        </div>'
 	echo '      </form>'
 fi
-
+#--------------------------------------Display Available wifi networks-------------------
 if [ "$SUBMIT" = "Scan" ] && [ "$WIFI" = "on" ]; then
 	echo '      <form name="wifi_networks" method="get">'
 	echo '        <div class="row">'
@@ -428,10 +434,11 @@ if [ "$SUBMIT" = "Scan" ] && [ "$WIFI" = "on" ]; then
 	echo '        </div>'
 	echo '      </form>'
 fi
-
+#----------------------------------------------------------------------------------------
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # AP Mode Page Link
@@ -453,7 +460,7 @@ wifi_apmode_page(){
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Setup your piCorePlayer as a wifi AP.'
+	echo '                <p>Setup your piCorePlayer as a wifi AP&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -469,6 +476,7 @@ wifi_apmode_page(){
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && wifi_apmode_page
+#----------------------------------------------------------------------------------------
 
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode

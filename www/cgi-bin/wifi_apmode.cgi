@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-26
+# Version: 3.5.0 2018-02-18
 #	Initial version. PH.
 
 . pcp-functions
@@ -16,11 +16,10 @@ pcp_navigation
 pcp_remove_query_string
 pcp_httpd_query_string
 
-HOSTAPDCONF=/usr/local/etc/pcp/hostapd.conf
-DNSMASQCONF=/usr/local/etc/pcp/dnsmasq.conf
+HOSTAPDCONF="/usr/local/etc/pcp/hostapd.conf"
+DNSMASQCONF="/usr/local/etc/pcp/dnsmasq.conf"
 
 #---------------------------Routines-----------------------------------------------------
-
 pcp_install_apmode() {
 	echo '[ INFO ] Downloading AP Mode...'
 	sudo -u tc pcp-load -r $PCP_REPO -w pcp-apmode.tcz
@@ -39,7 +38,7 @@ pcp_remove_apmode() {
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete pcp-apmode.tcz
 	sudo sed -i '/pcp-apmode.tcz/d' $ONBOOTLST
-	echo "Removeing configuration files"
+	echo "Removing configuration files..."
 	rm -f $HOSTAPDCONF
 	rm -f $DNSMASQCONF
 }
@@ -192,21 +191,16 @@ echo '        <fieldset>'
 echo '          <legend>Wifi Access Point Configuration</legend>'
 echo '          <table class="bggrey percent100">'
 
-#------------------------------------LMS Indication--------------------------------------
+#------------------------------------AP Mode Indication----------------------------------
 if [ $(pcp_apmode_status) -eq 0 ]; then
-	INDICATOR=$HEAVY_CHECK_MARK
-	CLASS="indicator_green"
-	STATUS="running"
+	pcp_green_tick "running"
 else
-	INDICATOR=$HEAVY_BALLOT_X
-	CLASS="indicator_red"
-	STATUS="not running"
+	pcp_red_cross "not running"
 fi
 
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Determine state of check boxes.
-#------------------------------------------------------------------------------------
-# Function to check the radio button according to config file
+#----------------------------------------------------------------------------------------
 case "$APMODE" in
 	yes) APMODEyes="checked" ;;
 	no) APMODEno="checked" ;;
@@ -231,14 +225,13 @@ echo '                  </ul>'
 echo '                </div>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#--------------------------------------Padding-------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="padding '$ROWSHADE'">'
 echo '              <td></td>'
 echo '              <td></td>'
 echo '            </tr>'
-
-#-----------------------------------Enable/disable autostart of AP Mode------------------
+#--------------------------------------Enable/disable autostart of AP Mode---------------
 pcp_ap_enable() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -266,7 +259,7 @@ pcp_ap_enable() {
 [ $MODE -ge $MODE_BETA ] && pcp_ap_enable
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Install/uninstall AP Mode---------------------
+#--------------------------------------Install/uninstall AP Mode-------------------------
 pcp_ap_install() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -305,7 +298,7 @@ pcp_ap_install() {
 [ $MODE -ge $MODE_BETA ] && pcp_ap_install
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Start and Stop AP Mode---------------------
+#------------------------------------------Start AP Mode---------------------------------
 pcp_ap_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -324,6 +317,7 @@ pcp_ap_startstop() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
+#------------------------------------------Stop AP Mode----------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <form name="Stop" action="'$0'">'
@@ -332,7 +326,7 @@ pcp_ap_startstop() {
 	echo '                  <input type="submit" name="ACTION" value="Stop" onclick="return confirm('\''STOP AP Mode.\n\nAre you sure?'\'')" '$DISABLE_AP'/>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Stop AP Mode on pCP.&nbsp;&nbsp;'
+	echo '                  <p>Stop AP Mode on pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -342,6 +336,7 @@ pcp_ap_startstop() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
+#------------------------------------------Restart AP Mode-------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <form name="Restart" action="'$0'">'
@@ -363,97 +358,125 @@ pcp_ap_startstop() {
 [ $MODE -ge $MODE_BETA ] && pcp_ap_startstop
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Configure      AP Mode---------------------
+#------------------------------------------Configure AP Mode-----------------------------
 pcp_ap_configure(){
 	AP_SSID=$(cat $HOSTAPDCONF | grep -e "^ssid=" | cut -d "=" -f2)
 	AP_CHANNEL=$(cat $HOSTAPDCONF | grep -e "^channel=" | cut -d "=" -f2)
 	AP_PASS=$(cat $HOSTAPDCONF | grep -e "^\#wpa_passphrase=" | cut -d "=" -f2)
 
+#------------------------------------------AP Mode SSID----------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '              <form name="setconfig" action="'$0'">'
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150 center">'
-	echo '                    <p class="row">AP SSID</p>'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <p><input class="large12" type="text" name="AP_SSID" value="'$AP_SSID'" required"></p>'
-	echo '                  </td>'
-	echo '                  <td>'
-	echo '                    <p>This is the SSID of the AP.&nbsp;&nbsp;'
-	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                    </p>'
-	echo '                    <div id="'$ID'" class="less">'
-	echo '                      <p>Set the SSID of your AP.</p>'
-	echo '                    </div>'
-	echo '                  </td>'
-	echo '                </tr>'
+	echo '            <form name="setconfig" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">AP SSID</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="AP_SSID"'
+	echo '                         value="'$AP_SSID'"'
+	echo '                         required'
+	echo '                  />'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>This is the SSID of the AP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Set the SSID of your AP.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#------------------------------------------AP Mode channel-------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150 center">'
-	echo '                    <p class="row">AP Channel</p>'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <p><input class="large12" type="text" name="AP_CHANNEL" value="'$AP_CHANNEL'" required"></p>'
-	echo '                  </td>'
-	echo '                  <td>'
-	echo '                    <p>This is the Wireless Channel of the AP.&nbsp;&nbsp;'
-	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                    </p>'
-	echo '                    <div id="'$ID'" class="less">'
-	echo '                      <p>Set the SSID of your AP.</p>'
-	echo '                    </div>'
-	echo '                  </td>'
-	echo '                </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">AP Channel</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="AP_CHANNEL"'
+	echo '                         value="'$AP_CHANNEL'"'
+	echo '                         required'
+	echo '                  />'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>This is the Wireless Channel of the AP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Set the SSID of your AP.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#------------------------------------------AP Mode IP address----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150 center">'
-	echo '                    <p class="row">IP Address of the AP</p>'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <p><input class="large12" type="text" name="AP_IP" value="'$AP_IP'" required pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"></p>'
-	echo '                  </td>'
-	echo '                  <td>'
-	echo '                    <p>This is the IP address used for the AP.&nbsp;&nbsp;'
-	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                    </p>'
-	echo '                    <div id="'$ID'" class="less">'
-	echo '                      <p>Clients that connect to this AP will get a DHCP address in starting at .10 of the same IP range.</p>'
-	echo '                    </div>'
-	echo '                  </td>'
-	echo '                </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">IP Address of the AP</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="AP_IP"'
+	echo '                         value="'$AP_IP'"'
+	echo '                         required'
+	echo '                         pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"'
+	echo '                  />'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>This is the IP address used for the AP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Clients that connect to this AP will get a DHCP address in starting at .10 of the same IP range.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#------------------------------------------AP Mode password------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150 center">'
-	echo '                    <p class="row">Password:</p>'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <p><input class="large12" type="password" name="AP_PASS" value="'$AP_PASS'" required pattern=".{8,63}"></p>'
-	echo '                  </td>'
-	echo '                  <td>'
-	echo '                    <p>WPA2 Passphrase to be used to access AP.&nbsp;&nbsp;'
-	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                    </p>'
-	echo '                    <div id="'$ID'" class="less">'
-	echo '                      <p>Default password is piCorePlayer.</p>'
-	echo '                    </div>'
-	echo '                  </td>'
-	echo '                </tr>'
-	#--------------------------------------Submit button-------------------------------------
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Password</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15"'
+	echo '                         type="password"'
+	echo '                         name="AP_PASS"'
+	echo '                         value="'$AP_PASS'"'
+	echo '                         required'
+	echo '                         pattern=".{8,63}"'
+	echo '                  />'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>WPA2 Passphrase to be used to access AP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Default password is piCorePlayer.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#--------------------------------------Buttons-------------------------------------------
 	pcp_toggle_row_shade
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150 center">'
-#	echo '                    <input type="hidden" name="COMMAND" value="setconfig">'
-	echo '                    <button type="submit" name="ACTION" value="Setconfig">Set AP Config</button>'
-	echo '                  </td>'
-	echo '                </tr>'
-	echo '              </form>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="Setconfig">Set AP Config</button>'
+	echo '                </td>'
+	echo '                <td></td>'
+	echo '                <td></td>'
+	echo '              </tr>'
+	echo '            </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_configure
 #----------------------------------------------------------------------------------------
+
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
