@@ -548,7 +548,7 @@ pcp_navigation() {
 		echo '          <table class="bggrey percent100">'
 		echo '            <tr class="warning">'
 		echo '              <td>'
-		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp'
+		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
 		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
 		echo '                </p>'
 		echo '              </td>'

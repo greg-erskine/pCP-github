@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-12
+# Version: 3.5.0 2018-02-20
 #	Cosmetic change to jivelite install. GE.
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
+#	HTML5 cleanup. GE.
 
 # Version: 3.22 2017-07-22
 #	Added Internet check IP. GE.
@@ -68,8 +69,8 @@ echo '          <legend>pCP System Tweaks</legend>'
 
 #----------------------------------------------Hostname---------------------------------
 pcp_tweaks_hostname() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="squeeze" action="writetohost.cgi" method="get">'
+	echo '          <form name="squeeze" action="writetohost.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -103,16 +104,16 @@ pcp_tweaks_hostname() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_hostname
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Timezone----------------------------------
 pcp_tweaks_timezone() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetotimezone.cgi" method="get">'
+	echo '          <form name="tzone" action="writetotimezone.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -144,12 +145,12 @@ pcp_tweaks_timezone() {
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="2">'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_timezone
 #----------------------------------------------------------------------------------------
@@ -158,8 +159,8 @@ pcp_tweaks_timezone() {
 # Note: changing passwords through a script over html is not very secure.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_password() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="password" action="changepassword.cgi" method="get">'
+	echo '          <form name="password" action="changepassword.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -192,16 +193,16 @@ pcp_tweaks_password() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Governor------------------------------------------
 pcp_tweaks_governor() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '          <form name="governor" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -241,8 +242,8 @@ pcp_tweaks_governor() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_governor
 
@@ -260,8 +261,8 @@ pcp_tweaks_overclock() {
 		0|2|3) DISABLED="disabled" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -300,8 +301,8 @@ pcp_tweaks_overclock() {
 	echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
@@ -322,8 +323,8 @@ pcp_tweaks_playertabs() {
 		no)  PLAYERTABSno="checked" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	echo '          <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -349,8 +350,8 @@ pcp_tweaks_playertabs() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_playertabs
 #----------------------------------------------------------------------------------------
@@ -362,8 +363,8 @@ pcp_tweaks_lmscontrols() {
 		no)  LMSCONTROLSno="checked" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
+	echo '          <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -389,8 +390,8 @@ pcp_tweaks_lmscontrols() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_lmscontrols
 #----------------------------------------------------------------------------------------
@@ -402,8 +403,8 @@ pcp_tweaks_hdmipower() {
 		off) HDMIPOWERoff="checked" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
+	echo '          <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -431,16 +432,16 @@ pcp_tweaks_hdmipower() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_hdmipower
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------LMS Web Port------------------------------
 pcp_tweaks_lmswebport() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="lmswebport" action="writetoconfig.cgi" method="get">'
+	echo '          <form name="lmswebport" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -470,20 +471,20 @@ pcp_tweaks_lmswebport() {
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="2">'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Internet Check IP------------------------------------
 pcp_tweaks_internet_check_ip() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
+	echo '          <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -491,7 +492,6 @@ pcp_tweaks_internet_check_ip() {
 	echo '                  <p>Internet check IP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-
 	echo '                  <input class="large16"'
 	echo '                         type="text"'
 	echo '                         name="INTERNET_CHECK_IP"'
@@ -499,7 +499,6 @@ pcp_tweaks_internet_check_ip() {
 	echo '                         title="[xxx.xxx.xxx.xxx]"'
 	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"'
 	echo '                  >'
-
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Enter non-default Internet check IP address&nbsp;&nbsp;'
@@ -540,8 +539,8 @@ pcp_tweaks_internet_check_ip() {
 	fi
 
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_internet_check_ip
 #----------------------------------------------------------------------------------------
@@ -553,8 +552,8 @@ pcp_tweaks_rotdash() {
 		no) ROTDASHno="checked" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="rotdash" action="writetoconfig.cgi" method="get">'
+	echo '          <form name="rotdash" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -581,8 +580,8 @@ pcp_tweaks_rotdash() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_rotdash
 #----------------------------------------------------------------------------------------
@@ -598,7 +597,6 @@ echo '</table>'
 # Wake-on-LAN table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_wol() {
-
 	case "$WOL" in
 		yes)
 			WOLyes="checked"
@@ -617,14 +615,14 @@ pcp_tweaks_wol() {
 	fi
 
 	#----------------------------------------------------------------------------------------
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Wake-on-LAN (WOL)</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="tzone" action="writetoconfig.cgi" method="get">'
+	echo '<form name="wol" action="writetoconfig.cgi" method="get">'
+	echo '  <table class="bggrey">'
+	echo '    <tr>'
+	echo '      <td>'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Wake-on-LAN (WOL)</legend>'
+	echo '            <table class="bggrey percent100">'
 	#----------------------------------WOL---------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
@@ -704,25 +702,25 @@ pcp_tweaks_wol() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;01:23:45:67:ab:cd:ef&gt;</p>'
 	echo '                    <p class="pointer" title="Click to use '$4'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
-	echo '                      <b>Example:</b> <span id="example'$ID'">'$4'</p>'
+	echo '                      <b>Example:</b> <span id="example'$ID'">'$4'</span></p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	#----------------------------------Submit button-----------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="2">'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
 	#----------------------------------------------------------------------------------------
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </td>'
+	echo '    </tr>'
+	echo '  </table>'
+	echo '</form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_wol
 #----------------------------------------------------------------------------------------
@@ -756,8 +754,8 @@ pcp_tweaks_auto_start() {
 	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
 	#----------------------------------------------------------------------------------------------
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="autostartfav" action="writetoautostart.cgi" method="get">'
+	echo '          <form name="autostartfav" action="writetoautostart.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -848,23 +846,22 @@ pcp_tweaks_auto_start() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="AUTOSTART" value="FAV"/>'
+	echo '                  <input type="hidden" name="AUTOSTART" value="FAV">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
 	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
-
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 
 	#----------------------------------------------Autostart LMS-----------------------------
 	# Decode variables using httpd, no quotes
 	AUTOSTARTLMS=`sudo $HTTPD -d $AUTOSTARTLMS`
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="autostartlms" action="writetoautostart.cgi" method="get">'
+	echo '          <form name="autostartlms" action="writetoautostart.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -920,16 +917,15 @@ pcp_tweaks_auto_start() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="AUTOSTART" value="LMS"/>'
+	echo '                  <input type="hidden" name="AUTOSTART" value="LMS">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
 	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
-
+	echo '            </table>'
+	echo '          </form>'
 	#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -970,31 +966,33 @@ fi
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="jivelite" action="writetojivelite.cgi" method="get">'
+	echo '          <form name="jivelite" action="writetojivelite.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-	pcp_tweaks_padding
+#	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column360">'
-	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
+	echo '                <td class="column150">'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                  <input type="submit" name="ACTION" value="Install">'
+		echo '                </td>'
+		echo '                <td class="column210">'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>&nbsp;Install Jivelite on pCP&nbsp;&nbsp;'
+		echo '                  <p>Install Jivelite on pCP&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will install Jivelite and VuMeters on pCP.</p>'
 		echo '                  </div>'
 	else
-		echo '                  <input type="submit" name="ACTION" value="Update" />'
-		echo '                  <input type="submit" name="ACTION" value="Reset" />'
-		echo '                  <input type="submit" name="ACTION" value="Remove" />'
+		echo '                  <input type="submit" name="ACTION" value="Update">'
+		echo '                  <input type="submit" name="ACTION" value="Reset">'
+		echo '                  <input type="submit" name="ACTION" value="Remove">'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>&nbsp;Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
+		echo '                  <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
@@ -1014,8 +1012,8 @@ pcp_tweaks_install_jivelite() {
 	fi
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_tweaks_padding
-	echo '            </form>'
+#	pcp_tweaks_padding
+
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
@@ -1030,12 +1028,11 @@ pcp_tweaks_install_jivelite() {
 pcp_tweaks_enable_jivelite() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Select" action="writetojivelite.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <input type="hidden" name="OPTION" value="JIVELITE" />'
-	echo '                  <input type="hidden" name="ACTION" value="Onboot" />'
-	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED' />'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+	echo '                  <input type="hidden" name="ACTION" value="Onboot">'
+	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED'>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1051,8 +1048,8 @@ pcp_tweaks_enable_jivelite() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_enable_jivelite
 #----------------------------------------------------------------------------------------
@@ -1064,8 +1061,8 @@ pcp_tweaks_vumeter() {
 
 	LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="vumeter" action= "writetojivelite.cgi" method="get">'
+	echo '          <form name="vumeter" action= "writetojivelite.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	pcp_tweaks_padding
@@ -1100,14 +1097,14 @@ pcp_tweaks_vumeter() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="OPTION" value="VUMETER" />'
-	echo '                  <input type="submit" name="SUBMIT" value="Save" />'
-	echo '                  <input type="submit" name="SUBMIT" value="Download" />'
+	echo '                  <input type="hidden" name="OPTION" value="VUMETER">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_tweaks_padding
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 
 	if [ $DEBUG -eq 1 ]; then
 		#========================================================================================
@@ -1152,15 +1149,15 @@ pcp_tweaks_vumeter() {
 [ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
-#---------------------------------------Screen rotatation--------------------------------
+#---------------------------------------Screen rotation----------------------------------
 pcp_tweaks_screenrotate() {
 	case "$SCREENROTATE" in
 		0|no) SCREEN0="checked" ;;
 		180|yes) SCREEN180="checked" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
+	echo '          <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1186,8 +1183,8 @@ pcp_tweaks_screenrotate() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
@@ -1204,8 +1201,8 @@ pcp_tweaks_screenrotate() {
 # Can't remember if this works or not. Did I do it? GE.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_screensize() {
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
+	echo '          <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1228,8 +1225,9 @@ pcp_tweaks_screensize() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
+
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<p class="debug">[ DEBUG ] $JL_SCREEN_WIDTH: '$JL_SCREEN_WIDTH'<br />'
@@ -1277,8 +1275,8 @@ pcp_tweaks_lirc() {
 		no) IR_LIRC_N="checked" ;;
 	esac
 
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="LIRC" action="lirc.cgi" method="get">'
+	echo '          <form name="LIRC" action="lirc.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1306,8 +1304,8 @@ pcp_tweaks_lirc() {
 	echo '                  <input type="submit" name="SUBMIT" value="LIRC page">'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 	#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -1349,10 +1347,10 @@ pcp_tweaks_audio_tweaks() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Audio tweaks</legend>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '        <legend>Audio tweaks</legend>'
+	echo '          <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 
 	#-------------------------------------------Squeezelite--------------------------------
@@ -1454,7 +1452,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                      <li>Save ALSA settings by typing "sudo alsactl store".</li>'
 	echo '                      <li>Backup ALSA settings by typing "pcp bu".</li>'
 	echo '                      <li>Select Custom option on this Tweak page.</li>'
-	echo '                    <ol>'
+	echo '                    </ol>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1500,7 +1498,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                      <li>Login via ssh.</li>'
 	echo '                      <li>Use "sudo alsamixer -D equal" and adjust the settings, press escape.</li>'
 	echo '                      <li>Backup ALSA settings by typing "sudo filetool.sh -b" or use "Backup button" on the Main page.</li>'
-	echo '                    <ol>'
+	echo '                    </ol>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1526,9 +1524,9 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -1567,12 +1565,11 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>USB Audio tweaks</legend>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>USB Audio tweaks</legend>'
+	echo '          <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-
 	#-------------------------------------------dwc_otg.speed--------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
@@ -1650,7 +1647,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                <td class="column150">'
 	echo '                  <p>FIQ-Split acceleration</p>'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan="2">'
 	echo '                  <select class="large50" name="FIQ">'
 	echo '                    <option value="0x1" '$selected1'>0x1 Accelerate non-periodic split transactions</option>'
 	echo '                    <option value="0x2" '$selected2'>0x2 Accelerate periodic split transactions</option>'
@@ -1666,7 +1663,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                <td class="column150">'
 	echo '                  <p>&nbsp;</p>'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan="2">'
 	echo '                  <p>Change FIQ_FSM USB settings&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -1704,9 +1701,9 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -1740,10 +1737,10 @@ pcp_tweaks_cron() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="cronjob" action="writetocronjob.cgi" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Schedule CRON jobs</legend>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Schedule CRON jobs</legend>'
+	echo '          <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
@@ -1753,11 +1750,31 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '                <td class="column420">'
 	echo '                  <label for="RB_H">Hour:</label>'
-	echo '                  <input class="small2" type="text" name="RB_H" value="'$RB_H'" maxlength="2" pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$" />'
+	echo '                  <input id="RB_H"'
+	echo '                         class="small2"'
+	echo '                         type="text"'
+	echo '                         name="RB_H"'
+	echo '                         value="'$RB_H'"'
+	echo '                         maxlength="2"'
+	echo '                         pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$"'
+	echo '                  >'
 	echo '                  <label for="RB_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
-	echo '                  <input class="small2" type="text" name="RB_WD" value="'$RB_WD'" maxlength="1" pattern="^([0-6]|\*)$" />'
+	echo '                  <input id="RB_WD"'
+	echo '                         class="small2"'
+	echo '                         type="text"'
+	echo '                         name="RB_WD"'
+	echo '                         value="'$RB_WD'"'
+	echo '                         maxlength="1" pattern="^([0-6]|\*)$"'
+	echo '                  >'
 	echo '                  <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-	echo '                  <input class="small2" type="text" name="RB_DMONTH" value="'$RB_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$" />'
+	echo '                  <input id="RB_DMONTH"'
+	echo '                         class="small2"'
+	echo '                         type="text"'
+	echo '                         name="RB_DMONTH"'
+	echo '                         value="'$RB_DMONTH'"'
+	echo '                         maxlength="2"'
+	echo '                         pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <input class="small1" type="radio" name="REBOOT" value="Enabled" '$REBOOT_Y'>Enabled'
@@ -1771,18 +1788,38 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '                <td class="column420">'
 	echo '                  <label for="RS_H">Hour:</label>'
-	echo '                  <input class="small2" type="text" name="RS_H" value="'$RS_H'" maxlength="2" pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$" />'
+	echo '                  <input id="RS_H"'
+	echo '                         class="small2"'
+	echo '                         type="text"'
+	echo '                         name="RS_H"'
+	echo '                         value="'$RS_H'"'
+	echo '                         maxlength="2"'
+	echo '                         pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$"'
+	echo '                  >'
 	echo '                  <label for="RS_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
-	echo '                  <input class="small2" type="text" name="RS_WD" value="'$RS_WD'" maxlength="1" pattern="^([0-6]|\*)$" />'
+	echo '                  <input id="RS_WD"'
+	echo '                         class="small2"'
+	echo '                         type="text"'
+	echo '                         name="RS_WD"'
+	echo '                         value="'$RS_WD'"'
+	echo '                         maxlength="1"'
+	echo '                         pattern="^([0-6]|\*)$"'
+	echo '                  >'
 	echo '                  <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-	echo '                  <input class="small2" type="text" name="RS_DMONTH" value="'$RS_DMONTH'" maxlength="2" pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$" />'
+	echo '                  <input id="RS_DMONTH"'
+	echo '                         class="small2"'
+	echo '                         type="text"'
+	echo '                         name="RS_DMONTH"'
+	echo '                         value="'$RS_DMONTH'"'
+	echo '                         maxlength="2"'
+	echo '                         pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"'
+	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <input class="small1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
 	echo '                  <input class="small1" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
-
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
 	echo '                  <p></p>'
@@ -1808,14 +1845,13 @@ pcp_tweaks_cron() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Custom Cron command</td>'
-	echo '                <td>'
+	echo '                <td colspan="2">'
 	echo '                  <input class="large60" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
 	echo '                </td>'
 	echo '              </tr>'
-
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150"></td>'
-	echo '                <td>'
+	echo '                <td colspan="2">'
 	echo '                  <p>Add user defined commands to the cron scheduler&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -1864,9 +1900,9 @@ pcp_tweaks_cron() {
 	fi
 
 	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -1898,7 +1934,7 @@ pcp_tweaks_user_commands() {
 	echo '                         name="USER_COMMAND_1"'
 	echo '                         value="'$USER_COMMAND_1'"'
 	echo '                         maxlength="254"'
-	echo '                         title="Invalid characters: &amp &quot"'
+	echo '                         title="Invalid characters: &amp; &quot;"'
 	echo '                         pattern="[^\&\x22]+"'
 	echo '                  >'
 	echo '                </td>'
@@ -1913,7 +1949,7 @@ pcp_tweaks_user_commands() {
 	echo '                         name="USER_COMMAND_2"'
 	echo '                         value="'$USER_COMMAND_2'"'
 	echo '                         maxlength="254"'
-	echo '                         title="Invalid characters: &amp &quot"'
+	echo '                         title="Invalid characters: &amp; &quot;"'
 	echo '                         pattern="[^\&\x22]+"'
 	echo '                  >'
 	echo '                </td>'
@@ -1928,12 +1964,12 @@ pcp_tweaks_user_commands() {
 	echo '                         name="USER_COMMAND_3"'
 	echo '                         value="'$USER_COMMAND_3'"'
 	echo '                         maxlength="254"'
-	echo '                         title="Invalid characters: &amp &quot"'
+	echo '                         title="Invalid characters: &amp; &quot;"'
 	echo '                         pattern="[^\&\x22]+"'
 	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '              <script type="text/javascript">'
+	echo '              <script>'
 	echo '                 var cmd1 = "'$USER_COMMAND_1'";'
 	echo '                 var cmd2 = "'$USER_COMMAND_2'";'
 	echo '                 var cmd3 = "'$USER_COMMAND_3'";'
@@ -1965,7 +2001,7 @@ pcp_tweaks_user_commands() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan=2>'
-	echo '                  <input type="hidden" name="AUTOSTART" value="CMD"/>'
+	echo '                  <input type="hidden" name="AUTOSTART" value="CMD">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
