@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-19
+# Version: 3.5.0 2018-02-21
 #	Add page button for AP mode. PH.
 #	Add Bluetooth enable/disable. PH.
-#	Cosmetic cleanup. GE.
+#	HTML5 and cosmetic cleanup. GE.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -14,7 +14,7 @@
 #	Minor update. GE.
 
 # Version: 2.06 2016-04-27
-#	Add ability to blacklist RPi3 builtin wifi. PH.
+#	Add ability to blacklist RPi3 built-in wifi. PH.
 
 # Version: 0.01 2014-06-25
 #	Original. GE.
@@ -23,7 +23,7 @@
 . pcp-rpi-functions
 . pcp-lms-functions
 
-pcp_html_head "WIFI Settings" "SBP"
+pcp_html_head "WIFI Settings" "SBP" "nobody"
 
 echo ''
 echo '<body onload=frmLoad()>'
@@ -31,7 +31,7 @@ echo '<body onload=frmLoad()>'
 #========================================================================================
 # Javascript to disable form fields when wifi is off
 #----------------------------------------------------------------------------------------
-echo '<script type="text/javascript">'
+echo '<script>'
 echo 'var enbl = "'$WIFI'";'
 echo 'var encr = "'$ENCRYPTION'";'
 echo ''

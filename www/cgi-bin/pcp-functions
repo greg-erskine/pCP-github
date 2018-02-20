@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-02-20
+# Version: 3.5.0 2018-02-21
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
@@ -11,6 +11,7 @@
 #	Change pcp_restart_required to non-popup, and set return page. PH.
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
 #	HTML5 cleanup. GE.
+#	Added "nobody" parameter to pcp_html_head. GE.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -481,6 +482,7 @@ pcp_html_head() {
 	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
 	echo ''
+	[ "$3" != "nobody" ] &&
 	echo '<body>'
 	echo '<!-- End of pcp_html_head -->'
 }
