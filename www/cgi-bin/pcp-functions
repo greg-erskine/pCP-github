@@ -2,14 +2,15 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-02-10
-#	Busybox >1.26 changed wget -s to --spider command line option to be compatable with gnu wget. PH.
+# Version: 3.5.0 2018-02-20
+#	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
 #	Add APMODE config variable. PH
 #	Add reboot pending notification. PH.
 #	Change pcp_restart_required to non-popup, and set return page. PH.
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
+#	HTML5 cleanup. GE.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -55,7 +56,7 @@
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
-#	Added Hifiberry Digi+ Pro support. SBP.
+#	Added HiFiBerry Digi+ Pro support. SBP.
 #	Updated FIQ-split. SBP.
 #	Added pcp_green_tick, pcp_red_cross. GE.
 #	Added PICORE_REPO_1, PICORE_REPO_2. GE.
@@ -64,7 +65,7 @@
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
-#	Added enable/disable onboard sound for Hifiberry DAC+ in shairport. SBP.
+#	Added enable/disable onboard sound for HiFiBerry DAC+ in shairport. SBP.
 #	Added clean-up of the sound drivers in the pcp_reset_config_to_defaults. SBP.
 
 # Version: 3.00 2016-08-09
@@ -464,14 +465,14 @@ pcp_html_head() {
 	echo '<html>'
 	echo '<head>'
 	echo '  <meta charset="UTF-8">'
-	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
-	echo '  <meta http-equiv="Pragma" content="no-cache">'
-	echo '  <meta http-equiv="Expires" content="0">'
-	if [ $DEBUG -eq 0 ]; then
-		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
-			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
-		fi
-	fi
+#	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
+#	echo '  <meta http-equiv="Pragma" content="no-cache">'
+#	echo '  <meta http-equiv="Expires" content="0">'
+#	if [ $DEBUG -eq 0 ]; then
+#		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
+#			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
+#		fi
+#	fi
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
@@ -488,14 +489,14 @@ pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td height="148">'
+	echo '    <td  style="height:148px">'
 	echo '      <p class="banner">'
 	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
 	echo '        <map name="hotspot">'
 	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
-	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100">'
-	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0">'
-	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi">'
+	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
+	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
+	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
 	echo '        </map>'
 	echo '      </p>'
 	echo '    </td>'

@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-07
+# Version: 3.5.0 2018-02-20
 #	Added setting of which squeezelite binary to use. PH.
 #	Increase ALSA buffer field width, when size expressed in bytes. PH.
 #	Added dsd to codec, xcodec field. PH.
 #	Change -D field based on which binary is being used. PH.
 #	Add form some validation prior to submit. PH.
+#	HTML5 cleanup. GE.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -99,17 +100,17 @@ pcp_cards_controls() {
 # PROBLEM???: See routines below. If RPi model is unknown, RP_MODEL will be set twice???
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
-	# RPI is P5-connetion no HAT model or unknown
+	# RPi is P5-connetion no HAT model or unknown
 	RP_MODEL=ALL_NO_HAT
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
-	# RPI is 40 pin HAT model
+	# RPi is 40 pin HAT model
 	RP_MODEL=HAT_ALL
 fi
 
-[ $MODE -ge $MODE_BETA ] && RP_MODEL=ALL
 # Mode is beta and all models will be shown
+[ $MODE -ge $MODE_BETA ] && RP_MODEL=ALL
 
 #========================================================================================
 # Populate sound card drop-down options
@@ -136,12 +137,14 @@ echo '                  <input type="submit"'
 echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
-# echo '                  <p>Audio output</p>'
 echo '                </td>'
 echo '                <td class="column250">'
 echo '                  <select name="AUDIO">'
 
-awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
+# GE. This does not produce correct HTML5 code.
+#awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
+
+cat /tmp/dropdown.cfg | grep $RP_MODEL | sed 's/notselected//' | awk -F: '{ print "<option value=\""$1"\" "$2">"$3"</option>"}'
 
 echo '                  </select>'
 echo '                </td>'
@@ -164,8 +167,9 @@ if [ x"" != x"$CONTROL_PAGE" ]; then
 	echo '                <td class="column150">'
 	echo '                  <input type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
 	echo '                </td>'
-	echo '                <td>'
-	[ -f $REBOOT_PENDING ] && echo '                  <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
+	echo '                <td colspan="2">'
+	[ -f $REBOOT_PENDING ] &&
+	echo '                  <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -589,11 +593,12 @@ pcp_squeezelite_upsample_settings() {
 	echo '                    <p>&lt;recipe&gt;:&lt;flags&gt;:&lt;attenuation&gt;:&lt;precision&gt;:<br />'
 	echo '                       &lt;passband_end&gt;:&lt;stopband_start&gt;:&lt;phase_response&gt;</p>'
 	echo '                    <ul>'
-	echo '                      <li>recipe = (v|h|m|l|q)(L|I|M)(s) [E|X]</li>'
+	echo '                      <li>recipe = (v|h|m|l|q)(L|I|M)(s) [E|X]'
 	echo '                        <ul>'
 	echo '                          <li>E = exception - resample only if native rate not supported</li>'
 	echo '                          <li>X = async - resample to max rate for device, otherwise to max sync rate</li>'
 	echo '                        </ul>'
+	echo '                      </li>'
 	echo '                      <li>flags = num in hex</li>'
 	echo '                      <li>attenuation = attenuation in dB to apply (default is -1db if not explicitly set)</li>'
 	echo '                      <li>precision = number of bits precision (HQ = 20. VHQ = 28)</li>'
@@ -837,12 +842,11 @@ pcp_squeezelite_unmute() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
-	echo '                         type="txt"'
+	echo '                         type="text"'
 	echo '                         name="UNMUTE"'
 	echo '                         value="'$UNMUTE'"'
 	echo '                         title="Unmute ALSA control"'
 	echo '                  >'
-	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set ALSA control to unmute and set to full volume (-U)&nbsp;&nbsp;'
@@ -877,7 +881,7 @@ pcp_squeezelite_volume() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
-	echo '                         type="txt"'
+	echo '                         type="text"'
 	echo '                         name="ALSAVOLUME"'
 	echo '                         value="'$ALSAVOLUME'"'
 	echo '                         title="ALSA volume control"'
@@ -1018,7 +1022,7 @@ pcp_squeezelite_various_input() {
 #========================================================================================
 # Javascript for form validation
 #----------------------------------------------------------------------------------------
-echo '<script type="text/javascript">'
+echo '<script>'
 echo 'function validate() {'
 echo '    if (document.squeeze.POWER_SCRIPT.value != "" && document.squeeze.POWER_GPIO.value != ""){'
 echo '      alert("Power GPIO and Power Script must not be\ndefined at the same time.");'
@@ -1144,15 +1148,14 @@ pcp_squeezelite_binary() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td  class="column150">'
+	echo '                <td class="column150">'
 	echo '                  <button type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite Binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
 	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 	echo '                </td>'
-	if [ $DISABLE != "" ]; then
-		echo '                <td class="cospan 2">'
-		echo '                  <p>There is a custom binary installed in the wrong location. (See custom setting above).</p>'
-		echo '                </td>'
-	fi
+	echo '                <td colspan="2">'
+	[ $DISABLE != "" ] &&
+	echo '                  <p>There is a custom binary installed in the wrong location. (See custom setting above).</p>'
+	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
 	echo '            </table>'
