@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-18
+#	HTML5 cleanup. GE.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -10,11 +13,11 @@
 # Version: 3.10 2017-01-06
 #	Changes for Squeezelite extension. PH.
 
-# Version: 3.00 2016-08-18 PH
-#   Updated forum thread Link, added blank Targets
+# Version: 3.00 2016-08-18
+#	Updated forum thread Link, added blank Targets. PH.
 
-# Version: 0.01 2014-06-25 SBP
-#	Original.
+# Version: 0.01 2014-06-25
+#	Original. SBP.
 
 . pcp-functions
 . pcp-rpi-functions
@@ -62,9 +65,8 @@ echo '                   <a href="https://sites.google.com/site/picoreplayer/hom
 echo '                   A forum discussion can be found '
 echo '                   <a href="http://forums.slimdevices.com/showthread.php?105997-Announce-piCorePlayer-3-00" target="_blank">here</a> '$EXTERNALLINK'.</p>'
 echo '                <h2>Please donate if you like piCorePlayer</h2>'
-echo '                <p class="center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;'
-echo 'lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">'
-echo '                   <img border="0" src="../images/donate.gif" alt="Donate"/></a> '$EXTERNALLINK'</p>'
+echo '                <p class="center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">'
+echo '                   <img style="border:0px;" src="../images/donate.gif" alt="Donate"></a> '$EXTERNALLINK'</p>'
 echo '                <p>//Paul, Ralphy, Steen and Greg</p>'
 echo '              </td>'
 echo '            </tr>'
@@ -89,7 +91,6 @@ if [ $MODE -ge $MODE_BASIC ]; then
 	echo '              </td>'
 	echo '            </tr>'
 	echo '            <tr class="padding">'
-	echo '              <td></td>'
 	echo '              <td></td>'
 	echo '            </tr>'
 	echo '            <tr>'
