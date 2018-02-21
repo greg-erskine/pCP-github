@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-21
+#	HTML5 cleanup. GE.
+
 # Version: 3.23 2017-10-26
 #	Minor cosmetic changes. GE.
 
@@ -13,7 +16,7 @@
 #	Added Extra Text fields. SBP.
 
 # Version: 3.10 2017-01-06
-#	First version to control volume and eventaully filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
+#	First version to control volume and eventually filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -166,8 +169,8 @@ fi
 
 row_padding() {
 	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
+	echo '              <td colspan="3">'
+	echo '              </td>'
 	echo '            </tr>'
 }
 
@@ -221,7 +224,7 @@ pcp_soundcard_SMC_Analogue_options() {
 		echo '              <td class="'$COL1'">'
 		echo '                <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOGUE_CHECK"'>'
 		echo '              </td>'
-		echo '              <td class="'$COL2'">'
+		echo '              <td class="'$COL2'" colspan="2">'
 		echo '                <p>Toggle a 6dB increase on analog output level</p>'
 		echo '              </td>'
 		echo '            </tr>'
@@ -230,7 +233,7 @@ pcp_soundcard_SMC_Analogue_options() {
 			echo '              <td class="'$COL1'">'
 			echo '                <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOGUE_BOOST_CHECK"'>'
 			echo '              </td>'
-			echo '              <td class="'$COL2'">'
+			echo '              <td class="'$COL2'" colspan="2">'
 			echo '                <p>Toggle a 0.80dB increase on analog output level</p>'
 			echo '              </td>'
 			echo '            </tr>'
@@ -264,8 +267,8 @@ pcp_allo_piano_plus_custom_controls(){
 	done
 	echo '                </select>'
 	echo '              </td>'
-	echo '              <td class="'$COL2'">'
-	echo '                <p>Subwoofer Mode.&nbsp;&nbsp'
+	echo '              <td class="'$COL2'" colspan="2">'
+	echo '                <p>Subwoofer Mode.&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -296,7 +299,7 @@ pcp_allo_piano_plus_custom_controls(){
 			done
 			echo '                </select>'
 			echo '              </td>'
-			echo '              <td class="'$COL2'">'
+			echo '              <td class="'$COL2'" colspan="2">'
 			echo '                <p>Set the Subwoofer Crossover Frequency when in 2.1 or 2.2 mode.</p>'
 			echo '              </td>'
 			echo '            </tr>'
@@ -326,7 +329,7 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '                </p>'
 			echo '              </td>'
 			echo '              <td>'
-			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
+			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsp;pct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
 			echo '              </td>'
 			echo '            </tr>'
 		;;
@@ -358,7 +361,7 @@ pcp_soundcard_volume_options() {
 		echo '                </p>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsppct of max. This equals: <b>'"$ACTUAL_DB"'</b>'
+		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsp;pct of max. This equals: <b>'"$ACTUAL_DB"'</b>'
 		echo '              </td>'
 		echo '            </tr>'
 		row_padding
@@ -458,12 +461,12 @@ pcp_disable_enable_buildin_sound() {
 	if [ "$GENERIC_CARD" != "ONBOARD" ]; then
 		pcp_start_row_shade
 		pcp_incr_id
-		pcp_table_top "Raspberry Pi Builtin Audio" "colspan=\"2\""
+		pcp_table_top "Raspberry Pi Built-in Audio"
 		echo '                <p><b>Enable/disable onboard soundcard (after a reboot)</b></p>'
 		pcp_table_middle "class=\"column120 center\""
 		echo '                <p><input type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'>'
 		echo '              </td>'
-		echo '              <td>'
+		echo '              <td colspan="2">'
 		echo '                <p>When checked - Onboard soundcard is enabled&nbsp;&nbsp;'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
@@ -482,7 +485,7 @@ pcp_disable_enable_buildin_sound() {
 echo '<form name="manual_adjust" action="'$0'" method="get">'
 pcp_start_row_shade
 pcp_incr_id
-pcp_table_top "ALSA Mixer Adjustment for: $LISTNAME" "colspan=\"2\""
+pcp_table_top "ALSA Mixer Adjustment for: $LISTNAME" "colspan=\"3\""
 
 if [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENERIC_CARD" = "HIFIBERRY_AMP" ]; then
 	pcp_soundcard_DSP_options
@@ -497,8 +500,11 @@ fi
 
 [ x"$GENERIC_CARD" = x"" ] && echo "$TEXT"
 
-# HTML Formatting Cleanup for Onboard Audio setting only
-[ "$GENERIC_CARD" = "ONBOARD" ] && ( echo '            <tr class="'$ROWSHADE'">'; echo '              <td>' )
+# HTML formatting Cleanup for built-in audio setting only
+if [ "$GENERIC_CARD" = "ONBOARD" ]; then
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td colspan="3">'
+fi
 pcp_table_end
 
 pcp_disable_enable_buildin_sound
