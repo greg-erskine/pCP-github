@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-22
+#	HTML5 cleanup. GE.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -47,7 +50,6 @@
 . /etc/init.d/tc-functions
 . pcp-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "Add piCore extension" "GE"
 
@@ -115,7 +117,7 @@ pcp_delete_extn() {
 	echo '                <textarea class="inform" style="height:80px">'
 	                        sudo -u tc tce-audit builddb
 	                        echo
-	                        echo After a reboot these extensions will be permanently deleted:
+	                        echo 'After a reboot these extensions will be permanently deleted:'
 	                        sudo -u tc tce-audit delete $EXTN
 	echo '                </textarea>'
 	echo '              </td>'
@@ -504,7 +506,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
+	echo '                <td colspan="3">'
 
                             if [ $(pcp_extn_is_installed mirrors) -eq 0 ]; then
                               echo '                  <input type="submit" name="SUBMIT" value="Set">'
@@ -642,7 +644,7 @@ echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
+echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Info">'
 echo '                  <input type="submit" name="SUBMIT" value="Load">'
 echo '                </td>'
@@ -699,7 +701,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Info">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 	echo '                </td>'
@@ -753,7 +755,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Info">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 	echo '                </td>'
@@ -806,7 +808,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Info">'
 	echo '                  <input type="submit" name="SUBMIT" value="Install">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
@@ -861,7 +863,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 		echo '              </tr>'
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
+		echo '                <td colspan="3">'
 		echo '                  <input type="submit" name="SUBMIT" value="Info">'
 		echo '                </td>'
 		echo '              </tr>'
