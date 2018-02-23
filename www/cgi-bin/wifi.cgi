@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-21
+# Version: 3.5.0 2018-02-24
 #	Add page button for AP mode. PH.
 #	Add Bluetooth enable/disable. PH.
 #	HTML5 and cosmetic cleanup. GE.
@@ -23,7 +23,7 @@
 . pcp-rpi-functions
 . pcp-lms-functions
 
-pcp_html_head "WIFI Settings" "SBP" "nobody"
+pcp_html_head "WIFI Settings" "SBP" "" "" "nobody"
 
 echo ''
 echo '<body onload=frmLoad()>'

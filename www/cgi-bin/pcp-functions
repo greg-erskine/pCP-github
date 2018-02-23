@@ -456,7 +456,7 @@ pcp_controls_mac_address() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-# $1 = title, $2 = author, $3 = seconds, $4 = url
+# $1 = title, $2 = author, $3 = seconds, $4 = url, $5 = "nobody" tag
 #----------------------------------------------------------------------------------------
 pcp_html_head() {
 	echo 'Content-Type: text/html'
@@ -469,11 +469,11 @@ pcp_html_head() {
 #	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
 #	echo '  <meta http-equiv="Pragma" content="no-cache">'
 #	echo '  <meta http-equiv="Expires" content="0">'
-#	if [ $DEBUG -eq 0 ]; then
-#		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
-#			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
-#		fi
-#	fi
+	if [ $DEBUG -eq 0 ]; then
+		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
+			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
+		fi
+	fi
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
@@ -482,7 +482,7 @@ pcp_html_head() {
 	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
 	echo ''
-	[ "$3" != "nobody" ] &&
+	[ "$5" != "nobody" ] &&
 	echo '<body>'
 	echo '<!-- End of pcp_html_head -->'
 }
