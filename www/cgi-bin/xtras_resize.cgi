@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-23
+#	HTML5 cleanup. GE.
+
 # Version: 3.21 2017-07-01
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 #	Make sure we are using busybox fdisk and strip bootable flag from output. PH.
 
 # Version: 3.20 2017-03-08
@@ -13,17 +16,8 @@
 # Version: 3.00 2016-07-08
 #	Removed pcp_mode_lt_beta. GE.
 
-# Version: 0.04 2016-01-26 GE
-#	Removed manual resize option.
-
-# Version: 0.03 2015-11-27 GE
-#	Added autoresize.
-
-# Version: 0.02 2015-06-02 GE
-#	Minor updates.
-
-# Version: 0.01 2015-02-17 GE
-#   Original version.
+# Version: 0.01 2015-02-17
+#	Original version. GE.
 
 . pcp-functions
 
@@ -33,8 +27,6 @@ pcp_banner
 pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
-
-#DEBUG=1
 
 pcp_convert_to_mbytes() {
 	LEN=$((${#1} - 6))
@@ -93,7 +85,7 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 #========================================================================================
-# Resize or watiing tables
+# Resize or waiting tables
 #----------------------------------------------------------------------------------------
 if [ "$SUBMIT" = "Resize" ]; then
 	echo "SIZE=$SD_SIZE" > /home/tc/partition_size.cfg
@@ -136,8 +128,8 @@ else
 		echo '      <div class="row">'
 		echo '        <fieldset>'
 		echo '        <legend>Auto resize partition</legend>'
-		echo '          <table class="bggrey percent100">'
-		echo '            <form name="auto" action="xtras_resize.cgi" method="get">'
+		echo '          <form name="auto" action="xtras_resize.cgi" method="get">'
+		echo '            <table class="bggrey percent100">'
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column210">'
 		echo '                  <select class="large16" name="SD_SIZE">'
@@ -163,24 +155,24 @@ else
 		echo '                </td>'
 		echo '              </tr>'
 		echo '              <tr class="warning">'
-		echo '                <td>'
+		echo '                <td colspan="2">'
 		if [ "$AVAILABLE_SPACE" -gt 100 ]; then
 			echo '                  <p style="color:white">'
-			echo '                    <input type="submit" name="SUBMIT" value="Resize" />&nbsp;&nbsp;Click to start the auto resize partition process.'
+			echo '                    <input type="submit" name="SUBMIT" value="Resize">&nbsp;&nbsp;Click to start the auto resize partition process.'
 			echo '                  </p>'
 		else
 			echo '                  <p style="color:white"><b>WARNING:</b> Not enough space available for expansion (only '$AVAILABLE_SPACE' MB).</p>'
 		fi
 		echo '                </td>'
 		echo '              </tr>'
-		echo '            </form>'
-		echo '          </table>'
+		echo '            </table>'
+		echo '          </form>'
 		echo '        </fieldset>'
 		echo '      </div>'
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		
+
 		#========================================================================================
 		# Partition information
 		#----------------------------------------------------------------------------------------
