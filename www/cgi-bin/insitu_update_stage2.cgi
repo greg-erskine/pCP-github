@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.5.0 2018-02-11
-#	Updates for Kernel 4.14.18 and 9.x repo
+# Version 3.5.0 2018-02-24
+#	Updates for Kernel 4.14.21 and 9.x repo
 
 # Version 3.22 2017-09-16
 #	Updates for Kernel 4.9.50
@@ -99,7 +99,7 @@ case "${VERSION}" in
 	;;
 	piCorePlayer3.5.0*)
 		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=26700
+		BOOT_SIZE_REQUIRED=26900
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -206,7 +206,9 @@ pcp_get_insitu_cfg() {
 #========================================================================================
 # Download kernel modules for new kernel
 #----------------------------------------------------------------------------------------
+
 pcp_get_kernel_modules() {
+	BUILD=$(getBuild)
 #	Removed uudecode, if needed look at git history on prior to pcp3.21
 	case "${VERSION}" in
 		piCorePlayer2.06)
@@ -252,8 +254,13 @@ pcp_get_kernel_modules() {
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.14.18-rt15;;
-				*) NEWKERNELVER=4.14.18;;
+				*pcpAudioCore*)
+					case $BUILD in
+						armv6) NEWKERNELVER=4.14.21;;
+						armv7) NEWKERNELVER=4.14.21-rt17;;
+					esac
+				;;
+				*) NEWKERNELVER=4.14.21;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -266,7 +273,6 @@ pcp_get_kernel_modules() {
 #		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
-		BUILD=$(getBuild)
 		case $BUILD in
 			armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
 			armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
