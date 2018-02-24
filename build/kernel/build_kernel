@@ -242,10 +242,15 @@ for i in ${!options[@]}; do
 			else
 				KVERSION="${KVERSION}${LOCALVERSION}+"
 			fi
-			echo "Building for kernel $KVERSION"
-			echo 
+
+			SAMEKERNELCOUNT=$(find ${BASEWD}/pcpCore/$RPIARCH/kernel/ -maxdepth 1 | grep $KVERSION | wc -l)
+			[ $((SAMEKERNELCOUNT++)) -eq 0 ] && SAMEKERNELCOUNT="" || SAMEKERNELCOUNT="${SAMEKERNELCOUNT}-"
+
+			echo "Building for kernel ${KVERSION}:"
+			echo "  Saved in ./pcpCore/$RPIARCH/kernel/$KVERSION^${SAMEKERNELCOUNT}${DATESTAMP}"
+			echo
 			echo "*****************************************************************"
-			echo 
+			echo
 
 			case $LOCALVERSION in
 			   *Audio*)
@@ -318,9 +323,9 @@ for i in ${!options[@]}; do
 				echo " Copying Binaries to distribution"
 
 			#	RPIARCH is either armv6 or armv7
-				MODPATH="${BASEWD}/pcpCore/${RPIARCH}/modules/${KVERSION}^${DATESTAMP}"
-				KERNELPATH="${BASEWD}/pcpCore/${RPIARCH}/kernel/${KVERSION}^${DATESTAMP}"
-				CFGPATH="${BASEWD}/pcpCore/${RPIARCH}/configs/${KVERSION}^${DATESTAMP}"
+				MODPATH="${BASEWD}/pcpCore/${RPIARCH}/modules/${KVERSION}^${SAMEKERNELCOUNT}${DATESTAMP}"
+				KERNELPATH="${BASEWD}/pcpCore/${RPIARCH}/kernel/${KVERSION}^${SAMEKERNELCOUNT}${DATESTAMP}"
+				CFGPATH="${BASEWD}/pcpCore/${RPIARCH}/configs/${KVERSION}^${SAMEKERNELCOUNT}${DATESTAMP}"
 
 				if [ ! -d $MODPATH ]; then
 					mkdir -p $MODPATH
