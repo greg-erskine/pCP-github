@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5 2018-02-17
+# Version: 3.5.0 2018-02-28
 #	Fixed removal of Jivelite. SBP.
 #	Cleanup. GE.
-#	Added check that pCP Sourceforge Repository is available. GE.
+#	REMOVED. Added check that pCP Sourceforge Repository is available. GE.
 
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
@@ -88,8 +88,8 @@ pcp_check_repos() {
 
 pcp_download_jivelite() {
 	JIVE_SUCCESS=0
-	pcp_check_repos
-	if [ $? -eq 0 ]; then
+#	pcp_check_repos
+#	if [ $? -eq 0 ]; then
 		echo '[ INFO ] Downloading Jivelite from the pCP Repository...'
 		echo '[ INFO ] Downloading will take a few minutes. Please wait...'
 
@@ -100,7 +100,7 @@ pcp_download_jivelite() {
 		else
 			echo '[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!'
 		fi
-	fi
+#	fi
 }
 
 pcp_install_jivelite() {
@@ -131,8 +131,8 @@ pcp_delete_jivelite() {
 }
 
 pcp_download_vumeters() {
-	pcp_check_repos
-	if [ $? -eq 0 ]; then
+#	pcp_check_repos
+#	if [ $? -eq 0 ]; then
 		echo '[ INFO ] Downloading VU Meters from the pCP Sourceforge Repository...'
 		for i in $AVAILABLE_VUMETERS
 		do
@@ -144,7 +144,7 @@ pcp_download_vumeters() {
 				echo '[ ERROR ] Download unsuccessful, MD5 mismatch, try again later!'
 			fi
 		done
-	fi
+#	fi
 }
 
 pcp_install_default_vumeter() {

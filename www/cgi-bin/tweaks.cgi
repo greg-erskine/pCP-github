@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-20
+# Version: 3.5.0 2018-02-28
 #	Cosmetic change to jivelite install. GE.
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
 #	HTML5 cleanup. GE.
@@ -966,16 +966,17 @@ fi
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
-	echo '          <form name="jivelite" action="writetojivelite.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-#	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-		echo '                  <input type="submit" name="ACTION" value="Install">'
+		echo '                <td class="column150">'
+		echo '                  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
+		echo '                    <input type="submit" name="ACTION" value="Install">'
+		echo '                  </form>'
 		echo '                </td>'
 		echo '                <td class="column210">'
 		echo '                </td>'
@@ -986,10 +987,15 @@ pcp_tweaks_install_jivelite() {
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will install Jivelite and VuMeters on pCP.</p>'
 		echo '                  </div>'
+		echo '                </td>'
 	else
-		echo '                  <input type="submit" name="ACTION" value="Update">'
-		echo '                  <input type="submit" name="ACTION" value="Reset">'
-		echo '                  <input type="submit" name="ACTION" value="Remove">'
+		echo '                <td class="column360">'
+		echo '                  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
+		echo '                    <input type="submit" name="ACTION" value="Update">'
+		echo '                    <input type="submit" name="ACTION" value="Reset">'
+		echo '                    <input type="submit" name="ACTION" value="Remove">'
+		echo '                  </form>'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
@@ -1009,17 +1015,18 @@ pcp_tweaks_install_jivelite() {
 		echo '                    <p>Jivelite requires resizing the file system.<p>'
 		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
 		echo '                  </div>'
+		echo '                </td>'
 	fi
-	echo '                </td>'
 	echo '              </tr>'
-#	pcp_tweaks_padding
 
 	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
-		echo '                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
-		echo '                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
-		echo '<!-- End of debug info -->'
+		echo '              <tr>'
+		echo '                <!-- Start of debug info -->'
+		echo '                <p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
+		echo '                                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
+		echo '                                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
+		echo '                <!-- End of debug info -->'
+		echo '              </tr>'
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
@@ -1030,9 +1037,11 @@ pcp_tweaks_enable_jivelite() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
-	echo '                  <input type="hidden" name="ACTION" value="Onboot">'
-	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED'>'
+	echo '                  <form name="jivelite2" action="writetojivelite.cgi" method="get">'
+	echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
+	echo '                    <input type="hidden" name="ACTION" value="Onboot">'
+	echo '                    <input type="submit" value="Set Autostart" '$JLDISABLED'>'
+	echo '                  </form>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1049,7 +1058,6 @@ pcp_tweaks_enable_jivelite() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
-	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_enable_jivelite
 #----------------------------------------------------------------------------------------
@@ -1073,7 +1081,7 @@ pcp_tweaks_vumeter() {
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="VUMETER">'
 
-	                          VUMETERS=$(ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
+	                          VUMETERS=$( ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
 	                          for i in $VUMETERS
 	                          do
 	                            [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
@@ -1142,6 +1150,7 @@ pcp_tweaks_vumeter() {
 
 		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
 		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
+		echo '                 [ DEBUG ] $PACKAGEDIR: '$PACKAGEDIR'<br />'
 		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
 		echo '<!-- End of debug info -->'
 	fi
