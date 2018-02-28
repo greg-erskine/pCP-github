@@ -74,14 +74,15 @@ pcp_get_newinstaller() {
 	sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
 	echo '[ INFO ] Step 2B. - Downloading the new Update script...'
 
-	# The web storage does not allow for cgi downloads.  
+	# The web storage does not allow for cgi downloads.
 	PACKAGE="insitu_update_stage2.gz"
-	$WGET ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1 
+	[ -e ${PCPHOME}/${PACKAGE} ] && rm -f ${PCPHOME}/${PACKAGE}
+	$WGET ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new Update script.'
 		gunzip ${PCPHOME}/${PACKAGE}
 		if [ $? -eq 0 ]; then
-			mv ${PCPHOME}/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
+			mv -f ${PCPHOME}/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
 			sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
 			sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
 			sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"
