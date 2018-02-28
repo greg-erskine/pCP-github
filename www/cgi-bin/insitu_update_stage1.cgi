@@ -1,18 +1,21 @@
 #!/bin/sh
 
+# Version 3.5.0 2018-02-28
+#	wget will not over write, make sure package is not present. PH.
+
 # Version 3.21 2017-05-28
-#	Modifcations for installing to bootdevice. i.e. USB boot. PH.
+#	Modifications for installing to bootdevice. i.e. USB boot. PH.
 
 # Version 3.20 2017-03-25
 #	Removed code that is not used until stage2. PH.
 #	Change stage2 download to work with web based repo location. PH.
 
 # Version 3.10 2016-12-26
-#	Sourceforge repo changes. PH
+#	Sourceforge repo changes. PH.
 
-# Version 2.05 2016-06-17 SBP
-#	Original version
-#	Split from insitu_update.cgi to download new updater before updates.
+# Version 2.05 2016-06-17
+#	Original version. SBP.
+#	Split from insitu_update.cgi to download new updater before updates. SBP.
 
 . pcp-functions
 
@@ -43,7 +46,7 @@ pcp_debug_info() {
 }
 
 #========================================================================================
-# Check we have internet access - set FAIL_MSG if not accessible
+# Check we have Internet access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_internet_indicator() {
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
