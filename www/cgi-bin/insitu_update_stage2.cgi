@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version 3.5.0 2018-02-24
+# Version 3.5.0 2018-03-04
 #	Updates for Kernel 4.14.21 and 9.x repo
+#	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
 
 # Version 3.22 2017-09-16
 #	Updates for Kernel 4.9.50
@@ -640,6 +641,14 @@ outfile.close
 	sudo chmod u=rw,g=r,o= /home/tc/www/index.html
 	sudo chown tc.staff /usr/local/etc/pcp/cards/*
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
+
+	#Make changes to mydata based on version
+	case "${VERSION}" in
+		piCorePlayer3.5.*)
+			#Support for card has been removed in 4.14.y kernels
+			rm -f /usr/local/etc/pcp/cards/raspidac3.conf
+		;;
+	esac
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
