@@ -427,6 +427,7 @@ build_mydata(){
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.ashrc ${MYDATA}/home/tc/.ashrc 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/powerscript.sh ${MYDATA}/home/tc/powerscript.sh 1001.50 755
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/pcp-powerbutton.sh ${MYDATA}/home/tc/pcp-powerbutton.sh 1001.50 755
 
 	#Copy the www folder
 	cp -dR --preserve=all ${BUILDROOT}/../www/* ${MYDATA}/home/tc/www
