@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version 3.5.0 2018-03-04
+# Version 3.5.0 2018-03-12
 #	Updates for Kernel 4.14.21 and 9.x repo
 #	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
 
@@ -257,11 +257,11 @@ pcp_get_kernel_modules() {
 			case $CORE in
 				*pcpAudioCore*)
 					case $BUILD in
-						armv6) NEWKERNELVER=4.14.21;;
-						armv7) NEWKERNELVER=4.14.21-rt17;;
+						armv6) NEWKERNELVER=4.14.24;;
+						armv7) NEWKERNELVER=4.14.24-rt19;;
 					esac
 				;;
-				*) NEWKERNELVER=4.14.21;;
+				*) NEWKERNELVER=4.14.24;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
