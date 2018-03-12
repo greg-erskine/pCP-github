@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-02-21
+# Version: 3.5.0 2018-03-12
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
@@ -12,6 +12,7 @@
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
 #	HTML5 cleanup. GE.
 #	Added "nobody" parameter to pcp_html_head. GE.
+#	Added pcp_redirect_button. GE.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -36,7 +37,7 @@
 #	Added timestamp to css to assist with caching. PH.
 #	Change player tabs to display multi line on ipads better. PH.
 #	Firefox complained about <div> tag making </p> tag out of scope. PH.
-#  Changed reboot functions. PH.
+#	Changed reboot functions. PH.
 
 # Version: 3.11 2017-01-29
 #	Updated default soundcard for shairport to work out of box. SBP.
@@ -1175,7 +1176,7 @@ pcp_user_commands() {
 pcp_go_main_button() {
 	echo '<!-- Start of pcp_go_main_button -->'
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
-	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</p></form>'
 	echo '<!-- End of pcp_go_main_button -->'
 }
 
@@ -1195,6 +1196,20 @@ pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
 	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
+}
+
+pcp_redirect_button() {
+	# $1 - button text
+	# $2 - redirection URL
+	# $3 - redirection delay
+	echo '<!-- Start of pcp_redirect_button -->'
+	echo '<form name="redirect button" action="'$2'" method="get">'
+	echo '	<p>'
+	echo '		<input class="large12" type="submit" class="large" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
+	echo '	</p>'
+	echo '</form>'
+	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
+	echo '<!-- End of pcp_redirect_button -->'
 }
 
 #========================================================================================
