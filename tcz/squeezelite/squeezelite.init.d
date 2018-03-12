@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.50 2017-11-21
+# Version: 3.5.0 2018-03-12
 #	Setting binary location in pCP web interface, Need to follow symlink for DEAMON. PH.
+#	Use busybox for pgrep. PH.
 
 # Version: 3.03 2016-11-14 RI
 #	Override DAEMON if a squeezelite binary installed in /mnt/mmcblk0p2/tce/.
@@ -121,7 +122,7 @@ case "$1" in
 		if [ -f $PIDFILE ]; then
 			PID=`cat $PIDFILE`
 
-			PIDS=`pgrep $DAEMON | awk '{printf "%s ", $1}'`
+			PIDS=`/bin/busybox pgrep $DAEMON | awk '{printf "%s ", $1}'`
 
 			for GOTPID in $PIDS; do
 				if [ x"$GOTPID" = x"$PID" ]; then
