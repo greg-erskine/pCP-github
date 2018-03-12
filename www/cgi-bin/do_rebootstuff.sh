@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-10
+# Version: 3.5.0 2018-03-13
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH.
 #	Add Bootscript option for soundcard setup. PH.
@@ -387,7 +387,7 @@ done
 echo "${GREEN} Done ($CNT).${NORMAL}"
 
 # If Custom ALSA settings are used, then restore the settings.
-echo -n "${BLUE}Starting ALSA configuration${NORMAL}"
+echo -n "${BLUE}Starting ALSA configuration...${NORMAL}"
 if [ "$ALSAlevelout" = "Custom" ]; then
 	# It seems the first attempt to load the state fails with some error. Looking at debug, it appears that not everything is initialized
 	# yet.  Since the state may contain extra cards, Load only the asound state for the selected card,

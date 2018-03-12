@@ -21,7 +21,7 @@
 
 # Version: 3.21 2017-07-02
 #	Added note for TEST 3 Active in footer. PH.
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
 #	Add ability to set column class on pcp_table functions. PH.
@@ -35,7 +35,7 @@
 #	Added variables JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 #	Removed pcp_download_package, it is no longer used. PH.
 #	Added timestamp to css to assist with caching. PH.
-#	Change player tabs to display multi line on ipads better. PH.
+#	Change player tabs to display multi line on iPads better. PH.
 #	Firefox complained about <div> tag making </p> tag out of scope. PH.
 #	Changed reboot functions. PH.
 
@@ -910,7 +910,7 @@ pcp_httpd_query_string_no_decode() {
 # reposting a command that we've already executed.  Once we test this more we might want to move this
 # script to the piCorePlayer.js.
 pcp_remove_query_string() {
-	echo '<script type="text/javascript">'
+	echo '<script>'
 	echo '  if (history.pushState) {'
 	echo '    var newurl = window.location.origin + window.location.pathname;'
 	echo '    window.history.pushState({path:newurl},"",newurl);'
