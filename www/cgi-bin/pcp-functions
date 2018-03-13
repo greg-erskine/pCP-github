@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-03-12
+# Version: 3.5.0 2018-03-13
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
@@ -13,6 +13,7 @@
 #	HTML5 cleanup. GE.
 #	Added "nobody" parameter to pcp_html_head. GE.
 #	Added pcp_redirect_button. GE.
+#	Moved pcp_remove_query_string code to piCorePlayer.js. GE.
 
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
@@ -467,9 +468,6 @@ pcp_html_head() {
 	echo '<html>'
 	echo '<head>'
 	echo '  <meta charset="UTF-8">'
-#	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
-#	echo '  <meta http-equiv="Pragma" content="no-cache">'
-#	echo '  <meta http-equiv="Expires" content="0">'
 	if [ $DEBUG -eq 0 ]; then
 		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
 			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
@@ -850,7 +848,7 @@ pcp_write_to_host() {
 	sed -i '1 s/^/host='${HOST}' /' $CMDLINETXT
 }
 
-# Used in reading config files Returns value right of the =
+# Used in reading config files. Returns value right of the =
 pcp_trimval() {
 	echo $1 | cut -d '=' -f2 | xargs
 }
@@ -907,15 +905,9 @@ pcp_httpd_query_string_no_decode() {
 }
 
 # This will remove the query string from the url, prevents page reloads and document.referrer from
-# reposting a command that we've already executed.  Once we test this more we might want to move this
-# script to the piCorePlayer.js.
+# reposting a command that we've already executed.
 pcp_remove_query_string() {
-	echo '<script>'
-	echo '  if (history.pushState) {'
-	echo '    var newurl = window.location.origin + window.location.pathname;'
-	echo '    window.history.pushState({path:newurl},"",newurl);'
-	echo '  }'
-	echo '</script>'
+	echo '<script>pcp_delete_query_string()</script>'
 }
 
 #========================================================================================
@@ -931,8 +923,7 @@ pcp_reboot_required() {
 }
 
 pcp_restart_required() {
-	echo '<script language="javascript">'
-#	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
+	echo '<script>'
 	echo '  function restart(from_page) {'
 	echo '    var url = "restartsqlt.cgi?FROM_PAGE=";'
 	echo '    var page = url.concat(from_page);'
@@ -943,8 +934,8 @@ pcp_restart_required() {
 }
 
 pcp_confirmation_required() {
-	echo '<script language="javascript">'
-	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
+	echo '<script>'
+	echo '	pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
 	echo '</script>'
 }
 

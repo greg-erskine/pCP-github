@@ -34,3 +34,10 @@ function pcp_redirect(delay,returnURL) {
 	}
 }
 
+function pcp_delete_query_string() {
+	if (history.pushState) {
+		var newurl = window.location.origin + window.location.pathname;
+		window.history.pushState({path:newurl},"",newurl);
+	}
+}
+
