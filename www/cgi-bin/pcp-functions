@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-03-13
+# Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
 #	Add Bootscript option for soundcard setup. PH.
@@ -258,7 +258,7 @@ pcp_sufficient_free_space() {
 	else
 		echo $PCLASSERROR'[ ERROR ] Not enough space.'$SLASHP
 		echo $PCLASSINFO'[ INFO ] Try expanding your partition.'$SLASHP
-		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
+		STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required
 		pcp_go_back_button
@@ -917,7 +917,7 @@ pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
 		echo '<script language="javascript">'
-		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nClick Cancel to manually reboot later.'\'','\''reboot.cgi?RB=yes'\'')'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [Cancel] to manually reboot later.'\'','\''reboot.cgi?RB=yes'\'')'
 		echo '</script>'
 	fi
 }
