@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-13
+# Version: 3.5.0 2018-03-15
 #	Changed dosfsck to fsck.fat. GE.
 
 # Version: 3.21 2017-05-20
@@ -96,7 +96,7 @@ if [ "$OPTION" = "delete" ]; then
 	echo '                <textarea class="inform" rows="10">'
 	                        sudo -u tc tce-audit builddb
 	echo
-	echo                    'After a reboot the foloowing extensions will be permanently deleted:'
+	echo                    'After a reboot the following extensions will be permanently deleted:'
 	echo
 	                        sudo -u tc tce-audit delete dosfstools.tcz
 	echo '                </textarea>'
