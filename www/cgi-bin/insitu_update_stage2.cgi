@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version 3.5.0 2018-03-12
-#	Updates for Kernel 4.14.21 and 9.x repo
+# Version 3.5.0 2018-03-15
+#	Updates for Kernel 4.14.26 and 9.x repo
 #	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
 
 # Version 3.22 2017-09-16
@@ -257,11 +257,11 @@ pcp_get_kernel_modules() {
 			case $CORE in
 				*pcpAudioCore*)
 					case $BUILD in
-						armv6) NEWKERNELVER=4.14.24;;
-						armv7) NEWKERNELVER=4.14.24-rt19;;
+						armv6) NEWKERNELVER=4.14.26;;
+						armv7) NEWKERNELVER=4.14.26-rt19;;
 					esac
 				;;
-				*) NEWKERNELVER=4.14.24;;
+				*) NEWKERNELVER=4.14.26;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -624,6 +624,7 @@ outfile.close
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
+	[ -f pcp-powerbutton.sh ] || sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/pcp-powerbutton.sh /home/tc/pcp-powerbutton.sh
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.ashrc /home/tc/.ashrc
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
@@ -633,6 +634,7 @@ outfile.close
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pcp/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/
 
+	sudo chown tc:staff /home/tc/pcp-powerbutton.sh
 	sudo chown -R tc:staff /home/tc/www
 	sudo chmod u=rwx,g=rx,o= /home/tc/www/cgi-bin/*
 	sudo chmod u=rw,g=r,o= /home/tc/www/css/*
