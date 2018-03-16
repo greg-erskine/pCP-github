@@ -278,6 +278,7 @@ EOF
 bcm2709-rpi-2-b.dtb
 bcm2710-rpi-3-b.dtb
 bcm2710-rpi-cm3.dtb
+bcm2710-rpi-3-b-plus.dtb
 EOF
 	rsync --files-from=${FILELIST} ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7} $PART1
 

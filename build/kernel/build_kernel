@@ -22,11 +22,11 @@ JOBS=12
 
 
 LINUX_GIT="linux-git"
-UNATTENDED=0
+UNATTENDED=1
 
 usage(){
-	echo "  usage: $0 [-u] [-d] [-m] [-r] [-s] [-t]"
-	echo "            -u Unattended compile, after selecting version"
+	echo "  usage: $0 [-i] [-d] [-m] [-r] [-s] [-t]"
+	echo "            -i Interactive compile, after selecting version"
 	echo "            -d debug"
 	echo "            -h usage"
 	echo
@@ -37,7 +37,7 @@ eval set -- "$O"
 
 while true; do
 	case "$1" in
-		-u)  UNATTENDED=1;;
+		-i)  UNATTENDED=0;;
 		-d)  DEBUG=1;;
 		-h)  usage
 			exit 1;;
@@ -86,7 +86,7 @@ if [ $UNATTENDED -eq 0 ]; then
 	echo
 else
 	SELECTED_ARCH="armv6 armv7"
-	
+
 	echo "Select kernel branches to build in all architectures."
 	options=(`git branch --list --no-color | sed "s|*||"`)
 
@@ -236,11 +236,16 @@ for i in ${!options[@]}; do
 				esac
 			done < .config
 
+			case $GIT_BRANCH in
+				*pcpRTPatched)RT="-rt";;
+				*)RT="";;
+			esac
+
 			touch .scmversion
 			if [ -f .scmversion ]; then
-				KVERSION="${KVERSION}${LOCALVERSION}"
+				KVERSION="${KVERSION}${LOCALVERSION}${RT}"
 			else
-				KVERSION="${KVERSION}${LOCALVERSION}+"
+				KVERSION="${KVERSION}${LOCALVERSION}${RT}+"
 			fi
 
 			SAMEKERNELCOUNT=$(find ${BASEWD}/pcpCore/$RPIARCH/kernel/ -maxdepth 1 | grep $KVERSION | wc -l)
@@ -348,6 +353,7 @@ for i in ${!options[@]}; do
 						cp arch/arm/boot/zImage $KERNELPATH/kernel${VERSION}${PATCHLEVEL}${SUBLEVEL}v7.img
 						cp arch/arm/boot/dts/bcm2709-rpi-2-b.dtb $KERNELPATH/
 						cp arch/arm/boot/dts/bcm2710-rpi-3-b.dtb $KERNELPATH/
+						cp arch/arm/boot/dts/bcm2710-rpi-3-b-plus.dtb $KERNELPATH/
 						cp arch/arm/boot/dts/bcm2710-rpi-cm3.dtb $KERNELPATH/
 						rsync -q arch/arm/boot/dts/overlays/*.dtbo $KERNELPATH/overlays/
 						rsync -q arch/arm/boot/dts/overlays/README* $KERNELPATH/overlays/
