@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-24
+# Version: 3.5.0 2018-03-18
 #	Add page button for AP mode. PH.
 #	Add Bluetooth enable/disable. PH.
 #	HTML5 and cosmetic cleanup. GE.
+#	Added support for RPi3B+. GE.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -12,9 +13,6 @@
 
 # Version: 3.02 2016-09-15
 #	Minor update. GE.
-
-# Version: 2.06 2016-04-27
-#	Add ability to blacklist RPi3 built-in wifi. PH.
 
 # Version: 0.01 2014-06-25
 #	Original. GE.
@@ -324,10 +322,10 @@ echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------Built-in Wifi-------------------------------------
-if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); then
+if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ]; then
 	case "$RPI3INTWIFI" in
-		on) RPI3WIFIyes="checked" ;;
-		off) RPI3WIFIno="checked" ;;
+		on) RPIWIFIyes="checked" ;;
+		off) RPIWIFIno="checked" ;;
 		*);;
 	esac
 	pcp_incr_id
@@ -337,15 +335,15 @@ if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); th
 	echo '                  <p>RPi Built-in Wifi</p>'
 	echo '                </td>'
 	echo '                <td class="column380">'
-	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPI3WIFIyes'>On&nbsp;'
-	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPI3WIFIno'>Off'
+	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>On&nbsp;'
+	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Turn off Raspberry Pi 3B / Zero-W built-in wifi card&nbsp;&nbsp;'
+	echo '                  <p>Turn off Raspberry Pi built-in wifi card&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will load an overlay that disables RPi3/Zero-W onboard wifi.</p>'
+	echo '                    <p>This will load an overlay that disables built-in wifi.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -366,11 +364,11 @@ if ([ $(pcp_rpi_is_model_3B) -eq 0 ] || [ $(pcp_rpi_is_model_zerow) -eq 0 ]); th
 	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Turn off Raspberry Pi 3B / Zero-W built-in bluetooth&nbsp;&nbsp;'
+	echo '                  <p>Turn off Raspberry Pi built-in bluetooth&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will load an overlay that disables RPi3/Zero-W onboard bluetooth.</p>'
+	echo '                    <p>This will load an overlay that disables built-in bluetooth.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
