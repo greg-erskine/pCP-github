@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-26
+# Version: 3.5.0 2018-03-18
 #	Initial version. PH.
 
 . pcp-functions
@@ -24,6 +24,7 @@ pcp_install_bt() {
 		sudo -u tc pcp-load -i pcp-bt.tcz
 		sudo sed -i '/pcp-bt.tcz/d' $ONBOOTLST
 		echo 'pcp-bt.tcz' >> $ONBOOTLST
+		mkdir -p /var/lib/bluetooth
 		echo "var/lib/bluetooth" >> /opt/.filetool.lst
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] pcp-bt is added to onboot.lst'
 		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
