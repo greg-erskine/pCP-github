@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-18
+# Version: 3.5.0 2018-03-19
 #	Add page button for AP mode. PH.
 #	Add Bluetooth enable/disable. PH.
 #	HTML5 and cosmetic cleanup. GE.
@@ -332,14 +332,14 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>RPi Built-in Wifi</p>'
+	echo '                  <p>RPi built-in Wifi</p>'
 	echo '                </td>'
 	echo '                <td class="column380">'
 	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>On&nbsp;'
 	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>Off'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Turn off Raspberry Pi built-in wifi card&nbsp;&nbsp;'
+	echo '                  <p>Turn off Raspberry Pi built-in wifi&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -357,7 +357,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>RPi Built-in Bluetooth</p>'
+	echo '                  <p>RPi built-in Bluetooth</p>'
 	echo '                </td>'
 	echo '                <td class="column380">'
 	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>On&nbsp;'

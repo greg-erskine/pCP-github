@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 3.5.0 2018-03-18
+# Version: 3.5.0 2018-03-19
 #	Added support for RPi3B+. GE.
 #	lsusb is a standard command, no need for extension. GE.
 
@@ -45,12 +45,23 @@ pcp_diag_wifi_dmesg() {
 	dmesg | sed -n '{
 		/New USB device found, idVendor=1d6b/n
 		/New USB device found, idVendor=0424/n
-		/New USB device found, idVendor=/n
-		/brcmfmac: brcmf_fw_map_chip_to_name:/{
+		/New USB device found, idVendor=/{
 			p
 			n
 			p
 			n
+			p
+			n
+			p
+			n
+			p
+			a\
+.
+		}
+	}' | tee -a $LOG
+	dmesg | sed -n '{
+		/brcmfmac: brcmf_fw_map_chip_to_name:/n
+		/brcmfmac: brcmf_c_preinit_dcmds:/{
 			p
 			n
 			p
