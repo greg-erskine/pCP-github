@@ -5,6 +5,7 @@
 #	Add Bluetooth enable/disable. PH.
 #	HTML5 and cosmetic cleanup. GE.
 #	Added support for RPi3B+. GE.
+#	Allow both built-in Bluetooth and Wifi on RPi3B+. PH.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -78,7 +79,7 @@ echo 'function enableSAVE() {'
 echo '    document.forms[0].SAVE.disabled=false;'
 echo '}'
 echo 'function validate() {'
-echo '    if (document.setwifi.RPI3INTWIFI.value == "on" && document.setwifi.RPIBLUETOOTH.value == "on"){'
+echo '    if ( document.setwifi.RPI3BPLUS.value == "false" && document.setwifi.RPI3INTWIFI.value == "on" && document.setwifi.RPIBLUETOOTH.value == "on"  ){'
 echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
 echo '      return false;'
 echo '    }'
@@ -378,6 +379,11 @@ pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
+if [ $(pcp_rpi_is_model_3Bplus) -eq 0 ]; then
+	echo '                  <input type="hidden" name="RPI3BPLUS" value="true">'
+else
+	echo '                  <input type="hidden" name="RPI3BPLUS" value="false">'
+fi
 echo '                  <input type="submit" name="SAVE" value="Save/Connect" onclick="return(validate());">'
 [ $MODE -ge $MODE_ADVANCED ] &&
 echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
