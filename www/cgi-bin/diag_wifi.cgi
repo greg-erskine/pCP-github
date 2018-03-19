@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 3.5.0 2018-03-19
+# Version: 3.5.0 2018-03-20
 #	Added support for RPi3B+. GE.
 #	lsusb is a standard command, no need for extension. GE.
 
@@ -174,7 +174,7 @@ pcp_diag_wifi_available_networks() {
 
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150">'
+		echo '                <td>'
 		echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
 		echo '                  <input type="hidden" name="FILE" value="'$LOG'" />'
 		echo '                </td>'
@@ -187,7 +187,6 @@ pcp_diag_wifi_available_networks() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		pcp_refresh_button
 		pcp_footer
 		pcp_copyright
 		echo '</body>'
@@ -333,11 +332,11 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Wifi diagnostics</legend>'
 echo '          <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
+#----------------------------------Wifi / Wifi MAC---------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
-echo '                <p>Wifi:</p>'
+echo '                <p>Wifi</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>'$WIFI'</p>'
@@ -355,7 +354,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#----------------------------------SSID / Wifi IP----------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -377,7 +376,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_ip)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#----------------------------------Password / Security-----------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -399,18 +398,22 @@ echo '              <td class="column150">'
 echo '                <p>'$ENCRYPTION'</p>'
 echo '              </td>'
 echo '            </tr>'
-
+#----------------------------------Passphrase--------------------------------------------
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p>Passphrase:</p>'
+	echo '              </td>'
+	echo '              <td colspan="5">'
+	echo '                <p>'$(pcp_wifi_get_passphrase)'</p>'
+	echo '              </td>'
+	echo '            </tr>'
+fi
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
-echo '                <p>Passphrase:</p>'
-echo '              </td>'
-echo '              <td colspan="5">'
-#echo '                <p>'$(pcp_wifi_get_passphrase)'</p>'
-echo '              </td>'
-echo '            </tr>'
-#--------------------------------Uptime--------------------------------------------------
+echo '          </table>'
+echo '          <table class="bggrey percent100">'
+#----------------------------------Uptime----------------------------------------------==
 if [ $(pcp_uptime_seconds) -lt 86400 ]; then
 	pcp_green_tick "No reboot required."
 else
@@ -422,27 +425,30 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
 echo '                <p>Uptime:</p>'
 echo '              </td>'
-echo '              <td class="column150" colspan="2">'
+echo '              <td class="column300">'
 echo '                <p>'$(pcp_uptime_days)'</p>'
 echo '              </td>'
-#echo '              <td class="column150">'
-#echo '                <p></p>'
-#echo '              </td>'
-echo '              <td colspan="2">'
+echo '              <td class="column150">'
+echo '                <p></p>'
+echo '              </td>'
+echo '              <td class="column300">'
 echo '                <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '          <table class="bggrey percent100">'
 #------------------------------------dmesg-----------------------------------------------
 pcp_start_row_shade
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td colspan="6">'
+echo '              <td>'
 echo '                <p><b>dmesg:</b></p>'
 echo '              </td>'
 echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td colspan="6">'
+echo '              <td>'
 echo '                <textarea class="inform" rows="6">'
                         pcp_diag_wifi_dmesg
 echo '                </textarea>'
@@ -452,13 +458,13 @@ echo '            </tr>'
 pcp_start_row_shade
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td colspan="6">'
+echo '              <td>'
 echo '                <p><b>Loaded modules:</b></p>'
 echo '              </td>'
 echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td colspan="6">'
+echo '              <td>'
 echo '                <textarea class="inform" rows="3">'
                         pcp_diag_wifi_lsmod
 echo '                </textarea>'
@@ -563,6 +569,8 @@ echo '            </tr>'
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
+#----------------------------------------------------------------------------------------
+
 #------------------------------------Available networks----------------------------------
 echo '        <div class="row">'
 echo '          <fieldset>'
@@ -584,6 +592,7 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Ping tests</legend>'
 echo '            <table class="bggrey percent100">'
+#------------------------------------Ping local------------------------------------------
 pcp_start_row_shade
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -599,6 +608,7 @@ echo '                  <textarea class="inform" rows="11">'
 echo '                  </textarea>'
 echo '                </td>'
 echo '              </tr>'
+#------------------------------------Ping LMS--------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
@@ -613,6 +623,7 @@ echo '                  <textarea class="inform" rows="25">'
 echo '                  </textarea>'
 echo '                </td>'
 echo '              </tr>'
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
