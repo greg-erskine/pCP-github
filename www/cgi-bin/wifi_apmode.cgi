@@ -239,11 +239,13 @@ echo '            <tr class="padding '$ROWSHADE'">'
 echo '              <td></td>'
 echo '              <td></td>'
 echo '            </tr>'
+echo '          </table>'
 #--------------------------------------Enable/disable autostart of AP Mode---------------
 pcp_ap_enable() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Autostart" action="'$0'">'
+	echo '          <form name="Autostart" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" name="ACTION" value="Autostart" '$DISABLE_AP'>Set Autostart</button>'
@@ -262,7 +264,8 @@ pcp_ap_enable() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_enable
 #----------------------------------------------------------------------------------------
@@ -271,7 +274,8 @@ pcp_ap_enable() {
 pcp_ap_install() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Install" action="'$0'">'
+	echo '          <form name="Install" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f $TCEMNT/tce/optional/pcp-apmode.tcz ]; then
@@ -301,7 +305,8 @@ pcp_ap_install() {
 	fi
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_install
 #----------------------------------------------------------------------------------------
@@ -310,7 +315,8 @@ pcp_ap_install() {
 pcp_ap_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Start" action="'$0'">'
+	echo '          <form name="Start" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_AP'>'
@@ -324,11 +330,13 @@ pcp_ap_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 #------------------------------------------Stop AP Mode----------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Stop" action="'$0'">'
+	echo '          <form name="Stop" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Stop" onclick="return confirm('\''STOP AP Mode.\n\nAre you sure?'\'')" '$DISABLE_AP'>'
@@ -343,11 +351,13 @@ pcp_ap_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 #------------------------------------------Restart AP Mode-------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Restart" action="'$0'">'
+	echo '          <form name="Restart" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_AP'>'
@@ -361,7 +371,8 @@ pcp_ap_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_startstop
 #----------------------------------------------------------------------------------------
@@ -377,7 +388,8 @@ pcp_ap_configure(){
 #------------------------------------------AP Mode SSID----------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="setconfig" action="'$0'">'
+	echo '          <form name="setconfig" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p class="row">AP SSID</p>'
@@ -536,12 +548,11 @@ pcp_ap_configure(){
 	echo '                <td></td>'
 	echo '                <td></td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_configure
 #----------------------------------------------------------------------------------------
-
-echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
