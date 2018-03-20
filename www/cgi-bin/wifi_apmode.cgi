@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-19
+# Version: 3.5.0 2018-03-20
 #	Initial version. PH.
 
 . pcp-functions
@@ -30,6 +30,7 @@ pcp_install_apmode() {
 		sudo echo 'pcp-apmode.tcz' >> $ONBOOTLST
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] pcp-apmode is added to onboot.lst'
 		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
+		echo '[ INFO ] If wifi is not recognized, please reboot device...'
 	fi
 }
 
@@ -51,13 +52,20 @@ pcp_apmode_status(){
 set_hostapd_conf(){
 	echo '[ INFO ] Setting Host AP SSID to '$AP_SSID
 	sudo sed -i "s/\(^ssid=\).*/\1$AP_SSID/" $HOSTAPDCONF
-	echo '[ INFO ] Setting AP Channel to '$AP_CHANNEL
-	sudo sed -i "s/\(^channel=\).*/\1$AP_CHANNEL/" $HOSTAPDCONF
 	echo '[ INFO ] Setting AP Passphrase'
 	PSK_HEX=$(echo "$AP_PASS" | wpa_passphrase "$AP_SSID" | grep "psk=" | grep -v "#psk=" | cut -d "=" -f2)
 	[ $DEBUG -eq 1 ] && echo 'PSK='$PSK_HEX
 	sudo sed -i "s/\(^#wpa_passphrase=\).*/\1$AP_PASS/" $HOSTAPDCONF
 	sudo sed -i "s/\(^wpa_psk=\).*/\1$PSK_HEX/" $HOSTAPDCONF
+	echo '[ INFO ] Setting AP Country Code to '$AP_COUNTRY
+	sudo sed -i "s/\(^country_code=\).*/\1$AP_COUNTRY/" $HOSTAPDCONF
+	echo '[ INFO ] Setting AP Channel to '$AP_CHANNEL
+	sudo sed -i "s/\(^channel=\).*/\1$AP_CHANNEL/" $HOSTAPDCONF
+	[ $AP_CHANNEL -le 14 ] && AP_HWMODE="g" || AP_HWMODE="a"
+	echo '[ INFO ] Setting AP harware mode to '$AP_HWMODE'. (a=5GHz, g=2.4GHz)'
+	sudo sed -i "s/\(^hw_mode=\).*/\1$AP_HWMODE/" $HOSTAPDCONF
+	echo '[ INFO ] Setting AP 80211AC to '$AP_80211AC
+	sudo sed -i "s/\(^ieee80211ac=\).*/\1$AP_80211AC/" $HOSTAPDCONF
 }
 
 set_dnsmasq_conf(){
@@ -361,9 +369,11 @@ pcp_ap_startstop() {
 #------------------------------------------Configure AP Mode-----------------------------
 pcp_ap_configure(){
 	AP_SSID=$(cat $HOSTAPDCONF | grep -e "^ssid=" | cut -d "=" -f2)
-	AP_CHANNEL=$(cat $HOSTAPDCONF | grep -e "^channel=" | cut -d "=" -f2)
 	AP_PASS=$(cat $HOSTAPDCONF | grep -e "^\#wpa_passphrase=" | cut -d "=" -f2)
-
+	AP_HWMODE==$(cat $HOSTAPDCONF | grep -e "^hw_mode=" | cut -d "=" -f2)
+	AP_CHANNEL=$(cat $HOSTAPDCONF | grep -e "^channel=" | cut -d "=" -f2)
+	AP_COUNTRY=$(cat $HOSTAPDCONF | grep -e "^country_code=" | cut -d "=" -f2)
+	AP_80211AC=$(cat $HOSTAPDCONF | grep -e "^ieee80211ac=" | cut -d "=" -f2)
 #------------------------------------------AP Mode SSID----------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -389,6 +399,57 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+#------------------------------------------AP Mode password------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Password</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15"'
+	echo '                         type="password"'
+	echo '                         name="AP_PASS"'
+	echo '                         value="'$AP_PASS'"'
+	echo '                         required'
+	echo '                         pattern=".{8,63}"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>WPA2 Passphrase to be used to access AP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Default password is piCorePlayer.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#------------------------------------------AP Mode country_code--------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">AP Country Codeuname</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="AP_COUNTRY"'
+	echo '                         value="'$AP_COUNTRY'"'
+	echo '                         required'
+	echo '                         pattern="[A-Z]{2}"'
+	echo '                         title="Use Capital Letters."'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>This is the two character Wireless Country Code of the AP.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Country Codes are two Letters. Reference <a href=https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 target="_blank">Country Code List</a></p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 #------------------------------------------AP Mode channel-------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -397,19 +458,47 @@ pcp_ap_configure(){
 	echo '                  <p class="row">AP Channel</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="AP_CHANNEL"'
-	echo '                         value="'$AP_CHANNEL'"'
-	echo '                         required'
-	echo '                  >'
+	echo '                    <select name="AP_CHANNEL">'
+	iwlist wlan0 channel | grep Channel | tr -s ' ' | awk -F' ' '{ print $2 }' > /tmp/chanlist
+	cat /tmp/chanlist | sed "s/^$AP_CHANNEL/$AP_CHANNEL selected/" | awk -F' ' '{ print "<option value=\""$1"\"  "$2">"$1"</option>" }'
+	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the Wireless Channel of the AP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Set the SSID of your AP.</p>'
+	echo '                    <p>Channels Availiable on wlan0.</p>'
+	echo '                    <p>Check dmesg to validate channel getting set properly.</p>'
+	echo '                    <ul>'
+	iwlist wlan0 channel | grep Channel | tr -s ' ' | awk -F':' '{ print "                      <li>"$1" : "$2"</li>" }'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#--------------------------------------Enable/disable wireless ac------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	case $AP_80211AC in
+		1)AP_80211ACyes="checked";;
+		0)AP_80211ACno="checked";;
+	esac
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Wireless AC</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="AP_80211AC" value="1" '$AP_80211ACyes'>Yes'
+	echo '                  <input class="small1" type="radio" name="AP_80211AC" value="0" '$AP_80211ACno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Enable Wireless AC function of the radio&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Yes - Wireless AC is enabled.</p>'
+	echo '                    <p>No - Wireless AC is disabled, only G or N is used.</p>'
+	echo '                    <p>RPi3B+ supports wireless AC.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -435,31 +524,6 @@ pcp_ap_configure(){
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Clients that connect to this AP will get a DHCP address in starting at .10 of the same IP range.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-#------------------------------------------AP Mode password------------------------------
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p class="row">Password</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large15"'
-	echo '                         type="password"'
-	echo '                         name="AP_PASS"'
-	echo '                         value="'$AP_PASS'"'
-	echo '                         required'
-	echo '                         pattern=".{8,63}"'
-	echo '                  >'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>WPA2 Passphrase to be used to access AP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Default password is piCorePlayer.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
