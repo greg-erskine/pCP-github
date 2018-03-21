@@ -19,7 +19,7 @@ pcp_httpd_query_string
 HOSTAPDCONF="/usr/local/etc/pcp/hostapd.conf"
 DNSMASQCONF="/usr/local/etc/pcp/dnsmasq.conf"
 
-#---------------------------Routines-----------------------------------------------------
+#----------------------------------Routines----------------------------------------------
 pcp_install_apmode() {
 	echo '[ INFO ] Downloading AP Mode...'
 	sudo -u tc pcp-load -r $PCP_REPO -w pcp-apmode.tcz
@@ -44,12 +44,12 @@ pcp_remove_apmode() {
 	rm -f $DNSMASQCONF
 }
 
-pcp_apmode_status(){
+pcp_apmode_status() {
 	sudo /usr/local/etc/init.d/pcp-apmode status >/dev/null 2>&1
 	echo $?
 }
 
-set_hostapd_conf(){
+set_hostapd_conf() {
 	echo '[ INFO ] Setting Host AP SSID to '$AP_SSID
 	sudo sed -i "s/\(^ssid=\).*/\1$AP_SSID/" $HOSTAPDCONF
 	echo '[ INFO ] Setting AP Passphrase'
@@ -68,7 +68,7 @@ set_hostapd_conf(){
 	sudo sed -i "s/\(^ieee80211ac=\).*/\1$AP_80211AC/" $HOSTAPDCONF
 }
 
-set_dnsmasq_conf(){
+set_dnsmasq_conf() {
 	RANGE=$(echo $AP_IP | awk -F. '{print $1"."$2"."$3".10,"$1"."$2"."$3".100,12h"}')
 	sudo sed -i "s/\(^dhcp-range=\).*/\1$RANGE/" $DNSMASQCONF
 }
@@ -197,16 +197,15 @@ echo '    <td>'
 echo '      <form name="AP mode" action="'$0'">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Wifi Access Point (AP) Configuration</legend>'
+echo '            <legend>Wifi Access Point (AP)</legend>'
 echo '            <table class="bggrey percent100">'
 
-#------------------------------------AP Mode Indication----------------------------------
+#----------------------------------AP Mode Indication------------------------------------
 if [ $(pcp_apmode_status) -eq 0 ]; then
 	pcp_green_tick "running"
 else
 	pcp_red_cross "not running"
 fi
-
 #----------------------------------------------------------------------------------------
 # Determine state of check boxes.
 #----------------------------------------------------------------------------------------
@@ -234,12 +233,12 @@ echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-#--------------------------------------Padding-------------------------------------------
+#----------------------------------Padding-----------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="padding '$ROWSHADE'">'
 echo '                <td colspan="3"></td>'
 echo '              </tr>'
-#--------------------------------------Enable/disable autostart of AP Mode---------------
+#----------------------------------Enable/disable autostart of AP Mode-------------------
 pcp_ap_enable() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -247,7 +246,7 @@ pcp_ap_enable() {
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" name="ACTION" value="Autostart" '$DISABLE_AP'>Set Autostart</button>'
 	echo '                </td>'
-	echo '                <td class="column100">'
+	echo '                <td class="column150">'
 	echo '                  <input class="small1" type="radio" name="APMODE" value="yes" '$APMODEyes'>Yes&nbsp;&nbsp;'
 	echo '                  <input class="small1" type="radio" name="APMODE" value="no" '$APMODEno'>No'
 	echo '                </td>'
@@ -265,13 +264,13 @@ pcp_ap_enable() {
 [ $MODE -ge $MODE_BETA ] && pcp_ap_enable
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Install/uninstall AP Mode-------------------------
+#----------------------------------Install/uninstall AP Mode-----------------------------
 pcp_ap_install() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
 	if [ ! -f $TCEMNT/tce/optional/pcp-apmode.tcz ]; then
+		echo '                <td class="column150 center">'
 		echo '                  <input type="submit" name="ACTION" value="Install">'
 		echo '                </td>'
 		echo '                <td>'
@@ -281,7 +280,9 @@ pcp_ap_install() {
 		echo '                  <div id="'$ID'" class="less">'
 		echo '                    <p>This will install AP Mode on pCP.</p>'
 		echo '                  </div>'
+		echo '                </td>'
 	else
+		echo '                <td class="column150 center">'
 		echo '                  <input type="submit" name="ACTION" value="Update">'
 		echo '                </td>'
 		echo '                <td class="column150 center">'
@@ -292,17 +293,16 @@ pcp_ap_install() {
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-
 		echo '                    <p>This will remove AP Mode and all the extra packages that were added with Hostapd.</p>'
 		echo '                  </div>'
+		echo '                </td>'
 	fi
-	echo '                </td>'
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_install
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Start AP Mode---------------------------------
+#----------------------------------Start AP Mode-----------------------------------------
 pcp_ap_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -319,7 +319,7 @@ pcp_ap_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------Stop AP Mode----------------------------------
+#----------------------------------Stop AP Mode------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -336,7 +336,7 @@ pcp_ap_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------Restart AP Mode-------------------------------
+#----------------------------------Restart AP Mode---------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -354,12 +354,24 @@ pcp_ap_startstop() {
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_ap_startstop
-#--------------------------------------Padding-------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="padding '$ROWSHADE'">'
-echo '                <td colspan="3"></td>'
-echo '              </tr>'
-#------------------------------------------Configure AP Mode-----------------------------
+#----------------------------------------------------------------------------------------
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form name="AP mode configuration" action="'$0'">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Wifi Access Point (AP) Configuration</legend>'
+echo '            <table class="bggrey percent100">'
+#----------------------------------Configure AP Mode-------------------------------------
 pcp_ap_configure(){
 	AP_SSID=$(cat $HOSTAPDCONF | grep -e "^ssid=" | cut -d "=" -f2)
 	AP_PASS=$(cat $HOSTAPDCONF | grep -e "^\#wpa_passphrase=" | cut -d "=" -f2)
@@ -367,9 +379,9 @@ pcp_ap_configure(){
 	AP_CHANNEL=$(cat $HOSTAPDCONF | grep -e "^channel=" | cut -d "=" -f2)
 	AP_COUNTRY=$(cat $HOSTAPDCONF | grep -e "^country_code=" | cut -d "=" -f2)
 	AP_80211AC=$(cat $HOSTAPDCONF | grep -e "^ieee80211ac=" | cut -d "=" -f2)
-#------------------------------------------AP Mode SSID----------------------------------
+#----------------------------------AP Mode SSID------------------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p class="row">AP SSID</p>'
@@ -380,7 +392,7 @@ pcp_ap_configure(){
 	echo '                         name="AP_SSID"'
 	echo '                         value="'$AP_SSID'"'
 	echo '                         required'
-	echo '                  >'
+	echo '                  >*'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the SSID of the AP&nbsp;&nbsp;'
@@ -391,7 +403,7 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------AP Mode password------------------------------
+#----------------------------------AP Mode password--------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -405,7 +417,7 @@ pcp_ap_configure(){
 	echo '                         value="'$AP_PASS'"'
 	echo '                         required'
 	echo '                         pattern=".{8,63}"'
-	echo '                  >'
+	echo '                  >*'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>WPA2 Passphrase to be used to access AP&nbsp;&nbsp;'
@@ -416,7 +428,7 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------AP Mode country code--------------------------
+#----------------------------------AP Mode country code----------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -431,7 +443,7 @@ pcp_ap_configure(){
 	echo '                         required'
 	echo '                         pattern="[A-Z]{2}"'
 	echo '                         title="Use Capital Letters."'
-	echo '                  >'
+	echo '                  >*'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the two character Wireless Country Code of the AP&nbsp;&nbsp;'
@@ -442,7 +454,7 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------AP Mode channel-------------------------------
+#----------------------------------AP Mode channel---------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -453,7 +465,7 @@ pcp_ap_configure(){
 	echo '                    <select name="AP_CHANNEL">'
 	iwlist wlan0 channel | grep Channel | tr -s ' ' | awk -F' ' '{ print $2 }' > /tmp/chanlist
 	cat /tmp/chanlist | sed "s/^$AP_CHANNEL/$AP_CHANNEL selected/" | awk -F' ' '{ print "<option value=\""$1"\" "$2">"$1"</option>" }'
-	echo '                  </select>'
+	echo '                  </select>*'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the Wireless Channel of the AP&nbsp;&nbsp;'
@@ -470,7 +482,7 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#--------------------------------------Enable/disable wireless ac------------------------
+#----------------------------------Enable/disable wireless ac----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	case $AP_80211AC in
@@ -496,7 +508,7 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------AP Mode IP address----------------------------
+#----------------------------------AP Mode IP address------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -510,7 +522,7 @@ pcp_ap_configure(){
 	echo '                         value="'$AP_IP'"'
 	echo '                         required'
 	echo '                         pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$"'
-	echo '                  >'
+	echo '                  >*'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>This is the IP address used for the AP&nbsp;&nbsp;'
@@ -521,7 +533,7 @@ pcp_ap_configure(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#--------------------------------------Buttons-------------------------------------------
+#----------------------------------Buttons-----------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3" class="column150 center">'
