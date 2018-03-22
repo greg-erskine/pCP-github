@@ -25,8 +25,23 @@ pcp_install_apmode() {
 	sudo -u tc pcp-load -r $PCP_REPO -w pcp-apmode.tcz
 	if [ -f $TCEMNT/tce/optional/pcp-apmode.tcz ]; then
 		echo '[ INFO ] Installing AP Mode...'
+		sudo -u tc pcp-load -i firmware-atheros.tcz
+		sudo -u tc pcp-load -i firmware-brcmwifi.tcz
+		sudo -u tc pcp-load -i firmware-ralinkwifi.tcz
+		sudo -u tc pcp-load -i firmware-rtlwifi.tcz
+		sudo -u tc pcp-load -i firmware-rpi3-wireless.tcz
 		sudo -u tc pcp-load -i pcp-apmode.tcz
+		sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
+		sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
+		sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+		sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
+		sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 		sudo sed -i '/pcp-apmode.tcz/d' $ONBOOTLST
+		sudo echo 'firmware-atheros.tcz' >> $ONBOOTLST
+		sudo echo 'firmware-brcmwifi.tcz' >> $ONBOOTLST
+		sudo echo 'firmware-rpi3-wireless.tcz' >> $ONBOOTLST
+		sudo echo 'firmware-ralinkwifi.tcz' >> $ONBOOTLST
+		sudo echo 'firmware-rtlwifi.tcz' >> $ONBOOTLST
 		sudo echo 'pcp-apmode.tcz' >> $ONBOOTLST
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] pcp-apmode is added to onboot.lst'
 		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
@@ -38,10 +53,16 @@ pcp_remove_apmode() {
 	sudo /usr/local/etc/init.d/pcp-apmode stop >/dev/null 2>&1
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete pcp-apmode.tcz
+	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/pcp-apmode.tcz/d' $ONBOOTLST
 	echo "Removing configuration files..."
 	rm -f $HOSTAPDCONF
 	rm -f $DNSMASQCONF
+	rm -f /usr/local/etc/pcp/pcp_hosts
 }
 
 pcp_apmode_status() {
