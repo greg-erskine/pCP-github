@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 3.5 2017-12-10
+# Version: 3.5 2018-03-23
 #	Changes for busbybox fdisk output changes. PH.
 #	Fixed ability to remove missing configured drives. PH.
 #	Add popup confirmations on removing lms/cache, added extension check for startup. PH.
+#	Add help around vers= for network mounts. PH.
 
 # Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
@@ -1470,15 +1471,25 @@ pcp_mount_netdrives() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>If Checked, the network share will be mounted by to the mount point and will be automounted on startup.</p>'
-	echo '                    <p>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</p>'
-	echo '                    <p>&nbsp;&nbsp;&nbsp;Do not use hardware device names like sda1 or mmcblk0.</p>'
-	echo '                    <p>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</p>'
-	echo '                    <p>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</p>'
-	echo '                    <p>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
-	echo '                    <p>&#60;Username&#62; Username if needed for cifs mount.</p>'
-	echo '                    <p>&#60;Password&#62; Password if needed for cifs mount.</p>'
-	echo '                    <p>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.</p>'
+	echo '                    <p>Field usage.</p>'
+	echo '                    <ul>'
+	echo '                      <li>If Enabled is checked, the network share will be mounted by to the mount point and will be automounted on startup.</li>'
+	echo '                      <li>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</li>'
+	echo '                      <ul>'
+	echo '                        <li>Do not use hardware device names like sda1 or mmcblk0.</li>'
+	echo '                      </ul>'
+	echo '                      <li>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</li>'
+	echo '                      <li>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</li>'
+	echo '                      <li>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</li>'
+	echo '                      <li>&#60;Username&#62; Username if needed for cifs mount.</li>'
+	echo '                      <li>&#60;Password&#62; Password if needed for cifs mount.</li>'
+	echo '                      <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.</li>'
+	echo '                      <ul>'
+	echo '                        <li>vers=3.0 - The linux kernel now defaults to SMB and NFS version 3.0, lower versions must be specified.</li>'
+	echo '                        <li>uid=1001 - mounts the drive with user &quot;tc&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                        <li>gid=50 - mounts the drive with group &quot;staff&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                      </ul>'
+	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1571,7 +1582,7 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large6" type="text" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL8'">'
-		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
+		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
 		echo '                </td>'
 		echo '              </tr>'
 		echo '              <script type="text/javascript">'
