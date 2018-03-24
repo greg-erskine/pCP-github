@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-20
+#	Added setting of which squeezelite binary to use. PH.
+#	Increase ALSA buffer field width, when size expressed in bytes. PH.
+#	Added dsd to codec, xcodec field. PH.
+#	Change -D field based on which binary is being used. PH.
+#	Add form some validation prior to submit. PH.
+#	HTML5 cleanup. GE.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -28,7 +36,6 @@
 . pcp-rpi-functions
 . pcp-soundcard-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "Squeezelite Settings" "SBP"
 
@@ -89,20 +96,21 @@ pcp_cards_controls() {
 }
 
 #========================================================================================
-# Determine which sound cards are avaiable for the various RPi boards
+# Determine which sound cards are available for the various RPi boards
+# PROBLEM???: See routines below. If RPi model is unknown, RP_MODEL will be set twice???
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_is_hat) -ne 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
-	# RPI is P5-connetion no HAT model or unknown
+	# RPi is P5-connetion no HAT model or unknown
 	RP_MODEL=ALL_NO_HAT
 fi
 
 if [ $(pcp_rpi_is_hat) -eq 0 ] || [ $(pcp_rpi_model_unknown) -eq 0 ]; then
-	# RPI is 40 pin HAT model
+	# RPi is 40 pin HAT model
 	RP_MODEL=HAT_ALL
 fi
 
-[ $MODE -ge $MODE_BETA ] && RP_MODEL=ALL
 # Mode is beta and all models will be shown
+[ $MODE -ge $MODE_BETA ] && RP_MODEL=ALL
 
 #========================================================================================
 # Populate sound card drop-down options
@@ -118,50 +126,58 @@ echo '    <td>'
 echo '      <form name="setaudio" action="chooseoutput.cgi" method="get" id="setaudio">'
 echo '        <div class="row">'
 echo '          <fieldset>'
-echo '            <legend>Choose audio output</legend>'
+echo '            <legend>Audio output device settings</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Audio output-------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <p>Audio output</p>'
-echo '                </td>'
-echo '                <td class="column250">'
-echo '                  <select name="AUDIO">'
-
-awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
-
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Select Audio output&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Set Audio output before changing Squeezelite settings below.</p>'
-echo '                    <p>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '              <tr>'
-echo '                <td colspan="2">'
 echo '                  <input type="submit"'
 echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
 echo '                  >'
+echo '                </td>'
+echo '                <td class="column250">'
+echo '                  <select name="AUDIO">'
 
-pcp_selected_soundcontrol
-if [ x"" != x"$CONTROL_PAGE" ]; then
-	echo '                  <input class="large16"'
-	echo '                         type="button"'
-	echo '                         value="Audio card control"'
-	echo '                         onClick="location.href='\'''$CONTROL_PAGE''\''"'
-	echo '                  >'
-fi
+# GE. This does not produce correct HTML5 code.
+#awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
 
+cat /tmp/dropdown.cfg | grep $RP_MODEL | sed 's/notselected//' | awk -F: '{ print "<option value=\""$1"\" "$2">"$3"</option>"}'
+
+echo '                  </select>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p><b>Do this First:</b> Select Audio output, then press [ Save ]&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>Set Audio output before changing Squeezelite settings below.</p>'
+echo '                    <p><b>Note: </b>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+pcp_selected_soundcontrol
+if [ x"" != x"$CONTROL_PAGE" ]; then
+	[ -f $REBOOT_PENDING ] && CNTRL_DISABLED="disabled" || CNTRL_DISABLED=""
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <input type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
+	echo '                </td>'
+	echo '                <td colspan="2">'
+	[ -f $REBOOT_PENDING ] &&
+	echo '                  <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Setup and card specific hardware or mixer options on this page.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+fi
 #----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
@@ -172,6 +188,7 @@ echo '  </tr>'
 #----------------------------------------------------------------------------------------
 
 . $CONFIGCFG
+
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
@@ -289,7 +306,7 @@ pcp_squeezelite_alsa() {
 	                        ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 )		# m = use mmap (0|1)
 	                        ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 )		# d = opens ALSA twice
 
-	echo '                  <input class="small3"'
+	echo '                  <input class="small4"'
 	echo '                         type="text"'
 	echo '                         name="ALSA_PARAMS1"'
 	echo '                         value="'$ALSA_PARAMS1'"'
@@ -413,8 +430,8 @@ pcp_squeezelite_codec() {
 	echo '                         type="text"'
 	echo '                         name="_CODEC"'
 	echo '                         value="'$_CODEC'"'
-	echo '                         title="Restrict codec. Valid: flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
-	echo '                         pattern="[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
+	echo '                         title="Restrict codec. Valid: dsd,flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
+	echo '                         pattern="[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -432,6 +449,7 @@ pcp_squeezelite_codec() {
 	echo '                      <li>aac</li>'
 	echo '                      <li>wma</li>'
 	echo '                      <li>alac</li>'
+	echo '                      <li>dsd</li>'
 	echo '                      <li>mad, mpg for specific mp3 codec.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -454,8 +472,8 @@ pcp_squeezelite_xcodec() {
 	echo '                         type="text"'
 	echo '                         name="XCODEC"'
 	echo '                         value="'$XCODEC'"'
-	echo '                         title="Exclude codec. Valid: flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
-	echo '                         pattern="[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
+	echo '                         title="Exclude codec. Valid: dsd,flac,pcm,mp3,ogg,aac,wma,alac,mad,mpg"'
+	echo '                         pattern="[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -575,11 +593,12 @@ pcp_squeezelite_upsample_settings() {
 	echo '                    <p>&lt;recipe&gt;:&lt;flags&gt;:&lt;attenuation&gt;:&lt;precision&gt;:<br />'
 	echo '                       &lt;passband_end&gt;:&lt;stopband_start&gt;:&lt;phase_response&gt;</p>'
 	echo '                    <ul>'
-	echo '                      <li>recipe = (v|h|m|l|q)(L|I|M)(s) [E|X]</li>'
+	echo '                      <li>recipe = (v|h|m|l|q)(L|I|M)(s) [E|X]'
 	echo '                        <ul>'
 	echo '                          <li>E = exception - resample only if native rate not supported</li>'
 	echo '                          <li>X = async - resample to max rate for device, otherwise to max sync rate</li>'
 	echo '                        </ul>'
+	echo '                      </li>'
 	echo '                      <li>flags = num in hex</li>'
 	echo '                      <li>attenuation = attenuation in dB to apply (default is -1db if not explicitly set)</li>'
 	echo '                      <li>precision = number of bits precision (HQ = 20. VHQ = 28)</li>'
@@ -741,36 +760,37 @@ pcp_squeezelite_log_level() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Device supports DoP-------------------------------
+#--------------------------------------Device supports DSD/DoP-------------------------------
 pcp_squeezelite_dop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Device supports DoP</p>'
+	echo '                  <p class="row">Device supports DSD/DoP</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
 	echo '                         type="text"'
 	echo '                         name="DSDOUT"'
 	echo '                         value="'$DSDOUT'"'
-	echo '                         title="DoP delay"'
-	echo '                         pattern="\d*"'
+	echo '                         title="delay:format"'
+	echo '                         pattern="^\d+((:dop)|(:u8)|(:u16le)|(:u16be)|(:u32le)|(:u32be))?"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Output device supports DSD over PCM (DoP) (-D)&nbsp;&nbsp;'
+	echo '                  <p>Output device supports native DSD (-D)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;delay&gt;</p>'
+	echo '                    <p>&lt;delay&gt;:&lt;format&gt;</p>'
 	echo '                    <p>delay = optional delay switching between PCM and DoP in ms.</p>'
+	echo '                    <p>format = dop (default if not specified), u8, u16le, u16be, u32le or u32be.</p>'
 	echo '                    <p><b>Note: </b>LMS requires the DoP patch applied.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop
+[ "$SQBINARY" = "dsd" -a $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_dop || DSDOUT=""
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Close output setting------------------------------
@@ -822,12 +842,11 @@ pcp_squeezelite_unmute() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
-	echo '                         type="txt"'
+	echo '                         type="text"'
 	echo '                         name="UNMUTE"'
 	echo '                         value="'$UNMUTE'"'
 	echo '                         title="Unmute ALSA control"'
 	echo '                  >'
-	echo '                </td>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set ALSA control to unmute and set to full volume (-U)&nbsp;&nbsp;'
@@ -837,11 +856,6 @@ pcp_squeezelite_unmute() {
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -V option.</p>'
-
-#	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
-#	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	pcp_cards_controls
 
@@ -867,7 +881,7 @@ pcp_squeezelite_volume() {
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
-	echo '                         type="txt"'
+	echo '                         type="text"'
 	echo '                         name="ALSAVOLUME"'
 	echo '                         value="'$ALSAVOLUME'"'
 	echo '                         title="ALSA volume control"'
@@ -883,11 +897,6 @@ pcp_squeezelite_volume() {
 
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -U option.</p>'
-
-#	echo '                    <p><b>You have the following audio cards:</b>' $(cat /proc/asound/cards | grep -Fr [ | awk '{print $1 " "  $4}')'</p>'
-#	echo '                    <p>For card 0 controls:' $(amixer scontrols -c0 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 1 controls:' $(amixer scontrols -c1 | awk -F"'" '{print $2}')'</p>'
-#	echo '                    <p>For card 2 controls:' $(amixer scontrols -c2 | awk -F"'" '{print $2}')'</p>'
 
 	pcp_cards_controls
 
@@ -985,7 +994,7 @@ pcp_squeezelite_various_input() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p class="row">Various input</p>'
+	echo '                  <p class="row">Various Options</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="large15"'
@@ -1010,13 +1019,25 @@ pcp_squeezelite_various_input() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_various_input
 #----------------------------------------------------------------------------------------
 
+#========================================================================================
+# Javascript for form validation
+#----------------------------------------------------------------------------------------
+echo '<script>'
+echo 'function validate() {'
+echo '    if (document.squeeze.POWER_SCRIPT.value != "" && document.squeeze.POWER_GPIO.value != ""){'
+echo '      alert("Power GPIO and Power Script must not be\ndefined at the same time.");'
+echo '      return false;'
+echo '    }'
+echo '    return ( true );'
+echo '}'
+echo '</script>'
 #--------------------------------------Submit button-------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file">'
-echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite">'
+echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
+echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 echo '                </td>'
 
 if [ $MODE -ge $MODE_ADVANCED ]; then
@@ -1036,14 +1057,116 @@ fi
 
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
+
+#========================================================================================
+# Select Squeezelite binary.  Support custom versions of squeezelite.
+#----------------------------------------------------------------------------------------
+pcp_squeezelite_binary() {
+	DEFyes=""
+	DSDyes=""
+	CUSTOMyes=""
+	# check to make sure this is really a symlink before we allow setting via web
+	[ -f $TCEMNT/tce/squeezelite -a "$(readlink $TCEMNT/tce/squeezelite)" = "" ] && DISABLE="disabled" || DISABLE=""
+	case $SQBINARY in
+		default) DEFyes="checked";;
+		dsd) DSDyes="checked";;
+		custom) CUSTOMyes="checked";;
+	esac
+
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form name="binary" action="writetoconfig.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>Set Squeezelite Binary</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	COL1="75"
+	COL2="210"
+	COL3="380"
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <p><b>Enabled</b></p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p><b>Binary</b></p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                    <p>Select your Squeezelite Binary&nbsp;&nbsp;'
+	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Default and DSD binaries are included with pCP.</p>'
+	echo '                    <p>Almost all users will use the default binary.</p>'
+	echo '                  </div>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>Standard Squeezelite Binary.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="SQBINARY" value="dsd" '$DSDyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Native/DoP DSD Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>Squeezelite with DSD (DoP or native) patches.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Custom Squeezelite</p>'
+	echo '                </td>'
+	echo '                <td class="column'$COL3'">'
+	echo '                  <p>Save your file as '$TCEMNT'/tce/squeezelite-custom</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------Submit button---------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <button type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite Binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
+	echo '                </td>'
+	echo '                <td colspan="2">'
+	[ $DISABLE != "" ] &&
+	echo '                  <p>There is a custom binary installed in the wrong location. (See custom setting above).</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	#------------------------------------------------------------------------------------
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_binary
+#----------------------------------------------------------------------------------------
 echo '</table>'
 
 [ $DEBUG -eq 1 ] && pcp_show_config_cfg

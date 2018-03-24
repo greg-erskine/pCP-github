@@ -1,0 +1,15 @@
+Title:          alsaequal.tcz
+Description:    Real-time adjustable equalizer plugin for ALSA
+Version:        0.6
+Author:         Charles Eidsness, TheDigitalMachine <charles@cooper-street.com>  
+Original-site:  http://www.thedigitalmachine.net/alsaequal.html
+Copying-policy: COPYING
+Size:           24Kb
+Extension_by:   bmarkus, Lykkedk, Gerrelt
+Tags:           SOUND LIBRARY ALSA
+Comments:       This extension requires caps-0.4.5
+Change-log:     2014/08/30 First version, 0.6
+                2014/09/03 Makefile changed for correct install path:
+                        ctl_equal.c changed Eq10 to Eq + path for caps
+                        pcm_equal.c changed Eq10 to Eq + path for caps   
+Current:        2015/12/13 Code change to prevent "double free or corruption" error  

@@ -1,0 +1,90 @@
+#!/bin/sh
+. /etc/init.d/tc-functions
+
+checkroot
+
+CONFIGCFG="/usr/local/sbin/config.cfg"
+. $CONFIGCFG
+
+if [ "$AP_IP" = "" ]; then
+	WIFI_IP="10.10.10.1"
+else
+	WIFI_IP=$AP_IP
+fi
+HOSTAPDCONF=/usr/local/etc/pcp/hostapd.conf
+DNSMASQCONF=/usr/local/etc/pcp/dnsmasq.conf
+HOSTAPD_PID=/var/run/hostapd.pid
+DNSMASQ_PID=/var/run/dnsmasq.pid
+
+#Internal variables
+ROUTER=3
+
+checketh0(){
+	echo `cat /sys/class/net/eth0/carrier`
+}
+
+killeth0(){
+	ifconfig eth0 down
+	kill $(cat /var/run/udhcpc.eth0.pid)
+	# bring backup, or carrier is not valid
+	ifconfig eth0 up
+
+}
+
+disable_pcp_wifi(){
+	[ $WIFI != "off" ] && sed -i "s/\(WIFI=\).*/\1\"off\"/" $CONFIGCFG
+}
+
+set_router_on(){
+if [ $ROUTER -ne 1 ]; then
+#	echo "ROUTER ON"
+	#delete any default route udhcpc will add automatically
+	route delete default
+	DEVICE="eth0"
+	/sbin/udhcpc -b -i $DEVICE -x hostname:$(/bin/hostname) -p /var/run/udhcpc.$DEVICE.pid >/dev/null 2>&1 &
+	sleep 1
+	/usr/local/sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+	/usr/local/sbin/iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+	/usr/local/sbin/iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+	echo "1" > /proc/sys/net/ipv4/ip_forward
+	ROUTER=1
+fi
+}
+
+set_router_off(){
+if [ $ROUTER -ne 0 ]; then
+#	echo "ROUTER OFF"
+	iptables --table nat --flush
+	echo "0" > /proc/sys/net/ipv4/ip_forward
+	killeth0
+	route delete default
+	route add default gw $WIFI_IP wlan0
+	ROUTER=0
+fi
+}
+
+########Start#######
+
+#Kill udhcpc on eth 0  we will bring it back later if we see wire connected
+killeth0
+#Need to make sure that pcp doesn't try to start wifi.
+disable_pcp_wifi
+
+ifconfig wlan0 down
+ifconfig wlan0 add ${WIFI_IP} netmask 255.255.255.0 up
+
+[ -d /var/run/hostapd ] || mkdir -p /var/run/hostapd
+start-stop-daemon --start --quiet -m -p ${HOSTAPD_PID} -b --startas /bin/sh -- -c "exec /usr/local/bin/hostapd ${HOSTAPDCONF} >> /var/log/pcp_hostapd.log"
+
+
+[ -d /var/lib/misc ] || mkdir -p /var/lib/misc
+echo -e "${WIFI_IP}\tpcp" > /usr/local/etc/pcp/pcp_hosts
+
+[ -e /var/log/dnsmasq.log ] || touch /var/log/pcp_dnsmasq.log
+chmod 666 /var/log/pcp_dnsmasq.log
+start-stop-daemon --start --quiet -m -p ${DNSMASQ_PID} -b --exec /usr/local/sbin/dnsmasq -- -C ${DNSMASQCONF}
+
+while [ "X" = "X" ]; do
+	[ $(checketh0) -eq 1 ] && set_router_on || set_router_off
+	sleep 10
+done

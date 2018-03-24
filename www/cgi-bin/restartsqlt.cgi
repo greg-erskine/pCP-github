@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-04
+#	Return to requested page. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -21,11 +24,15 @@
 
 . pcp-functions
 
-pcp_html_head "Restart Squeezelite" "SBP" "5" "main.cgi"
+pcp_httpd_query_string
+
+[ "$FROM_PAGE" = "" ] && FROM_PAGE="main.cgi"
+
+pcp_html_head "Restart Squeezelite" "SBP" "5" "$FROM_PAGE"
 
 pcp_banner
 pcp_running_script
-
+pcp_remove_query_string
 pcp_table_top "Restarting Squeezelite"
 
 pcp_squeezelite_stop
@@ -42,7 +49,7 @@ fi
 
 pcp_table_end
 
-[ $DEBUG -eq 1 ] && pcp_go_main_button
+echo '<p><input type="button" value="Go Back" onclick="javascript:location.href='\'''$FROM_PAGE''\'';" />&nbsp;&nbsp;Go back to previous page</p>'
 
 pcp_footer
 pcp_copyright

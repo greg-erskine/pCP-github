@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2017-12-27
+#	Load arc4 if doing a network mount, as it does not automatically load. PH.
+
 # Version: 3.22 2017-09-10
 #	Changed Netmounts to support shares with spaces. PH.
 #	Added checkbox to clear unused netmount conf entries. PH.
@@ -244,6 +247,8 @@ case "$MOUNTTYPE" in
 	networkshare)
 		NETMNTCHANGED=0
 		NN=0
+		#cifs does not automatically load arc4, which is in the dependancies needed for SMB3 to work
+		modprobe arc4
 		# Process the $QUERY_STRING Not decoding NETMOUNTSHAREs
 		eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { if ($i ~ /^NETMOUNTSHARE/) printf "%s\"\n",$i} }' | sed 's/=/="/')
 		if [ -f  ${NETMOUNTCONF} ]; then

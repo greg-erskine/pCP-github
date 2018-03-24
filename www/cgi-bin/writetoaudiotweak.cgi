@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-01-23
+#	Keep a blank CARDNO from being written to asound.conf
+
 # Version: 3.21 2017-07-08
 #	Changed to allow booting from USB on RPI3. PH.
 #	Updates for Alsaequal cardnumber
@@ -127,7 +130,8 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
 
 	# Determination of the number of the current sound-card
-	pcp_find_card_number   #This probably isn't necessary, as we will check at boot time, when using alsaequal
+	#This probably isn't necessary, as we will check at boot time, when using alsaequal
+	pcp_load_card_conf   
 
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'
@@ -143,7 +147,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 				pcp_download_alsaequal
 				OUTPUT="equal"
 			fi
-			sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf
+			[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo '<p class="error">[ ERROR ] Unable to determine Card Number to setup ALSAEqual</p>'
 		;;
 		no)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'

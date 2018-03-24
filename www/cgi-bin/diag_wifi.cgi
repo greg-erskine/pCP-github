@@ -1,8 +1,12 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 3.5.0 2018-03-20
+#	Added support for RPi3B+. GE.
+#	lsusb is a standard command, no need for extension. GE.
+
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -10,35 +14,16 @@
 # Version: 3.10 2017-01-06
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
-#	Added wpa_supplicant.conf.
-#	Added wifi_wpadrv.
-#	Added ping tests.
+#	Added wpa_supplicant.conf. GE.
+#	Added wifi_wpadrv. GE.
+#	Added ping tests. GE.
 
-# Version: 0.07 2016-03-28 GE
-#	Changed log location to /var/log.
-
-# Version: 0.06 2016-02-24 GE
-#	Changed indicators to tick and cross.
-
-# Version: 0.05 2016-02-03 GE
-#	Moved pcp_pastebin_button to Developer mode.
-
-# Version: 0.04 2015-12-24 GE
-#	Added Upload to pastebin feature.
-
-# Version: 0.03 2015-09-20 GE
-#	Added evdev to exclude list.
-
-# Version: 0.02 2015-09-08 GE
-#	Updated.
-
-# Version: 0.01 2015-08-20 GE
-#	Original.
+# Version: 0.01 2015-08-20
+#	Original. GE.
 
 . pcp-functions
 . pcp-rpi-functions
 . pcp-pastebin-functions
-#. pcp-wifi-functions
 
 pcp_html_head "Wifi Diagnostics" "GE"
 
@@ -50,8 +35,9 @@ MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
 LOG="${LOGDIR}/pcp_diagwifi_${MAC:6}.log"
 
 #========================================================================================
-# Routine to display usb devices found during boot process. Some of the standard RPi usb
-# devices are jumped to focus on wifi device.
+# Routine to display USB wifi adaptors found during boot process.
+# Some of the standard RPi USB devices are jumped to focus on wifi device.
+# Update: Routine also finds built-in wifi devices.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_dmesg() {
 	echo "dmesg" >>$LOG
@@ -59,11 +45,23 @@ pcp_diag_wifi_dmesg() {
 	dmesg | sed -n '{
 		/New USB device found, idVendor=1d6b/n
 		/New USB device found, idVendor=0424/n
-		/New USB device found, idVendor=/ {
+		/New USB device found, idVendor=/{
 			p
 			n
 			p
 			n
+			p
+			n
+			p
+			n
+			p
+			a\
+.
+		}
+	}' | tee -a $LOG
+	dmesg | sed -n '{
+		/brcmfmac: brcmf_fw_map_chip_to_name:/n
+		/brcmfmac: brcmf_c_preinit_dcmds:/{
 			p
 			n
 			p
@@ -78,7 +76,7 @@ pcp_diag_wifi_dmesg() {
 
 #========================================================================================
 # Routine to generate a list of wifi related modules. Some of the standard RPi modules
-# have been filtered to foucs on wifi modules.
+# have been filtered to focus on wifi modules.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_lsmod() {
 	echo "lsmod" >>$LOG
@@ -88,32 +86,8 @@ pcp_diag_wifi_lsmod() {
 }
 
 #========================================================================================
-# lsusb routine - Check for usbutils.tcz and download and install
-#----------------------------------------------------------------------------------------
-pcp_diag_wifi_install_lsusb() {
-	echo '<textarea class="inform" rows="4">'
-	pcp_reset_repository
-	which lsusb
-	if [ $? -eq 0 ]; then
-		echo 'usbutils.tcz already installed.'
-	else
-		if [ ! -f /$TCEMNT/tce/optional/usbutils.tcz ]; then
-			echo 'usbutils.tcz downloading... '
-			sudo -u tc tce-load -w usbutils.tcz
-			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
-		else
-			echo 'usbutils.tcz downloaded.'
-		fi
-		echo 'usbutils.tcz installing... '
-		sudo -u tc tce-load -i usbutils.tcz
-		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
-	fi
-	echo '</textarea>'
-}
-
-#========================================================================================
-# Routine to report on usb devices. Some of the standard RPi usb devices have been
-# filtered to focus on wifi usb devices.
+# Routine to report on USB devices. Some of the standard RPi USB devices have been
+# filtered to focus on wifi USB devices.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_lsusb() {
 	echo "wifi usb report (lsusb)" >>$LOG
@@ -128,7 +102,7 @@ pcp_diag_wifi_lsusb() {
 pcp_diag_wifi_wpa_suplicant() {
 	echo "wpa supplicant configuration (wpa_supplicant.conf)" >>$LOG
 	echo ========================================================================================= >>$LOG
-	cat /opt/wpa_supplicant.conf | tee -a $LOG
+	cat /etc/wpa_supplicant.conf | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -200,7 +174,7 @@ pcp_diag_wifi_available_networks() {
 
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150">'
+		echo '                <td>'
 		echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
 		echo '                  <input type="hidden" name="FILE" value="'$LOG'" />'
 		echo '                </td>'
@@ -213,7 +187,6 @@ pcp_diag_wifi_available_networks() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
-		pcp_refresh_button
 		pcp_footer
 		pcp_copyright
 		echo '</body>'
@@ -359,11 +332,11 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Wifi diagnostics</legend>'
 echo '          <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
+#----------------------------------Wifi / Wifi MAC---------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
-echo '                <p>Wifi:</p>'
+echo '                <p>Wifi</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p>'$WIFI'</p>'
@@ -381,7 +354,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#----------------------------------SSID / Wifi IP----------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -403,7 +376,7 @@ echo '              <td class="column150">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_ip)'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
+#----------------------------------Password / Security-----------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150">'
@@ -425,18 +398,22 @@ echo '              <td class="column150">'
 echo '                <p>'$ENCRYPTION'</p>'
 echo '              </td>'
 echo '            </tr>'
-
+#----------------------------------Passphrase--------------------------------------------
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150">'
+	echo '                <p>Passphrase:</p>'
+	echo '              </td>'
+	echo '              <td colspan="5">'
+	echo '                <p>'$(pcp_wifi_get_passphrase)'</p>'
+	echo '              </td>'
+	echo '            </tr>'
+fi
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
-echo '                <p>Passphrase:</p>'
-echo '              </td>'
-echo '              <td colspan="5">'
-#echo '                <p>'$(pcp_wifi_get_passphrase)'</p>'
-echo '              </td>'
-echo '            </tr>'
-#--------------------------------Uptime--------------------------------------------------
+echo '          </table>'
+echo '          <table class="bggrey percent100">'
+#----------------------------------Uptime------------------------------------------------
 if [ $(pcp_uptime_seconds) -lt 86400 ]; then
 	pcp_green_tick "No reboot required."
 else
@@ -458,6 +435,9 @@ echo '              <td class="column300">'
 echo '                <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
+echo '          </table>'
+echo '          <table class="bggrey percent100">'
 #------------------------------------dmesg-----------------------------------------------
 pcp_start_row_shade
 pcp_toggle_row_shade
@@ -501,38 +481,27 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-                      pcp_diag_wifi_install_lsusb
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
 echo '                <textarea class="inform" rows="2">'
                         pcp_diag_wifi_lsusb
 echo '                </textarea>'
 echo '              </td>'
 echo '            </tr>'
 #------------------------------------wpa_supplicant.conf---------------------------------
-#pcp_start_row_shade
-#pcp_toggle_row_shade
-#echo '            <tr class="'$ROWSHADE'">'
-#echo '              <td>'
-#echo '                <p><b>/opt/wpa_supplicant.conf:</b></p>'
-#echo '              </td>'
-#echo '            </tr>'
-#pcp_toggle_row_shade
-#echo '            <tr class="'$ROWSHADE'">'
-#echo '              <td>'
-#echo '                <textarea class="inform" rows="10">'
-#                        pcp_diag_wifi_wpa_suplicant
-#echo '                </textarea>'
-#echo '              </td>'
-#echo '            </tr>'
+pcp_start_row_shade
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <p><b>/etc/wpa_supplicant.conf:</b></p>'
+echo '              </td>'
+echo '            </tr>'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <textarea class="inform" rows="10">'
+                        pcp_diag_wifi_wpa_suplicant
+echo '                </textarea>'
+echo '              </td>'
+echo '            </tr>'
 #------------------------------------/etc/sysconfig/wifi-wpadrv--------------------------
 pcp_start_row_shade
 pcp_toggle_row_shade
@@ -600,63 +569,64 @@ echo '            </tr>'
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
+#----------------------------------------------------------------------------------------
+
 #------------------------------------Available networks----------------------------------
-echo '        <form name="Paste" action="pastebin.cgi" method="get">'
-echo '          <div class="row">'
-echo '            <fieldset>'
-echo '              <legend>Available wifi networks</legend>'
-echo '              <table class="bggrey percent100">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Available wifi networks</legend>'
+echo '            <table class="bggrey percent100">'
 pcp_start_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td>'
-                          pcp_textarea_inform "none" "pcp_diag_wifi_available_networks" 110
-echo '                  </td>'
-echo '                </tr>'
-echo '              </table>'
-echo '            </fieldset>'
-echo '          </div>'
-echo '        </form>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+                        pcp_textarea_inform "none" "pcp_diag_wifi_available_networks" 110
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Ping tests------------------------------------------
-echo '        <form name="Paste" action="'$0'" method="get">'
-echo '          <div class="row">'
-echo '            <fieldset>'
-echo '              <legend>Ping tests</legend>'
-echo '              <table class="bggrey percent100">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Ping tests</legend>'
+echo '            <table class="bggrey percent100">'
+#------------------------------------Ping local------------------------------------------
 pcp_start_row_shade
 pcp_toggle_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td>'
-echo '                    <p><b>ping local results:</b></p>'
-echo '                  </td>'
-echo '                </tr>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <p><b>ping local results:</b></p>'
+echo '                </td>'
+echo '              </tr>'
 pcp_toggle_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td>'
-echo '                    <textarea class="inform" rows="11">'
-                            pcp_diag_wifi_ping_local
-echo '                    </textarea>'
-echo '                  </td>'
-echo '                </tr>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <textarea class="inform" rows="11">'
+                          pcp_diag_wifi_ping_local
+echo '                  </textarea>'
+echo '                </td>'
+echo '              </tr>'
+#------------------------------------Ping LMS--------------------------------------------
 pcp_toggle_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td>'
-echo '                    <p><b>ping LMS results:</b></p>'
-echo '                  </td>'
-echo '                </tr>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <p><b>ping LMS results:</b></p>'
+echo '                </td>'
+echo '              </tr>'
 pcp_toggle_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td>'
-echo '                    <textarea class="inform" rows="25">'
-                            pcp_diag_wifi_ping_lms
-echo '                    </textarea>'
-echo '                  </td>'
-echo '                </tr>'
-echo '              </table>'
-echo '            </fieldset>'
-echo '          </div>'
-echo '        </form>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <textarea class="inform" rows="25">'
+                          pcp_diag_wifi_ping_lms
+echo '                  </textarea>'
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
 #----------------------------------------------------------------------------------------
 
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button wifi

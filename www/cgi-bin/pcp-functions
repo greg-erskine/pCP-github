@@ -2,6 +2,19 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.5.0 2018-03-14
+#	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
+#	Added SQBINARY config setting. PH.
+#	Add Bootscript option for soundcard setup. PH.
+#	Add APMODE config variable. PH
+#	Add reboot pending notification. PH.
+#	Change pcp_restart_required to non-popup, and set return page. PH.
+#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
+#	HTML5 cleanup. GE.
+#	Added "nobody" parameter to pcp_html_head. GE.
+#	Added pcp_redirect_button. GE.
+#	Moved pcp_remove_query_string code to piCorePlayer.js. GE.
+
 # Version: 3.22 2017-07-23
 #	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
 #	Added $INTERNET_CHECK_IP to config.cfg. GE.
@@ -9,7 +22,7 @@
 
 # Version: 3.21 2017-07-02
 #	Added note for TEST 3 Active in footer. PH.
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 #	Support multiple USB mounts. PH.
 #	Support multiple Network mounts. PH.
 #	Add ability to set column class on pcp_table functions. PH.
@@ -23,9 +36,9 @@
 #	Added variables JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
 #	Removed pcp_download_package, it is no longer used. PH.
 #	Added timestamp to css to assist with caching. PH.
-#	Change player tabs to display multi line on ipads better. PH.
+#	Change player tabs to display multi line on iPads better. PH.
 #	Firefox complained about <div> tag making </p> tag out of scope. PH.
-#  Changed reboot functions. PH.
+#	Changed reboot functions. PH.
 
 # Version: 3.11 2017-01-29
 #	Updated default soundcard for shairport to work out of box. SBP.
@@ -46,7 +59,7 @@
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
-#	Added Hifiberry Digi+ Pro support. SBP.
+#	Added HiFiBerry Digi+ Pro support. SBP.
 #	Updated FIQ-split. SBP.
 #	Added pcp_green_tick, pcp_red_cross. GE.
 #	Added PICORE_REPO_1, PICORE_REPO_2. GE.
@@ -55,7 +68,7 @@
 
 # Version: 3.01 2016-08-26
 #	Changed default lirc GPIO to 25. GE.
-#	Added enable/disable onboard sound for Hifiberry DAC+ in shairport. SBP.
+#	Added enable/disable onboard sound for HiFiBerry DAC+ in shairport. SBP.
 #	Added clean-up of the sound drivers in the pcp_reset_config_to_defaults. SBP.
 
 # Version: 3.00 2016-08-09
@@ -113,6 +126,7 @@ pcp_variables() {
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
+	REBOOT_PENDING="/tmp/rebootpending"
 
 	#------------------------------------------------------------------------------------
 	# Define modes
@@ -244,7 +258,7 @@ pcp_sufficient_free_space() {
 	else
 		echo $PCLASSERROR'[ ERROR ] Not enough space.'$SLASHP
 		echo $PCLASSINFO'[ INFO ] Try expanding your partition.'$SLASHP
-		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
+		STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required
 		pcp_go_back_button
@@ -292,27 +306,27 @@ pcp_internet_accessible() {
 }
 
 pcp_sourceforge_accessible() {
-	/bin/busybox wget -s ${PCP_REPO}/repo.htm >/dev/null 2>&1
+	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
 pcp_picore_accessible() {
-	/bin/busybox wget -s $MIRROR >/dev/null 2>&1
+	/bin/busybox wget --spider $MIRROR >/dev/null 2>&1
 	echo $?
 }
 
 pcp_pcp_repo_accessible() {
-	/bin/busybox wget -s ${PCP_REPO}/repo.htm >/dev/null 2>&1
+	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
 pcp_picore_repo_1_accessible() {
-	/bin/busybox wget -s $PICORE_REPO_1 >/dev/null 2>&1
+	/bin/busybox wget --spider $PICORE_REPO_1 >/dev/null 2>&1
 	echo $?
 }
 
 pcp_picore_repo_2_accessible() {
-	/bin/busybox wget -s $PICORE_REPO_2 >/dev/null 2>&1
+	/bin/busybox wget --spider $PICORE_REPO_2 >/dev/null 2>&1
 	echo $?
 }
 
@@ -444,7 +458,7 @@ pcp_controls_mac_address() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-# $1 = title, $2 = author, $3 = seconds, $4 = url
+# $1 = title, $2 = author, $3 = seconds, $4 = url, $5 = "nobody" tag
 #----------------------------------------------------------------------------------------
 pcp_html_head() {
 	echo 'Content-Type: text/html'
@@ -454,9 +468,6 @@ pcp_html_head() {
 	echo '<html>'
 	echo '<head>'
 	echo '  <meta charset="UTF-8">'
-	echo '  <meta http-equiv="Cache-Control" content="no-cache">'
-	echo '  <meta http-equiv="Pragma" content="no-cache">'
-	echo '  <meta http-equiv="Expires" content="0">'
 	if [ $DEBUG -eq 0 ]; then
 		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
 			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
@@ -470,6 +481,7 @@ pcp_html_head() {
 	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
 	echo ''
+	[ "$5" != "nobody" ] &&
 	echo '<body>'
 	echo '<!-- End of pcp_html_head -->'
 }
@@ -478,14 +490,14 @@ pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td height="148">'
+	echo '    <td  style="height:148px">'
 	echo '      <p class="banner">'
 	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
 	echo '        <map name="hotspot">'
 	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
-	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100">'
-	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0">'
-	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi">'
+	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
+	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
+	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
 	echo '        </map>'
 	echo '      </p>'
 	echo '    </td>'
@@ -527,6 +539,29 @@ pcp_navigation() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_navigation toolbar -->'
+	if [ -f $REBOOT_PENDING ]; then
+		echo '<!-- Start of reboot notification toolbar -->'
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <div class="row">'
+		echo '        <fieldset>'
+		echo '          <table class="bggrey percent100">'
+		echo '            <tr class="warning">'
+		echo '              <td>'
+		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
+		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
+		echo '                </p>'
+		echo '              </td>'
+		echo '            </tr>'
+		echo '          </table>'
+		echo '        </fieldset>'
+		echo '      </div>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of reboot notification toolbar -->'
+	fi
 }
 
 pcp_footer() {
@@ -813,7 +848,7 @@ pcp_write_to_host() {
 	sed -i '1 s/^/host='${HOST}' /' $CMDLINETXT
 }
 
-# Used in reading config files Returns value right of the =
+# Used in reading config files. Returns value right of the =
 pcp_trimval() {
 	echo $1 | cut -d '=' -f2 | xargs
 }
@@ -870,35 +905,37 @@ pcp_httpd_query_string_no_decode() {
 }
 
 # This will remove the query string from the url, prevents page reloads and document.referrer from
-# reposting a command that we've already executed.  Once we test this more we might want to move this
-# script to the piCorePlayer.js.
+# reposting a command that we've already executed.
 pcp_remove_query_string() {
-	echo '<script type="text/javascript">'
-	echo '  if (history.pushState) {'
-	echo '    var newurl = window.location.origin + window.location.pathname;'
-	echo '    window.history.pushState({path:newurl},"",newurl);'
-	echo '  }'
-	echo '</script>'
+	echo '<script>pcp_delete_query_string()</script>'
 }
 
 #========================================================================================
 # Restart and Reboot popups
 #----------------------------------------------------------------------------------------
 pcp_reboot_required() {
-	echo '<script language="javascript">'
-	echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')'
-	echo '</script>'
+	if [ ! -f $REBOOT_PENDING ]; then
+		touch $REBOOT_PENDING
+		echo '<script language="javascript">'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [Cancel] to manually reboot later.'\'','\''reboot.cgi?RB=yes'\'')'
+		echo '</script>'
+	fi
 }
 
 pcp_restart_required() {
-	echo '<script language="javascript">'
-	echo '  pcp_confirm('\''Restart Squeezelite?'\'','\''restartsqlt.cgi'\'')'
+	echo '<script>'
+	echo '  function restart(from_page) {'
+	echo '    var url = "restartsqlt.cgi?FROM_PAGE=";'
+	echo '    var page = url.concat(from_page);'
+	echo '    window.location = page;'
+	echo '  }'
+	echo '  restart("'$1'");'
 	echo '</script>'
 }
 
 pcp_confirmation_required() {
-	echo '<script language="javascript">'
-	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
+	echo '<script>'
+	echo '	pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
 	echo '</script>'
 }
 
@@ -1130,7 +1167,7 @@ pcp_user_commands() {
 pcp_go_main_button() {
 	echo '<!-- Start of pcp_go_main_button -->'
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
-	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</form></p>'
+	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</p></form>'
 	echo '<!-- End of pcp_go_main_button -->'
 }
 
@@ -1150,6 +1187,20 @@ pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
 	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
+}
+
+pcp_redirect_button() {
+	# $1 - button text
+	# $2 - redirection URL
+	# $3 - redirection delay
+	echo '<!-- Start of pcp_redirect_button -->'
+	echo '<form name="redirect button" action="'$2'" method="get">'
+	echo '	<p>'
+	echo '		<input class="large12" type="submit" class="large" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
+	echo '	</p>'
+	echo '</form>'
+	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
+	echo '<!-- End of pcp_redirect_button -->'
 }
 
 #========================================================================================
@@ -1362,7 +1413,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
 	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $CONFIGCFG
 	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
+	sudo sed -i "s@\(AUDIOBOOTSCRIPT=\).*@\1\"$AUDIOBOOTSCRIPT\"@" $CONFIGCFG
 	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
+	sudo sed -i "s/\(CPUGOVERNOR=\).*/\1\"$CPUGOVERNOR\"/" $CONFIGCFG
 	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
 	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $CONFIGCFG
 	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
@@ -1394,6 +1447,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
 	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $CONFIGCFG
 	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
+	sudo sed -i "s/\(SQBINARY=\).*/\1\"$SQBINARY\"/" $CONFIGCFG
 	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
 	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
@@ -1408,7 +1462,10 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
 	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
 	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
+	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $CONFIGCFG
+	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $CONFIGCFG
 	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(RPIBLUETOOTH=\).*/\1\"$RPIBLUETOOTH\"/" $CONFIGCFG
 	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
 	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
@@ -1420,6 +1477,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $CONFIGCFG
 	sudo sed -i "s/\(INTERNET_CHECK_IP=\).*/\1\"$INTERNET_CHECK_IP\"/" $CONFIGCFG
 	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $CONFIGCFG
+	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $CONFIGCFG
+	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $CONFIGCFG
 }
 
 #========================================================================================
@@ -1464,8 +1523,10 @@ UNMUTE=""
 ALSAVOLUME=""
 OTHER=""
 AUDIO="Analog"
+AUDIOBOOTSCRIPT=""
 HOST="piCorePlayer"
 TIMEZONE=""
+CPUGOVERNOR="ondemand"
 OVERCLOCK="NONE"
 ADVOVERCLOCK="None"
 CMD="Default"
@@ -1496,6 +1557,7 @@ SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"
 SQLT_VERSION="basic"
+SQBINARY="default"
 SQUEEZELITE="yes"
 POWER_GPIO=""
 POWER_OUTPUT="L"
@@ -1510,7 +1572,10 @@ FSM="Default"
 LMSCONTROLS="yes"
 PLAYERTABS="yes"
 HDMIPOWER="on"
+APMODE="no"
+AP_IP=""
 RPI3INTWIFI="on"
+RPIBLUETOOTH="off"
 SAMBA="disabled"
 WOL="no"
 WOL_NIC=""
@@ -1522,6 +1587,8 @@ SPARAMS4=""
 SPARAMS5=""
 INTERNET_CHECK_IP=""
 ROTDASH="no"
+SHAIRPORT_OUT="Please change"
+SHAIRPORT_CONTROL="Please change"
 EOF
 }
 

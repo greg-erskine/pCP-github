@@ -28,11 +28,11 @@ case "${ACTION}" in
 			pcp_table_top "Updating pcp-base and any needed dependencies"
 			echo '                <textarea class="inform" style="height:150px">'
 			pcp-update pcp-base
-			TEST=$?
-			if [ $TEST -eq 2 ]; then
+			CHK=$?
+			if [ $CHK -eq 2 ]; then
 				echo '[ INFO ] There is no update for pcp-base at this time.'
 				REBOOT_REQUIRED=0
-			elif [ $TEST -eq 1 ]; then
+			elif [ $CHK -eq 1 ]; then
 				echo '[ ERROR ] There was an error updating pcp-base, please try again later'
 				REBOOT_REQUIRED=0
 			else 

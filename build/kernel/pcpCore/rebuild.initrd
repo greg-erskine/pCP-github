@@ -1,0 +1,145 @@
+#!/bin/bash
+
+#################################################################################
+#
+# rebuild.initrd
+#
+#	This works by copying a current functioning initrd replacing the kernel modules with the new kernel
+#	To include new kernel modules, there is a pause where you can add a module to the new initrd if needed
+#	Pretty much this process wont work when making major kernel changes i.e. 4.4.y to 4.9.y
+#
+# Prep - need to setup some starting points
+#
+#	path  (versions and initrd's are examples)
+#	armv6/initrd/4.4.20/8.0.gz
+#	armv7/initrd/4.4.20/8.0_v7.gz
+#
+#  new initrds will be saved in path based on the new kernel version.  Note, that you need a new kernel for this to work.
+#
+#
+
+
+BASEWD=$(pwd)
+INITRDWRK="/tmp/initrd-working"
+
+BUSYBOX=$(which busybox)
+if [ "$BUSYBOX" == "" ]; then
+	echo "busybox with depmod support is required in path"
+	exit 1
+else
+	DEPMOD="${BUSYBOX} depmod"
+	$DEPMOD --help > /dev/null 2>&1
+	[ $? -ne 0 ] && (echo "busybox does not have depmod support"; exit 1)
+fi
+
+if [ -d armv6 -o -d armv7 ]; then
+	echo
+	echo "Start from within the armv6 or armv7 directory"
+	echo "Usage .$0" >&2
+	exit 1
+fi
+
+echo "Setting up Sudo....."
+sudo echo
+
+AVAILINITRD=$(ls -r --sort=time initrd)
+
+echo "Please Select the initrd to use"
+select OLD in $AVAILINITRD;
+do
+	if [ "$OLD" != "" ]; then
+		echo "You picked $OLD"
+		read -p "Do you wish to continue?" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+OLDINITRD=$(find ${BASEWD}/* -name "*.gz" | grep --max-count=1 ${OLD})
+echo "*****************************************************************"
+echo "Selecting initrd ${OLDINITRD}"
+echo
+echo "Press enter to continue"
+read key
+
+if [ -f "${OLDINITRD}" ]; then
+	echo "*****************************************************************"
+	echo "Removing the old unpacked initrd"
+	sudo rm -rf $INITRDWRK
+	if [ ! -d $INITRDWRK ]; then
+		mkdir $INITRDWRK
+		cd $INITRDWRK
+		zcat "${OLDINITRD}" | sudo cpio -i -H newc -d
+		[ ! -f ${OLDINITRD}.orig ] && mv -f ${OLDINITRD} ${OLDINITRD}.orig
+		cd ${BASEWD}
+	else
+		echo "$INITRDWRK is not empty, please delete and then restart"
+		exit 1
+	fi
+else
+	echo "Starting packed initrd not found"
+	exit 1
+fi
+
+OLDKERNEL=$(ls $INITRDWRK/lib/modules)
+
+echo "*****************************************************************"
+echo "Unpacked initrd is located $INITRDWRK"
+echo "Kernel in the base initrd is $OLDKERNEL"
+echo ""
+echo "Please edit initrd and Press any key to ready to repack"
+read key
+echo
+echo "*****************************************************************"
+cd $INITRDWRK/lib/modules/${OLDKERNEL}
+echo "Gzipping Modules"
+find -name "*.ko" | xargs -r -I {} sudo gzip -9 {}
+echo "Running busybox depmod"
+sudo $DEPMOD -b $INITRDWRK $OLDKERNEL
+cd $BASEWD
+
+echo "*****************************************************************"
+while true
+do 
+	PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
+	echo "Release name is: ${PCPOSVER}"
+	echo
+	echo "Please enter new string, or enter to keep the same"
+	read key
+	if [ "$key" != "" ]; then
+		PCPOSVER=${key//[$'\t\r\n ']}
+		echo "You entered :${PCPOSVER}"
+	else
+		echo "Keeping the string :${PCPOSVER}"
+	fi
+	read -p "Is this correct? (y/n) " yn
+	case $yn in
+		[Yy]* ) sudo sh -c "echo ${PCPOSVER} > $INITRDWRK/usr/share/doc/tc/release.txt";break;;
+		[Nn]* ) ;;
+		* ) echo "Please answer yes or no.";;
+	esac
+done
+
+echo "*****************************************************************"
+echo "Name for the initrd for kernel $OLDKERNEL"
+echo 
+echo "initrd name is $(basename ${OLDINITRD})"
+echo
+echo "Press enter to repack"
+read key
+echo
+cd $INITRDWRK/lib/modules/${OLDKERNEL}/kernel
+find * -not -type d > /tmp/module.lst
+sort /tmp/module.lst > ${BASEWD}/initrd/${OLD}/module.lst
+cd $INITRDWRK
+sudo find | sudo cpio -o -H newc | gzip -9 > ${OLDINITRD}
+echo "Launching recompression in the background"
+advdef -z4 ${OLDINITRD} 2>&1 > /dev/null &
+cd $BASEWD
+echo
+echo "Cleanup - Temp Files"
+sudo rm -rf $INITRDWRK
+echo "Done"

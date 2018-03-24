@@ -1,0 +1,28 @@
+From 7de861956d04d46b8d35142e3cd0aa7c72e0601f Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Tue, 26 Apr 2016 11:12:37 +0000
+Subject: [PATCH 18/63] ARM: bcm2708: move spi0 to use new clock framework
+
+use spi0 to use new clock framwork
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ arch/arm/boot/dts/bcm2708_common.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index 1018497..c8908fa 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -174,7 +174,7 @@
+ 			compatible = "brcm,bcm2835-spi";
+ 			reg = <0x7e204000 0x1000>;
+ 			interrupts = <2 22>;
+-			clocks = <&clk_core>;
++			clocks = <&cprman BCM2835_CLOCK_VPU>;
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			status = "disabled";
+-- 
+2.7.4
+

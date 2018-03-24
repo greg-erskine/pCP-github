@@ -1,0 +1,46 @@
+From f9b27fc0e28fdedf36d6e2c5d6aaccd4e32f5919 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Tue, 26 Apr 2016 13:04:12 +0000
+Subject: [PATCH 28/63] ARM: bcm2708: move mmc to use clock framework
+
+Move mmc to use clock framework.
+
+For some reason the emmc clock dirver does not claim the
+clock - enable count stays at 0 for the emmc clock.
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ arch/arm/boot/dts/bcm2708_common.dtsi | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index e6667de..81bd3a2 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -270,7 +270,7 @@
+ 			compatible = "brcm,bcm2835-mmc";
+ 			reg = <0x7e300000 0x100>;
+ 			interrupts = <2 30>;
+-			clocks = <&clk_mmc>;
++			clocks = <&cprman BCM2835_CLOCK_EMMC>;
+ 			dmas = <&dma 11>;
+ 			dma-names = "rx-tx";
+ 			brcm,overclock-50 = <0>;
+@@ -443,14 +443,6 @@
+ 			clock-frequency = <250000000>;
+ 		};
+ 
+-		clk_mmc: clock@1 {
+-			compatible = "fixed-clock";
+-			reg = <1>;
+-			#clock-cells = <0>;
+-			clock-output-names = "mmc";
+-			clock-frequency = <250000000>;
+-		};
+-
+ 		/* The oscillator is the root of the clock tree. */
+ 		clk_osc: clock@6 {
+ 			compatible = "fixed-clock";
+-- 
+2.7.4
+

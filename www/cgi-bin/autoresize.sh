@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.50 2017-11-06
+#	Fixed for changed format of fdisk (BusyBox v1.27.2). PH.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -31,18 +34,29 @@ esac
 
 #========================================================================================
 # fdisk routine
+#
+# $ fdisk -l
+# Disk /dev/mmcblk0: 3724 MB, 3904897024 bytes, 7626752 sectors
+# 119168 cylinders, 4 heads, 16 sectors/track
+# Units: cylinders of 64 * 512 = 32768 bytes
+# 
+# Device       Boot StartCHS    EndCHS        StartLBA     EndLBA    Sectors  Size Id Type
+# /dev/mmcblk0p1    128,0,1     127,3,16          8192      73727      65536 32.0M  c Win95 FAT32 (LBA)
+# /dev/mmcblk0p2    128,0,1     639,3,16         73728     172031      98304 48.0M 83 Linux
+#
+#   Field 1         Field 2      Field 3         Field 4
 #----------------------------------------------------------------------------------------
 pcp_fdisk() {
 	[ $DEBUG ] && clear
 	LAST_PARTITION_NUM=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
-	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 2)
+	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 4)
 	P2_SIZE="+${PARTITION_SIZE}M"
 
 	echo 'Last partition:  '$LAST_PARTITION_NUM
 	echo 'Partition start: '$PARTITION_START
 	echo 'Partition size:  '$P2_SIZE
 
-	fdisk $DEVICE <<EOF
+	fdisk -u $DEVICE <<EOF
 p
 d
 $LAST_PARTITION_NUM

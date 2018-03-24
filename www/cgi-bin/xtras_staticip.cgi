@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-22
+#	HTML5 cleanup. GE.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -48,7 +51,6 @@
 #------------------------------------+-------------+-----------------+------------------+
 
 . pcp-functions
-#. $CONFIGCFG
 
 pcp_html_head "xtras - Static IP" "GE"
 
@@ -183,7 +185,7 @@ pcp_which_class() {
 			EXAMPLE8="192.168.1.254"
 		;;
 	esac
-	
+
 	EXAMPLE9="8.8.8.8"
 }
 
@@ -311,7 +313,7 @@ echo '            <legend>Set static IP</legend>'
 echo '            <table class="bggrey percent100">'
 echo '              <tr class="warning">'
 echo '                <td colspan="3">'
-echo '                  <p style="color:white"><b>Note:</b> ONLY for wired network - eth0, will NOT work with wifi - wlan0.</b></p>'
+echo '                  <p style="color:white"><b>Note:</b> ONLY for wired network - eth0, will NOT work with wifi - wlan0.</p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------DHCP---------------------------------------------
@@ -322,8 +324,8 @@ echo '                <td class="column150">'
 echo '                  <p class="row">DHCP</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="small1" type="radio" id="DHCP" name="DHCP" value="on" '$NODHCPNO'>On&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" id="DHCP" name="DHCP" value="off" '$NODHCPYES'>Off'
+echo '                  <input class="small1" type="radio" id="DHCPon" name="DHCP" value="on" '$NODHCPNO'>On&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" id="DHCPoff" name="DHCP" value="off" '$NODHCPYES'>Off'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Turn DCHP on or off (static IP)&nbsp;&nbsp;'

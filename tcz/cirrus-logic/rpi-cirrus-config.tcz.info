@@ -1,0 +1,12 @@
+Title:          rpi-cirrus-config.tcz
+Description:    Cirrus Logic Audio Card config scripts
+Version:        1
+Author:         Matthias Reichl 
+Original-site:  https://github.com/HiassofT/rpi-cirrus-config
+Copying-policy: GPLv2
+Size:           1.3Kb
+Extension_by:   pCP Team
+Tags:           SOUND ALSA
+Comments:       Scripts
+Change-log:     
+Current:        2017-12-02 First Version  

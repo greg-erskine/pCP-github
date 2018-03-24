@@ -9,6 +9,7 @@ LUAOUTPUT=$PWD/lua-build
 TCZ="${JIVELITE}_touch.tcz"
 TCZINFO="pcp-${JIVELITE}.tcz.info"
 LUATCZ="pcp-lua.tcz"
+LUATCZINFO="${LUATCZ}.info"
 
 # Build requires these extra packages in addition to the raspbian 7.6 build tools
 # sudo apt-get install squashfs-tools bsdtar
@@ -140,6 +141,17 @@ cd $LUAOUTPUT >> $LOG
 find * -not -type d > $OUTPUT/../${LUATCZ}.list
  
 cd $OUTPUT/../
+echo -e "Title:\t\t$LUATCZ" > $LUATCZINFO
+echo -e "Description:\tLua a powerful, efficient, lightweight, embeddable scripting language." >> $LUATCZINFO
+echo -e "Version:\t5.1.1" >> $LUATCZINFO
+echo -e "Commit:\t\t$(cd $SRC/lua-5.1.1; svn info | grep Revision: | awk '{printf "%d", $2}')" >> $LUATCZINFO
+echo -e "Authors:\thttp://www.lua.org/authors.html" >> $LUATCZINFO
+echo -e "Original-site:\thttp://www.lua.org/" >> $LUATCZINFO
+echo -e "Copying-policy:\tMIT http://www.lua.org/license.html" >> $LUATCZINFO
+echo -e "Size:\t\t$(ls -lk $LUATCZ | awk '{print $5}')k" >> $LUATCZINFO
+echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $LUATCZINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $LUATCZINFO
+
 ./split-jivelite-tcz.sh
 
 echo -e "Title:\t\tpcp-$JIVELITE.tcz" > $TCZINFO
@@ -151,6 +163,16 @@ echo -e "Original-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TC
 echo -e "Copying-policy:\tGPLv3" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk pcp-$JIVELITE.tcz | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
 
 ./create-vumeters-tcz.sh
+
+cp -p $TCZINFO pcp-jivelite_hdskins.tcz.info
+sed -i "s#pcp-$JIVELITE.tcz#pcp-jivelite_hdskins.tcz#" pcp-jivelite_hdskins.tcz.info
+sed -i -e '/^Size:*/d' pcp-jivelite_hdskins.tcz.info
+cp -p $TCZINFO pcp-jivelite_qvgaskins.tcz.info
+sed -i "s#pcp-$JIVELITE.tcz#pcp-jivelite_qvgaskins.tcz#" pcp-jivelite_qvgaskins.tcz.info
+sed -i -e '/^Size:*/d' pcp-jivelite_qvgaskins.tcz.info
+cp -p $TCZINFO pcp-jivelite_wqvgaskins.tcz.info
+sed -i "s#pcp-$JIVELITE.tcz#pcp-jivelite_wqvgaskins.tcz#" pcp-jivelite_wqvgaskins.tcz.info
+sed -i -e '/^Size:*/d' pcp-jivelite_wqvgaskins.tcz.info

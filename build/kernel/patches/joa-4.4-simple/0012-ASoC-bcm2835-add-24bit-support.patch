@@ -1,0 +1,58 @@
+From 7275292e6a8b0be88cb01340040bf2eac7fe11b6 Mon Sep 17 00:00:00 2001
+From: Matthias Reichl <hias@horus.com>
+Date: Sun, 11 Oct 2015 15:21:16 +0200
+Subject: [PATCH 12/63] ASoC: bcm2835: add 24bit support
+
+This adds 24 bit support to the I2S driver of the BCM2835
+
+Code ported from bcm2708-i2s driver in Raspberry Pi tree.
+
+Signed-off-by: Florian Meier <florian.meier@koalo.de>
+Signed-off-by: Matthias Reichl <hias@horus.com>
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ sound/soc/bcm/bcm2835-i2s.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/bcm/bcm2835-i2s.c b/sound/soc/bcm/bcm2835-i2s.c
+index 1c1f221..d2663e7 100644
+--- a/sound/soc/bcm/bcm2835-i2s.c
++++ b/sound/soc/bcm/bcm2835-i2s.c
+@@ -259,6 +259,9 @@ static int bcm2835_i2s_hw_params(struct snd_pcm_substream *substream,
+ 	case SNDRV_PCM_FORMAT_S16_LE:
+ 		data_length = 16;
+ 		break;
++	case SNDRV_PCM_FORMAT_S24_LE:
++		data_length = 24;
++		break;
+ 	case SNDRV_PCM_FORMAT_S32_LE:
+ 		data_length = 32;
+ 		break;
+@@ -279,7 +282,7 @@ static int bcm2835_i2s_hw_params(struct snd_pcm_substream *substream,
+ 	/* Setup the frame format */
+ 	format = BCM2835_I2S_CHEN;
+ 
+-	if (data_length > 24)
++	if (data_length >= 24)
+ 		format |= BCM2835_I2S_CHWEX;
+ 
+ 	format |= BCM2835_I2S_CHWID((data_length-8)&0xf);
+@@ -570,6 +573,7 @@ static struct snd_soc_dai_driver bcm2835_i2s_dai = {
+ 		.channels_max = 2,
+ 		.rates =	SNDRV_PCM_RATE_8000_192000,
+ 		.formats =	SNDRV_PCM_FMTBIT_S16_LE
++				| SNDRV_PCM_FMTBIT_S24_LE
+ 				| SNDRV_PCM_FMTBIT_S32_LE
+ 		},
+ 	.capture = {
+@@ -577,6 +581,7 @@ static struct snd_soc_dai_driver bcm2835_i2s_dai = {
+ 		.channels_max = 2,
+ 		.rates =	SNDRV_PCM_RATE_8000_192000,
+ 		.formats =	SNDRV_PCM_FMTBIT_S16_LE
++				| SNDRV_PCM_FMTBIT_S24_LE
+ 				| SNDRV_PCM_FMTBIT_S32_LE
+ 		},
+ 	.ops = &bcm2835_i2s_dai_ops,
+-- 
+2.7.4
+

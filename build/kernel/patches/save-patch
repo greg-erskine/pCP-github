@@ -1,0 +1,5 @@
+Example to save patches
+
+Saves every commit newer than the commit listed on the command line
+
+git format-patch -o ../patches/  c1f53f11eda0dbc733e7ecef1c1af0885a3537a3

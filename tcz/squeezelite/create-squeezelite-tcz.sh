@@ -58,7 +58,7 @@ if [ -d $STARTDIR/squashfs-root ]; then
 	rm -rf $STARTDIR/squashfs-root
 fi
 
-wget -q -O - http://picoreplayer.sourceforge.net/tcz_repo/8.x/armv6/tcz/wiringpi-dev.tcz > $STARTDIR/wiringpi-dev.tcz
+wget -q -O - http://picoreplayer.sourceforge.net/tcz_repo/9.x/armv6/tcz/wiringpi-dev.tcz > $STARTDIR/wiringpi-dev.tcz
 unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/wiringpi-dev.tcz
 cp -p $STARTDIR/squashfs-root/usr/local/include/wiringPi.h $SRC/include
 
@@ -71,7 +71,7 @@ if [ -d $STARTDIR/squashfs-root ]; then
 	rm -rf $STARTDIR/squashfs-root
 fi
 
-wget -q -O - http://picoreplayer.sourceforge.net/tcz_repo/8.x/armv6/tcz/wiringpi.tcz > $STARTDIR/wiringpi.tcz
+wget -q -O - http://picoreplayer.sourceforge.net/tcz_repo/9.x/armv6/tcz/wiringpi.tcz > $STARTDIR/wiringpi.tcz
 unsquashfs -n -d $STARTDIR/squashfs-root wiringpi.tcz
 
 cp -p $STARTDIR/squashfs-root/usr/local/lib/libwiringPi.so $SRC/lib
@@ -84,6 +84,7 @@ echo "Compiling..."
 echo "Creating $TCZ..."
 mkdir -p $OUTPUT/usr/local/bin >> $LOG
 cp -p $SRC/squeezelite $OUTPUT/usr/local/bin/ >> $LOG
+cp -p $SRC/squeezelite-dsd $OUTPUT/usr/local/bin/ >> $LOG
 cp -p $SRC/find_servers $OUTPUT/usr/local/bin/ >> $LOG
 
 mkdir -p $OUTPUT/usr/local/etc/init.d >> $LOG
@@ -115,6 +116,6 @@ echo -e "Original-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TC
 echo -e "Copying-policy:\tGPLv3" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
 echo -e "Change-log:\t$(cat README.md)" >> $TCZINFO
 

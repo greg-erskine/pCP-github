@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#################################################################################
+#
+# remove_version
+#
+#	Easily remove a version.  Cleaning kernel/initrd/modules and extensions
+#
+#
+# ANSI COLORS
+CRE="$(echo -e '\r\033[K')"
+RED="$(echo -e '\033[1;31m')"
+GREEN="$(echo -e '\033[1;32m')"
+YELLOW="$(echo -e '\033[1;33m')"
+BLUE="$(echo -e '\033[1;34m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+CYAN="$(echo -e '\033[1;36m')"
+WHITE="$(echo -e '\033[1;37m')"
+NORMAL="$(echo -e '\033[0;39m')"
+
+
+BASEWD=$(pwd)
+
+AVAILKERNEL=$(ls modules)
+
+echo "$YELLOW"
+echo "********************************************************************"
+echo ""
+echo "${RED}      WARNING   Version Removal Tool ${YELLOW}"
+echo ""
+echo "********************************************************************"
+echo ""
+echo "${NORMAL}List of Kernel versions found"
+echo ""
+echo "Select which version to remove."
+select REMKERNELDIR in $AVAILKERNEL;
+do
+	if [ "$REMKERNELDIR" != "" ]; then
+		echo "You picked $REMKERNELDIR"
+		read -p "Do you wish to continue? (y/n)" yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) exit 1;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	fi
+done
+
+echo ""
+echo "$YELLOW"
+echo "********************************************************************"
+echo ""
+echo "${RED}      WARNING   Version Removal Tool ${YELLOW}"
+echo ""
+echo "      Ready to remove the following directories"
+echo ""
+echo "********************************************************************"
+echo "${BLUE}"
+
+REMOVE=$(find * -maxdepth 1 -type d | grep ${REMKERNELDIR})
+for i in $REMOVE; do
+	echo $i
+done
+
+echo "${NORMAL}"
+read -p "Press enter to continue.  <cntl>-c to abort"
+
+for i in $REMOVE; do
+	rm -rf $i
+done
+echo "DONE"
