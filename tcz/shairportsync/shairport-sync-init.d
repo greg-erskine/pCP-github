@@ -22,21 +22,12 @@ DESC="Shairport-sync player"
 # -B "$ON_START" -E "$ON_STOP"
 
 # Read from config file
-. /home/tc/www/cgi-bin/pcp-functions
-. /home/tc/www/cgi-bin/pcp-soundcard-functions
-. /usr/local/sbin/config.cfg
-pcp_soundcontrol
-EQOUTPUT="$OUTPUT"
 . /usr/local/sbin/config.cfg
 
-if [ ! -z $SSET ]; then
-	SH_CONTROL='-c '"$SSET"''
+if [ x"$SHAIRPORT_CONTROL" = x"" ]; then
+       SHAIRPORT_CONTROL=''
 else
-	SH_CONTROL=''
-fi
-
-if [ "$OUTPUT" = "equal" ]; then
-    OUTPUT="$EQOUTPUT"
+       SHAIRPORT_CONTROL='-c '"$SHAIRPORT_CONTROL"''
 fi
 
 case "$1" in
@@ -45,7 +36,7 @@ case "$1" in
 		start-stop-daemon --start --quiet --exec $DAEMON \
 						  -- -a $NAME -o alsa -S soxr -d -D -R \
 						  --metadata-pipename=/tmp/shairport-sync-metadata --get-coverart \
-						  -- -d $OUTPUT $SH_CONTROL
+						  -- -d $SHAIRPORT_OUT $SHAIRPORT_CONTROL
 	;;
 	stop)
 		echo "Stopping $DESC: $PNAME..."

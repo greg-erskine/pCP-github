@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.0 2017-12-02
+#	Add Bootscript option for soundcard setup. PH.
+
 # Version: 3.23 2017-10-02
 #	Minor cosmetic changes. GE.
 
@@ -229,8 +232,8 @@ pcp_sound_card_dropdown() {
 	fi
 }
 
-# Find card number for asound.conf when using alsaequal
-pcp_find_card_number() {
+# Load Card Variables from Config file, and Find card number for asound.conf when using alsaequal
+pcp_load_card_conf() {
 	pcp_blank_audio_conf
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	case $CARD in
@@ -309,10 +312,11 @@ pcp_blank_audio_conf() {
 	PARAMS4=""
 	PARAMS5=""
 	RPI_MODEL=""
+	AUDIOBOOTSCRIPT=""
 	I=1
 	while true; do
-		eval TEST="\${TEXT${I}}"
-		if [ x"$TEST" != x ]; then 
+		eval CHK="\${TEXT${I}}"
+		if [ x"$CHK" != x ]; then 
 			eval TEXT${I}=""
 			I=$((I+1))
 		else

@@ -1,0 +1,48 @@
+From ef8bc4c6ce8f8b1fee6f5338cb3a45204487d721 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Sat, 9 Jan 2016 09:25:53 +0000
+Subject: [PATCH 10/63] ASoC: bcm2835: cleanup includes by ordering them
+ alphabetically
+
+Cleanup of includes so that they are ordered alphabetically.
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ sound/soc/bcm/bcm2835-i2s.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/sound/soc/bcm/bcm2835-i2s.c b/sound/soc/bcm/bcm2835-i2s.c
+index 8c435be..3303d5f 100644
+--- a/sound/soc/bcm/bcm2835-i2s.c
++++ b/sound/soc/bcm/bcm2835-i2s.c
+@@ -31,20 +31,20 @@
+  * General Public License for more details.
+  */
+ 
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/device.h>
+ #include <linux/init.h>
++#include <linux/io.h>
+ #include <linux/module.h>
+-#include <linux/device.h>
+ #include <linux/slab.h>
+-#include <linux/delay.h>
+-#include <linux/io.h>
+-#include <linux/clk.h>
+ 
+ #include <sound/core.h>
++#include <sound/dmaengine_pcm.h>
++#include <sound/initval.h>
+ #include <sound/pcm.h>
+ #include <sound/pcm_params.h>
+-#include <sound/initval.h>
+ #include <sound/soc.h>
+-#include <sound/dmaengine_pcm.h>
+ 
+ /* Clock registers */
+ #define BCM2835_CLK_PCMCTL_REG  0x00
+-- 
+2.7.4
+

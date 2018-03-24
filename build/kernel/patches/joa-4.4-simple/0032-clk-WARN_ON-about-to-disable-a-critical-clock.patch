@@ -1,0 +1,40 @@
+From cbc2cf32ab4f686d8124eb1c3c89e6adf40df9ed Mon Sep 17 00:00:00 2001
+From: Lee Jones <lee.jones@linaro.org>
+Date: Thu, 11 Feb 2016 13:19:10 -0800
+Subject: [PATCH 32/63] clk: WARN_ON about to disable a critical clock
+
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@codeaurora.org>
+Signed-off-by: Michael Turquette <mturquette@baylibre.com>
+Link: lkml.kernel.org/r/1455225554-13267-3-git-send-email-mturquette@baylibre.com
+---
+ drivers/clk/clk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index e1f47d5..191a0dc 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -575,6 +575,9 @@ static void clk_core_unprepare(struct clk_core *core)
+ 	if (WARN_ON(core->prepare_count == 0))
+ 		return;
+ 
++	if (WARN_ON(core->prepare_count == 1 && core->flags & CLK_IS_CRITICAL))
++		return;
++
+ 	if (--core->prepare_count > 0)
+ 		return;
+ 
+@@ -680,6 +683,9 @@ static void clk_core_disable(struct clk_core *core)
+ 	if (WARN_ON(core->enable_count == 0))
+ 		return;
+ 
++	if (WARN_ON(core->enable_count == 1 && core->flags & CLK_IS_CRITICAL))
++		return;
++
+ 	if (--core->enable_count > 0)
+ 		return;
+ 
+-- 
+2.7.4
+

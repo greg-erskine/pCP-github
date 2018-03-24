@@ -33,8 +33,8 @@ while true; do
 done
 
 REPO="web.sourceforge.net"
-LOCATION_v6="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv6/tcz/"
-LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/8.x/armv6/tcz/"
+LOCATION_v6="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv6/tcz/"
+LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv7/tcz/"
 
 read -p "Enter your sourceforge username: " USER
 # Would need to use linux expect to use passwords

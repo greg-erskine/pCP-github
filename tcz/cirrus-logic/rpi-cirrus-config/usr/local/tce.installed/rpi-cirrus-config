@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#Install Conf file for pCP
+[ -f /usr/local/etc/pcp/cirrus.conf ] || cp -f /usr/local/share/rpi-cirrus-config/cirrus.conf /usr/local/etc/pcp/cirrus.conf

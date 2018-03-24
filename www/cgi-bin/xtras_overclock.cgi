@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-02-21
+#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
+#	HTML5 cleanup. GE.
+
 # Version: 3.20 2017-03-22
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -24,8 +28,8 @@
 
 #========================================================================================
 # References:
-#   http://elinux.org/RPi_Overclocking
-#   http://github.com/asb/raspi-config
+#	http://elinux.org/RPi_Overclocking
+#	https://github.com/RPi-Distro/raspi-config
 #----------------------------------------------------------------------------------------
 # The following lines need to be included in config.txt:
 #arm_freq=
@@ -87,10 +91,10 @@ pcp_warning_message() {
 	MESSAGEPI3='<li style="color:white">Raspberry Pi Model 3: Underclocking only.</li>'
 
 	case $RPITYPE in
-		0) MESSAGEPI0='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 0: Underclocking only. &gt;&gt;</b></li>' ;;
-		1) MESSAGEPI1='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 1: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
-		2) MESSAGEPI2='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 2: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
-		3) MESSAGEPI3='<li style="color:white"><b>&lt;&lt Raspberry Pi Model 3: Underclocking only. &gt;&gt;</b></li>' ;;
+		0) MESSAGEPI0='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 0: Underclocking only. &gt;&gt;</b></li>' ;;
+		1) MESSAGEPI1='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 1: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
+		2) MESSAGEPI2='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 2: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
+		3) MESSAGEPI3='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 3: Underclocking only. &gt;&gt;</b></li>' ;;
 	esac
 
 	echo "                  $MESSAGEPI0"
@@ -154,7 +158,7 @@ pcp_display_current() {
 	echo -n '<p style="font-family:courier">'
 	for FILE in $(ls /sys/devices/system/cpu/cpu0/cpufreq/ | grep -v stats); do
 		echo -n $FILE': '
-		cat /sys/devices/system/cpu/cpu0/cpufreq/$FILE
+		cat /sys/devices/system/cpu/cpu0/cpufreq/$FILE | sed 's/[<>]//g'
 		echo '<br />'
 	done
 	echo '</p>'
@@ -278,7 +282,6 @@ pcp_start_save() {
 			echo '<p class="debug">[ DEBUG ] Warranty bit is NOT set: '$(pcp_rpi_revision)'</p>'
 	fi
 
-	echo -n $OCGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor >/dev/null
 	pcp_umount_bootpart >/dev/null 2>&1
 }
 
@@ -366,8 +369,9 @@ echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Overclocking/underclocking</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <form name="overclock" action= "xtras_overclock.cgi" method="get">'
+echo '          <form name="overclock" action= "xtras_overclock.cgi" method="get">'
+echo '            <table class="bggrey percent100">'
+
 #--------------------------------------Overclock/underclock------------------------------
 pcp_incr_id
 pcp_start_row_shade
@@ -443,32 +447,6 @@ echo '                    <p style="color:white">Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-#--------------------------------------Governor------------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Governor</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <select class="large16" name="OCGOVERNOR">'
-                          for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-                              SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
-                              [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
-                              echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
-                          done
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Change governor &nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)'&gt;</p>'
-echo '                    <p>Dynamically set, no reboot is required.<p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
 #--------------------------------------GPU memory----------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
@@ -504,8 +482,8 @@ echo '                  <input type="submit" name="SUBMIT" value="Save">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-echo '            </form>'
-echo '          </table>'
+echo '            </table>'
+echo '          </form>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -519,42 +497,40 @@ if [ $DEBUG -eq 1 ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form>'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Debug information</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Debug information</legend>'
+	echo '          <table class="bggrey percent100">'
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <p class="debug">[ DEBUG ] $ADVOVERCLOCK: '$ADVOVERCLOCK'<br />'
-	echo '                                   [ DEBUG ] $OCunder: '$OCunder'<br />'
-	echo '                                   [ DEBUG ] $OCdefault: '$OCdefault'<br />'
-	echo '                                   [ DEBUG ] $OCnone: '$OCnone'<br />'
-	echo '                                   [ DEBUG ] $OCmodest: '$OCmodest'<br />'
-	echo '                                   [ DEBUG ] $OCmedium: '$OCmedium'<br />'
-	echo '                                   [ DEBUG ] $OChigh: '$OChigh'<br />'
-	echo '                                   [ DEBUG ] $OCturbo: '$OCturbo'<br />'
-	echo '                                   [ DEBUG ] $OCpi2: '$OCpi2'<br />'
-	echo '                                   [ DEBUG ] $Raspberry Pi: '$RPITYPE'</p>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="debug">[ DEBUG ] $FORCETURBO: '$FORCETURBO'<br />'
-	echo '                                   [ DEBUG ] $FT0: '$FT0'<br />'
-	echo '                                   [ DEBUG ] $FT1: '$FT1'</p>'
-	echo '                  <p class="debug">[ DEBUG ] $GPUMEMORY: '$GPUMEMORY'<br />'
-	echo '                                   [ DEBUG ] $GMdefault: '$GMdefault'<br />'
-	echo '                                   [ DEBUG ] $GM16: '$GM16'<br />'
-	echo '                                   [ DEBUG ] $GM32: '$GM32'<br />'
-	echo '                                   [ DEBUG ] $GM64: '$GM64'<br />'
-	echo '                                   [ DEBUG ] $GM128: '$GM128'<br />'
-	echo '                                   [ DEBUG ] $GM256: '$GM256'</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	echo '                <p class="debug">[ DEBUG ] $ADVOVERCLOCK: '$ADVOVERCLOCK'<br />'
+	echo '                                 [ DEBUG ] $OCunder: '$OCunder'<br />'
+	echo '                                 [ DEBUG ] $OCdefault: '$OCdefault'<br />'
+	echo '                                 [ DEBUG ] $OCnone: '$OCnone'<br />'
+	echo '                                 [ DEBUG ] $OCmodest: '$OCmodest'<br />'
+	echo '                                 [ DEBUG ] $OCmedium: '$OCmedium'<br />'
+	echo '                                 [ DEBUG ] $OChigh: '$OChigh'<br />'
+	echo '                                 [ DEBUG ] $OCturbo: '$OCturbo'<br />'
+	echo '                                 [ DEBUG ] $OCpi2: '$OCpi2'<br />'
+	echo '                                 [ DEBUG ] $Raspberry Pi: '$RPITYPE'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p class="debug">[ DEBUG ] $FORCETURBO: '$FORCETURBO'<br />'
+	echo '                                 [ DEBUG ] $FT0: '$FT0'<br />'
+	echo '                                 [ DEBUG ] $FT1: '$FT1'</p>'
+	echo '                <p class="debug">[ DEBUG ] $GPUMEMORY: '$GPUMEMORY'<br />'
+	echo '                                 [ DEBUG ] $GMdefault: '$GMdefault'<br />'
+	echo '                                 [ DEBUG ] $GM16: '$GM16'<br />'
+	echo '                                 [ DEBUG ] $GM32: '$GM32'<br />'
+	echo '                                 [ DEBUG ] $GM64: '$GM64'<br />'
+	echo '                                 [ DEBUG ] $GM128: '$GM128'<br />'
+	echo '                                 [ DEBUG ] $GM256: '$GM256'</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -567,21 +543,19 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form>'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Current config.txt (partial)</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Current config.txt (partial)</legend>'
+	echo '          <table class="bggrey percent100">'
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_display_config_txt
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_display_config_txt
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -592,21 +566,19 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form>'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Current overclock settings</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Current overclock settings</legend>'
+	echo '          <table class="bggrey percent100">'
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_display_current
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_display_current
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -617,21 +589,19 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form>'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Current config.cfg (partial)</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Current config.cfg (partial)</legend>'
+	echo '          <table class="bggrey percent100">'
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_textarea_inform "none" "grep -C2 OVERCLOCK $CONFIGCFG" 80
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_textarea_inform "none" "grep -C2 OVERCLOCK $CONFIGCFG" 80
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version 3.5.0 2018-03-15
+#	Updates for Kernel 4.14.26 and 9.x repo
+#	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
+
 # Version 3.22 2017-09-16
 #	Updates for Kernel 4.9.50
 
@@ -93,6 +97,10 @@ case "${VERSION}" in
 	piCorePlayer3.22*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=25650
+	;;
+	piCorePlayer3.5.0*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=26900
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -199,7 +207,9 @@ pcp_get_insitu_cfg() {
 #========================================================================================
 # Download kernel modules for new kernel
 #----------------------------------------------------------------------------------------
+
 pcp_get_kernel_modules() {
+	BUILD=$(getBuild)
 #	Removed uudecode, if needed look at git history on prior to pcp3.21
 	case "${VERSION}" in
 		piCorePlayer2.06)
@@ -241,6 +251,21 @@ pcp_get_kernel_modules() {
 			PICOREVERSION=8.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
+		piCorePlayer3.5.0*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			case $CORE in
+				*pcpAudioCore*)
+					case $BUILD in
+						armv6) NEWKERNELVER=4.14.26;;
+						armv7) NEWKERNELVER=4.14.26-rt19;;
+					esac
+				;;
+				*) NEWKERNELVER=4.14.26;;
+			esac
+			PICOREVERSION=9.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
 		*)  KUPDATE=0
 		;;
 	esac
@@ -249,7 +274,6 @@ pcp_get_kernel_modules() {
 #		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
-		BUILD=$(getBuild)
 		case $BUILD in
 			armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
 			armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
@@ -600,6 +624,7 @@ outfile.close
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
+	[ -f pcp-powerbutton.sh ] || sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/pcp-powerbutton.sh /home/tc/pcp-powerbutton.sh
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.ashrc /home/tc/.ashrc
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
@@ -609,6 +634,7 @@ outfile.close
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pcp/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/
 
+	sudo chown tc:staff /home/tc/pcp-powerbutton.sh
 	sudo chown -R tc:staff /home/tc/www
 	sudo chmod u=rwx,g=rx,o= /home/tc/www/cgi-bin/*
 	sudo chmod u=rw,g=r,o= /home/tc/www/css/*
@@ -617,6 +643,14 @@ outfile.close
 	sudo chmod u=rw,g=r,o= /home/tc/www/index.html
 	sudo chown tc.staff /usr/local/etc/pcp/cards/*
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
+
+	#Make changes to mydata based on version
+	case "${VERSION}" in
+		piCorePlayer3.5.*)
+			#Support for card has been removed in 4.14.y kernels
+			rm -f /usr/local/etc/pcp/cards/raspidac3.conf
+		;;
+	esac
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
@@ -747,10 +781,15 @@ if [ "$ACTION" = "download" ]; then
 	case "${VERSION}" in
 		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
 			VVV=$(pcp_picoreplayer_version)
-			[ $(printf  "%.0f" ${VVV:0:4}) -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+			[ $(echo $VVV | awk -F. '{print $1}') -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
 	esac
-	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
+	# busybox 27 changed fdisk format
+	if [ $(busybox fdisk --help 2>&1 | grep "BusyBox v" | awk -F. '{print $2}') -ge 27 ]; then
+		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
+	else
+		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
+	fi
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"

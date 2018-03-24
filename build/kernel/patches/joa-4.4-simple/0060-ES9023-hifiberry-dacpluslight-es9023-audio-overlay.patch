@@ -1,0 +1,135 @@
+From ab5b9ecb55349188dbba1b33232ab642af7be0ed Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Fri, 6 May 2016 14:41:58 +0100
+Subject: [PATCH 60/63] ES9023: hifiberry-dacpluslight-es9023-audio overlay
+
+Add hifiberry-dacpluslight-es9023-audio overlay for HiFiBerry DAC+ Light.
+
+##
+## HiFiBerry DAC+ Light
+##
+##  card_name       = "snd_rpi_hifiberry_dac"
+##  dai_name        = "HifiBerry DAC"
+##  dai_stream_name = "HifiBerry DAC HiFi"
+##
+# dtoverlay=hifiberry-dacpluslight-es9023-audio
+# dtoverlay=hifiberry-dacpluslight-es9023-audio,bclk_ratio_int_div
+# dtoverlay=hifiberry-dacpluslight-es9023-audio,bclk_ratio_int_div,384k
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/overlays/Makefile                |  1 +
+ arch/arm/boot/dts/overlays/README                  | 20 ++++++++
+ ...hifiberry-dacpluslight-es9023-audio-overlay.dts | 57 ++++++++++++++++++++++
+ 3 files changed, 78 insertions(+)
+ create mode 100644 arch/arm/boot/dts/overlays/hifiberry-dacpluslight-es9023-audio-overlay.dts
+
+diff --git a/arch/arm/boot/dts/overlays/Makefile b/arch/arm/boot/dts/overlays/Makefile
+index 4bb228a..efa0480 100644
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -35,6 +35,7 @@ dtbo-$(RPI_DT_OVERLAYS) += gpio-poweroff.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += hifiberry-amp.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += hifiberry-dac.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += hifiberry-dacplus.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += hifiberry-dacpluslight-es9023-audio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += hifiberry-digi.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += hifiberry-digi-pro.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += hy28a.dtbo
+diff --git a/arch/arm/boot/dts/overlays/README b/arch/arm/boot/dts/overlays/README
+index bade29e..c21ad70 100644
+--- a/arch/arm/boot/dts/overlays/README
++++ b/arch/arm/boot/dts/overlays/README
+@@ -452,6 +452,26 @@ Params: 24db_digital_gain       Allow gain to be applied via the PCM512x codec
+                                 master for bit clock and frame clock.
+ 
+ 
++Name:   hifiberry-dacpluslight-es9023-audio
++Info:   Configures the HiFiBerry DAC+ Light audio card
++Load:   dtoverlay=hifiberry-dacpluslight-es9023-audio,<param>
++Params: 384k                    Instructs the es9023 codec driver to support
++                                352k8 and 384k sample rates.
++        bclk_ratio_int_div      Use bclk_ratio=50 for 16/24bps and
++                                bclk_ratio=100 for 32bps media when sample
++                                rate is a multiple of 8kHz and less than
++                                192kHz. Which causes the selection of the 19M2
++                                OSC as the parent for the PCM clock with an
++                                integer divider, rather than PLLD with
++                                fractional divider and MASH noise shaping.
++        card_name               Override the default, "snd_rpi_hifiberry_dac",
++                                card name.
++        dai_name                Override the default, "HifiBerry DAC",
++                                dai name.
++        dai_stream_name         Override the default, "HifiBerry DAC HiFi",
++                                dai stream name.
++
++
+ Name:   hifiberry-digi
+ Info:   Configures the HifiBerry Digi and Digi+ audio card
+ Load:   dtoverlay=hifiberry-digi
+diff --git a/arch/arm/boot/dts/overlays/hifiberry-dacpluslight-es9023-audio-overlay.dts b/arch/arm/boot/dts/overlays/hifiberry-dacpluslight-es9023-audio-overlay.dts
+new file mode 100644
+index 0000000..71d6d29
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/hifiberry-dacpluslight-es9023-audio-overlay.dts
+@@ -0,0 +1,57 @@
++// Definitions for HiFiBerry DAC+ Light using ESS Sabre ES9023 DAC
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&i2s>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target-path = "/";
++		__overlay__ {
++			es9023_codec: es9023-codec {
++				#sound-dai-cells = <0>;
++				compatible = "ess,es9023";
++				status = "okay";
++			};
++		};
++	};
++
++	fragment@2 {
++		target = <&sound>;
++		es9023_dac: __overlay__ {
++			compatible = "hifiberry,es9023-dacpluslight";
++			/*
++			 * These are the default names that will be
++			 *  applied by the es9023-dac machine driver
++			 *  based on the compatible parameter.
++			 *
++			 * es9023-dac,card-name = "snd_rpi_hifiberry_dac";
++			 * es9023-dac,dai-name = "HifiBerry DAC";
++			 * es9023-dac,dai-stream-name = "HifiBerry DAC HiFi";
++			 */
++			status = "okay";
++			es9023-dac,cpu {
++				sound-dai = <&i2s>;
++			};
++			es9023-dac,codec {
++				sound-dai = <&es9023_codec>;
++			};
++		};
++	};
++
++	__overrides__ {
++		384k = <&es9023_codec>,"es9023,384k?";
++		bclk_ratio_int_div =
++			<&es9023_dac>,"es9023-dac,bclk-ratio-int-div?";
++		card_name = <&es9023_dac>,"es9023-dac,card-name";
++		dai_name = <&es9023_dac>,"es9023-dac,dai-name";
++		dai_stream_name = <&es9023_dac>,"es9023-dac,dai-stream-name";
++	};
++};
+-- 
+2.7.4
+

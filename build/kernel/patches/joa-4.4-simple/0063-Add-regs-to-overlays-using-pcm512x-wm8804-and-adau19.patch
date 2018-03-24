@@ -1,0 +1,288 @@
+From 06fdd56816987e97c6e26f7267853811b627defb Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Fri, 20 May 2016 14:15:35 +0100
+Subject: [PATCH 63/63] Add regs to overlays using pcm512x, wm8804 and adau1977
+ codecs
+
+Will be used if CONFIG_REGULATOR and CONFIG_REGULATOR_FIXED_VOLTAGE
+are enabled, otherwise ignored.
+
+Version 3, putting the 3v3 reg into bcm2708_common.dtsi.
+
+Version 4, adding a def for a 5V fixed regulator.
+
+Version 5, fix-up whitespace in adau1977-adc-overlay.dts and move i2s
+           fragment to fragment@0.
+
+Version 6, rename boomberry -> justboom.
+
+Version 7, uncomment reg defs in iqudio-digi-wm8804-audio overlay.
+
+Version 8, add regs to hifiberry-digi-pro overlay.
+
+Version 9, add regs to allo-piano-dac-pcm512x-audio overlay.
+
+Patch has now been tested, (with and without regulator framework enabled),
+with Pi Zero, A+, B, B+, 2B, 3B and various PCM512x and wm8804 boards.
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/bcm2708_common.dtsi              | 24 ++++++++++++++
+ .../arm/boot/dts/overlays/adau1977-adc-overlay.dts | 38 +++++++---------------
+ .../dts/overlays/akkordion-iqdacplus-overlay.dts   |  3 ++
+ .../allo-piano-dac-pcm512x-audio-overlay.dts       |  3 ++
+ .../dts/overlays/hifiberry-dacplus-overlay.dts     |  3 ++
+ .../boot/dts/overlays/hifiberry-digi-overlay.dts   |  2 ++
+ .../dts/overlays/hifiberry-digi-pro-overlay.dts    |  2 ++
+ arch/arm/boot/dts/overlays/iqaudio-dac-overlay.dts |  3 ++
+ .../boot/dts/overlays/iqaudio-dacplus-overlay.dts  |  3 ++
+ .../overlays/iqaudio-digi-wm8804-audio-overlay.dts |  4 +--
+ .../arm/boot/dts/overlays/justboom-dac-overlay.dts |  3 ++
+ .../boot/dts/overlays/justboom-digi-overlay.dts    |  2 ++
+ 12 files changed, 62 insertions(+), 28 deletions(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index a1d1f9d..f2651c7 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -36,6 +36,7 @@
+ 		vchiq = &vchiq;
+ 		thermal = &thermal;
+ 		clocks = &clocks;
++		regulators = &regulators;
+ 	};
+ 
+ 	soc: soc {
+@@ -445,6 +446,29 @@
+ 		};
+ 	};
+ 
++	regulators: regulators {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		reg_3v3: reg3v3@0 {
++			compatible = "regulator-fixed";
++			reg = <0>;
++			regulator-name = "DC_3V3";
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-always-on;
++		};
++		reg_5v0: reg5v0@1 {
++			compatible = "regulator-fixed";
++			reg = <1>;
++			regulator-name = "DC_5V0";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			regulator-always-on;
++		};
++	};
++
+ 	__overrides__ {
+ 		cache_line_size = <&vchiq>, "cache-line-size:0";
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/adau1977-adc-overlay.dts b/arch/arm/boot/dts/overlays/adau1977-adc-overlay.dts
+index 24fcd58..8ad3fd6 100644
+--- a/arch/arm/boot/dts/overlays/adau1977-adc-overlay.dts
++++ b/arch/arm/boot/dts/overlays/adau1977-adc-overlay.dts
+@@ -4,45 +4,31 @@
+ 
+ / {
+ 	compatible = "brcm,bcm2708";
+-    
++
+ 	fragment@0 {
+-		target = <&soc>;
+-		
++		target = <&i2s>;
+ 		__overlay__ {
+-			codec_supply: fixedregulator@0 {
+-				compatible = "regulator-fixed";
+-				regulator-name = "AVDD";
+-				regulator-min-microvolt = <3300000>;
+-				regulator-max-microvolt = <3300000>;
+-			};
++			status = "okay";
+ 		};
+ 	};
+-	
++
+ 	fragment@1 {
+-        	target = <&i2c>;
+-        	
++		target = <&i2c>;
+ 		__overlay__ {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			status = "okay";
+-			
+-			adau1977: codec@11 {
+-                        	compatible = "adi,adau1977";
+-                        	reg = <0x11>;
+-                        	reset-gpios = <&gpio 5 0>;
+-                        	AVDD-supply = <&codec_supply>;
+-                	};
+-        	};
+-	};
+ 
+-	fragment@2 {
+-		target = <&i2s>;
+-		__overlay__ {
+-			status = "okay";
++			adau1977: codec@11 {
++				compatible = "adi,adau1977";
++				reg = <0x11>;
++				reset-gpios = <&gpio 5 0>;
++				AVDD-supply = <&reg_3v3>;
++			};
+ 		};
+ 	};
+ 
+-	fragment@3 {
++	fragment@2 {
+ 		target = <&sound>;
+ 		__overlay__ {
+ 			compatible = "adi,adau1977-adc";
+diff --git a/arch/arm/boot/dts/overlays/akkordion-iqdacplus-overlay.dts b/arch/arm/boot/dts/overlays/akkordion-iqdacplus-overlay.dts
+index 208849d..7f97c4d 100644
+--- a/arch/arm/boot/dts/overlays/akkordion-iqdacplus-overlay.dts
++++ b/arch/arm/boot/dts/overlays/akkordion-iqdacplus-overlay.dts
+@@ -24,6 +24,9 @@
+ 				compatible = "ti,pcm5122";
+ 				reg = <0x4c>;
+ 				status = "okay";
++				AVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				CPVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/allo-piano-dac-pcm512x-audio-overlay.dts b/arch/arm/boot/dts/overlays/allo-piano-dac-pcm512x-audio-overlay.dts
+index a5468d8..c8624b8 100644
+--- a/arch/arm/boot/dts/overlays/allo-piano-dac-pcm512x-audio-overlay.dts
++++ b/arch/arm/boot/dts/overlays/allo-piano-dac-pcm512x-audio-overlay.dts
+@@ -34,6 +34,9 @@
+ 				compatible = "ti,pcm5142";
+ 				reg = <0x4c>;
+ 				status = "okay";
++				AVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				CPVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/hifiberry-dacplus-overlay.dts b/arch/arm/boot/dts/overlays/hifiberry-dacplus-overlay.dts
+index 2f078d4..96f750f 100644
+--- a/arch/arm/boot/dts/overlays/hifiberry-dacplus-overlay.dts
++++ b/arch/arm/boot/dts/overlays/hifiberry-dacplus-overlay.dts
+@@ -35,6 +35,9 @@
+ 				reg = <0x4d>;
+ 				clocks = <&dacpro_osc>;
+ 				status = "okay";
++				AVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				CPVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/hifiberry-digi-overlay.dts b/arch/arm/boot/dts/overlays/hifiberry-digi-overlay.dts
+index f5e41f4..5c8e4d5 100644
+--- a/arch/arm/boot/dts/overlays/hifiberry-digi-overlay.dts
++++ b/arch/arm/boot/dts/overlays/hifiberry-digi-overlay.dts
+@@ -24,6 +24,8 @@
+ 				compatible = "wlf,wm8804";
+ 				reg = <0x3b>;
+ 				status = "okay";
++				DVDD-supply = <&reg_3v3>;
++				PVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/hifiberry-digi-pro-overlay.dts b/arch/arm/boot/dts/overlays/hifiberry-digi-pro-overlay.dts
+index 2a26d9c..0765535 100644
+--- a/arch/arm/boot/dts/overlays/hifiberry-digi-pro-overlay.dts
++++ b/arch/arm/boot/dts/overlays/hifiberry-digi-pro-overlay.dts
+@@ -24,6 +24,8 @@
+ 				compatible = "wlf,wm8804";
+ 				reg = <0x3b>;
+ 				status = "okay";
++				DVDD-supply = <&reg_3v3>;
++				PVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/iqaudio-dac-overlay.dts b/arch/arm/boot/dts/overlays/iqaudio-dac-overlay.dts
+index 0d35c85..a660724 100644
+--- a/arch/arm/boot/dts/overlays/iqaudio-dac-overlay.dts
++++ b/arch/arm/boot/dts/overlays/iqaudio-dac-overlay.dts
+@@ -24,6 +24,9 @@
+ 				compatible = "ti,pcm5122";
+ 				reg = <0x4c>;
+ 				status = "okay";
++				AVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				CPVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/iqaudio-dacplus-overlay.dts b/arch/arm/boot/dts/overlays/iqaudio-dacplus-overlay.dts
+index d4bad87..3b650c3 100644
+--- a/arch/arm/boot/dts/overlays/iqaudio-dacplus-overlay.dts
++++ b/arch/arm/boot/dts/overlays/iqaudio-dacplus-overlay.dts
+@@ -24,6 +24,9 @@
+ 				compatible = "ti,pcm5122";
+ 				reg = <0x4c>;
+ 				status = "okay";
++				AVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				CPVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/iqaudio-digi-wm8804-audio-overlay.dts b/arch/arm/boot/dts/overlays/iqaudio-digi-wm8804-audio-overlay.dts
+index da4fbfd..34db16c 100644
+--- a/arch/arm/boot/dts/overlays/iqaudio-digi-wm8804-audio-overlay.dts
++++ b/arch/arm/boot/dts/overlays/iqaudio-digi-wm8804-audio-overlay.dts
+@@ -24,8 +24,8 @@
+ 				compatible = "wlf,wm8804";
+ 				reg = <0x3b>;
+ 				status = "okay";
+-				// DVDD-supply = <&reg_3v3>;
+-				// PVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				PVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/justboom-dac-overlay.dts b/arch/arm/boot/dts/overlays/justboom-dac-overlay.dts
+index 312632a..bfd5ced 100644
+--- a/arch/arm/boot/dts/overlays/justboom-dac-overlay.dts
++++ b/arch/arm/boot/dts/overlays/justboom-dac-overlay.dts
+@@ -24,6 +24,9 @@
+ 				compatible = "ti,pcm5122";
+ 				reg = <0x4d>;
+ 				status = "okay";
++				AVDD-supply = <&reg_3v3>;
++				DVDD-supply = <&reg_3v3>;
++				CPVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/overlays/justboom-digi-overlay.dts b/arch/arm/boot/dts/overlays/justboom-digi-overlay.dts
+index cbbede9..a21d543 100644
+--- a/arch/arm/boot/dts/overlays/justboom-digi-overlay.dts
++++ b/arch/arm/boot/dts/overlays/justboom-digi-overlay.dts
+@@ -24,6 +24,8 @@
+ 				compatible = "wlf,wm8804";
+ 				reg = <0x3b>;
+ 				status = "okay";
++				DVDD-supply = <&reg_3v3>;
++				PVDD-supply = <&reg_3v3>;
+ 			};
+ 		};
+ 	};
+-- 
+2.7.4
+

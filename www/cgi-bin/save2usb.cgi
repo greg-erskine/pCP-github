@@ -1,27 +1,19 @@
 #!/bin/sh
 
+# Version: 3.5.0 2018-03-12
+#	Added pcp_redirect_button. GE.
+
 # Version: 3.21 2017-07-11
-#	Added save to usb disk other than boot device.
+#	Added save to USB disk other than boot device. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 3.10 2017-01-06
-#	Minor update.
+#	Minor update. GE.
 
-# Version: 0.04 2016-03-29 GE
-#	Rewrite.
-
-# Version: 0.03 2014-12-09 GE
-#	HTML5 formatted.
-
-# Version: 0.02 2014-08-28 GE
-#	Changed refresh time from 30 to 20 seconds.
-#	Added pcp_go_main_button.
-#	Added textarea with listing of *config.cfg on USB
-
-# Version: 0.01 2014-06-24 GE
-#	Original.
+# Version: 0.01 2014-06-24
+#	Original. GE.
 
 . pcp-functions
 
@@ -48,7 +40,7 @@ pcp_banner
 pcp_running_script
 
 #========================================================================================
-# Generate staus message and finish html page
+# Generate status message and finish HTML page.
 #----------------------------------------------------------------------------------------
 pcp_html_end() {
 	echo '<table class="bggrey">'
@@ -67,7 +59,7 @@ pcp_html_end() {
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td>'
-						  pcp_go_main_button
+	                      pcp_redirect_button "Go to Main Page" "main.cgi" 10
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
@@ -86,7 +78,7 @@ pcp_html_end() {
 }
 
 #========================================================================================
-# First fieldset table
+# First fieldset table.
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -104,7 +96,7 @@ echo '                  <textarea class="inform" style="height:100px">'
 if [ $USB_FOUND -eq 1 ]; then
 	if mount | grep $DEV_USB >/dev/null 2>&1; then
 		MNT_USB=$(mount | grep $DEV_USB | awk -F ' ' '{print $3}')
-		echo '[  OK  ] USB device is already mounted at '$MNT_USB
+		echo '[  OK  ] USB device is already mounted at '$MNT_USB'.'
 		WAS_MOUNTED=1
 		IS_MOUNTED=1
 	else
@@ -139,7 +131,7 @@ if [ $IS_MOUNTED -eq 1 ]; then
 	fi
 else
 	echo '[ ERROR ] USB device is not mounted.'
-	echo '[ ERROR ] This routine will not save to the Boot Device if booting from USB'
+	echo '[ ERROR ] This routine will not save to the Boot Device if booting from USB.'
 	echo '[ ERROR ] Insert USB device and try again.'
 	FAIL_MSG='USB device is not mounted - Insert USB device and try again.'
 fi

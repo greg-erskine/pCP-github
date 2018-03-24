@@ -1,0 +1,78 @@
+From 7e9559effe6a85e2d5fc8f92c399dd2981412155 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Mon, 16 May 2016 10:40:21 +0000
+Subject: [PATCH 39/63] ASoC: simple_card: add support for hw_params_rules
+
+Add support for hw_params_rules to simple_card.
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ Documentation/devicetree/bindings/sound/simple-card.txt |  1 +
+ sound/soc/generic/simple-card.c                         | 11 ++++++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/sound/simple-card.txt b/Documentation/devicetree/bindings/sound/simple-card.txt
+index cf3979e..2cfed39 100644
+--- a/Documentation/devicetree/bindings/sound/simple-card.txt
++++ b/Documentation/devicetree/bindings/sound/simple-card.txt
+@@ -31,6 +31,7 @@ Optional subnodes:
+ 					  omitted when the card has only one
+ 					  DAI link. See the examples and the
+ 					  section bellow.
++- hw-params-rules			: Please refer to hw-params-rules.txt.
+ 
+ Dai-link subnode properties and subnodes:
+ 
+diff --git a/sound/soc/generic/simple-card.c b/sound/soc/generic/simple-card.c
+index ff6fcd9..5bc5bb0 100644
+--- a/sound/soc/generic/simple-card.c
++++ b/sound/soc/generic/simple-card.c
+@@ -8,6 +8,7 @@
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
++#include "hw-params-rules.h"
+ #include <linux/clk.h>
+ #include <linux/device.h>
+ #include <linux/gpio.h>
+@@ -33,6 +34,7 @@ struct simple_card_data {
+ 	int gpio_hp_det_invert;
+ 	int gpio_mic_det;
+ 	int gpio_mic_det_invert;
++	struct list_head hw_params_rules;
+ 	struct snd_soc_dai_link dai_link[];	/* dynamically allocated */
+ };
+ 
+@@ -51,7 +53,7 @@ static int asoc_simple_card_startup(struct snd_pcm_substream *substream)
+ 	ret = clk_prepare_enable(dai_props->cpu_dai.clk);
+ 	if (ret)
+ 		return ret;
+-	
++
+ 	ret = clk_prepare_enable(dai_props->codec_dai.clk);
+ 	if (ret)
+ 		clk_disable_unprepare(dai_props->cpu_dai.clk);
+@@ -100,7 +102,9 @@ static int asoc_simple_card_hw_params(struct snd_pcm_substream *substream,
+ 		if (ret && ret != -ENOTSUPP)
+ 			goto err;
+ 	}
+-	return 0;
++
++	return asoc_generic_hw_params_process_rules(
++		&priv->hw_params_rules, substream, params);
+ err:
+ 	return ret;
+ }
+@@ -511,7 +515,8 @@ static int asoc_simple_card_parse_of(struct device_node *node,
+ 	if (!priv->snd_card.name)
+ 		priv->snd_card.name = priv->snd_card.dai_link->name;
+ 
+-	return 0;
++	return asoc_generic_hw_params_rules_parse_of(
++		dev, node, &priv->hw_params_rules);
+ }
+ 
+ /* Decrease the reference count of the device nodes */
+-- 
+2.7.4
+

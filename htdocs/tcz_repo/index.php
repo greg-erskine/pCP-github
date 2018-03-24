@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('UTC');
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -19,6 +20,15 @@ if (strpos($curpath, 'armv6') !== false) {
 }else{
 	$arm="armv7";
 }
+$curpath = "$_SERVER[REQUEST_URI]";
+if (strpos($curpath, '8.x') !== false) {
+   $vers="8.x";
+} else if (strpos($curpath, '9.x') !== false) {
+   $vers="9.x";
+} else {
+	$vers="";
+}
+
 echo '<html>';
 echo '<head>';
 echo '  <meta http-equiv="Cache-Control" content="no-cache">';
@@ -70,7 +80,7 @@ foreach ($files as $file){
 		echo '  <tr>';
 		echo '    <td class="n">';
 		echo '      <img src="/images/folder.gif" alt="[DIR]" style="width:12px;height:12px;">';
-		echo '      <a href=https://sourceforge.net/projects/picoreplayer/files/repo/8.x/' . $arm . '/releases/>releases</a>';
+		echo '      <a href=https://sourceforge.net/projects/picoreplayer/files/repo/' . $vers . '/' . $arm . '/releases/>releases</a>';
 		echo '    </td>';
 		echo '    <td class="m">';
         echo "      <p>" . date ("Y-M-d H:i:s", filemtime($file)) . "</p>";

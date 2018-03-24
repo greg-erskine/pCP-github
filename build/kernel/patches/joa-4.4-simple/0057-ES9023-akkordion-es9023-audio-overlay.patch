@@ -1,0 +1,136 @@
+From b882a4aed59dda373edab6016e00685cd1ab4840 Mon Sep 17 00:00:00 2001
+From: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+Date: Fri, 6 May 2016 14:40:38 +0100
+Subject: [PATCH 57/63] ES9023: akkordion-es9023-audio overlay
+
+Add akkordion-es9023-audio overlay for Digital Dreamtime Akkordion
+(ES9023 edition).
+
+##
+## Digital Dreamtime Akkordion using ESS Sabre ES9023 DAC
+##
+##  card_name       = "Akkordion"
+##  dai_name        = "Akkordion DAC"
+##  dai_stream_name = "Akkordion DAC HiFi"
+##
+# dtoverlay=akkordion-es9023-audio
+# dtoverlay=akkordion-es9023-audio,bclk_ratio_int_div
+# dtoverlay=akkordion-es9023-audio,bclk_ratio_int_div,384k
+
+Signed-off-by: DigitalDreamtime <clive.messer@digitaldreamtime.co.uk>
+---
+ arch/arm/boot/dts/overlays/Makefile                |  1 +
+ arch/arm/boot/dts/overlays/README                  | 20 ++++++++
+ .../overlays/akkordion-es9023-audio-overlay.dts    | 57 ++++++++++++++++++++++
+ 3 files changed, 78 insertions(+)
+ create mode 100644 arch/arm/boot/dts/overlays/akkordion-es9023-audio-overlay.dts
+
+diff --git a/arch/arm/boot/dts/overlays/Makefile b/arch/arm/boot/dts/overlays/Makefile
+index 7c0c7f6..f04b952 100644
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -15,6 +15,7 @@ endif
+ dtbo-$(RPI_DT_OVERLAYS) += adau1977-adc.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += ads1015.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += ads7846.dtbo
++dtbo-$(RPI_DT_OVERLAYS) += akkordion-es9023-audio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += akkordion-iqdacplus.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += allo-piano-dac-pcm512x-audio.dtbo
+ dtbo-$(RPI_DT_OVERLAYS) += at86rf233.dtbo
+diff --git a/arch/arm/boot/dts/overlays/README b/arch/arm/boot/dts/overlays/README
+index b24296a..332bdfa 100644
+--- a/arch/arm/boot/dts/overlays/README
++++ b/arch/arm/boot/dts/overlays/README
+@@ -215,6 +215,26 @@ Params: cs                      SPI bus Chip Select (default 1)
+         www.kernel.org/doc/Documentation/devicetree/bindings/input/ads7846.txt
+ 
+ 
++Name:   akkordion-es9023-audio
++Info:   Configures the Digital Dreamtime Akkordion Music Player (with ESS Sabre
++        ES9023 DAC).
++Load:   dtoverlay=akkordion-es9023-audio,<param>
++Params: 384k                    Instructs the es9023 codec driver to support
++                                352k8 and 384k sample rates.
++        bclk_ratio_int_div      Use bclk_ratio=50 for 16/24bps and
++                                bclk_ratio=100 for 32bps media when sample
++                                rate is a multiple of 8kHz and less than
++                                192kHz. Which causes the selection of the 19M2
++                                OSC as the parent for the PCM clock with an
++                                integer divider, rather than PLLD with
++                                fractional divider and MASH noise shaping.
++        card_name               Override the default, "Akkordion", card name.
++        dai_name                Override the default, "Akkordion DAC",
++                                dai name.
++        dai_stream_name         Override the default, "Akkordion DAC HiFi",
++                                dai stream name.
++
++
+ Name:   akkordion-iqdacplus
+ Info:   Configures the Digital Dreamtime Akkordion Music Player (based on the
+         OEM IQAudIO DAC+ or DAC Zero module).
+diff --git a/arch/arm/boot/dts/overlays/akkordion-es9023-audio-overlay.dts b/arch/arm/boot/dts/overlays/akkordion-es9023-audio-overlay.dts
+new file mode 100644
+index 0000000..af9a3bd
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/akkordion-es9023-audio-overlay.dts
+@@ -0,0 +1,57 @@
++// Definitions for Digital Dreamtime Akkordion using ESS Sabre ES9023 DAC
++/dts-v1/;
++/plugin/;
++
++/ {
++	compatible = "brcm,bcm2708";
++
++	fragment@0 {
++		target = <&i2s>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target-path = "/";
++		__overlay__ {
++			es9023_codec: es9023-codec {
++				#sound-dai-cells = <0>;
++				compatible = "ess,es9023";
++				status = "okay";
++			};
++		};
++	};
++
++	fragment@2 {
++		target = <&sound>;
++		es9023_dac: __overlay__ {
++			compatible = "digitaldreamtime,es9023-akkordion-dac";
++			/*
++			 * These are the default names that will be
++			 *  applied by the es9023-dac machine driver
++			 *  based on the compatible parameter.
++			 *
++			 * es9023-dac,card-name = "Akkordion"
++			 * es9023-dac,dai-name = "Akkordion DAC";
++			 * es9023-dac,dai-stream-name = "Akkordion DAC HiFi";
++			 */
++			status = "okay";
++			es9023-dac,cpu {
++				sound-dai = <&i2s>;
++			};
++			es9023-dac,codec {
++				sound-dai = <&es9023_codec>;
++			};
++		};
++	};
++
++	__overrides__ {
++		384k = <&es9023_codec>,"es9023,384k?";
++		bclk_ratio_int_div =
++			<&es9023_dac>,"es9023-dac,bclk-ratio-int-div?";
++		card_name = <&es9023_dac>,"es9023-dac,card-name";
++		dai_name = <&es9023_dac>,"es9023-dac,dai-name";
++		dai_stream_name = <&es9023_dac>,"es9023-dac,dai-stream-name";
++	};
++};
+-- 
+2.7.4
+

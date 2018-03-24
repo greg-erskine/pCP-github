@@ -1,18 +1,21 @@
 #!/bin/sh
 
+# Version 3.5.0 2018-02-28
+#	wget will not over write, make sure package is not present. PH.
+
 # Version 3.21 2017-05-28
-#	Modifcations for installing to bootdevice. i.e. USB boot. PH.
+#	Modifications for installing to bootdevice. i.e. USB boot. PH.
 
 # Version 3.20 2017-03-25
 #	Removed code that is not used until stage2. PH.
 #	Change stage2 download to work with web based repo location. PH.
 
 # Version 3.10 2016-12-26
-#	Sourceforge repo changes. PH
+#	Sourceforge repo changes. PH.
 
-# Version 2.05 2016-06-17 SBP
-#	Original version
-#	Split from insitu_update.cgi to download new updater before updates.
+# Version 2.05 2016-06-17
+#	Original version. SBP.
+#	Split from insitu_update.cgi to download new updater before updates. SBP.
 
 . pcp-functions
 
@@ -43,7 +46,7 @@ pcp_debug_info() {
 }
 
 #========================================================================================
-# Check we have internet access - set FAIL_MSG if not accessible
+# Check we have Internet access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
 pcp_internet_indicator() {
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
@@ -74,14 +77,15 @@ pcp_get_newinstaller() {
 	sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
 	echo '[ INFO ] Step 2B. - Downloading the new Update script...'
 
-	# The web storage does not allow for cgi downloads.  
+	# The web storage does not allow for cgi downloads.
 	PACKAGE="insitu_update_stage2.gz"
-	$WGET ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1 
+	[ -e ${PCPHOME}/${PACKAGE} ] && rm -f ${PCPHOME}/${PACKAGE}
+	$WGET ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new Update script.'
 		gunzip ${PCPHOME}/${PACKAGE}
 		if [ $? -eq 0 ]; then
-			mv ${PCPHOME}/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
+			mv -f ${PCPHOME}/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
 			sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
 			sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
 			sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"

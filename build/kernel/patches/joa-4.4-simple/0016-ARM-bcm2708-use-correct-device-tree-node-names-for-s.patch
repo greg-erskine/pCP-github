@@ -1,0 +1,74 @@
+From 742e4d92a036d5c4b77c0339ec7915d9949158b5 Mon Sep 17 00:00:00 2001
+From: Martin Sperl <kernel@martin.sperl.org>
+Date: Tue, 26 Apr 2016 10:31:04 +0000
+Subject: [PATCH 16/63] ARM: bcm2708: use correct device-tree node names for
+ serial
+
+Upstream mandates the use of "serial" as name inside the device-tree.
+Note that this does not affect the use of the alias - there
+uart0 and uart1 are permissible.
+
+This also fixed the patch references inside the overlays for the rpi3.
+
+Signed-off-by: Martin Sperl <kernel@martin.sperl.org>
+---
+ arch/arm/boot/dts/bcm2708_common.dtsi                  | 4 ++--
+ arch/arm/boot/dts/overlays/pi3-disable-bt-overlay.dts  | 4 ++--
+ arch/arm/boot/dts/overlays/pi3-miniuart-bt-overlay.dts | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/bcm2708_common.dtsi b/arch/arm/boot/dts/bcm2708_common.dtsi
+index fbd04d7..95b75c9 100644
+--- a/arch/arm/boot/dts/bcm2708_common.dtsi
++++ b/arch/arm/boot/dts/bcm2708_common.dtsi
+@@ -135,7 +135,7 @@
+ 			#interrupt-cells = <2>;
+ 		};
+ 
+-		uart0: uart@7e201000 {
++		uart0: serial@7e201000 {
+ 			compatible = "arm,pl011", "arm,primecell";
+ 			reg = <0x7e201000 0x1000>;
+ 			interrupts = <2 25>;
+@@ -236,7 +236,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		uart1: uart@7e215040 {
++		uart1: serial@7e215040 {
+ 			compatible = "brcm,bcm2835-aux-uart", "ns16550";
+ 			reg = <0x7e215040 0x40>;
+ 			interrupts = <1 29>;
+diff --git a/arch/arm/boot/dts/overlays/pi3-disable-bt-overlay.dts b/arch/arm/boot/dts/overlays/pi3-disable-bt-overlay.dts
+index 68f6069..87cf345 100644
+--- a/arch/arm/boot/dts/overlays/pi3-disable-bt-overlay.dts
++++ b/arch/arm/boot/dts/overlays/pi3-disable-bt-overlay.dts
+@@ -39,8 +39,8 @@
+ 	fragment@3 {
+ 		target-path = "/aliases";
+ 		__overlay__ {
+-			serial0 = "/soc/uart@7e201000";
+-			serial1 = "/soc/uart@7e215040";
++			serial0 = "/soc/serial@7e201000";
++			serial1 = "/soc/serial@7e215040";
+ 		};
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/overlays/pi3-miniuart-bt-overlay.dts b/arch/arm/boot/dts/overlays/pi3-miniuart-bt-overlay.dts
+index 17d04cf..18f7745 100644
+--- a/arch/arm/boot/dts/overlays/pi3-miniuart-bt-overlay.dts
++++ b/arch/arm/boot/dts/overlays/pi3-miniuart-bt-overlay.dts
+@@ -57,8 +57,8 @@
+ 	fragment@4 {
+ 		target-path = "/aliases";
+ 		__overlay__ {
+-			serial0 = "/soc/uart@7e201000";
+-			serial1 = "/soc/uart@7e215040";
++			serial0 = "/soc/serial@7e201000";
++			serial1 = "/soc/serial@7e215040";
+ 		};
+ 	};
+ };
+-- 
+2.7.4
+

@@ -17,7 +17,7 @@
 #  new extensions will be saved in path based on the new kernel version.  Note, that you need a new kernel for this to work.
 #
 #
-#	Notes: Currently this breaks if a new kernel doesn't have at least all modules in old versions
+#	Notes: If new kernel doesn't have modules in old versions, error will be printed and module left out.
 
 
 
@@ -30,7 +30,7 @@ fi
 
 BASEWD=$(pwd)
 
-AVAILKERNEL=$(ls extensions)
+AVAILKERNEL=$(ls -r --sort=time extensions)
 
 echo "Please Select the Kernel version to use for starting module file listings"
 select OLD in $AVAILKERNEL;
@@ -46,7 +46,7 @@ do
 	fi
 done
 
-AVAILKERNEL=$(ls modules)
+AVAILKERNEL=$(ls -r --sort=time modules)
 
 echo
 echo "Starting kernel is $OLD"
@@ -65,8 +65,12 @@ do
 done
 
 #MODPATH=
-OLDKERNEL=${OLD%^*}
-NEWKERNEL=${NEW%^*}
+#OLDKERNEL=${OLD%^*}
+#NEWKERNEL=${NEW%^*}
+OLDKERNEL=$(ls -1 modules/${OLD}/lib/modules)
+NEWKERNEL=$(ls -1 modules/${NEW}/lib/modules)
+
+
 
 cd extensions/$OLD
 
@@ -77,20 +81,29 @@ cd $BASEWD
 mkdir -p extensions/$NEW
 LISTPATH="${BASEWD}/extensions/${OLD}"
 SRCMODPATH="modules/${NEW}/lib/modules/${NEWKERNEL}/kernel"
+MODPROBEPATH="${BASEWD}/../modprobe.d"
 
 for I in ${EXT}; do
 	echo
 	echo "*****************************************************************"
-	echo "Creating Module Extension for $I-$NEWKERNEL"
+	echo "Creating Module Extension for ${YELLOW}$I-$NEWKERNEL${NORMAL}"
 	cd ${SRCMODPATH}
 	cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.list /tmp/${I}.list
 	sed -i "s|usr/local/lib/modules/$OLDKERNEL/kernel/||" /tmp/${I}.list
-	tar -T /tmp/${I}.list -cf /tmp/${I}-${NEWKERNEL}.tar
+	tar --ignore-failed-read -T /tmp/${I}.list -cf /tmp/${I}-${NEWKERNEL}.tar
+
+	if [ -d ${MODPROBEPATH}/${I} ]; then
+		cd ${MODPROBEPATH}/${I}
+		tar -cf /tmp/${I}-modprobe.tar *
+	fi
+
 	cd ${BASEWD}
 	DESTMODPATH="extensions/${NEW}/${I}-${NEWKERNEL}/usr/local/lib/modules/${NEWKERNEL}/kernel"
 	mkdir -p ${DESTMODPATH}
 	cd ${DESTMODPATH}
 	tar xf /tmp/${I}-${NEWKERNEL}.tar
+	cd ${BASEWD}/extensions/${NEW}/${I}-${NEWKERNEL}
+	[ -f /tmp/${I}-modprobe.tar ] && tar xf /tmp/${I}-modprobe.tar
 	cd ${BASEWD}
 	echo
 	echo "New module is located at "
@@ -108,6 +121,7 @@ for I in ${EXT}; do
 	md5sum ${I}-${NEWKERNEL}.tcz > ${I}-${NEWKERNEL}.tcz.md5.txt
 	echo "Updating Extension Info"
 	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep
+	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep.pcp
 	rm -f ${I}-${NEWKERNEL}.tcz.info
 	while read LINE; do
 		case $LINE in
@@ -179,14 +193,16 @@ for I in ${EXT}; do
 		esac
 		[ $P -eq 1 ] && printf '%s%s\n' "${V1}" "${V2}" >> ${I}-${NEWKERNEL}.tcz.info
 	done < ${LISTPATH}/${I}-${OLDKERNEL}.tcz.info
+	[ -f ${I}-${NEWKERNEL}.tcz.dep ] && cp -f ${I}-${NEWKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep.pcp || echo "BOGUS.tcz" > ${I}-${NEWKERNEL}.tcz.dep.pcp
 	echo "${I}-${NEWKERNEL}.tcz Done...."
 	echo
-	
+
 	cd $BASEWD
-	
+
 	echo "Cleaning Up"
-	rm -f /tmp/*.tar
-	rm -f /tmp/*.list
+	rm -f /tmp/${I}-${NEWKERNEL}.tar
+	rm -f /tmp/${I}-modprobe.tar
+	rm -f /tmp/${I}.list
 done
 
 echo "Done!"

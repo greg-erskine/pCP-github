@@ -1,0 +1,177 @@
+From 544594552b7edb0f94fdb90f56f49651cc7b713b Mon Sep 17 00:00:00 2001
+From: Matthias Reichl <hias@horus.com>
+Date: Wed, 27 Apr 2016 15:26:51 +0200
+Subject: [PATCH 14/63] ASoC: dmaengine_pcm: Add support for packed transfers
+
+dmaengine_pcm currently only supports setups where FIFO reads/writes
+correspond to exactly one sample, eg 16-bit sample data is transferred
+via 16-bit FIFO accesses, 32-bit data via 32-bit accesses.
+
+This patch adds support for setups with fixed width FIFOs where
+multiple samples are packed into a larger word.
+
+For example setups with a 32-bit wide FIFO register that expect
+16-bit sample transfers to be done with the left+right sample data
+packed into a 32-bit word.
+
+Support for packed transfers is controlled via the
+SND_DMAENGINE_PCM_DAI_FLAG_PACK flag in snd_dmaengine_dai_dma_data.flags
+
+If this flag is set dmaengine_pcm doesn't put any restriction on the
+supported formats and sets the DMA transfer width to undefined.
+
+This means control over the constraints is now transferred to the DAI
+driver and it's responsible to provide proper configuration and
+check for possible corner cases that aren't handled by the ALSA core.
+
+Signed-off-by: Matthias Reichl <hias@horus.com>
+---
+ include/sound/dmaengine_pcm.h         | 12 ++++++++
+ sound/core/pcm_dmaengine.c            | 11 +++++--
+ sound/soc/soc-generic-dmaengine-pcm.c | 57 +++++++++++++++++++++--------------
+ 3 files changed, 55 insertions(+), 25 deletions(-)
+
+diff --git a/include/sound/dmaengine_pcm.h b/include/sound/dmaengine_pcm.h
+index f86ef5e..67be244 100644
+--- a/include/sound/dmaengine_pcm.h
++++ b/include/sound/dmaengine_pcm.h
+@@ -51,6 +51,16 @@ struct dma_chan *snd_dmaengine_pcm_request_channel(dma_filter_fn filter_fn,
+ 	void *filter_data);
+ struct dma_chan *snd_dmaengine_pcm_get_chan(struct snd_pcm_substream *substream);
+ 
++/*
++ * The DAI supports packed transfers, eg 2 16-bit samples in a 32-bit word.
++ * If this flag is set the dmaengine driver won't put any restriction on
++ * the supported sample formats and set the DMA transfer size to undefined.
++ * The DAI driver is responsible to disable any unsupported formats in it's
++ * configuration and catch corner cases that are not already handled in
++ * the ALSA core.
++ */
++#define SND_DMAENGINE_PCM_DAI_FLAG_PACK BIT(0)
++
+ /**
+  * struct snd_dmaengine_dai_dma_data - DAI DMA configuration data
+  * @addr: Address of the DAI data source or destination register.
+@@ -63,6 +73,7 @@ struct dma_chan *snd_dmaengine_pcm_get_chan(struct snd_pcm_substream *substream)
+  * requesting the DMA channel.
+  * @chan_name: Custom channel name to use when requesting DMA channel.
+  * @fifo_size: FIFO size of the DAI controller in bytes
++ * @flags: PCM_DAI flags, only SND_DMAENGINE_PCM_DAI_FLAG_PACK for now
+  */
+ struct snd_dmaengine_dai_dma_data {
+ 	dma_addr_t addr;
+@@ -72,6 +83,7 @@ struct snd_dmaengine_dai_dma_data {
+ 	void *filter_data;
+ 	const char *chan_name;
+ 	unsigned int fifo_size;
++	unsigned int flags;
+ };
+ 
+ void snd_dmaengine_pcm_set_config_from_dai_data(
+diff --git a/sound/core/pcm_dmaengine.c b/sound/core/pcm_dmaengine.c
+index fba365a..c6519ca 100644
+--- a/sound/core/pcm_dmaengine.c
++++ b/sound/core/pcm_dmaengine.c
+@@ -106,8 +106,9 @@ EXPORT_SYMBOL_GPL(snd_hwparams_to_dma_slave_config);
+  * direction of the substream. If the substream is a playback stream the dst
+  * fields will be initialized, if it is a capture stream the src fields will be
+  * initialized. The {dst,src}_addr_width field will only be initialized if the
+- * addr_width field of the DAI DMA data struct is not equal to
+- * DMA_SLAVE_BUSWIDTH_UNDEFINED.
++ * SND_DMAENGINE_PCM_DAI_FLAG_PACK flag is set or if the addr_width field of
++ * the DAI DMA data struct is not equal to DMA_SLAVE_BUSWIDTH_UNDEFINED. If
++ * both conditions are met the latter takes priority.
+  */
+ void snd_dmaengine_pcm_set_config_from_dai_data(
+ 	const struct snd_pcm_substream *substream,
+@@ -117,11 +118,17 @@ void snd_dmaengine_pcm_set_config_from_dai_data(
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		slave_config->dst_addr = dma_data->addr;
+ 		slave_config->dst_maxburst = dma_data->maxburst;
++		if (dma_data->flags & SND_DMAENGINE_PCM_DAI_FLAG_PACK)
++			slave_config->dst_addr_width =
++				DMA_SLAVE_BUSWIDTH_UNDEFINED;
+ 		if (dma_data->addr_width != DMA_SLAVE_BUSWIDTH_UNDEFINED)
+ 			slave_config->dst_addr_width = dma_data->addr_width;
+ 	} else {
+ 		slave_config->src_addr = dma_data->addr;
+ 		slave_config->src_maxburst = dma_data->maxburst;
++		if (dma_data->flags & SND_DMAENGINE_PCM_DAI_FLAG_PACK)
++			slave_config->src_addr_width =
++				DMA_SLAVE_BUSWIDTH_UNDEFINED;
+ 		if (dma_data->addr_width != DMA_SLAVE_BUSWIDTH_UNDEFINED)
+ 			slave_config->src_addr_width = dma_data->addr_width;
+ 	}
+diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
+index 6fd1906..6cef397 100644
+--- a/sound/soc/soc-generic-dmaengine-pcm.c
++++ b/sound/soc/soc-generic-dmaengine-pcm.c
+@@ -163,31 +163,42 @@ static int dmaengine_pcm_set_runtime_hwparams(struct snd_pcm_substream *substrea
+ 	}
+ 
+ 	/*
+-	 * Prepare formats mask for valid/allowed sample types. If the dma does
+-	 * not have support for the given physical word size, it needs to be
+-	 * masked out so user space can not use the format which produces
+-	 * corrupted audio.
+-	 * In case the dma driver does not implement the slave_caps the default
+-	 * assumption is that it supports 1, 2 and 4 bytes widths.
++	 * If SND_DMAENGINE_PCM_DAI_FLAG_PACK is set keep
++	 * hw.formats set to 0, meaning no restrictions are in place.
++	 * In this case it's the responsibility of the DAI driver to
++	 * provide the supported format information.
+ 	 */
+-	for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
+-		int bits = snd_pcm_format_physical_width(i);
+-
+-		/* Enable only samples with DMA supported physical widths */
+-		switch (bits) {
+-		case 8:
+-		case 16:
+-		case 24:
+-		case 32:
+-		case 64:
+-			if (addr_widths & (1 << (bits / 8)))
+-				hw.formats |= (1LL << i);
+-			break;
+-		default:
+-			/* Unsupported types */
+-			break;
++	if (!(dma_data->flags & SND_DMAENGINE_PCM_DAI_FLAG_PACK))
++		/*
++		 * Prepare formats mask for valid/allowed sample types. If the
++		 * dma does not have support for the given physical word size,
++		 * it needs to be masked out so user space can not use the
++		 * format which produces corrupted audio.
++		 * In case the dma driver does not implement the slave_caps the
++		 * default assumption is that it supports 1, 2 and 4 bytes
++		 * widths.
++		 */
++		for (i = 0; i <= SNDRV_PCM_FORMAT_LAST; i++) {
++			int bits = snd_pcm_format_physical_width(i);
++
++			/*
++			 * Enable only samples with DMA supported physical
++			 * widths
++			 */
++			switch (bits) {
++			case 8:
++			case 16:
++			case 24:
++			case 32:
++			case 64:
++				if (addr_widths & (1 << (bits / 8)))
++					hw.formats |= (1LL << i);
++				break;
++			default:
++				/* Unsupported types */
++				break;
++			}
+ 		}
+-	}
+ 
+ 	return snd_soc_set_runtime_hwparams(substream, &hw);
+ }
+-- 
+2.7.4
+

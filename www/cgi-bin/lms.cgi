@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Version: 3.5 2018-03-23
+#	Changes for busbybox fdisk output changes. PH.
+#	Fixed ability to remove missing configured drives. PH.
+#	Add popup confirmations on removing lms/cache, added extension check for startup. PH.
+#	Add help around vers= for network mounts. PH.
+
 # Version: 3.22 2017-09-16
 #	Changed Netmounts to support shares with spaces. PH.
 #	Added checkbox to clear unused netmount conf entries. PH.
@@ -305,6 +311,10 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:40px">'
 		mount | grep -qs $MNT
 		if [ "$?" = "0" ]; then
+			if [ ! -x /usr/local/etc/init.d/slimserver ]; then
+				echo '[ INFO ] Loading LMS extensions...'
+				sudo -u tc tce-load -i slimserver.tcz
+			fi
 			echo '[ INFO ] Starting LMS...'
 			echo -n '[ INFO ] '
 			sudo /usr/local/etc/init.d/slimserver start
@@ -559,7 +569,7 @@ pcp_lms_enable_lms() {
 	echo '            <form name="Select" action="writetolms.cgi" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS autostart" '$DISABLE_LMS' />'
+	echo '                  <button type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
 	echo '                </td>'
 	echo '                <td class="column100">'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
@@ -655,7 +665,7 @@ pcp_lms_install_lms() {
 		echo '                    <p>This will install LMS on pCP.</p>'
 		echo '                  </div>'
 	else
-		echo '                  <input type="submit" name="ACTION" value="Remove" />'
+		echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')"/>'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Remove LMS from pCP&nbsp;&nbsp;'
@@ -680,14 +690,15 @@ pcp_lms_remove_cache() {
 	echo '            <form name="Remove_cache" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                    <button type="submit" name="ACTION" value="Remove_cache" '$DISABLECACHE'>Remove cache</button>'
+	echo '                    <button type="submit" name="ACTION" value="Remove_cache" onclick="return confirm('\''This will remove all LMS Cache,settings and plugins.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove cache</button>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Remove LMS cache from pCP&nbsp;&nbsp;'
+	echo '                  <p>Remove LMS Cache and Preferences from pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will remove your LMS cache from pCP.</p>'
+	echo '                    <p>This will remove your the LMS cache and preferences from pCP.</p>'
+	echo '                    <p>This includes all installed plugins and settings.</p>'
 	echo '                  </div>'
 	echo '                 </td>'
 	echo '               </tr>'
@@ -1161,6 +1172,7 @@ pcp_extra_filesys() {
 # USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_usbdrives() {
+	#Used to identify which fdisk, fdisk -V fails under busybox, but not util-linux.
 	fdisk -V 2>&1 | grep -q -i busybox
 	[ $? -eq 0 ] && BBFDISK=1 || BBFDISK=0
 	# Read config file
@@ -1169,11 +1181,14 @@ pcp_mount_usbdrives() {
 	if [ -f  ${USBMOUNTCONF} ]; then
 		while read LINE; do
 			case $LINE in
-				[*)NUM_USB_CONF=$((NUM_USB_CONF+1));;
+				[*)	NUM_USB_CONF=$((NUM_USB_CONF+1))
+					# Assume disk is not plugged in, then enable in section below.
+					eval DISKFOUND${NUM_USB_CONF}="no"
+				;;
 				*USBDISK*)
 					eval USBDISK${NUM_USB_CONF}=$(pcp_trimval "${LINE}")
 					[ $(eval echo \${USBDISK${NUM_USB_CONF}}) = "enabled" ] && $((NUM_USB_CONF_ENABLED+1))
-					;;
+				;;
 				*POINT*) eval MOUNTPOINT${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
 				*UUID*) eval MOUNTUUID${NUM_USB_CONF}=$(pcp_trimval "${LINE}");;
 				*);;
@@ -1227,16 +1242,6 @@ pcp_mount_usbdrives() {
 	echo '                <td class="column'$COL7'"><p><b>Size</b></p></td>'
 	echo '              </tr>'
 
-	DISKFOUND="no"
-	case "$MOUNTUUID" in
-		no)
-			NOUUIDyes="checked"
-			DISKFOUND="yes"
-		;;
-		*)  #the contents are a UUID
-			NOUUIDyes=""
-		;;
-	esac
 	# Find all USB devices currently attached to system
 	ALLPARTS=$(fdisk -l | awk '$1 ~ /dev/{printf "%s\n",$1}')
 	NUM_USB_ATTACHED=0
@@ -1249,7 +1254,7 @@ pcp_mount_usbdrives() {
 			UUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $I -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			if [ $BBFDISK -eq 1 ]; then
-				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
 				[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
 			else
 				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f5 | tr -d +)
@@ -1267,7 +1272,7 @@ pcp_mount_usbdrives() {
 							USBDISKyes="checked"
 							REQUIRED="required"
 						fi
-						DISKFOUND="yes"
+						eval DISKFOUND${J}="yes"
 						PNT=$(eval echo "\${MOUNTPOINT${J}}")
 						break
 					;;
@@ -1358,17 +1363,31 @@ pcp_mount_usbdrives() {
 		echo '                  </td>'
 		echo '              </tr>'
 	fi
-	if [ "$DISKFOUND" = "no" -a $NUM_USB_CONF_ENABLED -gt 0 ]; then
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                  <td class="column'$COL1' center">'
-		echo '                    <input class="small1" type="checkbox" name="MOUNTUUID" value="no" checked>'
-		echo '                  </td>'
-		echo '                  <td colspan="5">'
-		echo '                    <p>Previously selected disk '$MOUNTUUID' not Found. Please Insert and Reboot system, or select a new Disk</p>'
-		echo '                  </td>'
-		echo '                </tr>'
-	fi
+	J=1
+	while [ $J -le $NUM_USB_CONF ]
+	do
+		if [ $(eval echo \${USBDISK${J}}) = "enabled" ]; then
+			UUID=$(eval echo "\${MOUNTUUID${J}}")
+			TST=$(eval echo "\${DISKFOUND${J}}")
+			PNT=$(eval echo "\${MOUNTPOINT${J}}")
+			if [ "$TST" = "no" ]; then
+				#Drive is actually not attached, but we needed it to be.
+				NUM_USB_ATTACHED=$((NUM_USB_ATTACHED+1))
+				pcp_toggle_row_shade
+				echo '              <tr class="'$ROWSHADE'">'
+				echo '                  <td class="column'$COL1' center">'
+				echo '                    <input class="small1" type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" checked>'
+				echo '                    <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
+				echo '                    <input type="hidden" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'">'
+				echo '                  </td>'
+				echo '                  <td colspan="5">'
+				echo '                    <p>Previously selected disk '$UUID' not Found. Please insert and reboot system, or uncheck to disable disk.</p>'
+				echo '                  </td>'
+				echo '                </tr>'
+			fi
+		fi
+	J=$((J+1))
+	done
 #--------------------------------------Submit button-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -1452,15 +1471,25 @@ pcp_mount_netdrives() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>If Checked, the network share will be mounted by to the mount point and will be automounted on startup.</p>'
-	echo '                    <p>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</p>'
-	echo '                    <p>&nbsp;&nbsp;&nbsp;Do not use hardware device names like sda1 or mmcblk0.</p>'
-	echo '                    <p>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</p>'
-	echo '                    <p>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</p>'
-	echo '                    <p>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</p>'
-	echo '                    <p>&#60;Username&#62; Username if needed for cifs mount.</p>'
-	echo '                    <p>&#60;Password&#62; Password if needed for cifs mount.</p>'
-	echo '                    <p>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.</p>'
+	echo '                    <p>Field usage.</p>'
+	echo '                    <ul>'
+	echo '                      <li>If Enabled is checked, the network share will be mounted by to the mount point and will be automounted on startup.</li>'
+	echo '                      <li>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</li>'
+	echo '                      <ul>'
+	echo '                        <li>Do not use hardware device names like sda1 or mmcblk0.</li>'
+	echo '                      </ul>'
+	echo '                      <li>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</li>'
+	echo '                      <li>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</li>'
+	echo '                      <li>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</li>'
+	echo '                      <li>&#60;Username&#62; Username if needed for cifs mount.</li>'
+	echo '                      <li>&#60;Password&#62; Password if needed for cifs mount.</li>'
+	echo '                      <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.</li>'
+	echo '                      <ul>'
+	echo '                        <li>vers=3.0 - The linux kernel now defaults to SMB and NFS version 3.0, lower versions must be specified.</li>'
+	echo '                        <li>uid=1001 - mounts the drive with user &quot;tc&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                        <li>gid=50 - mounts the drive with group &quot;staff&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                      </ul>'
+	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1553,7 +1582,7 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large6" type="text" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL8'">'
-		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50" >'
+		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
 		echo '                </td>'
 		echo '              </tr>'
 		echo '              <script type="text/javascript">'
