@@ -10,6 +10,9 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
+# Version: 3.5.0 2018-03-25
+#	Hotfix 3.5.0 for exfat issues. PH
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -36,6 +39,7 @@ pcp_httpd_query_string
 WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
+[ -d ${FIX_PCP} ] && rm -rf ${FIX_PCP}
 FIX_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files"
 #sourceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
 #FIX_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
@@ -45,54 +49,57 @@ REBOOT_REQUIRED=0
 #========================================================================================
 # Fixes
 #----------------------------------------------------------------------------------------
-pcp_do_fix_1() {
-	echo "[ INFO ] Applying fix_1"
-	echo "[ INFO ] Adding oprnssl to onboot.lst"
-	sudo sed -i '/openssl.tcz/d' $ONBOOTLST
-	sudo echo 'openssl.tcz' >> $ONBOOTLST
+
+pcp_download_hotfix() {
+	echo "[ INFO ] Retreiving ${HOTFIX}."
+	rm -rf ${HFDIR}
+	mkdir -p ${HFDIR}
+	$WGET ${INSITU_DOWNLOAD}/piCorePlayer$(pcp_picoreplayer_version)/${HOTFIX} -O ${HFDIR}/${HOTFIX}
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded' ${HOTFIX}
+	else
+		echo '[ ERROR ] Error downloading '${HOTFIX}
+		FAIL_MSG="Error downloading ${HOTFIX}"
+	fi
+	echo "[ INFO ] Retreiving ${HOTFIX} md5sum"
+	$WGET ${INSITU_DOWNLOAD}/piCorePlayer$(pcp_picoreplayer_version)/${HOTFIXMD5} -O ${HFDIR}/${HOTFIXMD5}
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded' ${HOTFIXMD5}
+	else
+		echo '[ ERROR ] Error downloading '${HOTFIXMD5}
+		FAIL_MSG="Error downloading ${HOTFIX}"
+	fi
+	if [ "$FAIL_MSG" = "ok" ]; then
+		echo "[ INFO ] Verifying ${HOTFIX}"
+		cd ${HFDIR}
+		md5sum -sc ${HOTFIXMD5}
+		if [ $? -eq 0 ]; then
+			echo '[ INFO ] Hotfix Verified.'
+		else
+			echo '[ ERROR ] '$HOTFIX' verification failed.'
+			FAIL_MSG="$HOTFIX verification failed."
+		fi
+	fi
 }
 
-pcp_do_fix_2() {
-	# fix for piCorePlayer 2.01
-	echo "[ INFO ] Applying fix_2"
-	echo "[ INFO ] Fixing insitu_update.cgi"
-
-	FILE="/home/tc/www/cgi-bin/insitu_update.cgi"
-	FROM='$WGET -P $UPD_PCP ${INSITU_DOWNLOAD}/insitu.cfg'
-	TO='$WGET -O ${UPD_PCP}/insitu.cfg ${INSITU_DOWNLOAD}/insitu.cfg/download'
-
-	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
-}
-
-pcp_do_fix_3() {
-	# fix for piCorePlayer 2.00
-	echo "[ INFO ] Applying fix_3"
-	echo "[ INFO ] Fixing upd_picoreplayer.cgi"
-
-	FILE="/home/tc/www/cgi-bin/upd_picoreplayer.cgi"
-	FROM='sudo wget -P $UPD_PCP $INSITU_DOWNLOAD/insitu.cfg'
-	TO='sudo wget -O ${UPD_PCP}/insitu.cfg ${INSITU_DOWNLOAD}/insitu.cfg/download'
-
-	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
-}
-
-pcp_do_fix_4() {
-	echo "[ INFO ] Applying fix_4"
-	echo "[ INFO ] Fixing writetoaudiotweak.cgi"
-
-	FILE="/home/tc/www/cgi-bin/writetoaudiotweak.cgi"
-	FROM='http://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/'
-	TO='https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal/'
-
-	sudo sed -i 's@'"${FROM}"'@'"${TO}"'@' $FILE
-}
-
-#we can delete this. Left here for reference right now.  PH.
-pcp_do_fixes200() {
-	pcp_do_fix_1
-	pcp_do_fix_2
-	pcp_do_fix_3
-	pcp_do_fix_4
+pcp_apply_fixes() {
+	#Apply the Fix
+	if [ "$FAIL_MSG" = "ok" ]; then
+		echo '[ INFO ] Extracting '${HOTFIX}
+		tar xf ${HOTFIX}
+		for EXE in ${HF_FILES_EXE}; do
+			dos2unix $EXE
+			chown tc:staff $EXE
+			chmod 750 $EXE
+			cp -fp $EXE /${EXE} 
+		done
+		for CFG in ${HF_FILES_CFG}; do
+			dos2unix $CFG
+			chown root:staff $CFG
+			chmod 664 $CFG
+			cp -fp $CFG /${CFG}
+		done
+	fi
 }
 
 pcp_do_fixes_311() {
@@ -206,6 +213,22 @@ pcp_do_fixes_310() {
 		FILE="/home/tc/www/cgi-bin/pcp-functions"
 		sed -i 's@OUTPUT=\"sysdefault:CARD=ALSA\"@OUTPUT=\"hw:CARD=ALSA\"@' $FILE
 	fi
+}
+
+pcp_do_fixes_350() {
+	#Leading / is removed
+	#EXE files get set to root.staff mode 755
+	HF_FILES_EXE="home/tc/www/cgi-bin/lms.cgi home/tc/www/cgi-bin/do_rebootstuff.sh \
+		home/tc/www/cgi-bin/writetomount.cgi"
+	#CFG files get set to root.staff mode 664
+	HF_FILES_CFG=""
+	HFDIR="/tmp/hf"
+	HOTFIX="hotfix350.tgz"
+	HOTFIXMD5="${HOTFIX}.md5.txt"
+
+	pcp_download_hotfix
+	pcp_apply_fixes
+	#Do anything special here
 }
 
 #========================================================================================
@@ -471,6 +494,13 @@ if [ "$ACTION" = "fix" ]; then
 			echo '[ INFO ] Hotfix for pCP 3.10 to allow insitu_update to 3.20.'
 			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_311
 			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
+		;;
+		3.5.0*)
+			echo '[ INFO ] Hotfix for pCP 3.5.0 to allow exfat mounts to work.'
+			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_350
+			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
+			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Operation Complete.'
+			REBOOT_REQUIRED=1
 		;;
 		*)
 			# No Fixes for this version
