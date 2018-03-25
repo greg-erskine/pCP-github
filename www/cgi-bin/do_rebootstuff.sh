@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-25
+#	fuse.ko does not load automatically for exfat mounts. PH.
+
 # Version: 3.5.0 2018-03-13
 #	Do not change card number if card not found in asound.conf. PH.
 #	Turn off extras during upgrade if they do not exist on new image. PH.
@@ -534,7 +537,7 @@ if [ -f  ${USBMOUNTCONF} ]; then
 				esac
 				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
 				case "$FSTYPE" in
-					exfat) mount.exfat $OPTIONS $DEVICE /mnt/$POINT;;
+					exfat) modprobe fuse; mount.exfat $OPTIONS $DEVICE /mnt/$POINT;;
 					*) mount $OPTIONS --uuid $UUID /mnt/$POINT;;
 				esac
 				if [ $? -eq 0 ]; then

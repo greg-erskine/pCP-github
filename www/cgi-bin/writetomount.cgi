@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-25
+#	fuse.ko does not load automatically for exfat mounts. PH.
+
 # Version: 3.5.0 2017-12-27
 #	Load arc4 if doing a network mount, as it does not automatically load. PH.
 
@@ -208,6 +211,7 @@ case "$MOUNTTYPE" in
 							case "$FSTYPE" in
 								exfat) [ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount.exfat '$OPTIONS' '$DEVICE' /mnt/'$NEWPNT'</p>' 
 									echo '<p class="info">[ INFO ] '
+									modprobe fuse
 									mount.exfat $OPTIONS $DEVICE /mnt/$NEWPNT
 								;;
 								*) [ "$DEBUG" = "1" ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
