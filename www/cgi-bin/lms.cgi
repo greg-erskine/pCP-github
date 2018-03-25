@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5 2018-03-23
+# Version: 3.5.1 2018-03-25
+#	Fix partition size display - changed from the new busybox. PH.
+
+# Version: 3.5.0 2018-03-23
 #	Changes for busbybox fdisk output changes. PH.
 #	Fixed ability to remove missing configured drives. PH.
 #	Add popup confirmations on removing lms/cache, added extension check for startup. PH.
@@ -1254,12 +1257,11 @@ pcp_mount_usbdrives() {
 			UUID=$(blkid $I -s UUID| awk -F"UUID=" '{print $NF}' | tr -d "\"")
 			PTTYPE=$(blkid $I -s TYPE| awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 			if [ $BBFDISK -eq 1 ]; then
-				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
-				[ $SIZE -gt 10485760 ] && SIZExB="`expr $SIZE / 1048576` GB" || SIZExB="`expr $SIZE / 1024` MB"
+				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f7 | tr -d + )
 			else
 				SIZE=$(fdisk -l | grep $I | sed "s/*//" | tr -s " " | cut -d " " -f5 | tr -d +)
-				SIZExB="${SIZE}B"
 			fi
+			SIZExB="${SIZE}B"
 			# Compare to previously configured drives from USBMOUNTCONF
 			J=1
 			while [ $J -le $NUM_USB_CONF ]
