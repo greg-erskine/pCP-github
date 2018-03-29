@@ -24,13 +24,13 @@ TCE_REPO="http://repo.tinycorelinux.net"
 #For now use the armv7 repo
 
 #This list does not include kernel modules
-TCE_EXT="alsa-utils.tcz alsa.tcz bash.tcz busybox-httpd.tcz bzip2-lib.tcz ca-certificates.tcz cairo.tcz db.tcz \
-dbus-glib.tcz dbus.tcz dialog.tcz ethtool.tcz expat2.tcz fontconfig.tcz freetype.tcz gamin.tcz gcc_libs.tcz \
-glib2.tcz graphite2.tcz harfbuzz.tcz icu.tcz iproute2.tcz iptables.tcz libICE.tcz libSM.tcz libX11.tcz \
-libXau.tcz libXdmcp.tcz libXext.tcz libXrender.tcz libasound.tcz libedit.tcz libelf.tcz \
-libical.tcz libiw.tcz libmount.tcz libnl.tcz libpng.tcz libudev.tcz libxcb.tcz lzo.tcz \
-ncurses.tcz ntfs-3g.tcz openssh.tcz openssl.tcz pcre.tcz pixman.tcz readline.tcz \
-wifi.tcz wireless_tools.tcz wpa_supplicant.tcz libnftnl.tcz jansson.tcz libmnl.tcz"
+TCE_EXT="alsa.tcz alsa-utils.tcz bash.tcz busybox-httpd.tcz bzip2-lib.tcz ca-certificates.tcz cairo.tcz db.tcz dbus-glib.tcz \
+dbus.tcz dialog.tcz dnsmasq.tcz ethtool.tcz expat2.tcz firmware-atheros.tcz firmware-brcmwifi.tcz firmware-ralinkwifi.tcz \
+fontconfig.tcz freetype.tcz gamin.tcz gcc_libs.tcz glib2.tcz graphite2.tcz harfbuzz.tcz hostapd.tcz icu.tcz iproute2.tcz \
+iptables.tcz jansson.tcz libasound.tcz libcofi.tcz libedit.tcz libelf.tcz libical.tcz libICE.tcz libiw.tcz libmnl.tcz \
+libmount.tcz libnftnl.tcz  libnl.tcz libpng.tcz libSM.tcz libudev.tcz libX11.tcz libXau.tcz libxcb.tcz libXdmcp.tcz \
+libXext.tcz libXrender.tcz lzo.tcz ncurses.tcz ntfs-3g.tcz openssh.tcz openssl.tcz pcre.tcz perl5.tcz pixman.tcz readline.tcz \
+wifi.tcz wireless_tools.tcz wiringpi-dev.tcz wiringpi.tcz wpa_supplicant.tcz"
 
 #PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
 #pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi libts wiringpi"
@@ -131,14 +131,15 @@ check_updates () {
 				if [ $? -ne 0 ]; then
 					echo -e "${YELLOW} Different md5 signature found."
 					echo "${BLUE}"
-					while true; do
-						read -p "Do you want to update Extension? (y/n)" yn
-						case $yn in
-							[Yy]* ) UPDATE=1; break;;
-							[Nn]* ) UPDATE=0; break;;
-							* ) echo "Please answer yes or no.";;
-						esac
-					done
+#					while true; do
+#						read -p "Do you want to update Extension? (y/n)" yn
+#						case $yn in
+#							[Yy]* ) UPDATE=1; break;;
+#							[Nn]* ) UPDATE=0; break;;
+#							* ) echo "Please answer yes or no.";;
+#						esac
+#					done
+UPDATE=1
 					if [ $UPDATE -eq 1 ]; then
 						FAIL=0
 						for FILE_EXT in $(echo "tcz.dep tcz.info tcz.list tcz"); do
@@ -179,7 +180,7 @@ check_updates () {
 START_DIR=$(pwd)
 cd armv6/tcz
 EXTENSION_DIR=$(pwd)
-TCE_VER="8.x/armv6/tcz"
+TCE_VER="9.x/armv6/tcz"
 
 while true; do
 	read -p "Do you wish to archive files? (y/n)" yn
@@ -206,7 +207,7 @@ dependancy_check
 cd $START_DIR
 cd armv7/tcz
 EXTENSION_DIR=$(pwd)
-TCE_VER="8.x/armv7/tcz"
+TCE_VER="9.x/armv7/tcz"
 
 while true; do
 	read -p "Do you wish to update armv7 extensions? (y/n)" yn

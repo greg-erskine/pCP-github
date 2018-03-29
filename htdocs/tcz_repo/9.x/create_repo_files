@@ -51,8 +51,8 @@ for i in ${REPO[@]}; do
 	cd ${i}
 	echo "${BLUE}Entering REPO ${YELLOW}${i}${NORMAL}"
 	echo "${BLUE}Checking MD5's on all repo files${NORMAL}"
-	for j in `ls -1 *.md5.txt`; do
-		md5sum -cw --quiet $j
+	for j in `ls -1 *.tcz`; do
+		md5sum -cw --quiet $j.md5.txt
 		if [ $? -eq 1 ]; then
 			echo "${RED}MD5 Error on ${j}.${NORMAL}"
 			STOP=1
@@ -103,7 +103,6 @@ for i in ${REPO[@]}; do
 
 	echo "${BLUE}Creating Dep Trees for ${YELLOW}${i}"
 	TABLEVEL=0
-	TREEFILE=""
 	for j in `ls -1 *.dep|sort -f`; do
 		TREEFILE="tmptree"
 		[ -e $TREEFILE ] && rm -f $TREEFILE
@@ -138,7 +137,7 @@ for i in ${REPO[@]}; do
 			fi
 		fi
 	done
-	
+
 	echo "${GREEN}Done"
 	echo ""
 
@@ -162,6 +161,7 @@ for i in ${REPO[@]}; do
 	echo ""
 
 done
+
 echo "${YELLOW}***************************${CYAN} CREATE REPO BROWSER FILES ${YELLOW}***********************************" 
 
 cd $PWD
