@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-30
+#	Fixed Jivelite form. PH.
+
 # Version: 3.5.0 2018-02-28
 #	Cosmetic change to jivelite install. GE.
 #	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
@@ -966,68 +969,69 @@ fi
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
-	echo '            <table class="bggrey percent100">'
+	echo '          <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
+	echo '            <tr class="'$ROWSHADE'">'
 
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-		echo '                <td class="column150">'
-		echo '                  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
-		echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
-		echo '                    <input type="submit" name="ACTION" value="Install">'
-		echo '                  </form>'
-		echo '                </td>'
-		echo '                <td class="column210">'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>Install Jivelite on pCP&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>This will install Jivelite and VuMeters on pCP.</p>'
-		echo '                  </div>'
-		echo '                </td>'
+		echo '              <td class="column150">'
+		echo '                <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+		echo '                  <input type="submit" name="ACTION" value="Install">'
+		echo '                </form>'
+		echo '              </td>'
+		echo '              <td class="column210">'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p>Install Jivelite on pCP&nbsp;&nbsp;'
+		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                </p>'
+		echo '                <div id="'$ID'" class="less">'
+		echo '                  <p>This will install Jivelite and VuMeters on pCP.</p>'
+		echo '                </div>'
+		echo '              </td>'
 	else
-		echo '                <td class="column360">'
-		echo '                  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
-		echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
-		echo '                    <input type="submit" name="ACTION" value="Update">'
-		echo '                    <input type="submit" name="ACTION" value="Reset">'
-		echo '                    <input type="submit" name="ACTION" value="Remove">'
-		echo '                  </form>'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
-		echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
-		echo '                    <p>A reboot after installation is needed.<p>'
-		echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
-		echo '                    <ul>'
-		echo '                      <li>Install - Downloads and installs Jivelite.</li>'
-		echo '                      <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
-		echo '                      <li>Reset - Resets Jivelite preferences.</li>'
-		echo '                      <li>Remove - Removes all traces of Jivelite.</li>'
-		echo '                    </ul>'
-		echo '                    <p>Jivelite requires resizing the file system.<p>'
-		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
-		echo '                  </div>'
-		echo '                </td>'
+		echo '              <td class="column360">'
+		echo '                <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+		echo '                  <input type="submit" name="ACTION" value="Update">'
+		echo '                  <input type="submit" name="ACTION" value="Reset">'
+		echo '                  <input type="submit" name="ACTION" value="Remove">'
+		echo '                </form>'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
+		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                </p>'
+		echo '                <div id="'$ID'" class="less">'
+		echo '                  <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
+		echo '                  <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
+		echo '                  <p>A reboot after installation is needed.<p>'
+		echo '                  <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
+		echo '                  <ul>'
+		echo '                    <li>Install - Downloads and installs Jivelite.</li>'
+		echo '                    <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
+		echo '                    <li>Reset - Resets Jivelite preferences.</li>'
+		echo '                    <li>Remove - Removes all traces of Jivelite.</li>'
+		echo '                  </ul>'
+		echo '                  <p>Jivelite requires resizing the file system.<p>'
+		echo '                  <p>Installing Jivelite will also install the VU Meters.<p>'
+		echo '                </div>'
+		echo '              </td>'
 	fi
-	echo '              </tr>'
+	echo '            </tr>'
 
 	if [ $DEBUG -eq 1 ]; then
-		echo '              <tr>'
-		echo '                <!-- Start of debug info -->'
-		echo '                <p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
-		echo '                                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
-		echo '                                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
-		echo '                <!-- End of debug info -->'
-		echo '              </tr>'
+		echo '            <tr>'
+		echo '              <!-- Start of debug info -->'
+		echo '              <p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
+		echo '                               [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
+		echo '                               [ DEBUG ] $JIVEno: '$JIVEno'</p>'
+		echo '              <!-- End of debug info -->'
+		echo '            </tr>'
 	fi
+	echo '          </table>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
 
@@ -1035,13 +1039,13 @@ pcp_tweaks_install_jivelite() {
 pcp_tweaks_enable_jivelite() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '          <form name="jivelite2" action="writetojivelite.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <form name="jivelite2" action="writetojivelite.cgi" method="get">'
-	echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
-	echo '                    <input type="hidden" name="ACTION" value="Onboot">'
-	echo '                    <input type="submit" value="Set Autostart" '$JLDISABLED'>'
-	echo '                  </form>'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+	echo '                  <input type="hidden" name="ACTION" value="Onboot">'
+	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED'>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1058,6 +1062,7 @@ pcp_tweaks_enable_jivelite() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_enable_jivelite
 #----------------------------------------------------------------------------------------

@@ -11,7 +11,8 @@
 #----------------------------------------------------------------------------------------
 
 # Version: 3.5.0 2018-03-25
-#	Hotfix 3.5.0 for exfat issues. PH
+#	Hotfix 3.5.1 for exfat issues. PH
+#	Hotfix 3.5.1 for jivelite forms. PH
 
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
@@ -219,7 +220,7 @@ pcp_do_fixes_350() {
 	#Leading / is removed
 	#EXE files get set to root.staff mode 755
 	HF_FILES_EXE="home/tc/www/cgi-bin/lms.cgi home/tc/www/cgi-bin/do_rebootstuff.sh \
-		home/tc/www/cgi-bin/writetomount.cgi"
+		home/tc/www/cgi-bin/writetomount.cgi home/tc/www/cgi-bin/tweaks.cgi"
 	#CFG files get set to root.staff mode 664
 	HF_FILES_CFG=""
 	HFDIR="/tmp/hf"
