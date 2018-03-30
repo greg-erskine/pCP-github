@@ -26,6 +26,15 @@ function defaultSettings(self)
 end
 
 function configureApplet(self)
+    local icon
+    local skin = jiveMain:getDefaultSkin()
+
+    if skin == 'JogglerSkin' or skin == 'PiGridSkin' then
+        icon = jiveMain:getSkinParamOrNil('piCorePlayerStyle')
+    else
+        icon = 'hm_settings'
+    end
+
 	-- we only register the menu her, as registerApplet is being called before the skin is initialized
     jiveMain:addItem(
     	self:menuItem(
@@ -37,7 +46,7 @@ function configureApplet(self)
     		end,
     		100,
     		nil,
-    		jiveMain:getSkinParamOrNil('piCorePlayerStyle')
+		icon
     	)
     )
 
