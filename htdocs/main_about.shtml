@@ -9,7 +9,7 @@
   <title>pCP - Index</title>
   <meta name="author" content="GE'">
   <meta name="description" content="pCP Online Help Index">
-  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="stylesheet" type="text/css" href="/css/piCorePlayer.css">
   <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
 </head>

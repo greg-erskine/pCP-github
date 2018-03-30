@@ -9,7 +9,7 @@
   <title>pCP - FAQ - Wifi does not work </title>
   <meta name="author" content="GE'">
   <meta name="description" content="pCP - FAQ - Wifi does not work ">
-  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
+  <link rel="stylesheet" type="text/css" href="/css/piCorePlayer.css">
   <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
 </head>
