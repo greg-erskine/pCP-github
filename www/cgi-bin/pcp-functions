@@ -2,6 +2,9 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
+# Version: 3.5.1 2018-03-30
+#  Another attempt to fix reloading page does not reboot pCP again. SBP.
+
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
 #	Added SQBINARY config setting. PH.
@@ -550,7 +553,7 @@ pcp_navigation() {
 		echo '            <tr class="warning">'
 		echo '              <td>'
 		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
-		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
+		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />'
 		echo '                </p>'
 		echo '              </td>'
 		echo '            </tr>'
@@ -917,7 +920,7 @@ pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
 		echo '<script language="javascript">'
-		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [Cancel] to manually reboot later.'\'','\''reboot.cgi?RB=yes'\'')'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [Cancel] to manually reboot later.'\'','\''reboot.cgi'\'')'
 		echo '</script>'
 	fi
 }
@@ -1185,7 +1188,7 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
+	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }
 

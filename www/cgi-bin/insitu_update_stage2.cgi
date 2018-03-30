@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-30
+#  Another attempt to fix reloading page does not reboot pCP again. SBP.
+
 # Version 3.5.0 2018-03-15
 #	Updates for Kernel 4.14.26 and 9.x repo
 #	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
@@ -168,7 +171,7 @@ pcp_enough_free_space() {
 #-----------------------------------------------------------------------------------------
 pcp_reboot_required() {
    echo '<script language="javascript">'
-   echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')'
+   echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')'
    echo '</script>'
 }
 

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-30
+#  Another attempt to fix reloading page does not reboot pCP again. SBP.
+
 # Version: 3.5.0 2018-02-21
 #	HTML5 cleanup. GE.
 
@@ -322,7 +325,7 @@ pcp_main_reboot() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')" method="get">'
+	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')" method="get">'
 	echo '                  <input type="submit" value="Reboot">'
 	echo '                </form>'
 	echo '              </td>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-30
+#  Another attempt to fix reloading page does not reboot pCP again. SBP.
+
 # Version: 3.5.0 2018-02-28
 #	Fixed removal of Jivelite. SBP.
 #	Cleanup. GE.
@@ -187,7 +190,7 @@ pcp_delete_vumeters() {
 pcp_lirc_popup() {
 	if [ "$IR_LIRC" = "yes" ]; then
 		STRING1='INFO: LIRC is enabled; you might need to remove/install LIRC again to fix problems. But first press [OK] to reboot now.'
-		SCRIPT1='reboot.cgi?RB=yes'
+		SCRIPT1='reboot.cgi'
 		pcp_confirmation_required
 	else
 		pcp_reboot_required
