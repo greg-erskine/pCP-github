@@ -49,13 +49,6 @@ LDFLAGS="-s -Wl,-rpath,/usr/local/lib" \
 
 find . -name Makefile -type f -exec sed -i 's/-O2 -g/-s/g' {} \;
 
-echo '#undef PIDFILE' >> config.h
-echo '#define PIDFILE                 VARRUNDIR "/" PID_LIRCD' >> config.h
-echo '#undef LIRCD' >> config.h
-echo '#define LIRCD                   VARRUNDIR "/" DEV_LIRCD' >> config.h
-echo '#undef LIRCM' >> config.h
-echo '#define LIRCM                   VARRUNDIR "/" DEV_LIRCM' >> config.h
-
 echo "Running make"
 make >> $LOG
 
@@ -91,7 +84,7 @@ bsdtar -czf $STARTDIR/$SRC-headers.tar.gz *
 
 cd $OUTPUT >> $LOG
 
-cp -p $STARTDIR/tce.lirc $OUTPUT/usr/local/tce.installed/lirc
+cp -p $STARTDIR/tce.lirc $OUTPUT/usr/local/tce.installed/pcp-lirc
 cp -p $STARTDIR/lircrc-squeezebox $OUTPUT/usr/local/share/lirc/files
 cp -p $STARTDIR/lircd.conf $OUTPUT/usr/local/share/lirc/files
 cp -p $STARTDIR/lircd-jivelite $OUTPUT/usr/local/share/lirc/files
@@ -102,7 +95,7 @@ mv $OUTPUT/usr/local/lib/liblirc_client.a $STARTDIR/
 
 sudo chown -Rh root:root usr >> $LOG
 sudo chown tc:staff usr/local/etc/lirc >> $LOG
-sudo chown tc:staff usr/local/tce.installed/lirc >> $LOG
+sudo chown tc:staff usr/local/tce.installed/pcp-lirc >> $LOG
 sudo chown tc:staff usr/local/share/lirc/files/* >> $LOG
 sudo chmod 664 usr/local/share/lirc/files/* >> $LOG
 
@@ -120,7 +113,7 @@ echo -e "Original-site:\thttp://www.lirc.org" >> $TCZINFO
 echo -e "Copying-policy:\tGPL" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "Tags:\t\tIR remote control" >> $TCZINFO
+echo -e "Tags:\tIR remote control" >> $TCZINFO
 echo -e "Comments:\tBinaries only" >> $TCZINFO
 echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
 echo -e "Change-log:\t$(cat README.md)" >> $TCZINFO
