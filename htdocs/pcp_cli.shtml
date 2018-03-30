@@ -11,7 +11,6 @@
   <meta name="description" content="pCP - Command Line Interface">
   <link rel="stylesheet" type="text/css" href="/css/piCorePlayer.css">
   <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
-  <script src="../js/piCorePlayer.js"></script>
 </head>
 <body>
 <!-- End of pcp_html_head -->
