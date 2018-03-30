@@ -51,8 +51,8 @@ cd /opt/squeezeplay/lib
 tar -cf - libexpat.so* libfreetype.so* libjpeg.so* libpng.so* libpng12.so* libSDL_gfx.so* libSDL_image-1.2.so.* libSDL_ttf-2.0.so* libSDL-1.2.so* | (cd $OUTPUT/opt/jivelite/lib; tar -xvf -)
 
 # Install lua
-cp -p $OUTPUT/../$SRC/lua-5.1.1/src/{lua,luac} $OUTPUT/opt/jivelite/bin
-cp -p $OUTPUT/../$SRC/lua-5.1.1/src/liblua.so $OUTPUT/opt/jivelite/lib
+cp -p $OUTPUT/../$SRC/lua-5.1.5/src/{lua,luac} $OUTPUT/opt/jivelite/bin
+cp -p $OUTPUT/../$SRC/lua-5.1.5/src/liblua.so $OUTPUT/opt/jivelite/lib
 
 # Remove user contributed VU Meters, they are installed as tcz packages
 cd $OUTPUT/opt/jivelite || exit 1
@@ -143,8 +143,8 @@ find * -not -type d > $OUTPUT/../${LUATCZ}.list
 cd $OUTPUT/../
 echo -e "Title:\t\t$LUATCZ" > $LUATCZINFO
 echo -e "Description:\tLua a powerful, efficient, lightweight, embeddable scripting language." >> $LUATCZINFO
-echo -e "Version:\t5.1.1" >> $LUATCZINFO
-echo -e "Commit:\t\t$(cd $SRC/lua-5.1.1; svn info | grep Revision: | awk '{printf "%d", $2}')" >> $LUATCZINFO
+echo -e "Version:\t5.1.5" >> $LUATCZINFO
+echo -e "Commit:\t\t$(cd $SRC/lua-5.1.5; svn info | grep Revision: | awk '{printf "%d", $2}')" >> $LUATCZINFO
 echo -e "Authors:\thttp://www.lua.org/authors.html" >> $LUATCZINFO
 echo -e "Original-site:\thttp://www.lua.org/" >> $LUATCZINFO
 echo -e "Copying-policy:\tMIT http://www.lua.org/license.html" >> $LUATCZINFO
