@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-03-30
+#	Another attempt to fix reloading page does not reboot pCP again. SBP.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 #	Fix to reloading page does not reboot pCP again. PH.
@@ -25,19 +28,12 @@ pcp_running_script
 pcp_remove_query_string
 pcp_httpd_query_string
 
-case $RB in
-	yes)
-		pcp_table_top "Rebooting"
-		pcp_reboot
-		pcp_table_middle
-	;;
-	*)
-		pcp_table_top "pCP has Rebooted"
-		pcp_table_middle
-	;;
-esac
+	pcp_table_top "Rebooting"
+	echo "pCP is rebooting....."
+	pcp_table_middle
+	echo "pCP will automatically reload when available"
+	echo '<script>pcp_redirect("10","main.cgi")</script>'
 
-pcp_go_main_button
 pcp_table_end
 
 pcp_footer
@@ -45,3 +41,5 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
+
+pcp_reboot >/dev/null 2>&1 &
