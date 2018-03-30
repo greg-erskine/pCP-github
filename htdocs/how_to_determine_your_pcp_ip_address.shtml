@@ -10,7 +10,7 @@
   <meta name="author" content="GE'">
   <meta name="description" content="pCP - How-to determine your piCorePlayer IP address">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
-  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
 </head>
 <body>
@@ -67,7 +67,7 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/pcp_ip_address_bootlog.png" alt="boot screen" /></p>
+                <p><img src="/images/pcp_ip_address_bootlog.png" alt="boot screen" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
           </table>
@@ -99,7 +99,7 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/pcp_ip_address_scanner.png" alt="boot screen" /></p>
+                <p><img src="/images/pcp_ip_address_scanner.png" alt="boot screen" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
           </table>

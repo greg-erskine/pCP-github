@@ -10,7 +10,7 @@
   <meta name="author" content="GE'">
   <meta name="description" content="pCP - How-to access piCorePlayer via ssh">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
-  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
 </head>
 <body>
@@ -43,7 +43,7 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/putty.png" alt="PuTTY screen" /></p>
+                <p><img src="/images/putty.png" alt="PuTTY screen" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
@@ -98,7 +98,7 @@
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/putty_login.png" alt="piCore login terminal" /></p>
+                <p><img src="/images/putty_login.png" alt="piCore login terminal" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">

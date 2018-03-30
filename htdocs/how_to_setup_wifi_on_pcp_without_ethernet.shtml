@@ -10,7 +10,7 @@
   <meta name="author" content="GE'">
   <meta name="description" content="pCP - How-to Setup Wifi on piCorePlayer without Ethernet ">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
-  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
 </head>
 <body>
@@ -156,7 +156,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/wifi_putty_login.png" alt="piCore login terminal" /></p>
+                <p><img src="/images/wifi_putty_login.png" alt="piCore login terminal" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
@@ -173,7 +173,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/setup_important_message.png" alt="Setup - Important message" /></p>
+                <p><img src="/images/setup_important_message.png" alt="Setup - Important message" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
@@ -190,7 +190,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/setup_main_menu.png" alt="Setup - Main Menu" /></p>
+                <p><img src="/images/setup_main_menu.png" alt="Setup - Main Menu" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
@@ -207,7 +207,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/setup_wifi_status_menu.png" alt="Setup - Wifi Status Menu" /></p>
+                <p><img src="/images/setup_wifi_status_menu.png" alt="Setup - Wifi Status Menu" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
@@ -224,7 +224,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/setup_wifi_on_off_menu.png" alt="Setup - Wifi On Off Menu" /></p>
+                <p><img src="/images/setup_wifi_on_off_menu.png" alt="Setup - Wifi On Off Menu" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">
@@ -241,7 +241,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/setup_wifi_menu.png" alt="Setup - Wifi Menu" /></p>
+                <p><img src="/images/setup_wifi_menu.png" alt="Setup - Wifi Menu" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="even">
@@ -261,7 +261,7 @@ ENCRYPTION="WPA"
                 <p></p>
               </td>
               <td>
-                <p><img src="../images/setup_wifi_new_status_menu.png" alt="Setup - Wifi Status Menu" /></p>
+                <p><img src="/images/setup_wifi_new_status_menu.png" alt="Setup - Wifi Status Menu" /></p>
             </tr>
             <!-- -------------------------------------------------------------------- -->
             <tr class="odd">

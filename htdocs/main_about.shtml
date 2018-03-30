@@ -10,7 +10,7 @@
   <meta name="author" content="GE'">
   <meta name="description" content="pCP Online Help Index">
   <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css">
-  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />
+  <link rel="icon" href="/images/pCP.png" type="image/x-icon" />
   <script src="../js/piCorePlayer.js"></script>
 </head>
 <body>
@@ -51,7 +51,7 @@
                 <h2>Please donate if you like piCorePlayer</h2>
                 <p class="centre"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;
 lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">
-                   <img border="0" src="../images/donate.gif" alt="Donate"/></a> &#8599;</p>
+                   <img border="0" src="/images/donate.gif" alt="Donate"/></a> &#8599;</p>
                 <p>//Paul, Steen, Ralphy and Greg</p>
               </td>
             </tr>
