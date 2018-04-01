@@ -2,8 +2,11 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.1 2018-03-30
-#  Another attempt to fix reloading page does not reboot pCP again. SBP.
+# Version: 3.5.1 2018-04-01
+#	Another attempt to fix reloading page does not reboot pCP again. SBP.
+#	Added lang to pcp_html_head. GE.
+#	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
+#	Fixed HTML5 error in pcp_redirect_button. GE.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -104,7 +107,7 @@ pcp_variables() {
 	# The following are standard piCorePlayer variables, do NOT edit!
 	# Note: This section is ONLY for variables as it can be run multiple times.
 	#------------------------------------------------------------------------------------
-	#Name of device that has tce.  Assume boot is partition 1 of that device.
+	# Name of device that has tce.  Assume boot is partition 1 of that device.
 	TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 	TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 	BOOTDEV=${TCEDEV%%?}1
@@ -144,7 +147,6 @@ pcp_variables() {
 	#------------------------------------------------------------------------------------
 	# Define repositories
 	#------------------------------------------------------------------------------------
-	#REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"  <--Everything has migrated from this to PCP_REPO
 	INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
 	PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
@@ -468,7 +470,7 @@ pcp_html_head() {
 	echo ''
 	echo '<!DOCTYPE html>'
 	echo '<!-- Start of pcp_html_head -->'
-	echo '<html>'
+	echo '<html lang="en">'
 	echo '<head>'
 	echo '  <meta charset="UTF-8">'
 	if [ $DEBUG -eq 0 ]; then
@@ -946,30 +948,33 @@ pcp_confirmation_required() {
 # Start/stop Squeezelite
 #----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
+	# $1 - nohtml
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	if [ "$SHAIRPORT" = "yes" ]; then
 		pcp_shairport_restart
 	fi
-	echo '<p class="info">[ INFO ] '
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite start
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_squeezelite_stop() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite stop
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_squeezelite_restart() {
+	# $1 - nohtml
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
-	echo '<p class="info">[ INFO ] '
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite restart
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_squeezelite_status() {
@@ -1199,7 +1204,7 @@ pcp_redirect_button() {
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '<form name="redirect button" action="'$2'" method="get">'
 	echo '	<p>'
-	echo '		<input class="large12" type="submit" class="large" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
+	echo '		<input class="large12" type="submit" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
 	echo '	</p>'
 	echo '</form>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'

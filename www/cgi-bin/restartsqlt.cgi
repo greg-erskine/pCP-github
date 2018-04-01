@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-01
+#	Added pcp_redirect_button. GE.
+#	HTML5 cleanup. GE.
+
 # Version: 3.5.0 2018-02-04
 #	Return to requested page. PH.
 
@@ -10,31 +14,20 @@
 #	Enhanced formatting. GE.
 #	Added pcp_squeezelite_status. GE.
 
-# Version: 0.04 2016-02-02 GE
-#	Added pcp_go_main_button.
-
-# Version: 0.03 2016-01-07 SBP
-#	Added shairport restart.
-
-# Version: 0.02 2014-12-09 GE
-#	HTML5 formatted.
-
-# Version: 0.01 2014-06-24 GE
-#	Original.
+# Version: 0.01 2014-06-24
+#	Original. GE.
 
 . pcp-functions
 
 pcp_httpd_query_string
-
 [ "$FROM_PAGE" = "" ] && FROM_PAGE="main.cgi"
 
-pcp_html_head "Restart Squeezelite" "SBP" "5" "$FROM_PAGE"
-
+pcp_html_head "Restart Squeezelite" "SBP"
 pcp_banner
 pcp_running_script
 pcp_remove_query_string
-pcp_table_top "Restarting Squeezelite"
 
+pcp_table_top "Restarting Squeezelite"
 pcp_squeezelite_stop
 sleep 2
 pcp_squeezelite_start
@@ -47,9 +40,9 @@ if [ "$SHAIRPORT" = "yes" ]; then
 	pcp_shairport_start
 fi
 
+pcp_table_middle
+pcp_redirect_button "Go to Main Page" "$FROM_PAGE" 5
 pcp_table_end
-
-echo '<p><input type="button" value="Go Back" onclick="javascript:location.href='\'''$FROM_PAGE''\'';" />&nbsp;&nbsp;Go back to previous page</p>'
 
 pcp_footer
 pcp_copyright
