@@ -23,10 +23,13 @@
 . pcp-functions
 . pcp-soundcard-functions
 
+pcp_httpd_query_string
+[ "$FROM_PAGE" = "" ] && FROM_PAGE="squeezelite.cgi"
+
 # Store the original values so we can see if they are changed.
 ORIG_AUDIO="$AUDIO"
 
-pcp_html_head "Choose output" "SBP" "10" "squeezelite.cgi"
+pcp_html_head "Choose output" "SBP"
 
 pcp_banner
 pcp_running_script
@@ -137,7 +140,8 @@ if [ $CHANGED ]; then
 fi
 
 pcp_table_middle
-pcp_go_back_button
+pcp_redirect_button "Go Back" "$FROM_PAGE" 5
+#pcp_go_back_button
 pcp_table_end
 
 pcp_footer
