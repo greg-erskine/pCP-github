@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-02
+#	Added pcp_redirect_button. GE.
+
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
 
@@ -9,16 +12,8 @@
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 
-# Version: 0.03 2015-12-05 GE
-#	Added more debug information.
-#	Added reboot required button.
-
-# Version: 0.02 2014-12-10 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
-# Version: 0.01 2014-08-06 SBP
-#	Original version.
+# Version: 0.01 2014-08-06 
+#	Original version. SBP.
 
 #========================================================================================
 # The hostname is set during the boot process. It needs to be set before the network is
@@ -57,7 +52,9 @@ pcp_table_top "Changing hostname"
 echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
 pcp_mount_bootpart
 pcp_write_to_host
+
 [ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 70
+
 pcp_umount_bootpart
 pcp_save_to_config
 pcp_backup
@@ -73,7 +70,7 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 pcp_table_middle
-pcp_go_back_button
+pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 5
 pcp_table_end
 pcp_footer
 pcp_copyright

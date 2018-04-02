@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-02
+#	Added pcp_redirect_button. GE.
+
 # Version: 3.5.0 2018-03-14
 #	Code tidy up. GE.
 
@@ -141,7 +144,6 @@ fi
 
 pcp_table_middle
 pcp_redirect_button "Go Back" "$FROM_PAGE" 5
-#pcp_go_back_button
 pcp_table_end
 
 pcp_footer
