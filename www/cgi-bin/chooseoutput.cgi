@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-02
+# Version: 3.5.1 2018-04-03
 #	Added pcp_redirect_button. GE.
 
 # Version: 3.5.0 2018-03-14
@@ -26,11 +26,11 @@
 . pcp-functions
 . pcp-soundcard-functions
 
-pcp_httpd_query_string
-[ "$FROM_PAGE" = "" ] && FROM_PAGE="squeezelite.cgi"
-
 # Store the original values so we can see if they are changed.
 ORIG_AUDIO="$AUDIO"
+
+pcp_httpd_query_string
+[ "$FROM_PAGE" = "" ] && FROM_PAGE="squeezelite.cgi"
 
 pcp_html_head "Choose output" "SBP"
 
