@@ -1,11 +1,15 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-04
+#	Added pcp_redirect_button. GE.
+#	Code cleanup. GE.
+
 # Version: 3.5.0 2018-01-23
-#	Keep a blank CARDNO from being written to asound.conf
+#	Keep a blank CARDNO from being written to asound.conf. PH.
 
 # Version: 3.21 2017-07-08
-#	Changed to allow booting from USB on RPI3. PH.
-#	Updates for Alsaequal cardnumber
+#	Changed to allow booting from USB on RPi3. PH.
+#	Updates for Alsaequal cardnumber. PH.
 
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
@@ -22,8 +26,8 @@
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
 
-# Version: 0.01 2014-08-06 SBP
-#	Original version.
+# Version: 0.01 2014-08-06
+#	Original version. SBP.
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -37,22 +41,55 @@ ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
 ORIG_FSM=$FSM
 
-pcp_html_head "Write to Audio Tweak" "SBP" "15" "tweaks.cgi"
+WGET="/bin/busybox wget"
+CAPS="caps-0.4.5"
+
+unset VARIABLE_CHANGED
+unset REBOOT_REQUIRED
+
+pcp_html_head "Write to Audio Tweak" "SBP"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-WGET="/bin/busybox wget"
-#EQREPOSITORY="https://sourceforge.net/projects/picoreplayer/files/tce/7.x/ALSAequal"
-CAPS="caps-0.4.5"
+pcp_table_top "Audio tweak"
 
-# Only offer reboot option if needed
-REBOOT_REQUIRED=0
+#========================================================================================
+# SQUEEZELITE section
+#----------------------------------------------------------------------------------------
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
+if [ "$ORIG_SQUEEZELITE" != "$SQUEEZELITE" ]; then
+	VARIABLE_CHANGED=TRUE
 
-#========================================================================================================
-# Routines
-#--------------------------------------------------------------------------------------------------------
+	echo '<p class="info">[ INFO ] $SQUEEZELITE is set to: '$SQUEEZELITE'</p>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_SQUEEZELITE is: '$ORIG_SQUEEZELITE'<br />'
+		echo '                 [ DEBUG ] $SQUEEZELITE is: '$SQUEEZELITE'</p>'
+	fi
+
+	case "$SQUEEZELITE" in
+		yes)
+			echo '<p class="info">[ INFO ] Squeezelite will be enabled and start automatically.</p>'
+			CLOSEOUT="15"
+		;;
+		no)
+			echo '<p class="info">[ INFO ] Squeezelite will be disabled and will not start after a reboot.</p>'
+			CLOSEOUT=""
+		;;
+		*)
+			echo '<p class="error">[ ERROR ] Squeezelite selection invalid: '$SHAIRPORT'</p>'
+		;;
+	esac
+else
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $SQUEEZELITE variable unchanged.</p>'
+fi
+
+#========================================================================================
+# SHAIRPORT section
+#----------------------------------------------------------------------------------------
 pcp_download_shairport(){
 	pcp_sufficient_free_space 500
 	echo '<p class="info">[ INFO ] Downloading Shairport-sync...</p>'
@@ -74,29 +111,77 @@ pcp_remove_shairport() {
 	sudo -u tc tce-audit delete pcp-shairportsync.tcz
 }
 
+#----------------------------------------------------------------------------------------
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
+if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
+	VARIABLE_CHANGED=TRUE
+
+	echo '<p class="info">[ INFO ] $SHAIRPORT is set to: '$SHAIRPORT'</p>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_SHAIRPORT is: '$ORIG_SHAIRPORT'<br />'
+		echo '<p class="debug">[ DEBUG ] $SHAIRPORT is: '$SHAIRPORT'</p>'
+	fi
+
+	case "$SHAIRPORT" in
+		yes)
+			echo '<p class="info">[ INFO ] Shairport-sync will be enabled.</p>'
+			if [ -f $PACKAGEDIR/pcp-shairportsync.tcz ]; then
+				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Shairport-sync already loaded.</p>'
+				echo "pcp-shairportsync.tcz" >> $ONBOOTLST
+			else
+				pcp_download_shairport
+				if [ $? -eq 0 ]; then
+					echo "pcp-shairportsync.tcz" >> $ONBOOTLST
+					/usr/local/etc/init.d/shairport-sync start
+				fi
+			fi
+			CLOSEOUT="15"
+		;;
+		no)
+			REBOOT_REQUIRED=TRUE
+			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
+			pcp_remove_shairport
+			sed -i '/pcp-shairportsync.tcz/d' $ONBOOTLST
+			sync
+			CLOSEOUT=""
+		;;
+		*)
+			echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'
+		;;
+	esac
+else
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $SHAIRPORT variable unchanged.</p>'
+fi
+
 #========================================================================================
 # ALSA output level section
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
 if [ "$ORIG_ALSAlevelout" != "$ALSAlevelout" ]; then
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] ALSAlevelout is set to: '$ALSAlevelout'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSAlevelout is: '$ALSAlevelout'</p>'
-	echo '<hr>'
+	VARIABLE_CHANGED=TRUE
+
+	echo '<p class="info">[ INFO ] $ALSAlevelout is set to: '$ALSAlevelout'</p>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'<br />'
+		echo '                 [ DEBUG ] $ALSAlevelout is: '$ALSAlevelout'</p>'
+	fi
+
 else
-	echo '<p class="info">[ INFO ] ALSAlevelout variable unchanged.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $ALSAlevelout variable unchanged.</p>'
 fi
 
 #========================================================================================
 # ALSA Equalizer section
-#
+#----------------------------------------------------------------------------------------
 #  24576 alsaequal.tcz
 # 733184 caps-0.4.5.tcz
 # ------
 # 757760
 #----------------------------------------------------------------------------------------
-#Routines
 pcp_download_alsaequal() {
 	pcp_sufficient_free_space 800
 	echo '<p class="info">[ INFO ] Downloading ALSA Equalizer from repository...</p>'
@@ -107,7 +192,7 @@ pcp_download_alsaequal() {
 	if [ $? -eq 0 ]; then
 		echo '<p class="ok">[ OK ] Download successful.</p>'
 	else
-		echo '<p class="error">[ ERROR ] Alsaequalizer download unsuccessful, try again!</p>'
+		echo '<p class="error">[ ERROR ] Alsaequal download unsuccessful, try again!</p>'
 	fi
 
 	SPACE=$(pcp_free_space k)
@@ -119,24 +204,27 @@ pcp_remove_alsaequal() {
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete alsaequal.tcz
 	sudo rm -f /home/tc/.alsaequal.bin
-	REBOOT_REQUIRED=1
 }
 
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
 if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
-	REBOOT_REQUIRED=1
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] ALSAeq is set to: '$ALSAeq'</p>'
+	VARIABLE_CHANGED=TRUE
+	REBOOT_REQUIRED=TRUE
+
+	echo '<p class="info">[ INFO ] $ALSAeq is set to: '$ALSAeq'</p>'
 
 	# Determination of the number of the current sound-card
-	#This probably isn't necessary, as we will check at boot time, when using alsaequal
-	pcp_load_card_conf   
+	# This probably isn't necessary, as we will check at boot time, when using alsaequal
+	pcp_load_card_conf
 
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_ALSAeq is: '$ORIG_ALSAeq'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ALSAeq is: '$ALSAeq'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Card has number: '$CARDNO'.</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] AUDIO is: '$AUDIO'</p>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_ALSAeq is: '$ORIG_ALSAeq'<br />'
+		echo '                 [ DEBUG ] $ALSAeq is: '$ALSAeq'<br />'
+		echo '                 [ DEBUG ] $Card has number: '$CARDNO'<br />'
+		echo '                 [ DEBUG ] $AUDIO is: '$AUDIO'</p>'
+	fi
 
 	case "$ALSAeq" in
 		yes)
@@ -155,7 +243,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 			sudo sed -i '/alsaequal.tcz/d' $ONBOOTLST
 			sudo sed -i '/caps/d' $ONBOOTLST
 			pcp_remove_alsaequal
-			STRING1='You have removed ALSA equalizer. Please fill out the OUTPUT field on the Squeezelite page. Press OK to go back and change or Cancel to continue'
+			STRING1='You have removed ALSA equalizer. Please fill out the OUTPUT field on the Squeezelite page. Press [OK] to go back and change or [Cancel] to continue'
 			SCRIPT1=squeezelite.cgi
 			pcp_confirmation_required
 		;;
@@ -163,101 +251,96 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 			echo '<p class="error">[ ERROR ] ALSA equalizer invalid: '$ALSAeq'</p>'
 		;;
 	esac
-	echo '<hr>'
 else
-	echo '<p class="info">[ INFO ] ALSAeq variable unchanged.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $ALSAeq variable unchanged.</p>'
 fi
 
 #========================================================================================
 # CMD section
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
 if [ "$ORIG_CMD" != "$CMD" ]; then
-	REBOOT_REQUIRED=1
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] CMD is set to: '$CMD'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_CMD is: '$ORIG_CMD'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] CMD is: '$CMD'</p>'
+	VARIABLE_CHANGED=TRUE
+	REBOOT_REQUIRED=TRUE
+
+	echo '<p class="info">[ INFO ] $CMD is set to: '$CMD'</p>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_CMD is: '$ORIG_CMD'<br />'
+		echo '                 [ DEBUG ] $CMD is: '$CMD'</p>'
+	fi
 
 	case "$CMD" in
 		Default)
-			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
-			#sudo ./disableotg.sh
-
 			pcp_mount_bootpart
-
-			if mount | grep $VOLUME; then
+			if mount | grep $VOLUME >/dev/null; then
 				# Remove dwc_otg_speed=1
 				sed -i 's/dwc_otg.speed=1 //g' $CMDLINETXT
+				[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 				pcp_umount_bootpart
 			else
-				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
+				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted.</p>'
 			fi
 		;;
 		Slow)
-			echo '<p class="info">[ INFO ] CMD: '$CMD'</p>'
-			#sudo ./enableotg.sh
-
 			pcp_mount_bootpart
-
-			if mount | grep $VOLUME; then
+			if mount | grep $VOLUME >/dev/null; then
 				# Remove dwc_otg_speed=1
 				sed -i 's/dwc_otg.speed=1 //g' $CMDLINETXT
-
 				# Add dwc_otg_speed=1
 				sed -i '1 s/^/dwc_otg.speed=1 /' $CMDLINETXT
+				[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 				pcp_umount_bootpart
 			else
-				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
+				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted.</p>'
 			fi
 		;;
 		*)
-			echo '<p class="error">[ ERROR ] CMD invalid: '$CMD'</p>'
+			echo '<p class="error">[ ERROR ] $CMD invalid: '$CMD'</p>'
 		;;
 	esac
-	echo '<hr>'
 else
-	echo '<p class="info">[ INFO ] CMD variable unchanged.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $CMD variable unchanged.</p>'
 fi
 
 #========================================================================================
 # USB_FIQ FSM section
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
 if [ "$ORIG_FSM" != "$FSM" ]; then
-	REBOOT_REQUIRED=1
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] FSM is set to: '$FSM'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FSM is: '$ORIG_FSM'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] FSM is: '$FSM'</p>'
+	DEBUG=1
+	VARIABLE_CHANGED=TRUE
+	REBOOT_REQUIRED=TRUE
+
+	echo '<p class="info">[ INFO ] $FSM is set to: '$FSM'</p>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_FSM is: '$ORIG_FSM'<br />'
+		echo '                 [ DEBUG ] $FSM is: '$FSM'</p>'
+	fi
 
 	case "$FSM" in
 		Default)
-			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
-
 			pcp_mount_bootpart
-
-			if mount | grep $VOLUME; then
+			if mount | grep $VOLUME >/dev/null; then
 				# dwc_otg.fiq_fsm_enable=0
 				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' $CMDLINETXT
-				[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+				[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 			fi
 		;;
 		Disabled)
-			echo '<p class="info">[ INFO ] FSM: '$FSM'</p>'
-
 			pcp_mount_bootpart
-
-			if mount | grep $VOLUME; then
+			if mount | grep $VOLUME >/dev/null; then
 				# Remove dwc_otg.fiq_fsm_enable=0
 				sed -i 's/dwc_otg.fiq_fsm_enable=0 \+//g' $CMDLINETXT
-
 				# Add dwc_otg.fiq_fsm_enable=0
 				sed -i '1 s/^/dwc_otg.fiq_fsm_enable=0 /' $CMDLINETXT
-				[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+				[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 				pcp_umount_bootpart
 			else
 				echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
@@ -265,119 +348,61 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 		;;
 	esac
 else
-	echo '<p class="info">[ INFO ] USB FSM FIQ variable unchanged.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $FSM variable unchanged.</p>'
 fi
 
 #========================================================================================
-# SQUEEZELITE section
+# FIQ split section
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
-if [ "$ORIG_SQUEEZELITE" != "$SQUEEZELITE" ]; then
-	REBOOT_REQUIRED=1
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] SQUEEZELITE is set to: '$SQUEEZELITE'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SQUEEZELITE is: '$ORIG_SQUEEZELITE'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] SQUEEZELITE is: '$SQUEEZELITE'</p>'
-
-	case "$SQUEEZELITE" in
-		yes)
-			echo '<p class="info">[ INFO ] Squeezelite will be enabled and start automatically when pCP is started.</p>'
-			CLOSEOUT="15"
-		;;
-		no)
-			echo '<p class="info">[ INFO ] Squeezelite will be disabled and will not start after a reboot.</p>'
-			CLOSEOUT=""
-		;;
-		*)
-			echo '<p class="error">[ ERROR ] Squeezelite selection invalid: '$SHAIRPORT'</p>'
-		;;
-	esac
-	echo '<hr>'
-else
-	echo '<p class="info">[ INFO ] SQUEEZELITE variable unchanged.</p>'
-fi
-
-#========================================================================================
-# SHAIRPORT section
+# Only do something if variable has changed.
 #----------------------------------------------------------------------------------------
-# Only do something if variable is changed
-if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] SHAIRPORT is set to: '$SHAIRPORT'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_SHAIRPORT is: '$ORIG_SHAIRPORT'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] SHAIRPORT is: '$SHAIRPORT'</p>'
-
-	case "$SHAIRPORT" in
-		yes)
-			echo '<p class="info">[ INFO ] Shairport-sync will be enabled.</p>'
-			if [ -f $PACKAGEDIR/pcp-shairportsync.tcz ]; then
-				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Shairport-sync already loaded.</p>'
-				echo "pcp-shairportsync.tcz" >> $ONBOOTLST
-			else
-				pcp_download_shairport
-				if [ $? -eq 0 ]; then
-					echo "pcp-shairportsync.tcz" >> $ONBOOTLST
-					/usr/local/etc/init.d/shairport-sync start
-				fi
-			fi
-			CLOSEOUT="15"
-		;;
-		no)
-			REBOOT_REQUIRED=1
-			echo '<p class="info">[ INFO ] Shairport-sync will be disabled.</p>'
-			pcp_remove_shairport
-			sed -i '/pcp-shairportsync.tcz/d' $ONBOOTLST
-			sync
-			CLOSEOUT=""
-		;;
-		*)
-			echo '<p class="error">[ ERROR ] Shairport selection invalid: '$SHAIRPORT'</p>'
-		;;
-	esac
-	echo '<hr>'
-else
-	echo '<p class="info">[ INFO ] SHAIRPORT variable unchanged.</p>'
-fi
-
-#========================================================================================
-# FIQ spilt section
-#----------------------------------------------------------------------------------------
-# Only do something if variable is changed
 if [ "$ORIG_FIQ" != "$FIQ" ]; then
-	REBOOT_REQUIRED=1
-	echo '<hr>'
-	echo '<p class="info">[ INFO ] FIQ is set to: '$FIQ'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_FIG is: '$ORIG_FIQ'</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] FIQ is: '$FIQ'</p>'
+	VARIABLE_CHANGED=TRUE
+	REBOOT_REQUIRED=TRUE
+
+	echo '<p class="info">[ INFO ] $FIQ is set to: '$FIQ'</p>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_FIG is: '$ORIG_FIQ'<br />'
+		echo '                 [ DEBUG ] $FIQ is: '$FIQ'</p>'
+	fi
 
 	pcp_mount_bootpart
-
-	if mount | grep $VOLUME; then
+	if mount | grep $VOLUME >/dev/null; then
 		# Remove fiq settings
 		sed -i 's/dwc_otg.fiq_fsm_mask=0x[1-8F] \+//g' $CMDLINETXT
 		# Add FIQ settings from config file
 		sed -i '1 s/^/dwc_otg.fiq_fsm_mask='$FIQ' /' $CMDLINETXT
-
-		[ $DEBUG -eq 1 ] && pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 150
+		[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 150
 		pcp_umount_bootpart
 	else
 		echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
 	fi
-	echo '<hr>'
 else
-	echo '<p class="info">[ INFO ] FIQ variable unchanged.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $FIQ variable unchanged.</p>'
 fi
 #----------------------------------------------------------------------------------------
 
-echo '<hr>'
-pcp_save_to_config
-pcp_backup
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+if [ $VARIABLE_CHANGED ]; then
+	pcp_save_to_config
+	pcp_backup
+	if [ $DEBUG -eq 1 ]; then
+		pcp_table_middle
+		pcp_textarea_inform "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
+		pcp_textarea_inform "Current $ONBOOTLST" "cat $ONBOOTLST" 150
+		pcp_textarea_inform "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+	fi
+	[ $REBOOT_REQUIRED ] && pcp_reboot_required
+else
+	echo '<p class="info">[ INFO ] Variables unchanged.</p>'
+	echo '<p class="info">[ INFO ] Nothing to do.</p>'
+fi
 
-[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
-pcp_go_back_button
+pcp_table_middle
+pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 15
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
