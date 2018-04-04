@@ -21,23 +21,24 @@
 
 . pcp-functions
 
-pcp_html_head "Reboot Raspberry Pi" "SBP" "5" "main.cgi"
+pcp_html_head "Reboot Raspberry Pi" "SBP" "0" "main.cgi?ACTION=reboot"
 
-pcp_banner
-pcp_running_script
-
-	pcp_table_top "Rebooting"
-	echo "pCP is rebooting....."
-	pcp_table_middle
-	echo "pCP will automatically reload when available"
-	echo '<script>pcp_redirect("10","main.cgi")</script>'
-
-pcp_table_end
-
-pcp_footer
-pcp_copyright
-
+#pcp_banner
+#pcp_running_script
+#
+#	pcp_table_top "Rebooting"
+#	echo "pCP is rebooting....."
+#	pcp_table_middle
+#	echo "pCP will automatically reload when available"
+#	echo '<script>pcp_redirect("10","main.cgi")</script>'
+#
+#pcp_table_end
+#
+#pcp_footer
+#pcp_copyright
+#
 echo '</body>'
 echo '</html>'
-
-pcp_reboot >/dev/null 2>&1 &
+exit
+#
+#pcp_reboot >/dev/null 2>&1 &

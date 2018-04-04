@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-30
-#  Another attempt to fix reloading page does not reboot pCP again. SBP.
+# Version: 3.5.1 2018-04-18
+#	Moved reboot page to Main page. GE.
 
 # Version: 3.5.0 2018-02-21
 #	HTML5 cleanup. GE.
@@ -37,6 +37,28 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
+
+pcp_running_script
+pcp_httpd_query_string
+
+#========================================================================================
+# Reboot page.
+#----------------------------------------------------------------------------------------
+if [ $ACTION = "reboot" ]; then
+	pcp_table_top "Rebooting"
+	echo "<p>pCP is rebooting...</p>"
+	pcp_table_middle
+	pcp_redirect_button "Refresh Main Page" "main.cgi" 40
+	pcp_table_end
+	pcp_footer
+	pcp_copyright
+	pcp_remove_query_string
+	echo '</body>'
+	echo '</html>'
+	sleep 1
+	sudo reboot
+	exit
+fi
 
 #========================================================================================
 # Padding
@@ -325,12 +347,12 @@ pcp_main_reboot() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi'\'')" method="get">'
+	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''main.cgi?ACTION=reboot'\'')" method="get">'
 	echo '                  <input type="submit" value="Reboot">'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Reboot piCorePlayer after enabling or disabling HDMI output&nbsp;&nbsp;'
+	echo '                <p>Reboot piCorePlayer&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
