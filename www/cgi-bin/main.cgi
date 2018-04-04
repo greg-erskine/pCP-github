@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-18
+# Version: 3.5.1 2018-04-05
 #	Moved reboot page to Main page. GE.
 
 # Version: 3.5.0 2018-02-21
@@ -33,18 +33,18 @@
 
 pcp_html_head "Main Page" "SBP"
 
+pcp_running_script
+pcp_httpd_query_string
+
 pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
 
-pcp_running_script
-pcp_httpd_query_string
-
 #========================================================================================
 # Reboot page.
 #----------------------------------------------------------------------------------------
-if [ $ACTION = "reboot" ]; then
+if [ "$ACTION" = "reboot" ]; then
 	pcp_table_top "Rebooting"
 	echo "<p>pCP is rebooting...</p>"
 	pcp_table_middle

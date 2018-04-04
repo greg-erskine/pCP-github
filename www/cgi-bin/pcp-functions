@@ -2,11 +2,12 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.1 2018-04-01
+# Version: 3.5.1 2018-04-05
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
 #	Fixed HTML5 error in pcp_redirect_button. GE.
+#	Modified pcp_navigation toolbar. GE.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -544,7 +545,7 @@ pcp_navigation() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_navigation toolbar -->'
-	if [ -f $REBOOT_PENDING ]; then
+	if [ -f $REBOOT_PENDING ] && [ "$ACTION" != "reboot" ]; then
 		echo '<!-- Start of reboot notification toolbar -->'
 		echo '<table class="bggrey">'
 		echo '  <tr>'
@@ -555,7 +556,7 @@ pcp_navigation() {
 		echo '            <tr class="warning">'
 		echo '              <td>'
 		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
-		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />'
+		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />'
 		echo '                </p>'
 		echo '              </td>'
 		echo '            </tr>'
