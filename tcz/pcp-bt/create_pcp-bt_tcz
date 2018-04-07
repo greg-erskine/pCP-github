@@ -1,0 +1,68 @@
+#!/bin/bash
+
+TCZ=pcp-bt.tcz
+TCZINFO=${TCZ}.info
+VERSION=3.5.0
+
+
+BASEWD=$(pwd)
+EXT="pcp-bt"
+TCZ=${EXT}.tcz
+TCZINFO=${TCZ}.info
+
+cd $EXT
+echo "fixing directory access rights"
+find -type d | xargs chmod -v 755
+find * -not -type d > ${BASEWD}/${TCZ}.list
+cd ..
+
+mksquashfs ${EXT} ${TCZ} -all-root -noappend 2>&1 >/dev/null
+md5sum ${TCZ} > ${TCZ}.md5.txt
+
+echo "$EXT contains"
+unsquashfs -ll ${TCZ}
+
+echo -e "Title:          $TCZ" > $TCZINFO
+echo -e "Description:    piCorePlayer Bluetooth Scripts." >> $TCZINFO
+echo -e "Version:        $VERSION" >> $TCZINFO
+echo -e "Author:         paul-123" >> $TCZINFO
+echo -e "Original-site:" >> $TCZINFO
+echo -e "Copying-policy: See scripts for details" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Extension_by:   piCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore 9.x" >> $TCZINFO
+
+echo
+while true; do
+   read -p "Do you want to upload to sourceforge project-web [y/n]? " yn
+   case $yn in
+      [Yy]* ) break;;
+      [Nn]* ) exit 0;;
+      * ) echo "Please answer yes or no.";;
+   esac
+done
+
+REPO="web.sourceforge.net"
+LOCATION_v6="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv6/tcz/"
+LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv7/tcz/"
+
+read -p "Enter your sourceforge username: " USER
+# Would need to use linux expect to use passwords
+# read -ps "Enter your password: " PASS
+
+echo
+echo "Ready to upload"
+echo "USER=${USER}"
+echo "REPO=${REPO}"
+echo "LOCATION_v6=${LOCATION_v6}"
+echo "LOCATION_v7=${LOCATION_v7}"
+echo
+read -p "Press Enter to continue, or <ctrl>-C to abort" key
+
+echo "Uploading to first location."
+scp pcp-bt.tcz* ${USER}@${REPO}:${LOCATION_v6}
+echo
+echo "Uploading to second location."
+scp pcp-bt.tcz* ${USER}@${REPO}:${LOCATION_v7}
+
+
