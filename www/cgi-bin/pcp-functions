@@ -9,6 +9,7 @@
 #	Fixed HTML5 error in pcp_redirect_button. GE.
 #	Modified pcp_navigation toolbar. GE.
 #	Modified pcp_reboot_required. GE.
+#	If pCP is running LMS server, then point LMS tab to local interface. PH.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -734,7 +735,11 @@ pcp_picoreplayers_toolbar() {
 		done <$TMP
 		rm -r $TMP
 		if [ $MODE -ge $MODE_BETA ]; then
-			LMSIP=$(pcp_lmsip)
+			if [ "$LMSERVER" = "yes" ]; then
+				[ x"" = x"$(pcp_eth0_ip)" ] && LMSIP=$(pcp_wlan0_ip) || LMSIP=$(pcp_eth0_ip)
+			else
+				LMSIP=$(pcp_lmsip)
+			fi
 			[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 			echo '  <a class="tab20" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS '$EXTERNALLINK'</a>'
 		fi
