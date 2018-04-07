@@ -2,12 +2,13 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.1 2018-04-05
+# Version: 3.5.1 2018-04-07
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
 #	Fixed HTML5 error in pcp_redirect_button. GE.
 #	Modified pcp_navigation toolbar. GE.
+#	Modified pcp_reboot_required. GE.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -923,7 +924,7 @@ pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
 		echo '<script language="javascript">'
-		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [Cancel] to manually reboot later.'\'','\''reboot.cgi'\'')'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
 		echo '</script>'
 	fi
 }
@@ -941,7 +942,7 @@ pcp_restart_required() {
 
 pcp_confirmation_required() {
 	echo '<script>'
-	echo '	pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
+	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
 	echo '</script>'
 }
 
@@ -1204,9 +1205,9 @@ pcp_redirect_button() {
 	# $3 - redirection delay
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '<form name="redirect button" action="'$2'" method="get">'
-	echo '	<p>'
-	echo '		<input class="large12" type="submit" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
-	echo '	</p>'
+	echo '  <p>'
+	echo '    <input class="large12" type="submit" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
+	echo '  </p>'
 	echo '</form>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
 	echo '<!-- End of pcp_redirect_button -->'
@@ -1243,7 +1244,7 @@ pcp_backup() {
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
 	# Do a backup - filetool.sh backs up files in .filetool.lst
-	echo $NEWLINE $PCLASSINFO'[ INFO ] ' 
+	echo $NEWLINE $PCLASSINFO'[ INFO ] '
 	sudo filetool.sh -b | tee -a $LOG
 	[ "$1" = "nohtml" ] || echo $SLASHP
 	sync > /dev/null 2>&1
