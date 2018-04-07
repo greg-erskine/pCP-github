@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-25
+# Version: 3.5.1 2018-04-07
 #	Fix partition size display - changed from the new busybox. PH.
+#	HTML cleanup for update process and writetolms, lms.cgi html cleanup in process. PH.
 
 # Version: 3.5.0 2018-03-23
 #	Changes for busbybox fdisk output changes. PH.
@@ -94,6 +95,7 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 
 LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
+LMS_UPDATE_LOG="${LOGS}/LMS_update.log"
 WGET="/bin/busybox wget"
 
 #---------------------------Routines-----------------------------------------------------
@@ -575,6 +577,7 @@ pcp_lms_enable_lms() {
 	echo '                  <button type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
 	echo '                </td>'
 	echo '                <td class="column100">'
+	echo '                  <input type="hidden" name="ACTION" value="Startup">'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
 	echo '                  <input class="small1" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>No'
 	echo '                </td>'
@@ -2061,6 +2064,13 @@ pcp_lms_logview() {
 	                      pcp_textarea_inform "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 250
 	echo '              </td>'
 	echo '            </tr>'
+	if [ -f $LMS_UPDATE_LOG ]; then
+		echo '            <tr>'
+		echo '              <td>'
+							  pcp_textarea_inform "$LMS_UPDATE_LOG" 'cat $LMS_UPDATE_LOG' 250
+		echo '              </td>'
+		echo '            </tr>'
+	fi
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-07
+#	Added pcp_redirect_button, and standardize HTML code. PH.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -13,7 +16,6 @@
 . pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "LMS Update Page" "PH"
 
@@ -46,15 +48,6 @@ else
 	UPDATEURL=""
 fi
 
-#----------------------------------------------------------------------------------------
-case "$ACTION" in
-	nothing)
-		;;
-	*)
-#		pcp_warning_message
-		;;
-esac
-
 #========================================================================================
 # Main table
 #----------------------------------------------------------------------------------------
@@ -77,9 +70,9 @@ else
 	STATUS="not running"
 fi
 
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Determine state of check boxes.
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Function to check the LMS radio button according to config file
 case "$LMSERVER" in
 	yes) LMSERVERyes="checked" ;;
@@ -110,39 +103,37 @@ echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-pcp_lms_padding
-
-#-----------------------------------Show Update Availiable----------------------------------------
+#-----------------------------------Show Update Availiable-------------------------------
 pcp_lms_update_url() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Update" action="writetolms.cgi">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
 	if [ "$UPDATEURL" = "" ]; then
-		echo '                </td>'
-		echo '                <td>'
+		echo '              </td>'
+		echo '              <td>'
 		echo '                <p>No Update Found!</p>'
 	else
-		echo '                  <input type="submit" name="UPDATE" value="Update" />'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>LMS Update Found:</p>'
-		echo '                  <p>'$UPDATEURL'</p>'
-		echo '                  <p>Download and update LMS&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
-		echo '                  </div>'
+		echo '                <form name="Update" action="writetolms.cgi">'
+		echo '                  <input type="submit" name="ACTION" value="Update">'
+		echo '                </form>'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p>LMS Update Found:</p>'
+		echo '                <p>'$UPDATEURL'</p>'
+		echo '                <p>Download and update LMS&nbsp;&nbsp;'
+		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                </p>'
+		echo '                <div id="'$ID'" class="less">'
+		echo '                  <p>The update process will take some minutes and finally LMS will restart.</p>'
+		echo '                </div>'
 	fi
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
+	echo '              </td>'
+	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_lms_update_url
 
-#-----------------------------------Configure LMS----------------------------------------
+#-----------------------------------Configure LMS---------------------------------------
 pcp_lms_configure_lms() {
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
@@ -150,51 +141,41 @@ pcp_lms_configure_lms() {
 
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>No Update file was found, Please check LMS Server configuration.&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Click Configure Below.</p>'
-	echo '                    <p>Then go to Advanced Tab, Software Updates Dropdown Box.</p>'
-	echo '                    <p>Make sure Automatic Updates and Frequency are set to your needs, or .</p>'
-	echo '                    <p>Check for Updates Manually.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>No Update file was found, Please check LMS Server configuration.&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>Click Configure Below.</p>'
+	echo '                  <p>Then go to Advanced Tab, Software Updates Dropdown Box.</p>'
+	echo '                  <p>Make sure Automatic Updates and Frequency are set to your needs, or .</p>'
+	echo '                  <p>Check for Updates Manually.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS Settings" />'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Configure LMS&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Use the standard LMS web interface to adjust the LMS settings.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
+	echo '                  <input type="submit" value="LMS Settings">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Configure LMS&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>Use the standard LMS web interface to adjust the LMS settings.</p>'
+	echo '                </div>'
 }
 [ $MODE -ge $MODE_BETA -a -z $UPDATEURL ] && pcp_lms_configure_lms
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-#----------------------------------------------------------------------------------------
-
+pcp_table_end
 pcp_footer
 pcp_mode
 pcp_copyright
