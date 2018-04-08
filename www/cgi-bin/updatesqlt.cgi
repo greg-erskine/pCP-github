@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-08
+#	Added pcp_redirect_button. GE.
+
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-04-17
 #	Fixed pcp-xxx-functions issues. GE.
@@ -11,60 +14,44 @@
 #	Changes for Squeezelite extension. PH.
 #	Formatting Changes for textareas. SBP.
 
-# Version: 0.05 2016-02-20 GE
-#	Fixed sourceforge redirection issue.
-
-# Version: 0.04 2016-02-10 GE
-#	Added SQLT_VERSION.
-#	Added free space checks.
-
-# Version: 0.03 2015-12-09 GE
-#	Remove Triode's version.
-#	Update Ralphy's version.
-
-# Version: 0.02 2014-12-09 GE
-#	HTML5 formatted.
-
 # Version: 0.01 2014-06-24 GE
 #	Original.
 
 . pcp-functions
-#. $CONFIGCFG
 
-pcp_html_head "Updating Squeezelite" "SBP" "5" "main.cgi"
+pcp_html_head "Updating Squeezelite" "SBP"
 
 WGET="/bin/busybox wget"
-#OLD_SQLT_VERSION=$SQLT_VERSION
 
 pcp_banner
 pcp_running_script
-pcp_squeezelite_stop
 pcp_httpd_query_string
-REBOOT_REQUIRED=0
+
+unset REBOOT_REQUIRED
 RESULT=0
 
 #========================================================================================
-# Check for free space
+# Routines.
 #----------------------------------------------------------------------------------------
-
 pcp_end() {
-	[ $REBOOT_REQUIRED -eq 0 ] &&	pcp_squeezelite_start
 	echo '</body>'
 	echo '</html>'
 	exit
 }
+
 #----------------------------------------------------------------------------------------
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ACTION='$ACTION'</p>'
 case "${ACTION}" in
 	update)
+		pcp_table_top "Updating Squeezelite extension"
 		SPACE_REQUIRED=95
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		pcp_table_top "Updating Squeezelite extension"
-		echo '                <textarea class="inform" style="height:150px">'
+		echo '                <textarea class="inform" style="height:180px">'
+		pcp_squeezelite_stop "nohtml"
 		echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
 
-		echo '[ INFO ] Waiting for Squeezelite to complete shutdown.'
+		echo '[ INFO ] Waiting for Squeezelite to complete shutdown...'
 		CNT=0
 		until ! lsof | grep -q /tmp/tcloop/pcp-squeezelite
 		do
@@ -72,9 +59,9 @@ case "${ACTION}" in
 		done
 		if [ $CNT -gt 10 ]; then
 			echo '[ ERROR ] Squeezelite took too long to terminate, please run a full package update.'
-		 	RESULT=1
-		fi		
-		echo '[ INFO ] Removing old Squeezelite extension'
+			RESULT=1
+		fi
+		echo '[ INFO ] Removing old Squeezelite extension...'
 		if [ $RESULT -eq 0 -a -d /tmp/tcloop/pcp-squeezelite ]; then
 			umount -d /tmp/tcloop/pcp-squeezelite
 			RESULT=$?
@@ -82,7 +69,7 @@ case "${ACTION}" in
 		if [ $RESULT -ne 0 ]; then
 			echo '[ ERROR ] Inplace update failed, please run a full package update.'
 		else
-			echo '[ INFO ] Updating Squeezelite extension'
+			echo '[ INFO ] Updating Squeezelite extension...'
 			rm -f /usr/local/tce.installed/pcp-squeezelite
 			mv -f $PACKAGEDIR/pcp-squeezelite.tcz /tmp
 			mv -f $PACKAGEDIR/pcp-squeezelite.tcz.md5.txt /tmp
@@ -91,7 +78,6 @@ case "${ACTION}" in
 			else
 				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz
 			fi
-
 			if [ $? -ne 0 ]; then
 				DLERROR=1
 				echo '[ ERROR ] Download unsuccessful, try again later!'
@@ -100,36 +86,35 @@ case "${ACTION}" in
 			else
 				rm -f /tmp/pcp-squeezelite.tcz*
 			fi
-			echo '[ INFO ] Reloading squeezelite extension'
+			echo '[ INFO ] Reloading Squeezelite extension...'
 			sudo -u tc pcp-load -i pcp-squeezelite.tcz
-			echo '[ OK ] Current Squeezelite version: '$(pcp_squeezelite_version)''
+			echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
 		fi
 		[ $DEBUG -eq 1 ] && (echo '[ OK ] '; ls -al ${SQLT_BIN})
+		pcp_squeezelite_start "nohtml"
 		echo '                </textarea>'
-		pcp_table_end
 	;;
 	full_update)
+		pcp_table_top "Updating Squeezelite and any needed dependencies"
 		SPACE_REQUIRED=1300
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-
-		pcp_table_top "Updating Squeezelite and any needed dependencies"
 		echo '                <textarea class="inform" style="height:150px">'
-
+		pcp_squeezelite_stop "nohtml"
 		pcp-update pcp-squeezelite
 		CHK=$?
 		if [ $CHK -eq 2 ]; then
-			echo '[ INFO ] There is no update for squeezelite at this time.'
-			REBOOT_REQUIRED=0
+			echo '[ INFO ] There is no update for Squeezelite at this time.'
+			unset REBOOT_REQUIRED
 		elif [ $CHK -eq 1 ]; then
-			echo '[ ERROR ] There was an error updating squeezelite, please try again later'
-			REBOOT_REQUIRED=0
+			echo '[ ERROR ] There was an error updating Squeezelite, please try again later.'
+			unset REBOOT_REQUIRED
 		else
-			echo '[ INFO ] A reboot is required to complete the update.'
-			REBOOT_REQUIRED=1
+			echo '[ INFO ] A [Reboot] is required to complete the update.'
+			REBOOT_REQUIRED=TRUE
 		fi
+		pcp_squeezelite_start "nohtml"
 		echo '                </textarea>'
-		pcp_table_end
 	;;
 	inst_ffmpeg)
 		pcp_table_top "Installing FFMpeg extension"
@@ -137,6 +122,7 @@ case "${ACTION}" in
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
 		echo '                <textarea class="inform" style="height:100px">'
+		pcp_squeezelite_stop "nohtml"
 		if [ $DEBUG -eq 1 ]; then
 			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
 			[ $? -eq 0 ] && FAIL=0 || FAIL=1
@@ -148,24 +134,30 @@ case "${ACTION}" in
 			sudo -u tc pcp-load -i pcp-libffmpeg.tcz
 			echo "pcp-libffmpeg.tcz" >> $ONBOOTLST
 		fi
+		pcp_squeezelite_start "nohtml"
 		echo '                </textarea>'
-		pcp_table_end
 	;;
 	rem_ffmpeg)
 		pcp_table_top "Removing FFMpeg extension"
 		echo '                <textarea class="inform" style="height:100px">'
-		echo '[ INFO ] FFMpeg extension marked for removal. Reboot Required to complete.</p>'
+		pcp_squeezelite_stop "nohtml"
+		echo '[ INFO ] FFMpeg extension marked for removal. Reboot required to complete.</p>'
 		sudo -u tc tce-audit builddb
 		sudo -u tc tce-audit delete pcp-libffmpeg.tcz
 		sed -i '/pcp-libffmpeg.tcz/d' $ONBOOTLST
-		REBOOT_REQUIRED=1
+		REBOOT_REQUIRED=TRUE
+		pcp_squeezelite_start "nohtml"
 		echo '                </textarea>'
-		pcp_table_end
 	;;
-	*) echo '<p class="error">[ ERROR ] Option Error!'
+	*)
+		echo '<p class="error">[ ERROR ] Option Error!</p>'
 	;;
 esac
 
-[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
-
+pcp_table_middle
+pcp_redirect_button "Go to Main Page" "main.cgi" 10
+pcp_table_end
+pcp_footer
+pcp_copyright
+[ $REBOOT_REQUIRED ] && pcp_reboot_required
 pcp_end
