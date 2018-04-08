@@ -778,8 +778,8 @@ pcp_mode() {
 	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
-	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
+	echo '<div class="tab7end">pCP</div>'
 	echo '<!-- End of mode toolbar -->'
 }
 
