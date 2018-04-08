@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-07
+# Version: 3.5.1 2018-04-08
 #	Fix partition size display - changed from the new busybox. PH.
-#	HTML cleanup for update process and writetolms, lms.cgi html cleanup in process. PH.
+#	HTML cleanup. PH.
 
 # Version: 3.5.0 2018-03-23
 #	Changes for busbybox fdisk output changes. PH.
@@ -45,22 +45,6 @@
 
 # Version: 3.00 2016-07-01 PH
 #	Mode Changes
-
-# Version: 2.06 2016-05-07 PH
-#	Cleanup
-
-# Version: 2.05 2016-04-26 PH
-#	Updated warning message.
-#	Added Mounting of disks.
-#	Added additional file system support.
-#	Added Location for LMS Server Persistent Data.
-#	Added LMS Server Update Script.
-#	Turned off [Mode] Tabs in basic mode. GE.
-#	Added LMS rescan in developer mode. GE.
-
-# Version: 0.02 2016-03-19 SBP
-#	Added LMS log view, space check and hide SAMBA and update LMS options.
-#	Moved pcp_lms_status to pcp-lms-functions.
 
 # Version: 0.01 2016-01-30 SBP
 #	Original.
@@ -125,14 +109,6 @@ pcp_remove_lms_cache() {
 	for I in $(find /mnt -maxdepth 1 | grep -Ev 'mmcblk0p[1-9]'); do
 		[ -d $I/slimserver ] && rm -rf $I/slimserver/
 	done
-}
-
-pcp_lms_padding() {
-	pcp_toggle_row_shade
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
-	echo '            </tr>'
 }
 
 pcp_install_fs() {
@@ -435,8 +411,8 @@ case "$ACTION" in
 			echo '                <textarea class="inform" style="height:120px">'
 			pcp_install_samba4
 			echo '                </textarea>'
-			pcp_table_end
 		fi
+		pcp_table_end
 	;;
 	Remove_Samba)
 		pcp_table_top "Removing Samba4 Server"
@@ -465,6 +441,8 @@ case "$ACTION" in
 		pcp_table_end
 	;;
 	Mysb)
+		pcp_table_top "Setting LMS commandline options"
+		echo '                <textarea class="inform" style="height:40px">'
 		echo '[ INFO ] Setting --nomysqueezebox commandline option...'
 		case $NOMYSB in
 			yes) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" ADD;;
@@ -472,6 +450,8 @@ case "$ACTION" in
 			*)pcp_warning_message;;
 		esac
 		[ -f $CFG_FILE ] && . $CFG_FILE
+		echo '                </textarea>'
+		pcp_table_end
 	;;
 	*)
 		pcp_warning_message
@@ -507,7 +487,6 @@ echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Logitech Media Server (LMS) operations</legend>'
-echo '          <table class="bggrey percent100">'
 
 #------------------------------------LMS Indication--------------------------------------
 if [ $(pcp_lms_status) -eq 0 ]; then
@@ -543,6 +522,7 @@ esac
 
 pcp_incr_id
 pcp_start_row_shade
+echo '          <table class="bggrey percent100">'
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
@@ -563,15 +543,20 @@ echo '                  </ul>'
 echo '                </div>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------------------------------------------------------------
 
-pcp_lms_padding
+#----------------------------------Padding-----------------------------------------------
+pcp_toggle_row_shade
+echo '            <tr class="padding '$ROWSHADE'">'
+echo '              <td colspan=2></td>'
+echo '            </tr>'
+echo '          </table>'
 
 #-----------------------------------Enable/disable autostart of LMS----------------------
 pcp_lms_enable_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Select" action="writetolms.cgi" method="get">'
+	echo '          <form name="Select" action="writetolms.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
@@ -591,9 +576,10 @@ pcp_lms_enable_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_enable_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_enable_lms
 #----------------------------------------------------------------------------------------
 
 #-----------------------------------Configure LMS----------------------------------------
@@ -605,7 +591,8 @@ pcp_lms_configure_lms() {
 
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
+	echo '          <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Configure LMS" '$DISABLE_LMS' />'
@@ -619,16 +606,19 @@ pcp_lms_configure_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_lms_configure_lms
 #----------------------------------------------------------------------------------------
 
+#-----------------------------------LMS Function Form------------------------------------
+echo '          <form name="LMS" action="'$0'">'
+echo '            <table class="bggrey percent100">'
 #-----------------------------------Rescan LMS-------------------------------------------
 pcp_rescan_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Rescan" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Rescan LMS" />'
@@ -639,7 +629,7 @@ pcp_rescan_lms() {
 	echo '                    <option value="wipecache">Clear library and rescan everything</option>'
 	echo '                  </select>'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan=2>'
 	echo '                  <p>Rescan LMS library&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -648,7 +638,6 @@ pcp_rescan_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_rescan_lms
 #----------------------------------------------------------------------------------------
@@ -657,13 +646,12 @@ pcp_rescan_lms() {
 pcp_lms_install_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Install" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
-		echo '                <td>'
+		echo '                <td colspan=2>'
 		echo '                  <p>Install LMS on pCP&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
@@ -673,7 +661,7 @@ pcp_lms_install_lms() {
 	else
 		echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')"/>'
 		echo '                </td>'
-		echo '                <td>'
+		echo '                <td colspan=2>'
 		echo '                  <p>Remove LMS from pCP&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
@@ -684,7 +672,6 @@ pcp_lms_install_lms() {
 	fi
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_install_lms
 #----------------------------------------------------------------------------------------
@@ -693,12 +680,11 @@ pcp_lms_install_lms() {
 pcp_lms_remove_cache() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Remove_cache" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                    <button type="submit" name="ACTION" value="Remove_cache" onclick="return confirm('\''This will remove all LMS Cache,settings and plugins.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove cache</button>'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan=2>'
 	echo '                  <p>Remove LMS Cache and Preferences from pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -708,7 +694,6 @@ pcp_lms_remove_cache() {
 	echo '                  </div>'
 	echo '                 </td>'
 	echo '               </tr>'
-	echo '              </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_remove_cache
 #----------------------------------------------------------------------------------------
@@ -717,22 +702,19 @@ pcp_lms_remove_cache() {
 pcp_lms_start_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Start" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_LMS' />'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan=2>'
 	echo '                  <p>Start LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>This will start LMS.</p>'
-	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_start_lms
 #----------------------------------------------------------------------------------------
@@ -741,22 +723,19 @@ pcp_lms_start_lms() {
 pcp_lms_stop_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Stop" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Stop" '$DISABLE_LMS' />'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan=2>'
 	echo '                  <p>Stop LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>This will stop LMS.</p>'
-	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_stop_lms
 #----------------------------------------------------------------------------------------
@@ -765,12 +744,11 @@ pcp_lms_stop_lms() {
 pcp_lms_restart_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_LMS' />'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan=2>'
 	echo '                  <p>Restart LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -784,32 +762,8 @@ pcp_lms_restart_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
-#----------------------------------------------------------------------------------------
-
-#---------------------------------Update LMS--------------------------------------------
-pcp_update_lms() {
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Update" action="lms-update.cgi">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS Update" '$DISABLE_LMS'>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
 
 #-------------------------------nomysqueezebox-------------------------------------------
@@ -820,7 +774,6 @@ pcp_lms_no_mysb() {
 		*--nomysqueezebox*) NOMYSByes="checked";;
 		*) NOMYSBno="checked";;
 	esac
-	echo '            <form name="Nomysb" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" name="ACTION" value="Mysb" '$DISABLE_LMS'>No MySB</button>'
@@ -838,7 +791,6 @@ pcp_lms_no_mysb() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_no_mysb
 #----------------------------------------------------------------------------------------
@@ -847,7 +799,6 @@ pcp_lms_no_mysb() {
 pcp_lms_show_logs() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Show" action="'$0'" method="get">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Show Logs" '$DISABLE_LMS'/>'
@@ -865,13 +816,36 @@ pcp_lms_show_logs() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
+echo '            </table>'
+echo '          </form>'
 
+#---------------------------------Update LMS--------------------------------------------
+pcp_update_lms() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '          <form name="Update" action="lms-update.cgi">'
+	echo '            <table class="bggrey percent100">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" value="LMS Update" '$DISABLE_LMS'>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
-echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -1339,20 +1313,6 @@ pcp_mount_usbdrives() {
 			echo '                </tr>'
 		fi
 	done
-	echo '                <script type="text/javascript">'
-	echo '                  function setrequired(id) {'
-	echo '                    var box = "USB";'
-	echo '                    var Box = box.concat(id);'
-	echo '                    var box1 = "USBPOINT";'
-	echo '                    var Box1 = box1.concat(id);'
-	echo '                    if (document.getElementById(Box).checked){'
-	echo '                      document.getElementById(Box1).setAttribute("required", "");'
-	echo '                    }'
-	echo '                    else {'
-	echo '                      document.getElementById(Box1).required = false;'
-	echo '                    }'
-	echo '                  }'
-	echo '                </script>'
 
 	fdisk -l | grep -q "Found valid GPT"
 	if [ $? -eq 0 ]; then
@@ -1365,7 +1325,7 @@ pcp_mount_usbdrives() {
 		echo '                </td>'
 		echo '                <td  class="column150 center">'
 		echo '                  <button type="submit" name="ACTION" value="gptfdisk">Install Support</button>'
-		echo '                  </td>'
+		echo '                </td>'
 		echo '              </tr>'
 	fi
 	J=1
@@ -1406,7 +1366,7 @@ pcp_mount_usbdrives() {
 		usb*)
 			# Checkbox is disabled due to lms using for cache storage, Keep the specific box enabled
 			echo '                  <input type="hidden" name="'$KEEPENABLED'" value="enabled">'
-			echo '                  <td  class="colspan5">'
+			echo '                  <td colspan=6>'
 			echo '                    <p> LMS is currently using disk '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
 			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 			echo '                    </p>'
@@ -1414,19 +1374,35 @@ pcp_mount_usbdrives() {
 			echo '                      <p>Must Move LMS Data to another disk (SDcard or Network Share).</p>'
 			echo '                      <p>in order to change this mount.</p>'
 			echo '                    </div>'
+			echo '                  </td>'
 		;;
 		*)
+			echo '                  <td colspan=6>'
 			if [ "$EXTRAFSYS" = "no" ]; then
-				echo '                  <td  class="colspan5">'
 				echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
 			fi
+			echo '                  </td>'
+
 		;;
 	esac
-	echo '                  </td>'
 	echo '                </tr>'
-#----------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
+	echo '          <script>'
+	echo '            function setrequired(id) {'
+	echo '              var box = "USB";'
+	echo '              var Box = box.concat(id);'
+	echo '              var box1 = "USBPOINT";'
+	echo '              var Box1 = box1.concat(id);'
+	echo '              if (document.getElementById(Box).checked){'
+	echo '                document.getElementById(Box1).setAttribute("required", "");'
+	echo '              }'
+	echo '              else {'
+	echo '                document.getElementById(Box1).required = false;'
+	echo '              }'
+	echo '            }'
+	echo '          </script>'
+#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -1479,21 +1455,23 @@ pcp_mount_netdrives() {
 	echo '                    <p>Field usage.</p>'
 	echo '                    <ul>'
 	echo '                      <li>If Enabled is checked, the network share will be mounted by to the mount point and will be automounted on startup.</li>'
-	echo '                      <li>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).</li>'
-	echo '                      <ul>'
-	echo '                        <li>Do not use hardware device names like sda1 or mmcblk0.</li>'
-	echo '                      </ul>'
+	echo '                      <li>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).'
+	echo '                        <ul>'
+	echo '                          <li>Do not use hardware device names like sda1 or mmcblk0.</li>'
+	echo '                        </ul>'
+	echo '                      </li>'
 	echo '                      <li>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</li>'
 	echo '                      <li>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</li>'
 	echo '                      <li>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</li>'
 	echo '                      <li>&#60;Username&#62; Username if needed for cifs mount.</li>'
 	echo '                      <li>&#60;Password&#62; Password if needed for cifs mount.</li>'
-	echo '                      <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.</li>'
-	echo '                      <ul>'
-	echo '                        <li>vers=3.0 - The linux kernel now defaults to SMB and NFS version 3.0, lower versions must be specified.</li>'
-	echo '                        <li>uid=1001 - mounts the drive with user &quot;tc&quot;.  Useful if using ssh sessions to write data to share.</li>'
-	echo '                        <li>gid=50 - mounts the drive with group &quot;staff&quot;.  Useful if using ssh sessions to write data to share.</li>'
-	echo '                      </ul>'
+	echo '                      <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.'
+	echo '                        <ul>'
+	echo '                          <li>vers=3.0 - The linux kernel now defaults to SMB and NFS version 3.0, lower versions must be specified.</li>'
+	echo '                          <li>uid=1001 - mounts the drive with user &quot;tc&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                          <li>gid=50 - mounts the drive with group &quot;staff&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                        </ul>'
+	echo '                      </li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -1515,7 +1493,7 @@ pcp_mount_netdrives() {
 	echo '                <td class="column'$COL3'"><p><b>IP Address</b></p></td>'
 	echo '                <td class="column'$COL4'"><p><b>Share Name</b></p></td>'
 	echo '                <td class="column'$COL5'"><p><b>Share Type</b></p></td>'
-	echo '                <td class="column'$COL6'"><p><b>Username<b></p></td>'
+	echo '                <td class="column'$COL6'"><p><b>Username</b></p></td>'
 	echo '                <td class="column'$COL7'"><p><b>Password</b></p></td>'
 	echo '                <td class="column'$COL8'"><p><b>Options</b></p></td>'
 	echo '              </tr>'
@@ -1590,14 +1568,14 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
 		echo '                </td>'
 		echo '              </tr>'
-		echo '              <script type="text/javascript">'
+		echo '              <script>'
 		echo '                var share = "'${SHARE}'";'
 		echo '                ShareBox = "NETSHARE'${I}'";'
 		echo '                document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
 		echo '              </script>'
 		I=$((I+1))
 	done
-	echo '                <script type="text/javascript">'
+	echo '                <script>'
 	echo '                  function setnetrequired(id) {'
 	echo '                    var box = "NET";'
 	echo '                    var Box = box.concat(id);'
@@ -1640,7 +1618,7 @@ pcp_mount_netdrives() {
 	echo '                <td class="column'$COL1' center">'
 	echo '                  <input class="small1" type="checkbox" name="CLEARUNUSED" value="yes">'
 	echo '                </td>'
-	echo '                <td class="colspan7">'
+	echo '                <td colspan=7>'
 	echo '                  <p> Check this box to clear configuration data for unused shares.</p>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1648,32 +1626,34 @@ pcp_mount_netdrives() {
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
 	if [ "$EXTRAFSYS" = "no" ]; then
-		echo '                    <button type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
-		echo '                  </td>'
-		echo '                  <td  class="colspan5">'
-		echo '                    <p>Mounting network drives requires extra filesystem support.&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="'$ID'" class="less">'
-		echo '                      <p>Please add additional filesystems using the option above.</p>'
-		echo '                    </div>'
+		echo '                <td class="column150 center">'
+		echo '                  <button type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
+		echo '                </td>'
+		echo '                <td colspan=7>'
+		echo '                  <p>Mounting network drives requires extra filesystem support.&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Please add additional filesystems using the option above.</p>'
+		echo '                  </div>'
 	elif [ "${LMSDATA:0:4}" = "net:" ]; then
-		echo '                    <input type="hidden" name="'$KEEPENABLED'" value="yes">'
-		echo '                    <input type="hidden" name="MOUNTTYPE" value="networkshare">'
-		echo '                    <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
-		echo '                    <button type="submit" name="ACTION" value="Save">Set NET Mount</button>'
-		echo '                  </td>'
-		echo '                  <td  class="colspan5">'
-		echo '                    <p> LMS is currently using network drive '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="'$ID'" class="less">'
-		echo '                      <p>Must Move LMS Data to another disk (SDcard or USB Disk).</p>'
-		echo '                      <p>in order to change this mount.</p>'
-		echo '                    </div>'
+		echo '                <td class="column150 center">'
+		echo '                  <input type="hidden" name="'$KEEPENABLED'" value="yes">'
+		echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+		echo '                  <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
+		echo '                  <button type="submit" name="ACTION" value="Save">Set NET Mount</button>'
+		echo '                </td>'
+		echo '                <td colspan=7>'
+		echo '                  <p> LMS is currently using network drive '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Must Move LMS Data to another disk (SDcard or USB Disk).</p>'
+		echo '                    <p>in order to change this mount.</p>'
+		echo '                  </div>'
 	else
+		echo '                <td class="column150 center" colspan=8>'
 		echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
 		echo '                  <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
 		echo '                  <button type="submit" name="ACTION" value="Save">Set NET Mount</button>'
@@ -1711,7 +1691,7 @@ pcp_samba() {
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Setup Samba Share</legend>'
-	echo '          <form name="Start" action="'$0'" method="get">'
+	echo '          <form name="Samba_Setup" action="'$0'" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
@@ -1791,8 +1771,8 @@ pcp_samba() {
 				esac
 			done < $SAMBACONF
 		fi
-		echo '            <table class="bggrey percent100">'
-		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '            <form name="Samba_Write" action="writetosamba.cgi" method="get">'
+		echo '              <table class="bggrey percent100">'
 		pcp_incr_id
 		pcp_toggle_row_shade
 		echo '                <tr class="'$ROWSHADE'">'
@@ -1813,10 +1793,12 @@ pcp_samba() {
 		echo '                    </div>'
 		echo '                  </td>'
 		echo '                </tr>'
-		echo '              </form>'
+		echo '              </table>'
+		echo '            </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
-		echo '              <form name="Start" action="'$0'">'
+		echo '            <form name="Samba_Run" action="'$0'">'
+		echo '              <table class="bggrey percent100">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		echo '                    <input type="submit" name="ACTION" value="SambaStart" />'
@@ -1830,10 +1812,8 @@ pcp_samba() {
 		echo '                    </div>'
 		echo '                  </td>'
 		echo '                </tr>'
-		echo '              </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
-		echo '              <form name="Stop" action="'$0'">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		echo '                    <input type="submit" name="ACTION" value="SambaStop" />'
@@ -1847,10 +1827,8 @@ pcp_samba() {
 		echo '                    </div>'
 		echo '                  </td>'
 		echo '                </tr>'
-		echo '              </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
-		echo '              <form name="Restart" action="'$0'">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		echo '                    <input type="submit" name="ACTION" value="SambaRestart" />'
@@ -1862,17 +1840,19 @@ pcp_samba() {
 		echo '                    <div id="'$ID'" class="less">'
 		echo '                      <p>This will stop SAMBA and then restart it.</p>'
 		echo '                      <p><b>Note:</b></p>'
-		echo '                        <li>A restart of SAMBA is rarely needed.</li>'
-		echo '                        <li>SAMBA running indicator will turn green.</li>'
+		echo '                        <ul>'
+		echo '                          <li>A restart of SAMBA is rarely needed.</li>'
+		echo '                          <li>SAMBA running indicator will turn green.</li>'
+		echo '                        </ul>'
 		echo '                    </div>'
 		echo '                  </td>'
 		echo '                </tr>'
-		echo '              </form>'
-		echo '            </table>'
+		echo '              </table>'
+		echo '            </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
-		echo '            <table class="bggrey percent100">'
-		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '            <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '              <table class="bggrey percent100">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		if [ "$STATUS" = "running" ]; then
@@ -1900,22 +1880,20 @@ pcp_samba() {
 			echo '                      <p>Needs done 1st time.  Note this value is cached by alot of machines and may not change immediately in the browser.</p>'
 			echo '                    </div>'
 		else
-			echo '                    <p>Samba has to be running to set password!</p'
+			echo '                    <p>Samba has to be running to set password!</p>'
 		fi
 		echo '                  </td>'
 		echo '                </tr>'
-		echo '              </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
-		echo '              <form name="Select" action="writetosamba.cgi" method="get">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		echo '                    <p class="row">Server Name</p>'
 		echo '                  </td>'
 		echo '                  <td class="column210">'
-		echo '                    <p><input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required"></p>'
+		echo '                    <p><input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required></p>'
 		echo '                  </td>'
-		echo '                  <td>'
+		echo '                  <td colspan=3>'
 		echo '                    <p>This is the Server name that will show up in your network browser.&nbsp;&nbsp;'
 		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                    </p>'
@@ -1931,9 +1909,9 @@ pcp_samba() {
 		echo '                    <p class="row">Server WorkGroup</p>'
 		echo '                  </td>'
 		echo '                  <td class="column210">'
-		echo '                    <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required"></p>'
+		echo '                    <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required></p>'
 		echo '                  </td>'
-		echo '                  <td>'
+		echo '                  <td colspan=3>'
 		echo '                    <p>This is the Server Work Group that will show up in your network browser.&nbsp;&nbsp;'
 		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                    </p>'
@@ -1954,7 +1932,8 @@ pcp_samba() {
 		echo '                  <td class="column'$COL1' center"><p><b>Share Name</b></p></td>'
 		echo '                  <td class="column'$COL2'"><p><b>Share Path</b></p></td>'
 		echo '                  <td class="column'$COL3'"><p><b>Create File Mode</b></p></td>'
-		echo '                  <td class="column'$COL4' center"><p><b>Read ONLY<b></p></td>'
+		echo '                  <td class="column'$COL4' center"><p><b>Read ONLY</b></p></td>'
+		echo '                  <td> </td>'
 		echo '                </tr>'
 		I=1
 		SC=$((SC+1))
@@ -1993,7 +1972,7 @@ pcp_samba() {
 			echo '                </tr>'
 			I=$((I+1))
 		done
-		echo '                <script type="text/javascript">'
+		echo '                <script>'
 		echo '                  function eraseshare(i) {'
 		echo '                    var box = "SHARE";'
 		echo '                    var Box = box.concat(i);'
@@ -2004,6 +1983,7 @@ pcp_samba() {
 		echo '                    var box = "SHAREMASK";'
 		echo '                    var Box = box.concat(i);'
 		echo '                    document.getElementById(Box).value = "";'
+		echo '                    setsmbrequired(i);'
 		echo '                  }'
 		echo '                  function setsmbrequired(id) {'
 		echo '                    var box = "SHARE";'
@@ -2031,10 +2011,11 @@ pcp_samba() {
 		echo '                    <input type="hidden" name="SC" value="'$SC'">'
 		echo '                    <button type="submit" name="ACTION" value="setconfig">Set Samba</button>'
 		echo '                  </td>'
+		echo '                  <td colspan=4> </td>'
 		echo '                </tr>'
 #----------------------------------------------------------------------------------------
-		echo '              </form>'
-		echo '            </table>'
+		echo '              </table>'
+		echo '            </form>'
 	fi
 	echo '        </fieldset>'
 	echo '      </div>'

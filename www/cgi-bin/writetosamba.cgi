@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-08
+#	Added pcp_redirect_button, and standardize HTML code. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -15,28 +18,19 @@ pcp_html_head "Write to Samba" "PH"
 
 pcp_banner
 pcp_running_script
+pcp_remove_query_string
 pcp_httpd_query_string
 
-WGET="/bin/busybox wget"
-
-# Only offer reboot option if needed
-REBOOT_REQUIRED="0"
-
-#========================================================================================================
-# Routines
-#--------------------------------------------------------------------------------------------------------
-
-	
 #========================================================================================
 # Process Command section
 #----------------------------------------------------------------------------------------
 
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] COMMAND is: '$COMMAND'</p>'
 
+pcp_table_top "SAMBA configuration"
+
 case "$COMMAND" in
 	setconfig)
-		echo '<p class="info">[ INFO ] Writing smb.conf to: '$SAMBACONF'</p>'
-
 		# Write the Global Section of the config file
 		echo "[global]" > $SAMBACONF
         echo "    netbios name = ${NETBIOS}" >> $SAMBACONF
@@ -75,24 +69,7 @@ case "$COMMAND" in
 			fi
 			I=$((I+1))
 		done
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <div class="row">'
-		echo '        <fieldset>'
-		echo '          <legend>Show SAMBA Config</legend>'
-		echo '          <table class="bggrey percent100">'
-		echo '            <tr>'
-		echo '              <td>'
-							  pcp_textarea_inform "$SAMBACONF" 'cat $SAMBACONF' 250
-		echo '              </td>'
-		echo '            </tr>'
-		echo '          </table>'
-		echo '        </fieldset>'
-		echo '      </div>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		pcp_textarea_inform "$SAMBACONF" 'cat $SAMBACONF' 250
 
 		pcp_backup
 		grep -q "path" $SAMBACONF
@@ -123,13 +100,13 @@ case "$COMMAND" in
 	;;
 esac
 
-echo '<hr>'
-
 [ "$DEBUG" = "1" ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
-[ "$REBOOT_REQUIRED" = "1" ] && pcp_reboot_required
-
-pcp_go_back_button
+pcp_table_middle
+pcp_redirect_button "Go to LMS" "lms.cgi" 15
+pcp_table_end
+pcp_footer
+pcp_copyright
 
 echo '</body>'
 echo '</html>'
