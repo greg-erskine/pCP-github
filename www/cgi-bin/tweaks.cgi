@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-30
+# Version: 3.5.1 2018-04-09
 #	Fixed Jivelite form. PH.
+#	Removed pcp_tweaks_padding - HTML5 fix. GE.
+#	Added crond indicator. GE.
 
 # Version: 3.5.0 2018-02-28
 #	Cosmetic change to jivelite install. GE.
@@ -52,13 +54,6 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-
-pcp_tweaks_padding() {
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
-	echo '            </tr>'
-}
 
 #========================================================================================
 # pCP System Tweaks
@@ -1078,7 +1073,6 @@ pcp_tweaks_vumeter() {
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Jivelite VU Meter</p>'
@@ -1115,7 +1109,6 @@ pcp_tweaks_vumeter() {
 	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_tweaks_padding
 	echo '            </table>'
 	echo '          </form>'
 
@@ -1748,6 +1741,13 @@ pcp_tweaks_cron() {
 		Disabled) RESTART_N="checked" ;;
 	esac
 
+	/etc/init.d/services/crond status >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		pcp_green_tick " is running"
+	else
+		pcp_red_cross " is not running"
+	fi
+
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1756,8 +1756,27 @@ pcp_tweaks_cron() {
 	echo '          <legend>Schedule CRON jobs</legend>'
 	echo '          <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
+	#-------------------------------------crond indicator--------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column210 center">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td colspan="2">'
+	echo '                <p>crond is '$STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = crond running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = crond not running.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	#-------------------------------------piCorePlayer reboot----------------------------
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
 	echo '                  <p>Schedule piCorePlayer reboot<p>'
@@ -1795,6 +1814,8 @@ pcp_tweaks_cron() {
 	echo '                  <input class="small1" type="radio" name="REBOOT" value="Disabled" '$REBOOT_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
+	#-------------------------------------Squeezelite restart----------------------------
+	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
@@ -1855,6 +1876,7 @@ pcp_tweaks_cron() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#-------------------------------------Custom Cron command----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1881,6 +1903,7 @@ pcp_tweaks_cron() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#-------------------------------------Buttons----------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan=3>'
@@ -1890,7 +1913,7 @@ pcp_tweaks_cron() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#-------------------------------------Debug info-------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -1912,7 +1935,7 @@ pcp_tweaks_cron() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
