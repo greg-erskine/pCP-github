@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-05
+# Version: 3.5.1 2018-04-09
 #	Moved reboot page to Main page. GE.
 
 # Version: 3.5.0 2018-02-21
@@ -45,17 +45,20 @@ pcp_navigation
 # Reboot page.
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "reboot" ]; then
+	. pcp-rpi-functions
+	pcp_rpi_details
 	pcp_table_top "Rebooting"
-	echo "<p>pCP is rebooting...</p>"
+	echo '<p>pCP is rebooting...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' $RB_DELAY: '$RB_DELAY'</p>'
 	pcp_table_middle
-	pcp_redirect_button "Refresh Main Page" "main.cgi" 40
+	pcp_redirect_button "Refresh Main Page" "main.cgi" $RB_DELAY
 	pcp_table_end
 	pcp_footer
 	pcp_copyright
 	pcp_remove_query_string
 	echo '</body>'
 	echo '</html>'
-	sleep 1
+#	sleep 1
 	sudo reboot
 	exit
 fi
