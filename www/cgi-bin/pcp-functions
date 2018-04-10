@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.1 2018-04-07
+# Version: 3.5.1 2018-04-10
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
@@ -10,6 +10,7 @@
 #	Modified pcp_navigation toolbar. GE.
 #	Modified pcp_reboot_required. GE.
 #	If pCP is running LMS server, then point LMS tab to local interface. PH.
+#	Updated pcp_reboot_button. GE.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -1200,7 +1201,7 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
+	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }
 
