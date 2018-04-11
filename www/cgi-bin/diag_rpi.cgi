@@ -1,6 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 3.5.1 2018-04-12
+#	Fixed log file name. GE.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -10,38 +13,8 @@
 #	Changes for Squeezelite extension. PH.
 #	removed squeezelite size. GE.
 
-# Version: 0.10 2016-04-23 GE
-#	Minor enhancements.
-#	Changed log location to /var/log.
-
-# Version: 0.09 2016-02-24 GE
-#	Minor enhancements.
-#	Changed to tick and cross indicator.
-#	Updated output to log file.
-
-# Version: 0.08 2016-02-03 GE
-#	Moved pcp_pastebin_button to Developer mode.
-
-# Version: 0.07 2015-12-24 GE
-#	Added Upload to pastebin feature.
-
-# Version: 0.06 2015-08-29 GE
-#	Added shortname.
-
-# Version: 0.05 2015-07-04 GE
-#	More updates.
-
-# Version: 0.04 2015-04-28 GE
-#	More minor updates.
-
-# Version: 0.03 2015-03-07 GE
-#	Added internet and sourceforge accessible.
-
-# Version: 0.02 2015-02-06 GE
-#	Reformatted.
-
-# Version: 0.01 2014-10-22 GE
-#	Original.
+# Version: 0.01 2014-10-22
+#	Original. GE.
 
 . pcp-functions
 . pcp-rpi-functions
@@ -53,13 +26,14 @@ pcp_banner
 pcp_diagnostics
 pcp_running_script
 
+LOG="${LOGDIR}/pcp_diag_rpi.log"
+
 #=========================================================================================
 # Add information to log file.
 #-----------------------------------------------------------------------------------------
 pcp_add_to_log() {
 	START="====================> Start <===================="
 	END="=====================> End <====================="
-	LOG="${LOGDIR}/pcp_diagrpi.log"
 
 	pcp_log_header $0
 
@@ -453,7 +427,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button raspi
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "Raspberry-Pi"
 
 pcp_footer
 pcp_copyright

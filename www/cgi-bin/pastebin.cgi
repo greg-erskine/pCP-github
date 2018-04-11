@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 3.5.1 2018-04-12
+#	Changed order of pcp-pastebin-functions and pcp-rpi-functions. GE.
+#	HTML5 update. GE.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -10,9 +14,10 @@
 #	Original version.
 
 . pcp-functions
-. pcp-rpi-functions
 . pcp-pastebin-functions
-#. $CONFIGCFG
+. pcp-rpi-functions
+
+#DEBUG=1
 
 pcp_html_head "pastebin" "GE"
 
@@ -22,16 +27,21 @@ pcp_running_script
 
 pcp_httpd_query_string
 FILE=$($HTTPD -d $FILE)
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] File: '$FILE'</p>'
-
 UPLOAD_FILE="/tmp/pcp_pastebin.txt"
+
+if [ $DEBUG -eq 1 ]; then
+	echo '<p class="debug">[ DEBUG ] $SUMBMIT: '$SUBMIT'<br />'
+	echo '                 [ DEBUG ] $LOG: '$LOG'<br />'
+	echo '                 [ DEBUG ] $UPLOAD_FILE: '$UPLOAD_FILE'<br />'
+	echo '                 [ DEBUG ] $FILE: '$FILE'</p>'
+fi
 
 #----------------------------------------------------------------------------------------
 # Submit actions
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Upload)
-		cp $FILE $UPLOAD_FILE
+		cp "$FILE" "$UPLOAD_FILE" 
 		case $FILE in
 			*config.cfg)
 				sed -i 1i"$(date)" $UPLOAD_FILE
@@ -58,7 +68,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Paste text - '$REPORT'</legend>'
+echo '          <legend>Pastebin text - '$REPORT'</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
@@ -88,14 +98,14 @@ if [ "$SUBMIT" = "Upload" ]; then
 	echo '            <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
+	echo '                <td>'
 	                        pcp_install_wget
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	echo '                  <p>The window above contains the paste text that will be uploaded '
+	echo '                  <p>The window above contains the pastebin text that will be uploaded '
 	echo '                     into pastebin. Please check you are happy with the content '
 	echo '                     before you press [Accept].</p>'
 	echo '                  <p>The paste text will be sent as a private paste, so it will not visable to the public. '
@@ -106,7 +116,7 @@ if [ "$SUBMIT" = "Upload" ]; then
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
+	echo '                <td>'
 	echo '                  <input type="submit" name="SUBMIT" value="Accept">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reject">'
 	echo '                  <input type="hidden" name="FILE" value="'$FILE'">'
