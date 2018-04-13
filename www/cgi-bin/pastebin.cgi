@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-12
+# Version: 3.5.1 2018-04-13
 #	Changed order of pcp-pastebin-functions and pcp-rpi-functions. GE.
 #	HTML5 update. GE.
 
@@ -17,8 +17,6 @@
 . pcp-pastebin-functions
 . pcp-rpi-functions
 
-#DEBUG=1
-
 pcp_html_head "pastebin" "GE"
 
 pcp_banner
@@ -27,6 +25,7 @@ pcp_running_script
 
 pcp_httpd_query_string
 FILE=$($HTTPD -d $FILE)
+
 UPLOAD_FILE="/tmp/pcp_pastebin.txt"
 
 if [ $DEBUG -eq 1 ]; then
@@ -68,7 +67,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Pastebin text - '$REPORT'</legend>'
+echo '          <legend>Paste - '$REPORT'</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
@@ -105,13 +104,13 @@ if [ "$SUBMIT" = "Upload" ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	echo '                  <p>The window above contains the pastebin text that will be uploaded '
-	echo '                     into pastebin. Please check you are happy with the content '
+	echo '                  <p>The window above contains the paste that will be uploaded '
+	echo '                     into pastebin. Check you are happy with the content '
 	echo '                     before you press [Accept].</p>'
-	echo '                  <p>The paste text will be sent as a private paste, so it will not visable to the public. '
+	echo '                  <p>The paste will be sent as a private paste, so it will not visable to the public. '
 	echo '                     Also, the paste will expire in 24 hours.</p>'
 	echo '                  <br />'
-	echo '                  <p>Only press [Accept] if you AGREE to upload this paste text to pastebin.</p>'
+	echo '                  <p>Only press [Accept] if you AGREE to upload this paste to pastebin.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
