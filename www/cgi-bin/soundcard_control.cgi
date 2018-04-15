@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-15
+#  Changed repo to new server. PH.
+
 # Version: 3.5.0 2018-02-21
 #	HTML5 cleanup. GE.
 
@@ -279,7 +282,7 @@ pcp_allo_piano_plus_custom_controls(){
 	echo '                    <li><b>2.2</b> - Subwoofer Stereo Output. Use crossover frequency to control.</li>'
 	echo '                    <li><b>Dual-Stereo</b> - All Frequencies are sent to both DACS. All Connectors Active.</li>'
 	echo '                    <li><b>Dual-Mono</b> - Left and Right channels are split between DACs. LEFT and SUB Right are used.</li>'
-	echo '                    <li>2.1 and 2.2 modes require firmware-allo-piano.tcz from the piCorePlayer Repository using the <a href="/cgi-bin/xtras_extensions.cgi?MYMIRROR=http%3A%2F%2Fpicoreplayer.sourceforge.net%2Ftcz_repo%2F&SUBMIT=Set">Extension Browser</a>.</li>'
+	echo '                    <li>2.1 and 2.2 modes require firmware-allo-piano.tcz from the piCorePlayer Repository using the <a href="/cgi-bin/xtras_extensions.cgi?MYMIRROR=https%3A%2F%2Frepo.picoreplayer.org%2Frepo%2F&SUBMIT=Set">Extension Browser</a>.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '                </p>'

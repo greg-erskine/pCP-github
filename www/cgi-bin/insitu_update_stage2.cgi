@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-30
+# Version: 4.0.0 2018-04-15
 #  Another attempt to fix reloading page does not reboot pCP again. SBP.
+#  Changed repo to new server. PH.
 
 # Version 3.5.0 2018-03-15
 #	Updates for Kernel 4.14.26 and 9.x repo
@@ -19,7 +20,7 @@
 
 # Version 3.10 2016-12-26
 #	Changes for shairport-sync.  Incomplete PH
-#	Sourceforge repo changes. PH
+#	S0urceforge repo changes. PH
 
 # Version 3.02 2016-09-04 PH
 #	Updated Kernel Information for 3.02 piCore8.0 Release
@@ -78,7 +79,7 @@ fi
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-#INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
+#INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -138,14 +139,14 @@ pcp_internet_indicator() {
 }
 
 #========================================================================================
-# Check we have sourceforge access - set FAIL_MSG if not accessible
+# Check we have repo access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
-pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		SOURCEFORGE_STATUS="Sourceforge repository accessible."
+pcp_repo_indicator() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		REPO_STATUS="pCP repository accessible."
 	else
-		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
-		FAIL_MSG="Sourceforge not accessible!!"
+		REPO_STATUS="pCP repository not accessible!!"
+		FAIL_MSG="pCP repo not accessible!!"
 	fi
 }
 
@@ -194,7 +195,7 @@ pcp_create_download_directory() {
 }
 
 #========================================================================================
-# Download a list of piCorePlayer versions that are available on Sourceforge - insitu.cfg
+# Download a list of piCorePlayer versions that are available on pCP repo - insitu.cfg
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
@@ -273,7 +274,7 @@ pcp_get_kernel_modules() {
 		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
-		PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+		PCP_REPO="https://repo.picoreplayer.org/repo"
 #		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
@@ -313,7 +314,7 @@ pcp_get_kernel_modules() {
 }
 
 #========================================================================================
-# Download the boot files from Sourceforge
+# Download the boot files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
@@ -483,7 +484,7 @@ outfile.close
 }
 
 #========================================================================================
-# Download the tce files from Sourceforge
+# Download the tce files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
 	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
@@ -736,7 +737,7 @@ case "$ACTION" in
 		pcp_warning_message
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_sourceforge_indicator
+		pcp_repo_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
@@ -773,7 +774,7 @@ echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$SOURCEFORGE_STATUS
+	echo '[ INFO ] '$REPO_STATUS
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
 fi
 #----------------------------------------------------------------------------------------

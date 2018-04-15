@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-30
+# Version: 4.0.0 2018-04-15
 #  Another attempt to fix reloading page does not reboot pCP again. SBP.
+#  Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-02-28
 #	Fixed removal of Jivelite. SBP.
 #	Cleanup. GE.
-#	REMOVED. Added check that pCP Sourceforge Repository is available. GE.
+#	REMOVED. Added check that pCP S0urceforge Repository is available. GE.
 
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
@@ -20,26 +21,6 @@
 #	Enhanced formatting. GE.
 #	Write jivelite.tcz.dep, instead of relying on it to be in base image. PH.
 #	TODO: Move Jivelite to repo with pcp-load.
-
-# Version: 0.07 2016-05-09 GE
-#	Fixed JIVELITE variable (YES/NO).
-
-# Version: 0.06 2016-02-20 GE
-#	Fixed sourceforge redirection issue.
-
-# Version: 0.05 2015-12-19 GE
-#	Added /bin/busybox to wget -s
-#	Minor changes.
-
-# Version: 0.04 2015-11-22 GE
-#	Added code for VU Meters.
-#	Revised Jivelite download code.
-
-# Version: 0.03 2015-08-29 SBP
-#	Changed to touch-screen version.
-
-# Version: 0.02 2015-05-08 GE
-#	Revised.
 
 # Version: 0.01 2015-03-15 SBP
 #	Original version.
@@ -81,10 +62,10 @@ fi
 #----------------------------------------------------------------------------------------
 pcp_check_repos() {
 	if [ pcp_pcp_repo_accessible -eq 0 ]; then
-		echo '[ INFO ] pCP Sourceforge Repository available...'
+		echo '[ INFO ] pCP Repository available...'
 		return 0
 	else
-		echo '[ ERROR ] pCP Sourceforge Repository NOT available...'
+		echo '[ ERROR ] pCP Repository NOT available...'
 		return 1
 	fi
 }
@@ -136,7 +117,7 @@ pcp_delete_jivelite() {
 pcp_download_vumeters() {
 #	pcp_check_repos
 #	if [ $? -eq 0 ]; then
-		echo '[ INFO ] Downloading VU Meters from the pCP Sourceforge Repository...'
+		echo '[ INFO ] Downloading VU Meters from the pCP Repository...'
 		for i in $AVAILABLE_VUMETERS
 		do
 			TCZ=${i}

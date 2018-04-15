@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 3.5.1 2018-04-10
+# Version: 4.0.0 2018-04-15
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
@@ -11,6 +11,7 @@
 #	Modified pcp_reboot_required. GE.
 #	If pCP is running LMS server, then point LMS tab to local interface. PH.
 #	Updated pcp_reboot_button. GE.
+#	Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -65,7 +66,7 @@
 #	Added IR_GPIO_OUT. GE.
 #	Renamed IR_GPIO to IR_GPIO_IN. GE.
 #	Changes for Squeezelite extension. PH.
-#	Updated sourceforge repo locations. PH.
+#	Updated s0urceforge repo locations. PH.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.
@@ -151,15 +152,15 @@ pcp_variables() {
 	#------------------------------------------------------------------------------------
 	# Define repositories
 	#------------------------------------------------------------------------------------
-	INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
-	PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+	INSITU_DOWNLOAD="https://repo.picoreplayer.org/insitu"
+	PCP_REPO="https://repo.picoreplayer.org/repo"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
 	# Use beta/test download area
 	if [ $TEST -eq 3 ]; then
-		INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/beta"
-		PCP_REPO="http://picoreplayer.sourceforge.net/beta"
+		INSITU_DOWNLOAD="https://repo.picoreplayer.org/beta"
+		PCP_REPO="https://repo.picoreplayer.org/beta"
 	fi
 
 	#------------------------------------------------------------------------------------
@@ -311,11 +312,6 @@ pcp_extn_is_installed() {
 pcp_internet_accessible() {
 	[ "$INTERNET_CHECK_IP" = "" ] && INTERNET_CHECK_IP="8.8.8.8"
 	ping -w5 -c3 $INTERNET_CHECK_IP >/dev/null 2>&1
-	echo $?
-}
-
-pcp_sourceforge_accessible() {
-	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
@@ -724,7 +720,7 @@ pcp_picoreplayers_toolbar() {
 
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<p style="margin-top: -12px;">'
-	echo '  <a class="tab20" href="http://picoreplayer.sourceforge.net/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
+	echo '  <a class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
 
 	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
 		while read line

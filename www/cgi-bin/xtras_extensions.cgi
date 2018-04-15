@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-15
+#  Changed repo to new server. PH.
+
 # Version: 3.5.0 2018-02-22
 #	HTML5 cleanup. GE.
 
@@ -168,7 +171,7 @@ pcp_information_message() {
 	echo '                <p><b>piCorePlayer</b> uses two repositories for downloading extensions:</p>'
 	echo '                <ul>'
 	echo '                  <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
-	echo '                  <li><b>piCorePlayer sourceforge repository</b> - maintained by the piCorePlayer team.</li>'
+	echo '                  <li><b>piCorePlayer repository</b> - maintained by the piCorePlayer team.</li>'
 	echo '                </ul>'
 	echo '                <p><b>Extensions</b> can be:</p>'
 	echo '                <ul>'
@@ -368,9 +371,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '            </tr>'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-	  pcp_green_tick "piCorePlayer sourceforge repository accessible."
+	  pcp_green_tick "piCorePlayer repository accessible."
 	else
-	  pcp_red_cross "piCorePlayer sourceforge repository not accessible."
+	  pcp_red_cross "piCorePlayer repository not accessible."
 	fi
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -536,7 +539,7 @@ case "$MYMIRROR" in
 	;;
 	"$PCP_REPO")
 		SELECTED_2="selected"
-		STATUS="piCorePlayer sourceforge repository"
+		STATUS="piCorePlayer repository"
 	;;
 esac
 
@@ -558,7 +561,7 @@ echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="MYMIRROR">'
 echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_1'>Official piCore repository</option>'
-echo '                    <option value="'$PCP_REPO'" '$SELECTED_2'>piCorePlayer sourceforge repository</option>'
+echo '                    <option value="'$PCP_REPO'" '$SELECTED_2'>piCorePlayer repository</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
@@ -569,7 +572,7 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Select either:</p>'
 echo '                    <ul>'
 echo '                      <li>Official piCore repository, or</li>'
-echo '                      <li>piCorePlayer sourceforge repository.</li>'
+echo '                      <li>piCorePlayer repository.</li>'
 echo '                    </ul>'
 echo '                    <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
 echo '                  </div>'
@@ -637,7 +640,7 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
 echo '                      <li>Lists all extensions that are currently available for download from '$STATUS'</li>'
 echo '                      <li>If the <b>Official piCore repository</b> is selected, official piCore extensions are listed.</li>'
-echo '                      <li>If the <b>piCorePlayer Sourceforge repository</b> is selected, special piCorePlayer extensions are listed.</li>'
+echo '                      <li>If the <b>piCorePlayer repository</b> is selected, special piCorePlayer extensions are listed.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'

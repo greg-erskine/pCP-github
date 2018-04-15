@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-15
+#  Changed repo to new server. PH.
+
 # Version 3.5.0 2018-02-28
 #	wget will not over write, make sure package is not present. PH.
 
@@ -11,7 +14,7 @@
 #	Change stage2 download to work with web based repo location. PH.
 
 # Version 3.10 2016-12-26
-#	Sourceforge repo changes. PH.
+#	S0urceforge repo changes. PH.
 
 # Version 2.05 2016-06-17
 #	Original version. SBP.
@@ -31,7 +34,7 @@ FAIL_MSG="ok"
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-#INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
+#INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
 
 #========================================================================================
 # DEBUG info showing variables
@@ -58,19 +61,19 @@ pcp_internet_indicator() {
 }
 
 #========================================================================================
-# Check we have sourceforge access - set FAIL_MSG if not accessible
+# Check we have repo access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
-pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		SOURCEFORGE_STATUS="Sourceforge repository accessible."
+pcp_repo_indicator() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		REPO_STATUS="pCP repository accessible."
 	else
-		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
-		FAIL_MSG="Sourceforge not accessible!!"
+		REPO_STATUS="pCP repository not accessible!!"
+		FAIL_MSG="pCP repo not accessible!!"
 	fi
 }
 
 #========================================================================================
-# Download the new update script from Sourceforge - insitu_update_stage2.cgi
+# Download the new update script from repo - insitu_update_stage2.cgi
 #----------------------------------------------------------------------------------------
 pcp_get_newinstaller() {
 	echo '[ INFO ] Step 2A. - Removing the old Update script...'
@@ -167,7 +170,7 @@ case "$ACTION" in
 		pcp_warning_message
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_sourceforge_indicator
+		pcp_repo_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		;;
 	download)
@@ -198,7 +201,7 @@ echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$SOURCEFORGE_STATUS
+	echo '[ INFO ] '$REPO_STATUS
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 fi
 #----------------------------------------------------------------------------------------

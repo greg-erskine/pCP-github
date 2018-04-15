@@ -1,8 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 3.5.1 2018-04-12
+# Version: 4.0.0 2018-04-15
 #	Fixed log file name. GE.
+#  Changed repo to new server. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -86,10 +87,10 @@ pcp_add_to_log() {
 	else
 		echo "Internet not found." >> $LOG
 	fi
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		echo "Sourceforge accessible." >> $LOG
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		echo "pCP repo accessible." >> $LOG
 	else
-		echo "Sourceforge not accessible." >> $LOG
+		echo "pCP repo not accessible." >> $LOG
 	fi
 }
 
@@ -406,10 +407,10 @@ echo '              <td class="column150">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
-                    if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-                        pcp_green_tick "Sourceforge accessible."
+                    if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+                        pcp_green_tick "pCP repo accessible."
                     else
-                        pcp_red_cross "Sourceforge not accessible."
+                        pcp_red_cross "pCP repo not accessible."
                     fi
 
 echo '              <td class="column150 center">'

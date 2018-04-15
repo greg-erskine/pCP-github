@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-15
+#  Changed repo to new server. PH.
+
 # Version: 3.5 2017-11-08
 #	Changed name of lirc package. PH.
 
@@ -12,7 +15,7 @@
 # Version: 3.10 2016-12-22
 #	Added lirc[0-9] and hidraw[0-9]. GE.
 #	Added LIRC gpio out for IR transmitter. GE.
-#	Sourceforge repo updates. PH
+#	S0urceforge repo updates. PH
 
 # Version: 3.01 2016-08-27
 #	Changed default lirc GPIO to 25. GE.
@@ -67,14 +70,14 @@ pcp_internet_indicator() {
 }
 
 #========================================================================================
-# Check we have sourceforge access - set FAIL_MSG if not accessible
+# Check we have pCP repo access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
-pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		SOURCEFORGE_STATUS="Sourceforge repository accessible."
+pcp_repo_indicator() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		REPO_STATUS="pCP repository accessible."
 	else
-		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
-		FAIL_MSG="Sourceforge not accessible!!"
+		REPO_STATUS="pCP repository not accessible!!"
+		FAIL_MSG="pCP repo not accessible!!"
 	fi
 }
 
@@ -504,9 +507,9 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$INTERNET_STATUS
-		pcp_sourceforge_indicator
+		pcp_repo_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		echo '[ INFO ] '$SOURCEFORGE_STATUS
+		echo '[ INFO ] '$REPO_STATUS
 		pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
 		pcp_lirc_install
 		BACKUP_REQUIRED=TRUE

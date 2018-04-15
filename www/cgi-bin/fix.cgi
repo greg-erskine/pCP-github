@@ -10,6 +10,9 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
+# Version: 4.0.0 2018-04-15
+#  Changed repo to new server. PH.
+
 # Version: 3.5.0 2018-03-25
 #	Hotfix 3.5.1 for exfat issues. PH
 #	Hotfix 3.5.1 for jivelite forms. PH
@@ -41,9 +44,9 @@ WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
 [ -d ${FIX_PCP} ] && rm -rf ${FIX_PCP}
-FIX_DOWNLOAD="https://sourceforge.net/projects/picoreplayer/files"
-#sourceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
-#FIX_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
+FIX_DOWNLOAD="https://repo.picoreplayer.org"
+#s0urceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
+#FIX_DOWNLOAD="https://repo.picoreplayer.org/insitu"
 FIX_CGI="/home/tc/www/cgi-bin"
 REBOOT_REQUIRED=0
 
@@ -266,14 +269,14 @@ pcp_internet_indicator() {
 }
 
 #========================================================================================
-# Check we have sourceforge access - set FAIL_MSG if not accessible
+# Check we have repo access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
-pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		SOURCEFORGE_STATUS="Sourceforge repository accessible."
+pcp_repo_indicator() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		REPO_STATUS="pCP repo accessible."
 	else
-		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
-		FAIL_MSG="Sourceforge not accessible!!"
+		REPO_STATUS="pCP repo not accessible!!"
+		FAIL_MSG="pCP repo not accessible!!"
 	fi
 }
 
@@ -450,8 +453,8 @@ case "$ACTION" in
 		pcp_warning_message
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-#		pcp_sourceforge_indicator							#<--- Turn off atm as it may fail
-#		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
+		pcp_repo_indicator
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		;;
@@ -475,7 +478,7 @@ echo '                  <textarea class="inform" style="height:180px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
-	#echo '[ INFO ] '$SOURCEFORGE_STATUS					#<--- Turn off atm as it may fail
+	echo '[ INFO ] '$REPO_STATUS
 	pcp_enough_free_space $SPACE_REQUIRED
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_fix_cgi_md5
 	[ "$FAIL_MSG" = "ok" ] && pcp_check_fix_md5
