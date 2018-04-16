@@ -1,17 +1,18 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-13
+# Version: 3.5.1 2018-04-17
 #	Changed order of pcp-pastebin-functions and pcp-rpi-functions. GE.
 #	HTML5 update. GE.
+#	Changed to micropython script for encoding. GE.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
-# Version: 0.02 2016-05-09 GE
-#	Renamed variable HTPPD to HTTPD.
+# Version: 0.02 2016-05-09
+#	Renamed variable HTPPD to HTTPD. GE.
 
-# Version: 0.01 2016-02-05 GE
-#	Original version.
+# Version: 0.01 2016-02-05
+#	Original version. GE.
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -22,11 +23,24 @@ pcp_html_head "pastebin" "GE"
 pcp_banner
 pcp_navigation
 pcp_running_script
-
 pcp_httpd_query_string
-FILE=$($HTTPD -d $FILE)
 
+FILE=$($HTTPD -d $FILE)
 UPLOAD_FILE="/tmp/pcp_pastebin.txt"
+
+#========================================================================================
+# Progress table
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Progress</legend>'
+echo '          <table class="bggrey percent100">'
+pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<p class="debug">[ DEBUG ] $SUMBMIT: '$SUBMIT'<br />'
@@ -35,12 +49,15 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                 [ DEBUG ] $FILE: '$FILE'</p>'
 fi
 
+pcp_check_binascii
+
 #----------------------------------------------------------------------------------------
 # Submit actions
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Upload)
-		cp "$FILE" "$UPLOAD_FILE" 
+		echo '<p class="info">[ INFO ] Prepare for uploading...</p>'
+		cp "$FILE" "$UPLOAD_FILE"
 		case $FILE in
 			*config.cfg)
 				sed -i 1i"$(date)" $UPLOAD_FILE
@@ -49,18 +66,64 @@ case "$SUBMIT" in
 		esac
 	;;
 	Accept)
+		echo '<p class="info">[ INFO ] Upload has been accepted.</p>'
+		echo '<p class="info">[ INFO ] Encoding '$FILE'...</p>'
+API_POST_CODE=$(/usr/bin/micropython -c '
+#!/usr/bin/micropython
+import uos as os
+import sys
+import binascii
+import ure as re
+
+infile = open("/tmp/pcp_pastebin.txt", "r")
+p=re.compile("[-_.~a-zA-Z0-9]")
+
+while True:
+    ln = infile.read()
+    outln=""
+    if ln == "":
+        break
+    pos=0
+    length=len(ln)-1
+    while pos < length:
+        c=ln[pos]
+        m=p.match(c)
+        if m:
+            outln+=c
+        else:
+            c=binascii.b2a_hex(c)
+            outln+="%"+str(c)[2:4]
+        pos=pos+1
+    print(outln)
+
+infile.close
+'
+)
+
 		pcp_pastebin_paste $UPLOAD_FILE $REPORT
 	;;
 	Reject)
+		echo '<p class="info">[ INFO ] Rejected - paste was NOT uploaded.</p>'
 		echo "DELETED - paste text was NOT uploaded." >$UPLOAD_FILE
 	;;
 	*)
+		echo '<p class="info">[ INFO ] Invalid submit option.</p>'
 		echo "Invalid submit option." >$UPLOAD_FILE
 	;;
 esac
 
+echo '              </td>'
+echo '            </tr>'
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
 #========================================================================================
-# Paste text form
+# Paste form
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -84,7 +147,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Accept or reject paste text form
+# Accept or reject paste form
 #----------------------------------------------------------------------------------------
 if [ "$SUBMIT" = "Upload" ]; then
 	echo '<table class="bggrey">'
@@ -146,8 +209,9 @@ if [ "$SUBMIT" = "Accept" ]; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
+	echo '                  <p>paste name: '$API_PASTE_NAME'</p>'
 	echo '                  <p>url: '$PASTEBIN_URL'</p>'
-	[ $MODE -ge $MODE_DEVELOPER ] &&
+	[ $MODE -ge $MODE_DEVELOPER ] && [ $TEST -eq 4 ] &&
 	echo '                  <a target="_blank" href="'$PASTEBIN_URL'">'$PASTEBIN_URL'</a>'
 	echo '                </td>'
 	echo '              </tr>'
