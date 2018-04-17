@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-08
+# Version: 4.0.0 2018-04-17
 #	Fix partition size display - changed from the new busybox. PH.
 #	HTML cleanup. PH.
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-30
+# Version: 4.0.0 2018-04-17
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 
 # Version: 3.20 2017-03-08
@@ -10,14 +10,8 @@
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 
-# Version: 0.03 2016-02-02 GE
-#	Added pcp_go_main_button.
-
-# Version: 0.02 2014-12-09 GE
-#	HTML5 formatted.
-
-# Version: 0.01 2014-06-24 GE
-#	Original.
+# Version: 0.01 2014-06-24
+#	Original. GE.
 
 . pcp-functions
 

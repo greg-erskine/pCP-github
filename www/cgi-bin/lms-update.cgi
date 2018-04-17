@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-07
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button, and standardize HTML code. PH.
 
 # Version: 3.20 2017-03-08

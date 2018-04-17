@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-08
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button. GE.
 
 # Version: 3.21 2017-05-20
@@ -14,8 +14,8 @@
 #	Changes for Squeezelite extension. PH.
 #	Formatting Changes for textareas. SBP.
 
-# Version: 0.01 2014-06-24 GE
-#	Original.
+# Version: 0.01 2014-06-24
+#	Original. GE.
 
 . pcp-functions
 

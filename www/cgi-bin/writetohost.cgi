@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-02
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button. GE.
 
 # Version: 3.21 2017-05-20

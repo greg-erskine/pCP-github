@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-03-25
+# Version: 4.0.0 2018-04-17
 #	fuse.ko does not load automatically for exfat mounts. PH.
 
 # Version: 3.5.0 2018-03-13

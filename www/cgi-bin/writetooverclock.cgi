@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-02
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button. GE.
 
 # Version: 3.5.0 2018-02-10
@@ -41,7 +41,7 @@ case "$ACTION" in
 		fi
 		case "$OVERCLOCK" in
 			NONE)
-				echo '<p class="info">[ INFO ] Setting OVERCLOCK to NONE</p>' 
+				echo '<p class="info">[ INFO ] Setting OVERCLOCK to NONE</p>'
 				sudo sed -i "/arm_freq=/c\arm_freq=700" $CONFIGTXT
 				sudo sed -i "/core_freq=/c\core_freq=250" $CONFIGTXT
 				sudo sed -i "/sdram_freq=/c\sdram_freq=400" $CONFIGTXT
@@ -49,7 +49,7 @@ case "$ACTION" in
 				sudo sed -i "/force_turbo=/c\force_turbo=1" $CONFIGTXT
 			;;
 			MILD)
-				echo '<p class="info">[ INFO ] Setting OVERCLOCK to MILD</p>' 
+				echo '<p class="info">[ INFO ] Setting OVERCLOCK to MILD</p>'
 				sudo sed -i "/arm_freq=/c\arm_freq=800" $CONFIGTXT
 				sudo sed -i "/core_freq=/c\core_freq=250" $CONFIGTXT
 				sudo sed -i "/sdram_freq=/c\sdram_freq=400" $CONFIGTXT

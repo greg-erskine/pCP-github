@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-09
+# Version: 4.0.0 2018-04-17
 #	Moved reboot page to Main page. GE.
 
 # Version: 3.5.0 2018-02-21

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-17
+# Version: 4.0.0 2018-04-17
 #	Changed order of pcp-pastebin-functions and pcp-rpi-functions. GE.
 #	HTML5 update. GE.
 #	Changed to micropython script for encoding. GE.

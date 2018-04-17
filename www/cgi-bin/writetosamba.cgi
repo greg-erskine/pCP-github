@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-08
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button, and standardize HTML code. PH.
 
 # Version: 3.20 2017-03-08
@@ -14,7 +14,7 @@
 
 . pcp-functions
 
-pcp_html_head "Write to Samba" "PH" 
+pcp_html_head "Write to Samba" "PH"
 
 pcp_banner
 pcp_running_script
@@ -24,7 +24,6 @@ pcp_httpd_query_string
 #========================================================================================
 # Process Command section
 #----------------------------------------------------------------------------------------
-
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] COMMAND is: '$COMMAND'</p>'
 
 pcp_table_top "SAMBA configuration"
@@ -33,19 +32,19 @@ case "$COMMAND" in
 	setconfig)
 		# Write the Global Section of the config file
 		echo "[global]" > $SAMBACONF
-        echo "    netbios name = ${NETBIOS}" >> $SAMBACONF
-        echo "    workgroup = ${WGROUP}" >> $SAMBACONF
-        echo "    log file = /var/log/%m.log" >> $SAMBACONF
-        echo "    max log size = 1000" >> $SAMBACONF
-        echo "    local master = no" >> $SAMBACONF
-        echo "    security = user" >> $SAMBACONF
-        echo "    map to guest = bad user" >> $SAMBACONF
-        echo "    dns proxy = no" >> $SAMBACONF
-        echo "    load printers = no" >> $SAMBACONF
+		echo "    netbios name = ${NETBIOS}" >> $SAMBACONF
+		echo "    workgroup = ${WGROUP}" >> $SAMBACONF
+		echo "    log file = /var/log/%m.log" >> $SAMBACONF
+		echo "    max log size = 1000" >> $SAMBACONF
+		echo "    local master = no" >> $SAMBACONF
+		echo "    security = user" >> $SAMBACONF
+		echo "    map to guest = bad user" >> $SAMBACONF
+		echo "    dns proxy = no" >> $SAMBACONF
+		echo "    load printers = no" >> $SAMBACONF
 
-		#Write the Individual Shares
+		# Write the Individual Shares
 		I=1
-		
+
 		while [ $I -le $SC ]
 		do
 			TST=$(eval echo "\${SHARE${I}}")
@@ -61,7 +60,7 @@ case "$COMMAND" in
 				fi
 				echo "    browseable = yes" >> $SAMBACONF
 				RO=$(eval echo "\${SHARERO${I}}")
-				if [ "$RO" = "yes" ]; then	
+				if [ "$RO" = "yes" ]; then
 					echo "    read only = yes" >> $SAMBACONF
 				else
 					echo "    writeable = yes" >> $SAMBACONF
@@ -90,7 +89,7 @@ case "$COMMAND" in
 	setpw)
 		echo '<p class="info">[ INFO ] Setting Share Password</p>'
 		echo '<p class="info">[ INFO ] Removing old password</p>'
-		smbpasswd -x tc >/dev/null 2>&1 
+		smbpasswd -x tc >/dev/null 2>&1
 		echo '<p class="info">[ INFO ] Adding new password for user: tc</p>'
 		(echo "$SAMBAPASS"; echo "$SAMBAPASS") | smbpasswd -s -a tc
 		pcp_backup
@@ -100,7 +99,7 @@ case "$COMMAND" in
 	;;
 esac
 
-[ "$DEBUG" = "1" ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
 
 pcp_table_middle
 pcp_redirect_button "Go to LMS" "lms.cgi" 15

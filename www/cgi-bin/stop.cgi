@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.1 2018-04-01
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button. GE.
 #	HTML5 cleanup. GE.
 
