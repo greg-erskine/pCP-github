@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-15
+# Version: 4.0.0 2018-04-17
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
@@ -66,7 +66,7 @@
 #	Added IR_GPIO_OUT. GE.
 #	Renamed IR_GPIO to IR_GPIO_IN. GE.
 #	Changes for Squeezelite extension. PH.
-#	Updated s0urceforge repo locations. PH.
+#	Updated Sourceforge repo locations. PH.
 
 # Version: 3.02 2016-09-19
 #	Added JS function to remove query string from URL History. PH.

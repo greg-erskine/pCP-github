@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
-#  Changed repo to new server. PH.
+# Version: 4.0.0 2018-04-17
+#	Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-02-21
 #	HTML5 cleanup. GE.

@@ -1,22 +1,17 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button, and standardize HTML code. PH.
-#  Changed repo to new server. PH.
+#	Changed repo to new server. PH.
 
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 3.10 2016-12-23
 #	Remove references to SAMBA in this routine. PH.
-
-# Version: 2.05 2016-04-15
-#	Fixed s0urceforge redirection issue. GE.
-#	Updated slimserver extension names. PH.
-#	Added LMS update function. SBP.
 
 # Version: 0.01 2016-01-30 SBP
 #	Original version.

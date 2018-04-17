@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
-#  Another attempt to fix reloading page does not reboot pCP again. SBP.
-#  Changed repo to new server. PH.
+# Version: 4.0.0 2018-04-17
+#	Another attempt to fix reloading page does not reboot pCP again. SBP.
+#	Changed repo to new server. PH.
 
 # Version 3.5.0 2018-03-15
 #	Updates for Kernel 4.14.26 and 9.x repo
@@ -20,7 +20,7 @@
 
 # Version 3.10 2016-12-26
 #	Changes for shairport-sync.  Incomplete PH
-#	S0urceforge repo changes. PH
+#	Sourceforge repo changes. PH
 
 # Version 3.02 2016-09-04 PH
 #	Updated Kernel Information for 3.02 piCore8.0 Release

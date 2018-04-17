@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
-#  Changed repo to new server. PH.
+# Version: 4.0.0 2018-04-17
+#	Changed repo to new server. PH.
 
 # Version 3.5.0 2018-02-28
 #	wget will not over write, make sure package is not present. PH.
@@ -14,7 +14,7 @@
 #	Change stage2 download to work with web based repo location. PH.
 
 # Version 3.10 2016-12-26
-#	S0urceforge repo changes. PH.
+#	Sourceforge repo changes. PH.
 
 # Version 2.05 2016-06-17
 #	Original version. SBP.

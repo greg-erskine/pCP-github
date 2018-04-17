@@ -10,8 +10,8 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 4.0.0 2018-04-15
-#  Changed repo to new server. PH.
+# Version: 4.0.0 2018-04-17
+#	Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-03-25
 #	Hotfix 3.5.1 for exfat issues. PH
@@ -45,7 +45,7 @@ FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
 [ -d ${FIX_PCP} ] && rm -rf ${FIX_PCP}
 FIX_DOWNLOAD="https://repo.picoreplayer.org"
-#s0urceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
+# Sourceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
 #FIX_DOWNLOAD="https://repo.picoreplayer.org/insitu"
 FIX_CGI="/home/tc/www/cgi-bin"
 REBOOT_REQUIRED=0
@@ -53,7 +53,6 @@ REBOOT_REQUIRED=0
 #========================================================================================
 # Fixes
 #----------------------------------------------------------------------------------------
-
 pcp_download_hotfix() {
 	echo "[ INFO ] Retreiving ${HOTFIX}."
 	rm -rf ${HFDIR}

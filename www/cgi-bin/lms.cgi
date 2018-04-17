@@ -39,7 +39,7 @@
 #	Added Samba.  PH.
 #	Added GPT Disk support. PH
 #	Converted lms removal to proper method to avoid removing a dependancy. PH
-#	Updates for using sourceforge repo for filesystem support. PH
+#	Updates for using Sourceforge repo for filesystem support. PH
 # 	Added pattern not not allow mount points starting with sd. PH
 #	Samba Cleanup.  PH
 

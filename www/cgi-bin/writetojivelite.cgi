@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
-#  Another attempt to fix reloading page does not reboot pCP again. SBP.
-#  Changed repo to new server. PH.
+# Version: 4.0.0 2018-04-17
+#	Another attempt to fix reloading page does not reboot pCP again. SBP.
+#	Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-02-28
 #	Fixed removal of Jivelite. SBP.
 #	Cleanup. GE.
-#	REMOVED. Added check that pCP S0urceforge Repository is available. GE.
+#	REMOVED. Added check that pCP Sourceforge Repository is available. GE.
 
 # Version: 3.21 2017-05-20
 #	Changed to allow booting from USB on RPI3. PH.
@@ -22,8 +22,8 @@
 #	Write jivelite.tcz.dep, instead of relying on it to be in base image. PH.
 #	TODO: Move Jivelite to repo with pcp-load.
 
-# Version: 0.01 2015-03-15 SBP
-#	Original version.
+# Version: 0.01 2015-03-15
+#	Original version. SBP.
 
 . /etc/init.d/tc-functions
 . pcp-functions

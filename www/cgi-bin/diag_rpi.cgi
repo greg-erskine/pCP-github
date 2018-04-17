@@ -1,9 +1,9 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 4.0.0 2018-04-15
+# Version: 4.0.0 2018-04-17
 #	Fixed log file name. GE.
-#  Changed repo to new server. PH.
+#	Changed repo to new server. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -12,7 +12,7 @@
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
 #	Changes for Squeezelite extension. PH.
-#	removed squeezelite size. GE.
+#	Removed Squeezelite size. GE.
 
 # Version: 0.01 2014-10-22
 #	Original. GE.

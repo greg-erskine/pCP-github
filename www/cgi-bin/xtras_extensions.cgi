@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
-#  Changed repo to new server. PH.
+# Version: 4.0.0 2018-04-17
+#	Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-02-22
 #	HTML5 cleanup. GE.
 
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -21,23 +21,8 @@
 # Version: 3.00 2016-07-08
 #	Removed pcp_mode_lt_beta. GE.
 
-# Version: 0.06 2016-05-28 GE
-#	Major update.
-
-# Version: 0.05 2016-03-05 GE
-#	Changed indicators to tick and cross.
-
-# Version: 0.04 2016-01-06 GE
-#	Deleted pcp_free_space.
-
-# Version: 0.03 2015-11-15 GE
-#	Minor updates.
-
-# Version: 0.02 2015-08-25 GE
-#	Added link to Tiny Core Linux Repository browser.
-
-# Version: 0.01 2015-06-16 GE
-#	Original version.
+# Version: 0.01 2015-06-16
+#	Original version. GE.
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
@@ -353,9 +338,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '            </tr>'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
-	  pcp_green_tick "Official piCore repository accessible."
+		pcp_green_tick "Official piCore repository accessible."
 	else
-	  pcp_red_cross "Official piCore repository not accessible."
+		pcp_red_cross "Official piCore repository not accessible."
 	fi
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -371,9 +356,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '            </tr>'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-	  pcp_green_tick "piCorePlayer repository accessible."
+		pcp_green_tick "piCorePlayer repository accessible."
 	else
-	  pcp_red_cross "piCorePlayer repository not accessible."
+		pcp_red_cross "piCorePlayer repository not accessible."
 	fi
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'

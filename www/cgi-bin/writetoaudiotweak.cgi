@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-15
+# Version: 4.0.0 2018-04-17
 #	Added pcp_redirect_button. GE.
 #	Code cleanup. GE.
-#  Changed repo to new server. PH.
+#	Changed repo to new server. PH.
 
 # Version: 3.5.0 2018-01-23
 #	Keep a blank CARDNO from being written to asound.conf. PH.
@@ -22,7 +22,7 @@
 
 # Version: 3.10 2016-12-23
 #	Changes for pcp-shairportsync.tcz. PH.
-#	Changes for s0urceforge repo, also moved alsaequal to armv5&7 repos and changed install. PH.
+#	Changes for Sourceforge repo, also moved alsaequal to armv5&7 repos and changed install. PH.
 
 # Version: 3.02 2016-09-05
 #	Updated FIQ-split. SBP.
