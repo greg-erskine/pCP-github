@@ -1,6 +1,9 @@
 #!/bin/sh
 # Wifi diagnostics script
 
+# Version: 4.0.0 2018-04-17
+#	Fixed pcp_pastebin_button. GE.
+
 # Version: 3.5.0 2018-03-20
 #	Added support for RPi3B+. GE.
 #	lsusb is a standard command, no need for extension. GE.
@@ -25,17 +28,17 @@
 . pcp-rpi-functions
 . pcp-pastebin-functions
 
+MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
+LOG="${LOGDIR}/pcp_diagwifi_${MAC:6}.log"
+
 pcp_html_head "Wifi Diagnostics" "GE"
 
 pcp_banner
 pcp_diagnostics
 pcp_running_script
 
-MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
-LOG="${LOGDIR}/pcp_diagwifi_${MAC:6}.log"
-
 #========================================================================================
-# Routine to display USB wifi adaptors found during boot process.
+# Routine to display USB wifi adapters found during boot process.
 # Some of the standard RPi USB devices are jumped to focus on wifi device.
 # Update: Routine also finds built-in wifi devices.
 #----------------------------------------------------------------------------------------
@@ -171,22 +174,15 @@ pcp_diag_wifi_available_networks() {
 		echo '</textarea>'
 		echo '                </td>'
 		echo '              </tr>'
-
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <input type="submit" name="SUBMIT" value="Upload" />'
-		echo '                  <input type="hidden" name="FILE" value="'$LOG'" />'
-		echo '                </td>'
-		echo '              </tr>'
-
 		echo '            </table>'
 		echo '          </fieldset>'
 		echo '        </div>'
-		echo '      </form>'
+		echo '      </div>'
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
+
+		[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "wifi"
 		pcp_footer
 		pcp_copyright
 		echo '</body>'
@@ -628,13 +624,12 @@ echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 #----------------------------------------------------------------------------------------
-
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button wifi
-
 echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "wifi"
 
 pcp_footer
 pcp_copyright

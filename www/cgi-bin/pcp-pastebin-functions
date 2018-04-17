@@ -87,9 +87,9 @@ pcp_pastebin_button() {
 		pcp_start_row_shade
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
-		echo '                    <input type="submit" name="SUBMIT" value="Upload" />'
-		echo '                    <input type="hidden" name="FILE" value="'$LOG'" />'
-		echo '                    <input type="hidden" name="REPORT" value="'${1}'" />'
+		echo '                    <input type="submit" name="SUBMIT" value="Upload">'
+		echo '                    <input type="hidden" name="FILE" value="'$LOG'">'
+		echo '                    <input type="hidden" name="REPORT" value="'${1}'">'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Upload report to pastebin.</p>'
