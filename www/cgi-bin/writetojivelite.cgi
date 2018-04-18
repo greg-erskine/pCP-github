@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-18
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Changed repo to new server. PH.
+#	Changed reboot.cgi to main.cgi?ACTION=reboot. GE.
+#	Added pcp_redirect_button. GE.
 
 # Version: 3.5.0 2018-02-28
 #	Fixed removal of Jivelite. SBP.
@@ -10,7 +12,7 @@
 #	REMOVED. Added check that pCP Sourceforge Repository is available. GE.
 
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
@@ -28,7 +30,7 @@
 . /etc/init.d/tc-functions
 . pcp-functions
 
-pcp_html_head "Write to Jivelite Tweak" "SBP" "150000" "tweaks.cgi"
+pcp_html_head "Write to Jivelite Tweak" "SBP"
 
 pcp_banner
 pcp_running_script
@@ -44,18 +46,7 @@ AVAILABLE_VUMETERS=$($WGET $MIRROR -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort 
 # Reboot is default, some functions turn it off.
 REBOOT_REQUIRED=1
 
-if [ $DEBUG -eq 1 ]; then
-	echo '<p class="debug">[ DEBUG ] MIRROR: '$MIRROR'<br />'
-	echo '                 [ DEBUG ] OPTION: '$OPTION'<br />'
-	echo '                 [ DEBUG ] ACTION: '$ACTION'<br />'
-	echo '                 [ DEBUG ] JIVELITE: '$JIVELITE'<br />'
-	echo '                 [ DEBUG ] VISUALISER: '$VISUALISER'<br />'
-	echo '                 [ DEBUG ] VUMETER: '$VUMETER'</p>'
-	echo '                 [ DEBUG ] JIVELITE_TCZ: '$JIVELITE_TCZ'<br />'
-	echo '                 [ DEBUG ] JIVELITE_MD5: '$JIVELITE_MD5'<br />'
-	echo '                 [ DEBUG ] DEFAULT_VUMETER: '$DEFAULT_VUMETER'<br />'
-	echo '                 [ DEBUG ] AVAILABLE_VUMETERS: '$AVAILABLE_VUMETERS'</p>'
-fi
+pcp_debug_variables MIRROR OPTION ACTION JIVELITE VISUALISER VUMETER JIVELITE_TCZ JIVELITE_MD5 DEFAULT_VUMETER AVAILABLE_VUMETERS
 
 #========================================================================================
 # Routines
@@ -171,7 +162,7 @@ pcp_delete_vumeters() {
 pcp_lirc_popup() {
 	if [ "$IR_LIRC" = "yes" ]; then
 		STRING1='INFO: LIRC is enabled; you might need to remove/install LIRC again to fix problems. But first press [OK] to reboot now.'
-		SCRIPT1='reboot.cgi'
+		SCRIPT1='main.cgi?ACTION=reboot'
 		pcp_confirmation_required
 	else
 		pcp_reboot_required
@@ -282,7 +273,7 @@ case "$OPTION" in
 esac
 
 pcp_table_middle
-pcp_go_back_button
+pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 100
 pcp_table_end
 pcp_footer
 pcp_copyright
