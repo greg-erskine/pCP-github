@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-18
 #	Changed order of pcp-pastebin-functions and pcp-rpi-functions. GE.
 #	HTML5 update. GE.
-#	Changed to micropython script for encoding. GE.
+#	Changed to MicroPython script for encoding data. GE.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -18,7 +18,7 @@
 . pcp-pastebin-functions
 . pcp-rpi-functions
 
-pcp_html_head "pastebin" "GE"
+pcp_html_head "Pastebin" "GE"
 
 pcp_banner
 pcp_navigation
@@ -42,14 +42,7 @@ pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 
-if [ $DEBUG -eq 1 ]; then
-	echo '<p class="debug">[ DEBUG ] $SUMBMIT: '$SUBMIT'<br />'
-	echo '                 [ DEBUG ] $LOG: '$LOG'<br />'
-	echo '                 [ DEBUG ] $UPLOAD_FILE: '$UPLOAD_FILE'<br />'
-	echo '                 [ DEBUG ] $FILE: '$FILE'</p>'
-fi
-
-pcp_check_binascii
+pcp_debug_variables SUBMIT FILE UPLOAD_FILE REPORT
 
 #----------------------------------------------------------------------------------------
 # Submit actions
@@ -72,7 +65,7 @@ API_POST_CODE=$(/usr/bin/micropython -c '
 #!/usr/bin/micropython
 import uos as os
 import sys
-import binascii
+import ubinascii as binascii
 import ure as re
 
 infile = open("/tmp/pcp_pastebin.txt", "r")
@@ -91,7 +84,7 @@ while True:
         if m:
             outln+=c
         else:
-            c=binascii.b2a_hex(c)
+            c=binascii.hexlify(c)
             outln+="%"+str(c)[2:4]
         pos=pos+1
     print(outln)
@@ -168,12 +161,12 @@ if [ "$SUBMIT" = "Upload" ]; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p>The window above contains the paste that will be uploaded '
-	echo '                     into pastebin. Check you are happy with the content '
+	echo '                     into Pastebin. Check you are happy with the content '
 	echo '                     before you press [Accept].</p>'
 	echo '                  <p>The paste will be sent as a private paste, so it will not visable to the public. '
 	echo '                     Also, the paste will expire in 24 hours.</p>'
 	echo '                  <br />'
-	echo '                  <p>Only press [Accept] if you AGREE to upload this paste to pastebin.</p>'
+	echo '                  <p>Only press [Accept] if you AGREE to upload this paste to Pastebin.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade

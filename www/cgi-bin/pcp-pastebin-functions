@@ -1,13 +1,13 @@
 #!/bin/sh
 # pcp-pastebin-functions
-# These are the common pastebin functions used by piCorePlayer
+# These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-18
 #	Changed http://pastebin.com/ to https://pastebin.com/. GE.
-#	Changed to micropython script for encoding. GE.
+#	Changed to MicroPython script for encoding data. GE.
 
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -37,17 +37,6 @@ WGET="/usr/local/bin/wget"
 #. pcp-rpi-functions   <--- REMEMBER THIS
 
 #========================================================================================
-# Check for /usr/lib/micropython/binascii.py
-#----------------------------------------------------------------------------------------
-pcp_check_binascii() {
-	if [ -f /usr/lib/micropython/binascii.py ]; then
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] /usr/lib/micropython/binascii.py found.</p>'
-	else
-		echo '<p class="error">[ ERROR ] /usr/lib/micropython/binascii.py no found.</p>'
-	fi
-}
-
-#========================================================================================
 # wget routine - Check for wget.tcz and download and install
 #----------------------------------------------------------------------------------------
 pcp_install_wget() {
@@ -71,7 +60,7 @@ pcp_install_wget() {
 }
 
 #========================================================================================
-# pCP pastebin button
+# pCP Pastebin button
 #----------------------------------------------------------------------------------------
 pcp_pastebin_button() {
 	if [ $MODE -ge $MODE_BETA ]; then
@@ -92,7 +81,7 @@ pcp_pastebin_button() {
 		echo '                    <input type="hidden" name="REPORT" value="'${1}'">'
 		echo '                  </td>'
 		echo '                  <td>'
-		echo '                    <p>Upload report to pastebin.</p>'
+		echo '                    <p>Upload report to Pastebin.</p>'
 		echo '                  </td>'
 		echo '                </tr>'
 		echo '              </table>'
@@ -114,13 +103,13 @@ pcp_pastebin_get_api_user_key() {
 	POST_DATA=$POST_DATA"&api_user_name=$API_USER_NAME"
 	POST_DATA=$POST_DATA"&api_user_password=$API_USER_PASSWORD"
 
-	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
+	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] $POST_DATA: '$POST_DATA'</p>'
 	API_USER_KEY=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_login.php')
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] api_user_key: '$API_USER_KEY'</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $API_USER_KEY: '$API_USER_KEY'</p>'
 }
 
 #========================================================================================
-# Paste text to pastebin
+# Paste text to Pastebin
 #----------------------------------------------------------------------------------------
 pcp_pastebin_paste() {
 	pcp_pastebin_get_api_user_key
@@ -136,7 +125,7 @@ pcp_pastebin_paste() {
 	POST_DATA=$POST_DATA"&api_paste_name=$API_PASTE_NAME"
 	POST_DATA=$POST_DATA"&api_user_key=$API_USER_KEY"
 
-	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] Post data: '$POST_DATA'</p>'
+	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] $POST_DATA: '$POST_DATA'</p>'
 	echo '<p class="info">[ INFO ] Uploading '$FILE'...</p>'
 	PASTEBIN_URL=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_post.php')
 }
