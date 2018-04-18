@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-18
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
@@ -12,6 +12,7 @@
 #	If pCP is running LMS server, then point LMS tab to local interface. PH.
 #	Updated pcp_reboot_button. GE.
 #	Changed repo to new server. PH.
+#	Added pcp_debug_variables. GE.
 
 # Version: 3.5.0 2018-03-14
 #	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
@@ -97,6 +98,20 @@ DEBUGLOG="/var/log/pcp_debug.log"
 
 pcp_debug_log() {
 	[ $DEBUG -ne 0 ] && echo $1 | sudo tee -a $DEBUGLOG > /dev/null
+}
+
+pcp_debug_variables() {
+	if [ $DEBUG -eq 1 ]; then
+		n=$#
+		i=1
+		for VAR in $@
+		do
+			[ $i -eq 1 ] && echo -n '<p class="debug">' || echo -n '                 '
+			echo -n '[ DEBUG ] $'$VAR': '$(eval echo \$${VAR})
+			[ $i -eq $n ] && echo '</p>' || echo '<br />'
+			i=$((i+1))
+		done
+	fi
 }
 
 #========================================================================================
