@@ -273,7 +273,7 @@ case "$OPTION" in
 esac
 
 pcp_table_middle
-pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 100
+pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 10
 pcp_table_end
 pcp_footer
 pcp_copyright

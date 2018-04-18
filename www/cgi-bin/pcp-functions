@@ -104,6 +104,7 @@ pcp_debug_variables() {
 	if [ $DEBUG -eq 1 ]; then
 		n=$#
 		i=1
+		echo '<!-- Start of pcp_debug_variables -->'
 		for VAR in $@
 		do
 			[ $i -eq 1 ] && echo -n '<p class="debug">' || echo -n '                 '
@@ -111,6 +112,7 @@ pcp_debug_variables() {
 			[ $i -eq $n ] && echo '</p>' || echo '<br />'
 			i=$((i+1))
 		done
+		echo '<!-- End of pcp_debug_variables -->'
 	fi
 }
 
