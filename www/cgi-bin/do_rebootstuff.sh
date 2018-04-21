@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-21
 #	fuse.ko does not load automatically for exfat mounts. PH.
 #	Added WPA wifi process. GE
 
@@ -92,7 +92,7 @@ for DISK in $NEWCFGLIST; do
 	#------------------------------------------------------------------------------------
 	[ -f /mnt/${DISK}/ssh ] && SSH=1
 	#------------------------------------------------------------------------------------
-	# Look for wpa_supplicant.config on boot partition.
+	# Look for wpa_supplicant.conf on boot partition.
 	#------------------------------------------------------------------------------------
 	if [ -f /mnt/${DISK}/wpa_supplicant.conf ]; then
 		WPACONFIGFOUND=1
@@ -279,11 +279,13 @@ if [ "$APMODE" = "yes" ]; then
 fi
 
 #========================================================================================
-# Wifi
+# Start wifi.
 #----------------------------------------------------------------------------------------
 if [ $WPACONFIGFOUND -eq 1 ]; then
 	WIFI="on"
 	pcp_save_to_config
+	pcp_wifi_read_wpa_supplicant
+	pcp_wifi_write_wpa_supplicant
 	BACKUP=1
 fi
 

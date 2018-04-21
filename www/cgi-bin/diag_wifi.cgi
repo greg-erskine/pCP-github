@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-21
 #	Fixed pcp_pastebin_button. GE.
 
 # Version: 3.5.0 2018-03-20
@@ -26,6 +26,7 @@
 
 . pcp-functions
 . pcp-rpi-functions
+. pcp-wifi-functions
 . pcp-pastebin-functions
 
 MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
@@ -105,7 +106,7 @@ pcp_diag_wifi_lsusb() {
 pcp_diag_wifi_wpa_suplicant() {
 	echo "wpa supplicant configuration (wpa_supplicant.conf)" >>$LOG
 	echo ========================================================================================= >>$LOG
-	cat /etc/wpa_supplicant.conf | tee -a $LOG
+	cat $WPASUPPLICANTCONF | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -306,13 +307,17 @@ pcp_diag_wifi_password() {
 #========================================================================================
 # Create the log file. Start with some basic information.
 #----------------------------------------------------------------------------------------
+pcp_wifi_read_wpa_supplicant
+
+#WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+
 pcp_log_header $0
 echo ========================================================================================= >>$LOG
 echo "Wifi:        "$WIFI >>$LOG
-echo "SSID:        "$SSID >>$LOG
-echo "Password:    "$(pcp_diag_wifi_password) >>$LOG
-#echo "Passphrase:  "$(pcp_wifi_get_passphrase) >>$LOG
-echo "Security:    "$ENCRYPTION >>$LOG
+echo "SSID:        "$WPA_SSID >>$LOG
+echo "Password:    "$WPA_PASSWORD >>$LOG
+echo "Passphrase:  "$WPA_PASSPHRASE >>$LOG
+echo "Security:    "$WPA_ENCRYPTION >>$LOG
 echo "MAC address: "$(pcp_diag_wifi_wlan0_mac_address) >>$LOG
 echo "Uptime:      "$(pcp_uptime_days) >>$LOG
 echo ========================================================================================= >>$LOG
@@ -357,7 +362,7 @@ echo '              <td class="column150">'
 echo '                <p>SSID:</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>'$SSID'</p>'
+echo '                <p>'$WPA_SSID'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p></p>'
@@ -379,7 +384,7 @@ echo '              <td class="column150">'
 echo '                <p>Password:</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>'$(pcp_diag_wifi_password)'</p>'
+echo '                <p>'$WPA_PASSWORD'</p>'
 echo '              </td>'
 echo '              <td class="column150">'
 echo '                <p></p>'
@@ -391,7 +396,7 @@ echo '              <td class="column150">'
 echo '                <p>Security:</p>'
 echo '              </td>'
 echo '              <td class="column150">'
-echo '                <p>'$ENCRYPTION'</p>'
+echo '                <p>'$WPA_ENCRYPTION'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------Passphrase--------------------------------------------
@@ -402,7 +407,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '                <p>Passphrase:</p>'
 	echo '              </td>'
 	echo '              <td colspan="5">'
-	echo '                <p>'$(pcp_wifi_get_passphrase)'</p>'
+	echo '                <p>'$WPA_PASSPHRASE'</p>'
 	echo '              </td>'
 	echo '            </tr>'
 fi
@@ -588,23 +593,8 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Ping tests</legend>'
 echo '            <table class="bggrey percent100">'
-#------------------------------------Ping local------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <p><b>ping local results:</b></p>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <textarea class="inform" rows="11">'
-                          pcp_diag_wifi_ping_local
-echo '                  </textarea>'
-echo '                </td>'
-echo '              </tr>'
 #------------------------------------Ping LMS--------------------------------------------
+pcp_start_row_shade
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
