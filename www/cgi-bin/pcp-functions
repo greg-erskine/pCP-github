@@ -3,7 +3,6 @@
 # These are the common functions used by piCorePlayer.
 
 # Version: 4.0.0 2018-04-18
-#	Support for plugin structure. SBP
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
 #	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
@@ -156,8 +155,6 @@ pcp_variables() {
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 	REBOOT_PENDING="/tmp/rebootpending"
-	BASE_DIR="cgi-bin"
-
 
 	#------------------------------------------------------------------------------------
 	# Define modes
@@ -501,9 +498,9 @@ pcp_html_head() {
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
-	echo '  <link rel="stylesheet" type="text/css" href="/css/piCorePlayer.css?'$(date -r /css/piCorePlayer.css +%H%M%S)'">'
-	echo '  <link rel="icon" href="/images/pCP.png" type="image/x-icon" />'
-	echo '  <script src="/js/piCorePlayer.js"></script>'
+	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$(date -r ../css/piCorePlayer.css +%H%M%S)'">'
+	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
+	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
 	echo ''
 	[ "$5" != "nobody" ] &&
@@ -517,7 +514,7 @@ pcp_banner() {
 	echo '  <tr>'
 	echo '    <td  style="height:148px">'
 	echo '      <p class="banner">'
-	echo '        <img src="/images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
+	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
 	echo '        <map name="hotspot">'
 	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
 	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
@@ -553,12 +550,12 @@ pcp_navigation() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="'/"$BASE_DIR"'/main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="'/"$BASE_DIR"'/squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="'/"$BASE_DIR"'/wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="'/"$BASE_DIR"'/tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="'/"$BASE_DIR"'/lms.cgi" title="pCP - LMS">LMS</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="'/"$BASE_DIR"'/about.cgi" title="pCP - About">About</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
+	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -575,7 +572,7 @@ pcp_navigation() {
 		echo '            <tr class="warning">'
 		echo '              <td>'
 		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
-		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\'''/"$BASE_DIR"'/main.cgi?ACTION=reboot'\'')" />'
+		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />'
 		echo '                </p>'
 		echo '              </td>'
 		echo '            </tr>'
@@ -946,7 +943,7 @@ pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
 		echo '<script language="javascript">'
-		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\'''/"$BASE_DIR"'/main.cgi?ACTION=reboot'\'')'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
 		echo '</script>'
 	fi
 }
