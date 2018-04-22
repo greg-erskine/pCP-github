@@ -1,5 +1,8 @@
 /* piCorePlayer style sheet
 
+Version: 4.0.0 2018-04-22
+	Added: Control Buttons Sytle for LMS controls. PH.
+
 Version: 3.5.0 2018-01-19
 	Added .column240 and .column360. GE.
 	Added .small4. PH.
@@ -224,6 +227,11 @@ input, button {
 	width:9em;
 }
 
+button:focus {
+	outline: none;
+	!important;
+}
+
 .small1 {
 	width:1em;
 }
@@ -416,6 +424,86 @@ textarea.white {
 	background:white;
 	border:0px solid white;
 	font-size:12px;
+}
+
+/* LMS Control buttons and Now Playing Info */
+table.nowplaying,table.nowplayingtxt {
+	border:0px solid red;
+	width:600px;
+   background:black;
+   height: 100px;
+   color:white;
+   font-weight: bold;
+}   
+
+table.nowplayingtxt {
+	margin-top:5px;
+	margin-left:20px;
+}
+
+.ctrlbutton {
+	position: relative;
+	background-color:black;
+	border:none;
+	border-radius:8px 8px 8px 8px;
+	color:white;
+	display:block;
+	float:left;
+	line-height:20px;
+	margin-top:-12px;
+	overflow:hidden;
+	text-align:center;
+	width:130px;
+	-webkit-transition-duration: 0.4s; /* Safari */
+	transition-duration: 0.4s;
+	text-decoration: none;
+	cursor: pointer;
+}
+.ctrlbutton:after{
+	content: "";
+	background: #e02929;
+	display: block;
+	position: absolute;
+	padding-top: 300%;
+	padding-left: 350%;
+	margin-left: -20px!important;
+	margin-top: -120%;
+	opacity: 0;
+	transition: all .8s
+}
+.ctrlbutton:active:after {
+	padding: 0;
+	margin: 0;
+	opacity: 1;
+	transition: 0s
+}
+
+.ctrlbutton:hover, .ctrlmoreless:hover {
+	background:#f2f2f2;
+	color:black;
+}
+
+.ctrlmore {
+	display:block;
+}
+
+.ctrlless {
+	display:none;
+}
+
+.ctrlmoreless {
+	background:black;
+	border:1px solid black;
+	border-radius:8px 8px 8px 8px;
+	color:white;
+	display:block;
+	float:left;
+	line-height:20px;
+	margin-top:-12px;
+	overflow:hidden;
+	text-align:center;
+	width:21px;
+	font-size:14px;
 }
 
 /* Horizontal navigation and controls bar */

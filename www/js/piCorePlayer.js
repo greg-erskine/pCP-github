@@ -3,11 +3,20 @@ function pcp_confirm(prompt,goto) {
 	if (answer) window.location = goto;
 }
 
+// Used for more/less help
 function more(elementID) {
 	var sel1 = document.getElementById(elementID);
 	sel1.className = (sel1.className == 'less') ? 'more' : 'less';
 	var sel2 = document.getElementById(elementID + "a");
 	sel2.text = (sel2.text == 'less>') ? 'more>' : 'less>';
+	return false;
+}
+// Used for LMS Controls Buttons
+function ctrlmore(elementID) {
+	var sel1 = document.getElementById(elementID);
+	sel1.className = (sel1.className == 'ctrlless') ? 'ctrlmore' : 'ctrlless';
+	var sel2 = document.getElementById(elementID + "a");
+	sel2.text = (sel2.text == '\u25B2') ? "\u25BC" : "\u25B2";
 	return false;
 }
 
@@ -39,5 +48,21 @@ function pcp_delete_query_string() {
 		var newurl = window.location.origin + window.location.pathname;
 		window.history.pushState({path:newurl},"",newurl);
 	}
+}
+
+function lms_controls_send() {
+	var lmsip = arguments[0];
+	var lmsport = arguments[1];
+	var playername = arguments[2];
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "http://" + lmsip + ":" + lmsport + "/jsonrpc.js", true);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	var data = {"id":1,"method":"slim.request","params": [ playername, [ "" ]]};
+	for (i = 0; i < (arguments.length - 3); i++) {
+		data.params[1][i] = arguments[i+3];
+	}
+	var jsondata = JSON.stringify(data);
+	xhttp.send(jsondata);
+	return
 }
 

@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 4.0.0 2018-04-22
+#	Changed to javascript controls and lms jsonrpc interface. PH.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -12,36 +15,11 @@
 # Version: 3.10 2016-12-23
 #	Fixed players tabs for new changes in the LMS cli. PH.
 
-# Version: 2.06 2016-05-09
-#	Renamed variable HTPPD to HTTPD. GE.
-
-# Version: 2.05 2016-04-22
-#	Added pcp_set_slimconfig. PH.
-#	Updated pcp_controls with symbols. GE.
-#	Updated pcp_lms_controls. GE.
-
-# Version: 0.06 2016-03-25 GE
-#	Added pcp_lms_connect.
-
-# Version: 0.05 2016-03-10 GE
-#	Added pcp_lms_status.
-
-# Version: 0.04 2016-02-01 GE
-#	Added pcp_lms_power and pcp_lms_volume_set.
-
-# Version: 0.03 2015-10-01 GE
-#	Added pcp_lms_controls.
-
-# Version: 0.02 2015-06-02 GE
-#	Modified pcp_controls.
-#	Renamed styles nav to nav5 and nav2 to nav7.
-
 # Version: 0.01 2015-02-03 GE
 #	Original.
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
-MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
 WGET="busybox wget"
 
@@ -54,20 +32,34 @@ pcp_lms_status() {
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
 pcp_controls() {
+
 	if [ "$LMSCONTROLS" = "yes" ] && [ $MODE -ge $MODE_ADVANCED ] ; then
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		LMSIP=$(pcp_lmsip)
 		echo '<!-- Start of pcp_lms_controls toolbar -->'
 		echo '<table class="bgblack">'
 		echo '  <tr>'
 		echo '    <td>'
 		echo '      <p>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up '$BLACKTRIANGLE'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down '$BLACKTRIANGLEDOWN'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play '$BLACKTRIANGLERIGHT'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop '$FILLEDSAMLLSQUARE'</a>'
-		echo '      </p>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')">Random</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">Volume Up '$BLACKTRIANGLE'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">Volume Down '$BLACKTRIANGLEDOWN'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">Play '$BLACKTRIANGLERIGHT'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">Stop '$FILLEDSAMLLSQUARE'</button>'
+		if [ $MODE -ge $MODE_DEVELOPER ]; then
+			# Now Playing Information in Javascript.  Currently this needs a change in the LMS headers
+			pcp_incr_id
+			# Note: The javascript calls must reference the symbols via hex codes \uxxxx
+			echo '        <a id="'$ID'a" class="ctrlmoreless" href=# title="Now Playing" onclick="return ctrlmore('\'''$ID''\'')">'$BLACKTRIANGLEDOWN'</a>'
+			echo '      </p>'
+			echo '      <div id="'$ID'" class="ctrlless">'
+			echo '        <iframe id="nowplaying" src="nowplaying.cgi" frameborder="0" scrolling="no" style="border-style: none;width: 100%; height: 120px;"></iframe>'
+			echo '      </div>'
+		else
+			echo '      </p>'
+		fi
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
@@ -394,15 +386,11 @@ pcp_lms_artists() {
 
 	i=0
 	while [ $i -lt $MAX ]; do
-		ARTIST=$(cat /tmp/json_list | egrep "\[\"result\",\"artists_loop\",${i},\"artist\"\]" | sed -r 's/\[\"result\",\"artists_loop\",[0-9]{1,3},\"artist\"\][[:space:]]{1,9}//' | sed 's/\"//g')
 #
 #		todo: the loop number does not come back quoted.....match numbers quoted or not
 #
-#		RESULT=$(pcp_lms_build_result result artists_loop ${i} artist)
-#		ARTIST=$(cat /tmp/json_req | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g')
+		ARTIST=$(cat /tmp/json_list | egrep "\[\"result\",\"artists_loop\",${i},\"artist\"\]" | sed -r 's/\[\"result\",\"artists_loop\",[0-9]{1,3},\"artist\"\][[:space:]]{1,9}//' | sed 's/\"//g')
 		ID=$(cat /tmp/json_list | egrep  "\[\"result\",\"artists_loop\",${i},\"id\"\]" | sed -r 's/\[\"result\",\"artists_loop\",[0-9]{1,3},\"id\"\][[:space:]]{1,9}//' | sed 's/\"//g')
-#		RESULT=$(pcp_lms_build_result result artists_loop ${i} id)
-#		ID=$(cat /tmp/json_req | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g')
 		printf "<p>id(%s) artist(%s) - %s</p>\n" "$ID" "$ARTIST" "$i"
 		i=$((i+1))
 	done
