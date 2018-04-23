@@ -151,126 +151,6 @@ pcp_diag_wifi_iwlist() {
 }
 
 #========================================================================================
-# Routine to display wireless access points statistics in a nice format.
-#----------------------------------------------------------------------------------------
-pcp_diag_wifi_available_networks() {
-	#=========================================================================================
-	# (c) Robert Shingledecker 2011-2012 v1.4
-	# This routine has been based on code from the piCore script wifi.sh
-	# /usr/local/bin/wifi.sh
-	#-----------------------------------------------------------------------------------------
-	unset WIFI2 && CNT=0
-	echo -en "Scanning"
-	until [ -n "$WIFI2" ]
-	do
-		[ $((CNT++)) -gt 5 ] && break || sleep 1
-		echo -en "."
-		WIFI2="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
-	done
-	if [ -z "$WIFI2" ]; then
-		echo -en "\n\nNo wifi devices found!\n\n"
-		echo -en "Possible error:\n\n"
-		echo -en "1. USB wifi adapter missing - insert adapter.\n"
-		echo -en "2. wifi drivers and firmware missing - reboot required."
-		echo '</textarea>'
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </table>'
-		echo '          </fieldset>'
-		echo '        </div>'
-		echo '      </div>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-
-		[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "wifi"
-		pcp_footer
-		pcp_copyright
-		echo '</body>'
-		echo '</html>'
-		exit
-	fi
-	ifconfig "$WIFI2" up 2>/dev/null
-	(for i in `seq 5`
-	do
-		iwlist "$WIFI2" scanning
-		[ $? -eq 0 ] && break
-		sleep 1
-	done ) | awk -v wifi=$WIFI2 '
-	BEGIN {
-		RS="\n"
-		FS=":"
-		i = 0
-	}
-	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
-		for (i = 2; i <= n; i++)
-			for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
-				# swap qual[j] and qual[j-1]
-				t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
-				t = level[j]; level[j] = level[j-1]; level[j-1] = t
-				t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
-				t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
-				t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
-				t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
-				t = type[j]; type[j] = type[j-1]; type[j-1] = t
-				t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
-			}
-	}
-	# main ()
-	{
-		if ($1 ~ /Cell/) {
-			if ( i == 0  || sid[i] != "" ) i++
-			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
-			gsub(" ","",addr[i])
-		}
-		if ($1 ~ /Frequency/) {
-			split($2,c," ")
-			chan[i] = c[4]
-			gsub("\)","",chan[i])
-			freq[i] = "("c[1]c[2]")"
-			gsub(" ","",freq[i])
-		}
-		if ($1 ~ /Quality/) {
-			q = $2
-			if (index($1,"=")) {
-				split($1,c,"=")
-				q = c[2]
-				level[i] = c[3]
-				gsub(" ","",level[i])
-			}
-			split(q,c,"/")
-			qual[i] = c[1] * 100 / c[2]
-		}
-		if ($1 ~ /Encr/){
-			enc[i] = $2
-		}
-		if ($1 ~ /ESSID/) {
-			sid[i] = $2
-			gsub("\"","",sid[i])
-		}
-		if (enc[i] ~ /off/) type[i]="NONE"
-		if ($2 ~ /WPA/) type[i]="WPA"
-		if ($2 ~ /WPA2 /) type[i]="WPA2"
-		if (type[i] == "" ) type[i]="WEP"
-	}
-	END {
-		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-		print ""
-		print "---------------------------------------------------------------------------------------------"
-		print "       SSID                 Quality   Level       Channel      Encryption       Address"
-		print "---------------------------------------------------------------------------------------------"
-		for (l=1; l<15; l++) {
-			++j
-			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address
-			if ( j <= i ) printf "%2d. %-25s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
-		}
-		print "---------------------------------------------------------------------------------------------"
-	} ' | tee -a $LOG
-	echo >>$LOG
-}
-#----------------------------------------------------------------------------------------
-
-#========================================================================================
 # Routines to ping localhost and LMS.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_ping_local() {
@@ -580,7 +460,7 @@ echo '            <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
-                        pcp_textarea_inform "none" "pcp_diag_wifi_available_networks" 110
+                        pcp_textarea_inform "none" "pcp_wifi_available_networks" 110
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'

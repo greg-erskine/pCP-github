@@ -257,7 +257,7 @@ fi
 # Replace default rotdash
 #----------------------------------------------------------------------------------------
 if [ "$ROTDASH" = "yes" ]; then
-	echo -n "${BLUE}[ INFO ] Replacing existing rotdash.${NORMAL}"
+	echo -n "${BLUE}Replacing existing rotdash...${NORMAL}"
 	pcp_create_rotdash &
 	echo "${GREEN}Done.${NORMAL}"
 fi
