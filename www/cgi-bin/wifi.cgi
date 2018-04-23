@@ -162,17 +162,26 @@ pcp_wifi_available_networks() {
 #----------------------------------------------------------------------------------------
 case $ACTION in
 	Initial)
-		[ $DEBUG -eq 1 ] && echo "Case: Initial"
-		pcp_wifi_read_wpa_supplicant
+		pcp_table_top "Initial option"
+		echo '<textarea class="inform" style="height:30px">'
+		pcp_wifi_read_wpa_supplicant "text"
+		echo '</textarea>'
+		pcp_table_end
 	;;
 	Read)
-		[ $DEBUG -eq 1 ] && echo "Case: Read"
-		pcp_wifi_read_wpa_supplicant
+		pcp_table_top "Read option"
+		echo '<textarea class="inform" style="height:30px">'
+		pcp_wifi_read_wpa_supplicant "text"
+		echo '</textarea>'
+		pcp_table_end
 	;;
 	Config)
-		[ $DEBUG -eq 1 ] && echo "Case: Config"
+		pcp_table_top "Config option"
+		echo '<textarea class="inform" style="height:30px">'
 		pcp_save_to_config
-		pcp_wifi_read_wpa_supplicant
+		pcp_wifi_read_wpa_supplicant "text"
+		echo '</textarea>'
+		pcp_table_end
 	;;
 	Save)
 		pcp_table_top "Save option"
@@ -182,17 +191,22 @@ case $ACTION in
 			pcp_wifi_load_wifi_extns "text"
 			pcp_wifi_load_wifi_firmware_extns "text"
 			pcp_wifi_generate_passphrase "text"
-			pcp_wifi_write_wpa_supplicant
-			pcp_wifi_read_wpa_supplicant
+			pcp_wifi_write_wpa_supplicant "text"
+			pcp_wifi_read_wpa_supplicant "text"
 		fi
 		pcp_save_to_config
 		echo '</textarea>'
 		pcp_table_end
 	;;
 	Delete)
-		[ $DEBUG -eq 1 ] && echo Case: "Delete"
+		pcp_table_top "Delete option"
+		echo '<textarea class="inform" style="height:30px">'
 		rm -f $WPASUPPLICANTCONF
-		pcp_wifi_read_wpa_supplicant
+		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "text"
+		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+#		pcp_wifi_read_wpa_supplicant "text"
+		echo '</textarea>'
+		pcp_table_end
 	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo "Case: Invalid"

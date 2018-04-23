@@ -54,7 +54,7 @@ pcp_banner
 pcp_navigation
 
 VALIDNETWORK="eth0 eth1 wlan0 wlan1"
-#NETWORK="wlan1"
+NETWORK="wlan0"
 STATICIP=/opt/${NETWORK}.sh
 
 #========================================================================================
