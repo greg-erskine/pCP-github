@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-04-21
+# Version: 4.0.0 2018-04-26
 #	Fixed pcp_pastebin_button. GE.
 
 # Version: 3.5.0 2018-03-20
@@ -31,6 +31,7 @@
 
 MAC=$(echo $(pcp_wlan0_mac_address) | sed 's/://g')
 LOG="${LOGDIR}/pcp_diagwifi_${MAC:6}.log"
+WPACONFIGFILE=$WPASUPPLICANTCONF
 
 pcp_html_head "Wifi Diagnostics" "GE"
 
@@ -187,9 +188,7 @@ pcp_diag_wifi_password() {
 #========================================================================================
 # Create the log file. Start with some basic information.
 #----------------------------------------------------------------------------------------
-pcp_wifi_read_wpa_supplicant
-
-#WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+pcp_wifi_read_wpa_supplicant "none"
 
 pcp_log_header $0
 echo ========================================================================================= >>$LOG
@@ -280,17 +279,15 @@ echo '                <p>'$WPA_ENCRYPTION'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------Passphrase--------------------------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150">'
-	echo '                <p>Passphrase:</p>'
-	echo '              </td>'
-	echo '              <td colspan="5">'
-	echo '                <p>'$WPA_PASSPHRASE'</p>'
-	echo '              </td>'
-	echo '            </tr>'
-fi
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column150">'
+echo '                <p>Passphrase:</p>'
+echo '              </td>'
+echo '              <td colspan="5">'
+echo '                <p>'$WPA_PASSPHRASE'</p>'
+echo '              </td>'
+echo '            </tr>'
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '          <table class="bggrey percent100">'
@@ -372,13 +369,13 @@ pcp_start_row_shade
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>/etc/wpa_supplicant.conf:</b></p>'
+echo '                <p><b>/opt/wpa_supplicant.conf:</b></p>'
 echo '              </td>'
 echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="10">'
+echo '                <textarea class="inform" rows="12">'
                         pcp_diag_wifi_wpa_suplicant
 echo '                </textarea>'
 echo '              </td>'
@@ -426,7 +423,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="10">'
+echo '                <textarea class="inform" rows="8">'
                         pcp_diag_wifi_ifconfig
 echo '                </textarea>'
 echo '              </td>'
@@ -499,7 +496,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "wifi"
+[ $MODE -ge $MODE_BETA ] && pcp_pastebin_button "wifi"
 
 pcp_footer
 pcp_copyright

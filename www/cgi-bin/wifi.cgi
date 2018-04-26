@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-23
-#	New version. GE.
+# Version: 4.0.0 2018-04-26
 
 . pcp-functions
 . pcp-rpi-functions
@@ -19,6 +18,7 @@ pcp_navigation
 pcp_httpd_query_string
 
 [ x"" = x"$ACTION" ] && ACTION=Initial
+WPACONFIGFILE=$WPASUPPLICANTCONF
 
 #========================================================================================
 # HTML end.
@@ -33,37 +33,71 @@ pcp_html_end() {
 }
 
 #========================================================================================
+# WARNING messages
+#----------------------------------------------------------------------------------------
+unset MODIFY_OK ERROR_FLG
+
+if [ "$WIFI" = "on" ]; then
+	if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
+		if [ $(pcp_wifi_update_config) -eq 0 ] && [ $(pcp_wifi_maintained_by_pcp) -eq 0 ]; then
+			MODIFY_OK=TRUE
+		fi
+	else
+		MODIFY_OK=TRUE
+	fi
+	[ $MODIFY_OK ] || (ERRMSG5="Configuration can not be maintained by piCorePlayer."; ERROR_FLG=TRUE)
+fi
+
+[ $(pcp_kernel) = "pcpAudioCore" ] && ERRMSG1="Wifi may not work on the pcpAudioCore kernel." && ERROR_FLG=TRUE
+[ $(pcp_exists_wpa_supplicant) -ne 0 ] && ERRMSG2="/opt/wpa_supplicant.conf not found." && ERROR_FLG=TRUE
+[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Configuration maintained by user not piCorePlayer." && ERROR_FLG=TRUE
+[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
+
+pcp_wifi_error_messages() {
+	if [ "$WIFI" = "on" ] && [ $ERROR_FLG ]; then
+		echo '<table class="bggrey">'
+		echo '  <tr class="warning">'
+		echo '    <td>'
+		echo '      <div style="color:white">'
+		echo '        <p><b>WARNINGS:</b>'
+		echo '          <ul>'
+		[ x"" != x"$ERRMSG1" ] && echo '            <li>'$ERRMSG1'</li>'
+		[ x"" != x"$ERRMSG2" ] && echo '            <li>'$ERRMSG2'</li>'
+		[ x"" != x"$ERRMSG3" ] && echo '            <li>'$ERRMSG3'</li>'
+		[ x"" != x"$ERRMSG4" ] && echo '            <li>'$ERRMSG4'</li>'
+		[ x"" != x"$ERRMSG5" ] && echo '            <li>'$ERRMSG5'</li>'
+		echo '          </ul>'
+		echo '        </p>'
+		echo '      </td>'
+		echo '    </div>'
+		echo '  </tr>'
+		echo '</table>'
+	fi
+}
+
+#========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
-case $ACTION in
+case "$ACTION" in
 	Initial)
-		pcp_table_top "Initial option"
-		echo '<textarea class="inform" style="height:30px">'
-		pcp_wifi_read_wpa_supplicant "text"
-		echo '</textarea>'
-		pcp_table_end
-	;;
-	Read)
-		pcp_table_top "Read option"
-		echo '<textarea class="inform" style="height:30px">'
-		pcp_wifi_read_wpa_supplicant "text"
-		echo '</textarea>'
-		pcp_table_end
+		pcp_wifi_error_messages
+		if [ "$WIFI" = "on" ]; then
+			pcp_table_textarea_top "Initial option" "" "30"
+			pcp_wifi_read_wpa_supplicant "text"
+			pcp_table_textarea_end
+		fi
 	;;
 	Config)
-		pcp_table_top "Config option"
-		echo '<textarea class="inform" style="height:30px">'
+		pcp_wifi_error_messages
+		pcp_table_textarea_top "Config option" "" "50"
 		pcp_save_to_config
 		pcp_wifi_read_wpa_supplicant "text"
 		pcp_backup "nohtml"
-		echo '</textarea>'
-		pcp_table_end
+		pcp_table_textarea_end
 	;;
 	Save)
-		pcp_table_top "Save option"
-		echo '<textarea class="inform" style="height:100px">'
+		pcp_table_textarea_top "Save option" "" "100"
 		if [ "$WIFI" = "on" ]; then
-			pcp_unset_coloured_text
 			pcp_wifi_load_wifi_extns "text"
 			pcp_wifi_load_wifi_firmware_extns "text"
 			pcp_wifi_generate_passphrase "text"
@@ -72,39 +106,61 @@ case $ACTION in
 			pcp_wifi_read_wpa_supplicant "text"
 		fi
 		pcp_save_to_config
-		echo '</textarea>'
-		pcp_table_end
+		pcp_backup "nohtml"
+		pcp_table_textarea_end
+	;;
+#----------------------------------Developer options-------------------------------------
+	Read)
+		pcp_wifi_error_messages
+		pcp_table_textarea_top "Read option" "" "30"
+		pcp_wifi_read_wpa_supplicant "text"
+		pcp_table_textarea_end
 	;;
 	Delete)
-		pcp_table_top "Delete option"
-		echo '<textarea class="inform" style="height:30px">'
+		pcp_table_textarea_top "Delete option" "" "30"
 		rm -f $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "text"
-		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
-#		pcp_wifi_read_wpa_supplicant "text"
-		echo '</textarea>'
-		pcp_table_end
+		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+		pcp_table_textarea_end
+	;;
+	Remove)
+		pcp_table_textarea_top "Remove option" "" "30"
+		pcp_wifi_unload_wifi_extns "text"
+		pcp_wifi_unload_wifi_firmware_extns "text"
+		pcp_table_textarea_end
 	;;
 	Start)
-		pcp_table_top "Start option"
-		echo '<textarea class="inform" style="height:30px">'
+		pcp_table_textarea_top "Start option" "" "30"
 		/usr/local/etc/init.d/wifi wlan0 start
-		echo '</textarea>'
-		pcp_table_end
+		pcp_table_textarea_end
 	;;
 	Stop)
-		pcp_table_top "Stop option"
-		echo '<textarea class="inform" style="height:30px">'
+		pcp_table_textarea_top "Stop option" "" "30"
 		/usr/local/etc/init.d/wifi wlan0 stop
-		echo '</textarea>'
-		pcp_table_end
+		pcp_table_textarea_end
 	;;
 	Status)
-		pcp_table_top "Status option"
-		echo '<textarea class="inform" style="height:30px">'
+		pcp_table_textarea_top "Status option" "" "30"
 		/usr/local/etc/init.d/wifi wlan0 status
-		echo '</textarea>'
-		pcp_table_end
+		pcp_table_textarea_end
+	;;
+	Convert1)
+		pcp_table_textarea_top "Convert option" "" "100"
+		WPACONFIGFILE="/tmp/newconfig.cfg"
+		if [ -f $WPACONFIGFILE ]; then
+			pcp_wifi_read_newconfig "text"
+			pcp_wifi_write_wpa_supplicant "text"
+		fi
+		pcp_table_textarea_end
+	;;
+	Convert2)
+		pcp_table_textarea_top "Convert option" "" "100"
+		WPACONFIGFILE="/tmp/wpa_supplicant.conf"
+		if [ -f $WPACONFIGFILE ]; then
+			pcp_wifi_read_wpa_supplicant "text"
+			pcp_wifi_write_wpa_supplicant "text"
+		fi
+		pcp_table_textarea_end
 	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo "Case: Invalid"
@@ -134,18 +190,20 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Set wifi configuration</legend>'
 echo '            <table class="bggrey percent100">'
-#--------------------------------------Wifi on/off---------------------------------------
-COLUMN1="column150"
+#----------------------------------------------------------------------------------------
 case "$WIFI" in
 	on)
 		WIFIon="checked"
+		COLUMN1="column150"
 		COLUMN2="column380"
 	;;
 	off)
 		WIFIoff="checked"
+		COLUMN1="column150"
 		COLUMN2="column150"
 	;;
 esac
+#--------------------------------------Wifi on/off---------------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -315,7 +373,7 @@ fi
 
 #--------------------------------------Built-in Wifi-------------------------------------
 #if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ]; then
-if [ $(pcp_rpi_has_inbuilt_wifi) -eq 1 ]; then
+if [ $(pcp_rpi_has_inbuilt_wifi) -eq 1 ]; then    # <== ######################################################################
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
@@ -365,7 +423,6 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 1 ]; then
 	echo '              </tr>'
 fi
 #--------------------------------------Buttons------------------------------------------
-pcp_incr_id
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
@@ -378,20 +435,28 @@ fi
 
 if [ "$WIFI" = "on" ]; then
 	echo '                  <input type="submit" name="ACTION" value="Save">'
-	echo '                  <input type="submit" name="ACTION" value="Read" onclick="location.href='\'''wifi_wpa.cgi''\''">'
-	echo '                  <input type="submit" name="ACTION" value="Delete">'
-	[ $MODE -ge $MODE_ADVANCED ] &&
 	echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
-	if [ $MODE -ge $MODE_DEVELOPER ]; then
-		echo '                  <input type="submit" name="ACTION" value="Start">'
-		echo '                  <input type="submit" name="ACTION" value="Stop">'
-		echo '                  <input type="submit" name="ACTION" value="Status">'
-	fi
 else
 	echo '                  <input type="submit" name="ACTION" value="Config">'
 fi
+
 echo '                </td>'
 echo '              </tr>'
+
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="ACTION" value="Read">'
+	echo '                  <input type="submit" name="ACTION" value="Delete">'
+	echo '                  <input type="submit" name="ACTION" value="Remove">'
+	echo '                  <input type="submit" name="ACTION" value="Start">'
+	echo '                  <input type="submit" name="ACTION" value="Stop">'
+	echo '                  <input type="submit" name="ACTION" value="Status">'
+	echo '                </td>'
+	echo '              </tr>'
+fi
+
 #----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
@@ -406,20 +471,58 @@ if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF tests"
 	[ $(pcp_exists_wpa_supplicant) -eq 0 ] &&
 	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' exists</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' does not exists.</p>'
-	[ $(pcp_wifi_generated_by_pcp) -eq 0 ] &&
-	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' "Generated by piCorePlayer"</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' not "Generated by piCorePlayer".</p>'
+	[ $(pcp_wifi_maintained_by_pcp) -eq 0 ] &&
+	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' "Maintained by piCorePlayer"</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' not "Maintained by piCorePlayer".</p>'
+	pcp_table_end
+fi
+#----------------------------------------------------------------------------------------
+if [ $DEBUG -eq 1 ]; then
+	WPACONFIGFILE="/tmp/newconfig.cfg"
+	pcp_table_top "[ DEBUG ] $WPACONFIGFILE"
+	pcp_textarea_inform "none" "cat ${WPACONFIGFILE}" 80
+	if [ -f $WPACONFIGFILE ]; then
+		pcp_toggle_row_shade
+		echo '    <tr class="'$ROWSHADE'">'
+		echo '      <td colspan="3">'
+		echo '        <form name="wpatest2" action="'$0'" method="get">'
+		echo '          <input type="submit" name="ACTION" value="Convert1">'
+		echo '        </form>'
+		echo '      </td>'
+		echo '    </tr>'
+	else
+		pcp_message ERROR "$WPACONFIGFILE not found." "html"
+	fi
+	pcp_table_end
+fi
+#----------------------------------------------------------------------------------------
+if [ $DEBUG -eq 1 ]; then
+	WPACONFIGFILE="/tmp/wpa_supplicant.conf"
+	pcp_table_top "[ DEBUG ] $WPACONFIGFILE"
+	pcp_textarea_inform "none" "cat ${WPACONFIGFILE}" 80
+	if [ -f $WPACONFIGFILE ]; then
+		pcp_toggle_row_shade
+		echo '    <tr class="'$ROWSHADE'">'
+		echo '      <td colspan="3">'
+		echo '        <form name="wpatest" action="'$0'" method="get">'
+		echo '          <input type="submit" name="ACTION" value="Convert2">'
+		echo '        </form>'
+		echo '      </td>'
+		echo '    </tr>'
+	else
+		pcp_message ERROR "$WPACONFIGFILE not found." "html"
+	fi
 	pcp_table_end
 fi
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF"
-	pcp_textarea_inform "none" "cat ${WPASUPPLICANTCONF}" 200
+	pcp_textarea_inform "none" "cat ${WPASUPPLICANTCONF}" 150
 	pcp_table_end
 fi
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] Installed extensions"
-	pcp_wifi_all_extensions_installed
+	pcp_wifi_all_extensions_installed "html"
 #	pcp_textarea_inform "none" "ls /usr/local/tce.installed" 200
 	pcp_table_end
 fi

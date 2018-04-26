@@ -2,7 +2,7 @@
 # pcp-functions
 # These are the common functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-22
+# Version: 4.0.0 2018-04-26
 #	Support for plugin structure. SBP
 #	Another attempt to fix reloading page does not reboot pCP again. SBP.
 #	Added lang to pcp_html_head. GE.
@@ -856,6 +856,10 @@ pcp_linux_release() {
 	uname -r
 }
 
+pcp_kernel() {
+	echo $(uname -r | sed -n 's/^.*-\(.*\)_.*/\1/p')
+}
+
 #========================================================================================
 # Tiny Core user (tc)
 #----------------------------------------------------------------------------------------
@@ -929,6 +933,11 @@ pcp_table_top() {
 	echo '              <td '$2'>'
 }
 
+pcp_table_textarea_top() {
+	pcp_table_top $1 $2
+	echo '                <textarea class="inform" style="height:'$3'px">'
+}
+
 pcp_table_middle() {
 	echo '              </td>'
 	echo '            </tr>'
@@ -946,6 +955,11 @@ pcp_table_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
+}
+
+pcp_table_textarea_end() {
+	echo '                </textarea>'
+	pcp_table_end
 }
 
 #========================================================================================

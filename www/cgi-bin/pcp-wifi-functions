@@ -1,40 +1,40 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-22
+# Version: 4.0.0 2018-04-26
 
 #========================================================================================
 # Messages.
 #----------------------------------------------------------------------------------------
 pcp_message() {
-#	$1 = type: OK|INFO|ERROR|DEBUG
-#	$2 = message
-#	$3 = format: colour|text|html
+	local TYPE=$1
+	local MESSAGE=$2
+#	FORMAT: colour|text|html
+	local FORMAT=$3
 
-	MESSAGE=$2
-	case $1 in
+	case $TYPE in
 		OK|ok)
-			case $3 in
+			case $FORMAT in
 				col*|COL*) echo "${GREEN}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo '[ OK ] '${MESSAGE} ;;
 				html|HTML) echo '<p class="ok">[ OK ] '${MESSAGE}'</p>' ;;
 			esac
 		;;
 		INFO|info)
-			case $3 in
+			case $FORMAT in
 				col*|COL*) echo "${YELLOW}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo '[ INFO ] '${MESSAGE} ;;
 				html|HTML) echo '<p class="info">[ INFO ] '${MESSAGE}'</p>' ;;
 			esac
 		;;
 		ERROR|error)
-			case $3 in
+			case $FORMAT in
 				col*|COL*) echo "${RED}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo '[ ERROR ] '${MESSAGE} ;;
 				html|HTML) echo '<p class="error">[ ERROR ] '${MESSAGE}'</p>' ;;
 			esac
 		;;
 		DEBUG|debug)
-			case $3 in
+			case $FORMAT in
 				col*|COL*) echo "${ORANGE}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo '[ DEBUG ] '${MESSAGE} ;;
 				html|HTML) echo '<p class="debug">[ DEBUG ] '${MESSAGE}'</p>' ;;
@@ -43,6 +43,9 @@ pcp_message() {
 	esac
 }
 
+#========================================================================================
+# Load wifi extensions.
+#----------------------------------------------------------------------------------------
 pcp_wifi_load_extn() {
 	# $1 - extension
 	# $2 - description
@@ -51,54 +54,111 @@ pcp_wifi_load_extn() {
 	sudo -u tc pcp-load -i $1 >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		pcp_message OK "$2 loaded." "$3"
+		sudo sed -i '/'$1'/d' $ONBOOTLST
+		sudo echo $1 >> $ONBOOTLST
+		local ERROR=0
 	else
 		pcp_message ERROR "$2 load error." "$3"
+		local ERROR=1
 	fi
-	sudo sed -i '/'$1'/d' $ONBOOTLST
-	sudo echo $1 >> $ONBOOTLST
+
+	return $ERROR
 }
 
-#========================================================================================
-# Load wifi extensions.
-#----------------------------------------------------------------------------------------
 pcp_wifi_load_wifi_extns() {
-	# $1 - colour|text|html
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+	local ERROR=0
 
-	pcp_message INFO "Loading wifi extensions..." "$1"
+	pcp_message INFO "Loading wifi extensions..." "$FORMAT"
 
-	pcp_wifi_load_extn "wireless_tools.tcz" "Wireless tools" "$1"
-	pcp_wifi_load_extn "wpa_supplicant.tcz" "WPA supplicant" "$1"
+	pcp_wifi_load_extn "wireless_tools.tcz" "Wireless tools" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "wpa_supplicant.tcz" "WPA supplicant" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 
-	pcp_message OK "Done." "$1"
+	if [ $ERROR -eq 0 ]; then
+		pcp_message OK "Done." "$FORMAT"
+		return 0
+	else
+		pcp_message ERROR "Error." "$FORMAT"
+		return 1
+	fi
+}
+
+pcp_wifi_load_wifi_firmware_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+	local ERROR=0
+
+	pcp_message INFO "Loading wifi firmware extensions..." "$FORMAT"
+
+	pcp_wifi_load_extn "firmware-atheros.tcz" "Atheros firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-brcmwifi.tcz" "Broadcom USB firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-ralinkwifi.tcz" "Ralink firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-rtlwifi.tcz" "Realtek firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-rpi3-wireless.tcz" "RPi Broadcom firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+
+	if [ $ERROR -eq 0 ]; then
+		pcp_message OK "Done." "$FORMAT"
+		return 0
+	else
+		pcp_message ERROR "Error." "$FORMAT"
+		return 1
+	fi
 }
 
 #========================================================================================
-# Load wifi firmware extensions.
+# Unload wifi extensions.
 #----------------------------------------------------------------------------------------
-pcp_wifi_load_wifi_firmware_extns() {
-	# $1 - format: colour|text|html
+pcp_wifi_unload_extn() {
+	local EXTENSION=$1
 
-	pcp_message INFO "Loading wifi firmware extensions..." "$1"
+	sudo sed -i '/'$EXTENSION'/d' $ONBOOTLST
+	return $?
+}
 
-	pcp_wifi_load_extn "firmware-atheros.tcz" "Atheros firmware" "$1"
-	pcp_wifi_load_extn "firmware-brcmwifi.tcz" "Broadcom USB firmware" "$1"
-	pcp_wifi_load_extn "firmware-ralinkwifi.tcz" "Ralink firmware" "$1"
-	pcp_wifi_load_extn "firmware-rtlwifi.tcz" "Realtek firmware" "$1"
-	pcp_wifi_load_extn "firmware-rpi3-wireless.tcz" "RPi Broadcom firmware" "$1"
+pcp_wifi_unload_wifi_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
 
-	pcp_message OK "Done." "$1"
+	pcp_message INFO "Unloading wifi extensions..." "$FORMAT"
+	pcp_wifi_unload_extn "wireless_tools.tcz"
+	pcp_wifi_unload_extn "wpa_supplicant.tcz"
+	pcp_message OK "Done." "$FORMAT"
+}
+
+pcp_wifi_unload_wifi_firmware_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	pcp_message INFO "Unloading wifi firmware extensions..." "$FORMAT"
+	pcp_wifi_unload_extn "firmware-atheros.tcz"
+	pcp_wifi_unload_extn "firmware-brcmwifi.tcz"
+	pcp_wifi_unload_extn "firmware-ralinkwifi.tcz"
+	pcp_wifi_unload_extn "firmware-rtlwifi.tcz"
+	pcp_wifi_unload_extn "firmware-rpi3-wireless.tcz"
+	pcp_message OK "Done." "$FORMAT"
 }
 
 #========================================================================================
 # Read wifi settings from current wpa_supplicant.conf
 #----------------------------------------------------------------------------------------
 pcp_wifi_read_wpa_supplicant() {
-	if [ -f $WPASUPPLICANTCONF ]; then
-		pcp_message INFO "Reading from $WPASUPPLICANTCONF..." "$1"
+	# FORMAT - colour|text|html
+	local FORMAT=$1
 
-		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+	if [ -f $WPACONFIGFILE ]; then
+		pcp_message INFO "Reading from $WPACONFIGFILE..." "$FORMAT"
 
-		for i in $(cat $WPASUPPLICANTCONF); do
+		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+
+		for i in $(cat $WPACONFIGFILE); do
 			case $i in
 				*=*)
 					case $i in
@@ -116,62 +176,77 @@ pcp_wifi_read_wpa_supplicant() {
 							[ $WPA_PW ] || WPA_PASSPHRASE=$WPA_PSK
 						;;
 						key_mgmt=*)
-							KEY_MGMT=${i#*=}
+							WPA_KEY_MGMT=${i#*=}
 							WPA_ENCRYPTION=WPA-PSK
-							[ "$KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=OPEN
-							[ "$KEY_MGMT" = "NONE" ] && [ $WPA_PW ] && WPA_ENCRYPTION=WEP
+							[ "$WPA_KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=OPEN
+							[ "$WPA_KEY_MGMT" = "NONE" ] && [ $WPA_PW ] && WPA_ENCRYPTION=WEP
 						;;
 						scan_ssid=*)
 							WPA_HIDDENSSID=${i#*=}
-							[ x"" = x"$WPA_HIDDENSSID" ] && WPA_HIDDENSSID=0
+							[ x"" = x"$WPA_HIDDENSSID" ] && WPA_HIDDENSSID=0 # Here ????? GE.
 						;;
 					esac
 			esac
 		done
+		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
 	else
-		pcp_message ERROR "$WPASUPPLICANTCONF not found." "text"
+		pcp_message ERROR "$WPACONFIGFILE not found." "$FORMAT"
 	fi
 }
 
 #========================================================================================
-# Read wifi settings from newconfig.cfg <=== NOT USED YET. NOT TESTED.
+# Read wifi settings from newconfig.cfg
 #----------------------------------------------------------------------------------------
 pcp_wifi_read_newconfig() {
-	unset WPA_SSID WPA_PASSWORD WPA_PW KEY_MGMT WPA_ENCRYPTION
+	# FORMAT - colour|text|html
+	local FORMAT=$1
 
-	for i in $(cat $NEWCONFIGCFG); do
-		case $i in
-			*=*)
-				case $i in
-					SSID=*)
-						WPA_SSID=${i#*=}
-						WPA_SSID=$(echo $WPA_SSID | sed -e 's/^\"\(.*\)\"$/\1/')
-					;;
-					PASSWORD=*)
-						WPA_PASSWORD=${i#*=}
-						WPA_PASSWORD=$(echo $WPA_PASSWORD | sed -e 's/^\"\(.*\)\"$/\1/')
-						WPA_PW=TRUE
-					;;
-					ENCRYPTION=*)
-						KEY_MGMT=${i#*=}
-						KEY_MGMT=$(echo $KEY_MGMT | sed -e 's/^\"\(.*\)\"$/\1/')
-						[ "$KEY_MGMT" = "WPA" ] && WPA_ENCRYPTION=WPA-PSK
-						[ "$KEY_MGMT" = "WEP" ] && WPA_ENCRYPTION=WEP
-						[ "$KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=NONE
-					;;
-				esac
-		esac
-	done
+	if [ -f $WPACONFIGFILE ]; then
+		pcp_message INFO "Reading from $WPACONFIGFILE..." "$FORMAT"
+
+		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_KEY_MGMT WPA_ENCRYPTION
+
+		for i in $(cat $WPACONFIGFILE); do
+			case $i in
+				*=*)
+					case $i in
+						SSID=*)
+							WPA_SSID=${i#*=}
+							WPA_SSID=$(echo $WPA_SSID | sed -e 's/^\"\(.*\)\"$/\1/')
+						;;
+						PASSWORD=*)
+							WPA_PASSWORD=${i#*=}
+							WPA_PASSWORD=$(echo $WPA_PASSWORD | sed -e 's/^\"\(.*\)\"$/\1/')
+							WPA_PW=TRUE
+						;;
+						ENCRYPTION=*)
+							WPA_KEY_MGMT=${i#*=}
+							WPA_KEY_MGMT=$(echo $WPA_KEY_MGMT | sed -e 's/^\"\(.*\)\"$/\1/')
+							[ "$WPA_KEY_MGMT" = "WPA" ] && WPA_ENCRYPTION=WPA-PSK
+							[ "$WPA_KEY_MGMT" = "WEP" ] && WPA_ENCRYPTION=WEP
+							[ "$WPA_KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=NONE
+						;;
+					esac
+			esac
+		done
+		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
+		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
+	else
+		pcp_message ERROR "$WPACONFIGFILE not found." "$FORMAT"
+	fi
 }
 
 #========================================================================================
 # Write wifi settings to wpa_supplicant.conf file.
 #----------------------------------------------------------------------------------------
 pcp_wifi_write_wpa_supplicant() {
-	pcp_message INFO "Writing to $WPASUPPLICANTCONF..." "$1"
+	# FORMAT - colour|text|html
+	local FORMAT=$1
 
-	echo '# Generated by piCorePlayer' > $WPASUPPLICANTCONF
+	pcp_message INFO "Writing to $WPASUPPLICANTCONF..." "$FORMAT"
+
+	echo '# Maintained by piCorePlayer' > $WPASUPPLICANTCONF
 	echo 'ctrl_interface=/var/run/wpa_supplicant' >> $WPASUPPLICANTCONF
 	echo 'ctrl_interface_group=staff' >> $WPASUPPLICANTCONF
 	echo 'update_config=1' >> $WPASUPPLICANTCONF
@@ -204,10 +279,28 @@ pcp_exists_wpa_supplicant() {
 }
 
 #========================================================================================
-# Was wpa_supplicant.conf generated by piCorePlayer?
+# Is wpa_supplicant.conf maintained by piCorePlayer?
+#
+# Options:
+#  - Maintained by piCorePlayer
+#  - Maintained by user
+#  - Anyone
 #----------------------------------------------------------------------------------------
-pcp_wifi_generated_by_pcp() {
-	RESULT=$(grep "^# Generated by piCorePlayer" $WPASUPPLICANTCONF)
+pcp_wifi_maintained_by_pcp() {
+	RESULT=$(grep "^# Maintained by piCorePlayer" $WPASUPPLICANTCONF)
+	echo $?
+}
+
+pcp_wifi_maintained_by_user() {
+	RESULT=$(grep "^# Maintained by user" $WPASUPPLICANTCONF)
+	echo $?
+}
+
+#========================================================================================
+# Can piCorePlayer modify wpa_supplicant.conf?
+#----------------------------------------------------------------------------------------
+pcp_wifi_update_config() {
+	RESULT=$(grep "^update_config=1" $WPASUPPLICANTCONF)
 	echo $?
 }
 
@@ -215,22 +308,26 @@ pcp_wifi_generated_by_pcp() {
 # Check all wifi extensions are installed.
 #----------------------------------------------------------------------------------------
 pcp_wifi_extension_installed() {
-	# $1 - format: colour|text|html
-	# $2 - extension
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+	local EXTENSION=$2
 
-	if [ $(pcp_extn_is_installed $2) -eq 0 ]; then
-		pcp_message OK "$2 installed." "$1"
+	if [ $(pcp_extn_is_installed $EXTENSION) -eq 0 ]; then
+		pcp_message OK "$EXTENSION installed." "$FORMAT"
 	else
-		pcp_message ERROR "$2 not installed." "$1"
+		pcp_message ERROR "$EXTENSION not installed." "$FORMAT"
 	fi
 }
 
 pcp_wifi_all_extensions_installed() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
 	EXTN_LIST="wireless_tools wpa_supplicant XXXx
 	firmware-atheros firmware-brcmwifi firmware-ralinkwifi firmware-rtlwifi firmware-rpi3-wireless"
 
 	for i in $EXTN_LIST; do
-		pcp_wifi_extension_installed "html" $i
+		pcp_wifi_extension_installed "$FORMAT" $i
 	done
 }
 
@@ -355,7 +452,7 @@ pcp_wifi_available_networks() {
 		print "---------------------------------------------------------------------------------------------"
 		print "       SSID                 Quality   Level       Channel      Encryption       Address"
 		print "---------------------------------------------------------------------------------------------"
-		for (l=1; l<15; l++) {
+		for (l=1; l<NR; l++) {
 			++j
 			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address
 			if ( j <= i ) printf "%2d. %-25s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
