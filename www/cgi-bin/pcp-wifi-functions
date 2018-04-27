@@ -1,47 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-26
-
-#========================================================================================
-# Messages.
-#----------------------------------------------------------------------------------------
-pcp_message() {
-	local TYPE=$1
-	local MESSAGE=$2
-#	FORMAT: colour|text|html
-	local FORMAT=$3
-
-	case $TYPE in
-		OK|ok)
-			case $FORMAT in
-				col*|COL*) echo "${GREEN}${MESSAGE}${NORMAL}" ;;
-				text|TEXT) echo '[ OK ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="ok">[ OK ] '${MESSAGE}'</p>' ;;
-			esac
-		;;
-		INFO|info)
-			case $FORMAT in
-				col*|COL*) echo "${YELLOW}${MESSAGE}${NORMAL}" ;;
-				text|TEXT) echo '[ INFO ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="info">[ INFO ] '${MESSAGE}'</p>' ;;
-			esac
-		;;
-		ERROR|error)
-			case $FORMAT in
-				col*|COL*) echo "${RED}${MESSAGE}${NORMAL}" ;;
-				text|TEXT) echo '[ ERROR ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="error">[ ERROR ] '${MESSAGE}'</p>' ;;
-			esac
-		;;
-		DEBUG|debug)
-			case $FORMAT in
-				col*|COL*) echo "${ORANGE}${MESSAGE}${NORMAL}" ;;
-				text|TEXT) echo '[ DEBUG ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="debug">[ DEBUG ] '${MESSAGE}'</p>' ;;
-			esac
-		;;
-	esac
-}
+# Version: 4.0.0 2018-04-27
 
 #========================================================================================
 # Load wifi extensions.
@@ -131,6 +90,7 @@ pcp_wifi_unload_wifi_extns() {
 	pcp_wifi_unload_extn "wireless_tools.tcz"
 	pcp_wifi_unload_extn "wpa_supplicant.tcz"
 	pcp_message OK "Done." "$FORMAT"
+	REBOOT_REQUIRED=TRUE
 }
 
 pcp_wifi_unload_wifi_firmware_extns() {
@@ -144,6 +104,7 @@ pcp_wifi_unload_wifi_firmware_extns() {
 	pcp_wifi_unload_extn "firmware-rtlwifi.tcz"
 	pcp_wifi_unload_extn "firmware-rpi3-wireless.tcz"
 	pcp_message OK "Done." "$FORMAT"
+	REBOOT_REQUIRED=TRUE
 }
 
 #========================================================================================

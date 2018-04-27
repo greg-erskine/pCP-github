@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-26
+# Version: 4.0.0 2018-04-27
 
 . pcp-functions
 . pcp-rpi-functions
@@ -8,6 +8,8 @@
 . pcp-wifi-functions
 
 unset REBOOT_REQUIRED
+unset MODIFY_OK
+unset ERROR_FLG
 
 pcp_html_head "Wifi WPA Settings" "GE"
 
@@ -35,7 +37,10 @@ pcp_html_end() {
 #========================================================================================
 # WARNING messages
 #----------------------------------------------------------------------------------------
-unset MODIFY_OK ERROR_FLG
+[ $(pcp_kernel) = "pcpAudioCore" ] && ERRMSG1="Wifi may not work on the pcpAudioCore kernel." && ERROR_FLG=TRUE
+[ $(pcp_exists_wpa_supplicant) -ne 0 ] && ERRMSG2="/opt/wpa_supplicant.conf not found." && ERROR_FLG=TRUE
+[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Configuration maintained by user not piCorePlayer." && ERROR_FLG=TRUE
+[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
 
 if [ "$WIFI" = "on" ]; then
 	if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
@@ -48,11 +53,6 @@ if [ "$WIFI" = "on" ]; then
 	[ $MODIFY_OK ] || (ERRMSG5="Configuration can not be maintained by piCorePlayer."; ERROR_FLG=TRUE)
 fi
 
-[ $(pcp_kernel) = "pcpAudioCore" ] && ERRMSG1="Wifi may not work on the pcpAudioCore kernel." && ERROR_FLG=TRUE
-[ $(pcp_exists_wpa_supplicant) -ne 0 ] && ERRMSG2="/opt/wpa_supplicant.conf not found." && ERROR_FLG=TRUE
-[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Configuration maintained by user not piCorePlayer." && ERROR_FLG=TRUE
-[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
-
 pcp_wifi_error_messages() {
 	if [ "$WIFI" = "on" ] && [ $ERROR_FLG ]; then
 		echo '<table class="bggrey">'
@@ -61,11 +61,9 @@ pcp_wifi_error_messages() {
 		echo '      <div style="color:white">'
 		echo '        <p><b>WARNINGS:</b>'
 		echo '          <ul>'
-		[ x"" != x"$ERRMSG1" ] && echo '            <li>'$ERRMSG1'</li>'
-		[ x"" != x"$ERRMSG2" ] && echo '            <li>'$ERRMSG2'</li>'
-		[ x"" != x"$ERRMSG3" ] && echo '            <li>'$ERRMSG3'</li>'
-		[ x"" != x"$ERRMSG4" ] && echo '            <li>'$ERRMSG4'</li>'
-		[ x"" != x"$ERRMSG5" ] && echo '            <li>'$ERRMSG5'</li>'
+		for i in 1 2 3 4 5; do
+			[ x"" != x"$(eval echo \$ERRMSG${i})" ] && echo '            <li>'$(eval echo \$ERRMSG${i})'</li>'
+		done
 		echo '          </ul>'
 		echo '        </p>'
 		echo '      </td>'
@@ -341,7 +339,7 @@ if [ "$WIFI" = "on" ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-#------------------------------------------Hidden SSID-----------------------------------
+#--------------------------------------Hidden SSID---------------------------------------
 	case "$WPA_HIDDENSSID" in
 		0) WPA_HIDDENSSIDno="checked" ;;
 		1) WPA_HIDDENSSIDyes="checked" ;;
@@ -369,8 +367,6 @@ if [ "$WIFI" = "on" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 fi
-#----------------------------------------------------------------------------------------
-
 #--------------------------------------Built-in Wifi-------------------------------------
 #if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ]; then
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 1 ]; then    # <== ######################################################################
@@ -437,7 +433,7 @@ if [ "$WIFI" = "on" ]; then
 	echo '                  <input type="submit" name="ACTION" value="Save">'
 	echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 else
-	echo '                  <input type="submit" name="ACTION" value="Config">'
+	echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
 fi
 
 echo '                </td>'
@@ -465,18 +461,17 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
 #----------------------------------------------------------------------------------------
+
 if [ $DEBUG -eq 1 ]; then
+#----------------------------------------------------------------------------------------
 	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF tests"
 	[ $(pcp_exists_wpa_supplicant) -eq 0 ] &&
 	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' exists</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' does not exists.</p>'
 	[ $(pcp_wifi_maintained_by_pcp) -eq 0 ] &&
 	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' "Maintained by piCorePlayer"</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' not "Maintained by piCorePlayer".</p>'
 	pcp_table_end
-fi
 #----------------------------------------------------------------------------------------
-if [ $DEBUG -eq 1 ]; then
 	WPACONFIGFILE="/tmp/newconfig.cfg"
 	pcp_table_top "[ DEBUG ] $WPACONFIGFILE"
 	pcp_textarea_inform "none" "cat ${WPACONFIGFILE}" 80
@@ -484,7 +479,7 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_toggle_row_shade
 		echo '    <tr class="'$ROWSHADE'">'
 		echo '      <td colspan="3">'
-		echo '        <form name="wpatest2" action="'$0'" method="get">'
+		echo '        <form name="wpatest1" action="'$0'" method="get">'
 		echo '          <input type="submit" name="ACTION" value="Convert1">'
 		echo '        </form>'
 		echo '      </td>'
@@ -493,9 +488,7 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "html"
 	fi
 	pcp_table_end
-fi
 #----------------------------------------------------------------------------------------
-if [ $DEBUG -eq 1 ]; then
 	WPACONFIGFILE="/tmp/wpa_supplicant.conf"
 	pcp_table_top "[ DEBUG ] $WPACONFIGFILE"
 	pcp_textarea_inform "none" "cat ${WPACONFIGFILE}" 80
@@ -503,7 +496,7 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_toggle_row_shade
 		echo '    <tr class="'$ROWSHADE'">'
 		echo '      <td colspan="3">'
-		echo '        <form name="wpatest" action="'$0'" method="get">'
+		echo '        <form name="wpatest2" action="'$0'" method="get">'
 		echo '          <input type="submit" name="ACTION" value="Convert2">'
 		echo '        </form>'
 		echo '      </td>'
@@ -512,19 +505,16 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "html"
 	fi
 	pcp_table_end
-fi
 #----------------------------------------------------------------------------------------
-if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF"
 	pcp_textarea_inform "none" "cat ${WPASUPPLICANTCONF}" 150
 	pcp_table_end
-fi
 #----------------------------------------------------------------------------------------
-if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] Installed extensions"
 	pcp_wifi_all_extensions_installed "html"
 #	pcp_textarea_inform "none" "ls /usr/local/tce.installed" 200
 	pcp_table_end
+#----------------------------------------------------------------------------------------
 fi
 #----------------------------------------------------------------------------------------
 
@@ -558,7 +548,7 @@ if [ "$WIFI" = "on" ]; then
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-#-------------------------------------Display Available wifi networks--------------------
+#-------------------------------------Display available wifi networks--------------------
 	if [ "$SUBMIT" = "Scan" ]; then
 		echo '<table class="bggrey">'
 		echo '  <tr>'
