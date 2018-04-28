@@ -452,8 +452,9 @@ table.nowplayingtxt {
 	line-height:20px;
 	margin-top:-12px;
 	overflow:hidden;
+	white-space: nowrap;
 	text-align:center;
-	width:130px;
+	width:132px;
 	-webkit-transition-duration: 0.4s; /* Safari */
 	transition-duration: 0.4s;
 	text-decoration: none;
@@ -493,7 +494,7 @@ table.nowplayingtxt {
 
 .ctrlmoreless {
 	background:black;
-	border:1px solid black;
+	border:none;
 	border-radius:8px 8px 8px 8px;
 	color:white;
 	display:block;
@@ -502,8 +503,7 @@ table.nowplayingtxt {
 	margin-top:-12px;
 	overflow:hidden;
 	text-align:center;
-	width:21px;
-	font-size:14px;
+	width:16px;
 }
 
 /* Horizontal navigation and controls bar */

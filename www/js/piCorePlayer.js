@@ -50,6 +50,10 @@ function pcp_delete_query_string() {
 	}
 }
 
+function makeArgs() {
+	return arguments;
+}
+
 function lms_controls_send() {
 	var lmsip = arguments[0];
 	var lmsport = arguments[1];
@@ -58,11 +62,15 @@ function lms_controls_send() {
 	xhttp.open("POST", "http://" + lmsip + ":" + lmsport + "/jsonrpc.js", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	var data = {"id":1,"method":"slim.request","params": [ playername, [ "" ]]};
-	for (i = 0; i < (arguments.length - 3); i++) {
+	for (var i = 0; i < (arguments.length - 3); i++) {
 		data.params[1][i] = arguments[i+3];
 	}
 	var jsondata = JSON.stringify(data);
-	xhttp.send(jsondata);
-	return
+	try {
+		xhttp.send(jsondata);
+	} catch(err) {
+		console.log (err);
+	}
+	return;
 }
 

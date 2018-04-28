@@ -31,8 +31,9 @@ pcp_lms_status() {
 #========================================================================================
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
-pcp_controls() {
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
+pcp_controls() {
 	if [ "$LMSCONTROLS" = "yes" ] && [ $MODE -ge $MODE_ADVANCED ] ; then
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 		LMSIP=$(pcp_lmsip)
@@ -48,14 +49,14 @@ pcp_controls() {
 		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</button>'
 		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">Play '$BLACKTRIANGLERIGHT'</button>'
 		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">Stop '$FILLEDSAMLLSQUARE'</button>'
-		if [ $MODE -ge $MODE_DEVELOPER ]; then
-			# Now Playing Information in Javascript.  Currently this needs a change in the LMS headers
+		if [ $MODE -ge $MODE_BETA -a $(version $(pcp_lms_version)) -ge $(version "7.9.2") ]; then
+			# Now Playing Information in Javascript.  Requires LMS 7.9.2
 			pcp_incr_id
 			# Note: The javascript calls must reference the symbols via hex codes \uxxxx
 			echo '        <a id="'$ID'a" class="ctrlmoreless" href=# title="Now Playing" onclick="return ctrlmore('\'''$ID''\'')">'$BLACKTRIANGLEDOWN'</a>'
 			echo '      </p>'
 			echo '      <div id="'$ID'" class="ctrlless">'
-			echo '        <iframe id="nowplaying" src="nowplaying.cgi" frameborder="0" scrolling="no" style="border-style: none;width: 100%; height: 120px;"></iframe>'
+			echo '        <iframe id="nowplaying" src="nowplaying.cgi" frameborder="0" scrolling="no" style="border-style: none;width: 100%; height: 155px;"></iframe>'
 			echo '      </div>'
 		else
 			echo '      </p>'
@@ -312,6 +313,16 @@ pcp_lms_connect() {
 	NEWLMSIP=$1
 	REQUEST=$(pcp_lms_build_request $NAME connect $NEWLMSIP)
 	RESULT="NONE"
+	pcp_lms_json_request
+}
+
+#========================================================================================
+# ServerInfo
+#----------------------------------------------------------------------------------------
+#	version							Implemented
+pcp_lms_version() {
+	REQUEST=$(pcp_lms_build_request - version ?)
+	RESULT=$(pcp_lms_build_result result _version)
 	pcp_lms_json_request
 }
 
