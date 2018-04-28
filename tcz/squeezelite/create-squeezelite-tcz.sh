@@ -28,11 +28,6 @@ if [ ! -d $SRC ]; then
         git clone https://github.com/ralph-irving/squeezelite.git
 fi
 
-
-if [ ! -f $SRC/Makefile.pcp ]; then
-	bsdtar -cf - Makefile.pcp | (cd $SRC ; bsdtar -xf -)
-fi
-
 cd $SRC
 git pull
 cd $STARTDIR
