@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-27
+# Version: 4.0.0 2018-04-28
 
 #========================================================================================
 # Setup debug logging
@@ -29,7 +29,6 @@ pcp_debug_variables() {
 		done
 	fi
 }
-
 
 #========================================================================================
 # Debug variables listing - OBSOLETE? GE
@@ -163,6 +162,7 @@ pcp_read_config() {
 	pcp_debug_log "$0 - Reading pCP config.cfg..."
 	. $CONFIGCFG
 }
+
 #========================================================================================
 # Messages.
 #----------------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ pcp_extn_is_installed() {
 # Test if the internet or repositories are accessible.
 #----------------------------------------------------------------------------------------
 pcp_internet_accessible() {
-	[ "$INTERNET_CHECK_IP" = "" ] && INTERNET_CHECK_IP="8.8.8.8"
+	[ x"" = x"$INTERNET_CHECK_IP" ] && INTERNET_CHECK_IP="8.8.8.8"
 	ping -w5 -c3 $INTERNET_CHECK_IP >/dev/null 2>&1
 	echo $?
 }
@@ -1182,18 +1182,29 @@ pcp_start_fav() {
 }
 
 pcp_user_commands() {
-    if [ x"" != x"$USER_COMMAND_1" ]; then
-        USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
-        eval "$USER_COMMAND_1" &
-    fi
-    if [ x"" != x"$USER_COMMAND_2" ]; then
-        USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
-        eval "$USER_COMMAND_2" &
-    fi
-    if [ x"" != x"$USER_COMMAND_3" ]; then
-        USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
-        eval "$USER_COMMAND_3" &
-    fi
+	if [ x"" != x"$USER_COMMAND_1" ]; then
+		USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
+		eval "$USER_COMMAND_1" &
+	fi
+	if [ x"" != x"$USER_COMMAND_2" ]; then
+		USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
+		eval "$USER_COMMAND_2" &
+	fi
+	if [ x"" != x"$USER_COMMAND_3" ]; then
+		USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
+		eval "$USER_COMMAND_3" &
+	fi
+
+# Requires testing. <== GE
+#
+#	for i in 0 1 2 3 4 5 6 7 8 9
+#	do
+#		if [ x"" != x"$(eval echo \$USER_COMMAND_${i})" ]; then
+#			eval USER_COMMAND_${i}='$(sudo ${HTTPD} -f -d "$(eval echo \$USER_COMMAND_${i})")'
+#			eval "\$USER_COMMAND_${i}" &
+#		fi
+#	done
+
 }
 
 #========================================================================================
