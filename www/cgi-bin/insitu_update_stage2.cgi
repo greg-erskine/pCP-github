@@ -579,8 +579,12 @@ pcp_finish_install() {
 			#Changed in pCP3.21 to usr/local/etc/pcp
 			sed -i 'usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
 		;;
+		piCorePlayer4.*)
+			echo "Updating .filetool.lst :"
+			sed -i '|etc/motd|d' /opt/.filetool.lst
+		;;
 	esac
-	
+
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
 	sudo chown root:staff /opt/.xfiletool.lst
