@@ -1,0 +1,10 @@
+Title:          pcp-sbpd.tcz
+Description:    SqueezeButtonPi
+Version:        2.0
+Commit:         63321613ce063fea1a94b43b2ffcc094ff9f68d3
+Authors:        Joerg Schwieder
+Original-site:  https://github.com/coolio107/SqueezeButtonPi-Daemon
+Copying-policy: GPLv3
+Size:           884k
+Extension_by:   piCorePlayer team: https://sites.google.com/site/picoreplayer
+                Compiled for piCore 9.x
