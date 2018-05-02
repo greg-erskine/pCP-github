@@ -1,21 +1,10 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-13
-#	Added pause. GE.
+# Version: 4.0.0 2018-05-02
 
-# Version: 3.20 2017-03-07
-#	Moved Mode/Test/Debug to config. PH.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.03 2016-04-26 GE
-#	Added rescan (rs1) and wipecache (rs0).
-#	Revised pcp_cli_help.
-
-# Version: 0.02 2016-02-01 GE
-#	Added power and volume.
-
-# Version: 0.01 2015-12-02 GE
-#	Original.
+# Note: Need to use $WWWROOT someday.
+. /home/tc/www/cgi-bin/pcp-functions
+. /home/tc/www/cgi-bin/pcp-lms-functions
 
 pcp_cli_help() {
 	echo "========================================================================================="
@@ -30,11 +19,12 @@ pcp_cli_help() {
 	echo " - pcp down           : volume down"
 	echo " - pcp next           : next track"
 	echo " - pcp prev           : previous track"
-	echo " - pcp rand           : random track"
-	echo " - pcp power [on|off] : power on or off"
+	echo " - pcp rand           : generate random track playlist"
+	echo " - pcp power [on|off] : software power on or off"
 	echo " - pcp volume [0-100] : set volume between 0 to 100"
-	echo " - pcp rescan         : Look for new and changed media files in connected LMS library"
-	echo " - pcp wipecache      : Clear connected LMS library and rescan everything"
+	echo " - pcp rescan         : look for new and changed media files in connected LMS library"
+	echo " - pcp wipecache      : clear connected LMS library and rescan"
+	echo " - pcp mode           : display Squeezelite's current mode"
 	echo "-----------------------------------------------------------------------------------------"
 	echo " piCore"
 	echo " ------"
@@ -57,10 +47,6 @@ pcp_cli_help() {
 #	echo " - pcp a1             : all 1"
 	echo "-----------------------------------------------------------------------------------------"
 }
-
-# Note: Need to use $WWWROOT someday.
-. /home/tc/www/cgi-bin/pcp-functions
-. /home/tc/www/cgi-bin/pcp-lms-functions
 
 case "$1" in
 	play)
@@ -98,6 +84,9 @@ case "$1" in
 	;;
 	rs0|wipecache)
 		pcp_lms_wipecache
+	;;
+	mode)
+		pcp_lms_mode
 	;;
 	bu|backup)
 		pcp_backup_nohtml
