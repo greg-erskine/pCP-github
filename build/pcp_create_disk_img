@@ -450,7 +450,7 @@ build_mydata(){
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/sbin/config.cfg ${MYDATA}/usr/local/sbin/config.cfg 1001.50 664
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/sbin/piversion.cfg ${MYDATA}/usr/local/sbin/piversion.cfg 1001.50 664
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pointercal ${MYDATA}/usr/local/etc/pointercal root.root 644
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/init.d/httpd ${MYDATA}/usr/local/etc/init.d/httpd root.root 755
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/init.d/httpd ${MYDATA}/usr/local/etc/init.d/httpd root.root 755
 
 	touch ${MYDATA}/var/lib/alsa/asound.state
 	touch ${MYDATA}/var/spool/cron/crontabs/root

@@ -583,6 +583,7 @@ pcp_finish_install() {
 			echo "Updating .filetool.lst :"
 			sed -i '|etc/motd|d' /opt/.filetool.lst
 			sed -i '|etc/sysconfig/wifi-wpadrv|d' /opt/.filetool.lst
+			sed -i '|usr/local/etc/init.d/httpd|d' /opt/.filetool.lst
 		;;
 	esac
 
