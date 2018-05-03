@@ -5,7 +5,6 @@ etc/shadow
 etc/group
 etc/gshadow
 etc/asound.conf
-etc/sysconfig/wifi-wpadrv
 usr/local/etc/pointercal
 usr/local/etc/ssh/ssh_host_dsa_key
 usr/local/etc/ssh/ssh_host_dsa_key.pub

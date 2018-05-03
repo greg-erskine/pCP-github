@@ -582,6 +582,7 @@ pcp_finish_install() {
 		piCorePlayer4.*)
 			echo "Updating .filetool.lst :"
 			sed -i '|etc/motd|d' /opt/.filetool.lst
+			sed -i '|etc/sysconfig/wifi-wpadrv|d' /opt/.filetool.lst
 		;;
 	esac
 
