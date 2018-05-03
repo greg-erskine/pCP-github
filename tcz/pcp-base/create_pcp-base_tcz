@@ -16,6 +16,7 @@ echo "fixing directory access rights"
 find -type d | xargs chmod -v 755
 find * -not -type d | xargs dos2unix
 find usr/local/bin -not -type d | xargs chmod 755
+find usr/local/etc/init.d -not -type d | xargs chmod 755
 find * -not -type d > ${BASEWD}/${TCZ}.list
 cd ..
 
@@ -36,39 +37,6 @@ echo -e "Original-site:" >> $TCZINFO
 echo -e "Copying-policy: See scripts for details" >> $TCZINFO
 echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:   piCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "Comments:       Compiled for piCore 8.x" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore 9.x" >> $TCZINFO
 
 echo
-while true; do
-   read -p "Do you want to upload to sourceforge project-web [y/n]? " yn
-   case $yn in
-      [Yy]* ) break;;
-      [Nn]* ) exit 0;;
-      * ) echo "Please answer yes or no.";;
-   esac
-done
-
-REPO="web.sourceforge.net"
-LOCATION_v6="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv6/tcz/"
-LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv7/tcz/"
-
-read -p "Enter your sourceforge username: " USER
-# Would need to use linux expect to use passwords
-# read -ps "Enter your password: " PASS
-
-echo
-echo "Ready to upload"
-echo "USER=${USER}"
-echo "REPO=${REPO}"
-echo "LOCATION_v6=${LOCATION_v6}"
-echo "LOCATION_v7=${LOCATION_v7}"
-echo
-read -p "Press Enter to continue, or <ctrl>-C to abort" key
-
-echo "Uploading to first location."
-scp pcp-base.tcz* ${USER}@${REPO}:${LOCATION_v6}
-echo
-echo "Uploading to second location."
-scp pcp-base.tcz* ${USER}@${REPO}:${LOCATION_v7}
-
-
