@@ -1,0 +1,516 @@
+#!/bin/sh
+
+# Version: 4.0.0 2018-04-27
+
+#========================================================================================
+# Load wifi extensions.
+#----------------------------------------------------------------------------------------
+pcp_wifi_load_extn() {
+	# $1 - extension
+	# $2 - description
+	# $3 - colour|text|html
+
+	sudo -u tc pcp-load -i $1 >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		pcp_message OK "$2 loaded." "$3"
+		sudo sed -i '/'$1'/d' $ONBOOTLST
+		sudo echo $1 >> $ONBOOTLST
+		local ERROR=0
+	else
+		pcp_message ERROR "$2 load error." "$3"
+		local ERROR=1
+	fi
+
+	return $ERROR
+}
+
+pcp_wifi_load_wifi_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+	local ERROR=0
+
+	pcp_message INFO "Loading wifi extensions..." "$FORMAT"
+
+	pcp_wifi_load_extn "wireless_tools.tcz" "Wireless tools" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "wpa_supplicant.tcz" "WPA supplicant" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+
+	if [ $ERROR -eq 0 ]; then
+		pcp_message OK "Done." "$FORMAT"
+		return 0
+	else
+		pcp_message ERROR "Error." "$FORMAT"
+		return 1
+	fi
+}
+
+pcp_wifi_load_wifi_firmware_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+	local ERROR=0
+
+	pcp_message INFO "Loading wifi firmware extensions..." "$FORMAT"
+
+	pcp_wifi_load_extn "firmware-atheros.tcz" "Atheros firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-brcmwifi.tcz" "Broadcom USB firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-ralinkwifi.tcz" "Ralink firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-rtlwifi.tcz" "Realtek firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "firmware-rpi3-wireless.tcz" "RPi Broadcom firmware" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+
+	if [ $ERROR -eq 0 ]; then
+		pcp_message OK "Done." "$FORMAT"
+		return 0
+	else
+		pcp_message ERROR "Error." "$FORMAT"
+		return 1
+	fi
+}
+
+#========================================================================================
+# Unload wifi extensions.
+#----------------------------------------------------------------------------------------
+pcp_wifi_unload_extn() {
+	local EXTENSION=$1
+
+	sudo sed -i '/'$EXTENSION'/d' $ONBOOTLST
+	return $?
+}
+
+pcp_wifi_unload_wifi_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	pcp_message INFO "Unloading wifi extensions..." "$FORMAT"
+	pcp_wifi_unload_extn "wireless_tools.tcz"
+	pcp_wifi_unload_extn "wpa_supplicant.tcz"
+	pcp_message OK "Done." "$FORMAT"
+	REBOOT_REQUIRED=TRUE
+}
+
+pcp_wifi_unload_wifi_firmware_extns() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	pcp_message INFO "Unloading wifi firmware extensions..." "$FORMAT"
+	pcp_wifi_unload_extn "firmware-atheros.tcz"
+	pcp_wifi_unload_extn "firmware-brcmwifi.tcz"
+	pcp_wifi_unload_extn "firmware-ralinkwifi.tcz"
+	pcp_wifi_unload_extn "firmware-rtlwifi.tcz"
+	pcp_wifi_unload_extn "firmware-rpi3-wireless.tcz"
+	pcp_message OK "Done." "$FORMAT"
+	REBOOT_REQUIRED=TRUE
+}
+
+#========================================================================================
+# Read wifi settings from current wpa_supplicant.conf
+#----------------------------------------------------------------------------------------
+pcp_wifi_read_wpa_supplicant() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	if [ -f $WPACONFIGFILE ]; then
+		pcp_message INFO "Reading from $WPACONFIGFILE..." "$FORMAT"
+
+		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+
+		for i in $(cat $WPACONFIGFILE); do
+			case $i in
+				*=*)
+					case $i in
+						ssid=*)
+							WPA_SSID=${i#*=}
+							WPA_SSID=$(echo $WPA_SSID | sed -e 's/^\"\(.*\)\"$/\1/')
+						;;
+						psk=\"*)
+							WPA_PASSWORD=${i#*=}
+							WPA_PASSWORD=$(echo $WPA_PASSWORD | sed -e 's/^\"\(.*\)\"$/\1/')
+							WPA_PW=TRUE
+						;;
+						psk=*)
+							WPA_PSK=${i#*=}
+							[ $WPA_PW ] || WPA_PASSPHRASE=$WPA_PSK
+						;;
+						key_mgmt=*)
+							WPA_KEY_MGMT=${i#*=}
+							WPA_ENCRYPTION=WPA-PSK
+							[ "$WPA_KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=OPEN
+							[ "$WPA_KEY_MGMT" = "NONE" ] && [ $WPA_PW ] && WPA_ENCRYPTION=WEP
+						;;
+						scan_ssid=*)
+							WPA_HIDDENSSID=${i#*=}
+							[ x"" = x"$WPA_HIDDENSSID" ] && WPA_HIDDENSSID=0 # Here ????? GE.
+						;;
+					esac
+			esac
+		done
+		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
+		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
+	else
+		pcp_message ERROR "$WPACONFIGFILE not found." "$FORMAT"
+	fi
+}
+
+#========================================================================================
+# Read wifi settings from newconfig.cfg
+#----------------------------------------------------------------------------------------
+pcp_wifi_read_newconfig() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	if [ -f $WPACONFIGFILE ]; then
+		pcp_message INFO "Reading from $WPACONFIGFILE..." "$FORMAT"
+
+		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_KEY_MGMT WPA_ENCRYPTION
+
+		for i in $(cat $WPACONFIGFILE); do
+			case $i in
+				*=*)
+					case $i in
+						SSID=*)
+							WPA_SSID=${i#*=}
+							WPA_SSID=$(echo $WPA_SSID | sed -e 's/^\"\(.*\)\"$/\1/')
+						;;
+						PASSWORD=*)
+							WPA_PASSWORD=${i#*=}
+							WPA_PASSWORD=$(echo $WPA_PASSWORD | sed -e 's/^\"\(.*\)\"$/\1/')
+							WPA_PW=TRUE
+						;;
+						ENCRYPTION=*)
+							WPA_KEY_MGMT=${i#*=}
+							WPA_KEY_MGMT=$(echo $WPA_KEY_MGMT | sed -e 's/^\"\(.*\)\"$/\1/')
+							[ "$WPA_KEY_MGMT" = "WPA" ] && WPA_ENCRYPTION=WPA-PSK
+							[ "$WPA_KEY_MGMT" = "WEP" ] && WPA_ENCRYPTION=WEP
+							[ "$WPA_KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=NONE
+						;;
+					esac
+			esac
+		done
+		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
+		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
+	else
+		pcp_message ERROR "$WPACONFIGFILE not found." "$FORMAT"
+	fi
+}
+
+#========================================================================================
+# Write wifi settings to wpa_supplicant.conf file.
+#----------------------------------------------------------------------------------------
+pcp_wifi_write_wpa_supplicant() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	pcp_message INFO "Writing to $WPASUPPLICANTCONF..." "$FORMAT"
+
+	echo '# Maintained by piCorePlayer' > $WPASUPPLICANTCONF
+	echo 'ctrl_interface=/var/run/wpa_supplicant' >> $WPASUPPLICANTCONF
+	echo 'ctrl_interface_group=staff' >> $WPASUPPLICANTCONF
+	echo 'update_config=1' >> $WPASUPPLICANTCONF
+	echo '' >> $WPASUPPLICANTCONF
+	echo 'network={' >> $WPASUPPLICANTCONF
+
+	echo '	ssid="'$WPA_SSID'"' >> $WPASUPPLICANTCONF
+	if [ "$WPA_ENCRYPTION" = "WPA-PSK" ]; then
+		if [ x"" = x"$WPA_PASSPHRASE" ]; then
+			echo '	psk="'$WPA_PASSWORD'"' >> $WPASUPPLICANTCONF
+		else
+			echo '	psk='$WPA_PASSPHRASE >> $WPASUPPLICANTCONF
+		fi
+	fi
+	[ "$WPA_ENCRYPTION" = "WEP"     ] && echo '	psk="'$WPA_PASSWORD'"' >> $WPASUPPLICANTCONF
+	[ "$WPA_ENCRYPTION" = "WPA-PSK" ] && echo '	key_mgmt=WPA-PSK' >> $WPASUPPLICANTCONF
+	[ "$WPA_ENCRYPTION" = "WEP"     ] && echo '	key_mgmt=NONE' >> $WPASUPPLICANTCONF
+	[ "$WPA_ENCRYPTION" = "OPEN"    ] && echo '	key_mgmt=NONE' >> $WPASUPPLICANTCONF
+	echo '	auth_alg=OPEN' >> $WPASUPPLICANTCONF
+	[ $WPA_HIDDENSSID -eq 1 ] && echo '	scan_ssid='$WPA_HIDDENSSID >> $WPASUPPLICANTCONF
+
+	echo '}' >> $WPASUPPLICANTCONF
+}
+
+#========================================================================================
+# Does wpa_supplicant.conf exist?
+#----------------------------------------------------------------------------------------
+pcp_exists_wpa_supplicant() {
+	[ -f $WPASUPPLICANTCONF ] && echo 0 || echo 1
+}
+
+#========================================================================================
+# Is wpa_supplicant.conf maintained by piCorePlayer?
+#
+# Options:
+#  - Maintained by piCorePlayer
+#  - Maintained by user
+#  - Anyone
+#----------------------------------------------------------------------------------------
+pcp_wifi_maintained_by_pcp() {
+	RESULT=$(grep "^# Maintained by piCorePlayer" $WPASUPPLICANTCONF)
+	echo $?
+}
+
+pcp_wifi_maintained_by_user() {
+	RESULT=$(grep "^# Maintained by user" $WPASUPPLICANTCONF)
+	echo $?
+}
+
+#========================================================================================
+# Can piCorePlayer modify wpa_supplicant.conf?
+#----------------------------------------------------------------------------------------
+pcp_wifi_update_config() {
+	RESULT=$(grep "^update_config=1" $WPASUPPLICANTCONF)
+	echo $?
+}
+
+#========================================================================================
+# Check all wifi extensions are installed.
+#----------------------------------------------------------------------------------------
+pcp_wifi_extension_installed() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+	local EXTENSION=$2
+
+	if [ $(pcp_extn_is_installed $EXTENSION) -eq 0 ]; then
+		pcp_message OK "$EXTENSION installed." "$FORMAT"
+	else
+		pcp_message ERROR "$EXTENSION not installed." "$FORMAT"
+	fi
+}
+
+pcp_wifi_all_extensions_installed() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	EXTN_LIST="wireless_tools wpa_supplicant XXXx
+	firmware-atheros firmware-brcmwifi firmware-ralinkwifi firmware-rtlwifi firmware-rpi3-wireless"
+
+	for i in $EXTN_LIST; do
+		pcp_wifi_extension_installed "$FORMAT" $i
+	done
+}
+
+#========================================================================================
+# Generate WPA passphrase from SSID and password.
+#----------------------------------------------------------------------------------------
+pcp_wifi_generate_passphrase() {
+	pcp_debug_variables "text" WPA_PASSWORD WPA_ENCRYPTION WPA_PASSPHRASE
+
+	pcp_message INFO "Generating new passphrase..." "$1"
+	if [ "$WPA_PASSWORD" != "" ] && [ "$WPA_ENCRYPTION" = "WPA-PSK" ]; then
+		WPA_PASSPHRASE="$(wpa_passphrase $WPA_SSID $WPA_PASSWORD)"
+		if [ $? -eq 0 ]; then
+			WPA_PASSPHRASE=$(echo $WPA_PASSPHRASE | cut -d = -f 5 | cut -b 1-64)
+			WPA_PASSWORD=""
+		fi
+	else
+		if [ "$WPA_PASSPHRASE" = "" ]; then
+			WPA_PASSPHRASE="[ ERROR ] Password has not been set."
+		fi
+	fi
+
+	pcp_debug_variables "text" WPA_PASSWORD WPA_ENCRYPTION WPA_PASSPHRASE
+}
+
+#========================================================================================
+# (c) Robert Shingledecker 2011-2012 v1.4
+# This routine has been based on code from the piCore script wifi.sh
+# /usr/local/bin/wifi.sh
+#----------------------------------------------------------------------------------------
+pcp_wifi_available_networks() {
+	unset WIFI2 && CNT=0
+	echo -en "Scanning"
+	until [ -n "$WIFI2" ]
+	do
+		[ $((CNT++)) -gt 5 ] && break || sleep 1
+		echo -en "."
+		WIFI2="$(iwconfig 2>/dev/null | awk '{if (NR==1)print $1}')"
+	done
+	if [ -z "$WIFI2" ]; then
+		echo -en "\n\nNo wifi devices found!\n\n"
+		echo -en "Possible error:\n\n"
+		echo -en "1. USB wifi adapter missing - insert adapter.\n"
+		echo -en "2. wifi drivers and firmware missing - reboot required."
+		echo '</textarea>'
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </table>'
+		echo '          </fieldset>'
+		echo '        </div>'
+#		echo '      </form>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		pcp_html_end
+	fi
+	ifconfig "$WIFI2" up 2>/dev/null
+	(for i in `seq 5`
+	do
+		iwlist "$WIFI2" scanning
+		[ $? -eq 0 ] && break
+		sleep 1
+	done ) | awk -v wifi=$WIFI2 '
+	BEGIN {
+		RS="\n"
+		FS=":"
+		i = 0
+	}
+	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
+		for (i = 2; i <= n; i++)
+			for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
+				# swap qual[j] and qual[j-1]
+				t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
+				t = level[j]; level[j] = level[j-1]; level[j-1] = t
+				t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
+				t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
+				t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
+				t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
+				t = type[j]; type[j] = type[j-1]; type[j-1] = t
+				t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
+			}
+	}
+	# main ()
+	{
+		if ($1 ~ /Cell/) {
+			if ( i == 0 || sid[i] != "" ) i++
+			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
+			gsub(" ","",addr[i])
+		}
+		if ($1 ~ /Frequency/) {
+			split($2,c," ")
+			chan[i] = c[4]
+			gsub("\)","",chan[i])
+			freq[i] = "("c[1]c[2]")"
+			gsub(" ","",freq[i])
+		}
+		if ($1 ~ /Quality/) {
+			if (index($1,"=")) {
+				split($1,c,"=")
+				q = c[2]
+				level[i] = c[3]
+				gsub(" ","",level[i])
+			}
+			split(q,c,"/")
+			qual[i] = c[1] * 100 / c[2]
+		}
+		if ($1 ~ /Encryption/) {
+			enc[i] = $2
+		}
+		if ($1 ~ /ESSID/) {
+			sid[i] = $2
+			gsub("\"","",sid[i])
+		}
+		if (enc[i] ~ /off/) type[i]="NONE"
+		if ($2 ~ /WPA/) type[i]="WPA"
+		if ($2 ~ /WPA2 /) type[i]="WPA2"
+		if (type[i] == "" ) type[i]="WEP"
+	}
+	END {
+		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
+		print ""
+		print "---------------------------------------------------------------------------------------------"
+		print "       SSID                 Quality   Level       Channel      Encryption       Address"
+		print "---------------------------------------------------------------------------------------------"
+		for (l=1; l<NR; l++) {
+			++j
+			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address
+			if ( j <= i ) printf "%2d. %-25s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+		}
+		print "---------------------------------------------------------------------------------------------"
+	} '
+}
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# wifi extensions and dependencies.
+#----------------------------------------------------------------------------------------
+#cat piCorePlayer.dep
+# pcp.tcz
+# firmware-atheros.tcz
+# firmware-brcmwifi.tcz
+# firmware-rpi3-wireless.tcz
+# firmware-ralinkwifi.tcz
+# firmware-rtlwifi.tcz
+# wifi.tcz
+#
+# piCorePlayer.dep
+# |
+# |--pcp.tcz.dep
+# |   |
+# |   |--pcp-base.tcz
+# |   |--alsa.tcz.dep
+# |   |   |
+# |   |   \--libasound.tcz.dep
+# |   |       |
+# |   |       \alsa-modules-KERNEL.tcz.
+# |   |
+# |   |--alsa-utils.tcz.dep
+# |   |   |
+# |   |   |--libasound.tcz->
+# |   |   \--ncurses.tcz.
+# |   |
+# |   |--busybox-httpd.tcz
+# |   |--openssh.tcz.dep
+# |   |   |
+# |   |   |--libedit.tcz.dep
+# |   |   |   |
+# |   |   |   \--ncurses.tcz.
+# |   |   |
+# |   |   \--openssl.tcz.dep
+# |   |       |
+# |   |       \--ca-certificates.tcz.
+# |   |
+# |   |--dialog.tcz.dep
+# |   |   |
+# |   |   \--ncurses.tcz.
+# |   |
+# |   \--pcp-squeezelite.tcz.dep
+# |       |
+# |       |--pcp-libmpg123.tcz.dep
+# |       |   |
+# |       |   \--libasound.tcz.dep
+# |       |       |
+# |       |       \--alsa-modules-KERNEL.tcz.
+# |       |
+# |       |--pcp-libfaad2.tcz
+# |       |--pcp-libsoxr.tcz
+# |       |--pcp-libmad.tcz
+# |       |--pcp-libvorbis.tcz
+# |       |   |
+# |       |   \--pcp-libogg.tcz.
+# |       |
+# |       |--pcp-libflac.tcz
+# |       |   |
+# |       |   \--pcp-libogg.tcz.
+# |       |
+# |       |--libasound.tcz
+# |       |   |
+# |       |   \--alsa-modules-KERNEL.tcz.
+# |       |
+# |       \--wiringpi.tcz.
+# |
+# |--firmware-atheros.tcz
+# |--firmware-brcmwifi.tcz
+# |--firmware-ralinkwifi.tcz
+# |--firmware-rtlwifi.tcz
+# |--firmware-rpi3-wireless.tcz
+# |
+# \--wifi.tcz.dep
+#     |
+#     |--wireless_tools.tcz.dep
+#     |   |
+#     |   |--libiw.tcz
+#     |   \--wireless-KERNEL.tcz
+#     |
+#     \--wpa_supplicant.tcz.dep
+#         |
+#         |--libnl.tcz
+#         |--openssl.tcz.dep
+#         |   |
+#         |   \--ca-certificates.tcz.
+#         |
+#         \--readline.tcz
+#             |
+#             \--ncurses.tcz.

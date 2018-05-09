@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-04-21
 #	fuse.ko does not load automatically for exfat mounts. PH.
+#	Added WPA wifi process. GE
 
 # Version: 3.5.0 2018-03-13
 #	Do not change card number if card not found in asound.conf. PH.
@@ -61,6 +62,7 @@ echo "${GREEN}Starting piCorePlayer setup...${NORMAL}"
 echo -n "${BLUE}Loading pCP function files and pCP configuration file...${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-functions
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
+. /home/tc/www/cgi-bin/pcp-wifi-functions
 echo "${GREEN}Done.${NORMAL}"
 
 ORIG_AUDIO="$AUDIO"
@@ -72,6 +74,7 @@ ORIG_AUDIO="$AUDIO"
 #****************************************************************************************
 NEWCONFIGFOUND=0
 SSH=0
+WPACONFIGFOUND=0
 NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 for DISK in $NEWCFGLIST; do
 	echo "${BLUE}Checking for newconfig.cfg on $DISK...${NORMAL}"
@@ -84,8 +87,21 @@ for DISK in $NEWCFGLIST; do
 		echo "${YELLOW}  Trying to mount /dev/${DISK}.${RED}"
 		mount /dev/$DISK >/dev/null 2>&1
 	fi
+	#------------------------------------------------------------------------------------
+	# Look for ssh file on boot partition. Only start sshd if file found.
+	#------------------------------------------------------------------------------------
 	[ -f /mnt/${DISK}/ssh ] && SSH=1
-	if [ -f /mnt/$DISK/newconfig.cfg ]; then
+	#------------------------------------------------------------------------------------
+	# Look for wpa_supplicant.conf on boot partition.
+	#------------------------------------------------------------------------------------
+	if [ -f /mnt/${DISK}/wpa_supplicant.conf ]; then
+		WPACONFIGFOUND=1
+		[ -f /opt/wpa_supplicant.conf ] && mv /opt/wpa_supplicant.conf /opt/wpa_supplicant.conf~
+		cp /mnt/${DISK}/wpa_supplicant.conf /opt/wpa_supplicant.conf
+		[ $? -eq 0 ] && mv /mnt/${DISK}/wpa_supplicant.conf /mnt/${DISK}/used_wpa_supplicant.conf
+	fi
+	#------------------------------------------------------------------------------------
+	if [ -f /mnt/${DISK}/newconfig.cfg ]; then
 		echo "${YELLOW}  newconfig.cfg found on ${DISK}.${NORMAL}"
 		NEWCONFIGFOUND=1
 		ln -s /mnt/$DISK /tmp/newconfig
@@ -241,7 +257,7 @@ fi
 # Replace default rotdash
 #----------------------------------------------------------------------------------------
 if [ "$ROTDASH" = "yes" ]; then
-	echo -n "${BLUE}[ INFO ] Replacing existing rotdash.${NORMAL}"
+	echo -n "${BLUE}Replacing existing rotdash...${NORMAL}"
 	pcp_create_rotdash &
 	echo "${GREEN}Done.${NORMAL}"
 fi
@@ -262,91 +278,38 @@ if [ "$APMODE" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+#========================================================================================
+# Start wifi.
+#----------------------------------------------------------------------------------------
+if [ $WPACONFIGFOUND -eq 1 ]; then
+	WIFI="on"
+	pcp_save_to_config
+	pcp_wifi_read_wpa_supplicant
+	pcp_wifi_write_wpa_supplicant
+	BACKUP=1
+fi
+
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded.
 if [ "$WIFI" = "on" ]; then
+	. /home/tc/www/cgi-bin/pcp-wifi-functions
 	if grep -Fxq "wifi.tcz" $ONBOOTLST; then
 		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
 	else
-		# Add wifi related modules back.
+		# Add wifi related modules.
 		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
-		BACKUP=1
 		sudo fgrep -vxf $ONBOOTLST $TCEMNT/tce/piCorePlayer.dep >> $ONBOOTLST
-
-		sudo -u tc tce-load -i firmware-atheros.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  Atheros firmware loaded.${NORMAL}" || echo "${RED}  Atheros firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i firmware-brcmwifi.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  Broadcom USB firmware loaded.${NORMAL}" || echo "${RED}  Broadcom USB firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i firmware-ralinkwifi.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  Ralink firmware loaded.${NORMAL}" || echo "${RED}  Ralink firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i firmware-rtlwifi.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  Realtek firmware loaded.${NORMAL}" || echo "${RED}  Realtek firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i firmware-rpi3-wireless.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  RPi Broadcom firmware loaded.${NORMAL}" || echo "${RED}  RPi Broadcom firmware load error.${NORMAL}"
-		sudo -u tc tce-load -i wifi.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo "${YELLOW}  Wifi modules loaded.${NORMAL}" || echo "${RED}  Wifi modules load error.${NORMAL}"
-		echo "${GREEN} Done.${NORMAL}"
+		BACKUP=1
+		pcp_wifi_load_firmware
 	fi
-fi
-
-if [ "$WIFI" = "on" ]; then
-	# Save the parameters to the wifi.db
-	echo -n "${BLUE}Reading config.cfg...${NORMAL}"
-	. /usr/local/sbin/config.cfg
-	echo "${GREEN}Done.${NORMAL}"
-
-	# Check if wifi variables already are up-to-date in wifi.db so we don't need to update wifi.db and do an unwanted backup.
-	if [ x"" = x"$SSID" ]; then
-		break
-	else
-		# Escape any spaces in the SSID
-		SSSID=`echo "$SSID" | sed 's/\ /\\\ /g'`
-		# Change SSSID back to SSID.
-		SSID=$SSSID
-		sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /tmp/wifi.db
-		if cmp -s /home/tc/wifi.db /tmp/wifi.db; then
-			echo -n "${BLUE}Wifi.db is up-to-date...${NORMAL}"
-		else
-			BACKUP=1
-			# Only add backslash if not empty.
-			echo -n "${BLUE}Updating wifi.db...${NORMAL}"
-			sudo echo ${SSID}$'\t'${PASSWORD}$'\t'${ENCRYPTION}> /home/tc/wifi.db
-		fi
-	fi
+	echo -n "${BLUE}Starting wifi...${NORMAL}"
+	/usr/local/etc/init.d/wifi wlan0 start
 	echo "${GREEN}Done.${NORMAL}"
 fi
+#----------------------------------------------------------------------------------------
 
 # Loading configuration file config.cfg
 echo -n "${BLUE}Loading configuration file...${NORMAL}"
 . $CONFIGCFG
-echo "${GREEN}Done.${NORMAL}"
-
-# Connect wifi if WIFI is on.
-echo -n "${BLUE}Checking wifi...${NORMAL}"
-if [ "$WIFI" = "on" ]; then
-	echo "${YELLOW}  wifi is on.${NORMAL}"
-	sleep 1
-	sudo ifconfig wlan0 down
-	sudo ifconfig wlan0 up
-	sudo iwconfig wlan0 power off >/dev/null 2>&1
-	sudo /usr/local/bin/wifi.sh -a
-
-	# Try to reconnect to wifi if failed - will try two times before continuing booting.
-	for i in 1 2; do
-		if ifconfig wlan0 | grep -q "inet addr:"; then
-			echo "${YELLOW}  wifi is connected ($i).${NORMAL}"
-		else
-			echo "${RED}  Network connection down! Attempting reconnection two times before continuing.${NORMAL}"
-			sudo ifconfig wlan0 down
-			sleep 1
-			sudo ifconfig wlan0 up
-			sleep 1
-			sudo iwconfig wlan0 power off >/dev/null 2>&1
-			sleep 1
-			sudo /usr/local/bin/wifi.sh -a
-			sleep 5
-	   fi
-	done
-fi
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Loading pcp-lms-functions...${NORMAL}"

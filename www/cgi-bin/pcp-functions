@@ -1,95 +1,6 @@
 #!/bin/sh
-# pcp-functions
-# These are the common functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-18
-#	Another attempt to fix reloading page does not reboot pCP again. SBP.
-#	Added lang to pcp_html_head. GE.
-#	Added "nohtml" option to Squeezelite start, stop and status routines. GE.
-#	Fixed HTML5 error in pcp_redirect_button. GE.
-#	Modified pcp_navigation toolbar. GE.
-#	Modified pcp_reboot_required. GE.
-#	If pCP is running LMS server, then point LMS tab to local interface. PH.
-#	Updated pcp_reboot_button. GE.
-#	Changed repo to new server. PH.
-#	Added pcp_debug_variables. GE.
-
-# Version: 3.5.0 2018-03-14
-#	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
-#	Added SQBINARY config setting. PH.
-#	Add Bootscript option for soundcard setup. PH.
-#	Add APMODE config variable. PH
-#	Add reboot pending notification. PH.
-#	Change pcp_restart_required to non-popup, and set return page. PH.
-#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
-#	HTML5 cleanup. GE.
-#	Added "nobody" parameter to pcp_html_head. GE.
-#	Added pcp_redirect_button. GE.
-#	Moved pcp_remove_query_string code to piCorePlayer.js. GE.
-
-# Version: 3.22 2017-07-23
-#	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
-#	Added $INTERNET_CHECK_IP to config.cfg. GE.
-#	Added $ROTDASH to config.cfg. GE.
-
-# Version: 3.21 2017-07-02
-#	Added note for TEST 3 Active in footer. PH.
-#	Changed to allow booting from USB on RPi3. PH.
-#	Support multiple USB mounts. PH.
-#	Support multiple Network mounts. PH.
-#	Add ability to set column class on pcp_table functions. PH.
-
-# Version: 3.20 2017-04-16
-#	Updated SCREENROTATE default value. GE.
-#	Added Help tab to pcp_picoreplayers toolbar. GE.
-#	Reduced size of LMS tab on pcp_picoreplayers toolbar. GE.
-#	Added EXTERNALLINK character. GE.
-#	Moved variables DEBUG, TEST and MODE to config.cfg GE.
-#	Added variables JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
-#	Removed pcp_download_package, it is no longer used. PH.
-#	Added timestamp to css to assist with caching. PH.
-#	Change player tabs to display multi line on iPads better. PH.
-#	Firefox complained about <div> tag making </p> tag out of scope. PH.
-#	Changed reboot functions. PH.
-
-# Version: 3.11 2017-01-29
-#	Updated default soundcard for shairport to work out of box. SBP.
-
-# Version: 3.10 2016-12-26
-#	Added pcp_log_header. GE.
-#	Updated pcp_textarea_inform. GE.
-#	Addded pcp_create_rotdash. GE.
-#	Updated pcp_backup and pcp_backup_nohtml. GE.
-#	Added Samba. PH.
-#	Added correct unmute command for IQaudIO AMP. SBP.
-#	Updated pcp_squeezelite_status. GE.
-#	Simplfy sound card definitions. SBP.
-#	Added IR_GPIO_OUT. GE.
-#	Renamed IR_GPIO to IR_GPIO_IN. GE.
-#	Changes for Squeezelite extension. PH.
-#	Updated Sourceforge repo locations. PH.
-
-# Version: 3.02 2016-09-19
-#	Added JS function to remove query string from URL History. PH.
-#	Added HiFiBerry Digi+ Pro support. SBP.
-#	Updated FIQ-split. SBP.
-#	Added pcp_green_tick, pcp_red_cross. GE.
-#	Added PICORE_REPO_1, PICORE_REPO_2. GE.
-#	Added pcp_pcp_repo_accessible, pcp_picore_repo_1_accessible, pcp_picore_repo_2_accessible. GE.
-#	Added pcp_reset_repository. GE.
-
-# Version: 3.01 2016-08-26
-#	Changed default lirc GPIO to 25. GE.
-#	Added enable/disable onboard sound for HiFiBerry DAC+ in shairport. SBP.
-#	Added clean-up of the sound drivers in the pcp_reset_config_to_defaults. SBP.
-
-# Version: 3.00 2016-08-09
-#	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
-#	Removed MAC address from footer. GE.
-#	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
-#	Added pcp_clean_cmdlinetxt. GE.
-#	Standardised $HOST and $TIMEZONE. GE.
-#	Added IR_DEVICE. GE.
+# Version: 4.0.0 2018-04-28
 
 #========================================================================================
 # Setup debug logging
@@ -100,7 +11,29 @@ pcp_debug_log() {
 	[ $DEBUG -ne 0 ] && echo $1 | sudo tee -a $DEBUGLOG > /dev/null
 }
 
+#========================================================================================
+# Debug variables listing
+#----------------------------------------------------------------------------------------
 pcp_debug_variables() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	if [ $DEBUG -eq 1 ]; then
+		i=0
+
+		for VAR in $@
+		do
+			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
+			[ $i -ne 0 ] && pcp_message DEBUG "$MESSAGE" "$FORMAT"
+			i=$((i+1))
+		done
+	fi
+}
+
+#========================================================================================
+# Debug variables listing - OBSOLETE? GE
+#----------------------------------------------------------------------------------------
+pcp_debug_variables2() {
 	if [ $DEBUG -eq 1 ]; then
 		n=$#
 		i=1
@@ -143,7 +76,7 @@ pcp_variables() {
 	HTTPDCONF="/home/tc/httpd.conf"
 	HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
-	WIFIDB="/home/tc/wifi.db"
+#	WIFIDB="/home/tc/wifi.db"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
 	VOLUME="$BOOTMNT"
 	DEVICE="$BOOTDEV"
@@ -155,6 +88,8 @@ pcp_variables() {
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 	REBOOT_PENDING="/tmp/rebootpending"
+	BASE_DIR="cgi-bin"
+	WPASUPPLICANTCONF="/opt/wpa_supplicant.conf"
 
 	#------------------------------------------------------------------------------------
 	# Define modes
@@ -194,15 +129,31 @@ pcp_variables
 #========================================================================================
 # ANSI colours
 #----------------------------------------------------------------------------------------
-CRE="$(echo -e '\r\033[K')"
-RED="$(echo -e '\033[1;31m')"
-GREEN="$(echo -e '\033[1;32m')"
-YELLOW="$(echo -e '\033[1;33m')"
-BLUE="$(echo -e '\033[1;34m')"
-MAGENTA="$(echo -e '\033[1;35m')"
-CYAN="$(echo -e '\033[1;36m')"
-WHITE="$(echo -e '\033[1;37m')"
-NORMAL="$(echo -e '\033[0;39m')"
+pcp_set_coloured_text() {
+	CRE="$(echo -e '\r\033[K')"
+	RED="$(echo -e '\033[1;31m')"
+	GREEN="$(echo -e '\033[1;32m')"
+	YELLOW="$(echo -e '\033[1;33m')"
+	BLUE="$(echo -e '\033[1;34m')"
+	MAGENTA="$(echo -e '\033[1;35m')"
+	CYAN="$(echo -e '\033[1;36m')"
+	WHITE="$(echo -e '\033[1;37m')"
+	NORMAL="$(echo -e '\033[0;39m')"
+}
+pcp_set_coloured_text
+
+pcp_unset_coloured_text() {
+	CRE=""
+	RED=""
+	GREEN=""
+	YELLOW=""
+	YELLOW=""
+	BLUE=""
+	MAGENTA=""
+	CYAN=""
+	WHITE=""
+	NORMAL=""
+}
 
 #========================================================================================
 # Routine to read config file.
@@ -210,6 +161,47 @@ NORMAL="$(echo -e '\033[0;39m')"
 pcp_read_config() {
 	pcp_debug_log "$0 - Reading pCP config.cfg..."
 	. $CONFIGCFG
+}
+
+#========================================================================================
+# Messages.
+#----------------------------------------------------------------------------------------
+pcp_message() {
+	local TYPE=$1
+	local MESSAGE=$2
+#	FORMAT: colour|text|html
+	local FORMAT=$3
+
+	case $TYPE in
+		OK|ok)
+			case $FORMAT in
+				col*|COL*) echo "${GREEN}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ OK ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="ok">[ OK ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+		INFO|info)
+			case $FORMAT in
+				col*|COL*) echo "${YELLOW}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ INFO ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="info">[ INFO ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+		ERROR|error)
+			case $FORMAT in
+				col*|COL*) echo "${RED}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ ERROR ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="error">[ ERROR ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+		DEBUG|debug)
+			case $FORMAT in
+				col*|COL*) echo "${ORANGE}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ DEBUG ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="debug">[ DEBUG ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+	esac
 }
 
 #========================================================================================
@@ -327,7 +319,7 @@ pcp_extn_is_installed() {
 # Test if the internet or repositories are accessible.
 #----------------------------------------------------------------------------------------
 pcp_internet_accessible() {
-	[ "$INTERNET_CHECK_IP" = "" ] && INTERNET_CHECK_IP="8.8.8.8"
+	[ x"" = x"$INTERNET_CHECK_IP" ] && INTERNET_CHECK_IP="8.8.8.8"
 	ping -w5 -c3 $INTERNET_CHECK_IP >/dev/null 2>&1
 	echo $?
 }
@@ -822,6 +814,10 @@ pcp_linux_release() {
 	uname -r
 }
 
+pcp_kernel() {
+	echo $(uname -r | sed -n 's/^.*-\(.*\)_.*/\1/p')
+}
+
 #========================================================================================
 # Tiny Core user (tc)
 #----------------------------------------------------------------------------------------
@@ -895,6 +891,11 @@ pcp_table_top() {
 	echo '              <td '$2'>'
 }
 
+pcp_table_textarea_top() {
+	pcp_table_top $1 $2
+	echo '                <textarea class="inform" style="height:'$3'px">'
+}
+
 pcp_table_middle() {
 	echo '              </td>'
 	echo '            </tr>'
@@ -912,6 +913,11 @@ pcp_table_end() {
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
+}
+
+pcp_table_textarea_end() {
+	echo '                </textarea>'
+	pcp_table_end
 }
 
 #========================================================================================
@@ -1176,18 +1182,29 @@ pcp_start_fav() {
 }
 
 pcp_user_commands() {
-    if [ x"" != x"$USER_COMMAND_1" ]; then
-        USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
-        eval "$USER_COMMAND_1" &
-    fi
-    if [ x"" != x"$USER_COMMAND_2" ]; then
-        USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
-        eval "$USER_COMMAND_2" &
-    fi
-    if [ x"" != x"$USER_COMMAND_3" ]; then
-        USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
-        eval "$USER_COMMAND_3" &
-    fi
+	if [ x"" != x"$USER_COMMAND_1" ]; then
+		USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
+		eval "$USER_COMMAND_1" &
+	fi
+	if [ x"" != x"$USER_COMMAND_2" ]; then
+		USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
+		eval "$USER_COMMAND_2" &
+	fi
+	if [ x"" != x"$USER_COMMAND_3" ]; then
+		USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
+		eval "$USER_COMMAND_3" &
+	fi
+
+# Requires testing. <== GE
+#
+#	for i in 0 1 2 3 4 5 6 7 8 9
+#	do
+#		if [ x"" != x"$(eval echo \$USER_COMMAND_${i})" ]; then
+#			eval USER_COMMAND_${i}='$(sudo ${HTTPD} -f -d "$(eval echo \$USER_COMMAND_${i})")'
+#			eval "\$USER_COMMAND_${i}" &
+#		fi
+#	done
+
 }
 
 #========================================================================================
@@ -1416,9 +1433,9 @@ pcp_write_var_to_config() {
 
 pcp_save_to_config() {
 	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+#	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
+#	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
+#	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
 	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $CONFIGCFG
 	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $CONFIGCFG
 	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $CONFIGCFG
@@ -1524,9 +1541,9 @@ pcp_update_config_to_defaults() {
 # Edit the variables below to setup a wifi based system without LAN access
 # Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN"
 WIFI="off"
-SSID="wireless"
-PASSWORD="password"
-ENCRYPTION="WPA"
+#SSID="wireless"
+#PASSWORD="password"
+#ENCRYPTION="WPA"
 # End Wifi setup
 ##########################
 DEBUG="0"
@@ -1623,6 +1640,7 @@ EOF
 
 #========================================================================================
 # This is a developer routine only, do not use in normal scripts.
+# Note: This must be obsolete? <==== GE
 #----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
 	pcp_update_config_to_defaults
