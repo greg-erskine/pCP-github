@@ -1,1 +1,0 @@
-../tcz_repo/index.php
