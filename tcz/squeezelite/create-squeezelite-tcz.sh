@@ -81,6 +81,7 @@ mkdir -p $OUTPUT/usr/local/bin >> $LOG
 cp -p $SRC/squeezelite $OUTPUT/usr/local/bin/ >> $LOG
 cp -p $SRC/squeezelite-dsd $OUTPUT/usr/local/bin/ >> $LOG
 cp -p $SRC/find_servers $OUTPUT/usr/local/bin/ >> $LOG
+cp -p $SRC/alsacap $OUTPUT/usr/local/bin/ >> $LOG
 
 mkdir -p $OUTPUT/usr/local/etc/init.d >> $LOG
 cp -p $STARTDIR/squeezelite.init.d $OUTPUT/usr/local/etc/init.d/squeezelite >> $LOG

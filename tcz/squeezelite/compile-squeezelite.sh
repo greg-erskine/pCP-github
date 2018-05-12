@@ -5,22 +5,25 @@ if [ ! -d squeezelite ]; then
 fi
 
 cd squeezelite
-make "OPTS=-DDSD -DRESAMPLE -DVISEXPORT -DIR -DRPI -DLINKALL" clean
-make "OPTS=-DDSD -DRESAMPLE -DVISEXPORT -DIR -DRPI -DLINKALL"
 
+BUILDOPTIONS="-DRESAMPLE -DFFMPEG -DVISEXPORT -DGPIO -DRPI -DIR"
 
-make OPTS="-DRESAMPLE -DFFMPEG -DVISEXPORT -DDSD -DGPIO -DRPI -DIR -I./include" clean || exit 2
-make OPTS="-DRESAMPLE -DFFMPEG -DVISEXPORT -DDSD -DGPIO -DRPI -DIR -I./include" || exit 3
+make OPTS="$BUILDOPTIONS -DDSD" clean || exit 2
+make CFLAGS="-I./include" LDFLAGS="-s" OPTS="$BUILDOPTIONS -DDSD" || exit 3
 
 mv squeezelite squeezelite-dsd
-patchelf --set-rpath /usr/local/lib squeezelite-dsd
 
-make OPTS="-DRESAMPLE -DFFMPEG -DVISEXPORT -DGPIO -DRPI -DIR -I./include" clean || exit 4
-make OPTS="-DRESAMPLE -DFFMPEG -DVISEXPORT -DGPIO -DRPI -DIR -I./include" || exit 5
-patchelf --set-rpath /usr/local/lib squeezelite
+make OPTS="$BUILDOPTIONS -DDSD" clean || exit 4
+make CFLAGS="-I./include" LDFLAGS="-s" OPTS="$BUILDOPTIONS" || exit 5
 
 if [ -f find_servers ]; then
 	rm find_servers
 fi
 
 gcc -O2 -s -o find_servers tools/find_servers.c
+
+if [ -f alsacap ]; then
+	rm alsacap
+fi
+
+gcc -O2 -s -lasound -o alsacap tools/alsacap.c
