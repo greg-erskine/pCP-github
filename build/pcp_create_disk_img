@@ -354,7 +354,7 @@ copy_part2(){
 	find $PART2/* -type d | grep -v lost | xargs chmod 775
 
 	pcp_txt_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/onboot.lst $PART2/tce/onboot.lst 1001.50 664
-	pcp_txt_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/piCorePlayer.dep $PART2/tce/piCorePlayer.dep 1001.50 664
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/piCorePlayer.dep $PART2/tce/piCorePlayer.dep 1001.50 664
 
 	EXT=$(ls -1 ${BUILDROOT}/tcz-for-img/*.tcz)
 
@@ -406,8 +406,9 @@ build_mydata(){
 	chmod 775 ${MYDATA}/opt/bootsync.sh
 	chmod 664 ${MYDATA}/opt/tcemirror
 	chmod 775 ${MYDATA}/opt/.xfiletool.lst
-	chown 0.50 ${MYDATA}/etc/sysconfig/*
-	chmod 664 ${MYDATA}/etc/sysconfig/*
+# Nothing currently in this folder
+#	chown 0.50 ${MYDATA}/etc/sysconfig/*
+#	chmod 664 ${MYDATA}/etc/sysconfig/*
 
 	find ${MYDATA}/etc -not -type d | xargs -r dos2unix -s -q
 
@@ -426,7 +427,7 @@ build_mydata(){
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/.pbtemp ${MYDATA}/home/tc/.local/bin/.pbtemp 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.alsaequal.presets ${MYDATA}/home/tc/.alsaequal.presets 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.ashrc ${MYDATA}/home/tc/.ashrc 1001.50 644
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/powerscript.sh ${MYDATA}/home/tc/powerscript.sh 1001.50 755
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/pcp-powerbutton.sh ${MYDATA}/home/tc/pcp-powerbutton.sh 1001.50 755
 
