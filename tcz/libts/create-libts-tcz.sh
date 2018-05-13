@@ -35,11 +35,13 @@ if [ -d $SRC ]; then
                 rm -rf autom4te.cache
         fi
         patch -R -p1 -i $OUTPUT/../add-libts-kergoth-version.patch >> $LOG || exit 1
+        patch -R -p1 -i $OUTPUT/../ts-calibrate-fix-edges.patch >> $LOG || exit 1
 	
         git pull >> $LOG
 fi
 
 patch -p1 -i $OUTPUT/../add-libts-kergoth-version.patch >> $LOG || exit 1
+patch -p1 -i $OUTPUT/../ts-calibrate-fix-edges.patch >> $LOG || exit 1
 
 make distclean >> $LOG
 ./autogen-clean.sh
