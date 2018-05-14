@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-28
+# Version: 4.0.0 2018-05-14
 
 #========================================================================================
 # Setup debug logging
@@ -76,7 +76,6 @@ pcp_variables() {
 	HTTPDCONF="/home/tc/httpd.conf"
 	HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
-#	WIFIDB="/home/tc/wifi.db"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
 	VOLUME="$BOOTMNT"
 	DEVICE="$BOOTDEV"
@@ -1433,9 +1432,6 @@ pcp_write_var_to_config() {
 
 pcp_save_to_config() {
 	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
-#	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
-#	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
-#	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
 	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $CONFIGCFG
 	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $CONFIGCFG
 	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $CONFIGCFG
@@ -1537,15 +1533,7 @@ pcp_save_to_config() {
 #----------------------------------------------------------------------------------------
 pcp_update_config_to_defaults() {
 	sudo cat <<EOF > $CONFIGCFG
-#########################
-# Edit the variables below to setup a wifi based system without LAN access
-# Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN"
 WIFI="off"
-#SSID="wireless"
-#PASSWORD="password"
-#ENCRYPTION="WPA"
-# End Wifi setup
-##########################
 DEBUG="0"
 MODE="0"
 TEST="0"
@@ -1670,7 +1658,7 @@ pcp_reset_config_to_defaults() {
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/wireless/d' $ONBOOTLST
-	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
+#	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
 
 	# Remove cron stuff
 	( crontab -l | grep -v "reboot" ) | crontab -
