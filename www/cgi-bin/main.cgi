@@ -1,32 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Moved reboot page to Main page. GE.
-
-# Version: 3.5.0 2018-02-21
-#	HTML5 cleanup. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3B. PH.
-
-# Version: 3.20 2017-04-16
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Changed reboot functions. PH.
-
-# Version: 3.11 2017-01-29
-#	Added button for Hotfix. PH.
-
-# Version: 3.10 2017-01-06
-#	Updated [Save to USB] more> help. GE.
-#	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
-#	Changes for Squeezelite extension. PH.
-
-# Version: 3.00 2016-07-08
-#	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
-
-# Version: 0.01 2014-06-25
-#	Original. GE.
+# Version: 4.0.0 2018-05-14
 
 . pcp-functions
 . pcp-lms-functions
@@ -58,8 +32,29 @@ if [ "$ACTION" = "reboot" ]; then
 	pcp_remove_query_string
 	echo '</body>'
 	echo '</html>'
-#	sleep 1
-	sudo reboot
+	pcp rb
+	exit
+fi
+
+#========================================================================================
+# Shutdown page.
+#----------------------------------------------------------------------------------------
+if [ "$ACTION" = "shutdown" ]; then
+	. pcp-rpi-functions
+	pcp_rpi_details
+	pcp_table_top "Shutdown"
+	echo '<p>pCP is shutting down...</p>'
+	echo '<p><b>Note:</b> You need to reapply power to restart after a shutdown.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' DELAY: 15</p>'
+	pcp_table_middle
+	pcp_redirect_button "Refresh Main Page" "main.cgi" 15
+	pcp_table_end
+	pcp_footer
+	pcp_copyright
+	pcp_remove_query_string
+	echo '</body>'
+	echo '</html>'
+	pcp sd
 	exit
 fi
 
@@ -522,7 +517,7 @@ pcp_main_shutdown() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''shutdown.cgi'\'')" method="get">'
+	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''main.cgi?ACTION=shutdown'\'')" method="get">'
 	echo '                  <input type="submit" value="Shutdown">'
 	echo '                </form>'
 	echo '              </td>'
