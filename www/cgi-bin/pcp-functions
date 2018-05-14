@@ -88,7 +88,7 @@ pcp_variables() {
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 	REBOOT_PENDING="/tmp/rebootpending"
 	BASE_DIR="cgi-bin"
-	WPASUPPLICANTCONF="/opt/wpa_supplicant.conf"
+	WPASUPPLICANTCONF="/etc/wpa_supplicant.conf"
 
 	#------------------------------------------------------------------------------------
 	# Define modes

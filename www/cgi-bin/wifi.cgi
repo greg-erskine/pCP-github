@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-27
+# Version: 4.0.0 2018-05-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -38,9 +38,14 @@ pcp_html_end() {
 # WARNING messages
 #----------------------------------------------------------------------------------------
 [ $(pcp_kernel) = "pcpAudioCore" ] && ERRMSG1="Wifi may not work on the pcpAudioCore kernel." && ERROR_FLG=TRUE
-[ $(pcp_exists_wpa_supplicant) -ne 0 ] && ERRMSG2="/opt/wpa_supplicant.conf not found." && ERROR_FLG=TRUE
-[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Configuration maintained by user not piCorePlayer." && ERROR_FLG=TRUE
-[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
+
+if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
+	[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Configuration maintained by user not piCorePlayer." && ERROR_FLG=TRUE
+	[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
+else
+	ERRMSG2="$WPASUPPLICANTCONF not found."
+	ERROR_FLG=TRUE
+fi
 
 if [ "$WIFI" = "on" ]; then
 	if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
