@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-14
+# Version: 4.0.0 2018-05-15
 
 #========================================================================================
 # Setup debug logging
@@ -89,6 +89,7 @@ pcp_variables() {
 	REBOOT_PENDING="/tmp/rebootpending"
 	BASE_DIR="cgi-bin"
 	WPASUPPLICANTCONF="/etc/wpa_supplicant.conf"
+	FILETOOLLST="/opt/.filetool.lst"
 
 	#------------------------------------------------------------------------------------
 	# Define modes

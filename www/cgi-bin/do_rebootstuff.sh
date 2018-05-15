@@ -1,60 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-21
-#	fuse.ko does not load automatically for exfat mounts. PH.
-#	Added WPA wifi process. GE
-
-# Version: 3.5.0 2018-03-13
-#	Do not change card number if card not found in asound.conf. PH.
-#	Turn off extras during upgrade if they do not exist on new image. PH.
-#	Add Bootscript option for soundcard setup. PH.
-#	Add AP Mode Startup. PH.
-#	Load arc4 if doing a network mount, as it does not automatically load. PH.
-#	Setup Bluetooth during insitu upgrade. PH.
-#	Added check for file ssh. GE.
-#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
-
-# Version: 3.22 2017-09-10
-#	Added pcp_create_rotdash. GE.
-#	Fixed spaces in SSID. PH.
-#	Changed Netmounts to support shares with spaces. PH.
-#	Added exFat Support. PH.
-
-# Version: 3.21 2017-07-11
-#	Changed vfat mounts....again. PH.
-#	Set boot/tce device from /etc/sysconfig/tcedir link. PH.
-#	Support multiple USB mounts. PH.
-#	Support multiple Network mounts. PH.
-#	Updated insitu_update process. Copy of log saved to tcedir/pcp_insitu_upgrade.log. PH.
-#	Added cardnumber detection for use with aslaequal. PH.
-
-# Version: 3.20 2017-04-22
-#	Added crond message. GE.
-#	Updates for vfat mount permissions. PH.
-#	Changed rpi3 disable wifi to overlays on new config start. PH.
-#	Fixed boot Removal of old kernel modules. PH.
-#	Added setting SCREENROTATE to config.txt during newconfig process. PH.
-#	Reordered a few things that didn't need to be done before newconfig. PH.
-#	Added check for jivelite startup to avoid confusion on updating to new image. PH.
-#	Turn HDMIPOWER to on during upgrades. PH.
-
-# Version: 3.10 2017-01-02
-#	Added Samba Server Support. PH.
-#	Removed IQaudIO AMP unmute from here. SBP.
-#	Changes for shairport-sync. Incomplete. PH.
-#	Fixed newconfig.cfg process. PH.
-#	Set rpi3wifi blacklist in newconfig process. PH.
-
-# Version: 3.02 2016-09-19
-#	Added pcp_reset_repository. GE.
-
-# Version: 3.00 2016-08-12
-#	Changed ssh server to Openssh. SBP.
-#	Changed RPi3 wifi firmware extension name. SBP.
-#	Added "No network found!" message. GE.
-#	Adjusted Mount point permissions for SCP. PH.
-#	Changed Kernel Module update to handle individual modules. PH.
-#	Updated LIRC section. GE.
+# Version: 4.0.0 2018-05-15
 
 BACKUP=0
 # Read from pcp-functions file
@@ -73,8 +19,8 @@ ORIG_AUDIO="$AUDIO"
 # Check each partition for newconfig.cfg.  The first one found stops the search.
 #****************************************************************************************
 NEWCONFIGFOUND=0
-SSH=0
 WPACONFIGFOUND=0
+SSH=0
 NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 for DISK in $NEWCFGLIST; do
 	echo "${BLUE}Checking for newconfig.cfg on $DISK...${NORMAL}"
@@ -95,9 +41,10 @@ for DISK in $NEWCFGLIST; do
 	# Look for wpa_supplicant.conf on boot partition.
 	#------------------------------------------------------------------------------------
 	if [ -f /mnt/${DISK}/wpa_supplicant.conf ]; then
+		echo "${YELLOW}  wpa_supplicant.conf found on ${DISK}.${NORMAL}"
 		WPACONFIGFOUND=1
-		[ -f /opt/wpa_supplicant.conf ] && mv /opt/wpa_supplicant.conf /opt/wpa_supplicant.conf~
-		cp /mnt/${DISK}/wpa_supplicant.conf /opt/wpa_supplicant.conf
+		[ -f $WPASUPPLICANTCONF ] && mv $WPASUPPLICANTCONF ${WPASUPPLICANTCONF}~
+		cp /mnt/${DISK}/wpa_supplicant.conf $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && mv /mnt/${DISK}/wpa_supplicant.conf /mnt/${DISK}/used_wpa_supplicant.conf
 	fi
 	#------------------------------------------------------------------------------------
@@ -181,6 +128,11 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 			fi
 			echo "${GREEN}Done.${NORMAL}"
+		fi
+		if [ "$WIFI" = "on" ]; then
+			WPACONFIGFILE="/tmp/newconfig/usedconfig.cfg"
+			pcp_wifi_read_newconfig "colour"
+			pcp_wifi_write_wpa_supplicant "colour"
 		fi
 	######## CONFIG.TXT Section End
 	# During an newconfig update, turn HDMI back on, incase there are problems.
@@ -281,27 +233,24 @@ fi
 #========================================================================================
 # Start wifi.
 #----------------------------------------------------------------------------------------
+WPACONFIGFILE=$WPASUPPLICANTCONF
+
 if [ $WPACONFIGFOUND -eq 1 ]; then
+	dos2unix -u $WPACONFIGFILE
 	WIFI="on"
 	pcp_save_to_config
-	pcp_wifi_read_wpa_supplicant
-	pcp_wifi_write_wpa_supplicant
+	pcp_wifi_read_wpa_supplicant "colour"
+	pcp_wifi_write_wpa_supplicant "colour"
+	pcp_wifi_update_filetool
 	BACKUP=1
 fi
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded.
 if [ "$WIFI" = "on" ]; then
-	. /home/tc/www/cgi-bin/pcp-wifi-functions
-	if grep -Fxq "wifi.tcz" $ONBOOTLST; then
-		echo "${GREEN}Wifi firmware already loaded.${NORMAL}"
-	else
-		# Add wifi related modules.
-		echo "${GREEN}Loading wifi firmware and modules.${NORMAL}"
-		sudo fgrep -vxf $ONBOOTLST $TCEMNT/tce/piCorePlayer.dep >> $ONBOOTLST
-		BACKUP=1
-		pcp_wifi_load_firmware
-	fi
-	echo -n "${BLUE}Starting wifi...${NORMAL}"
+	pcp_wifi_load_wifi_firmware_extns "colour"
+	pcp_wifi_load_wifi_extns "colour"
+	BACKUP=1
+	echo "${BLUE}Starting wifi...${NORMAL}"
 	/usr/local/etc/init.d/wifi wlan0 start
 	echo "${GREEN}Done.${NORMAL}"
 fi

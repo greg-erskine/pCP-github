@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-14
+# Version: 4.0.0 2018-05-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -93,6 +93,7 @@ case "$ACTION" in
 	Config)
 		pcp_wifi_error_messages
 		pcp_table_textarea_top "Config option" "" "50"
+		pcp_wifi_update_filetool
 		pcp_save_to_config
 		pcp_wifi_read_wpa_supplicant "text"
 		pcp_backup "nohtml"
@@ -100,6 +101,7 @@ case "$ACTION" in
 	;;
 	Save)
 		pcp_table_textarea_top "Save option" "" "100"
+		pcp_wifi_update_filetool
 		if [ "$WIFI" = "on" ]; then
 			pcp_wifi_load_wifi_extns "text"
 			pcp_wifi_load_wifi_firmware_extns "text"
@@ -373,8 +375,7 @@ if [ "$WIFI" = "on" ]; then
 	echo '              </tr>'
 fi
 #--------------------------------------Built-in Wifi-------------------------------------
-#if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ]; then
-if [ $(pcp_rpi_has_inbuilt_wifi) -eq 1 ]; then    # <== ######################################################################
+if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
@@ -517,9 +518,11 @@ if [ $DEBUG -eq 1 ]; then
 #----------------------------------------------------------------------------------------
 	pcp_table_top "[ DEBUG ] Installed extensions"
 	pcp_wifi_all_extensions_installed "html"
-#	pcp_textarea_inform "none" "ls /usr/local/tce.installed" 200
 	pcp_table_end
 #----------------------------------------------------------------------------------------
+	pcp_table_top "[ DEBUG ] $FILETOOLLST"
+	pcp_textarea_inform "none" "cat $FILETOOLLST" 150
+	pcp_table_end
 fi
 #----------------------------------------------------------------------------------------
 
