@@ -1,28 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-04-26
-#	Fixed pcp_pastebin_button. GE.
-
-# Version: 3.5.0 2018-03-20
-#	Added support for RPi3B+. GE.
-#	lsusb is a standard command, no need for extension. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Changed to using pcp_log_header. GE.
-#	Changed to using pcp_green_tick, pcp_red_cross. GE.
-#	Added wpa_supplicant.conf. GE.
-#	Added wifi_wpadrv. GE.
-#	Added ping tests. GE.
-
-# Version: 0.01 2015-08-20
-#	Original. GE.
+# Version: 4.0.0 2018-05-16
 
 . pcp-functions
 . pcp-rpi-functions
@@ -86,7 +65,7 @@ pcp_diag_wifi_dmesg() {
 pcp_diag_wifi_lsmod() {
 	echo "lsmod" >>$LOG
 	echo ========================================================================================= >>$LOG
-	lsmod | grep -vE "^snd|^ctr|^ccm|^arc4|^uio|^i2c|^crc|^spi|^bcm2|^evdev|^regmap|^squashfs|^zram|^zsmalloc|^lz4" | tee -a $LOG
+	lsmod | grep -vE "^snd|^ctr|^ccm|^arc4|^uio|^i2c|^crc|^spi|^bcm2|^evdev|^regmap|^squashfs|^zram|^zsmalloc|^lz4|^fixed" | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -152,6 +131,16 @@ pcp_diag_wifi_iwlist() {
 }
 
 #========================================================================================
+# Routine to get available wifi networks.
+#----------------------------------------------------------------------------------------
+pcp_diag_wifi_available_networks() {
+	echo "Available wifi networks" >>$LOG
+	echo ========================================================================================= >>$LOG
+	pcp_wifi_available_networks | tee -a $LOG
+	echo >>$LOG
+}
+
+#========================================================================================
 # Routines to ping localhost and LMS.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_ping_local() {
@@ -185,6 +174,10 @@ pcp_diag_wifi_password() {
 	[ x"" = x"$PASSWORD" ] && echo "None" || echo $PASSWORD
 }
 
+pcp_diag_wifi_hiddenssid() {
+	[ x"" = x"$WPA_HIDDENSSID" ] && echo "no" || echo $WPA_HIDDENSSID
+}
+
 #========================================================================================
 # Create the log file. Start with some basic information.
 #----------------------------------------------------------------------------------------
@@ -197,6 +190,7 @@ echo "SSID:        "$WPA_SSID >>$LOG
 echo "Password:    "$WPA_PASSWORD >>$LOG
 echo "Passphrase:  "$WPA_PASSPHRASE >>$LOG
 echo "Security:    "$WPA_ENCRYPTION >>$LOG
+echo "Hidden SSID: "$(pcp_diag_wifi_hiddenssid) >>$LOG
 echo "MAC address: "$(pcp_diag_wifi_wlan0_mac_address) >>$LOG
 echo "Uptime:      "$(pcp_uptime_days) >>$LOG
 echo ========================================================================================= >>$LOG
@@ -288,6 +282,16 @@ echo '              <td colspan="5">'
 echo '                <p>'$WPA_PASSPHRASE'</p>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------Hidden SSID-------------------------------------------
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column150">'
+echo '                <p>Hidden SSID:</p>'
+echo '              </td>'
+echo '              <td colspan="5">'
+echo '                <p>'$(pcp_diag_wifi_hiddenssid)'</p>'
+echo '              </td>'
+echo '            </tr>'
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '          <table class="bggrey percent100">'
@@ -343,7 +347,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="3">'
+echo '                <textarea class="inform" rows="6">'
                         pcp_diag_wifi_lsmod
 echo '                </textarea>'
 echo '              </td>'
@@ -457,7 +461,7 @@ echo '            <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
-                        pcp_textarea_inform "none" "pcp_wifi_available_networks" 110
+                        pcp_textarea_inform "none" "pcp_diag_wifi_available_networks" 110
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'
