@@ -1,77 +1,7 @@
 /* piCorePlayer style sheet
 
-Version: 3.5.0 2018-01-19
-	Added .column240 and .column360. GE.
-	Added .small4. PH.
+Version: 4.0.0 2018-05-18
 
-Version: 3.21 2017-07-01
-	Added _tight row spacing for tables. PH.
-
-Version: 3.20 2017-03-27
-	Added a.nav8, a.nav8a, a.nav8, a.nav8a, a.tab20, a.tab20a. GE.
-	Added some extra .columXXX that might be useful. GE.
-	Cleaned formatting a little. GE.
-	Note problem with .warning style is repeated. GE.
-	Change player tab top margin. PH.
-	Changed .tab7end margin to properly display in Basic Mode. PH.
-
-Version: 3.00 2016-08-09 GE
-	Added .pointer.
-
-Version: 0.15 2016-05-20 GE
-	Added .column350, .right, .column20.
-
-Version: 0.14 2016-04-27 GE
-	Added .column280.
-	Changed .indicator_green, .indicator_red.
-
-Version: 0.13 2016-04-10 PH
-	Added .large6, .large8, .large10.
-	Added .column50, .column75.
-	Added button style.
-
-Version: 0.12 2016-03-16 GE
-	Added .column100, .column110, .column120.
-
-Version: 0.11 2016-02-23 GE
-	Added .large60, .large64, .indicator_green, .indicator_red.
-
-Version: 0.10 2016-02-01 SBP
-	Added a.nav6, a.nav6a.
-
-Version: 0.09 2015-08-23 GE
-	Added a.tab7 .small3, a.nav5a, a.nav7a.
-
-Version: 0.08 2015-06-17 GE
-	Added .large22.
-
-Version: 0.07 2015-06-05 GE
-	Renamed styles nav to nav5 and nav2 to nav7.
-	Simplified input styles.
-
-Version: 0.06 2015-02-04 GE
-	Removed .circle, .indicator.
-	Added .centre, input.large36, .column380.
-	Added .copyright.
-
-Version: 0.05 2014-12-20 GE
-	Severely pruned.
-
-Version: 0.05 2014-12-07 SBP
-	Added .circle style.
-
-Version: 0.04 2014-10-24 GE
-	Added textarea.white style.
-
-Version: 0.03 2014-10-08 GE
-	Added input[type=submit] style.
-
-Version: 0.02 2014-10-04 GE
-	Major format changes.
-	Added textarea style.
-
-Version: 0.01 2014-06-24 SBP
-	Original.
 */
 
 /* Default setting */
@@ -194,7 +124,7 @@ h2 {
 }
 
 .pointer {
-	cursor: pointer;
+	cursor:pointer;
 }
 
 .center {
@@ -371,7 +301,7 @@ input, button {
 }
 
 /* Define the tables */
-table, table.bgwhite, table.bggrey, table.bgblack {
+table, table.bgwhite, table.bggrey, table.bgblack, table.bgred {
 	border:0px solid red;
 	background:white;
 	width:956px;
@@ -383,6 +313,10 @@ table.bggrey {
 
 table.bgblack {
 	background:black;
+}
+
+table.bgred {
+	background:red;
 }
 
 table.percent100 {

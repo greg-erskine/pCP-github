@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-05-16
+# Version: 4.0.0 2018-05-17
 
 . pcp-functions
 . pcp-rpi-functions
@@ -373,7 +373,7 @@ pcp_start_row_shade
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>/opt/wpa_supplicant.conf:</b></p>'
+echo '                <p><b>/etc/wpa_supplicant.conf:</b></p>'
 echo '              </td>'
 echo '            </tr>'
 pcp_toggle_row_shade

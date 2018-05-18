@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-15
+# Version: 4.0.0 2018-05-18
 
 . pcp-functions
 . pcp-rpi-functions
@@ -40,8 +40,8 @@ pcp_html_end() {
 [ $(pcp_kernel) = "pcpAudioCore" ] && ERRMSG1="Wifi may not work on the pcpAudioCore kernel." && ERROR_FLG=TRUE
 
 if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
-	[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Configuration maintained by user not piCorePlayer." && ERROR_FLG=TRUE
-	[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
+	[ $(pcp_wifi_maintained_by_user) -eq 0 ] && ERRMSG3="Wifi configuration manually maintained by user not piCorePlayer." && ERROR_FLG=TRUE
+	[ $(pcp_wifi_update_config) -ne 0 ] && ERRMSG4="Wifi configuration can not be maintained by piCorePlayer or wpa_cli." && ERROR_FLG=TRUE
 else
 	ERRMSG2="$WPASUPPLICANTCONF not found."
 	ERROR_FLG=TRUE
@@ -60,7 +60,7 @@ fi
 
 pcp_wifi_error_messages() {
 	if [ "$WIFI" = "on" ] && [ $ERROR_FLG ]; then
-		echo '<table class="bggrey">'
+		echo '<table class="bgred">'
 		echo '  <tr class="warning">'
 		echo '    <td>'
 		echo '      <div style="color:white">'
@@ -93,24 +93,29 @@ case "$ACTION" in
 	Config)
 		pcp_wifi_error_messages
 		pcp_table_textarea_top "Config option" "" "50"
-		pcp_wifi_update_filetool
 		pcp_save_to_config
 		pcp_wifi_read_wpa_supplicant "text"
+		pcp_wifi_update_filetool
 		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
 	Save)
+		pcp_wifi_error_messages
 		pcp_table_textarea_top "Save option" "" "100"
-		pcp_wifi_update_filetool
 		if [ "$WIFI" = "on" ]; then
-			pcp_wifi_load_wifi_extns "text"
 			pcp_wifi_load_wifi_firmware_extns "text"
+			pcp_wifi_load_wifi_extns "text"
 			pcp_wifi_generate_passphrase "text"
 			pcp_wifi_write_wpa_supplicant "text"
-			pcp_backup "nohtml"
 			pcp_wifi_read_wpa_supplicant "text"
+			/usr/local/etc/init.d/wifi wlan0 start
+		else
+			/usr/local/etc/init.d/wifi wlan0 stop
+			pcp_wifi_unload_wifi_extns "text"
+			pcp_wifi_unload_wifi_firmware_extns "text"
 		fi
 		pcp_save_to_config
+		pcp_wifi_update_filetool
 		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
@@ -125,13 +130,16 @@ case "$ACTION" in
 		pcp_table_textarea_top "Delete option" "" "30"
 		rm -f $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "text"
+		pcp_wifi_update_filetool
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
+		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
 	Remove)
 		pcp_table_textarea_top "Remove option" "" "30"
 		pcp_wifi_unload_wifi_extns "text"
 		pcp_wifi_unload_wifi_firmware_extns "text"
+		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
 	Start)
@@ -196,18 +204,15 @@ echo '          <fieldset>'
 echo '            <legend>Set wifi configuration</legend>'
 echo '            <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
-case "$WIFI" in
-	on)
-		WIFIon="checked"
-		COLUMN1="column150"
-		COLUMN2="column380"
-	;;
-	off)
-		WIFIoff="checked"
-		COLUMN1="column150"
-		COLUMN2="column150"
-	;;
-esac
+if [ "$WIFI" = "on" ]; then
+	WIFIon="checked"
+	COLUMN1="column150"
+	[ $(pcp_wifi_maintained_by_user) -eq 0 ] && COLUMN2="column150" || COLUMN2="column380"
+else
+	WIFIoff="checked"
+	COLUMN1="column150"
+	COLUMN2="column150"
+fi
 #--------------------------------------Wifi on/off---------------------------------------
 pcp_incr_id
 pcp_start_row_shade
@@ -225,16 +230,16 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
-echo '                      <li>Selecting wifi on will enable the remaining fields.</li>'
-echo '                      <li>A reboot is required when wifi is turned on.</li>'
+echo '                      <li>Turning wifi on will enable the remaining fields.</li>'
+echo '                      <li>Turn wifi on if you have Raspberry Pi with built-in wifi.</li>'
 echo '                      <li>Turn wifi on if you have compatible USB wifi adaptor installed.</li>'
-echo '                      <li>Setting wifi to off will improve boot times.</li>'
+echo '                      <li>Set wifi to off if you are not using wifi.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-if [ "$WIFI" = "on" ]; then
+if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 #--------------------------------------SSID----------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -374,8 +379,9 @@ if [ "$WIFI" = "on" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 fi
-#--------------------------------------Built-in Wifi-------------------------------------
+#----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
+#--------------------------------------Built-in Wifi-------------------------------------
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
@@ -458,7 +464,6 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '                </td>'
 	echo '              </tr>'
 fi
-
 #----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
@@ -523,14 +528,39 @@ if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] $FILETOOLLST"
 	pcp_textarea_inform "none" "cat $FILETOOLLST" 150
 	pcp_table_end
-fi
 #----------------------------------------------------------------------------------------
+	pcp_table_top "[ DEBUG ] $ONBOOTLST"
+	pcp_textarea_inform "none" "cat $ONBOOTLST" 150
+	pcp_table_end
+#----------------------------------------------------------------------------------------
+fi
 
-#--------------------------------------Display Wifi information--------------------------
+#-------------------------/etc/wpa_supplicant.conf maintained by user--------------------
 if [ "$WIFI" = "on" ]; then
+	if [ $(pcp_wifi_maintained_by_user) -eq 0 ]; then
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <div class="row">'
+		echo '        <fieldset>'
+		echo '          <legend>/etc/wpa_supplicant.conf maintained by user</legend>'
+		echo '          <table class="bggrey percent100">'
+		pcp_start_row_shade
+		echo '            <tr class="'$ROWSHADE'">'
+		echo '              <td class="'$COLUMN1'">'
+		pcp_textarea_inform "none" "cat ${WPASUPPLICANTCONF}" 150
+		echo '              </td>'
+		echo '            </tr>'
+		echo '          </table>'
+		echo '        </fieldset>'
+		echo '      </div>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+	fi
+#-----------------------------------------Wifi information-------------------------------
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
 	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
-#-----------------------------------------Wifi information-------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
