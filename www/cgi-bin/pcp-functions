@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-15
+# Version: 4.0.0 2018-05-19
 
 #========================================================================================
 # Setup debug logging
@@ -1242,7 +1242,7 @@ pcp_redirect_button() {
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '<form name="redirect button" action="'$2'" method="get">'
 	echo '  <p>'
-	echo '    <input class="large12" type="submit" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
+	echo '    <input class="large12" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
 	echo '  </p>'
 	echo '</form>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'

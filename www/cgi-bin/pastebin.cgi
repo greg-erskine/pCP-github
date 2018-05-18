@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-18
+# Version: 4.0.0 2018-05-19
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -203,31 +203,29 @@ if [ "$SUBMIT" = "Accept" ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <form name="Results" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Results</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Results</legend>'
+	echo '          <table class="bggrey percent100">'
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
-	echo '                  <p>paste name: '$API_PASTE_NAME'</p>'
-	echo '                  <p>url: '$PASTEBIN_URL'</p>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	echo '                <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
+	echo '                <p>paste name: '$API_PASTE_NAME'</p>'
+	echo '                <p>url: '$PASTEBIN_URL'</p>'
 	[ $MODE -ge $MODE_DEVELOPER ] && [ $TEST -eq 4 ] &&
-	echo '                  <a target="_blank" href="'$PASTEBIN_URL'">'$PASTEBIN_URL'</a>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '                <a target="_blank" href="'$PASTEBIN_URL'">'$PASTEBIN_URL'</a>'
+	echo '              </td>'
+	echo '            </tr>'
 	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_redirect_button "Refresh Main Page" "main.cgi" 120
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_redirect_button "Refresh Main Page" "main.cgi" 120
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
