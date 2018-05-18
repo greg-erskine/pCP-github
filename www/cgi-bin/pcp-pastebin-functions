@@ -2,18 +2,7 @@
 # pcp-pastebin-functions
 # These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-18
-#	Changed http://pastebin.com/ to https://pastebin.com/. GE.
-#	Changed to MicroPython script for encoding data. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.01 2015-12-24
-#	Original. GE.
+# Version: 4.0.0 2018-05-18
 
 pcp_debug_log "$0 - Running pcp-pastebin-functions..."
 
@@ -34,10 +23,10 @@ API_PASTE_NAME="$(pcp_rpi_shortname)"
 API_PASTE_EXPIRE_DATE="1D"
 WGET="/usr/local/bin/wget"
 
-#. pcp-rpi-functions   <--- REMEMBER THIS
+#. pcp-rpi-functions   <--- REMEMBER THIS GE
 
 #========================================================================================
-# wget routine - Check for wget.tcz and download and install
+# wget routine - Check for wget.tcz and download and install.
 #----------------------------------------------------------------------------------------
 pcp_install_wget() {
 	echo '<textarea class="inform" rows="4">'
@@ -60,7 +49,7 @@ pcp_install_wget() {
 }
 
 #========================================================================================
-# pCP Pastebin button
+# Pastebin button.
 #----------------------------------------------------------------------------------------
 pcp_pastebin_button() {
 	if [ $MODE -ge $MODE_BETA ]; then
@@ -71,7 +60,7 @@ pcp_pastebin_button() {
 		echo '        <form name="Paste" action="pastebin.cgi" method="get">'
 		echo '          <div class="row">'
 		echo '            <fieldset>'
-		echo '              <legend>Upload</legend>'
+		echo '              <legend>Upload to Pastebin</legend>'
 		echo '              <table class="bggrey percent100">'
 		pcp_start_row_shade
 		echo '                <tr class="'$ROWSHADE'">'
@@ -81,7 +70,7 @@ pcp_pastebin_button() {
 		echo '                    <input type="hidden" name="REPORT" value="'${1}'">'
 		echo '                  </td>'
 		echo '                  <td>'
-		echo '                    <p>Upload report to Pastebin.</p>'
+		echo '                    <p>Upload to Pastebin.</p>'
 		echo '                  </td>'
 		echo '                </tr>'
 		echo '              </table>'
@@ -96,7 +85,7 @@ pcp_pastebin_button() {
 }
 
 #========================================================================================
-# Get api_user_key
+# Get api_user_key.
 #----------------------------------------------------------------------------------------
 pcp_pastebin_get_api_user_key() {
 	POST_DATA="api_dev_key=$API_DEV_KEY"
@@ -109,7 +98,7 @@ pcp_pastebin_get_api_user_key() {
 }
 
 #========================================================================================
-# Paste text to Pastebin
+# Paste text to Pastebin.
 #----------------------------------------------------------------------------------------
 pcp_pastebin_paste() {
 	pcp_pastebin_get_api_user_key
@@ -126,12 +115,12 @@ pcp_pastebin_paste() {
 	POST_DATA=$POST_DATA"&api_user_key=$API_USER_KEY"
 
 	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] $POST_DATA: '$POST_DATA'</p>'
-	echo '<p class="info">[ INFO ] Uploading '$FILE'...</p>'
+	echo '<p class="info">[ INFO ] Uploading '$FILE' to Pastebin...</p>'
 	PASTEBIN_URL=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_post.php')
 }
 
 #========================================================================================
-# Listing Pastes Created By A User - NOT USED
+# Listing Pastes Created By A User - NOT USED.
 #----------------------------------------------------------------------------------------
 pcp_pastebin_get_listing() {
 	pcp_pastebin_get_api_user_key

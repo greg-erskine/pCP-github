@@ -1,18 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-18
-#	Changed order of pcp-pastebin-functions and pcp-rpi-functions. GE.
-#	HTML5 update. GE.
-#	Changed to MicroPython script for encoding data. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.02 2016-05-09
-#	Renamed variable HTPPD to HTTPD. GE.
-
-# Version: 0.01 2016-02-05
-#	Original version. GE.
+# Version: 4.0.0 2018-05-18
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -59,8 +47,9 @@ case "$SUBMIT" in
 		esac
 	;;
 	Accept)
-		echo '<p class="info">[ INFO ] Upload has been accepted.</p>'
+		echo '<p class="info">[ INFO ] Upload paste has been accepted.</p>'
 		echo '<p class="info">[ INFO ] Encoding '$FILE'...</p>'
+
 API_POST_CODE=$(/usr/bin/micropython -c '
 #!/usr/bin/micropython
 import uos as os
@@ -97,11 +86,11 @@ infile.close
 	;;
 	Reject)
 		echo '<p class="info">[ INFO ] Rejected - paste was NOT uploaded.</p>'
-		echo "DELETED - paste text was NOT uploaded." >$UPLOAD_FILE
+		echo 'DELETED - paste was NOT uploaded.' >$UPLOAD_FILE
 	;;
 	*)
 		echo '<p class="info">[ INFO ] Invalid submit option.</p>'
-		echo "Invalid submit option." >$UPLOAD_FILE
+		echo 'Invalid submit option.' >$UPLOAD_FILE
 	;;
 esac
 
@@ -116,7 +105,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Paste form
+# Paste form.
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -139,10 +128,34 @@ echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
 
-#========================================================================================
-# Accept or reject paste form
-#----------------------------------------------------------------------------------------
 if [ "$SUBMIT" = "Upload" ]; then
+#========================================================================================
+# Installing wget extension and dependencies.
+#----------------------------------------------------------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Installing wget</legend>'
+	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_install_wget
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Accept or reject paste form.
+#----------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -154,19 +167,15 @@ if [ "$SUBMIT" = "Upload" ]; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
-	                        pcp_install_wget
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <p>The window above contains the paste that will be uploaded '
-	echo '                     into Pastebin. Check you are happy with the content '
-	echo '                     before you press [Accept].</p>'
-	echo '                  <p>The paste will be sent as a private paste, so it will not visable to the public. '
-	echo '                     Also, the paste will expire in 24 hours.</p>'
-	echo '                  <br />'
-	echo '                  <p>Only press [Accept] if you AGREE to upload this paste to Pastebin.</p>'
+	echo '                  <p>The Paste window above contains the paste that will be uploaded into Pastebin.</p>'
+	echo '                  <p>Check you are happy with the contents BEFORE pressing the [ Accept ] button.</p>'
+	echo '                  <p><b>Note:</b> The paste:</p>'
+	echo '                  <ul>'
+	echo '                     <li>will be sent as a private paste, so it will not visable to the public.</li>'
+	echo '                     <li>will expire in 24 hours.</li>'
+	echo '                  </ul>'
+	echo '                  <p>Only press the [ Accept ] button if you AGREE to upload this paste to Pastebin.</p>'
+	echo '                  <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
@@ -202,10 +211,17 @@ if [ "$SUBMIT" = "Accept" ]; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
+	echo '                  <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
 	echo '                  <p>paste name: '$API_PASTE_NAME'</p>'
 	echo '                  <p>url: '$PASTEBIN_URL'</p>'
 	[ $MODE -ge $MODE_DEVELOPER ] && [ $TEST -eq 4 ] &&
 	echo '                  <a target="_blank" href="'$PASTEBIN_URL'">'$PASTEBIN_URL'</a>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	                        pcp_redirect_button "Refresh Main Page" "main.cgi" 120
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
