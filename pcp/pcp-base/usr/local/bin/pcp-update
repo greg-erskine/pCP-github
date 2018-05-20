@@ -128,7 +128,7 @@ check_updates() {
 useBusybox
 
 #TCE_REPO="http://repo.tinycorelinux.net"
-PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+PCP_REPO="http://repo.picoreplayer.org/repo"
 
 cd /etc/sysconfig/tcedir/optional
 EXTENSION_DIR=$(pwd)
