@@ -461,7 +461,9 @@ echo '            <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
-                        pcp_textarea_inform "none" "pcp_diag_wifi_available_networks" 110
+echo '                  <textarea class="inform" rows="10">'
+                          pcp_diag_wifi_available_networks
+echo '                  </textarea>'
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'

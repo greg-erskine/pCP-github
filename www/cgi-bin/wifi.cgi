@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-18
+# Version: 4.0.0 2018-05-20
 
 . pcp-functions
 . pcp-rpi-functions
@@ -21,18 +21,6 @@ pcp_httpd_query_string
 
 [ x"" = x"$ACTION" ] && ACTION=Initial
 WPACONFIGFILE=$WPASUPPLICANTCONF
-
-#========================================================================================
-# HTML end.
-#----------------------------------------------------------------------------------------
-pcp_html_end() {
-	pcp_footer
-	[ $MODE -ge $MODE_NORMAL ] && pcp_mode
-	pcp_copyright
-	echo '</body>'
-	echo '</html>'
-	exit
-}
 
 #========================================================================================
 # WARNING messages
@@ -119,7 +107,7 @@ case "$ACTION" in
 		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
-#----------------------------------Developer options-------------------------------------
+#----------------------------------DEBUG - Developer options-----------------------------
 	Read)
 		pcp_wifi_error_messages
 		pcp_table_textarea_top "Read option" "" "30"
@@ -229,6 +217,7 @@ echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>&lt;On|Off&gt;</p>'
 echo '                    <ul>'
 echo '                      <li>Turning wifi on will enable the remaining fields.</li>'
 echo '                      <li>Turn wifi on if you have Raspberry Pi with built-in wifi.</li>'
@@ -256,7 +245,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter your wifi network SSID&nbsp;&nbsp;'
+	echo '                  <p>Enter wifi network SSID&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -284,13 +273,15 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter your wifi network password&nbsp;&nbsp;'
+	echo '                  <p>Enter wifi network password&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
 	echo '                      <li>Use valid alphanumeric characters only.</li>'
 	echo '                      <li>Maximum length of 64 characters.</li>'
+	echo '                      <li>Press [Save] to convert password to secure passphrase.</li>'
+	echo '                      <li>Password is not stored anywhere.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -312,11 +303,12 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Enter your wifi network passphrase&nbsp;&nbsp;'
+	echo '                  <p>Readonly wifi network passphrase&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
+	echo '                      <li>Usually auto-generated from SSID and wifi password.</li>'
 	echo '                      <li>Use valid alphanumeric characters only.</li>'
 	echo '                      <li>Maximum length of 64 characters.</li>'
 	echo '                    </ul>'
@@ -342,7 +334,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  <input class="small1" type="radio" name="WPA_ENCRYPTION" value="OPEN" '$WPA_ENCRYPTIONopen'>OPEN'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set to your wifi network security level&nbsp;&nbsp;'
+	echo '                  <p>Set wifi network security level&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -451,6 +443,7 @@ fi
 echo '                </td>'
 echo '              </tr>'
 
+#--------------------------------------DEBUG---------------------------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -475,14 +468,14 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 if [ $DEBUG -eq 1 ]; then
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF tests"
 	[ $(pcp_exists_wpa_supplicant) -eq 0 ] &&
 	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' exists</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' does not exists.</p>'
 	[ $(pcp_wifi_maintained_by_pcp) -eq 0 ] &&
 	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' "Maintained by piCorePlayer"</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' not "Maintained by piCorePlayer".</p>'
 	pcp_table_end
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/newconfig.cfg"
 	pcp_table_top "[ DEBUG ] $WPACONFIGFILE"
 	pcp_textarea_inform "none" "cat ${WPACONFIGFILE}" 80
@@ -499,7 +492,7 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "html"
 	fi
 	pcp_table_end
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/wpa_supplicant.conf"
 	pcp_table_top "[ DEBUG ] $WPACONFIGFILE"
 	pcp_textarea_inform "none" "cat ${WPACONFIGFILE}" 80
@@ -516,19 +509,19 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "html"
 	fi
 	pcp_table_end
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF"
 	pcp_textarea_inform "none" "cat ${WPASUPPLICANTCONF}" 150
 	pcp_table_end
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	pcp_table_top "[ DEBUG ] Installed extensions"
 	pcp_wifi_all_extensions_installed "html"
 	pcp_table_end
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	pcp_table_top "[ DEBUG ] $FILETOOLLST"
 	pcp_textarea_inform "none" "cat $FILETOOLLST" 150
 	pcp_table_end
-#----------------------------------------------------------------------------------------
+#--------------------------------------DEBUG---------------------------------------------
 	pcp_table_top "[ DEBUG ] $ONBOOTLST"
 	pcp_textarea_inform "none" "cat $ONBOOTLST" 150
 	pcp_table_end
@@ -559,8 +552,8 @@ if [ "$WIFI" = "on" ]; then
 		echo '</table>'
 	fi
 #-----------------------------------------Wifi information-------------------------------
-	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - reboot or connect required." || WLANMAC=$(pcp_wlan0_mac_address)
-	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - reboot or connect required." || WLANIP=$(pcp_wlan0_ip)
+	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - insert wifi adapter and [Save] to connect." || WLANMAC=$(pcp_wlan0_mac_address)
+	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - [Reboot] or [Save] to connect." || WLANIP=$(pcp_wlan0_ip)
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -616,23 +609,24 @@ fi
 # AP Mode Page Link
 #----------------------------------------------------------------------------------------
 wifi_apmode_page() {
+	[ "$WIFI" = "on" ] && DISABLED="disabled" || unset DISABLED
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>AP mode configuration page</legend>'
+	echo '          <legend>Wireless Access Point (WAP) configuration page</legend>'
 	echo '          <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
 	echo '                <form action="wifi_apmode.cgi" method="get">'
-	echo '                  <input type="submit" name="APmode" value="pCP AP Mode">'
+	echo '                  <input type="submit" name="APmode" value="WAP Mode" '$DISABLED'>'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Setup your piCorePlayer as a wifi AP&nbsp;&nbsp;'
+	echo '                <p>Setup piCorePlayer as a Wireless Access Point (WAP)&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -650,4 +644,5 @@ wifi_apmode_page() {
 [ $MODE -ge $MODE_BETA ] && wifi_apmode_page
 #----------------------------------------------------------------------------------------
 
-pcp_html_end
+pcp_wifi_html_end
+pcp_wifi_html_end

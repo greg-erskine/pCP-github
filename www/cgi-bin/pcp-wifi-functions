@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-18
+# Version: 4.0.0 2018-05-20
 
 #========================================================================================
 # filetool.lst functions - Note filename hard coded.
@@ -30,6 +30,16 @@ pcp_wifi_update_onbootlst() {
 	return $ERROR
 }
 
+pcp_wifi_update_wifi_onbootlst() {
+	pcp_wifi_update_onbootlst "add" "firmware-atheros.tcz"
+	pcp_wifi_update_onbootlst "add" "firmware-brcmwifi.tcz"
+	pcp_wifi_update_onbootlst "add" "firmware-ralinkwifi.tcz"
+	pcp_wifi_update_onbootlst "add" "firmware-rtlwifi.tcz"
+	pcp_wifi_update_onbootlst "add" "firmware-rpi3-wireless.tcz"
+	pcp_wifi_update_onbootlst "add" "wireless_tools.tcz"
+	pcp_wifi_update_onbootlst "add" "wpa_supplicant.tcz"
+}
+
 #========================================================================================
 # Load wifi extensions.
 #----------------------------------------------------------------------------------------
@@ -39,9 +49,8 @@ pcp_wifi_load_extn() {
 	# $3 - colour|text|html
 	local ERROR=0
 
-#	sudo -u tc pcp-load -i $1 #>/dev/null 2>&1
-
-	su tc -c "pcp-load -i $1"
+	sudo -u tc pcp-load -i $1 >/dev/null 2>&1
+#	su tc -c "pcp-load -i $1"
 
 	if [ $? -eq 0 ]; then
 		pcp_message OK "$2 loaded." "$3"
@@ -167,13 +176,13 @@ pcp_wifi_read_wpa_supplicant() {
 						;;
 						scan_ssid=*)
 							WPA_HIDDENSSID=${i#*=}
-							[ x"" = x"$WPA_HIDDENSSID" ] && WPA_HIDDENSSID=0 # Here ????? GE.
 						;;
 					esac
 			esac
 		done
 		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
+		[ x"" = x"$WPA_HIDDENSSID" ] && WPA_HIDDENSSID=0
 	else
 		pcp_message ERROR "$WPACONFIGFILE not found." "$FORMAT"
 	fi
@@ -255,6 +264,7 @@ pcp_wifi_write_wpa_supplicant() {
 
 		echo '}' >> $WPASUPPLICANTCONF
 	fi
+	sudo chmod u=rw,g=,o= $WPASUPPLICANTCONF
 }
 
 #========================================================================================
@@ -356,186 +366,96 @@ pcp_wifi_available_networks() {
 	if [ -z "$WIFI2" ]; then
 		echo -en "\n\nNo wifi devices found!\n\n"
 		echo -en "Possible error:\n\n"
-		echo -en "1. USB wifi adapter missing - insert adapter.\n"
-		echo -en "2. wifi drivers and firmware missing - reboot required."
-		echo '</textarea>'
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </table>'
-		echo '          </fieldset>'
-		echo '        </div>'
-#		echo '      </form>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-		pcp_html_end
+		echo -en "1. USB wifi adapter missing - insert adapter and [Reboot].\n"
+		echo -en "2. Wifi firmware and/or drivers missing - [Reboot] required.\n"
+	else
+		ifconfig "$WIFI2" up 2>/dev/null
+		(for i in `seq 5`
+		do
+			iwlist "$WIFI2" scanning
+			[ $? -eq 0 ] && break
+			sleep 1
+		done ) | awk -v wifi=$WIFI2 '
+		BEGIN {
+			RS="\n"
+			FS=":"
+			i = 0
+		}
+		function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
+			for (i = 2; i <= n; i++)
+				for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
+					# swap qual[j] and qual[j-1]
+					t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
+					t = level[j]; level[j] = level[j-1]; level[j-1] = t
+					t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
+					t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
+					t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
+					t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
+					t = type[j]; type[j] = type[j-1]; type[j-1] = t
+					t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
+				}
+		}
+		# main ()
+		{
+			if ($1 ~ /Cell/) {
+				if ( i == 0 || sid[i] != "" ) i++
+				addr[i] = $2":"$3":"$4":"$5":"$6":"$7
+				gsub(" ","",addr[i])
+			}
+			if ($1 ~ /Frequency/) {
+				split($2,c," ")
+				chan[i] = c[4]
+				gsub("\)","",chan[i])
+				freq[i] = "("c[1]c[2]")"
+				gsub(" ","",freq[i])
+			}
+			if ($1 ~ /Quality/) {
+				if (index($1,"=")) {
+					split($1,c,"=")
+					q = c[2]
+					level[i] = c[3]
+					gsub(" ","",level[i])
+				}
+				split(q,c,"/")
+				qual[i] = c[1] * 100 / c[2]
+			}
+			if ($1 ~ /Encryption/) {
+				enc[i] = $2
+			}
+			if ($1 ~ /ESSID/) {
+				sid[i] = $2
+				gsub("\"","",sid[i])
+			}
+			if (enc[i] ~ /off/) type[i]="NONE"
+			if ($2 ~ /WPA/) type[i]="WPA"
+			if ($2 ~ /WPA2 /) type[i]="WPA2"
+			if (type[i] == "" ) type[i]="WEP"
+		}
+		END {
+			rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
+			print ""
+			print "-----------------------------------------------------------------------------------------------------"
+			print "           SSID                     Quality   Level       Channel      Encryption       Address"
+			print "-----------------------------------------------------------------------------------------------------"
+			for (l=1; l<NR; l++) {
+				++j
+				#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address
+				if ( j <= i ) printf "%2d. %-33s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
+			}
+			print "-----------------------------------------------------------------------------------------------------"
+		} '
 	fi
-	ifconfig "$WIFI2" up 2>/dev/null
-	(for i in `seq 5`
-	do
-		iwlist "$WIFI2" scanning
-		[ $? -eq 0 ] && break
-		sleep 1
-	done ) | awk -v wifi=$WIFI2 '
-	BEGIN {
-		RS="\n"
-		FS=":"
-		i = 0
-	}
-	function rsort(qual,level,sid,enc,chan,freq,type,addr,n,i,j,t) {
-		for (i = 2; i <= n; i++)
-			for (j = i; j > 1 && qual[j]+0 > qual[j-1]+0; j--) {
-				# swap qual[j] and qual[j-1]
-				t = qual[j]; qual[j] = qual[j-1]; qual[j-1] = t
-				t = level[j]; level[j] = level[j-1]; level[j-1] = t
-				t = sid[j];  sid[j]  = sid[j-1];  sid[j-1]  = t
-				t = enc[j];  enc[j]  = enc[j-1];  enc[j-1]  = t
-				t = chan[j]; chan[j] = chan[j-1]; chan[j-1] = t
-				t = freq[j]; freq[j] = freq[j-1]; freq[j-1] = t
-				t = type[j]; type[j] = type[j-1]; type[j-1] = t
-				t = addr[j]; addr[j] = addr[j-1]; addr[j-1] = t
-			}
-	}
-	# main ()
-	{
-		if ($1 ~ /Cell/) {
-			if ( i == 0 || sid[i] != "" ) i++
-			addr[i] = $2":"$3":"$4":"$5":"$6":"$7
-			gsub(" ","",addr[i])
-		}
-		if ($1 ~ /Frequency/) {
-			split($2,c," ")
-			chan[i] = c[4]
-			gsub("\)","",chan[i])
-			freq[i] = "("c[1]c[2]")"
-			gsub(" ","",freq[i])
-		}
-		if ($1 ~ /Quality/) {
-			if (index($1,"=")) {
-				split($1,c,"=")
-				q = c[2]
-				level[i] = c[3]
-				gsub(" ","",level[i])
-			}
-			split(q,c,"/")
-			qual[i] = c[1] * 100 / c[2]
-		}
-		if ($1 ~ /Encryption/) {
-			enc[i] = $2
-		}
-		if ($1 ~ /ESSID/) {
-			sid[i] = $2
-			gsub("\"","",sid[i])
-		}
-		if (enc[i] ~ /off/) type[i]="NONE"
-		if ($2 ~ /WPA/) type[i]="WPA"
-		if ($2 ~ /WPA2 /) type[i]="WPA2"
-		if (type[i] == "" ) type[i]="WEP"
-	}
-	END {
-		rsort(qual,level,sid,enc,chan,freq,type,addr,NR)
-		print ""
-		print "-----------------------------------------------------------------------------------------------------"
-		print "           SSID                     Quality   Level       Channel      Encryption       Address"
-		print "-----------------------------------------------------------------------------------------------------"
-		for (l=1; l<NR; l++) {
-			++j
-			#                     |NO. |SSID |Qual  |Level |Channel   |Encrypt   |Address
-			if ( j <= i ) printf "%2d. %-33s %3d    %7s    %2d %10s   %-3s %-4s  %18s\n", j, sid[j], qual[j], level[j], chan[j], freq[j], enc[j], type[j], addr[j]
-		}
-		print "-----------------------------------------------------------------------------------------------------"
-	} '
 }
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# wifi extensions and dependencies.
+# HTML end.
 #----------------------------------------------------------------------------------------
-#cat piCorePlayer.dep
-# pcp.tcz
-# firmware-atheros.tcz
-# firmware-brcmwifi.tcz
-# firmware-rpi3-wireless.tcz
-# firmware-ralinkwifi.tcz
-# firmware-rtlwifi.tcz
-# wifi.tcz
-#
-# piCorePlayer.dep
-# |
-# |--pcp.tcz.dep
-# |   |
-# |   |--pcp-base.tcz
-# |   |--alsa.tcz.dep
-# |   |   |
-# |   |   \--libasound.tcz.dep
-# |   |       |
-# |   |       \alsa-modules-KERNEL.tcz.
-# |   |
-# |   |--alsa-utils.tcz.dep
-# |   |   |
-# |   |   |--libasound.tcz->
-# |   |   \--ncurses.tcz.
-# |   |
-# |   |--busybox-httpd.tcz
-# |   |--openssh.tcz.dep
-# |   |   |
-# |   |   |--libedit.tcz.dep
-# |   |   |   |
-# |   |   |   \--ncurses.tcz.
-# |   |   |
-# |   |   \--openssl.tcz.dep
-# |   |       |
-# |   |       \--ca-certificates.tcz.
-# |   |
-# |   |--dialog.tcz.dep
-# |   |   |
-# |   |   \--ncurses.tcz.
-# |   |
-# |   \--pcp-squeezelite.tcz.dep
-# |       |
-# |       |--pcp-libmpg123.tcz.dep
-# |       |   |
-# |       |   \--libasound.tcz.dep
-# |       |       |
-# |       |       \--alsa-modules-KERNEL.tcz.
-# |       |
-# |       |--pcp-libfaad2.tcz
-# |       |--pcp-libsoxr.tcz
-# |       |--pcp-libmad.tcz
-# |       |--pcp-libvorbis.tcz
-# |       |   |
-# |       |   \--pcp-libogg.tcz.
-# |       |
-# |       |--pcp-libflac.tcz
-# |       |   |
-# |       |   \--pcp-libogg.tcz.
-# |       |
-# |       |--libasound.tcz
-# |       |   |
-# |       |   \--alsa-modules-KERNEL.tcz.
-# |       |
-# |       \--wiringpi.tcz.
-# |
-# |--firmware-atheros.tcz
-# |--firmware-brcmwifi.tcz
-# |--firmware-ralinkwifi.tcz
-# |--firmware-rtlwifi.tcz
-# |--firmware-rpi3-wireless.tcz
-# |
-# \--wifi.tcz.dep
-#     |
-#     |--wireless_tools.tcz.dep
-#     |   |
-#     |   |--libiw.tcz
-#     |   \--wireless-KERNEL.tcz
-#     |
-#     \--wpa_supplicant.tcz.dep
-#         |
-#         |--libnl.tcz
-#         |--openssl.tcz.dep
-#         |   |
-#         |   \--ca-certificates.tcz.
-#         |
-#         \--readline.tcz
-#             |
-#             \--ncurses.tcz.
+pcp_wifi_html_end() {
+	pcp_footer
+	[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+	pcp_copyright
+	echo '</body>'
+	echo '</html>'
+	exit
+}

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-15
+# Version: 4.0.0 2018-05-20
 
 BACKUP=0
 # Read from pcp-functions file
@@ -45,6 +45,7 @@ for DISK in $NEWCFGLIST; do
 		WPACONFIGFOUND=1
 		[ -f $WPASUPPLICANTCONF ] && mv $WPASUPPLICANTCONF ${WPASUPPLICANTCONF}~
 		cp /mnt/${DISK}/wpa_supplicant.conf $WPASUPPLICANTCONF
+		chmod u=rw,g=,o= $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && mv /mnt/${DISK}/wpa_supplicant.conf /mnt/${DISK}/used_wpa_supplicant.conf
 	fi
 	#------------------------------------------------------------------------------------
@@ -129,6 +130,8 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			fi
 			echo "${GREEN}Done.${NORMAL}"
 		fi
+		# This will read newconfig and create wpa_supplicant.conf
+		# DO NOT PROMOTE THIS METHOD IT WILL BE DELETE <=== GE
 		if [ "$WIFI" = "on" ]; then
 			WPACONFIGFILE="/tmp/newconfig/usedconfig.cfg"
 			pcp_wifi_read_newconfig "colour"
@@ -236,20 +239,27 @@ fi
 WPACONFIGFILE=$WPASUPPLICANTCONF
 
 if [ $WPACONFIGFOUND -eq 1 ]; then
-	dos2unix -u $WPACONFIGFILE
 	WIFI="on"
 	pcp_save_to_config
-	pcp_wifi_read_wpa_supplicant "colour"
-	pcp_wifi_write_wpa_supplicant "colour"
+	dos2unix -u $WPACONFIGFILE
+	if [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
+		pcp_wifi_read_wpa_supplicant "colour"
+		pcp_wifi_write_wpa_supplicant "colour"
+	fi
 	pcp_wifi_update_filetool
-	BACKUP=1
+	pcp_wifi_update_wifi_onbootlst
+	pcp_backup_nohtml
+	echo "${RED}Reboot needed to enable wifi...${NORMAL}"
+	sleep 20
+	sudo reboot
+	exit 0
 fi
 
 # If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded.
 if [ "$WIFI" = "on" ]; then
-	pcp_wifi_load_wifi_firmware_extns "colour"
-	pcp_wifi_load_wifi_extns "colour"
-	BACKUP=1
+#	pcp_wifi_load_wifi_firmware_extns "colour"
+#	pcp_wifi_load_wifi_extns "colour"
+#	BACKUP=1
 	echo "${BLUE}Starting wifi...${NORMAL}"
 	/usr/local/etc/init.d/wifi wlan0 start
 	echo "${GREEN}Done.${NORMAL}"
