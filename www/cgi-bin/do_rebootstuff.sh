@@ -386,14 +386,30 @@ fi
 # INFRARED remote control - Start lircd if needed.
 #----------------------------------------------------------------------------------------
 if [ "$IR_LIRC" = "yes" ]; then
-	if [ "$JIVELITE" = "yes" ]; then
-		echo -n "${BLUE}Starting lirc with Jivelite support...${NORMAL}"
-		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log --uinput
-	else
-		echo -n "${BLUE}Starting lirc...${NORMAL}"
-		/usr/local/sbin/lircd --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log
+	LIRCD=/usr/local/sbin/lircd
+
+	if [ -x $LIRCD ]; then
+		LIRCVER="$($LIRCD --version | awk '{printf "%s", $2}')"
+
+		if [ "$LIRCVER" = "0.9.0" ]; then
+			if [ "$JIVELITE" = "yes" ]; then
+				echo -n "${BLUE}Starting lirc with Jivelite support...${NORMAL}"
+				$LIRCD --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log --uinput
+			else
+				echo -n "${BLUE}Starting lirc...${NORMAL}"
+				$LIRCD --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log
+			fi
+		else
+			echo -n "${BLUE}Starting lirc...${NORMAL}"
+			$LIRCD --device=/dev/${IR_DEVICE} --logfile=/var/log/pcp_lirc.log
+
+			if [ "$JIVELITE" = "yes" ]; then
+				echo -n "${BLUE}Starting lirc Jivelite support...${NORMAL}"
+				"${LIRCD}-uinput" --logfile=/var/log/pcp_lirc_uinput.log &
+			fi
+		fi
+		echo "${GREEN}Done.${NORMAL}"
 	fi
-	echo "${GREEN}Done.${NORMAL}"
 fi
 
 #========================================================================================
