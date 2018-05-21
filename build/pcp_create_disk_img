@@ -851,6 +851,42 @@ md5sum ${PCP}.img > ${PCP}.img.md5.txt
 zip -9 ${PCP}.zip ${PCP}.img*
 
 echo ""
+echo "${BLUE}*******************************************************************************************"
+echo ""
+while true; do
+   read -p "${BLUE}Do you want to copy kernel modules to local repo for upload (y)es, (n)o ? ${NORMAL}" yn
+   case $yn in
+      [Yy]* ) UPDATE_REPO=1; break;;
+      [Nn]* ) UPDATE_REPO=0; break;;
+      * ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
+   esac
+done
+
+if [ $UPDATE_REPO -eq 1 ]; then
+	SRC_V6="${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}"
+	SRC_V7="${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}"
+
+	REPO="/home/paul/git/repo.picoreplayer.org/repo/9.x"
+	REPO_V6="${REPO}/armv6/tcz"
+	REPO_V7="${REPO}/armv7/tcz"
+
+	EXT="tcz tcz.dep tcz.info tcz.list tcz.md5.txt"
+
+	REPOS="V6 V7"
+	for I in $REPOS; do
+		SRC=$(eval echo  "\${SRC_${I}}")
+		DEST=$(eval echo "\${REPO_${I}}")
+
+		FILES=$(ls -1 $SRC/*.tcz | xargs basename -a)
+		for J in $FILES; do
+			for K in $EXT; do
+				cp -f $SRC/${J%.*}.${K} ${DEST}/${J%.*}.${K}
+			done
+		done
+	done
+fi
+
+echo ""
 echo "DONE"
 echo ""
 exit 0
