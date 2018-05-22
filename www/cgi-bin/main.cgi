@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-14
+# Version: 4.0.0 2018-05-23
 
 . pcp-functions
 . pcp-lms-functions
@@ -583,6 +583,29 @@ pcp_main_extensions() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Static IP-------------------------------------
+pcp_main_static_ip(){
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Static IP" action="xtras_staticip.cgi" method="get">'
+	echo '                  <input type="submit" value="Static IP">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_static_ip
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Beta mode fieldset----------------------------
 if [ $MODE -ge $MODE_BETA ]; then
 	echo '          </table>'
@@ -601,32 +624,9 @@ if [ $MODE -ge $MODE_BETA ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Static IP-------------------------------------
-pcp_main_static_ip(){
-	pcp_start_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Static IP" action="xtras_staticip.cgi" method="get">'
-	echo '                  <input type="submit" value="Static IP">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
-#----------------------------------------------------------------------------------------
-
 #------------------------------------------Diagnostics-----------------------------------
 pcp_main_diagnostics() {
-	pcp_toggle_row_shade
+	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
