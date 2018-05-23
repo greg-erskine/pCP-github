@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-19
+# Version: 4.0.0 2018-05-23
 
 #========================================================================================
 # Setup debug logging
@@ -504,7 +504,7 @@ pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td  style="height:148px">'
+	echo '    <td style="height:148px">'
 	echo '      <p class="banner">'
 	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
 	echo '        <map name="hotspot">'
