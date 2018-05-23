@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-20
+# Version: 4.0.0 2018-05-23
 
 . pcp-functions
 . pcp-rpi-functions
@@ -85,6 +85,10 @@ case "$ACTION" in
 		pcp_wifi_read_wpa_supplicant "text"
 		pcp_wifi_update_filetool
 		pcp_backup "nohtml"
+		if [ "$WIFI" = "on" ]; then
+			pcp_wifi_load_wifi_firmware_extns "text"
+			pcp_wifi_load_wifi_extns "text"
+		fi
 		pcp_table_textarea_end
 	;;
 	Save)
@@ -296,10 +300,9 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                <td class="'$COLUMN2'">'
 	echo '                  <input class="large30"'
 	echo '                         type="text"'
-	echo '                         name="WPA_PASSPHRASE"'
 	echo '                         value="'$WPA_PASSPHRASE'"'
 	echo '                         maxlength="64"'
-	echo '                         readonly'
+	echo '                         disabled'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -309,7 +312,6 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
 	echo '                      <li>Usually auto-generated from SSID and wifi password.</li>'
-	echo '                      <li>Use valid alphanumeric characters only.</li>'
 	echo '                      <li>Maximum length of 64 characters.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -436,6 +438,7 @@ fi
 if [ "$WIFI" = "on" ]; then
 	echo '                  <input type="submit" name="ACTION" value="Save">'
 	echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
+	echo '                  <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
 else
 	echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
 fi
