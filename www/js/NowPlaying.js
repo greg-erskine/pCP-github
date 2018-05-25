@@ -15,15 +15,15 @@ var refresh_timer_running = false;
 var page_visible = false;
 var repeat = {
         value: 0,
-        repeatclass: "",
-        repeatcommand: "",
+        btn_class: '',
+        command: '',
         tooltip: ""
     };
 var shuffle = {
         value: 0,
-        repeatclass: "",
-        repeatcommand: "",
-        tooltip: ""
+        btn_class: '',
+        command: '',
+        tooltip: ''
     };
 
 var tags = [ "tags:ub", "tags:cgABbehldiqtyrSuoKLNJ" ];
@@ -104,7 +104,7 @@ function setVolume(event) {
 function updateShuffle() {
     if (arguments.length > 0) {
         if (shuffle.value == 3 ) {
-            generate_lms_command.apply(null, shuffle.shufflecommmand );
+           generate_lms_command.apply(null, shuffle.command );
         } else {
             shuffle.value = ( shuffle.value === 0 ? 1 : ( shuffle.value == 1 ? 2 : 0 ) );
             generate_lms_command("playlist", "shuffle", shuffle );
@@ -121,7 +121,7 @@ function updateShuffle() {
         document.getElementById("btn-shuffle-text").title = "Shuffle by Album";
     } else {
         //custom button
-        document.getElementById("btn-shuffle").className = shuffle.shuffleclass;
+        document.getElementById("btn-shuffle").className = shuffle.btn_class;
         document.getElementById("btn-shuffle-text").title = shuffle.tooltip;
     }
 }
@@ -129,7 +129,7 @@ function updateShuffle() {
 function updateRepeat() {
     if (arguments.length > 0) {
         if (repeat.value == 3 ) {
-            generate_lms_command.apply(null, repeat.repeatcommand );
+            generate_lms_command.apply(null, repeat.command );
         } else {
             repeat.value = ( repeat.value === 0 ? 1 : ( repeat.value == 1 ? 2 : 0 ) );
             generate_lms_command("playlist", "repeat", repeat );
@@ -146,7 +146,7 @@ function updateRepeat() {
         document.getElementById("btn-repeat-text").title = "Repeat Playlist";
     } else {
         //custom button
-        document.getElementById("btn-repeat").className = repeat.repeatclass;
+        document.getElementById("btn-repeat").className = repeat.btn_class;
         document.getElementById("btn-repeat-text").title = repeat.tooltip;
     }
 }
@@ -344,33 +344,34 @@ function loadPlayerStatus(force) {
 
                 //Custom Buttoms i.e. Pandora
                 if ( ((result || {}).playlist_loop["0"] || {}).buttons ) {
-                    repeat.repeatcommand = result.playlist_loop["0"].buttons.repeat.command;
+                    repeat.command = result.playlist_loop["0"].buttons.repeat.command;
                     if ( result.playlist_loop["0"].buttons.repeat.jiveStyle == "thumbsUp" ) {
-                        repeat.repeatclass = "btn-thumbsUp";
+                        repeat.btn_class = "btn-thumbsUp";
                     } else {
-                        repeat.repeatclass = "btn-thumbsUp";
+                        repeat.btn_class = "btn-thumbsUp";
                     }
                     repeat.tooltip = result.playlist_loop["0"].buttons.repeat.tooltip;
                     repeat.value = 3;
                 } else {
                     repeat.value = parseInt(result["playlist repeat"]);
-                    repeat.repeatclass = "";
-                    repeat.repeatcommand = "";
+                    repeat.btn_class = "";
+                    repeat.command = "";
                 }
                 if ( ((result || {}).playlist_loop["0"] || {}).buttons ) {
-                    shuffle.shufflecommand = result.playlist_loop["0"].buttons.shuffle.command;
+                    shuffle.command = result.playlist_loop["0"].buttons.shuffle.command;
+
                     if ( result.playlist_loop["0"].buttons.shuffle.jiveStyle == "thumbsDown" ) {
-                        shuffle.shuffleclass = "btn-thumbsDown";
+                        shuffle.btn_class = "btn-thumbsDown";
                     } else {
-                        shuffle.shuffleclass = "btn-thumbsDown";
+                        shuffle.btn_class = "btn-thumbsDown";
                     }
                     shuffle.tooltip = result.playlist_loop["0"].buttons.shuffle.tooltip;
                     shuffle.value = 3;
                 } else {
                     var i = parseInt(result["playlist shuffle"]);
                     shuffle.value = ( i > 3  ? 0 : i );
-                    shuffle.shuffleclass = "";
-                    shuffle.shufflecommand = "";
+                    shuffle.btn_class = "";
+                    shuffle.command = "";
                 }
             }
             xhttp.ontimeout = function (e) {
