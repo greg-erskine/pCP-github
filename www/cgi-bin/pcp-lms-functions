@@ -2,6 +2,9 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
+# Version: 4.0.0 2018-04-22
+#	Changed to javascript controls and lms jsonrpc interface. PH.
+
 # Version: 3.20 2017-03-08
 #	Changed pcp_controls. GE.
 #	Fixed pcp-xxx-functions issues. GE.
@@ -12,38 +15,13 @@
 # Version: 3.10 2016-12-23
 #	Fixed players tabs for new changes in the LMS cli. PH.
 
-# Version: 2.06 2016-05-09
-#	Renamed variable HTPPD to HTTPD. GE.
-
-# Version: 2.05 2016-04-22
-#	Added pcp_set_slimconfig. PH.
-#	Updated pcp_controls with symbols. GE.
-#	Updated pcp_lms_controls. GE.
-
-# Version: 0.06 2016-03-25 GE
-#	Added pcp_lms_connect.
-
-# Version: 0.05 2016-03-10 GE
-#	Added pcp_lms_status.
-
-# Version: 0.04 2016-02-01 GE
-#	Added pcp_lms_power and pcp_lms_volume_set.
-
-# Version: 0.03 2015-10-01 GE
-#	Added pcp_lms_controls.
-
-# Version: 0.02 2015-06-02 GE
-#	Modified pcp_controls.
-#	Renamed styles nav to nav5 and nav2 to nav7.
-
 # Version: 0.01 2015-02-03 GE
 #	Original.
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
-MAC=$(pcp_controls_mac_address)
 LMSIP=$(pcp_lmsip)
-NC="busybox nc"
+WGET="busybox wget"
 
 pcp_lms_status() {
 	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
@@ -53,21 +31,24 @@ pcp_lms_status() {
 #========================================================================================
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
 pcp_controls() {
 	if [ "$LMSCONTROLS" = "yes" ] && [ $MODE -ge $MODE_ADVANCED ] ; then
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		LMSIP=$(pcp_lmsip)
 		echo '<!-- Start of pcp_lms_controls toolbar -->'
 		echo '<table class="bgblack">'
 		echo '  <tr>'
 		echo '    <td>'
 		echo '      <p>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=random_tracks" title="Random">Random</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_up" title="Volume Up">Volume Up '$BLACKTRIANGLE'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=volume_down" title="Volume Down">Volume Down '$BLACKTRIANGLEDOWN'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_prev" title="Previous Track">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=track_next" title="Next Track">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=play" title="Play">Play '$BLACKTRIANGLERIGHT'</a>'
-		echo '        <a class="nav7" href="controls.cgi?COMMAND=stop" title="Stop">Stop '$FILLEDSAMLLSQUARE'</a>'
-		echo '      </p>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')">Random</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">Volume Up '$BLACKTRIANGLE'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">Volume Down '$BLACKTRIANGLEDOWN'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">Play '$BLACKTRIANGLERIGHT'</button>'
+		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">Stop '$FILLEDSAMLLSQUARE'</button>'
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
@@ -84,43 +65,62 @@ pcp_lms_controls() {
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	MAC=$(pcp_controls_mac_address)
 	LMSIP=$(pcp_lmsip)
-	echo '<iframe src="http://'${LMSIP}':'${LMSPORT}'/status_header.html?player='${MAC}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
+	echo '<iframe src="http://'${LMSIP}':'${LMSPORT}'/status_header.html?player='${NAME}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
 }
 
 #========================================================================================
-# Get information from LMS
+# Get information from LMS json interface
+#	busybox wget -q -O- --post-data='{"id":1,"method":"slim.request","params": [ "-", [ "players", "0", "999" ] ]}' 
+#          --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js
 #----------------------------------------------------------------------------------------
-pcp_lms_request() {
-	STRING=$1
-	set -- $1
-	NUM=$(($#+1))
-	RESULT=`( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 | awk '{ print $'$NUM' }'`
-	echo `sudo $HTTPD -d $RESULT`
+pcp_lms_build_loop() {
+	if [ "$1" != "" ]; then
+		[ "$RLOOP" == '[' ] && RLOOP="$RLOOP\"$1\"" ||RLOOP="$RLOOP,\"$1\""
+		shift
+		NEXT=$@
+		[ "$NEXT" != "" ] && pcp_lms_build_loop $NEXT
+	fi
 }
 
-pcp_lms_request_list() {
-	STRING=$1
-	set -- $1
-	NUM=$(($#+2))
-	RESULT=`( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 | sed 's/ /\+/g' `
-	case $STRING in
-		# For the Player List, change delimeter from + to something specific we can parse out later.
-		players*) TT="${RESULT//+/!pcp!}%%";;
-		*) TT=${RESULT};;
-	esac		
-	echo `sudo $HTTPD -d $TT`
+pcp_lms_build_request() {
+	#Should be at least 2 arguments
+	#arguments should be <player id or name> <command> <arguments for command>
+	#For player non-specific request player id is "-"
+	ID=$1
+	shift
+	RLOOP="["
+	pcp_lms_build_loop $@
+	REQ="{\"id\":1,\"method\":\"slim.request\",\"params\":[ \"$ID\", $RLOOP]]}"
+	echo $REQ
 }
 
-pcp_lms_request_debug() {
-	STRING=$1
-	set -- $1
-	NUM=$(($#+1))
-	( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090
+pcp_lms_build_result() {
+	#Should be at least 2 arguments, result is almost always the first.
+	RLOOP="["
+	pcp_lms_build_loop $@
+	REQ="$RLOOP]"
+	# escape the brackets [ ] for egrep and sed
+	echo $REQ | sed 's/\[/\\\[/' | sed 's/\]/\\\]/'
 }
 
-pcp_lms_send() {
-	STRING=$1
-	( echo "$MAC $STRING"; echo exit ) | ${NC} $LMSIP 9090 > /dev/null
+pcp_lms_json_request() {
+	LMSIP=$(pcp_lmsip)
+	$WGET -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_req
+	cat /tmp/json_req | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g'
+}
+
+pcp_lms_json_request_list() {
+	LMSIP=$(pcp_lmsip)
+	$WGET -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_list
+	NUMRESULT=$(pcp_lms_build_result result count)
+	NO_OF_RESULTS=$(cat /tmp/json_list | egrep "$NUMRESULT" | sed -r "s/${NUMRESULT}[[:space:]]{1,9}//")
+	echo $NO_OF_RESULTS
+}
+
+pcp_lms_json_request_debug() {
+	LMSIP=$(pcp_lmsip)
+	$WGET -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_req
+	cat /tmp/json_req
 }
 
 #========================================================================================
@@ -161,52 +161,106 @@ pcp_lms_send() {
 #	disconnect
 #	players
 
+
 pcp_lms_player_count() {
-	pcp_lms_request "player count ?"
+	REQUEST=$(pcp_lms_build_request - player count ?)
+	RESULT=$(pcp_lms_build_result result _count)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_id() {
-	pcp_lms_request "player id 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player id 0 ?)
+	RESULT=$(pcp_lms_build_result result _id)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_uuid() {
-	pcp_lms_request "player uuid 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player uuid 0 ?)
+	RESULT=$(pcp_lms_build_result result _uuid)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_name() {
-	pcp_lms_request "player name 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player name 0 ?)
+	RESULT=$(pcp_lms_build_result result _name)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_ip() {
-	pcp_lms_request "player ip 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player ip 0 ?)
+	RESULT=$(pcp_lms_build_result result _ip)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_model() {
-	pcp_lms_request "player model 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player model 0 ?)
+	RESULT=$(pcp_lms_build_result result _model)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_isplayer() {
-	pcp_lms_request "player isplayer 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player isplayer 0 ?)
+	RESULT=$(pcp_lms_build_result result _isplayer)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_displaytype() {
-	pcp_lms_request "player displaytype 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player displaytype 0 ?)
+	RESULT=$(pcp_lms_build_result result _displaytype)
+	pcp_lms_json_request
 }
 
 pcp_lms_player_canpoweroff() {
-	pcp_lms_request "player canpoweroff 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME player canpoweroff 0 ?)
+	RESULT=$(pcp_lms_build_result result _canpoweroff)
+	pcp_lms_json_request
 }
 
 pcp_lms_signalstrength() {
-	pcp_lms_request "signalstrength 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME signalstrength 0 ?)
+	RESULT=$(pcp_lms_build_result result _signalstrength)
+	pcp_lms_json_request
 }
 
 pcp_lms_name() {
-	pcp_lms_request "name 0 ?"
+	REQUEST=$(pcp_lms_build_request $NAME name 0 ?)
+	RESULT=$(pcp_lms_build_result result _value)
+	pcp_lms_json_request
 }
 
 pcp_lms_connected() {
-	pcp_lms_request "connected ?"
+	REQUEST=$(pcp_lms_build_request $NAME connected ?)
+	RESULT=$(pcp_lms_build_result result _connected)
+	pcp_lms_json_request
+}
+
+pcp_lms_show() {
+	REQUEST=$(pcp_lms_build_request $NAME status - 1 tags:cgABbehldiqtyrSuoKLNJ)
+	RESULT=$(pcp_lms_build_result result remoteMeta artwork_url)
+	URL=$(pcp_lms_json_request)
+	if [ "$URL" == "" ]; then
+		RESULT="\[\"result\",\"playlist_loop\",0,\"artwork_track_id\"\]"
+		A_ID=$(pcp_lms_json_request)
+		URL="/music/${A_ID}/cover.jpg"
+	fi
+	echo $URL
+}
+
+pcp_lms_players() {
+	[ "$1" = "" ] && model="squeezelite" || model=$1
+	REQUEST=$(pcp_lms_build_request - players 0 999)
+	NO_OF_PLAYERS=$(pcp_lms_json_request_list)
+
+	i=0
+	while [ $i -lt $NO_OF_PLAYERS ]; do
+		NAMES=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"name\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"name\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		MODEL=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"model\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"model\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		IP=$(cat /tmp/json_list | egrep  "\[\"result\",\"players_loop\",${i},\"ip\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"ip\"\][[:space:]]{1,9}//')
+		IPADDR=$(echo ${IP%\:*} | sed 's/\"//g')
+		CONNECTED=$(cat /tmp/json_list | egrep  "\[\"result\",\"players_loop\",${i},\"connected\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"connected\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		[ "$MODEL" = "$model" ] && printf "%s,%s,%s\n" "$NAMES" "$IPADDR" "$CONNECTED"
+		i=$((i+1))
+	done
 }
 
 pcp_lms_power() {
@@ -214,85 +268,55 @@ pcp_lms_power() {
 		on) VALUE=1 ;;
 		off) VALUE=0 ;;
 	esac
-	pcp_lms_send "power $VALUE"
-}
-
-pcp_lms_players() {
-	SEARCH=$1
-	NO_OF_PLAYERS=$(pcp_lms_player_count)
-	RESULT=$(pcp_lms_request_list "players 0 $NO_OF_PLAYERS")
-	echo $RESULT | awk -v no_of_players="$NO_OF_PLAYERS" -v search="$SEARCH" '
-	BEGIN {
-		RS="playerindex:"
-		i = 0
-	}
-	# main
-	{
-		LMS Response before 11-20-2016
-		#0 playerid:b8:27:eb:c7:e0:61 uuid: ip:192.168.1.103:48826 name:123456789 model:squeezelite isplayer:1 displaytype:none canpoweroff:1 connected:1 
-		LMS Response after 11-20-2016
-		#0 playerid:b8:27:eb:81:b2:d4 uuid: ip:192.168.0.17:59046 name:123456789 seq_no:0 model:squeezelite modelname:SqueezeLite power:1 isplaying:0 displaytype:none isplayer:1 canpoweroff:1 connected:1 firmware:v1.8.4-762
-
-		x++
-		line[x]=$0
-		#!pcp! is the delimeter that we inserted above, as the default.  This allows spaces in names.
-		split($0, data, "!pcp!")
-		ii=1
-		# I am only parsing the fields that we need
-		while ( length(data[ii]) > 0) {
-			if ( index(data[ii], "ip:") == 1){
-				ip[x]=substr(data[ii], 4)
-			}
-			if ( index(data[ii], "model:") == 1){
-				model[x]=substr(data[ii], 7)
-			}
-			if ( index(data[ii], "name:") == 1){
-				name[x]=substr(data[ii], 6)
-			}
-			if ( index(data[ii], "connected:") == 1){
-				connected[x]=substr(data[ii], 11)
-			}
-			ii++
-		}
-		split(ip[x],j,":")
-		ipaddr[x]=j[1]
-		ipport[x]=j[2]
-	}
-	END {
-		for (y=2; y<2+no_of_players; y++) {
-			if ( model[y] == search ) {
-				#printf "<p>idx(%s) playerid(%s) uuid(%s) ip(%s %s %s) name(%s) model(%s) isplayer(%s) displaytype(%s) canpoweroff(%s) connected(%s)</p>\n" \
-				#,idx[y],playerid[y],uuid[y],ip[y],ipaddr[y],ipport[y],name[y],model[y],isplayer[y],displaytype[y],canpoweroff[y],connected[y]
-				#printf "                    <option value=\"%s\" id=\"%s\"> %s - %s</option>\n",ipaddr[y],name[y],name[y],ipaddr[y]
-				printf "%s,%s,%s\n",name[y],ipaddr[y],connected[y]
-			}
-		}
-	} '
+	REQUEST=$(pcp_lms_build_request $NAME power $VALUE)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_volume_up() {
 	AMOUNT=5
-	pcp_lms_send "mixer volume +$AMOUNT"
+	REQUEST=$(pcp_lms_build_request $NAME mixer volume +$AMOUNT)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_volume_down() {
 	AMOUNT=5
-	pcp_lms_send "mixer volume -$AMOUNT"
+	REQUEST=$(pcp_lms_build_request $NAME mixer volume -$AMOUNT)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_volume_set() {
 	AMOUNT=$1
-	pcp_lms_send "mixer volume $AMOUNT"
+	REQUEST=$(pcp_lms_build_request $NAME mixer volume $AMOUNT)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_player_status() {
-	PLAYERID=$(pcp_lms_player_id)
-	pcp_lms_request_list "status -"
+##  All player information is returned
+	REQUEST=$(pcp_lms_build_request $NAME status -)
+	RESULT="NONE"
+	pcp_lms_json_request
+	cat /tmp/json_req
 }
 
 pcp_lms_connect() {
 	NEWLMSIP=$1
-	pcp_lms_send "connect $NEWLMSIP"
+	REQUEST=$(pcp_lms_build_request $NAME connect $NEWLMSIP)
+	RESULT="NONE"
+	pcp_lms_json_request
+}
+
+#========================================================================================
+# ServerInfo
+#----------------------------------------------------------------------------------------
+#	version							Implemented
+pcp_lms_version() {
+	REQUEST=$(pcp_lms_build_request - version ?)
+	RESULT=$(pcp_lms_build_result result _version)
+	pcp_lms_json_request
 }
 
 #========================================================================================
@@ -324,57 +348,53 @@ pcp_lms_connect() {
 #	pragma
 
 pcp_lms_rescan() {
-	pcp_lms_send "rescan"
+	REQUEST=$(pcp_lms_build_request - rescan)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_wipecache() {
-	pcp_lms_send "wipecache"
+	REQUEST=$(pcp_lms_build_request - wipecache)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_info_total_genres() {
-	pcp_lms_request "info total genres ?"
+	REQUEST=$(pcp_lms_build_request - info total genres ?)
+	RESULT=$(pcp_lms_build_result result _genres)
+	pcp_lms_json_request
 }
 
 pcp_lms_info_total_artists() {
-	pcp_lms_request "info total artists ?"
+	REQUEST=$(pcp_lms_build_request - info total artists ?)
+	RESULT=$(pcp_lms_build_result result _artists)
+	pcp_lms_json_request
 }
 
 pcp_lms_info_total_albums() {
-	pcp_lms_request "info total albums ?"
+	REQUEST=$(pcp_lms_build_request - info total albums ?)
+	RESULT=$(pcp_lms_build_result result _albums)
+	pcp_lms_json_request
 }
 
 pcp_lms_info_total_songs() {
-	pcp_lms_request "info total songs ?"
+	REQUEST=$(pcp_lms_build_request - info total songs ?)
+	RESULT=$(pcp_lms_build_result result _songs)
+	pcp_lms_json_request
 }
 
 pcp_lms_artists() {
-	RESULT=$(pcp_lms_request_list "artists 0 1000")
-	echo $RESULT | awk '
-	BEGIN {
-		RS="id:"
-		i = 0
-	}
-	# main
-	{
-		#8107 artist:Various Artists
-		#8106 artist:10cc
-		#0123456789012345678901234567890
+	REQUEST=$(pcp_lms_build_request - artists 0 999999)
+	NO_OF_ARTISTS=$(pcp_lms_json_request_list)
+	[ "$1" == "" ] && MAX=$NO_OF_ARTISTS || MAX=$1
 
-		x++
-		line[x]=$0
-
-		a[x]=index($0, "artist:")
-		b[x]=length($0)
-
-		id[x]=substr($0, 1, a[x]-1)
-		artist[x]=substr($0, a[x]+7, b[x]-a[x]-7)
-
-	}
-	END {
-		for (y=2; y<=20; y++) {
-			printf "<p>id(%s) artist(%s) - %s</p>\n",id[y],artist[y],line[y]
-		}
-	} '
+	i=0
+	while [ $i -lt $MAX ]; do
+		ARTIST=$(cat /tmp/json_list | egrep "\[\"result\",\"artists_loop\",(${i}|\"${i}\"),\"artist\"\]" | sed -r 's/\[\"result\",\"artists_loop\",([0-9]{1,3}|\"[0-9]{1,3}\"),\"artist\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		ID=$(cat /tmp/json_list | egrep  "\[\"result\",\"artists_loop\",(${i}|\"${i}\"),\"id\"\]" | sed -r 's/\[\"result\",\"artists_loop\",([0-9]{1,3}|\"[0-9]{1,3}\"),\"id\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		printf "<p>id(%s) artist(%s) - %s</p>\n" "$ID" "$ARTIST" "$i"
+		i=$((i+1))
+	done
 }
 
 #========================================================================================
@@ -428,65 +448,102 @@ pcp_lms_artists() {
 #	playlistcontrol
 
 pcp_lms_play() {
-	pcp_lms_send "play"
+	REQUEST=$(pcp_lms_build_request $NAME play)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_stop() {
-	pcp_lms_send "stop"
+	REQUEST=$(pcp_lms_build_request $NAME stop)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
-# Todo: pause, unpause, toggle
 pcp_lms_pause() {
-	pcp_lms_send "pause"
+	REQUEST=$(pcp_lms_build_request $NAME pause)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_mode() {
-	pcp_lms_request "mode ?"
+	REQUEST=$(pcp_lms_build_request $NAME mode ?)
+	RESULT=$(pcp_lms_build_result result _mode)
+	pcp_lms_json_request
 }
 
-# Todo: jump forward, jump back
+# Todo: jump forward, jump back, not past value of duration
 pcp_lms_time() {
-	pcp_lms_request "time ?"
+	REQUEST=$(pcp_lms_build_request $NAME time ?)
+	RESULT=$(pcp_lms_build_result result _time)
+	pcp_lms_json_request
 }
 
 pcp_lms_genre() {
-	pcp_lms_request "genre ?"
+	REQUEST=$(pcp_lms_build_request $NAME genre ?)
+	RESULT=$(pcp_lms_build_result result _genre)
+	pcp_lms_json_request
 }
 
 pcp_lms_artist() {
-	pcp_lms_request "artist ?"
+	REQUEST=$(pcp_lms_build_request $NAME artist ?)
+	RESULT=$(pcp_lms_build_result result _artist)
+	pcp_lms_json_request
 }
 
 pcp_lms_album() {
-	pcp_lms_request "album ?"
+	REQUEST=$(pcp_lms_build_request $NAME album ?)
+	RESULT=$(pcp_lms_build_result result _album)
+	pcp_lms_json_request
 }
 
 pcp_lms_title() {
-	pcp_lms_request "title ?"
+	REQUEST=$(pcp_lms_build_request $NAME title ?)
+	RESULT=$(pcp_lms_build_result result _title)
+	pcp_lms_json_request
 }
 
 pcp_lms_duration() {
-	pcp_lms_request "duration ?"
+	REQUEST=$(pcp_lms_build_request $NAME duration ?)
+	RESULT=$(pcp_lms_build_result result _duration)
+	pcp_lms_json_request
 }
 
 pcp_lms_remote() {
-	pcp_lms_request "remote ?"
+	REQUEST=$(pcp_lms_build_request $NAME remote ?)
+	RESULT=$(pcp_lms_build_result result _remote)
+	pcp_lms_json_request
 }
 
 pcp_lms_current_title() {
-	pcp_lms_request "current_title ?"
+	REQUEST=$(pcp_lms_build_request $NAME current_title ?)
+	RESULT=$(pcp_lms_build_result result _current_title)
+	pcp_lms_json_request
 }
 
 pcp_lms_path() {
-	pcp_lms_request "path ?"
+	REQUEST=$(pcp_lms_build_request $NAME path ?)
+	RESULT=$(pcp_lms_build_result result _path)
+	pcp_lms_json_request
 }
 
 pcp_lms_next() {
-	pcp_lms_send "playlist jump +1"
+	REQUEST=$(pcp_lms_build_request $NAME playlist jump +1)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 pcp_lms_prev() {
-	pcp_lms_send "playlist jump -1"
+	REQUEST=$(pcp_lms_build_request $NAME playlist jump -1)
+	RESULT="NONE"
+	pcp_lms_json_request
+}
+
+pcp_lms_playlist_play() {
+	if [ "$1" != "" ]; then
+		REQUEST=$(pcp_lms_build_request $NAME playlist play $1)
+		RESULT="NONE"
+		pcp_lms_json_request
+	fi
 }
 
 #========================================================================================
@@ -506,7 +563,9 @@ pcp_lms_prev() {
 #---------------------------------------------------------------------------------------
 pcp_lms_randomplay() {
 	MODE=tracks
-	pcp_lms_send "randomplay $MODE"
+	REQUEST=$(pcp_lms_build_request $NAME randomplay $MODE)
+	RESULT="NONE"
+	pcp_lms_json_request
 }
 
 #========================================================================================
