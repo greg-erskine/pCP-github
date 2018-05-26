@@ -49,18 +49,6 @@ pcp_controls() {
 		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</button>'
 		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">Play '$BLACKTRIANGLERIGHT'</button>'
 		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">Stop '$FILLEDSAMLLSQUARE'</button>'
-		if [ $MODE -ge $MODE_BETA -a $(version $(pcp_lms_version)) -ge $(version "7.9.2") ]; then
-			# Now Playing Information in Javascript.  Requires LMS 7.9.2
-			pcp_incr_id
-			# Note: The javascript calls must reference the symbols via hex codes \uxxxx
-			echo '        <a id="'$ID'a" class="ctrlmoreless" href=# title="Now Playing" onclick="return ctrlmore('\'''$ID''\'')">'$BLACKTRIANGLEDOWN'</a>'
-			echo '      </p>'
-			echo '      <div id="'$ID'" class="ctrlless">'
-			echo '        <iframe id="nowplaying" src="nowplaying.cgi" frameborder="0" scrolling="no" style="border-style: none;width: 100%; height: 155px;"></iframe>'
-			echo '      </div>'
-		else
-			echo '      </p>'
-		fi
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
