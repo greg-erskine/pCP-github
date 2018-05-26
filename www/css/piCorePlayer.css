@@ -426,21 +426,7 @@ textarea.white {
 	font-size:12px;
 }
 
-/* LMS Control buttons and Now Playing Info */
-table.nowplaying,table.nowplayingtxt {
-	border:0px solid red;
-	width:600px;
-   background:black;
-   height: 100px;
-   color:white;
-   font-weight: bold;
-}   
-
-table.nowplayingtxt {
-	margin-top:5px;
-	margin-left:20px;
-}
-
+/* LMS Control Buttons */
 .ctrlbutton {
 	position: relative;
 	background-color:black;
