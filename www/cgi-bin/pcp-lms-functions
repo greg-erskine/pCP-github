@@ -31,8 +31,6 @@ pcp_lms_status() {
 #========================================================================================
 # LMS controls toolbar
 #----------------------------------------------------------------------------------------
-function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
-
 pcp_controls() {
 	if [ "$LMSCONTROLS" = "yes" ] && [ $MODE -ge $MODE_ADVANCED ] ; then
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
