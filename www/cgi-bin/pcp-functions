@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-23
+# Version: 4.0.0 2018-05-28
 
 #========================================================================================
 # Setup debug logging
@@ -710,12 +710,12 @@ pcp_xtras() {
 	echo '    <td>'
 	echo '      <p>'
 	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Diag Test">Test</a>'
-	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Diag Asound">Asound</a>'
-	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Diag Bootcodes">Bootcodes</a>'
-	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Diag Controls">Controls</a>'
-	echo '        <a class="nav7" href="xtras_graph.cgi" title="pCP - Diag Graph">Graph</a>'
-	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Diag LMS CLI">LMS CLI</a>'
+	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Xtras Test">Test</a>'
+	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Xtras Asound">Asound</a>'
+	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Xtras Bootcodes">Bootcodes</a>'
+	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Xtras Controls">Controls</a>'
+	echo '        <a class="nav7" href="xtras_cpu_temp.cgi" title="pCP - Xtras CPU Temp">CPU Temp</a>'
+	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Xtras LMS CLI">LMS CLI</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'

@@ -1,19 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.04 2016-02-12 GE
-#	Updated due to changed pcp_rpi_thermal_temp routine.
-
-# Version: 0.03 2015-07-05 GE
-#	Added previous and next buttons.
-
-# Version: 0.02 2015-05-02 GE
-#	Added option buttons.
-
-# Version: 0.01 2015-02-25 GE
-#	Original version.
+# Version: 4.0.0 2018-05-28
 
 #========================================================================================
 # This is an experiment to work out how to generate graphs using only:
@@ -22,14 +9,12 @@
 # - svg
 #
 # Requires cputemp.sh to gather cpu temperature data
-# Add to user command 1 to start the data gathering process:
-#    sleep 60; /home/tc/cputemp.sh >/home/tc/data.txt &
-#
-# The sleep allows time for the time to be set correctly.
 #----------------------------------------------------------------------------------------
 
 . pcp-functions
-#. $CONFIGCFG
+
+CPU_TEMP_SH="/tmp/cputemp.sh"
+CPU_TEMP_LOG="/var/log/pcp_cpu_temp.log"
 
 pcp_html_head "xtras_graph" "GE"
 
@@ -39,10 +24,10 @@ pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
-# This routine writes /etc/cputemp.sh
+# This routine writes cputemp.sh
 #----------------------------------------------------------------------------------------
 pcp_write_cputemp_sh() {
-cat <<EOF > /tmp/cputemp.sh
+cat <<EOF > $CPU_TEMP_SH
 #!/bin/sh
 
 . /home/tc/www/cgi-bin/pcp-functions
@@ -57,22 +42,22 @@ do
 done
 EOF
 
-	sudo chmod u=rwx,og=rx /tmp/cputemp.sh
+	sudo chmod u=rwx,og=rx $CPU_TEMP_SH
 }
 
 case "$OPTION" in
 	Start)
 		pcp_write_cputemp_sh
 		killall cputemp.sh
-		/tmp/cputemp.sh >/tmp/data.txt &
+		$CPU_TEMP_SH >$CPU_TEMP_LOG &
 	;;
 	Stop)
 		killall cputemp.sh
 	;;
 	Clean)
 		killall cputemp.sh
-		rm -f /tmp/data.txt
-		rm -f /tmp/cputemp.sh
+		rm -f $CPU_TEMP_LOG
+		rm -f $CPU_TEMP_SH
 	;;
 	Refresh)
 		COUNTER=0
@@ -89,20 +74,20 @@ esac
 #========================================================================================
 # Style sheet - move to piCorePlayer.css in the future
 #----------------------------------------------------------------------------------------
-echo '<style type="text/css">'
+echo '<style>'
 echo 'svg.graph {'
 #echo '  height: 250px;'
 #echo '  width: 300px;'
 echo '}'
 echo '.grid {'
 echo '  stroke: black;'
-echo '  stroke-dasharray: 1 2;'
-echo '  stroke-width: 1;'
+echo '  stroke-dasharray: 1px 2px;'
+echo '  stroke-width: 1px;'
 echo '}'
 echo '.dots {'
 echo '  stroke: red;'
 echo '  fill: red;'
-echo '  stroke-width: 1;'
+echo '  stroke-width: 1px;'
 echo '}'
 echo '.labels {'
 #echo '  stroke: black;'
@@ -120,12 +105,12 @@ echo '  text-anchor: end;'
 echo '}'
 echo '.tics {'
 echo '  stroke: black;'
-echo '  stroke-width: 1;'
+echo '  stroke-width: 1px;'
 echo '}'
 echo '.line {'
 echo '  fill: none;'
 echo '  stroke: red;'
-echo '  stroke-width: 2;'
+echo '  stroke-width: 2px;'
 echo '}'
 echo '</style>'
 
@@ -161,12 +146,12 @@ echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>CPU Temperature Graph</legend>'
-echo '          <table class="bggrey percent100">'
+#echo '          <table class="bggrey percent100">'
 
 echo '<svg version="1.1" class="graph"'
 echo '  baseProfile="full"'
 echo '  width="'$(($X * $XGAP + (2 * $MARGIN) + $LMARGIN))'" height="'$(($Y * $YGAP + $MARGIN + $MARGIN + $BMARGIN))'">'
-echo '  xmlns="http://www.w3.org/2000/svg">'
+#echo '  xmlns="http://www.w3.org/2000/svg">'
 echo ''
 echo '  <rect width="100%" height="100%" fill="#eaeaea" />'
 echo ''
@@ -181,12 +166,12 @@ echo ''
 DATA1="06:25 06:26 06:27 06:28 06:29 06:30 06:31 06:32 06:33 06:34 06:35 06:36 06:37 06:38 06:39 06:40 06:41 06:42 06:43 06:44 06:45"
 DATA2="100 90 80 70 60 50 40 30 20 10 0 10 20 30 40 55 60 70 80 90 100"
 
-if [ -f /tmp/data.txt ]; then
-	LINES=$(wc -l < /tmp/data.txt)
+if [ -f $CPU_TEMP_LOG ]; then
+	LINES=$(wc -l < $CPU_TEMP_LOG)
 	BEGINRANGE=$(($LINES - $XMAX + $COUNTER))
 	[ $BEGINRANGE -le 0 ] && BEGINRANGE=1
 	ENDRANGE=$(($BEGINRANGE + $XMAX))
-	DATA=$(cat /tmp/data.txt)
+	DATA=$(cat $CPU_TEMP_LOG)
 	DATA1=$(echo "$DATA" | sed -n ${BEGINRANGE},${ENDRANGE}p | awk '{print $1}')
 	DATA2=$(echo "$DATA" | sed -n ${BEGINRANGE},${ENDRANGE}p | awk '{print $2}')
 fi
@@ -276,7 +261,7 @@ echo '</g>'
 # Place data dots
 #----------------------------------------------------------------------------------------
 k=0
-echo '<g class="dots" data-setname="data-dots" >'
+echo '<g class="dots" data-setname="data-dots">'
 for j in $DATA2
 do
 	GAP=$(($k * $XGAP))
@@ -308,24 +293,27 @@ echo ''
 echo '</svg>'
 
 #----------------------------------------------------------------------------------------
-echo '          </table>'
+#echo '          </table>'
 
 echo '          <table class="bggrey percent100">'
-echo '            <form name="actions" action="xtras_graph.cgi" method="get">'
-echo '              <tr>'
-echo '                <td colspan=2>'
+echo '            <tr>'
+echo '              <td>'
+echo '                <form name="actions" action="'$0'" method="get">'
 echo '                  <input type="submit" name="OPTION" value="Previous">'
-echo '                  <input type="submit" name="OPTION" value="Refresh">'
 echo '                  <input type="submit" name="OPTION" value="Next">'
 echo '                  <input type="hidden" name="COUNTER" value="'$COUNTER'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
-echo '                </td>'
-echo '              </tr>'
-echo '            </form>'
+echo '                </form>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
+echo '              </td>'
+echo '            </tr>'
+echo '            <tr>'
+echo '              <td colspan="2">'
+                      pcp_redirect_button "Refresh" "$0" 30
+echo '              </td>'
+echo '            </tr>'
 echo '          </table>'
-
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -339,17 +327,17 @@ echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Logging options</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <form name="actions" action="xtras_graph.cgi" method="get">'
+echo '          <form name="actions" action="'$0'" method="get">'
+echo '            <table class="bggrey percent100">'
 echo '              <tr>'
-echo '                <td colspan=3>'
+echo '                <td>'
 echo '                  <input type="submit" name="OPTION" value="Start">'
 echo '                  <input type="submit" name="OPTION" value="Stop">'
 echo '                  <input type="submit" name="OPTION" value="Clean">'
 echo '                </td>'
 echo '              </tr>'
-echo '            </form>'
-echo '          </table>'
+echo '            </table>'
+echo '          </form>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
