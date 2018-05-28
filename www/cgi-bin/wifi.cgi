@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-23
+# Version: 4.0.0 2018-05-27
 
 . pcp-functions
 . pcp-rpi-functions
@@ -17,7 +17,16 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_httpd_query_string
+pcp_httpd_query_string_no_decode
+[ $DEBUG -eq 0 ] && pcp_remove_query_string
+[ -n "$WPA_PASSWORD" ] && ENCODED_WPA_PASSWORD="${WPA_PASSWORD}"
+[ -n "$WPA_SSID" ] && ENCODED_WPA_SSID="${WPA_SSID}"
+WPA_PASSWORD=""
+WPA_SSID=""
+#Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
+# it would need to be manually decoded like this
+# [ -n "$ACTION" ] && ACTION=$($URL_DECODE $ACTION)
+# in this case, no other variables can contain encoded data.
 
 [ x"" = x"$ACTION" ] && ACTION=Initial
 WPACONFIGFILE=$WPASUPPLICANTCONF
@@ -100,6 +109,7 @@ case "$ACTION" in
 			pcp_wifi_generate_passphrase "text"
 			pcp_wifi_write_wpa_supplicant "text"
 			pcp_wifi_read_wpa_supplicant "text"
+			/usr/local/etc/init.d/wifi wlan0 stop
 			/usr/local/etc/init.d/wifi wlan0 start
 		else
 			/usr/local/etc/init.d/wifi wlan0 stop
@@ -187,6 +197,23 @@ fi
 #========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
+echo '<script>'
+echo 'var wifi_current_state="'$WIFI'";'
+echo 'function validate() {'
+echo '    if ( document.setwifi.RPI3BPLUS.value == "false" && document.setwifi.RPI3INTWIFI.value == "on" && document.setwifi.RPIBLUETOOTH.value == "on"  ){'
+echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
+echo '      return false;'
+echo '    }'
+echo '    if ( wifi_current_state == "on" && document.setwifi.WIFI.value == "on" ){' 
+echo '      if ( document.setwifi.WPA_PASSWORD.value == "" || document.setwifi.WPA_PASSWORD.value == "********" || document.setwifi.WPA_SSID.value == "" || document.setwifi.WPA_COUNTRY.value == "" ){'
+echo '        alert("SSID, Password and Country Code\nMUST be entered!");'
+echo '        return false;'
+echo '      }'
+echo '    }'
+echo '  return true;'
+echo '}'
+echo '</script>'
+
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -242,6 +269,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                </td>'
 	echo '                <td class="'$COLUMN2'">'
 	echo '                  <input class="large15"'
+	echo '                         id="ssid"'
 	echo '                         type="text"'
 	echo '                         name="WPA_SSID"'
 	echo '                         value="'$WPA_SSID'"'
@@ -261,6 +289,10 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '              <script type="text/javascript">'
+	echo '                var enc = "'$ENCODED_WPA_SSID'";'
+	echo '                document.getElementById("ssid").value = decodeURIComponent(enc.replace(/\+/g, "%20"));'
+	echo '              </script>'
 #--------------------------------------Password------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -272,7 +304,8 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  <input class="large30"'
 	echo '                         type="text"'
 	echo '                         name="WPA_PASSWORD"'
-	echo '                         value="'$WPA_PASSWORD'"'
+#	echo '                         value="'$WPA_PASSWORD'"'
+	echo '                         value="********"'
 	echo '                         maxlength="64"'
 	echo '                  >'
 	echo '                </td>'
@@ -282,7 +315,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
-	echo '                      <li>Use valid alphanumeric characters only.</li>'
+#	echo '                      <li>Use valid alphanumeric characters only.</li>'
 	echo '                      <li>Maximum length of 64 characters.</li>'
 	echo '                      <li>Press [Save] to convert password to secure passphrase.</li>'
 	echo '                      <li>Password is not stored anywhere.</li>'
@@ -314,6 +347,32 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                      <li>Usually auto-generated from SSID and wifi password.</li>'
 	echo '                      <li>Maximum length of 64 characters.</li>'
 	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#----------------------------------------Country Code------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p>Country Code</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large6"'
+	echo '                         type="text"'
+	echo '                         name="WPA_COUNTRY"'
+	echo '                         value="'$WPA_COUNTRY'"'
+	echo '                         pattern="[A-Z]{2}"'
+	echo '                         title="Use Capital Letters."'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Two character Wireless Country Code&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Country Codes are two Letters.</p>'
+	echo '                    <p>Reference <a href=https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 target="_blank">Country Code List</a>.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -436,7 +495,7 @@ else
 fi
 
 if [ "$WIFI" = "on" ]; then
-	echo '                  <input type="submit" name="ACTION" value="Save">'
+	echo '                  <input type="submit" name="ACTION" value="Save" onclick="return(validate());">'
 	echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 	echo '                  <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
 else

@@ -90,6 +90,7 @@ pcp_variables() {
 	BASE_DIR="cgi-bin"
 	WPASUPPLICANTCONF="/etc/wpa_supplicant.conf"
 	FILETOOLLST="/opt/.filetool.lst"
+	URL_DECODE="$HTTPD -i -d"
 
 	#------------------------------------------------------------------------------------
 	# Define modes

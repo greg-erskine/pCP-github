@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-20
+# Version: 4.0.0 2018-05-27
 
 #========================================================================================
 # filetool.lst functions - Note filename hard coded.
@@ -159,6 +159,9 @@ pcp_wifi_read_wpa_supplicant() {
 							WPA_SSID=${i#*=}
 							WPA_SSID=$(echo $WPA_SSID | sed -e 's/^\"\(.*\)\"$/\1/')
 						;;
+						\#enc_ssid=*)
+							ENCODED_WPA_SSID=$(echo ${i#*=} | sed -e 's/^\"\(.*\)\"$/\1/')
+						;;
 						psk=\"*)
 							WPA_PASSWORD=${i#*=}
 							WPA_PASSWORD=$(echo $WPA_PASSWORD | sed -e 's/^\"\(.*\)\"$/\1/')
@@ -176,6 +179,9 @@ pcp_wifi_read_wpa_supplicant() {
 						;;
 						scan_ssid=*)
 							WPA_HIDDENSSID=${i#*=}
+						;;
+						country=*)
+							WPA_COUNTRY=$(echo ${i#*=} | sed -e 's/^\"\(.*\)\"$/\1/')
 						;;
 					esac
 			esac
@@ -243,11 +249,13 @@ pcp_wifi_write_wpa_supplicant() {
 		echo '# Maintained by piCorePlayer' > $WPASUPPLICANTCONF
 		echo 'ctrl_interface=/var/run/wpa_supplicant' >> $WPASUPPLICANTCONF
 		echo 'ctrl_interface_group=staff' >> $WPASUPPLICANTCONF
+		echo 'country='$WPA_COUNTRY >> $WPASUPPLICANTCONF
 		echo 'update_config=1' >> $WPASUPPLICANTCONF
 		echo '' >> $WPASUPPLICANTCONF
 		echo 'network={' >> $WPASUPPLICANTCONF
 
-		echo '	ssid="'$WPA_SSID'"' >> $WPASUPPLICANTCONF
+		echo '	#enc_ssid="'$ENCODED_WPA_SSID'"' >> $WPASUPPLICANTCONF
+		echo '	ssid="'$($URL_DECODE $ENCODED_WPA_SSID)'"' >> $WPASUPPLICANTCONF
 		if [ "$WPA_ENCRYPTION" = "WPA-PSK" ]; then
 			if [ x"" = x"$WPA_PASSPHRASE" ]; then
 				echo '	psk="'$WPA_PASSWORD'"' >> $WPASUPPLICANTCONF
@@ -331,11 +339,11 @@ pcp_wifi_all_extensions_installed() {
 # Generate WPA passphrase from SSID and password.
 #----------------------------------------------------------------------------------------
 pcp_wifi_generate_passphrase() {
-	pcp_debug_variables "text" WPA_PASSWORD WPA_ENCRYPTION WPA_PASSPHRASE
+	pcp_debug_variables "text" WPA_PASSWORD WPA_ENCRYPTION WPA_PASSPHRASE ENCODED_WPA_SSID ENCODED_WPA_PASSWORD
 
 	pcp_message INFO "Generating new passphrase..." "$1"
-	if [ "$WPA_PASSWORD" != "" ] && [ "$WPA_ENCRYPTION" = "WPA-PSK" ]; then
-		WPA_PASSPHRASE="$(wpa_passphrase $WPA_SSID $WPA_PASSWORD)"
+	if [ "$ENCODED_WPA_PASSWORD" != "" ] && [ "$WPA_ENCRYPTION" = "WPA-PSK" ]; then
+		WPA_PASSPHRASE=$($URL_DECODE $ENCODED_WPA_PASSWORD | wpa_passphrase "$(printf "%s" "$($URL_DECODE $ENCODED_WPA_SSID)")")
 		if [ $? -eq 0 ]; then
 			WPA_PASSPHRASE=$(echo $WPA_PASSPHRASE | cut -d = -f 5 | cut -b 1-64)
 			WPA_PASSWORD=""
@@ -346,7 +354,7 @@ pcp_wifi_generate_passphrase() {
 		fi
 	fi
 
-	pcp_debug_variables "text" WPA_PASSWORD WPA_ENCRYPTION WPA_PASSPHRASE
+	pcp_debug_variables "text" ENCODED_WPA_PASSWORD WPA_ENCRYPTION WPA_PASSPHRASE
 }
 
 #========================================================================================
