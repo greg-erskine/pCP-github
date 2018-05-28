@@ -114,6 +114,7 @@ case "$ACTION" in
 		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
+		sleep 1
 	;;
 	Scan)
 		pcp_table_top "Bluetooth Scanning"
@@ -146,6 +147,7 @@ case "$ACTION" in
 		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
+		sleep 1
 	;;
 	Stop)
 		pcp_table_top "Bluetooth"
