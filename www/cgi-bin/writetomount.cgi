@@ -86,16 +86,31 @@ pcp_do_umount () {
 pcp_table_top "Write to mount"
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
 
-if [ "${ACTION}" = "gptfdisk" ]; then
-	MOUNTTYPE="skip"
-	EXTN="util-linux.tcz"
-	if [ -f $PACKAGEDIR/$EXTN ]; then
-		pcp_textarea_inform "none" "sudo -u tc pcp-load -i $EXTN" 50
-		echo $EXTN >> $ONBOOTLST
-	else
-		pcp_textarea_inform "none" "sudo -u tc pcp-load -wi $EXTN" 50
-	fi
-fi
+case ${ACTION} in
+	gptfdisk) 
+		MOUNTTYPE="skip"
+		EXTN="util-linux.tcz"
+		if [ -f $PACKAGEDIR/$EXTN ]; then
+			pcp_textarea_inform "none" "sudo -u tc pcp-load -i $EXTN" 50
+			echo $EXTN >> $ONBOOTLST
+		else
+			pcp_textarea_inform "none" "sudo -u tc pcp-load -wi $EXTN" 50
+		fi
+	;;
+	Permissions)
+		MOUNTTYPE="skip"
+		ALLPARTS=$(mount | grep -e "/dev/sd[a-z][1-9]" | cut -d ' ' -f3)
+		for I in $ALLPARTS; do
+			# Do not show the boot Drive
+			if [ "$I" != "${BOOTMNT}" -a "$I" != "${TCEMNT}" ]; then
+				echo '<p class="info">[ INFO ] Setting write permissions on '$I'.</p>'
+				find $I -type d | grep -v "lost+found" | xargs -r chmod 755
+				find $I -type d | grep -v "lost+found" | xargs -r chown tc.staff
+				find $I -not -type d | xargs -r chmod 664
+			fi
+		done
+	;;
+esac
 
 case "$MOUNTTYPE" in
 	localdisk)
@@ -179,6 +194,8 @@ case "$MOUNTTYPE" in
 						pcp_do_umount /mnt/$NEWPNT
 						if [ "$REBOOT_REQUIRED" = "0" ]; then
 							[ ! -d /mnt/$NEWPNT ] && mkdir -p /mnt/$NEWPNT
+							chown tc.staff /mnt/$NEWPNT
+							chmod 755 /mnt/$NEWPNT
 							DEVICE=$(blkid -U $NEWUU)
 							FSTYPE=$(blkid -U $NEWUU | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 							case "$FSTYPE" in

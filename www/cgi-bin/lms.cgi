@@ -1362,11 +1362,14 @@ pcp_mount_usbdrives() {
 	echo '                    <input type="hidden" name="NUMDRIVES" value="'$NUM_USB_ATTACHED'">'
 	echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
 	echo '                  </td>'
+	echo '                  <td class="column150 center">'
+	echo '                    <button type="submit" name="ACTION" value="Permissions" onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
+	echo '                  </td>'
 	case $LMSDATA in
 		usb*)
 			# Checkbox is disabled due to lms using for cache storage, Keep the specific box enabled
 			echo '                  <input type="hidden" name="'$KEEPENABLED'" value="enabled">'
-			echo '                  <td colspan=6>'
+			echo '                  <td colspan=5>'
 			echo '                    <p> LMS is currently using disk '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
 			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 			echo '                    </p>'
@@ -1377,7 +1380,7 @@ pcp_mount_usbdrives() {
 			echo '                  </td>'
 		;;
 		*)
-			echo '                  <td colspan=6>'
+			echo '                  <td colspan=5>'
 			if [ "$EXTRAFSYS" = "no" ]; then
 				echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
 			fi
@@ -1851,7 +1854,7 @@ pcp_samba() {
 		echo '            </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
-		echo '            <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '            <form name="Passwd" action="writetosamba.cgi" method="get">'
 		echo '              <table class="bggrey percent100">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -1884,8 +1887,12 @@ pcp_samba() {
 		fi
 		echo '                  </td>'
 		echo '                </tr>'
+		echo '              </table>'
+		echo '            </form>'
 		pcp_incr_id
 		pcp_toggle_row_shade
+		echo '            <form name="Select" action="writetosamba.cgi" method="get">'
+		echo '              <table class="bggrey percent100">'
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		echo '                    <p class="row">Server Name</p>'
