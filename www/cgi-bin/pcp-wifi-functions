@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-27
+# Version: 4.0.0 2018-05-30
 
 #========================================================================================
 # filetool.lst functions - Note filename hard coded.
@@ -245,6 +245,10 @@ pcp_wifi_write_wpa_supplicant() {
 		local FORMAT=$1
 
 		pcp_message INFO "Writing to $WPASUPPLICANTCONF..." "$FORMAT"
+
+		# wpa_supplicant not coming from the web interface.  Which means the passwords are not encoded.
+		[ "$ENCODED_WPA_PASSWORD" = "" ] && ENCODED_WPA_PASSWORD="$WPA_PASSWORD"
+		[ "$ENCODED_WPA_SSID" = "" ] && ENCODED_WPA_SSID="$WPA_SSID"
 
 		echo '# Maintained by piCorePlayer' > $WPASUPPLICANTCONF
 		echo 'ctrl_interface=/var/run/wpa_supplicant' >> $WPASUPPLICANTCONF
