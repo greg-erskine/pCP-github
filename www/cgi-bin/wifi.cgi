@@ -204,7 +204,7 @@ echo '    if ( document.setwifi.RPI3BPLUS.value == "false" && document.setwifi.R
 echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
 echo '      return false;'
 echo '    }'
-echo '    if ( wifi_current_state == "on" && document.setwifi.WIFI.value == "on" ){' 
+echo '    if ( wifi_current_state == "on" && document.setwifi.WIFI[0].checked == true ){' 
 echo '      if ( document.setwifi.WPA_PASSWORD.value == "" || document.setwifi.WPA_PASSWORD.value == "********" || document.setwifi.WPA_SSID.value == "" || document.setwifi.WPA_COUNTRY.value == "" ){'
 echo '        alert("SSID, Password and Country Code\nMUST be entered!");'
 echo '        return false;'
