@@ -1,0 +1,7 @@
+4.0.0
+	New home for pCP is www.picoreplayer.org
+	Rebuilt wifi scripts - Works with hidden wifi, special characters.....
+	kernel 4.14.xxx
+	Add rtl8188eu driver
+	Add Allo Katana drivers
+
