@@ -87,6 +87,9 @@ max_usb_current=1
 # Remove audio hiss
 # disable_audio_dither=1
 
+#If booting from USB or network, enable this option to reduce CPU load looking for a non-existing card.
+#dtoverlay=sdtweak,poll_once
+
 # Screen rotation 0 => 0 degrees, 2 => 180 degrees
 lcd_rotate=2
 
