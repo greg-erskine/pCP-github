@@ -253,7 +253,7 @@ pcp_wifi_write_wpa_supplicant() {
 		echo '# Maintained by piCorePlayer' > $WPASUPPLICANTCONF
 		echo 'ctrl_interface=/var/run/wpa_supplicant' >> $WPASUPPLICANTCONF
 		echo 'ctrl_interface_group=staff' >> $WPASUPPLICANTCONF
-		echo 'country='$WPA_COUNTRY >> $WPASUPPLICANTCONF
+		[ "$WPA_COUNTRY" != "" ] && echo 'country='$WPA_COUNTRY >> $WPASUPPLICANTCONF
 		echo 'update_config=1' >> $WPASUPPLICANTCONF
 		echo '' >> $WPASUPPLICANTCONF
 		echo 'network={' >> $WPASUPPLICANTCONF
