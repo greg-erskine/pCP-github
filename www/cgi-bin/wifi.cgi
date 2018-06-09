@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-27
+# Version: 4.0.0 2018-06-09
 
 . pcp-functions
 . pcp-rpi-functions
@@ -200,10 +200,6 @@ fi
 echo '<script>'
 echo 'var wifi_current_state="'$WIFI'";'
 echo 'function validate() {'
-echo '    if ( document.setwifi.RPI3BPLUS.value == "false" && document.setwifi.RPI3INTWIFI.value == "on" && document.setwifi.RPIBLUETOOTH.value == "on"  ){'
-echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
-echo '      return false;'
-echo '    }'
 echo '    if ( wifi_current_state == "on" && document.setwifi.WIFI[0].checked == true ){' 
 echo '      if ( document.setwifi.WPA_PASSWORD.value == "" || document.setwifi.WPA_PASSWORD.value == "********" || document.setwifi.WPA_SSID.value == "" || document.setwifi.WPA_COUNTRY.value == "" ){'
 echo '        alert("SSID, Password and Country Code\nMUST be entered!");'
@@ -432,15 +428,71 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                </td>'
 	echo '              </tr>'
 fi
+#--------------------------------------Buttons------------------------------------------
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
+
+if [ "$WIFI" = "on" ]; then
+	echo '                  <input type="submit" name="ACTION" value="Save" onclick="return(validate());">'
+	echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
+	echo '                  <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
+else
+	echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
+fi
+
+echo '                </td>'
+echo '              </tr>'
+
+#--------------------------------------DEBUG---------------------------------------------
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="ACTION" value="Read">'
+	echo '                  <input type="submit" name="ACTION" value="Delete">'
+	echo '                  <input type="submit" name="ACTION" value="Remove">'
+	echo '                  <input type="submit" name="ACTION" value="Start">'
+	echo '                  <input type="submit" name="ACTION" value="Stop">'
+	echo '                  <input type="submit" name="ACTION" value="Status">'
+	echo '                </td>'
+	echo '              </tr>'
+fi
 #----------------------------------------------------------------------------------------
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 #--------------------------------------Built-in Wifi-------------------------------------
+	echo '<script>'
+	echo 'function validatewifibt() {'
+	echo '    if ( document.builtinwifi.RPI3BPLUS.value == "false" && document.builtinwifi.RPI3INTWIFI[0].checked == true && document.builtinwifi.RPIBLUETOOTH[0].checked == true ){'
+	echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
+	echo '      return false;'
+	echo '    }'
+	echo '  return true;'
+	echo '}'
+	echo '</script>'
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form id="rpiwifi" name="builtinwifi" action="writetowifi.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>RPi Built in WiFi/BT</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	pcp_incr_id
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
 	esac
-	pcp_incr_id
-	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p>RPi built-in Wifi</p>'
@@ -482,51 +534,30 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-fi
 #--------------------------------------Buttons------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="3">'
-
-if [ $(pcp_rpi_is_model_3Bplus) -eq 0 ]; then
-	echo '                  <input type="hidden" name="RPI3BPLUS" value="true">'
-else
-	echo '                  <input type="hidden" name="RPI3BPLUS" value="false">'
-fi
-
-if [ "$WIFI" = "on" ]; then
-	echo '                  <input type="submit" name="ACTION" value="Save" onclick="return(validate());">'
-	echo '                  <input type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
-	echo '                  <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
-else
-	echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
-fi
-
-echo '                </td>'
-echo '              </tr>'
-
-#--------------------------------------DEBUG---------------------------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="ACTION" value="Read">'
-	echo '                  <input type="submit" name="ACTION" value="Delete">'
-	echo '                  <input type="submit" name="ACTION" value="Remove">'
-	echo '                  <input type="submit" name="ACTION" value="Start">'
-	echo '                  <input type="submit" name="ACTION" value="Stop">'
-	echo '                  <input type="submit" name="ACTION" value="Status">'
+	if [ $(pcp_rpi_is_model_3Bplus) -eq 0 ]; then
+		echo '                  <input type="hidden" name="RPI3BPLUS" value="true">'
+	else
+		echo '                  <input type="hidden" name="RPI3BPLUS" value="false">'
+	fi
+	if [ "$WIFI" = "on" ]; then
+		echo '                  <input type="submit" name="ACTION" value="Save" onclick="return(validatewifibt());">'
+	else
+		echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
+	fi
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 fi
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 #----------------------------------------------------------------------------------------
 
 if [ $DEBUG -eq 1 ]; then
@@ -613,6 +644,7 @@ if [ "$WIFI" = "on" ]; then
 		echo '  </tr>'
 		echo '</table>'
 	fi
+
 #-----------------------------------------Wifi information-------------------------------
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - insert wifi adapter and [Save] to connect." || WLANMAC=$(pcp_wlan0_mac_address)
 	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - [Reboot] or [Save] to connect." || WLANIP=$(pcp_wlan0_ip)
