@@ -114,7 +114,7 @@ for I in ${EXT}; do
 	cd extensions/${NEW}/${I}-${NEWKERNEL}
 	echo "fixing directory access rights"
 	find -type d | xargs chmod -v 755
-	find usr -not -type d > ../${I}-${NEWKERNEL}.tcz.list
+	find * -not -type d > ../${I}-${NEWKERNEL}.tcz.list
 	cd ..
 	echo "Squashing Extension"
 	mksquashfs ${I}-${NEWKERNEL} ${I}-${NEWKERNEL}.tcz -all-root -noappend > /dev/null
