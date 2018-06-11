@@ -106,6 +106,12 @@ case "${VERSION}" in
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=26900
 	;;
+	piCorePlayer4.0.0*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=26900
+		#Override Insitu Download to new server
+		INSITU_DOWNLOAD=$(echo "$INSITU_DOWNLOAD" | sed 's/http:\/\/picoreplayer.sourceforge.net/https:\/\/repo.picoreplayer.org/')
+	;;
 	*)
 		SPACE_REQUIRED=15000
 		BOOT_SIZE_REQUIRED=27000
@@ -266,6 +272,23 @@ pcp_get_kernel_modules() {
 					esac
 				;;
 				*) NEWKERNELVER=4.14.26;;
+			esac
+			PICOREVERSION=9.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
+		piCorePlayer4.0.0*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			case $CORE in
+				*pcpAudioCore*)
+					case $BUILD in
+						armv6) FAIL_MSG="AudioCore is not availiable for this device"
+							KUPDATE=0
+						;;
+						armv7) NEWKERNELVER=4.14.44-rt30;;
+					esac
+				;;
+				*) NEWKERNELVER=4.14.48;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -571,19 +594,20 @@ pcp_finish_install() {
 	case "${VERSION}" in
 		piCorePlayer3.2*)
 			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
-			sed -i 'usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
 		;;
 		piCorePlayer3.21*)
 			#Changed in pCP3.21 to usr/local/etc/pcp
-			sed -i 'usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
 		;;
 		piCorePlayer4.*)
 			echo "Updating .filetool.lst :"
-			sed -i '|etc/motd|d' /opt/.filetool.lst
-			sed -i '|etc/sysconfig/wifi-wpadrv|d' /opt/.filetool.lst
-			sed -i '|usr/local/etc/init.d/httpd|d' /opt/.filetool.lst
+			sed -i '/etc\/motd/d' /opt/.filetool.lst
+			sed -i '/etc\/sysconfig\/wifi-wpadrv/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/etc\/init.d\/httpd/d' /opt/.filetool.lst
+			sed -i '/etc\/modprobe.conf/d' /opt/.filetool.lst
 		;;
 	esac
 
@@ -631,16 +655,14 @@ outfile.close
 	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
 
 	# Update pCP by copying the content from the new version to the correct location followed by a backup
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
 	[ -f pcp-powerbutton.sh ] || sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/pcp-powerbutton.sh /home/tc/pcp-powerbutton.sh
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.ashrc /home/tc/.ashrc
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
-	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/
+#  There is nothing in this directory anymore that is not part of an extension.
+#	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pcp/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/
 
