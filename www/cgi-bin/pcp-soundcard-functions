@@ -1,25 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-02
-#	Add Bootscript option for soundcard setup. PH.
-
-# Version: 3.23 2017-10-02
-#	Minor cosmetic changes. GE.
-
-# Version: 3.21 2017-07-08
-#	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
-#	Added Cardnumber routine to keep alsaequal working with selected card. PH.
-
-# Version: 3.20 2017-03-12
-#	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
-#	Added shini conf parser. SBP.
-#	Suppress already mounted message during do_rebootstuff newconfig process. PH.
-
-# Version: 3.11 2017-01-20
-#	Fixed the issue with shairport not working when using USB cards. SBP.
-
-# Version: 3.10 2016-12-11
-#	Original. SBP.
+# Version: 4.0.0 2018-0613
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -238,7 +219,7 @@ pcp_load_card_conf() {
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	case $CARD in
 		USB*) CARDNAME="USB";;
-		*) CARDNAME=$(echo $OUTPUT | cut -d '=' -f2);;
+		*) CARDNAME=$CARD;;
 	esac
 	CARDNO=$(cat /proc/asound/cards | grep '\[' | grep $CARDNAME | cut -d ' ' -f2)
 }
