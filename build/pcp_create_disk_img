@@ -881,8 +881,9 @@ if [ $UPDATE_REPO -eq 1 ]; then
 
 		FILES=$(ls -1 $SRC/*.tcz | xargs basename -a)
 		for J in $FILES; do
+			echo "${BLUE}[ INFO ] Copying Extension ${J%%//.*}"
 			for K in $EXT; do
-				cp -f $SRC/${J%.*}.${K} ${DEST}/${J%.*}.${K}
+				[ -r $SRC/${J%.*}.${K} ] && cp -f $SRC/${J%.*}.${K} ${DEST}/${J%.*}.${K}
 			done
 		done
 	done
