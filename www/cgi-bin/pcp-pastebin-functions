@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-05-18
+# Version: 4.0.0 2018-06-13
 
 pcp_debug_log "$0 - Running pcp-pastebin-functions..."
 
@@ -21,7 +21,7 @@ API_USER_PASSWORD="picoreplayer1234"
 API_PASTE_PRIVATE="2"
 API_PASTE_NAME="$(pcp_rpi_shortname)"
 API_PASTE_EXPIRE_DATE="1D"
-WGET="/usr/local/bin/wget"
+PBWGET="/usr/local/bin/wget"
 
 #. pcp-rpi-functions   <--- REMEMBER THIS GE
 
@@ -93,7 +93,7 @@ pcp_pastebin_get_api_user_key() {
 	POST_DATA=$POST_DATA"&api_user_password=$API_USER_PASSWORD"
 
 	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] $POST_DATA: '$POST_DATA'</p>'
-	API_USER_KEY=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_login.php')
+	API_USER_KEY=$($PBWGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_login.php')
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $API_USER_KEY: '$API_USER_KEY'</p>'
 }
 
@@ -116,7 +116,7 @@ pcp_pastebin_paste() {
 
 	[ $DEBUG -eq 1 ] && [ $TEST -eq 4 ] && echo '<p class="debug">[ DEBUG ] $POST_DATA: '$POST_DATA'</p>'
 	echo '<p class="info">[ INFO ] Uploading '$FILE' to Pastebin...</p>'
-	PASTEBIN_URL=$($WGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_post.php')
+	PASTEBIN_URL=$($PBWGET -O - --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_post.php')
 }
 
 #========================================================================================
@@ -132,7 +132,7 @@ pcp_pastebin_get_listing() {
 
 	LISTING_LOG=/tmp/pcp_pastebin_listing.log
 
-	$($WGET -O $LISTING_LOG --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_post.php')
+	$($PBWGET -O $LISTING_LOG --tries=5 --timeout=60 --post-data=$POST_DATA 'https://pastebin.com/api/api_post.php')
 
 	cat $LISTING_LOG
 }
