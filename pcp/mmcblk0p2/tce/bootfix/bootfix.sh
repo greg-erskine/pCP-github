@@ -1,25 +1,10 @@
 #!/bin/sh
 # Script run early in do_rebootstuff to fix issues occurring after an insitu update.
 
-# Version: 3.5.0 2017-12-28
-#	Change to new version numbering. PH.
-
-# Version: 3.21 2017-05-20
-#	Added Bootdevice for possible USB boot on RPI3
-
-# Version: 3.20 2017-03-25 PH
-#	Added SCREENROTATE fix for 3.20
-#	Removed changes for <3.00, since those would never see an insitu 3.20 upgrade
-
-# Version: 2.06 2016-06-11 PH
-#	Added Logic to determine old version.
-#	Fixes for 2.06
-
-# Version: 2.05 2016-04-17 SBP 
-#	Initial Version
+# Version 4.0.0 2018-06-14
 
 . /home/tc/www/cgi-bin/pcp-functions
-. /usr/local/sbin/piversion.cfg
+. /usr/local/etc/pcp/piversion.cfg
 if [ -e $BOOTMNT/oldpiversion.cfg ]; then
 	. $BOOTMNT/oldpiversion.cfg
 	OLDVERS=$(echo "$OLDPIVERS" | cut -d ' ' -f2)

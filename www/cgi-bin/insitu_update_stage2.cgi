@@ -721,9 +721,17 @@ pcp_html_end() {
 	pcp_copyright
 
 	if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
-		# Reload pcp-functions, since reboot was changed in pCP 4.0.0
-		. pcp-functions
-		pcp_reboot_required
+		case "${VERSION}" in
+			piCorePlayer4.0.0*)
+				#Reboot moved in 4.0.0, so we need to do this differently.
+				echo '<script language="javascript">'
+				echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
+				echo '</script>'
+			;;
+			*)
+				pcp_reboot_required
+			;;
+		esac
 	fi
 	echo '</body>'
 	echo '</html>'
