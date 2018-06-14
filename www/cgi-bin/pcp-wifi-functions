@@ -1,16 +1,16 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-30
+# Version: 4.0.0 2018-06-14
 
 #========================================================================================
-# filetool.lst functions - Note filename hard coded.
+# filetool.lst functions - Note filename hard coded.  Not needed
 #----------------------------------------------------------------------------------------
-pcp_wifi_update_filetool() {
-	sudo sed -i '/etc\/wpa_supplicant.conf/d' $FILETOOLLST
-	if [ -f "/etc/wpa_supplicant.conf" ]; then
-		sudo echo "etc/wpa_supplicant.conf" >> $FILETOOLLST
-	fi
-}
+#pcp_wifi_update_filetool() {
+#	sudo sed -i '/etc\/wpa_supplicant.conf/d' $FILETOOLLST
+#	if [ -f "/etc/wpa_supplicant.conf" ]; then
+#		sudo echo "etc/wpa_supplicant.conf" >> $FILETOOLLST
+#	fi
+#}
 
 #========================================================================================
 # onboot.lst functions

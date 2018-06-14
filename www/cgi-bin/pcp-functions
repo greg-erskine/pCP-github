@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-28
+# Version: 4.0.0 2018-06-14
 
 #========================================================================================
 # Setup debug logging
@@ -88,7 +88,7 @@ pcp_variables() {
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 	REBOOT_PENDING="/tmp/rebootpending"
 	BASE_DIR="cgi-bin"
-	WPASUPPLICANTCONF="/etc/wpa_supplicant.conf"
+	WPASUPPLICANTCONF="/usr/local/etc/pcp/wpa_supplicant.conf"
 	FILETOOLLST="/opt/.filetool.lst"
 	URL_DECODE="$HTTPD -i -d"
 

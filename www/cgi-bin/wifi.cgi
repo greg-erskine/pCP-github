@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-09
+# Version: 4.0.0 2018-06-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -92,7 +92,6 @@ case "$ACTION" in
 		pcp_table_textarea_top "Config option" "" "50"
 		pcp_save_to_config
 		pcp_wifi_read_wpa_supplicant "text"
-		pcp_wifi_update_filetool
 		pcp_backup "nohtml"
 		if [ "$WIFI" = "on" ]; then
 			pcp_wifi_load_wifi_firmware_extns "text"
@@ -117,7 +116,6 @@ case "$ACTION" in
 			pcp_wifi_unload_wifi_firmware_extns "text"
 		fi
 		pcp_save_to_config
-		pcp_wifi_update_filetool
 		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
@@ -132,7 +130,6 @@ case "$ACTION" in
 		pcp_table_textarea_top "Delete option" "" "30"
 		rm -f $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "text"
-		pcp_wifi_update_filetool
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
 		pcp_backup "nohtml"
 		pcp_table_textarea_end
@@ -621,7 +618,7 @@ if [ $DEBUG -eq 1 ]; then
 #----------------------------------------------------------------------------------------
 fi
 
-#-------------------------/etc/wpa_supplicant.conf maintained by user--------------------
+#---------------/usr/local/etc/pcp/wpa_supplicant.conf maintained by user----------------
 if [ "$WIFI" = "on" ]; then
 	if [ $(pcp_wifi_maintained_by_user) -eq 0 ]; then
 		echo '<table class="bggrey">'
@@ -629,7 +626,7 @@ if [ "$WIFI" = "on" ]; then
 		echo '    <td>'
 		echo '      <div class="row">'
 		echo '        <fieldset>'
-		echo '          <legend>/etc/wpa_supplicant.conf maintained by user</legend>'
+		echo '          <legend>/usr/local/etc/pcp/wpa_supplicant.conf maintained by user</legend>'
 		echo '          <table class="bggrey percent100">'
 		pcp_start_row_shade
 		echo '            <tr class="'$ROWSHADE'">'

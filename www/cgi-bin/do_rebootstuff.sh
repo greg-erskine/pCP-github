@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-20
+# Version: 4.0.0 2018-06-14
 
 BACKUP=0
 # Read from pcp-functions file
@@ -246,7 +246,6 @@ if [ $WPACONFIGFOUND -eq 1 ]; then
 		pcp_wifi_read_wpa_supplicant "colour"
 		pcp_wifi_write_wpa_supplicant "colour"
 	fi
-	pcp_wifi_update_filetool
 	pcp_wifi_update_wifi_onbootlst
 	pcp_backup_nohtml
 	echo "${RED}Reboot needed to enable wifi...${NORMAL}"
