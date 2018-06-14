@@ -231,6 +231,7 @@ pcp_wifi_read_newconfig() {
 		done
 		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
+		WPA_HIDDENSSID=0
 	else
 		pcp_message ERROR "$WPACONFIGFILE not found." "$FORMAT"
 	fi
