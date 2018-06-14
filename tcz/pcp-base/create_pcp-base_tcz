@@ -40,3 +40,21 @@ echo -e "Extension_by:   piCorePlayer team: https://www.picoreplayer.org" >> $TC
 echo -e "Comments:       Compiled for piCore 9.x" >> $TCZINFO
 
 echo
+
+while true; do
+   read -p "Do you want to upload to image and repo directories [y/n]? " yn
+   case $yn in
+      [Yy]* ) break;;
+      [Nn]* ) exit 0;;
+      * ) echo "Please answer yes or no.";;
+   esac
+done
+
+IMAGEPATH="${BASEWD}/../../build/tcz-for-img"
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/9.x"
+ARMV6="$REPOPATH/armv6/tcz"
+ARMV7="$REPOPATH/armv7/tcz"
+
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $IMAGEPATH
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV6
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV7
