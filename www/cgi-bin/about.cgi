@@ -1,23 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-18
-#	HTML5 cleanup. GE.
-
-# Version: 3.20 2017-03-08
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.11 2017-01-19
-#	Masked out $NETMOUNT1PASS when config.cfg is displayed. GE.
-
-# Version: 3.10 2017-01-06
-#	Changes for Squeezelite extension. PH.
-
-# Version: 3.00 2016-08-18
-#	Updated forum thread Link, added blank Targets. PH.
-
-# Version: 0.01 2014-06-25
-#	Original. SBP.
+# Version: 4.0.0 2018-06-13
 
 . pcp-functions
 . pcp-rpi-functions
@@ -50,7 +33,7 @@ echo '                   for help building the piCore (a special version for the
 echo '                   It boots very fast (often within 15 sec), and it is running entirely in RAM, therefore, '
 echo '                   you can simply pull the power without any risk of corruption of your SD card.</p>'
 echo '                <p>In addition, piCorePlayer is using the fine Squeezelite player developed by Triode, which can be '
-echo '                   found <a href="https://code.google.com/p/squeezelite/" target="_blank">here</a> '$EXTERNALLINK'. Thanks to Ralphy for building '
+echo '                   found <a href="https://github.com/ralph-irving/squeezelite" target="_blank">here</a> '$EXTERNALLINK'. Thanks to Ralphy for building '
 echo '                   a version of Squeezelite with wma and alac support and for providing the jivelite and Shairport packages. The patches applied '
 echo '                   to the kernel to improve DAC support and higher sample rates were developed by Clive Messer.</p>'
 echo '                <p>Recently, Logitech Media Server LMS can be run on piCorePlayer. Thanks to Paul_123 and jgrulich from the piCore forum'
@@ -61,7 +44,7 @@ echo '                   Raspberry Pi is a trademark of the Raspberry Pi Foundat
 echo '                <p>The web-GUI is powered by the small built-in Busybox webserver '
 echo '                   <a href="http://www.busybox.net/" target="_blank">HTTPD</a> '$EXTERNALLINK'.</p>'
 echo '                <p>The official piCorePlayer web page can be found here '
-echo '                   <a href="https://sites.google.com/site/picoreplayer/home/news" target="_blank">piCorePlayer web page</a> '$EXTERNALLINK'. '
+echo '                   <a href="https://www.picoreplayer.org" target="_blank">piCorePlayer web page</a> '$EXTERNALLINK'. '
 echo '                   A forum discussion can be found '
 echo '                   <a href="http://forums.slimdevices.com/showthread.php?105997-Announce-piCorePlayer-3-00" target="_blank">here</a> '$EXTERNALLINK'.</p>'
 echo '                <h2>Please donate if you like piCorePlayer</h2>'
