@@ -15,7 +15,5 @@ usr/local/etc/ssh/ssh_host_ed25519_key.pub
 usr/local/etc/ssh/ssh_host_rsa_key
 usr/local/etc/ssh/ssh_host_rsa_key.pub
 usr/local/etc/pcp
-usr/local/sbin/config.cfg
-usr/local/sbin/piversion.cfg
 var/lib/alsa/asound.state
 var/spool/cron/crontabs

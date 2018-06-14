@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-13
+# Version: 4.0.0 2018-06-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -70,7 +70,7 @@ if [ $MODE -ge $MODE_BASIC ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr>'
 	echo '              <td>'
-	                      pcp_textarea_inform "none" "cat /usr/local/sbin/piversion.cfg" 30
+	                      pcp_textarea_inform "none" "cat ${PIVERSIONCFG}" 30
 	echo '              </td>'
 	echo '            </tr>'
 	echo '            <tr class="padding">'

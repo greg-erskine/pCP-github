@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-06-14
+#	Move config.cfg location
+
 # Version: 3.20 2017-03-29
 #	Fixed issue with equalizer and shairport-sync. Still an issue if using USB DAC, equalizer and shairport-sync
 
@@ -22,7 +25,7 @@ DESC="Shairport-sync player"
 # -B "$ON_START" -E "$ON_STOP"
 
 # Read from config file
-. /usr/local/sbin/config.cfg
+. /usr/local/etc/pcp/config.cfg
 
 if [ x"$SHAIRPORT_CONTROL" = x"" ]; then
        SHAIRPORT_CONTROL=''

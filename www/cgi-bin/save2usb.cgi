@@ -1,19 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-12
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.21 2017-07-11
-#	Added save to USB disk other than boot device. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Minor update. GE.
-
-# Version: 0.01 2014-06-24
-#	Original. GE.
+# Version: 4.0.0 2018-06-14
 
 . pcp-functions
 
@@ -110,7 +97,7 @@ fi
 if [ $IS_MOUNTED -eq 1 ]; then
 	echo -n '[ INFO ] Copying configuration file to USB device...'
 	[ -f ${MNT_USB}/newconfig.cfg ] && sudo mv ${MNT_USB}/newconfig.cfg ${MNT_USB}/newconfig.cfg~
-	sudo /bin/cp -f /usr/local/sbin/config.cfg ${MNT_USB}/newconfig.cfg
+	sudo /bin/cp -f $CONFIGCFG ${MNT_USB}/newconfig.cfg
 	[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
 	if [ -f ${MNT_USB}/newconfig.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'

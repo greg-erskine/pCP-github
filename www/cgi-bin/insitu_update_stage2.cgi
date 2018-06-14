@@ -1,37 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Another attempt to fix reloading page does not reboot pCP again. SBP.
-#	Changed repo to new server. PH.
-
-# Version 3.5.0 2018-03-15
-#	Updates for Kernel 4.14.26 and 9.x repo
-#	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
-
-# Version 3.22 2017-09-16
-#	Updates for Kernel 4.9.50
-
-# Version 3.21 2017-07-03
-#	Allow for custom configuration in config.txt. PH
-#	Modifcations for installing to bootdevice. i.e. USB boot. PH.
-
-# Version 3.20 2017-04-22
-#	Updates for new Repo and Newer kernels
-
-# Version 3.10 2016-12-26
-#	Changes for shairport-sync.  Incomplete PH
-#	Sourceforge repo changes. PH
-
-# Version 3.02 2016-09-04 PH
-#	Updated Kernel Information for 3.02 piCore8.0 Release
-#	Removed pcp-load, as 3.00 and on had the updated file.  Not needed for pcp 2.xx
-
-# Version 3.00 2016-08-09 PH
-#	Add Download new Kernel modules, for all current existing Modules
-
-# Version 2.06 2016-06-17 PH
-#	Added Copy entire update /sbin directory to location (pcp-load), Bootfix, and changed bootlocal.sh processing.
-#	Added oldpiversion.cfg to allow bootfix to know what the old version was.
+# Version: 4.0.0 2018-06-14
 
 #Needed when upgrading from 3.20
 #Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
@@ -403,7 +372,8 @@ pcp_save_configuration() {
 	sudo dos2unix -u ${BOOTMNT}/newconfig.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	#save the current piversion to determine potential bootfix(es) later
-	. /usr/local/sbin/piversion.cfg
+	[ -r /usr/local/sbin/piversion.cfg ] && . /usr/local/sbin/piversion.cfg
+	[ -r /usr/local/etc/pcp/piversion.cfg ] && . /usr/local/etc/pcp/piversion.cfg
 	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
 	echo "OLDPIVERS=\"$PIVERS\"" > ${BOOTMNT}/oldpiversion.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
@@ -608,6 +578,8 @@ pcp_finish_install() {
 			sed -i '/etc\/sysconfig\/wifi-wpadrv/d' /opt/.filetool.lst
 			sed -i '/usr\/local\/etc\/init.d\/httpd/d' /opt/.filetool.lst
 			sed -i '/etc\/modprobe.conf/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/config.cfg/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/piversion.cfg/d' /opt/.filetool.lst
 		;;
 	esac
 
@@ -749,6 +721,8 @@ pcp_html_end() {
 	pcp_copyright
 
 	if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
+		# Reload pcp-functions, since reboot was changed in pCP 4.0.0
+		. pcp-functions
 		pcp_reboot_required
 	fi
 	echo '</body>'

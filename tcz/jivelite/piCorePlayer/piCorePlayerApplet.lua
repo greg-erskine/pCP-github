@@ -52,11 +52,11 @@ local appletManager     = appletManager
 module(..., Framework.constants)
 oo.class(_M, Applet)
 
-local pCP_version_file_location = "/usr/local/sbin/piversion.cfg"
+local pCP_version_file_location = "/usr/local/etc/pcp/piversion.cfg"
 
 local pCP_list_network_interfaces_cmd = "ls -1 /sys/class/net/"
 
-local pCP_WOL_config_file_location = "/usr/local/sbin/config.cfg"
+local pCP_WOL_config_file_location = "/usr/local/etc/pcp/config.cfg"
 local pCP_WOL_searchstring_WOL = "WOL="
 local pCP_WOL_searchstring_WOL_NIC = "WOL_NIC="
 local pCP_WOL_searchstring_WOL_LMSMACADDRESS = "WOL_LMSMACADDRESS="

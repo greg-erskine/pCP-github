@@ -53,7 +53,7 @@ pcp_debug_variables2() {
 # System wide variables
 #----------------------------------------------------------------------------------------
 pcp_config_file() {
-	CONFIGCFG="/usr/local/sbin/config.cfg"
+	CONFIGCFG="/usr/local/etc/pcp/config.cfg"
 }
 
 pcp_variables() {
@@ -83,6 +83,7 @@ pcp_variables() {
 	PCPHOME="/home/tc/www/cgi-bin"
 	LOGDIR="/var/log"
 	PACKAGEDIR="/etc/sysconfig/tcedir/optional"
+	PIVERSIONCFG="/usr/local/etc/pcp/piversion.cfg"
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
@@ -798,7 +799,7 @@ pcp_picore_version() {
 }
 
 pcp_picoreplayer_version() {
-	. /usr/local/sbin/piversion.cfg
+	. $PIVERSIONCFG
 	echo $PIVERS | awk '{ print $2 }'
 }
 

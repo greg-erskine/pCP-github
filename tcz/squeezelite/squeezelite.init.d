@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-0-14
+#	Updated config.cfg location
+
 # Version: 3.5.0 2018-03-12
 #	Setting binary location in pCP web interface, Need to follow symlink for DEAMON. PH.
 #	Use busybox for pgrep. PH.
@@ -57,7 +60,7 @@ PIDFILE=/var/run/squeezelite.pid
 LOGDIR=/var/log
 
 # Read from config file
-. /usr/local/sbin/config.cfg
+. /usr/local/etc/pcp/config.cfg
 
 # Check if variable is present then add the correct option in front
 [ x"" != x"$NAME" ]         && NAME="$NAME"							# <--- Moved "-n" to allow for spaces

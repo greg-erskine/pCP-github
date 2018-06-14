@@ -4,12 +4,11 @@
 # Bluetooth Speaker Init Script
 #----------------------------------------------------------------------------------------
 #
-# Version: 3.5.0 2017-12-31 PH
-#	Original
+# Version: 4.0.0 2018-06-14 PH
 #
 #----------------------------------------------------------------------------------------
 
-. /usr/local/sbin/config.cfg
+. /usr/local/etc/pcp/config.cfg
 . /usr/local/bin/pcp-bt-functions
 
 init() {

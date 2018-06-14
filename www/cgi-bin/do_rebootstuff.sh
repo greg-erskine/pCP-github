@@ -9,6 +9,8 @@ echo -n "${BLUE}Loading pCP function files and pCP configuration file...${NORMAL
 . /home/tc/www/cgi-bin/pcp-functions
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
 . /home/tc/www/cgi-bin/pcp-wifi-functions
+# Create link to old cfg location, as a bunch of extensions will break....need to update extensions.
+ln -s $CONFIGCFG /usr/local/sbin/config.cfg
 echo "${GREEN}Done.${NORMAL}"
 
 ORIG_AUDIO="$AUDIO"
