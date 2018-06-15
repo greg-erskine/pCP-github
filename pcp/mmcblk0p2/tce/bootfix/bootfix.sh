@@ -1,26 +1,26 @@
 #!/bin/sh
 # Script run early in do_rebootstuff to fix issues occurring after an insitu update.
 
-# Version 4.0.0 2018-06-14
+# Version 4.0.0 2018-06-15
 
 . /home/tc/www/cgi-bin/pcp-functions
-. /usr/local/etc/pcp/piversion.cfg
-if [ -e $BOOTMNT/oldpiversion.cfg ]; then
-	. $BOOTMNT/oldpiversion.cfg
-	OLDVERS=$(echo "$OLDPIVERS" | cut -d ' ' -f2)
+. /usr/local/etc/pcp/pcpversion.cfg
+if [ -e $BOOTMNT/oldpcpversion.cfg ]; then
+	. $BOOTMNT/oldpcpversion.cfg
+	OLDVERS=$(echo "$OLDPCPVERS" | cut -d ' ' -f2)
 	OLDMAJOR=$(echo "$OLDVERS" | cut -d '.' -f1)
 	tt=$(echo "$OLDVERS" | cut -d '.' -f2)
 	OLDMINOR=${tt:0:2}
 	tt=$(echo "$OLDVERS" | cut -d '.' -f3)
 	OLDPATCH=$(echo "$tt" | cut -d '-' -f1)
-	rm -f $BOOTMNT/oldpiversion.cfg
+	rm -f $BOOTMNT/oldpcpversion.cfg
 else
 	#just to prevent errors, if older version is being upgraded.
 	OLDMAJOR=3
 	OLDMINOR=11
 	OLDPATCH=0
 fi
-VERS=$(echo "$PIVERS" | cut -d ' ' -f2)
+VERS=$(echo "$PCPVERS" | cut -d ' ' -f2)
 MAJOR=$(echo "$VERS" | cut -d '.' -f1)
 tt=$(echo "$VERS" | cut -d '.' -f2)
 MINOR=${tt:0:2}

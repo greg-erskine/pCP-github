@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-09
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 
@@ -46,8 +46,8 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" -o "$ORIG_RPIBLUETOOTH" != "$RPIBLUET
 	fi
 
 	if [ $DEBUG -eq 1 ]; then
-		echo "Current boot config.cfg"
-		cat "$CONFIGCFG"
+		echo "Current boot $PCPCFG"
+		cat "$PCPCFG"
 	fi
 	pcp_umount_bootpart_nohtml
 	pcp_save_to_config

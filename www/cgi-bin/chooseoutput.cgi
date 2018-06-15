@@ -1,27 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.5.0 2018-03-14
-#	Code tidy up. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced format. GE.
-#	Set mmap=1 for all configurations. GE.
-
-# Version: 3.02 2016-09-19
-#	Added Hifiberry Digi+ Pro support. SBP.
-#	Fixed problem with selection of certain cards. GE/SBP.
-
-# Version: 3.00 2016-07-04
-#	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
-
-# Version: 0.01
-#	Original. SBP.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -138,7 +117,7 @@ if [ $CHANGED ]; then
 	pcp_save_to_config
 	pcp_read_chosen_audio
 	[ $DEBUG -eq 1 ] && pcp_debug_info
-	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated config.cfg" "cat $CONFIGCFG" 380
+	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated pcp.cfg" "cat $PCPCFG" 380
 	pcp_backup
 fi
 

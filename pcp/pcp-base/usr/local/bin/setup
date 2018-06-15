@@ -1,6 +1,6 @@
 #!/bin/sh +x
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 #	Updated basic wifi setup.
 
 # Version: 3.5.0 2018-02-17
@@ -490,7 +490,7 @@ pcp_wireless_menu() {
 }
 
 pcp_write_wifi() {
-	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $PCPCFG
 	WPA_SSID=$SSID
 	WPA_PASSWORD=$PASSWORD
 	WPA_KEY_MGMT=$ENCRYPTION

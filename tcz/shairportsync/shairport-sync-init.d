@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 #	Move config.cfg location
 
 # Version: 3.20 2017-03-29
@@ -25,7 +25,7 @@ DESC="Shairport-sync player"
 # -B "$ON_START" -E "$ON_STOP"
 
 # Read from config file
-. /usr/local/etc/pcp/config.cfg
+. /usr/local/etc/pcp/pcp.cfg
 
 if [ x"$SHAIRPORT_CONTROL" = x"" ]; then
        SHAIRPORT_CONTROL=''

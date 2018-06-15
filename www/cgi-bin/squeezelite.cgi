@@ -1,36 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-20
-#	Added setting of which squeezelite binary to use. PH.
-#	Increase ALSA buffer field width, when size expressed in bytes. PH.
-#	Added dsd to codec, xcodec field. PH.
-#	Change -D field based on which binary is being used. PH.
-#	Add form some validation prior to submit. PH.
-#	HTML5 cleanup. GE.
-
-# Version: 3.20 2017-03-08
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Added Advanced Options button. GE.
-#	Cleaned Audio selection and made a dynamic drop-down list. SBP.
-#	Changes for Squeezelite extension. PH.
-
-# Version: 3.02 2016-09-20
-#	Added Hifiberry Digi+ Pro support. SBP.
-#	Fixed pattern for ALSA settings to allow 24_3.
-#	Added missing raspidac3CHECKED. GE.
-#	Fixed -i option only when Jivelite and LIRC enabled. RI.
-
-# Version: 3.00 2016-07-25
-#	Added note regaring hw: option for output. PH.
-#	Added new DACs. SBP.
-#	Removed & from $STRING. GE.
-#	Standardised/expanded <input> tags. GE.
-
-# Version: 0.01 2014-06-25 GE
-#	Original.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -187,7 +157,7 @@ echo '    </td>'
 echo '  </tr>'
 #----------------------------------------------------------------------------------------
 
-. $CONFIGCFG
+. $PCPCFG
 
 #========================================================================================
 # Start Squeezelite settings table

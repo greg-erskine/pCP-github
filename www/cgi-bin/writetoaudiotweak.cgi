@@ -1,34 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-#	Code cleanup. GE.
-#	Changed repo to new server. PH.
-
-# Version: 3.5.0 2018-01-23
-#	Keep a blank CARDNO from being written to asound.conf. PH.
-
-# Version: 3.21 2017-07-08
-#	Changed to allow booting from USB on RPi3. PH.
-#	Updates for Alsaequal cardnumber. PH.
-
-# Version: 3.20 2017-03-08
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Fixed remove alsaeq function. SBP.
-
-# Version: 3.11 2017-01-24
-#	Set CLOSEOUT empty when removing Shairport. PH.
-
-# Version: 3.10 2016-12-23
-#	Changes for pcp-shairportsync.tcz. PH.
-#	Changes for Sourceforge repo, also moved alsaequal to armv5&7 repos and changed install. PH.
-
-# Version: 3.02 2016-09-05
-#	Updated FIQ-split. SBP.
-
-# Version: 0.01 2014-08-06
-#	Original version. SBP.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -391,7 +363,7 @@ if [ $VARIABLE_CHANGED ]; then
 		pcp_table_middle
 		pcp_textarea_inform "Current $ASOUNDCONF" "cat $ASOUNDCONF" 150
 		pcp_textarea_inform "Current $ONBOOTLST" "cat $ONBOOTLST" 150
-		pcp_textarea_inform "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+		pcp_textarea_inform "Current $PCPCFG" "cat $PCPCFG" 150
 	fi
 	[ $REBOOT_REQUIRED ] && pcp_reboot_required
 else

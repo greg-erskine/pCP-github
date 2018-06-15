@@ -80,14 +80,14 @@ if [ $? -ne 0 ]; then
 fi
 
 #Set the pCP version
-. ../pcp/mydata/usr/local/etc/pcp/piversion.cfg
+. ../pcp/mydata/usr/local/etc/pcp/pcpversion.cfg
 
 echo "Select the pCP version"
 select i in Plain Audio;
 do
 	case $i in
-		Plain) PCP="$(echo $PIVERS | tr -d [[:space:]])";;
-		Audio) PCP="$(echo $PIVERS | tr -d [[:space:]])-Audio";;
+		Plain) PCP="$(echo $PCPVERS | tr -d [[:space:]])";;
+		Audio) PCP="$(echo $PCPVERS | tr -d [[:space:]])-Audio";;
 	esac
 	break
 done
@@ -450,8 +450,8 @@ build_mydata(){
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/bootsync.sh ${MYDATA}/opt/bootsync.sh 0.50 775
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/.filetool.lst ${MYDATA}/opt/.filetool.lst 0.50 664
 
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/config.cfg ${MYDATA}/usr/local/etc/pcp/config.cfg 1001.50 664
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/piversion.cfg ${MYDATA}/usr/local/etc/pcp/piversion.cfg 1001.50 664
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/pcp.cfg ${MYDATA}/usr/local/etc/pcp/pcp.cfg 1001.50 664
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/pcpversion.cfg ${MYDATA}/usr/local/etc/pcp/pcpversion.cfg 1001.50 664
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pointercal ${MYDATA}/usr/local/etc/pointercal root.root 644
 #	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/init.d/httpd ${MYDATA}/usr/local/etc/init.d/httpd root.root 755
 

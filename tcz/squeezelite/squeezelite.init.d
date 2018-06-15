@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-0-14
+# Version: 4.0.0 2018-0-15
 #	Updated config.cfg location
 
 # Version: 3.5.0 2018-03-12
@@ -60,7 +60,7 @@ PIDFILE=/var/run/squeezelite.pid
 LOGDIR=/var/log
 
 # Read from config file
-. /usr/local/etc/pcp/config.cfg
+. /usr/local/etc/pcp/pcp.cfg
 
 # Check if variable is present then add the correct option in front
 [ x"" != x"$NAME" ]         && NAME="$NAME"							# <--- Moved "-n" to allow for spaces

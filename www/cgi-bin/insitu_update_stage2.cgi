@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 
 #Needed when upgrading from 3.20
 #Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
@@ -254,7 +254,7 @@ pcp_get_kernel_modules() {
 						armv6) FAIL_MSG="AudioCore is not availiable for this device"
 							KUPDATE=0
 						;;
-						armv7) NEWKERNELVER=4.14.44-rt30;;
+						armv7) NEWKERNELVER=4.14.48-rt30;;
 					esac
 				;;
 				*) NEWKERNELVER=4.14.48;;
@@ -366,18 +366,32 @@ pcp_install_boot_files() {
 # Save configuration files to the boot partiton
 #-----------------------------------------------------------------------------------------
 pcp_save_configuration() {
+	#(Cleanup for next 4.x release)
+	local V
 	echo '[ INFO ] Saving configuration files.'
-	sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newconfig.cfg
-	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
-	sudo dos2unix -u ${BOOTMNT}/newconfig.cfg
-	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
-	#save the current piversion to determine potential bootfix(es) later
-	[ -r /usr/local/sbin/piversion.cfg ] && . /usr/local/sbin/piversion.cfg
-	[ -r /usr/local/etc/pcp/piversion.cfg ] && . /usr/local/etc/pcp/piversion.cfg
-	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
-	echo "OLDPIVERS=\"$PIVERS\"" > ${BOOTMNT}/oldpiversion.cfg
-	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
+	case $VERSION in
+		piCorePlayer4.*) 
+			[ -r /usr/local/sbin/config.cfg ] && sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newpcp.cfg
+			[ -r /usr/local/etc/pcp/pcp.cfg ] && sudo cp -f /usr/local/etc/pcp/pcp.cfg ${BOOTMNT}/newpcp.cfg
+			sudo dos2unix -u ${BOOTMNT}/newpcp.cfg
+			[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
+		;;
+		*) [ -r /usr/local/sbin/config.cfg ] && sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newconfig.cfg
+			sudo dos2unix -u ${BOOTMNT}/newconfig.cfg
+			[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
+		;;
+	esac
 
+	#save the current pcpversion to determine potential bootfix(es) later  
+	[ -r /usr/local/sbin/piversion.cfg ] && . /usr/local/sbin/piversion.cfg
+	[ -r $PCPVERSIONCFG ] && . $PCPVERSIONCFG
+	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
+	[ -e ${BOOTMNT}/oldpcpversion.cfg ] && rm -f ${BOOTMNT}/oldpcpversion.cfg
+	[ "$PIVERS" != "" ] && V=$PIVERS || V=$PCPVERS
+	case $VERSION in
+		piCorePlayer4.*) echo "OLDPCPVERS=\"$V\"" > ${BOOTMNT}/oldpcpversion.cfg;;
+		*) echo "OLDPIVERS=\"$V\"" > ${BOOTMNT}/oldpiversion.cfg;;
+	esac
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
@@ -650,7 +664,7 @@ outfile.close
 
 	#Make changes to mydata based on version
 	case "${VERSION}" in
-		piCorePlayer3.5.*)
+		piCorePlayer3.5.*|piCorePlayer4.*)
 			#Support for card has been removed in 4.14.y kernels
 			rm -f /usr/local/etc/pcp/cards/raspidac3.conf
 		;;

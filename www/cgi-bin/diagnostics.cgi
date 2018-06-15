@@ -1,7 +1,7 @@
 #!/bin/sh
 # Diagnostics script
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -33,7 +33,7 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 
 pcp_textarea_inform "piCore version: $(pcp_picore_version)" "version" 60 log
-pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat ${PIVERSIONCFG}" 60 log
+pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat ${PCPVERSIONCFG}" 60 log
 pcp_textarea_inform "Squeezelite version and license: $(pcp_squeezelite_version)" "${SQLT_BIN} -t" 300 log
 pcp_textarea_inform "Squeezelite help" "${SQLT_BIN} -h" 300 log
 pcp_textarea_inform "Squeezelite Output devices" "${SQLT_BIN} -l" 150 log
@@ -47,7 +47,7 @@ if mount >/dev/null 2>&1 | grep $VOLUME; then
 	pcp_umount_bootpart >/dev/null 2>&1
 fi
 
-pcp_textarea_inform "Current config.cfg" "cat $CONFIGCFG" 150 log
+pcp_textarea_inform "Current pcp.cfg" "cat $PCPCFG" 150 log
 pcp_textarea_inform "Current bootsync.sh" "cat $BOOTSYNC" 150 log
 pcp_textarea_inform "Current bootlocal.sh" "cat $BOOTLOCAL" 150 log
 pcp_textarea_inform "Current shutdown.sh" "cat $SHUTDOWN" 150 log

@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
 . pcp-pastebin-functions
 
-LOG=$CONFIGCFG
+LOG=$PCPCFG
 
 pcp_html_head "About" "SBP"
 
@@ -70,7 +70,7 @@ if [ $MODE -ge $MODE_BASIC ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr>'
 	echo '              <td>'
-	                      pcp_textarea_inform "none" "cat ${PIVERSIONCFG}" 30
+	                      pcp_textarea_inform "none" "cat ${PCPVERSIONCFG}" 30
 	echo '              </td>'
 	echo '            </tr>'
 	echo '            <tr class="padding">'
@@ -99,7 +99,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr>'
 	echo '              <td>'
-	                      pcp_textarea_inform "$CONFIGCFG" 'cat $CONFIGCFG \
+	                      pcp_textarea_inform "$PCPCFG" 'cat $PCPCFG \
 	                      | sed -e "s/\(PASSWORD=\).*/\1\"********\"/"\
 	                      | sed -e "s/\(NETMOUNT1PASS=\).*/\1\"*******\"/" ' 560
 	echo '              </td>'

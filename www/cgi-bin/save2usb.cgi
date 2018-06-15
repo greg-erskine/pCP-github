@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 
@@ -96,10 +96,10 @@ fi
 
 if [ $IS_MOUNTED -eq 1 ]; then
 	echo -n '[ INFO ] Copying configuration file to USB device...'
-	[ -f ${MNT_USB}/newconfig.cfg ] && sudo mv ${MNT_USB}/newconfig.cfg ${MNT_USB}/newconfig.cfg~
-	sudo /bin/cp -f $CONFIGCFG ${MNT_USB}/newconfig.cfg
+	[ -f ${MNT_USB}/newpcp.cfg ] && sudo mv ${MNT_USB}/newpcp.cfg ${MNT_USB}/newpcp.cfg~
+	sudo /bin/cp -f $PCPCFG ${MNT_USB}/newpcp.cfg
 	[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
-	if [ -f ${MNT_USB}/newconfig.cfg ]; then
+	if [ -f ${MNT_USB}/newpcp.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'
 		FAIL_MSG="OK - Your configuration file has been saved to your USB device."
 		echo '[ NOTE ] If you boot with this USB device attached, this configuration file will used.'

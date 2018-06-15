@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button, and standardize HTML code. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.11 2017-01-23
-#	Added Workgroup to Samba. PH.
-
-# Version: 3.10 2017-01-06
-#	Original version. PH.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 
@@ -99,7 +89,7 @@ case "$COMMAND" in
 	;;
 esac
 
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $PCPCFG" "cat $PCPCFG" 150
 
 pcp_table_middle
 pcp_redirect_button "Go to LMS" "lms.cgi" 15

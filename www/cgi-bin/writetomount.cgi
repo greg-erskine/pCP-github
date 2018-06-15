@@ -1,33 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	fuse.ko does not load automatically for exfat mounts. PH.
-
-# Version: 3.5.0 2017-12-27
-#	Load arc4 if doing a network mount, as it does not automatically load. PH.
-
-# Version: 3.22 2017-09-10
-#	Changed Netmounts to support shares with spaces. PH.
-#	Added checkbox to clear unused netmount conf entries. PH.
-#	Added exFat support. PH.
-
-# Version: 3.21 2017-06-18
-#	Changed vfat mounts.  PH.
-#	Fixed util-linux button download function. PH.
-#	Changed to allow booting from USB on RPI3. PH.
-#	Support multiple USB mounts. PH.
-#	Support multiple Network mounts. PH.
-
-# Version: 3.20 2017-03-31
-#	Revisions to pcp_lms_set_slimconfig function. PH.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Updates for vfat mount permissions. PH.
-
-# Version: 3.10 2017-01-06
-#	Added support for GPT disks. PH.
-
-# Version: 0.01 2016-04-14
-#	Original version. PH.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-lms-functions
@@ -475,7 +448,7 @@ echo '<hr>'
 
 [ $DEBUG -eq 1 ] && pcp_textarea "Current $USBMOUNTCONF" "cat $USBMOUNTCONF" 150
 [ $DEBUG -eq 1 ] && pcp_textarea "Current $NETMOUNTCONF" "cat $NETMOUNTCONF" 150
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $CONFIGCFG" "cat $CONFIGCFG" 150
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $PCPCFG" "cat $PCPCFG" 150
 
 [ "$REBOOT_REQUIRED" = "1" ] && pcp_reboot_required
 

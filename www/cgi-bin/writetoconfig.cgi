@@ -1,23 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-19
-#	Added setting of which squeezelite binary to use. PH.
-#	Make sure DSDOUT is not set for regular binary. PH.
-#	Utilize updated pcp_restart_required. PH.
-#	Cosmetic cleanup. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced format. GE.
-#	Removed pcp_multi_alsa_mmap. GE.
-
-# Version: 3.02 2016-09-21
-#	Fixed blanking ALSA_PARAMS issue. GE.
-
-# Version: 0.01 2014-06-25
-#	Original. GE.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -69,13 +52,13 @@ pcp_restore() {
 #----------------------------------------------------------------------------------------
 pcp_update() {
 	echo '<p class="info">[ INFO ] Copying config.cfg to /tmp...</p>'
-	sudo cp $CONFIGCFG /tmp/config.cfg
+	sudo cp $PCPCFG /tmp/pcp.cfg
 	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying config.cfg to /tmp...</p>'
 	echo '<p class="info">[ INFO ] Setting config.cfg to defaults...</p>'
 	pcp_update_config_to_defaults
 	echo '<p class="info">[ INFO ] Updating config.cfg with original values...</p>'
-	. $CONFIGCFG
-	. /tmp/config.cfg
+	. $PCPCFG
+	. /tmp/pcp.cfg
 	pcp_save_to_config
 }
 
@@ -136,7 +119,7 @@ case "$SUBMIT" in
 	;;
 esac
 
-. $CONFIGCFG
+. $PCPCFG
 
 if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	STRING1='ALSA equalizer is enabled. In order to use it "equal" must be used in the OUTPUT box. Press [OK] to go back and change or [Cancel] to continue'

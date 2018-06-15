@@ -1,19 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced formatting. GE.
-
-# Version: 0.01 2014-08-06 
-#	Original version. SBP.
+# Version: 4.0.0 2018-06-15
 
 #========================================================================================
 # The hostname is set during the boot process. It needs to be set before the network is
@@ -65,7 +52,7 @@ if [ $DEBUG -eq 1 ]; then
 	pcp_textarea_inform "Current /etc/hostname" "cat /etc/hostname" 50
 	pcp_textarea_inform "Current /etc/hosts" "cat /etc/hosts" 180
 	pcp_textarea_inform "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
-	pcp_textarea_inform "Current config.cfg" "cat $CONFIGCFG" 380
+	pcp_textarea_inform "Current pcp.cfg" "cat $PCPCFG" 380
 	pcp_textarea_inform "ps " "ps | grep -v grep | grep udhcpc" 50
 fi
 

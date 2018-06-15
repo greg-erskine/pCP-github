@@ -1,25 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Changed repo to new server. PH.
-
-# Version: 3.5.0 2018-02-21
-#	HTML5 cleanup. GE.
-
-# Version: 3.23 2017-10-26
-#	Minor cosmetic changes. GE.
-
-# Version: 3.21 2017-07-15
-#	Added Analogue and Analogue Boost, ALSA Simple Controls. SBP.
-#	Added Mixer controls for Allo Piano Plus. PH.
-#	Added HTML formatting. PH.
-
-# Version: 3.20 2017-03-13
-#	Fixed pcp-xxx-functions issues. GE.
-#	Added Extra Text fields. SBP.
-
-# Version: 3.10 2017-01-06
-#	First version to control volume and eventually filter on soundcards - so we can avoid to use alsamixer via ssh. SBP.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -414,7 +395,7 @@ pcp_volume_filter_buttons() {
 #   sound card.
 #----------------------------------------------------------------------------------------
 pcp_soundcard_parameter_options() {
-	. $CONFIGCFG
+	. $PCPCFG
 	if [ "${PARAMS1}${PARAMS2}${PARAMS3}${PARAMS4}${PARAMS5}" != "" ]; then
 		pcp_table_end
 		pcp_incr_id

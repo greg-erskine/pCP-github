@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-0613
+# Version: 4.0.0 2018-06-15
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -194,7 +194,7 @@ AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print 
 #----------------------------------------------------------------------------------------
 pcp_sound_card_dropdown() {
 	pcp_blank_audio_conf
-	. $CONFIGCFG
+	. $PCPCFG
 	if [ -e /tmp/dropdown.cfg ]; then
 		sudo sed -i 's/:selected:/:notselected:/' /tmp/dropdown.cfg
 		sudo sed -i "/${AUDIO}:/s/:notselected:/:selected:/" /tmp/dropdown.cfg
@@ -270,7 +270,7 @@ pcp_soundcontrol() {
 #----------------------------------------------------------------------------------------
 pcp_selected_soundcontrol() {
 	pcp_blank_audio_conf
-	. $CONFIGCFG
+	. $PCPCFG
 
 	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal"
 	shini_parse ${DACLOCATION}/${AUDIO}.conf

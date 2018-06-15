@@ -1,30 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-21
-#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
-#	HTML5 cleanup. GE.
-
-# Version: 3.20 2017-03-22
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Added underclocking. GE.
-
-# Version: 0.05 2016-05-22
-#	Started update for RPi0/RPi3. GE.
-
-# Version: 0.04 2016-01-08
-#	Fixed pcp_running_script. GE.
-
-# Version: 0.03 2015-09-22
-#	Removed httpd decoding. SBP.
-#	Minor code tidy up. SBP.
-
-# Version: 0.02 2015-08-24
-#	Mode mods. GE.
-#	Tidy up of code. GE.
-
-# Version: 0.01 2015-06-02
-#	Original version. GE.
+# Version: 4.0.0 2018-06-15
 
 #========================================================================================
 # References:
@@ -186,7 +162,7 @@ pcp_start_save() {
 		echo '</html>'
 	fi
 
-	. $CONFIGCFG
+	. $PCPCFG
 
 	#========================================================================================
 	# Official overclocking data from raspi-config - Rasbian
@@ -596,7 +572,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td>'
-	                      pcp_textarea_inform "none" "grep -C2 OVERCLOCK $CONFIGCFG" 80
+	                      pcp_textarea_inform "none" "grep -C2 OVERCLOCK $PCPCFG" 80
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'

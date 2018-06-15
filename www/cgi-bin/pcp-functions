@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 
 #========================================================================================
 # Setup debug logging
@@ -53,7 +53,9 @@ pcp_debug_variables2() {
 # System wide variables
 #----------------------------------------------------------------------------------------
 pcp_config_file() {
-	CONFIGCFG="/usr/local/etc/pcp/config.cfg"
+	PCPCFG="/usr/local/etc/pcp/pcp.cfg"
+	#Old habbits might die hard.
+	CONFIGCFG=$PCPCFG
 }
 
 pcp_variables() {
@@ -83,7 +85,7 @@ pcp_variables() {
 	PCPHOME="/home/tc/www/cgi-bin"
 	LOGDIR="/var/log"
 	PACKAGEDIR="/etc/sysconfig/tcedir/optional"
-	PIVERSIONCFG="/usr/local/etc/pcp/piversion.cfg"
+	PCPVERSIONCFG="/usr/local/etc/pcp/pcpversion.cfg"
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
@@ -124,7 +126,7 @@ pcp_variables() {
 }
 
 pcp_config_file
-. $CONFIGCFG
+. $PCPCFG
 pcp_debug_log "$0 - Running pcp-functions..."
 pcp_variables
 
@@ -162,7 +164,7 @@ pcp_unset_coloured_text() {
 #----------------------------------------------------------------------------------------
 pcp_read_config() {
 	pcp_debug_log "$0 - Reading pCP config.cfg..."
-	. $CONFIGCFG
+	. $PCPCFG
 }
 
 #========================================================================================
@@ -411,7 +413,7 @@ pcp_clean_cmdlinetxt() {
 #			do_rebootstuff.sh
 #----------------------------------------------------------------------------------------
 pcp_set_timezone() {
-	. $CONFIGCFG
+	. $PCPCFG
 	pcp_timezone
 }
 
@@ -799,8 +801,8 @@ pcp_picore_version() {
 }
 
 pcp_picoreplayer_version() {
-	. $PIVERSIONCFG
-	echo $PIVERS | awk '{ print $2 }'
+	. $PCPVERSIONCFG
+	echo $PCPVERS | awk '{ print $2 }'
 }
 
 pcp_squeezelite_version() {
@@ -1430,100 +1432,100 @@ pcp_shutdown() {
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #----------------------------------------------------------------------------------------
 pcp_write_var_to_config() {
-	sed -i 's|\(^'$1'=\).*|\1"'$2'"|' $CONFIGCFG
+	sed -i 's|\(^'$1'=\).*|\1"'$2'"|' $PCPCFG
 }
 
 pcp_save_to_config() {
-	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $CONFIGCFG
-	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $CONFIGCFG
-	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $CONFIGCFG
-	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $CONFIGCFG
-	sudo sed -i "s/\(XCODEC=\).*/\1\"$XCODEC\"/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"$MAC_ADDRESS\"/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $CONFIGCFG
-	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
-	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
-	sudo sed -i "s@\(AUDIOBOOTSCRIPT=\).*@\1\"$AUDIOBOOTSCRIPT\"@" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
-	sudo sed -i "s/\(CPUGOVERNOR=\).*/\1\"$CPUGOVERNOR\"/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
-	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
-	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD=\).*/\1\"$RB_WD\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH=\).*/\1\"$RB_DMONTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART=\).*/\1\"$RESTART\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H=\).*/\1\"$RS_H\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD=\).*/\1\"$RS_WD\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH=\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
-	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
-	sudo sed -i "s@\(USER_COMMAND_1=\).*@\1\"$USER_COMMAND_1\"@" $CONFIGCFG
-	sudo sed -i "s@\(USER_COMMAND_2=\).*@\1\"$USER_COMMAND_2\"@" $CONFIGCFG
-	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $CONFIGCFG
-	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
-	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
-	sudo sed -i "s/\(JL_SCREEN_WIDTH=\).*/\1\"$JL_SCREEN_WIDTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $CONFIGCFG
-	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
-	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $CONFIGCFG
-	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
-	sudo sed -i "s/\(SQBINARY=\).*/\1\"$SQBINARY\"/" $CONFIGCFG
-	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
-	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
-	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
-	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
-	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $CONFIGCFG
-	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
-	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
-	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
-	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
-	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
-	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $CONFIGCFG
-	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $CONFIGCFG
-	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(RPIBLUETOOTH=\).*/\1\"$RPIBLUETOOTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $CONFIGCFG
-	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
-	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
-	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS1=\).*/\1\"$PARAM1\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS2=\).*/\1\"$PARAM2\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS3=\).*/\1\"$PARAM3\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS4=\).*/\1\"$PARAM4\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $CONFIGCFG
-	sudo sed -i "s/\(INTERNET_CHECK_IP=\).*/\1\"$INTERNET_CHECK_IP\"/" $CONFIGCFG
-	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $CONFIGCFG
-	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $PCPCFG
+	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $PCPCFG
+	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $PCPCFG
+	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $PCPCFG
+	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $PCPCFG
+	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $PCPCFG
+	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $PCPCFG
+	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $PCPCFG
+	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $PCPCFG
+	sudo sed -i "s/\(XCODEC=\).*/\1\"$XCODEC\"/" $PCPCFG
+	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $PCPCFG
+	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $PCPCFG
+	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $PCPCFG
+	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"$MAC_ADDRESS\"/" $PCPCFG
+	sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $PCPCFG
+	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $PCPCFG
+	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $PCPCFG
+	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $PCPCFG
+	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $PCPCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $PCPCFG
+	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $PCPCFG
+	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $PCPCFG
+	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $PCPCFG
+	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $PCPCFG
+	sudo sed -i "s@\(AUDIOBOOTSCRIPT=\).*@\1\"$AUDIOBOOTSCRIPT\"@" $PCPCFG
+	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $PCPCFG
+	sudo sed -i "s/\(CPUGOVERNOR=\).*/\1\"$CPUGOVERNOR\"/" $PCPCFG
+	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $PCPCFG
+	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $PCPCFG
+	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $PCPCFG
+	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $PCPCFG
+	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $PCPCFG
+	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $PCPCFG
+	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $PCPCFG
+	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $PCPCFG
+	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $PCPCFG
+	sudo sed -i "s/\(RB_WD=\).*/\1\"$RB_WD\"/" $PCPCFG
+	sudo sed -i "s/\(RB_DMONTH=\).*/\1\"$RB_DMONTH\"/" $PCPCFG
+	sudo sed -i "s/\(RESTART=\).*/\1\"$RESTART\"/" $PCPCFG
+	sudo sed -i "s/\(RS_H=\).*/\1\"$RS_H\"/" $PCPCFG
+	sudo sed -i "s/\(RS_WD=\).*/\1\"$RS_WD\"/" $PCPCFG
+	sudo sed -i "s/\(RS_DMONTH=\).*/\1\"$RS_DMONTH\"/" $PCPCFG
+	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $PCPCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $PCPCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $PCPCFG
+	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $PCPCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $PCPCFG
+	sudo sed -i "s@\(USER_COMMAND_1=\).*@\1\"$USER_COMMAND_1\"@" $PCPCFG
+	sudo sed -i "s@\(USER_COMMAND_2=\).*@\1\"$USER_COMMAND_2\"@" $PCPCFG
+	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $PCPCFG
+	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $PCPCFG
+	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $PCPCFG
+	sudo sed -i "s/\(JL_SCREEN_WIDTH=\).*/\1\"$JL_SCREEN_WIDTH\"/" $PCPCFG
+	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $PCPCFG
+	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $PCPCFG
+	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $PCPCFG
+	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $PCPCFG
+	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $PCPCFG
+	sudo sed -i "s/\(SQBINARY=\).*/\1\"$SQBINARY\"/" $PCPCFG
+	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $PCPCFG
+	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $PCPCFG
+	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $PCPCFG
+	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $PCPCFG
+	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $PCPCFG
+	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $PCPCFG
+	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $PCPCFG
+	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $PCPCFG
+	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $PCPCFG
+	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $PCPCFG
+	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $PCPCFG
+	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $PCPCFG
+	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $PCPCFG
+	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $PCPCFG
+	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $PCPCFG
+	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $PCPCFG
+	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $PCPCFG
+	sudo sed -i "s/\(RPIBLUETOOTH=\).*/\1\"$RPIBLUETOOTH\"/" $PCPCFG
+	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $PCPCFG
+	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $PCPCFG
+	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $PCPCFG
+	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS1=\).*/\1\"$PARAM1\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS2=\).*/\1\"$PARAM2\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS3=\).*/\1\"$PARAM3\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS4=\).*/\1\"$PARAM4\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $PCPCFG
+	sudo sed -i "s/\(INTERNET_CHECK_IP=\).*/\1\"$INTERNET_CHECK_IP\"/" $PCPCFG
+	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $PCPCFG
+	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $PCPCFG
+	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $PCPCFG
 }
 
 #========================================================================================
@@ -1535,7 +1537,7 @@ pcp_save_to_config() {
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #----------------------------------------------------------------------------------------
 pcp_update_config_to_defaults() {
-	sudo cat <<EOF > $CONFIGCFG
+	sudo cat <<EOF > $PCPCFG
 WIFI="off"
 DEBUG="0"
 MODE="0"

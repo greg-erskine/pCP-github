@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-06-15
 
 BACKUP=0
 # Read from pcp-functions file
@@ -10,7 +10,7 @@ echo -n "${BLUE}Loading pCP function files and pCP configuration file...${NORMAL
 . /home/tc/www/cgi-bin/pcp-soundcard-functions
 . /home/tc/www/cgi-bin/pcp-wifi-functions
 # Create link to old cfg location, as a bunch of extensions will break....need to update extensions.
-ln -s $CONFIGCFG /usr/local/sbin/config.cfg
+ln -s $PCPCFG /usr/local/sbin/config.cfg
 echo "${GREEN}Done.${NORMAL}"
 
 ORIG_AUDIO="$AUDIO"
@@ -51,12 +51,12 @@ for DISK in $NEWCFGLIST; do
 		[ $? -eq 0 ] && mv /mnt/${DISK}/wpa_supplicant.conf /mnt/${DISK}/used_wpa_supplicant.conf
 	fi
 	#------------------------------------------------------------------------------------
-	if [ -f /mnt/${DISK}/newconfig.cfg ]; then
-		echo "${YELLOW}  newconfig.cfg found on ${DISK}.${NORMAL}"
+	if [ -f /mnt/${DISK}/newpcp.cfg ]; then
+		echo "${YELLOW}  newpcp.cfg found on ${DISK}.${NORMAL}"
 		NEWCONFIGFOUND=1
 		ln -s /mnt/$DISK /tmp/newconfig
 	else
-		echo "${YELLOW}  newconfig.cfg not found on ${DISK}.${NORMAL}"
+		echo "${YELLOW}  newpcp.cfg not found on ${DISK}.${NORMAL}"
 		if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
 			umount /mnt/$DISK
 		fi
@@ -93,12 +93,12 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	#-----------------------------------------------------------------------------------------
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
-	. $CONFIGCFG
+	. $PCPCFG
 	# Read variables from newconfig and save to config.
-	sudo dos2unix -u /tmp/newconfig/newconfig.cfg
-	. /tmp/newconfig/newconfig.cfg
+	sudo dos2unix -u /tmp/newconfig/newpcp.cfg
+	. /tmp/newconfig/newpcp.cfg
 	pcp_mount_bootpart_nohtml >/dev/null 2>&1
-	sudo mv -f /tmp/newconfig/newconfig.cfg /tmp/newconfig/usedconfig.cfg
+	sudo mv -f /tmp/newconfig/newpcp.cfg /tmp/newconfig/usedpcp.cfg
 	pcp_timezone
 	pcp_write_to_host
 	######## This section deals with adding dtoverlays back to config.txt based
@@ -135,7 +135,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		# This will read newconfig and create wpa_supplicant.conf
 		# DO NOT PROMOTE THIS METHOD IT WILL BE DELETE <=== GE
 		if [ "$WIFI" = "on" ]; then
-			WPACONFIGFILE="/tmp/newconfig/usedconfig.cfg"
+			WPACONFIGFILE="/tmp/newconfig/usedpcp.cfg"
 			pcp_wifi_read_newconfig "colour"
 			pcp_wifi_write_wpa_supplicant "colour"
 		fi
@@ -179,7 +179,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			JIVELITE="no"
 		fi
 	fi
-	# pcp_read_chosen_audio works from $CONFIGCFG, so lets write what we have so far.
+	# pcp_read_chosen_audio works from $PCPCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
 	echo -n "${BLUE}[ INFO ] Setting Soundcard from newconfig...${NORMAL}"
@@ -269,7 +269,7 @@ fi
 
 # Loading configuration file config.cfg
 echo -n "${BLUE}Loading configuration file...${NORMAL}"
-. $CONFIGCFG
+. $PCPCFG
 echo "${GREEN}Done.${NORMAL}"
 
 echo -n "${BLUE}Loading pcp-lms-functions...${NORMAL}"
