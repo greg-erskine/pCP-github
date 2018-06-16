@@ -44,7 +44,7 @@ echo '                  <li><a href="#06">/etc/init.d/settime.sh</a></li>'
 echo '                  <li><a href="#07">/usr/bin/getTime.sh</a></li>'
 echo '                  <li><a href="#08">/opt/bootsync.sh</a></li>'
 echo '                  <li><a href="#09">/opt/bootlocal.sh</a></li>'
-echo '                  <li><a href="#10">/home/tc/www/cgi-bin/do_rebootstuff.sh</a></li>'
+echo '                  <li><a href="#10">/home/tc/www/cgi-bin/pcp_startup.sh</a></li>'
 echo '                  <li><a href="#11">/home/tc/.profile</a></li>'
 echo '                  <li><a href="#12">/home/tc/.ashrc</a></li>'
 echo '                  <li><a href="#13">/etc/init.d/tc-functions</a></li>'
@@ -103,7 +103,7 @@ echo '                <div id="09">'
                         pcp_textarea_inform "" "cat /opt/bootlocal.sh" 110 log
 echo '                </div>'
 echo '                <div id="10">'
-                        pcp_textarea_inform "" "cat /home/tc/www/cgi-bin/do_rebootstuff.sh" 600 log
+                        pcp_textarea_inform "" "cat /home/tc/www/cgi-bin/pcp_startup.sh" 600 log
 echo '                </div>'
 echo '                <div id="11">'
                         pcp_textarea_inform "" "cat /home/tc/.profile" 530 log

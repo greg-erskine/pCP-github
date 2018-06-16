@@ -410,7 +410,7 @@ pcp_clean_cmdlinetxt() {
 #
 # Called from:
 #			timezone.cgi
-#			do_rebootstuff.sh
+#			pcp_startup.sh
 #----------------------------------------------------------------------------------------
 pcp_set_timezone() {
 	. $PCPCFG
@@ -1096,7 +1096,7 @@ pcp_wlan0_ip() {
 # Auto start LMS routine
 #	This routine will allow you to set a LMS command to auto start a LMS command after
 #	a "hard power on". This will be handy for people building pseudo radios. This routine
-#	is called from do_rebootstuff.sh.
+#	is called from pcp_startup.sh.
 #
 # Example $AUTOSTARTLMS:
 #	randomplay tracks

@@ -622,7 +622,7 @@ while True:
         if "#pCPstart------" in ln:
             CUT=1
             outfile.write("#pCPstart------\n")
-            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh 2>&1 | tee -a /var/log/pcp_boot.log\n")
+            outfile.write("/home/tc/www/cgi-bin/pcp_startup.sh 2>&1 | tee -a /var/log/pcp_boot.log\n")
             outfile.write("#pCPstop------\n")
         else:
             if not "#pCPstop------" in ln:

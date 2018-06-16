@@ -43,7 +43,7 @@ if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 else
 	echo '<p class="info">[ INFO ] Audio output changed from '$ORIG_AUDIO' to '$AUDIO'.</p>'
 	# The next line is needed to clear OUTPUT from here when selecting USB.
-	# Whereas when pcp_read_chosen_audio is called from do_rebootstuff it should use the correct USB OUTPUT from newconfig.
+	# Whereas when pcp_read_chosen_audio is called from pcp_startup.sh it should use the correct USB OUTPUT from newconfig.
 	USBOUTPUT=""
 	CHANGED=TRUE
 fi
