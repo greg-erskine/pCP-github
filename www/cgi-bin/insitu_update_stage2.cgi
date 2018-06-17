@@ -1,62 +1,9 @@
 #!/bin/sh
 
-# Version 4.0.0 2018-06-16
-#	Last Version for sourceforge.....will reload new script from new server.
-
-# Version 3.5.0 2018-03-15
-#	Updates for Kernel 4.14.26 and 9.x repo
-#	Remove RaspiDac3 per commit: https://github.com/raspberrypi/linux/commit/022439ad96fa2a2379dfc6bc281f32bbe857cecc
-
-# Version 3.22 2017-09-16
-#	Updates for Kernel 4.9.50
-
-# Version 3.21 2017-07-03
-#	Allow for custom configuration in config.txt. PH
-#	Modifcations for installing to bootdevice. i.e. USB boot. PH.
-
-# Version 3.20 2017-04-22
-#	Updates for new Repo and Newer kernels
-
-# Version 3.10 2016-12-26
-#	Changes for shairport-sync.  Incomplete PH
-#	Sourceforge repo changes. PH
-
-# Version 3.02 2016-09-04 PH
-#	Updated Kernel Information for 3.02 piCore8.0 Release
-#	Removed pcp-load, as 3.00 and on had the updated file.  Not needed for pcp 2.xx
-
-# Version 3.00 2016-08-09 PH
-#	Add Download new Kernel modules, for all current existing Modules
-
-# Version 2.06 2016-06-17 PH
-#	Added Copy entire update /sbin directory to location (pcp-load), Bootfix, and changed bootlocal.sh processing.
-#	Added oldpiversion.cfg to allow bootfix to know what the old version was.
-
-#Needed when upgrading from 3.20
-#Name of device (excluding /dev/)that has tce.  Assume boot is partition 1 of that device.  
-TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
-TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
-BOOTDEV=${TCEDEV%%?}1
-BOOTMNT=${TCEMNT%%?}1
+# Version: 4.0.0 2018-06-16
 
 . /etc/init.d/tc-functions
 . pcp-functions
-
-#pcp <3.21 will not understand bootpart
-if [ ! $(type -t pcp_mount_bootpart) ]; then
-	pcp_mount_bootpart() {
-		pcp_mount_mmcblk0p1
-	}
-	pcp_mount_bootpart_nohtml() {
-		pcp_mount_mmcblk0p1_nohtml
-	}
-	pcp_umount_bootpart() {
-		pcp_umount_mmcblk0p1
-	}
-	pcp_umount_bootpart_nohtml() {
-		pcp_umount_mmcblk0p1_nohtml
-	}
-fi
 
 pcp_html_head "Update pCP" "GE"
 
@@ -78,7 +25,8 @@ fi
 
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
-#INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"  #<----- defined in pcp-functions otherwise the beta testing does not work
+#INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
+INSITU_DOWNLOAD=$(echo "$INSITU_DOWNLOAD" | sed 's/http:\/\/picoreplayer.sourceforge.net/https:\/\/repo.picoreplayer.org/')
 
 #========================================================================================
 #      382 - insitu.cfg
@@ -89,21 +37,10 @@ UPD_PCP="/tmp/pcp_insitu_update"
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
 case "${VERSION}" in
-	piCorePlayer3.20*)
-		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=25500
-	;;
-	piCorePlayer3.21*)
-		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=25540
-	;;
-	piCorePlayer3.22*)
-		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=25650
-	;;
-	piCorePlayer3.5.0*)
+	piCorePlayer4.0.0*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=26900
+
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -138,14 +75,14 @@ pcp_internet_indicator() {
 }
 
 #========================================================================================
-# Check we have sourceforge access - set FAIL_MSG if not accessible
+# Check we have repo access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
-pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		SOURCEFORGE_STATUS="Sourceforge repository accessible."
+pcp_repo_indicator() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		REPO_STATUS="pCP repository accessible."
 	else
-		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
-		FAIL_MSG="Sourceforge not accessible!!"
+		REPO_STATUS="pCP repository not accessible!!"
+		FAIL_MSG="pCP repo not accessible!!"
 	fi
 }
 
@@ -170,9 +107,27 @@ pcp_enough_free_space() {
 # Reboot popups - need to be self contained
 #-----------------------------------------------------------------------------------------
 pcp_reboot_required() {
-   echo '<script language="javascript">'
-   echo '  pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')'
-   echo '</script>'
+	echo '<script language="javascript">'
+	echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
+	echo '</script>'
+}
+
+#========================================================================================
+# update onboot.lst
+#----------------------------------------------------------------------------------------
+pcp_update_onbootlst() {
+	# $1 - add|remove
+	local EXTENSION=$2
+	local ERROR=0
+
+	sudo sed -i '/'$EXTENSION'/d' $ONBOOTLST
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	if [ "$1" = "add" ]; then
+		sudo echo $EXTENSION >> $ONBOOTLST
+		[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	fi
+
+	return $ERROR
 }
 
 #========================================================================================
@@ -194,7 +149,7 @@ pcp_create_download_directory() {
 }
 
 #========================================================================================
-# Download a list of piCorePlayer versions that are available on Sourceforge - insitu.cfg
+# Download a list of piCorePlayer versions that are available on pCP repo - insitu.cfg
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
@@ -213,58 +168,19 @@ pcp_get_insitu_cfg() {
 
 pcp_get_kernel_modules() {
 	BUILD=$(getBuild)
-#	Removed uudecode, if needed look at git history on prior to pcp3.21
-	case "${VERSION}" in
-		piCorePlayer2.06)
-			# Set the below for the new kernel
-			KUPDATE=1
-			NEWKERNELVER=4.1.20
-			PICOREVERSION=7.x
-		;;
-		piCorePlayer3.00*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			NEWKERNELVER=4.4.15
-			PICOREVERSION=8.x
-		;;
-		piCorePlayer3.02*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			NEWKERNELVER=4.4.20
-			PICOREVERSION=8.x
-		;;
-		piCorePlayer3.20*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			NEWKERNELVER=4.9.21
-			PICOREVERSION=8.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		piCorePlayer3.21*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			NEWKERNELVER=4.9.35
-			PICOREVERSION=8.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		piCorePlayer3.22*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			NEWKERNELVER=4.9.50
-			PICOREVERSION=8.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		piCorePlayer3.5.0*)
+		piCorePlayer4.0.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
 				*pcpAudioCore*)
 					case $BUILD in
-						armv6) NEWKERNELVER=4.14.26;;
-						armv7) NEWKERNELVER=4.14.26-rt19;;
+						armv6) FAIL_MSG="AudioCore is not availiable for this device"
+							KUPDATE=0
+						;;
+						armv7) NEWKERNELVER=4.14.48-rt30;;
 					esac
 				;;
-				*) NEWKERNELVER=4.14.26;;
+				*) NEWKERNELVER=4.14.48;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -273,7 +189,7 @@ pcp_get_kernel_modules() {
 		;;
 	esac
 	if [ $KUPDATE -eq 1 ]; then
-		PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+		PCP_REPO="https://repo.picoreplayer.org/repo"
 #		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
@@ -313,7 +229,7 @@ pcp_get_kernel_modules() {
 }
 
 #========================================================================================
-# Download the boot files from Sourceforge
+# Download the boot files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
@@ -373,17 +289,20 @@ pcp_install_boot_files() {
 # Save configuration files to the boot partiton
 #-----------------------------------------------------------------------------------------
 pcp_save_configuration() {
+	#(Cleanup for next 4.x release)
+	local V
 	echo '[ INFO ] Saving configuration files.'
-	sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newconfig.cfg
+	[ -r /usr/local/sbin/config.cfg ] && sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newpcp.cfg
+	[ -r /usr/local/etc/pcp/pcp.cfg ] && sudo cp -f /usr/local/etc/pcp/pcp.cfg ${BOOTMNT}/newpcp.cfg
+	sudo dos2unix -u ${BOOTMNT}/newpcp.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
-	sudo dos2unix -u ${BOOTMNT}/newconfig.cfg
-	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
-	#save the current piversion to determine potential bootfix(es) later
-	. /usr/local/sbin/piversion.cfg
+	#save the current pcpversion to determine potential bootfix(es) later  
+	[ -r /usr/local/sbin/piversion.cfg ] && . /usr/local/sbin/piversion.cfg
+	[ -r $PCPVERSIONCFG ] && . $PCPVERSIONCFG
 	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
-	echo "OLDPIVERS=\"$PIVERS\"" > ${BOOTMNT}/oldpiversion.cfg
-	[ $? -eq 0 ] || FAIL_MSG="Error saving current piCorePlayer version."
-
+	[ -e ${BOOTMNT}/oldpcpversion.cfg ] && rm -f ${BOOTMNT}/oldpcpversion.cfg
+	[ "$PIVERS" != "" ] && V=$PIVERS || V=$PCPVERS
+	echo "OLDPCPVERS=\"$V\"" > ${BOOTMNT}/oldpcpversion.cfg;
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
 }
 
@@ -483,7 +402,7 @@ outfile.close
 }
 
 #========================================================================================
-# Download the tce files from Sourceforge
+# Download the tce files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
 	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
@@ -539,22 +458,16 @@ pcp_finish_install() {
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
 	case "${VERSION}" in
-		piCorePlayer3.2*)
-			#>pcp3.20 pcp.tcz handles all pcp dependencies (non-wifi)
+		piCorePlayer4.*)
+			#>pcp4.0.0 wifi is changed.
 			echo "Removing old boot extensions from onboot.lst:"
-			sed -i '/busybox-httpd.tcz/d' $ONBOOTLST
-			sed -i '/alsa.tcz/d' $ONBOOTLST
-			sed -i '/openssh.tcz/d' $ONBOOTLST
-			sed -i '/dialog.tcz/d' $ONBOOTLST
-			sed -i '/alsa-utils.tcz/d' $ONBOOTLST
-			sed -i '/pcp-squeezelite.tcz/d' $ONBOOTLST
-			sed -i '/^jivelite.tcz/d' $ONBOOTLST
-			if [ -f ${PACKAGEDIR}/jivelite.tcz ]; then
-				mv ${PACKAGEDIR}/jivelite.tcz ${PACKAGEDIR}/pcp-jivelite.tcz
-				mv ${PACKAGEDIR}/jivelite.tcz.dep ${PACKAGEDIR}/pcp-jivelite.tcz.dep
-				mv ${PACKAGEDIR}/jivelite.tcz.md5.txt ${PACKAGEDIR}/pcp-jivelite.tcz.md5.txt
-				sed -i '/backlight/d' ${PACKAGEDIR}/pcp-jivelite.tcz.dep
-				echo "pcp-jivelite.tcz" >> $ONBOOTLST
+			pcp_update_onbootlst "del" "wifi.tcz"
+			rm -f ${PACKAGEDIR}/wifi.tcz
+			rm -f ${TCEMNT}/tce/piCorePlayer.dep
+			# If wifi is on, then add extensions to onboot....the firmware would already be there.
+			if [ "$WIFI" = "on" ]; then
+				pcp_update_onbootlst "add" "wireless_tools.tcz"
+				pcp_update_onbootlst "add" "wpa_supplicant.tcz"
 			fi
 		;;
 	esac
@@ -568,18 +481,22 @@ pcp_finish_install() {
 	sudo chown root:staff /opt/.filetool.lst
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
 	case "${VERSION}" in
-		piCorePlayer3.2*)
-			#pcp3.20 moved pcp-load, setup and pcp to pcp-base.tcz
-			sed -i 'usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i 'usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i 'usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
-		;;
-		piCorePlayer3.21*)
-			#Changed in pCP3.21 to usr/local/etc/pcp
-			sed -i 'usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
+		piCorePlayer4.*)
+			echo "Updating .filetool.lst :"
+			sed -i '/etc\/motd/d' /opt/.filetool.lst
+			sed -i '/etc\/sysconfig\/wifi-wpadrv/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/etc\/init.d\/httpd/d' /opt/.filetool.lst
+			sed -i '/etc\/modprobe.conf/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/config.cfg/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/piversion.cfg/d' /opt/.filetool.lst
+			#cleanup from previous versions, make sure these were done.
+			sed -i '/usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
+			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
 		;;
 	esac
-	
+
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
 	sudo chown root:staff /opt/.xfiletool.lst
@@ -605,7 +522,7 @@ while True:
         if "#pCPstart------" in ln:
             CUT=1
             outfile.write("#pCPstart------\n")
-            outfile.write("/home/tc/www/cgi-bin/do_rebootstuff.sh 2>&1 | tee -a /var/log/pcp_boot.log\n")
+            outfile.write("/home/tc/www/cgi-bin/pcp_startup.sh 2>&1 | tee -a /var/log/pcp_boot.log\n")
             outfile.write("#pCPstop------\n")
         else:
             if not "#pCPstop------" in ln:
@@ -624,16 +541,12 @@ outfile.close
 	sudo chmod u=rwx,g=rwx,o=rx /opt/bootlocal.sh
 
 	# Update pCP by copying the content from the new version to the correct location followed by a backup
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/motd /etc/motd
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/modprobe.conf /etc/modprobe.conf
-	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/sysconfig/wifi-wpadrv /etc/sysconfig/wifi-wpadrv
 	[ -f pcp-powerbutton.sh ] || sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/pcp-powerbutton.sh /home/tc/pcp-powerbutton.sh
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/www/ /home/tc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.ashrc /home/tc/.ashrc
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/.pbtemp /home/tc/.local/bin/.pbtemp
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/home/tc/.local/bin/copywww.sh /home/tc/.local/bin/copywww.sh
 	sudo cp -af ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pointercal /usr/local/etc/pointercal
-	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/init.d/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/etc/pcp/ /usr/local/etc/
 	sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/usr/local/sbin/ /usr/local/
 
@@ -647,13 +560,8 @@ outfile.close
 	sudo chown tc.staff /usr/local/etc/pcp/cards/*
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
-	#Make changes to mydata based on version
-	case "${VERSION}" in
-		piCorePlayer3.5.*)
-			#Support for card has been removed in 4.14.y kernels
-			rm -f /usr/local/etc/pcp/cards/raspidac3.conf
-		;;
-	esac
+	#Support for card has been removed in 4.14.y kernels
+	rm -f /usr/local/etc/pcp/cards/raspidac3.conf
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
@@ -736,7 +644,7 @@ case "$ACTION" in
 		pcp_warning_message
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_sourceforge_indicator
+		pcp_repo_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		pcp_create_download_directory
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
@@ -773,7 +681,7 @@ echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$SOURCEFORGE_STATUS
+	echo '[ INFO ] '$REPO_STATUS
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
 fi
 #----------------------------------------------------------------------------------------
@@ -786,75 +694,14 @@ if [ "$ACTION" = "download" ]; then
 			VVV=$(pcp_picoreplayer_version)
 			[ $(echo $VVV | awk -F. '{print $1}') -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
 		;;
-		piCorePlayer4.*)
-			INSITU_DOWNLOAD=$(echo "$INSITU_DOWNLOAD" | sed 's/http:\/\/picoreplayer.sourceforge.net/https:\/\/repo.picoreplayer.org/')
-			echo '[ INFO ] piCorePlayer 4.0.0 has migrated to new servers.  The update script will update once again.'
-			sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
-			echo '[ INFO ] Downloading the new Update script...from: '$INSITU_DOWNLOAD
-			# The web storage does not allow for cgi downloads.
-			PACKAGE="insitu_update_stage2"
-			rm -f /tmp/${PACKAGE}*
-			$WGET ${INSITU_DOWNLOAD}/${PACKAGE}.gz -P /tmp > /dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo '[  OK  ] Successfully downloaded the new Update script.'
-				gunzip /tmp/${PACKAGE}.gz
-				if [ $? -eq 0 ]; then
-					echo '[ INFO ] Unpacking new script.'
-				else
-					echo '[ ERROR ] Downloaded script is corrupted.'
-					FAIL_MSG="Downloaded script is corrupted."
-				fi
-			else
-				echo '[ ERROR ] Error downloading the Update script.'
-				FAIL_MSG="Error downloading the Update script"
-			fi
-			if [ "$FAIL_MSG" = "ok" ] ; then
-				echo '                  </textarea>'
-				echo '                </td>'
-				echo '              </tr>'
-				pcp_incr_id
-				echo '<table class="bggrey">'
-				echo '  <tr>'
-				echo '    <td>'
-				echo '      <div class="row">'
-				echo '        <fieldset>'
-				echo '          <legend>piCorePlayer insitu update</legend>'
-				echo '          <table class="bggrey percent100">'
-				echo '            <form name="newrepo" action= "insitu_update_stage2.cgi">'
-				pcp_start_row_shade
-				echo '              <tr class="'$ROWSHADE'">'
-				echo '                <td class="large18 center">'
-				echo '                  <input type="submit" value="Next" />'
-				echo '                  <input type="hidden" name="ACTION" value="initial" />'
-				echo '                </td>'
-				echo '                <td>'
-				echo '                  <p>Press the [ Next ] button to relaunch from new servers.</p>'
-				echo '                </td>'
-				echo '              </tr>'
-				echo '            </form>'
-				echo '          </table>'
-				echo '        </fieldset>'
-				echo '      </div>'
-				echo '    </td>'
-				echo '  </tr>'
-				echo '</table>'
-				mv -f /tmp/insitu_update_stage2 ${PCPHOME}/insitu_update_stage2.cgi
-				sudo chmod u=rwx,g=rx,o= "${PCPHOME}/insitu_update_stage2.cgi"
-				sudo dos2unix "${PCPHOME}/insitu_update_stage2.cgi"
-				sudo chown tc:staff "${PCPHOME}/insitu_update_stage2.cgi"
-				FAIL_MSG="Reload from new server."
-			fi
-		;;
 	esac
-	if [ "$FAIL_MSG" = "ok" ]; then
-		# busybox 27 changed fdisk format
-		if [ $(busybox fdisk --help 2>&1 | grep "BusyBox v" | awk -F. '{print $2}') -ge 27 ]; then
-			BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
-		else
-			BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
-		fi
-		echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
+	# busybox 27 changed fdisk format
+	if [ $(busybox fdisk --help 2>&1 | grep "BusyBox v" | awk -F. '{print $2}') -ge 27 ]; then
+		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
+	else
+		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
 	fi
+	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"
 	fi
