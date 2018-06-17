@@ -18,14 +18,14 @@ ORIG_AUDIO="$AUDIO"
 #****************************************************************************************
 #*********************************Upgrade Process Start *********************************
 # Mount USB stick if present.  Build list of usb stick 1st partitions.
-# Check each partition for newconfig.cfg.  The first one found stops the search.
+# Check each partition for pcp.cfg.  The first one found stops the search.
 #****************************************************************************************
 NEWCONFIGFOUND=0
 WPACONFIGFOUND=0
 SSH=0
 NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 for DISK in $NEWCFGLIST; do
-	echo "${BLUE}Checking for newconfig.cfg on $DISK...${NORMAL}"
+	echo "${BLUE}Checking for newpcp.cfg on $DISK...${NORMAL}"
 	# Check if $DISK is mounted, otherwise mount it.
 	if mount | grep ${DISK}; then
 		eval ${DISK}WASMNT=1
@@ -64,7 +64,7 @@ for DISK in $NEWCFGLIST; do
 	[ $NEWCONFIGFOUND -eq 1 ] && break
 done
 
-# Check if newconfig.cfg was found in search
+# Check if newpcp.cfg was found in search
 if [ $NEWCONFIGFOUND -eq 1 ]; then
 	echo "${BLUE}[ INFO ] Processing saved Configuration file from ${DISK}...${NORMAL}"
 	# Check for bootfix script which will fix specific issues after insitu update - if present execute and then delete
