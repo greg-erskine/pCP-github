@@ -1,10 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-18
-#	Initial version. PH.
+# Version: 4.0.0 2018-06-18
 
 . pcp-functions
-[ -e /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
+[ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
 
 pcp_html_head "Bluetooth Settings" "PH"
 
@@ -298,7 +297,18 @@ echo '              <td></td>'
 echo '              <td></td>'
 echo '            </tr>'
 
-#------------------------------------------Install/uninstall AP Mode---------------------
+
+pcp_bt_beta_mode_required() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b> Beta Mode is required for Bluetooth functions to be enabled.</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+}
+
+#------------------------------------------Install/uninstall BT Mode---------------------
 pcp_bt_install() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -334,7 +344,7 @@ pcp_bt_install() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bt_install
+[ $MODE -ge $MODE_BETA ] && pcp_bt_install || pcp_bt_beta_mode_required
 #----------------------------------------------------------------------------------------
 #------------------------------------------Start and Stop BT Daemon---------------------
 pcp_bt_startstop() {
