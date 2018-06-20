@@ -1,53 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Fix partition size display - changed from the new busybox. PH.
-#	HTML cleanup. PH.
-
-# Version: 3.5.0 2018-03-23
-#	Changes for busbybox fdisk output changes. PH.
-#	Fixed ability to remove missing configured drives. PH.
-#	Add popup confirmations on removing lms/cache, added extension check for startup. PH.
-#	Add help around vers= for network mounts. PH.
-
-# Version: 3.22 2017-09-16
-#	Changed Netmounts to support shares with spaces. PH.
-#	Added checkbox to clear unused netmount conf entries. PH.
-#	Added Exfat Support. PH.
-
-# Version: 3.21 2017-06-18
-#	Changed to allow booting from USB on RPI3. PH.
-#	Support multiple USB mounts. PH.
-#	Support multiple Network mounts. PH.
-#	Strip bootable flag from fdisk output. PH.
-
-# Version: 3.20 2017-03-31
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Added UTF8 Note. PH.
-
-# Version: 3.12 2017-01-29
-#	Added --nomysqueezebox option for lms. PH.
-
-# Version: 3.11 2017-01-28
-#	Added Workgroup to Samba. PH.
-#	Updated freespace requirements. PH.
-
-# Version: 3.10 2016-12-27
-#	Pop-up asking to delete cache. SBP
-#	Remove all traces of LMS. SBP
-#	Added Samba.  PH.
-#	Added GPT Disk support. PH
-#	Converted lms removal to proper method to avoid removing a dependancy. PH
-#	Updates for using Sourceforge repo for filesystem support. PH
-# 	Added pattern not not allow mount points starting with sd. PH
-#	Samba Cleanup.  PH
-
-# Version: 3.00 2016-07-01 PH
-#	Mode Changes
-
-# Version: 0.01 2016-01-30 SBP
-#	Original.
+# Version: 4.0.0 2018-06-19
 
 . pcp-functions
 . pcp-rpi-functions
@@ -1568,7 +1521,7 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large6" type="text" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL8'">'
-		echo '                  <input class="large10" type="text" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
+		echo '                  <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
 		echo '                </td>'
 		echo '              </tr>'
 		echo '              <script>'
@@ -1592,11 +1545,28 @@ pcp_mount_netdrives() {
 	echo '                      document.getElementById(Box1).setAttribute("required", "");'
 	echo '                      document.getElementById(Box2).setAttribute("required", "");'
 	echo '                      document.getElementById(Box3).setAttribute("required", "");'
+	echo '                      setcifsopts(id);'
 	echo '                    }'
 	echo '                    else {'
 	echo '                      document.getElementById(Box1).required = false;'
 	echo '                      document.getElementById(Box2).required = false;'
 	echo '                      document.getElementById(Box3).required = false;'
+	echo '                    }'
+	echo '                  }'
+	echo '                  function setcifsopts(id) {'
+	echo '                    var box = "NET";'
+	echo '                    var Box = box.concat(id);'
+	echo '                    var box4 = "NETOPTS";'
+	echo '                    var Box4 = box4.concat(id);'
+	echo '                    var box5 = "NETFS";'
+	echo '                    var Box5 = box5.concat(id);'
+	echo '                    if (document.getElementById(Box).checked && (document.getElementById(Box5).value == "cifs")){'
+	echo '                      var x = document.getElementById(Box4).value;'
+	echo '                      x = ( x.length > 0 ) ? x.concat(",") : x;'
+	echo '                      x = ( x.indexOf("uid=") != -1 ) ? x : x.concat("uid=1001");'
+	echo '                      x = ( x.indexOf("gid=") != -1 ) ? x : x.concat(",gid=50");'
+	echo '                      x = ( x.substr(x.length - 1) == ",") ? x.substring(0, x.length - 1) : x;'
+	echo '                      document.getElementById(Box4).value = x;'
 	echo '                    }'
 	echo '                  }'
 	echo '                  function setfstype(id) {'
@@ -1613,6 +1583,7 @@ pcp_mount_netdrives() {
 	echo '                    else {'
 	echo '                      document.getElementById(Box1).disabled = false;'
 	echo '                      document.getElementById(Box2).disabled = false;'
+	echo '                      setcifsopts(id);'
 	echo '                    }'
 	echo '                  }'
 	echo '                </script>'
