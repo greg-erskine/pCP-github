@@ -103,13 +103,13 @@ pcp_lms_build_result() {
 
 pcp_lms_json_request() {
 	LMSIP=$(pcp_lmsip)
-	$WGET -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_req
+	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_req
 	cat /tmp/json_req | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g'
 }
 
 pcp_lms_json_request_list() {
 	LMSIP=$(pcp_lmsip)
-	$WGET -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_list
+	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_list
 	NUMRESULT=$(pcp_lms_build_result result count)
 	NO_OF_RESULTS=$(cat /tmp/json_list | egrep "$NUMRESULT" | sed -r "s/${NUMRESULT}[[:space:]]{1,9}//")
 	echo $NO_OF_RESULTS
@@ -117,7 +117,7 @@ pcp_lms_json_request_list() {
 
 pcp_lms_json_request_debug() {
 	LMSIP=$(pcp_lmsip)
-	$WGET -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_req
+	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js | JSON.awk - > /tmp/json_req
 	cat /tmp/json_req
 }
 
