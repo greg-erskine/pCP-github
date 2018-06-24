@@ -303,6 +303,7 @@ LICENCE.piCorePlayer
 README
 RELEASE
 ssh
+wpa_supplicant.conf.sample
 EOF
 
 	rsync --files-from=${FILELIST} ${BUILDROOT}/../pcp/mmcblk0p1 $PART1

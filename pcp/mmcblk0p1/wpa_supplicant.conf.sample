@@ -1,0 +1,40 @@
+# piCorePlayer wifi configuration
+#
+# wpa_supplicant.conf.sample
+#
+# To use this method of wifi configuration.
+# Edit and save this file on the pCP boot partition as wpa_supplicant.conf
+# This file contains minimum setup for a WPA/WPA2 wireless access point.
+# For other wifi configuration refer to: https://w1.fi/cgit/hostap/plain/wpa_supplicant/wpa_supplicant.conf
+#
+#
+# If you want to manually configure wifi, and maintain all settings manually.
+# Changes would be made by saving a new file on the boot partition.
+# no part of pCP would modify this file. Ensure the file contains this following line.
+#
+# Maintained by user
+#
+# If you would like to maintain wifi settings in the web interface remove the above line.
+#
+#
+# These two lines should left as is, it is how pCP is configured
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=staff
+
+# The next line is the two character country code where the device is operating.  
+# Reference: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+country="US"
+
+update_config=1
+
+
+# This is the details about your Wireless network. Configure as needed.
+# Most will just need to change the ssid and psk.
+
+network={
+        ssid="Your wifi"
+        psk="some password"
+        key_mgmt=WPA-PSK
+        auth_alg=OPEN
+}
+
