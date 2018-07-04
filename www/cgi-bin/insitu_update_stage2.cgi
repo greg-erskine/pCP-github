@@ -168,6 +168,7 @@ pcp_get_insitu_cfg() {
 
 pcp_get_kernel_modules() {
 	BUILD=$(getBuild)
+	case "${VERSION}" in
 		piCorePlayer4.0.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
@@ -177,10 +178,10 @@ pcp_get_kernel_modules() {
 						armv6) FAIL_MSG="AudioCore is not availiable for this device"
 							KUPDATE=0
 						;;
-						armv7) NEWKERNELVER=4.14.48-rt30;;
+						armv7) NEWKERNELVER=4.14.52-rt34;;
 					esac
 				;;
-				*) NEWKERNELVER=4.14.48;;
+				*) NEWKERNELVER=4.14.52;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
