@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-19
+# Version: 4.0.0 2018-06-30
 
 . pcp-functions
 . pcp-rpi-functions
@@ -33,6 +33,7 @@ TCEDIR=$(readlink "/etc/sysconfig/tcedir")
 LMS_SERV_LOG="${LOGS}/server.log"
 LMS_SCAN_LOG="${LOGS}/scanner.log"
 LMS_UPDATE_LOG="${LOGS}/LMS_update.log"
+LMS_CC_FILE="/usr/local/slimserver/custom-convert.conf"
 WGET="/bin/busybox wget"
 
 #---------------------------Routines-----------------------------------------------------
@@ -62,6 +63,13 @@ pcp_remove_lms_cache() {
 	for I in $(find /mnt -maxdepth 1 | grep -Ev 'mmcblk0p[1-9]'); do
 		[ -d $I/slimserver ] && rm -rf $I/slimserver/
 	done
+	sync
+}
+
+pcp_remove_custom_convert() {
+	sudo rm -rf $LMS_CC_FILE
+	sed -i '/'$(echo ${LMS_CC_FILE##/} | sed 's|\/|\\\/|g')'/d' $FILETOOLLST
+	pcp_backup "nohtml"
 }
 
 pcp_install_fs() {
@@ -318,6 +326,11 @@ case "$ACTION" in
 	Remove_cache)
 		pcp_remove_lms_cache
 	;;
+	Remove_cconvert)
+		pcp_table_top "Removing custom_convert.conf"
+		pcp_remove_custom_convert
+		pcp_table_end
+	;;
 	Rescan*)
 		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
 	;;
@@ -473,6 +486,12 @@ case "$LOGSHOW" in
 	*) LOGSHOWno="checked" ;;
 esac
 
+# Function to check the show custom convert radio button according to selection
+case "$CCSHOW" in
+	yes) CCSHOWyes="checked" ;;
+	*) CCSHOWno="checked" ;;
+esac
+
 pcp_incr_id
 pcp_start_row_shade
 echo '          <table class="bggrey percent100">'
@@ -577,7 +596,7 @@ pcp_rescan_lms() {
 	echo '                  <input type="submit" name="ACTION" value="Rescan LMS" />'
 	echo '                </td>'
 	echo '                <td class="column280">'
-	echo '                  <select class="large32" name="RESCAN">'
+	echo '                  <select class="large22" name="RESCAN">'
 	echo '                    <option value="rescan">Look for new and changed media files</option>'
 	echo '                    <option value="wipecache">Clear library and rescan everything</option>'
 	echo '                  </select>'
@@ -772,8 +791,79 @@ pcp_lms_show_logs() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
+
+#-------------------------------Show custom_convert.conf---------------------------------
+pcp_lms_show_cconvert() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" value="Show CConv" '$DISABLE_LMS'/>'
+	echo '                </td>'
+	echo '                <td class="column100">'
+	echo '                  <input class="small1" type="radio" name="CCSHOW" value="yes" '$CCSHOWyes' >Yes'
+	echo '                  <input class="small1" type="radio" name="CCSHOW" value="no" '$CCSHOWno' >No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Show LMS Custom Convert&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Show the current custom-convert.conf file on the system.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                    <button type="submit" name="ACTION" value="Remove_cconvert" onclick="return confirm('\''This will remove your custom convert settings file.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove CConv</button>'
+	echo '                </td>'
+	echo '                <td colspan=2>'
+	echo '                  <p>Remove LMS custom_convert.conf from pCP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will remove your the custom convert file for LMS  from pCP.</p>'
+	echo '                    <p>Custom convert is used to define custom trascoding options.</p>'
+	echo '                  </div>'
+	echo '                 </td>'
+	echo '               </tr>'
+
+}
+[ $MODE -ge $MODE_NORMAL -a -f $LMS_CC_FILE ] && pcp_lms_show_cconvert
+#----------------------------------------------------------------------------------------
+
 echo '            </table>'
 echo '          </form>'
+
+#-------------------------------custom convert-------------------------------------------
+pcp_lms_customconvert() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '          <form name="Custom" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '            <table class="bggrey percent100">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="Custom" '$DISABLE_LMS'>Upload</button>'
+	echo '                </td>'
+	echo '                <td class="column200">'
+	echo '                  <input class="large22" type="file" id="file" name="CUSTOMCONVERT">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Upload custom-convert to LMS.&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Custom convert is used to define custom trascoding options.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_lms_customconvert
+#----------------------------------------------------------------------------------------
 
 #---------------------------------Update LMS--------------------------------------------
 pcp_update_lms() {
@@ -2039,6 +2129,31 @@ pcp_lms_logview() {
 }
 [ "$LOGSHOW" = "yes" ] && pcp_lms_logview
 #----------------------------------------------------------------------------------------
+
+#------------------------------------------LMS custom convert text area-----------------
+pcp_lms_ccview() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Show LMS custom_convert.conf</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	                      pcp_textarea_inform "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ "$CCSHOW" = "yes" -a -f $LMS_CC_FILE ] && pcp_lms_ccview
+#----------------------------------------------------------------------------------------
+
 
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode
