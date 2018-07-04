@@ -117,7 +117,7 @@ case "$ACTION" in
 		sudo /usr/local/etc/init.d/pcp-apmode start
 		echo '                </textarea>'
 		pcp_table_end
-		sleep 1
+		sleep 2
 	;;
 	Stop)
 		pcp_table_top "AP Mode"
@@ -167,11 +167,12 @@ case "$ACTION" in
 		echo '[ INFO ] Restarting AP Mode...'
 		echo -n '[ INFO ] '
 		sudo /usr/local/etc/init.d/pcp-apmode stop
+		sleep 5
 		echo -n '[ INFO ] '
 		sudo /usr/local/etc/init.d/pcp-apmode start
 		echo '                </textarea>'
 		pcp_table_end
-		sleep 1
+		sleep 2
 	;;
 	Setconfig)
 		pcp_table_top "AP Mode configuration"
