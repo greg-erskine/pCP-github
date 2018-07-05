@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-30
+# Version: 4.0.0 2018-07-05
 
 . pcp-functions
 . pcp-rpi-functions
@@ -443,6 +443,35 @@ fi
 
 df | grep -qs ntfs
 [ "$?" = "0" ] && EXTRAFSYS="yes" || EXTRAFSYS="no"
+
+#========================================================================================
+# Generate warning message if using AudioCore
+#----------------------------------------------------------------------------------------
+pcp_lms_audiocore_warning() {
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Warning</legend>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b> Running LMS on the Realtime AudioCore is not recommended..</p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">Realtime kernels do not work well in a server environment.</li>'
+	echo '                  <li style="color:white">If it does not work properly, you have been warned.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $(pcp_audio_core) -eq 1 ] && pcp_lms_audiocore_warning
 
 #========================================================================================
 # Main table
