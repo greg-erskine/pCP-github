@@ -610,7 +610,7 @@ pcp_lms_configure_lms() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_lms_configure_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_configure_lms
 #----------------------------------------------------------------------------------------
 
 #-----------------------------------LMS Function Form------------------------------------
@@ -674,7 +674,7 @@ pcp_lms_install_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_install_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_install_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Remove LMS cache-------------------------
@@ -696,7 +696,7 @@ pcp_lms_remove_cache() {
 	echo '                 </td>'
 	echo '               </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_remove_cache
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_remove_cache
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Start LMS-------------------------------------
@@ -717,7 +717,7 @@ pcp_lms_start_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_start_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_start_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Stop LMS--------------------------------------
@@ -738,7 +738,7 @@ pcp_lms_stop_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_stop_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_stop_lms
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Restart LMS--------------------------------------------
@@ -764,7 +764,7 @@ pcp_lms_restart_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_restart_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
 #-------------------------------nomysqueezebox-------------------------------------------
@@ -793,7 +793,7 @@ pcp_lms_no_mysb() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_no_mysb
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_no_mysb
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Show LMS logs--------------------------------------------
@@ -818,7 +818,7 @@ pcp_lms_show_logs() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_show_logs
+[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Show custom_convert.conf---------------------------------
@@ -860,7 +860,7 @@ pcp_lms_show_cconvert() {
 	echo '               </tr>'
 
 }
-[ $MODE -ge $MODE_NORMAL -a -f $LMS_CC_FILE ] && pcp_lms_show_cconvert
+[ $MODE -ge $MODE_BETA -a -f $LMS_CC_FILE ] && pcp_lms_show_cconvert
 #----------------------------------------------------------------------------------------
 
 echo '            </table>'
@@ -891,7 +891,7 @@ pcp_lms_customconvert() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_lms_customconvert
+[ $MODE -ge $MODE_BETA ] && pcp_lms_customconvert
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Update LMS--------------------------------------------
@@ -916,7 +916,7 @@ pcp_update_lms() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_update_lms
+[ $MODE -ge $MODE_ADVANCED ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
 echo '      </div>'
@@ -2120,7 +2120,7 @@ pcp_samba() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_samba
+[ $MODE -ge $MODE_ADVANCED ] && pcp_samba
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
