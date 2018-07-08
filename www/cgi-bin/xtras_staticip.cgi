@@ -221,6 +221,7 @@ pcp_network_tabs() {
 	done
 
 	echo '</p>'
+	echo '<div class="tab7end" style="margin-bottom:10px;">pCP</div>'
 	echo '<!-- End of pcp_network_tabs toolbar -->'
 }
 
