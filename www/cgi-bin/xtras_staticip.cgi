@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-23
+# Version: 4.0.0 2018-07-10
 
 #========================================================================================
 # This script sets a static IP.
@@ -34,7 +34,7 @@ pcp_banner
 pcp_navigation
 pcp_httpd_query_string
 
-VALIDNETWORKS="eth0 eth1 wlan0 wlan1"
+VALIDNETWORKS=$(ls /sys/class/net | sed '/^lo/d')
 
 if [ x"" = x"$NETWORK" ]; then
 	for i in $VALIDNETWORKS; do
