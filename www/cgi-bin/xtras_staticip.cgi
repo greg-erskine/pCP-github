@@ -9,8 +9,8 @@
 # that is recommended in a few Tiny Core forum threads.
 #
 #   1. Insert "nodhcp" bootcode in cmdline.txt
-#   2. Create script eth0.sh
-#   3. Add /opt/eth0.sh to bootlocal.sh
+#   2. Create script ie. ethX.sh or wlanX.sh
+#   3. Add /opt/ethX.sh to bootlocal.sh (Note: not done for wifi)
 #   4. Backup
 #
 # Complications:
@@ -285,10 +285,38 @@ fi
 
 [ $DEBUG -eq 1 ] && pcp_table_end
 
-pcp_network_tabs
 #========================================================================================
 # Start table.
 #----------------------------------------------------------------------------------------
+
+#--------------------------------------Warning message-----------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <table class="bggrey percent100">'
+echo '            <tr class="warning">'
+echo '              <td>'
+echo '                <p style="color:white"><b>Warning:</b></p>'
+echo '                <ul>'
+echo '                  <li style="color:white">The recommended method to set a static IP address is to map the MAC address to an IP address in your Wifi router.</li>'
+echo '                  <li style="color:white">The network interface tabs will automatically show available network interfaces on the RPi.</li>'
+echo '                  <li style="color:white">You must get all the IP addresses and mask correct, or unusual network issues will occur.</li>'
+echo '                  <li style="color:white">All network interfaces must be DHCP or static IP, not mixed.</li>'
+echo '                </ul>'
+echo '              </td>'
+echo '            </tr>'
+echo '          </table>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
+pcp_network_tabs
+
 COLUMN1="column150"
 COLUMN2="column240"
 echo '<table class="bggrey">'
@@ -299,7 +327,7 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Set static IP for '$NETWORK'</legend>'
 echo '            <table class="bggrey percent100">'
-#--------------------------------------DHCP---------------------------------------------
+#--------------------------------------DHCP----------------------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
