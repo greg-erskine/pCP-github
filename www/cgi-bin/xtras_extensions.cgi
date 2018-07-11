@@ -1,28 +1,7 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
+# Version: 4.0.0 2018-07-11
 #	Changed repo to new server. PH.
-
-# Version: 3.5.0 2018-02-22
-#	HTML5 cleanup. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.02 2016-09-21
-#	Added default button. SBP.
-#	Added more help txt. SBP.
-#	Added repo indicator. SBP.
-#	Extensive update. GE.
-
-# Version: 3.00 2016-07-08
-#	Removed pcp_mode_lt_beta. GE.
-
-# Version: 0.01 2015-06-16
-#	Original version. GE.
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
@@ -320,9 +299,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '          <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
-	  pcp_green_tick "Internet accessible."
+		pcp_green_tick "Internet accessible."
 	else
-	  pcp_red_cross "Internet not accessible."
+		pcp_red_cross "Internet not accessible."
 	fi
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
