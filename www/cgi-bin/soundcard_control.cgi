@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-07-14
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -47,6 +47,10 @@ case "$ACTION" in
 			sudo amixer -c $CARD sset 'Analogue Playback Boost' 0 >/dev/null 2>&1
 		else
 			sudo amixer -c $CARD sset 'Analogue Playback Boost' $SMCFILTER2 >/dev/null 2>&1
+		fi
+		#----------------------------Allo Katana Specific Controls-----------------------
+		if [ $CARD = "Katana" ]; then
+			sudo amixer -c $CARD sset Deemphasis "$DEEM" >/dev/null 2>&1
 		fi
 		#----------------------------Allo Piano Plus Dac Controls------------------------
 		case "$PIANOSUBMODE" in
@@ -119,35 +123,10 @@ esac
 #======================================DEBUG=============================================
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	echo '<p class="debug">[ DEBUG ] Audiocard is:    '$AUDIO'<br />'
-	echo '                 [ DEBUG ] card is:         '$CARD'<br />'
-	echo '                 [ DEBUG ] sset is:         '$SSET'<br />'
-	echo '                 [ DEBUG ] dsp:             '$DSP'<br />'
-	echo '                 [ DEBUG ] dtoverlay is:    '$DTOVERLAY'<br />'
-	echo '                 [ DEBUG ] Generic card is: '$GENERIC_CARD'<br />'
-	echo '                 [ DEBUG ] Parameter1 is:'   $PARAMS1'<br />'
-	echo '                 [ DEBUG ] Parameter2 is:'   $PARAMS2'<br />'
-	echo '                 [ DEBUG ] Parameter3 is:'   $PARAMS3'<br />'
-	echo '                 [ DEBUG ] Parameter4 is:'   $PARAMS4'<br />'
-	echo '                 [ DEBUG ] Parameter5 is:'   $PARAMS5'<br />'
-	echo '                 [ DEBUG ] filter1:         '$FILTER1'<br />'
-	echo '                 [ DEBUG ] filter2:         '$FILTER2'<br />'
-	echo '                 [ DEBUG ] filter3:         '$FILTER3'<br />'
-	echo '                 [ DEBUG ] filter4:         '$FILTER4'<br />'
-	echo '                 [ DEBUG ] filter5:         '$FILTER5'<br />'
-	echo '                 [ DEBUG ] TEXT1 is:        '$TEXT1'<br />'
-	echo '                 [ DEBUG ] TEXT2 is:        '$TEXT2'<br />'
-	echo '                 [ DEBUG ] TEXT3 is:        '$TEXT3'<br />'
-	echo '                 [ DEBUG ] TEXT4 is:        '$TEXT4'<br />'
-	echo '                 [ DEBUG ] TEXT5 is:        '$TEXT5'<br />'
-	echo '                 [ DEBUG ] Actual vol is:   '$ACTUAL_VOL'<br />'
-	echo '                 [ DEBUG ] Actual db is:    '$ACTUAL_DB'<br />'
-	echo '                 [ DEBUG ] Actual Filter:   '$ACTUAL_FILTER'<br />'
-	echo '                 [ DEBUG ] Check1 is:       '$FILTER1_CHECK'<br />'
-	echo '                 [ DEBUG ] Check2 is:       '$FILTER2_CHECK'<br />'
-	echo '                 [ DEBUG ] Check3 is:       '$FILTER3_CHECK'<br />'
-	echo '                 [ DEBUG ] Check4 is:       '$FILTER4_CHECK'<br />'
-	echo '                 [ DEBUG ] Check5 is:       '$FILTER5_CHECK'</p>'
+	pcp_debug_variables "html" AUDIO CARD SSET DSP DTOVERLAY GENERIC_CARD PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 \
+		FILTER1 FILTER2 FILTER3 FILTER4 FILTER5 FILTER6 FILTER7 TEXT1 TEXT2 TEXT3 TEXT4 TEXT5 ACTUAL_VOL ACTUAL_DB ACTUAL_FILTER \
+		FILTER FILTER1_CHECK FILTER2_CHECK FILTER3_CHECK FILTER4_CHECK FILTER5_CHECK FILTER6_CHECK FILTER7_CHECK \
+		DEEMPHASIS DEEM1 DEEM2 DEEM3 DEEM4 DEEM1_CHECK DEEM2_CHECK DEEM3_CHECK DEEM4_CHECK
 	echo '<!-- End of debug info -->'
 fi
 
@@ -175,7 +154,7 @@ pcp_soundcard_DSP_options() {
 		echo '              </td>'
 		echo '            </tr>'
 		I=1
-		while [ $I -le 5 ]; do
+		while [ $I -le $NUMFILTERS ]; do
 			if [ "$(eval echo "\${FILTER${I}}")" != "" ]; then
 				echo '            <tr class="'$ROWSHADE'_tight">'
 				echo '              <td class="'$COL1'">'
@@ -225,6 +204,34 @@ pcp_soundcard_SMC_Analogue_options() {
 		row_padding
 		pcp_toggle_row_shade
 	fi
+}
+
+#========================================================================================
+# Deemphasis settings - Currently only for Katana
+#----------------------------------------------------------------------------------------
+pcp_soundcard_Deemphasis_options() {
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'_tight">'
+	echo '              <td class="colspan 3">'
+	echo '                <p><b>Deemphasis options:</b></p>'
+	echo '              </td>'
+	echo '            </tr>'
+	I=1
+	while [ $I -le 4 ]; do
+		if [ "$(eval echo "\${DEEM${I}}")" != "" ]; then
+			echo '            <tr class="'$ROWSHADE'_tight">'
+			echo '              <td class="'$COL1'">'
+			echo '                <input type="radio" name="DEEMPHASIS" value="DEEM'$I'" '$(eval echo \${DEEM${I}_CHECK})'>'
+			echo '              </td>'
+			echo '              <td class="'$COL2'">'
+			echo '                <p>'$(eval echo \${DEEM${I}})'</p>'
+			echo '              </td>'
+			echo '            </tr>'
+		fi
+		I=$((I+1))
+	done
+	row_padding
+	pcp_toggle_row_shade
 }
 
 #========================================================================================
@@ -479,6 +486,8 @@ if [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENE
 	pcp_volume_filter_buttons
 	pcp_soundcard_parameter_options
 fi
+
+[ "$GENERIC_CARD" = "Katana" ] && pcp_soundcard_DSP_options && pcp_soundcard_Deemphasis_options && pcp_soundcard_volume_options && pcp_volume_filter_buttons && pcp_soundcard_parameter_options
 
 [ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_volume_filter_buttons && pcp_soundcard_parameter_options
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-07-14
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -116,6 +116,7 @@ pcp_generic_card_control() {
 				FILTER3="High attenuation with de-emphasis"
 				FILTER4="Fixed process flow"
 				FILTER5="Ringing-less low latency FIR"
+				NUMFILTERS=5
 			fi
 
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
@@ -172,6 +173,85 @@ pcp_generic_card_control() {
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
 		;;
 
+		Katana)
+			amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || DSPfound="no" 
+			if [ "$DSPfound" = "yes" ]; then
+				DSP="DSP Program"
+				FILTER1="Linear Phase Fast Roll-off Filter"
+				FILTER2="Linear Phase Slow Roll-off Filter"
+				FILTER3="Minimum Phase Fast Roll-off Filter"
+				FILTER4="Minimum Phase Slow Roll-off Filter"
+				FILTER5="Apodizing Fast Roll-off Filter"
+				FILTER6="Corrected Minimum Phase Fast Roll-off Filter"
+				FILTER7="Brick Wall Filter"
+				NUMFILTERS=7
+			fi
+
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget Master | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
+
+			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
+			FILTER1_CHECK=""
+			FILTER2_CHECK=""
+			FILTER3_CHECK=""
+			FILTER4_CHECK=""
+			FILTER5_CHECK=""
+			FILTER6_CHECK=""
+			FILTER7_CHECK=""
+
+			case "$ACTUAL_FILTER" in
+				Linear\ Phase\ Fast*) FILTER1_CHECK="checked" ;;
+				Linear\ Phase\ Slow*) FILTER2_CHECK="checked" ;;
+				Minimum\ Phase\ Fast*) FILTER3_CHECK="checked" ;;
+				Minimum\ Phase\ Slow*) FILTER4_CHECK="checked" ;;
+				Apodizing*) FILTER5_CHECK="checked" ;;
+				Corrected*) FILTER6_CHECK="checked" ;;
+				Brick*) FILTER7_CHECK="checked" ;;
+			esac
+
+			#Web Page Form Selection
+			case "$DSPFILTER" in
+				FILTER1) FILTER="$FILTER1" ;;
+				FILTER2) FILTER="$FILTER2" ;;
+				FILTER3) FILTER="$FILTER3" ;;
+				FILTER4) FILTER="$FILTER4" ;;
+				FILTER5) FILTER="$FILTER5" ;;
+				FILTER6) FILTER="$FILTER6" ;;
+				FILTER7) FILTER="$FILTER7" ;;
+			esac
+
+			#Deemphasis Section
+			amixer -c $CARD scontrols | grep -q 'Deemphasis' && Deemfound="yes" || Deemfound="no" 
+			if [ "$DSPfound" = "yes" ]; then
+				DEEM1="Bypass"
+				DEEM2="32kHz"
+				DEEM3="44.1kHz"
+				DEEM4="48kHz"
+			fi
+			ACTUAL_DEEM=$(amixer -c $CARD sget 'Deemphasis' | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
+			
+			DEEM1_CHECK=""
+			DEEM2_CHECK=""
+			DEEM3_CHECK=""
+			DEEM4_CHECK=""
+			
+			case $ACTUAL_DEEM in
+				Bypass) DEEM1_CHECK="checked";;
+				32kHz) DEEM2_CHECK="checked";;
+				44.1kHz) DEEM3_CHECK="checked";;
+				48kHz)DEEM4_CHECK="checked";;
+			esac
+			
+			#Web Page Form Selection
+			case $DEEMPHASIS in
+				DEEM1) DEEM="$DEEM1" ;;
+				DEEM2) DEEM="$DEEM2" ;;
+				DEEM3) DEEM="$DEEM3" ;;
+				DEEM4) DEEM="$DEEM4" ;;
+			esac
+		;;
+		
 #		ES9023)
 #			CARD="ALSA"
 #			SSET="PCM"
