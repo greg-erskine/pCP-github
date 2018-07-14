@@ -217,7 +217,7 @@ pcp_soundcard_Deemphasis_options() {
 	echo '              </td>'
 	echo '            </tr>'
 	I=1
-	while [ $I -le 4 ]; do
+	while [ $I -le $NUMDEEM ]; do
 		if [ "$(eval echo "\${DEEM${I}}")" != "" ]; then
 			echo '            <tr class="'$ROWSHADE'_tight">'
 			echo '              <td class="'$COL1'">'
