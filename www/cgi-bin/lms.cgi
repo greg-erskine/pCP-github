@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-05
+# Version: 4.0.0 2018-07-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -902,14 +902,30 @@ pcp_update_lms() {
 	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="LMS Update" '$DISABLE_LMS'>'
+	echo '                  <button type="submit" name="ACTION" value="Nightly" '$DISABLE_LMS'>Nightly Update</button>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Download and update LMS&nbsp;&nbsp;'
+	echo '                  <p>Download and update LMS Nightly Server Package&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>The update process will take some minutes and finally LMS will restart.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button type="submit" name="ACTION" value="Binary" '$DISABLE_LMS'>Update Libs</button>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Download and update LMS Binaries and Libraries&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>These packages are specific to piCorePlayer. A reboot will be required,</p>'
+	echo '                    <p>If there are updated packages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
