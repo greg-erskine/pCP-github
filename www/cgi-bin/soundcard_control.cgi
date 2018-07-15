@@ -26,7 +26,7 @@ pcp_selected_soundcontrol
 pcp_generic_card_control
 
 # Check for onboard soundcard presence
-aplay -l | grep bcm2835 >/dev/null 2>&1
+cat /proc/asound/cards | grep -q bcm2835 
 ACTUAL_ONBOARD_STATUS=$?
 [ $ACTUAL_ONBOARD_STATUS -eq 0 ] && ONBOARD_SND="On" || ONBOARD_SND="Off"
 [ "$ONBOARD_SND" = "On" ] && ONBOARD_SOUND_CHECK="checked" || ONBOARD_SOUND_CHECK=""
@@ -77,7 +77,6 @@ case "$ACTION" in
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 		pcp_generic_card_control
 		AUDIO="$ORIG_AUDIO"
-#		CARD="$ORIG_CARD"   ORIG_CARD is always = "" since it is set at the beginning before the card.conf is read....not sure what this was intended for.
 		OUTPUT="$ORIG_OUTPUT"
 		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		ALSAlevelout="Custom"
