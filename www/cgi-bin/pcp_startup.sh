@@ -133,8 +133,9 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			echo "${GREEN}Done.${NORMAL}"
 		fi
 		# This will read newconfig and create wpa_supplicant.conf
+		# Used during the upgrade from 3.5.0 to 4.0.0
 		# DO NOT PROMOTE THIS METHOD IT WILL BE DELETE <=== GE
-		if [ "$WIFI" = "on" ]; then
+		if [ "$WIFI" = "on" -a ! -f $WPASUPPLICANTCONF ]; then
 			WPACONFIGFILE="/tmp/newconfig/usedpcp.cfg"
 			pcp_wifi_read_newconfig "colour"
 			pcp_wifi_write_wpa_supplicant "colour"
