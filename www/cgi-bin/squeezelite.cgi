@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-07-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -58,7 +58,11 @@ pcp_cards_controls() {
 	CARDNO=0
 	for CARD in $(cat /proc/asound/card[0-9]/id)
 	do
-		echo '                      <li>Card '$CARDNO': '$CARD' - Control: '$(amixer scontrols -c ${CARDNO} | awk -F"'" '{print $2}')'</li>'
+		amixer -c $CARD scontrols | awk -F"'" '{printf "\047%s\047\n", $2}' |
+		while read MCONTROL; do
+			amixer -c $CARD sget $MCONTROL | grep -q "volume"
+			[ $? -eq 0 ] && echo '                      <li>Card '$CARDNO': '$CARD' - Control: '$(echo $MCONTROL | cut -d"'" -f2)'</li>'
+		done
 		CARDNO=$((CARDNO+1))
 	done
 
