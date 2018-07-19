@@ -1,19 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-18
-#	Added pcp_pastebin_button. GE.
-
-# Version: 3.22 2017-08-25
-#	sed magic to clear control codes from log files. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Improved display of pcp_boot.log. GE.
-
-# Version: 0.01 2016-04-23
-#	Original. GE.
+# Version: 4.0.0 2018-07-19
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -37,6 +24,16 @@ pcp_httpd_query_string
 # Note:
 #  LMS log filenames do not follow this standard and are located in /var/log/slimserver.
 #----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Copy log files from persistent locations to /var/log
+#----------------------------------------------------------------------------------------
+pcp_mount_bootpart >/dev/null 2>&1
+cp ${BOOTMNT}/pcp_*.log $LOGDIR >/dev/null 2>&1
+pcp_umount_bootpart >/dev/null 2>&1
+cp ${TCEMNT}/tce/pcp_*.log $LOGDIR >/dev/null 2>&1
+#----------------------------------------------------------------------------------------
+
 PCPLOGS=$(ls "$LOGDIR" | grep pcp_ | grep log)
 [ x"" != x"$PCPLOGS" ] && LOGS=$PCPLOGS
 
@@ -45,7 +42,7 @@ LMSLOGS=$(cd "${LOGDIR}"; ls slimserver/*.log)
 [ x"" = x"$LOGS" ] && FIRST="No log files found." || FIRST="All"
 
 #========================================================================================
-# Selection form
+# Log selection form
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -55,7 +52,6 @@ echo '        <fieldset>'
 echo '          <legend>Log file operations</legend>'
 echo '          <form name="log" action="'$0'" method="get">'
 echo '            <table class="bggrey percent100">'
-
 #----------------------------------------------------------------------------------------
 pcp_incr_id
 pcp_start_row_shade
@@ -105,37 +101,18 @@ echo '</table>'
 
 #------------------------------------------Log text area---------------------------------
 pcp_log_show() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Show log file(s)</legend>'
-	echo '          <table class="bggrey percent100">'
+	pcp_table_top "Show log file(s)"
 
 	if [ "$SELECTION" = "All" ]; then
 		for LOG in $LOGS
 		do
-			echo '            <tr>'
-			echo '              <td>'
-			                      pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG | sed "s///g" | sed "s/\x0d//g" | sed -r "s/\[([0-9]{1,2}(;[0-9]{1,2}?)?)?[m|K]//g"' 250
-			echo '              </td>'
-			echo '            </tr>'
+			pcp_textarea_inform "$LOG" 'cat ${LOGDIR}/$LOG | sed "s///g" | sed "s/\x0d//g" | sed -r "s/\[([0-9]{1,2}(;[0-9]{1,2}?)?)?[m|K]//g"' 250
 		done
 	else
-		echo '            <tr>'
-		echo '              <td>'
-		                      pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION | sed "s///g" | sed "s/\x0d//g" | sed -r "s/\[([0-9]{1,2}(;[0-9]{1,2}?)?)?[m|K]//g"' 250
-		echo '              </td>'
-		echo '            </tr>'
+		pcp_textarea_inform "$SELECTION" 'cat ${LOGDIR}/$SELECTION | sed "s///g" | sed "s/\x0d//g" | sed -r "s/\[([0-9]{1,2}(;[0-9]{1,2}?)?)?[m|K]//g"' 250
 	fi
 
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	pcp_table_end
 
 	if [ ! "$SELECTION" = "All" ]; then
 		LOG=${LOGDIR}/${SELECTION}
