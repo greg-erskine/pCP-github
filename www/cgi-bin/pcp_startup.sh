@@ -199,7 +199,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	sed -i '/^\s*$/d' $ONBOOTLST
 
 	pcp_backup_nohtml >/dev/null 2>&1
-	echo -n "${BLUE}[ INFO ] Saving a copy of the upgrade log to ${YELLOW}${TCEMNT}/pcp_insitu_upgrade.log ${BLUE}...${NORMAL}"
+	echo -n "${BLUE}[ INFO ] Saving a copy of the upgrade log to ${YELLOW}${TCEMNT}/tce/pcp_insitu_upgrade.log ${BLUE}...${NORMAL}"
 	cp -f /var/log/pcp_boot.log ${TCEMNT}/tce/pcp_insitu_upgrade.log
 	echo "${GREEN}Done.${NORMAL}"
 	echo "${RED}Rebooting needed to enable your settings...${NORMAL}"
