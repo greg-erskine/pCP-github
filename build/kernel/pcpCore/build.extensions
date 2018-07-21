@@ -173,7 +173,7 @@ for I in ${EXT}; do
 			;;
 			Comments*)
 				P=1
-				V1=$(printf "Comments:       Binaries only\n                ---\n                Compiled for pcpCore3.x\n")
+				V1=$(printf "Comments:       Binaries only\n                ---\n                Compiled for pcpCore4.x\n")
 				V2=""
 				;;
 			Change*)

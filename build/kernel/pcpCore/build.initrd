@@ -180,19 +180,20 @@ do
 done
 
 echo "*****************************************************************"
-echo "Select to remove the old modules"
-select REMOVE in $(ls $INITRDWRK/lib/modules)
-do
-	if [ "$REMOVE" != "" ]; then
-		echo "You picked $REMOVE"
-		read -p "Do you wish to continue? (y/n) " yn
-		case $yn in
-			[Yy]* ) sudo rm -rf $INITRDWRK/lib/modules/$REMOVE; break;;
-			[Nn]* ) ;;
-			* ) echo "Please answer yes or no.";;
-		esac
-	fi
-done
+echo "Removing old modules"
+sudo rm -rf $INITRDWRK/lib/modules/$OLDKERNEL
+#select REMOVE in $(ls $INITRDWRK/lib/modules)
+#do
+#	if [ "$REMOVE" != "" ]; then
+#		echo "You picked $REMOVE"
+#		read -p "Do you wish to continue? (y/n) " yn
+#		case $yn in
+#			[Yy]* ) sudo rm -rf $INITRDWRK/lib/modules/$REMOVE; break;;
+#			[Nn]* ) ;;
+#			* ) echo "Please answer yes or no.";;
+#		esac
+#	fi
+#done
 
 echo "*****************************************************************"
 echo "Name for the initrd for kernel $NEWKERNELDIR"

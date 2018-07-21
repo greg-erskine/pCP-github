@@ -182,19 +182,23 @@ for i in ${!options[@]}; do
 			git checkout $BRANCH
 
 			#This is the compiler used for Raspbian, supplied by rpi tools
-			export CCPREFIX="${BASEWD}/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-"
+#			export CCPREFIX="${BASEWD}/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-"
 
-			#if [ "$RPIARCH" = "armv6" ]; then
+			if [ "$RPIARCH" = "armv6" ]; then
 				#These are built into the compiler
-				#export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
-			#	CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv6-linux-gnueabihf_x64/bin/arm-bcm2708hf-linux-gnueabihf-"
-			#else
+				export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
+				CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv6-linux-gnueabihf_x64/bin/arm-bcm2708hf-linux-gnueabihf-"
+			else
 				#These are built into the compiler
-				#export CFLAGS="-march=cortex-a8 -mfpu=neon-vfp4"
-			#	CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv7-linux-gnueabihf_x64/bin/arm-bcm2709hf-linux-gnueabihf-"
-			#fi
+				export CFLAGS="-march=cortex-a8 -mfpu=neon-vfp4"
+				CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv7-linux-gnueabihf_x64/bin/arm-bcm2709hf-linux-gnueabihf-"
+			fi
 			echo "Setting Cross Compiler to:${CCPREFIX}"
 			echo ""
+
+			#Set username for kernel build string
+			export KBUILD_BUILD_USER="pCP"
+			export KBUILD_BUILD_HOST="SoundStation"
 
 			if [ $UNATTENDED -eq 0 ]; then
 				while true; do
