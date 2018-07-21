@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-16
+# Version: 4.0.0
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -175,13 +175,11 @@ pcp_get_kernel_modules() {
 			case $CORE in
 				*pcpAudioCore*)
 					case $BUILD in
-						armv6) FAIL_MSG="AudioCore is not availiable for this device"
-							KUPDATE=0
-						;;
-						armv7) NEWKERNELVER=4.14.52-rt34;;
+						armv6) NEWKERNELVER=4.14.56-rt34;;
+						armv7) NEWKERNELVER=4.14.56-rt34;;
 					esac
 				;;
-				*) NEWKERNELVER=4.14.52;;
+				*) NEWKERNELVER=4.14.56;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
