@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-07-24
 
 #========================================================================================
 # References:
@@ -95,14 +95,16 @@ pcp_warning_message() {
 pcp_set_overclock() {
 	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
 	sudo sed -i "/arm_freq=/c\arm_freq=$2" $CONFIGTXT
-	sudo sed -i "/core_freq=/c\core_freq=$3" $CONFIGTXT
-	sudo sed -i "/sdram_freq=/c\sdram_freq=$4" $CONFIGTXT
-	sudo sed -i "/over_voltage=/c\over_voltage=$5" $CONFIGTXT
+	sudo sed -i "/gpu_freq=/c\gpu_freq=$3" $CONFIGTXT
+	sudo sed -i "/core_freq=/c\core_freq=$4" $CONFIGTXT
+	sudo sed -i "/sdram_freq=/c\sdram_freq=$5" $CONFIGTXT
+	sudo sed -i "/over_voltage=/c\over_voltage=$6" $CONFIGTXT
 }
 
 pcp_set_overclock_default() {
 	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to DEFAULT</p>'
 	sudo sed -i 's/^arm_freq=/#arm_freq=/g' $CONFIGTXT
+	sudo sed -i 's/^gpu_freq=/#gpu_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^core_freq=/#core_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^sdram_freq=/#sdram_freq=/g' $CONFIGTXT
 	sudo sed -i 's/^over_voltage=/#over_voltage=/g' $CONFIGTXT
@@ -170,14 +172,14 @@ pcp_start_save() {
 	#  RPi0
 	#     "None"
 	#  RPi1
-	#     "None"   "700MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
-	#     "Modest" "800MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
-	#     "Medium" "900MHz ARM, 250MHz core, 450MHz SDRAM, 2 overvolt"
-	#     "High"   "950MHz ARM, 250MHz core, 450MHz SDRAM, 6 overvolt"
-	#     "Turbo" "1000MHz ARM, 500MHz core, 600MHz SDRAM, 6 overvolt"
+	#     "None"   "700MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Modest" "800MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Medium" "900MHz ARM, 250MHz gpu, 250MHz core, 450MHz SDRAM, 2 overvolt"
+	#     "High"   "950MHz ARM, 250MHz gpu, 250MHz core, 450MHz SDRAM, 6 overvolt"
+	#     "Turbo" "1000MHz ARM, 250MHz gpu, 500MHz core, 600MHz SDRAM, 6 overvolt"
 	#  RPi2
-	#     "None"   "900MHz ARM, 250MHz core, 450MHz SDRAM, 0 overvolt"
-	#     "High"  "1000MHz ARM, 500MHz core, 500MHz SDRAM, 2 overvolt"
+	#     "None"   "900MHz ARM, 250MHz gpu, 250MHz core, 450MHz SDRAM, 0 overvolt"
+	#     "High"  "1000MHz ARM, 250MHz gpu, 500MHz core, 500MHz SDRAM, 2 overvolt"
 	#  RPi3
 	#     "None"
 	#----------------------------------------------------------------------------------------
@@ -186,45 +188,53 @@ pcp_start_save() {
 	# Underclocking data
 	#----------------------------------------------------------------------------------------
 	#  RPi0
-	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Lowest"  "600MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Under"   "800MHz ARM, 200MHz gpu, 200MHz core, 400MHz SDRAM, 0 overvolt"
 	#  RPi1
-	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Lowest"  "600MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Under"   "800MHz ARM, 200MHz gpu, 200MHz core, 400MHz SDRAM, 0 overvolt"
 	#  RPi2
-	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Lowest"  "600MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Under"   "800MHz ARM, 200MHz gpu, 200MHz core, 400MHz SDRAM, 0 overvolt"
 	#  RPi3
-	#     "Under"   "600MHz ARM, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Lowest"  "600MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt"
+	#     "Under"   "800MHz ARM, 200MHz gpu, 200MHz core, 400MHz SDRAM, 0 overvolt"
 	#----------------------------------------------------------------------------------------
 
 	case $RPITYPE in
 		0)
 			case "$ADVOVERCLOCK" in
-				Under) pcp_set_overclock Under 600 250 400 0 ;;
+				Lowest)pcp_set_overclock Lowest 600 250 250 400 0 ;;
+				Under) pcp_set_overclock Under 800 200 200 400 0 ;;
 				None)  pcp_set_overclock_default ;;
 				*)     pcp_set_overclock_default ;;
 			esac
 		;;
 		1)
 			case "$ADVOVERCLOCK" in
-				Under)  pcp_set_overclock Under 600 250 400 0 ;;
+				Lowest) pcp_set_overclock Lowest 600 250 250 400 0 ;;
+				Under)  pcp_set_overclock Under 800 200 200 400 0 ;;
 				None)   pcp_set_overclock_default ;;
-				Modest) pcp_set_overclock Modest 800 250 400 0 ;;
-				Medium) pcp_set_overclock Medium 900 250 450 2 ;;
-				High)   pcp_set_overclock High 950 250 450 6 ;;
-				Turbo)  pcp_set_overclock Turbo 1000 500 600 6 ;;
+				Modest) pcp_set_overclock Modest 800 250 250 400 0 ;;
+				Medium) pcp_set_overclock Medium 900 250 250 450 2 ;;
+				High)   pcp_set_overclock High 950 250 250 450 6 ;;
+				Turbo)  pcp_set_overclock Turbo 1000 250 500 600 6 ;;
 				*)      pcp_set_overclock_default ;;
 			esac
 		;;
 		2)
 			case "$ADVOVERCLOCK" in
-				Under) pcp_set_overclock Under 600 250 400 0 ;;
+				Lowest)pcp_set_overclock Lowest 600 250 250 400 0 ;;
+				Under) pcp_set_overclock Under 800 200 200 400 0 ;;
 				None)  pcp_set_overclock_default ;;
-				High)  pcp_set_overclock High 1000 500 500 2 ;;
+				High)  pcp_set_overclock High 1000 250 500 500 2 ;;
 				*)     pcp_set_overclock_default ;;
 			esac
 		;;
 		3)
 			case "$ADVOVERCLOCK" in
-				Under) pcp_set_overclock Under 600 250 400 0 ;;
+				Lowest)pcp_set_overclock Lowest 600 250 250 400 0 ;;
+				Under) pcp_set_overclock Under 800 200 200 400 0 ;;
 				None)  pcp_set_overclock_default ;;
 				*)     pcp_set_overclock_default ;;
 			esac
@@ -304,6 +314,7 @@ esac
 # Function to set selected item in the pull down list
 #----------------------------------------------------------------------------------------
 case "$ADVOVERCLOCK" in
+	Lowest) OClowest="selected";;
 	Under)  OCunder="selected" ;;
 	None)   OCnone="selected" ;;
 	Modest) OCmodest="selected" ;;
@@ -360,10 +371,12 @@ echo '                  <select class="large16" name="ADVOVERCLOCK">'
 
 case $RPITYPE in
 	0)
+		echo '                    <option value="Lowest" '$OClowest'>Lowest</option>'
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 	;;
 	1)
+		echo '                    <option value="Lowest" '$OClowest'>Lowest</option>'
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 		echo '                    <option value="Modest" '$OCmodest'>Modest</option>'
@@ -372,11 +385,13 @@ case $RPITYPE in
 		echo '                    <option value="Turbo" '$OCturbo'>Turbo</option>'
 	;;
 	2)
+		echo '                    <option value="Lowest" '$OClowest'>Lowest</option>'
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 		echo '                    <option value="High" '$OChigh'>High</option>'
 	;;
 	3)
+		echo '                    <option value="Lowest" '$OClowest'>Lowest</option>'
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 	;;
@@ -394,6 +409,33 @@ echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
 echo '                    <ul>'
 echo '                      <li>hold down the shift key during booting, or</li>'
 echo '                      <li>edit the config.txt file manually</li>'
+echo '                    </ul>'
+echo '                    <p><b>Underclocking data</b></p>'
+echo '                    <ul>'
+echo '                      <li><b>Lowest</b>&nbsp;600MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt</li>'
+echo '                      <li><b>Under</b>&nbsp;800MHz ARM, 200MHz gpu, 200MHz core, 400MHz SDRAM, 0 overvolt</li>'
+echo '                    </ul>'
+echo '                    <p><b>Overclocking data</b></p>'
+echo '                    <p><b>&nbsp;&nbsp;RPi0</b></p>'
+echo '                    <ul>'
+echo '                      <li><b>None</b></li>'
+echo '                    </ul>'
+echo '                    <p><b>&nbsp;&nbsp;RPi1</b></p>'
+echo '                    <ul>'
+echo '                      <li><b>None</b>&nbsp;700MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt</li>'
+echo '                      <li><b>Modest</b>&nbsp;800MHz ARM, 250MHz gpu, 250MHz core, 400MHz SDRAM, 0 overvolt</li>'
+echo '                      <li><b>Medium</b>&nbsp;900MHz ARM, 250MHz gpu, 250MHz core, 450MHz SDRAM, 2 overvolt</li>'
+echo '                      <li><b>High</b>&nbsp;950MHz ARM, 250MHz gpu, 250MHz core, 450MHz SDRAM, 6 overvolt</li>'
+echo '                      <li><b>Turbo</b>&nbsp;1000MHz ARM, 250MHz gpu, 500MHz core, 600MHz SDRAM, 6 overvolt</li>'
+echo '                    </ul>'
+echo '                    <p><b>&nbsp;&nbsp;RPi2</b></p>'
+echo '                    <ul>'
+echo '                      <li><b>None</b>&nbsp;900MHz ARM, 250MHz gpu, 250MHz core, 450MHz SDRAM, 0 overvolt</li>'
+echo '                      <li><b>High</b>&nbsp;1000MHz ARM, 250MHz gpu, 500MHz core, 500MHz SDRAM, 2 overvolt</li>'
+echo '                    </ul>'
+echo '                    <p><b>&nbsp;&nbsp;RPi3</b></p>'
+echo '                    <ul>'
+echo '                      <li><b>None</b></li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
