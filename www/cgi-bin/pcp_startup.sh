@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-07-24
 
 BACKUP=0
 # Read from pcp-functions file
@@ -132,6 +132,13 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			fi
 			echo "${GREEN}Done.${NORMAL}"
 		fi
+		# Setup CPU Isolation
+		if [ "$CPUISOL" = "enabled" ]; then
+			echo -n "${BLUE}[ INFO ] Setting up CPU Isolation...${NORMAL}"
+			sed -i 's/isolcpus[=][^ ]* //g' $CMDLINETXT
+			sed -i '1 s/^/isolcpus=0,3 /' $CMDLINETXT
+			echo "${GREEN}Done.${NORMAL}"
+		fi
 		# This will read newconfig and create wpa_supplicant.conf
 		# Used during the upgrade from 3.5.0 to 4.0.0
 		# DO NOT PROMOTE THIS METHOD IT WILL BE DELETE <=== GE
@@ -141,8 +148,10 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			pcp_wifi_write_wpa_supplicant "colour"
 		fi
 	######## CONFIG.TXT Section End
-	# During an newconfig update, turn HDMI back on, incase there are problems.
+	# During an newconfig update, turn HDMI back on, and turn off Overclocking Variablesincase there are problems.
 	HDMIPOWER="on"
+	OVERCLOCK="NONE"
+	ADVOVERCLOCK="None"
 	# If MOUNTUUID and MOUNTPOINT Exist in newconfig, then create a usbdrives.conf
 	if [ "$MOUNTUUID" != "no" -a "$MOUNTPOINT" != "" ]; then
 		echo -n "${BLUE}[ INFO ] Upgrading USB mount configuration files.${NORMAL}"
@@ -569,17 +578,18 @@ fi
 # If running an LMS Server Locally, start squeezelite later.
 if [ "$LMSERVER" != "yes" ]; then
 	if [ "$SQUEEZELITE" = "yes" ]; then
-		echo -n "${BLUE}Starting Squeezelite...${NORMAL}"
-		/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+		echo "${BLUE}Starting Squeezelite...${YELLOW}"
+		pcp_squeezelite_start nohtml
 		echo "${GREEN}Done.${NORMAL}"
 	fi
 fi
 
-if [ "$SHAIRPORT" = "yes" ]; then
-	echo -n "${BLUE}Starting Shairport daemon...${NORMAL}"
-	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
-	echo "${GREEN}Done.${NORMAL}"
-fi
+# Shairport is started in the squeezelite start function
+#if [ "$SHAIRPORT" = "yes" ]; then
+#	echo -n "${BLUE}Starting Shairport daemon...${NORMAL}"
+#	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
+#	echo "${GREEN}Done.${NORMAL}"
+#fi
 
 # Automatically set the timezone.
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
@@ -622,8 +632,8 @@ if [ "$LMSERVER" = "yes" ]; then
 			done
 			echo "${GREEN} Done ($CNT).${NORMAL}"
 
-			echo -n "${BLUE}Starting Squeezelite...${NORMAL}"
-			/usr/local/etc/init.d/squeezelite start >/dev/null 2>&1
+			echo "${BLUE}Starting Squeezelite...${YELLOW}"
+			pcp_squeezelite_start nohtml
 			echo "${GREEN}Done.${NORMAL}"
 		fi
 	else

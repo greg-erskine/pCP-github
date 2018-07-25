@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-05
+# Version: 4.0.0 2018-07-24
 
 #========================================================================================
 # Setup debug logging
@@ -987,6 +987,7 @@ pcp_confirmation_required() {
 #----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
 	# $1 - nohtml
+	# $2 - display     (Used for taskset)
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
@@ -996,6 +997,7 @@ pcp_squeezelite_start() {
 	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite start
 	[ "$1" = "nohtml" ] || echo '</p>'
+	[ $CPUISOL != "" ] && pcp_squeezelite_taskset $2
 }
 
 pcp_squeezelite_stop() {
@@ -1027,6 +1029,29 @@ pcp_squeezelite_status() {
 	else
 		echo $RESULT
 	fi
+}
+
+pcp_squeezelite_taskset(){
+	local OUT=""
+	[ "$1" = "display" ] || OUT='> /dev/null'
+	CNT=0
+	while [ $(busybox ps -T | grep squeezelite | grep -v grep | wc -l) -ne 4 -a $CNT -lt 10 ]; do
+		CNT=$((CNT+1))
+		sleep 0.1
+	done
+	# Squeezelite starts only the output thread in SCHED_FIFO Mode, use that to isolate threads.
+	busybox ps -T | grep squeezelite | grep -v grep | sed 's/^[[:space:]]*//' | cut -d ' ' -f1 |
+		while read PROC; do
+			if [ $(chrt -p $PROC | grep policy | cut -d ':' -f2) = "SCHED_FIFO" ]; then
+				#Set the Output thread to run on selected CPU
+				[ "$SQLOUTAFFINITY" != "" ] && eval sudo taskset -pc $SQLOUTAFFINITY $PROC $OUT 2>&1
+			else
+				[ "$PRIORITY" != "" ] && P=$((PRIORITY-1)) || P=40
+				#Set the Other Threads to run FIFO, Priority 45
+				[ "$SQLAFFINITY" != "" ] && eval sudo taskset -pc $SQLAFFINITY $PROC $OUT 2>&1
+				sudo chrt -fp $P $PROC > /dev/null 2>&1
+			fi
+		done
 }
 
 #========================================================================================
@@ -1472,6 +1497,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(CPUGOVERNOR=\).*/\1\"$CPUGOVERNOR\"/" $PCPCFG
 	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $PCPCFG
 	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $PCPCFG
+	sudo sed -i "s/\(CPUISOL=\).*/\1\"$CPUISOL\"/" $PCPCFG
+	sudo sed -i "s/\(SQLAFFINITY=\).*/\1\"$SQLAFFINITY\"/" $PCPCFG
+	sudo sed -i "s/\(SQLOUTAFFINITY=\).*/\1\"$SQLOUTAFFINITY\"/" $PCPCFG
 	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $PCPCFG
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $PCPCFG
@@ -1575,6 +1603,9 @@ TIMEZONE=""
 CPUGOVERNOR="ondemand"
 OVERCLOCK="NONE"
 ADVOVERCLOCK="None"
+CPUISOL=""
+SQLAFFINITY=""
+SQLOUTAFFINITY=""
 CMD="Default"
 FIQ="0xF"
 ALSAlevelout="Default"

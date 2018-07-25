@@ -1,24 +1,8 @@
 #!/bin/sh
 
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.00 2016-07-29
-#	Fixed issue with pcp_bootcode_equal_add. GE.
-#	Revised handling of multiple spaces. GE.
-#	Added cmdline.txt functions buttons. GE.
-
-# Version: 0.02 2016-06-03
-#	Major revision. GE.
-
-# Version: 0.01 2015-02-15
-#	Original version. GE.
+# Version: 4.0.0 2018-07-24
 
 . pcp-functions
-#. $CONFIGCFG
 
 USER=""
 TZ=""
@@ -169,6 +153,7 @@ if [ "$SUBMIT" = "Save" ]; then
 		loglevel)             pcp_bootcode_equal_add loglevel "$LOGLEVEL" ;;
 		root)                 pcp_bootcode_equal_add root "$ROOT" ;;
 		smsc95xx.turbo_mode)  pcp_bootcode_equal_add turbo_mode "$TURBO_MODE" ;;
+		isolcpus)             pcp_bootcode_equal_add isolcpus "$ISOLCPUS" ;;
 		#--------------------------------------------------------------------------------
 		# Standard Tiny Core bootcodes ( VARIABLE )
 		#--------------------------------------------------------------------------------
@@ -217,7 +202,7 @@ for i in `cat $CMDLINETXT`; do
 				host*)      MYHOST=${i#*=}; HOST=1 ;;
 				httplist*)  HTTPLIST=${i#*=} ;;
 				icons*)     ICONS=${i#*=} ;;
-				iso*)       ISOFILE=${i#*=} ;;
+				iso=*)      ISOFILE=${i#*=} ;;
 				kmap*)      KEYMAP=${i#*=} ;;
 				lang*)      MYLANG=${i#*=} ;;
 				mydata*)    MYDATA=${i#*=} ;;
@@ -248,6 +233,7 @@ for i in `cat $CMDLINETXT`; do
 				loglevel*)             LOGLEVEL=${i#*=} ;;
 				root*)                 ROOT=${i#*=} ;;
 				smsc95xx.turbo_mode*)  TURBO_MODE=${i#*=} ;;
+				isolcpus*)             ISOLCPUS=${i#*=} ;;
 			esac
 		;;
 		*)
@@ -2304,8 +2290,7 @@ pcp_bootcode_elevator() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;elevator=cfq|deadline|noop&gt;</p>'
-	echo '                    <p>See https://www.kernel.org/doc/Documentation/block/deadline-iosched.txt and'
-	echo '                       https://www.kernel.org/doc/Documentation/block/deadline-iosched.txt for details.</p>'
+	echo '                    <p>See https://www.kernel.org/doc/Documentation/block/deadline-iosched.txt.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2437,6 +2422,42 @@ pcp_bootcode_turbo_mode() {
 	echo '            </form>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_turbo_mode
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------isolcpus------------------------------------------
+pcp_bootcode_isolcpus() {
+	[ x"" = x"$ISOLCPUS" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	echo '            <form name="isolcpus" action="'$0'" method="get">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COL1' right">'
+	echo '                  <p>isolcpus=</p>'
+	echo '                </td>'
+	echo '                <td class="'$COL2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="ISOLCPUS"'
+	echo '                         value="'$ISOLCPUS'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
+	echo '                </td>'
+	echo '                <td class="'$COL3' center">'
+	echo '                  <input type="submit" name="SUBMIT" value="Readonly" disabled>'
+	echo '                  <input type="hidden" name="VARIABLE" value="isolcpus">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set CPU isolation&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Note:</b> Use [Tweaks] page to set.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_isolcpus
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
