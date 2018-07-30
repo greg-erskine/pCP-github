@@ -151,7 +151,8 @@ pcp_wifi_read_wpa_supplicant() {
 
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
 
-		for i in $(cat $WPACONFIGFILE); do
+		#for i in $(cat $WPACONFIGFILE); do
+		while read i; do
 			case $i in
 				*=*)
 					case $i in
@@ -185,7 +186,8 @@ pcp_wifi_read_wpa_supplicant() {
 						;;
 					esac
 			esac
-		done
+#		done
+		done < $WPACONFIGFILE
 		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
 		[ x"" = x"$WPA_HIDDENSSID" ] && WPA_HIDDENSSID=0
@@ -206,7 +208,8 @@ pcp_wifi_read_newconfig() {
 
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_KEY_MGMT WPA_ENCRYPTION
 
-		for i in $(cat $WPACONFIGFILE); do
+#		for i in $(cat $WPACONFIGFILE); do
+		while read i; do
 			case $i in
 				*=*)
 					case $i in
@@ -228,7 +231,8 @@ pcp_wifi_read_newconfig() {
 						;;
 					esac
 			esac
-		done
+#		done
+		done < $WPACONFIGFILE
 		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
 		WPA_HIDDENSSID=0
