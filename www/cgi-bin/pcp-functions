@@ -992,12 +992,12 @@ pcp_squeezelite_start() {
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	if [ "$SHAIRPORT" = "yes" ]; then
-		pcp_shairport_restart
+		pcp_shairport_restart $1
 	fi
 	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite start
 	[ "$1" = "nohtml" ] || echo '</p>'
-	[ $CPUISOL != "" ] && pcp_squeezelite_taskset $2
+	[ "$CPUISOL" != "" ] && pcp_squeezelite_taskset $2
 }
 
 pcp_squeezelite_stop() {
@@ -1058,21 +1058,24 @@ pcp_squeezelite_taskset(){
 # Start/stop Shairport-sync
 #----------------------------------------------------------------------------------------
 pcp_shairport_start() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/shairport-sync start
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_shairport_stop() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/shairport-sync stop
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_shairport_restart() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/shairport-sync restart
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_shairport_status() {

@@ -578,18 +578,11 @@ fi
 # If running an LMS Server Locally, start squeezelite later.
 if [ "$LMSERVER" != "yes" ]; then
 	if [ "$SQUEEZELITE" = "yes" ]; then
-		echo "${BLUE}Starting Squeezelite...${YELLOW}"
+		echo "${BLUE}Starting Squeezelite and/or Shairport-sync...${YELLOW}"
 		pcp_squeezelite_start nohtml
 		echo "${GREEN}Done.${NORMAL}"
 	fi
 fi
-
-# Shairport is started in the squeezelite start function
-#if [ "$SHAIRPORT" = "yes" ]; then
-#	echo -n "${BLUE}Starting Shairport daemon...${NORMAL}"
-#	/usr/local/etc/init.d/shairport-sync start >/dev/null 2>&1
-#	echo "${GREEN}Done.${NORMAL}"
-#fi
 
 # Automatically set the timezone.
 if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
@@ -632,7 +625,7 @@ if [ "$LMSERVER" = "yes" ]; then
 			done
 			echo "${GREEN} Done ($CNT).${NORMAL}"
 
-			echo "${BLUE}Starting Squeezelite...${YELLOW}"
+		echo "${BLUE}Starting Squeezelite and/or Shairport-sync...${YELLOW}"
 			pcp_squeezelite_start nohtml
 			echo "${GREEN}Done.${NORMAL}"
 		fi
