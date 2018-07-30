@@ -878,7 +878,7 @@ pcp_squeezelite_volume() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_volume
+[ $MODE -ge $MODE_BETA -a "$CARD" != "RPiCirrus" ] && pcp_squeezelite_volume
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off GPIO---------------------------------
