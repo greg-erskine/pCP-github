@@ -46,7 +46,7 @@ echo '                   <a href="http://www.busybox.net/" target="_blank">HTTPD
 echo '                <p>The official piCorePlayer web page can be found here '
 echo '                   <a href="https://www.picoreplayer.org" target="_blank">piCorePlayer web page</a> '$EXTERNALLINK'. '
 echo '                   A forum discussion can be found '
-echo '                   <a href="http://forums.slimdevices.com/showthread.php?105997-Announce-piCorePlayer-3-00" target="_blank">here</a> '$EXTERNALLINK'.</p>'
+echo '                   <a href="https://www.picoreplayer.org/announce.4.0.0" target="_blank">here</a> '$EXTERNALLINK'.</p>'
 echo '                <h2>Please donate if you like piCorePlayer</h2>'
 echo '                <p class="center"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=U7JHY5WYHCNRU&amp;lc=GB&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted" target="_blank">'
 echo '                   <img style="border:0px;" src="../images/donate.gif" alt="Donate"></a> '$EXTERNALLINK'</p>'
