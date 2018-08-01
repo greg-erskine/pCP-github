@@ -10,26 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 4.0.0 2018-04-17
-#	Changed repo to new server. PH.
-
-# Version: 3.5.0 2018-03-25
-#	Hotfix 3.5.1 for exfat issues. PH
-#	Hotfix 3.5.1 for jivelite forms. PH
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
-
-# Version: 3.20 2017-04-16
-#	Fixed pcp-xxx-functions issues. GE.
-#	Updated for 3.11 to be able to insitu update to 3.20. PH
-
-# version: 3.11 2017-01-21
-#	Updates for Hotfixes based on piversion.cfg. PH.
-#	Added Hotfix3.11. PH.
-
-# version: 0.01 2016-02-21 GE
-#	Original.
+# Version: 4.0.0 2018-07-31
 
 . pcp-functions
 
@@ -44,9 +25,7 @@ WGET="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
 [ -d ${FIX_PCP} ] && rm -rf ${FIX_PCP}
-FIX_DOWNLOAD="https://repo.picoreplayer.org"
-# Sourceforge won't let files download from the project-web with cgi in the name.  Leave fix.cgi downloaded from files area.
-#FIX_DOWNLOAD="https://repo.picoreplayer.org/insitu"
+FIX_DOWNLOAD="https://repo.picoreplayer.org/insitu"
 FIX_CGI="/home/tc/www/cgi-bin"
 REBOOT_REQUIRED=0
 
@@ -311,7 +290,7 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 pcp_get_fix_cgi_md5() {
 	echo '[ INFO ] Downloading fix.cgi.md5.txt...'
-	$WGET ${FIX_DOWNLOAD}/fix.cgi.md5.txt/download -O ${FIX_PCP}/fix.cgi.md5.txt
+	$WGET ${FIX_DOWNLOAD}/fix.cgi.md5.txt -O ${FIX_PCP}/fix.cgi.md5.txt
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded fix.cgi.md5.txt'
 	else
@@ -337,7 +316,7 @@ pcp_get_fix_cgi_md5() {
 #----------------------------------------------------------------------------------------
 pcp_get_fix_cgi() {
 	echo '[ INFO ] Downloading fix.cgi...'
-	$WGET ${FIX_DOWNLOAD}/fix.cgi/download -O ${FIX_PCP}/fix.cgi
+	$WGET ${FIX_DOWNLOAD}/fix.cgi -O ${FIX_PCP}/fix.cgi
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded fix.cgi'
 	else
