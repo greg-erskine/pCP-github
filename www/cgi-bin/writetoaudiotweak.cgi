@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-08-04
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -283,7 +283,6 @@ fi
 # Only do something if variable has changed.
 #----------------------------------------------------------------------------------------
 if [ "$ORIG_FSM" != "$FSM" ]; then
-	DEBUG=1
 	VARIABLE_CHANGED=TRUE
 	REBOOT_REQUIRED=TRUE
 
