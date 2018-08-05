@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0
+# Version: 4.0.0 2018-08-05
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -12,7 +12,7 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
-WGET="/bin/busybox wget -T 30"
+WGET_IUS2="/bin/busybox wget -T 30"
 FAIL_MSG="ok"
 
 if [ -n $CORE ]; then
@@ -40,7 +40,6 @@ case "${VERSION}" in
 	piCorePlayer4.0.0*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=26900
-
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -52,14 +51,7 @@ esac
 # DEBUG info showing variables
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	echo '<p class="debug">[ DEBUG ] QUERY_STRING: '$QUERY_STRING'<br />'
-	echo '                 [ DEBUG ] ACTION: '$ACTION'<br />'
-	echo '                 [ DEBUG ] VERSION: '$VERSION'<br />'
-	echo '                 [ DEBUG ] UPD_PCP: '$UPD_PCP'<br />'
-	echo '                 [ DEBUG ] INSITU_DOWNLOAD: '$INSITU_DOWNLOAD'<br />'
-	echo '                 [ DEBUG ] SPACE_REQUIRED: '$SPACE_REQUIRED'<br />'
-	echo '                 [ DEBUG ] BOOT_SPACE_REQUIRED: '$BOOT_SIZE_REQUIRED'<br />'
-	echo '                 [ DEBUG ] BOOT_SIZE: '$BOOT_SIZE'</p>'
+	pcp_debug_variables "html" QUERY_STRING ACTION VERSION UPD_PCP INSITU_DOWNLOAD SPACE_REQUIRED BOOT_SIZE_REQUIRED BOOT_SIZE
 }
 
 #========================================================================================
@@ -153,7 +145,7 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 pcp_get_insitu_cfg() {
 	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
-	$WGET ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
+	$WGET_IUS2 ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded insitu.cfg'
 	else
@@ -234,7 +226,7 @@ pcp_get_boot_files() {
 	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz 2>&1
+	$WGET_IUS2 ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded boot files.'
 	else
@@ -407,7 +399,7 @@ pcp_get_tce_files() {
 	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
-	$WGET ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz 2>&1
+	$WGET_IUS2 ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded tce files.'
 	else
@@ -575,15 +567,16 @@ pcp_warning_message() {
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Warning</legend>'
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> Assume an insitu update will overwrite ALL the data on your SD card.</p>'
+	echo '                <p style="color:white"><b>Warning:</b></p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Any user modified or added files may be lost.</li>'
+	echo '                  <li style="color:white">Assume an insitu update will overwrite ALL the data on your SD card.</li>'
+	echo '                  <li style="color:white">Any user modified or added files may be lost or overwritten.</li>'
 	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
 	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
+	echo '                  <li style="color:white">You may need to manually update your plugins, extensions etc.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -596,7 +589,7 @@ pcp_warning_message() {
 }
 
 #========================================================================================
-# Generate staus message and finish html page
+# Generate status message and finish html page
 #----------------------------------------------------------------------------------------
 pcp_html_end() {
 	echo '<table class="bggrey">'
@@ -619,7 +612,7 @@ pcp_html_end() {
 	echo '  </tr>'
 	echo '</table>'
 	if [ $INITSPACE -eq 1 ]; then
-		STRING1='Not enough space. Press OK to start expanding your partition or Cancel to abort'
+		STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort'
 		SCRIPT1=xtras_resize.cgi
 		pcp_confirmation_required
 	fi
@@ -744,8 +737,8 @@ case $(uname -r) in
 	*pcpAudioCore*) PCPAUDIOCOREyes="checked";PCPCOREyes="";;
 	*) PCPCOREyes="checked";PCPAUDIOCORE="";;
 esac
-COL1=75
-COL2=200
+COL1=50
+COL2=300
 if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
@@ -754,21 +747,22 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>piCorePlayer insitu update: Select Kernel Type and Version</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="initial" action= "'$0'" method="get">'
+	echo '          <form name="initial" action= "'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
 	echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Standard version:</p>'
+	echo '                  <p>Standard version [Recommended]</p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>pcpCore Kernel&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version is recommended for 99% of users.</p>'
 	echo '                    <p>This version uses the kernel code and config from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -780,16 +774,18 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Audio enthusiast version:</p>'
+	echo '                  <p>Audio enthusiast version [Experimental]</p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>pcpAudioCore Kernel&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version is recommended for experimenters only.</p>'
 	echo '                    <p>This version starts with the same kernel code from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
 	echo '                    <p>The kernel is then patched with extra drivers and modifications to support additional custom DACs and higher sample rates.</p>'
-	echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version</p>'
+	echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version.</p>'
+	echo '                    <p>This version should not be used for server applications such as LMS.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -800,7 +796,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
 	echo '                  </select>'
 	echo '                </td>'
-	echo '                <td>'
+	echo '                <td colspan="2">'
 	echo '                  <p>Select the update version of piCorePlayer required.</p>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -810,12 +806,12 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input class="large12" type="submit" value="Next >">'
 	echo '                  <input type="hidden" name="ACTION" value="download">'
 	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to download update files.</p>'
+	echo '                <td colspan="2">'
+	echo '                  <p>Press the [ Next > ] button to download update files.</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -834,8 +830,8 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>piCorePlayer insitu update</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="download" action= "'$0'" method="get">'
+	echo '          <form name="download" action= "'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="large18 center">'
@@ -845,11 +841,11 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  <input type="hidden" name="CORE" value="'$CORE'">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Press the [ Next ] button to install the update files.</p>'
+	echo '                  <p>Press the [ Next > ] button to install the update files.</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -868,8 +864,8 @@ if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>piCorePlayer insitu update</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="install" action= "'$0'" method="get">'
+	echo '          <form name="install" action= "'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
@@ -908,8 +904,8 @@ if [ "$ACTION" = "install" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '                  </textarea>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
