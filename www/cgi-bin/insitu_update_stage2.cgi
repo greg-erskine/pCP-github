@@ -28,6 +28,14 @@ UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
 INSITU_DOWNLOAD=$(echo "$INSITU_DOWNLOAD" | sed 's/http:\/\/picoreplayer.sourceforge.net/https:\/\/repo.picoreplayer.org/')
 
+# Parse out numerical versions...
+VERS=$(echo "$VERSION" | awk -F'piCorePlayer' '{ print $2 }' | cut -d '-' -f1)
+MAJOR_VERSION=$(echo "$VERS" | cut -d '.' -f1)
+vtmp=$(echo "$VERS" | cut -d '.' -f2)
+MINOR_VERSION=${vtmp:0:2}
+vtmp=$(echo "$VERS" | cut -d '.' -f3)
+PATCH_VERSION=$(echo "$vtmp" | cut -d '-' -f1)
+
 #========================================================================================
 #      382 - insitu.cfg
 # 21044878 - piCorePlayer2.00_boot.tar.gz
@@ -551,9 +559,14 @@ outfile.close
 	sudo chown tc.staff /usr/local/etc/pcp/cards/*
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
-	#Support for card has been removed in 4.14.y kernels
-	rm -f /usr/local/etc/pcp/cards/raspidac3.conf
-
+	# Remove files that are obsolete
+	if [ $MAJOR_VERSION -ge 4 ]; then
+		rm -f /usr/local/etc/pcp/cards/raspidac3.conf
+		rm -f /home/tc/www/cgi-bin/do_rebootstuff.sh
+		rm -f /home/tc/www/cgi-bin/reboot.cgi
+		rm -f /home/tc/www/cgi-bin/shutdown.cgi
+		rm -f /home/tc/www/cgi-bin/xtras_graph.cgi
+	fi
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
 }
