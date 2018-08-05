@@ -252,7 +252,8 @@ pcp_wifi_write_wpa_supplicant() {
 		pcp_message INFO "Writing to $WPASUPPLICANTCONF..." "$FORMAT"
 
 		# wpa_supplicant not coming from the web interface.  Which means the passwords are not encoded.
-		[ "$ENCODED_WPA_PASSWORD" = "" ] && ENCODED_WPA_PASSWORD="$WPA_PASSWORD"
+		#  encode spaces when setting.
+		[ "$ENCODED_WPA_PASSWORD" = "" ] && ENCODED_WPA_PASSWORD=$(echo "$WPA_PASSWORD" | sed 's/ /+/g')
 		[ "$ENCODED_WPA_SSID" = "" ] && ENCODED_WPA_SSID=$(echo "$WPA_SSID" | sed 's/ /+/g')
 
 		echo '# Maintained by piCorePlayer' > $WPASUPPLICANTCONF
