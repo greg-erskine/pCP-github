@@ -144,7 +144,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		# DO NOT PROMOTE THIS METHOD IT WILL BE DELETE <=== GE
 		if [ "$WIFI" = "on" -a ! -f $WPASUPPLICANTCONF ]; then
 			WPACONFIGFILE="/tmp/newconfig/usedpcp.cfg"
-			pcp_wifi_update_onbootlst
+			pcp_wifi_update_wifi_onbootlst
 			pcp_wifi_read_newconfig "colour"
 			pcp_wifi_write_wpa_supplicant "colour"
 		fi
