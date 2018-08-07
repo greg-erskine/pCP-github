@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-24
+# Version: 4.0.0 2018-08-07
 
 BACKUP=0
 # Read from pcp-functions file
@@ -94,7 +94,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	# Make a new config files with default values and read it
 	pcp_update_config_to_defaults
 	. $PCPCFG
-	# Read variables from newconfig and save to config.
+	# Read variables from newpcp and save to config.
 	sudo dos2unix -u /tmp/newconfig/newpcp.cfg
 	. /tmp/newconfig/newpcp.cfg
 	pcp_mount_bootpart_nohtml >/dev/null 2>&1
@@ -149,7 +149,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			pcp_wifi_write_wpa_supplicant "colour"
 		fi
 	######## CONFIG.TXT Section End
-	# During an newconfig update, turn HDMI back on, and turn off Overclocking Variablesincase there are problems.
+	# During an newconfig update, turn HDMI back on, and turn off Overclocking Variables incase there are problems.
 	HDMIPOWER="on"
 	OVERCLOCK="NONE"
 	ADVOVERCLOCK="None"
@@ -262,16 +262,27 @@ if [ $WPACONFIGFOUND -eq 1 ]; then
 	pcp_wifi_update_wifi_onbootlst
 	pcp_backup_nohtml
 	echo "${RED}Reboot needed to enable wifi...${NORMAL}"
-	sleep 20
+	sleep 3
 	sudo reboot
 	exit 0
 fi
 
-# If using a RPi-A+ card or wifi manually set to on - we need to load the wireless firmware if not already loaded.
+#----------------------------------------------------------------------------------------
+# **** Catch all for broken onboot.lst during pCP4.0.0 beta testing. ****
+#----------------------------------------------------------------------------------------
 if [ "$WIFI" = "on" ]; then
-#	pcp_wifi_load_wifi_firmware_extns "colour"
-#	pcp_wifi_load_wifi_extns "colour"
-#	BACKUP=1
+	grep firmware-ralinkwifi.tcz ${ONBOOTLST} >/dev/null 2>&1
+	if [ $? -eq 1 ]; then
+		pcp_wifi_update_wifi_onbootlst
+		echo "${RED}Reboot needed to enable wifi...${NORMAL}"
+		sleep 3
+		sudo reboot
+		exit 0
+	fi
+fi
+#----------------------------------------------------------------------------------------
+
+if [ "$WIFI" = "on" ]; then
 	echo "${BLUE}Starting wifi...${NORMAL}"
 	/usr/local/etc/init.d/wifi wlan0 start
 	echo "${GREEN}Done.${NORMAL}"
