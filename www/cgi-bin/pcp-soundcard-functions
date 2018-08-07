@@ -42,7 +42,7 @@ pcp_re_enable_analog() {
 pcp_disable_i2s() {
 	pcp_re_enable_analog
 	# unset DTOVERLAY both the old one that is removed on chooseoutput.cgi and
-	# the one from config.cfg to clear all traces of audio dtoverlays
+	# the one from pcp.cfg to clear all traces of audio dtoverlays
 	shini_parse ${DACLOCATION}/${ORIG_AUDIO}.conf
 	[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
 
@@ -336,6 +336,8 @@ pcp_blank_audio_conf() {
 	PARAMS5=""
 	RPI_MODEL=""
 	AUDIOBOOTSCRIPT=""
+	SHAIRPORT_OUT=""
+	SHAIRPORT_CONTROL=""
 	I=1
 	while true; do
 		eval CHK="\${TEXT${I}}"
