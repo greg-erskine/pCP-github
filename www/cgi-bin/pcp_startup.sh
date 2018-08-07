@@ -193,7 +193,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	# pcp_read_chosen_audio works from $PCPCFG, so lets write what we have so far.
 	pcp_save_to_config
 	pcp_disable_HDMI
-	echo -n "${BLUE}[ INFO ] Setting Soundcard from newconfig...${NORMAL}"
+	echo -n "${BLUE}[ INFO ] Setting Soundcard from newpcp.cfg...${NORMAL}"
 	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
 	pcp_read_chosen_audio noumount
 	pcp_save_to_config
