@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-05
+# Version: 4.0.0 2018-08-07
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -589,7 +589,7 @@ pcp_warning_message() {
 	echo '                  <li style="color:white">Any user modified or added files may be lost or overwritten.</li>'
 	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
 	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
-	echo '                  <li style="color:white">You may need to manually update your plugins, extensions etc.</li>'
+	echo '                  <li style="color:white">You may need to manually update your plugins, extensions, static IP etc.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
