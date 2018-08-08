@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-05-17
+# Version: 4.0.0 2018-08-08
 
 . pcp-functions
 . pcp-rpi-functions
@@ -70,8 +70,8 @@ pcp_diag_wifi_lsmod() {
 }
 
 #========================================================================================
-# Routine to report on USB devices. Some of the standard RPi USB devices have been
-# filtered to focus on wifi USB devices.
+# Routine to report on wifi USB adapters. Some of the standard RPi USB devices have been
+# filtered to focus on wifi USB adapters.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_lsusb() {
 	echo "wifi usb report (lsusb)" >>$LOG
@@ -97,6 +97,26 @@ pcp_diag_wifi_wpadrv() {
 	echo "Wifi wpa driver (wifi-wpadrv)" >>$LOG
 	echo ========================================================================================= >>$LOG
 	cat /etc/sysconfig/wifi-wpadrv | tee -a $LOG
+	echo >>$LOG
+}
+
+#========================================================================================
+# Routine to display onboot.lst.
+#----------------------------------------------------------------------------------------
+pcp_diag_wifi_onbootlst() {
+	echo "Extensions in onboot.lst (onboot.lst)" >>$LOG
+	echo ========================================================================================= >>$LOG
+	cat $ONBOOTLST | tee -a $LOG
+	echo >>$LOG
+}
+
+#========================================================================================
+# Routine to display wifi extensions installed.
+#----------------------------------------------------------------------------------------
+pcp_diag_wifi_extensions_installed() {
+	echo "Wifi extensions installed" >>$LOG
+	echo ========================================================================================= >>$LOG
+	pcp_wifi_all_extensions_installed "text" | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -141,15 +161,8 @@ pcp_diag_wifi_available_networks() {
 }
 
 #========================================================================================
-# Routines to ping localhost and LMS.
+# Routines to ping LMS.
 #----------------------------------------------------------------------------------------
-pcp_diag_wifi_ping_local() {
-	echo "Ping local test" >>$LOG
-	echo ========================================================================================= >>$LOG
-	ping -c6 127.0.0.1 | tee -a $LOG
-	echo >>$LOG
-}
-
 pcp_diag_wifi_ping_lms() {
 	echo "Ping LMS test" >>$LOG
 	echo ========================================================================================= >>$LOG
@@ -158,7 +171,7 @@ pcp_diag_wifi_ping_lms() {
 }
 
 #========================================================================================
-# Routines to get pCP variables or display "None" if not set.
+# Routines to get pCP variables or display "None/no" if not set.
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_wlan0_ip() {
 	RESULT=$(pcp_wlan0_ip)
@@ -397,6 +410,38 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 echo '                <textarea class="inform" rows="2">'
                         pcp_diag_wifi_wpadrv
+echo '                </textarea>'
+echo '              </td>'
+echo '            </tr>'
+#------------------------------------onboot.lst------------------------------------------
+pcp_start_row_shade
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <p><b>'$ONBOOTLST':</b></p>'
+echo '              </td>'
+echo '            </tr>'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <textarea class="inform" rows="9">'
+                        pcp_diag_wifi_onbootlst
+echo '                </textarea>'
+echo '              </td>'
+echo '            </tr>'
+#------------------------------------wifi extensions installed---------------------------
+pcp_start_row_shade
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <p><b>wifi extensions installed:</b></p>'
+echo '              </td>'
+echo '            </tr>'
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <textarea class="inform" rows="7">'
+                        pcp_diag_wifi_extensions_installed
 echo '                </textarea>'
 echo '              </td>'
 echo '            </tr>'
