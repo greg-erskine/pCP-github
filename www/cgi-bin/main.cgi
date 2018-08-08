@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-07
+# Version: 4.0.0 2018-08-08
 
 . pcp-functions
 . pcp-lms-functions
@@ -281,7 +281,6 @@ pcp_main_update_sqlt() {
 	echo '                  <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
 	echo '                </div>'
 	echo '              </td>'
-
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_update_sqlt
@@ -612,11 +611,13 @@ pcp_main_static_ip() {
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
+	echo '                <p>Static IP for network interface&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
+	echo '                  <p>The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</p>'
+	echo '                  <p>This option allows you to set a static IP for network interface.</p>'
+	echo '                  <p>You will need to re-install static IP after an insitu update.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -693,7 +694,7 @@ pcp_main_hotfix() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_hotfix
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------HotFix----------------------------------------
+#------------------------------------------Update pcp-base-------------------------------
 pcp_main_update_pcpbase() {
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -733,7 +734,6 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
-
 
 #------------------------------------------Reset ALL-------------------------------------
 pcp_main_reset_all() {

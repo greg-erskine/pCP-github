@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-07
+# Version: 4.0.0 2018-08-08
 
 #========================================================================================
 # This script sets a static IP.
@@ -300,7 +300,7 @@ echo '            <tr class="warning">'
 echo '              <td>'
 echo '                <p style="color:white"><b>Warning:</b></p>'
 echo '                <ul>'
-echo '                  <li style="color:white">The recommended method to set a static IP address is to map the MAC address to an IP address in your Wifi router.</li>'
+echo '                  <li style="color:white">The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</li>'
 echo '                  <li style="color:white">You will need to re-install static IP after an insitu update.</li>'
 echo '                  <li style="color:white">You must get all the IP addresses and mask correct, or unusual network issues will occur.</li>'
 echo '                  <li style="color:white">All network interfaces must be DHCP or static IP, not mixed.</li>'
