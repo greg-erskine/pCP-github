@@ -1,8 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-08-08
-
+# Version: 4.0.0 2018-08-09 
 . pcp-functions
 . pcp-rpi-functions
 . pcp-wifi-functions
@@ -87,16 +86,6 @@ pcp_diag_wifi_wpa_suplicant() {
 	echo "wpa supplicant configuration (wpa_supplicant.conf)" >>$LOG
 	echo ========================================================================================= >>$LOG
 	cat $WPASUPPLICANTCONF | tee -a $LOG
-	echo >>$LOG
-}
-
-#========================================================================================
-# Routine to display wifi-wpadrv.
-#----------------------------------------------------------------------------------------
-pcp_diag_wifi_wpadrv() {
-	echo "Wifi wpa driver (wifi-wpadrv)" >>$LOG
-	echo ========================================================================================= >>$LOG
-	cat /etc/sysconfig/wifi-wpadrv | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -394,22 +383,6 @@ echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 echo '                <textarea class="inform" rows="12">'
                         pcp_diag_wifi_wpa_suplicant
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------/etc/sysconfig/wifi-wpadrv--------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>/etc/sysconfig/wifi-wpadrv:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="2">'
-                        pcp_diag_wifi_wpadrv
 echo '                </textarea>'
 echo '              </td>'
 echo '            </tr>'
