@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-14
+# Version: 4.0.0 2018-08-10
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -454,16 +454,16 @@ pcp_disable_enable_buildin_sound() {
 		pcp_start_row_shade
 		pcp_incr_id
 		pcp_table_top "Raspberry Pi Built-in Audio"
-		echo '                <p><b>Enable/disable onboard soundcard (after a reboot)</b></p>'
+		echo '                <p><b>Enable/disable built-in audio (after a reboot)</b></p>'
 		pcp_table_middle "class=\"column120 center\""
 		echo '                <p><input type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'>'
 		echo '              </td>'
 		echo '              <td colspan="2">'
-		echo '                <p>When checked - Onboard soundcard is enabled&nbsp;&nbsp;'
+		echo '                <p>When checked - built-in audio  is enabled&nbsp;&nbsp;'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
-		echo '                  <p>Enable (with check) or disable (no check) the onboard analog soundcard. <b>Then a reboot is needed.</b></p>'
+		echo '                  <p>Enable (with check) or disable (no check) the built-in audio. <b>Then a reboot is needed.</b></p>'
 		echo '                </div>'
 		pcp_table_middle "class=\"column120 center\""
 		echo '                <button type="submit" name="ACTION" value="Onboard">Save</button>'
