@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -18,18 +18,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 pcp_debug_info() {
-	echo '<p class="debug">[ DEBUG ] $ORIG_AUDIO: '$ORIG_AUDIO'<br />'
-	echo '                 [ DEBUG ] $AUDIO: '$AUDIO'<br />'
-	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-	echo '                 [ DEBUG ] $DTOVERLAY: '$DTOVERLAY'<br />'
-	echo '                 [ DEBUG ] $PARAMS1: '$PARAMS1'<br />'
-	echo '                 [ DEBUG ] $PARAMS2: '$PARAMS2'<br />'
-	echo '                 [ DEBUG ] $PARAMS3: '$PARAMS3'<br />'
-	echo '                 [ DEBUG ] $PARAMS4: '$PARAMS4'<br />'
-	echo '                 [ DEBUG ] $PARAMS5: '$PARAMS5'<br />'
-	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
-	echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
+	pcp_debug_variables "html" AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 OUTPUT ALSA_PARAMS DT_MODE
 }
 
 pcp_table_top "Choose output"
@@ -43,7 +32,7 @@ if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 else
 	echo '<p class="info">[ INFO ] Audio output changed from '$ORIG_AUDIO' to '$AUDIO'.</p>'
 	# The next line is needed to clear OUTPUT from here when selecting USB.
-	# Whereas when pcp_read_chosen_audio is called from pcp_startup.sh it should use the correct USB OUTPUT from newconfig.
+	# Whereas when pcp_read_chosen_audio is called from pcp_startup.sh it should use the correct USB OUTPUT from newpcp.
 	USBOUTPUT=""
 	CHANGED=TRUE
 fi
@@ -53,8 +42,8 @@ if [ $CHANGED ]; then
 	pcp_squeezelite_stop
 	pcp_soundcontrol
 
-	# To save the default dt-overlay parameter (PARAMS1) in config.cfg
-	# Needed as PARAM1 is the value saved in config.cfg
+	# To save the default dt-overlay parameter (PARAMS1) in pcp.cfg
+	# Needed as PARAM1 is the value saved in pcp.cfg
 	PARAM1="$PARAMS1"
 
 	# Set the default settings
@@ -122,7 +111,7 @@ if [ $CHANGED ]; then
 fi
 
 pcp_table_middle
-pcp_redirect_button "Go Back" "$FROM_PAGE" 5
+[ $DEBUG -eq 1 ] && pcp_redirect_button "Go Back" "$FROM_PAGE" 60 || pcp_redirect_button "Go Back" "$FROM_PAGE" 5
 pcp_table_end
 
 pcp_footer

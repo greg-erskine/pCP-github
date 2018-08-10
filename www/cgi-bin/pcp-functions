@@ -163,7 +163,7 @@ pcp_unset_coloured_text() {
 # Routine to read config file.
 #----------------------------------------------------------------------------------------
 pcp_read_config() {
-	pcp_debug_log "$0 - Reading pCP config.cfg..."
+	pcp_debug_log "$0 - Reading pCP pcp.cfg..."
 	. $PCPCFG
 }
 
@@ -432,7 +432,7 @@ pcp_timezone() {
 
 #========================================================================================
 # The MAC addresses used by this piCorePlayer can be:
-#	1. An arbitrarily assigned MAC address via Squeezelite software (in config.cfg)
+#	1. An arbitrarily assigned MAC address via Squeezelite software (in pcp.cfg)
 #	2. The MAC address of the wireless card (if installed)
 #	3. The physical MAC address of ethernet card (Raspberry Pi)
 #		PLAYER_MAC=${MAC_ADDRESS:-$(pcp_eth0_mac_address)}
@@ -940,7 +940,7 @@ pcp_httpd_query_string() {
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
-# Needed when we want to store an encoded string in config.cfg
+# Needed when we want to store an encoded string in pcp.cfg
 pcp_httpd_query_string_no_decode() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
@@ -1567,9 +1567,9 @@ pcp_save_to_config() {
 }
 
 #========================================================================================
-# Create a new config.cfg with defaults values.
+# Create a new pcp.cfg with defaults values.
 #
-# This routine will add new variables if missing in current config.cfg. The new variables
+# This routine will add new variables if missing in current pcp.cfg. The new variables
 # will have the default values loaded.
 #
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.

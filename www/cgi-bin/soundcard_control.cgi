@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-10
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-soundcard-functions
 . pcp-lms-functions
 
-# Save copy of variable value from config.cfg so it is not overwritten with default values
+# Save copy of variable values so it is not overwritten with default values
 ORIG_AUDIO="$AUDIO"
 ORIG_CARD="$CARD"
 ORIG_OUTPUT="$OUTPUT"

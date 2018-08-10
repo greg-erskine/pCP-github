@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-07
+# Version: 4.0.0 2018-08-11
 
 BACKUP=0
 # Read from pcp-functions file
@@ -289,7 +289,7 @@ if [ "$WIFI" = "on" ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-# Loading configuration file config.cfg
+# Loading configuration file pcp.cfg
 echo -n "${BLUE}Loading configuration file...${NORMAL}"
 . $PCPCFG
 echo "${GREEN}Done.${NORMAL}"

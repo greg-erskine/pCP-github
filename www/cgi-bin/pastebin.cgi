@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-19
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -39,8 +39,9 @@ case "$SUBMIT" in
 	Upload)
 		echo '<p class="info">[ INFO ] Prepare for uploading...</p>'
 		cp "$FILE" "$UPLOAD_FILE"
+		# Not really needed anymore <==GE
 		case $FILE in
-			*config.cfg)
+			*pcp.cfg)
 				sed -i 1i"$(date)" $UPLOAD_FILE
 				sed -i s/^PASSWORD=.*/PASSWORD=\"******\"/ $UPLOAD_FILE
 			;;

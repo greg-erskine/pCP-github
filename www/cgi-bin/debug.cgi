@@ -1,27 +1,9 @@
 #!/bin/sh
 
-# Version: 3.22 2017-07-21
-#	Updated TEST mode. GE.
-
-# Version: 3.20 2017-03-08
-#	Moved variables $DEBUG, $TEST and $MODE to config.cfg. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.04 2015-08-16
-#	Revised sed to match a tab in front of DEBUG, TEST and MODE. GE.
-
-# Version: 0.03 2015-07-01
-#	Made to work in non-interactive mode. GE.
-
-# Version: 0.02 2015-06-04
-#	Added interaction mode. GE.
-#	Renamed $pCPHOME to $PCPHOME. GE.
-
-# Version: 0.01 2014-10-24
-#	Original. GE.
+# Version: 4.0.0 2018-08-11
 
 #=========================================================================================
-# This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in config.cfg from
+# This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
 # your web browser.
 #
 # Options:
@@ -30,7 +12,7 @@
 #	$MODE    m=[0-100]
 #	ALL      a=[0]
 #
-# Non-interactive examples:
+# Non-interactive examples: DOES NOT WORK!!! <==GE
 #	Turn debug on:   http://192.168.1.xxx/cgi-bin/debug.cgi?d=1
 #	Turn debug off:  http://192.168.1.xxx/cgi-bin/debug.cgi?d=0
 #	Turn all off:    http://192.168.1.xxx/cgi-bin/debug.cgi?a=0
@@ -114,13 +96,7 @@ pcp_running_script
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	echo '<p class="debug">[ DEBUG ] DEBUG: '$DEBUG'<br />'
-	echo '                 [ DEBUG ] d: '$d'<br />'
-	echo '                 [ DEBUG ] MODE: '$MODE'<br />'
-	echo '                 [ DEBUG ] m: '$m'<br />'
-	echo '                 [ DEBUG ] TEST: '$TEST'<br />'
-	echo '                 [ DEBUG ] t: '$t'<br />'
-	echo '                 [ DEBUG ] SUBMIT: '$SUBMIT'</p>'
+	pcp_debug_variables "html" DEBUG d MODE m TEST t SUBMIT
 fi
 
 #========================================================================================

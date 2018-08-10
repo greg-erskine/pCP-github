@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -113,7 +113,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-[ $MODE -ge $MODE_BETA ] && pcp_pastebin_button config.cfg
+[ $MODE -ge $MODE_BETA ] && pcp_pastebin_button pcp.cfg
 
 pcp_footer
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mode
