@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 
@@ -21,7 +21,7 @@ FAIL_MSG="OK"
 WAS_MOUNTED=0
 IS_MOUNTED=0
 
-pcp_html_head "Save configuration file to USB device" "SBP" "20" "main.cgi"
+pcp_html_head "Save configuration file to USB device" "SBP"
 
 pcp_banner
 pcp_running_script
@@ -95,9 +95,11 @@ if [ $USB_FOUND -eq 1 ]; then
 fi
 
 if [ $IS_MOUNTED -eq 1 ]; then
-	echo -n '[ INFO ] Copying configuration file to USB device...'
+	echo -n '[ INFO ] Copying configuration files to USB device...'
 	[ -f ${MNT_USB}/newpcp.cfg ] && sudo mv ${MNT_USB}/newpcp.cfg ${MNT_USB}/newpcp.cfg~
 	sudo /bin/cp -f $PCPCFG ${MNT_USB}/newpcp.cfg
+	[ -f ${MNT_USB}/wpa_supplicant.conf ] && sudo mv ${MNT_USB}/wpa_supplicant.conf ${MNT_USB}/wpa_supplicant.conf~
+	sudo /bin/cp -f $WPASUPPLICANTCONF ${MNT_USB}/wpa_supplicant.conf
 	[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
 	if [ -f ${MNT_USB}/newpcp.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'

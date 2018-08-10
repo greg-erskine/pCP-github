@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-08
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-lms-functions
@@ -421,9 +421,10 @@ pcp_main_save_usb() {
 	echo '                  <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>If you then reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
+	echo '                    <li>If you reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
 	echo '                    <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
-	echo '                    <li>This configuration file is named newconfig.cfg and will be automatially renamed to usedconfig.cfg after rebooting.</li>'
+	echo '                    <li>This configuration file (newpcp.cfg) will be automatically renamed to usedpcp.cfg after rebooting.</li>'
+	echo '                    <li>This method will only work on basic piCorePlayer setups.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
