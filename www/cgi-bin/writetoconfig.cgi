@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
 
-# Restore sparams variable value from config.cfg so it is not overwritten with default values
+# Restore sparams variable value from pcp.cfg so it is not overwritten with default values
 PARAM1="$SPARAMS1"
 PARAM2="$SPARAMS2"
 PARAM3="$SPARAMS3"
@@ -18,7 +18,7 @@ ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 RESTART_REQUIRED=TRUE
 unset REBOOT_REQUIRED
 
-pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
+pcp_html_head "Write to pcp.cfg" "SBP" "15" "squeezelite.cgi"
 
 pcp_banner
 pcp_running_script
@@ -39,24 +39,24 @@ pcp_reset() {
 #----------------------------------------------------------------------------------------
 pcp_restore() {
 	pcp_mount_device sda1
-	. /mnt/sda1/newconfig.cfg
+	. /mnt/sda1/newpcp.cfg
 	pcp_umount_device sda1
 	pcp_save_to_config
 }
 
 #========================================================================================
-# Update config.cfg to the latest version
+# Update pcp.cfg to the latest version
 #
-# This will first create the latest version of config.cfg with default values, then,
+# This will first create the latest version of pcp.cfg with default values, then,
 # restore original values.
 #----------------------------------------------------------------------------------------
 pcp_update() {
-	echo '<p class="info">[ INFO ] Copying config.cfg to /tmp...</p>'
+	echo '<p class="info">[ INFO ] Copying pcp.cfg to /tmp...</p>'
 	sudo cp $PCPCFG /tmp/pcp.cfg
-	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying config.cfg to /tmp...</p>'
-	echo '<p class="info">[ INFO ] Setting config.cfg to defaults...</p>'
+	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying pcp.cfg to /tmp...</p>'
+	echo '<p class="info">[ INFO ] Setting pcp.cfg to defaults...</p>'
 	pcp_update_config_to_defaults
-	echo '<p class="info">[ INFO ] Updating config.cfg with original values...</p>'
+	echo '<p class="info">[ INFO ] Updating pcp.cfg with original values...</p>'
 	. $PCPCFG
 	. /tmp/pcp.cfg
 	pcp_save_to_config

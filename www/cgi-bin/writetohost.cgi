@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.0.0 2018-08-11
 
 #========================================================================================
 # The hostname is set during the boot process. It needs to be set before the network is
@@ -16,7 +16,7 @@
 #  - /etc/hostname
 #  - /etc/hosts
 #  - /opt/bootsync.sh				: sethostname piCorePlayer, default value if missing from cmdline.txt
-#  - config.cfg
+#  - pcp.cfg
 #  - /mnt/mmcblk0p1/cmdline.txt		: hostname set here, overwrites all other methods
 #  - /proc/cmdline.txt				: set after reboot
 #  - $CMDLINE						: set after reboot

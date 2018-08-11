@@ -1,13 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Major changes. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.01 2014-09-09
-#	Original. SBP.
+# Version: 4.0.0 2018-08-11
 
 set -f
 . pcp-functions
@@ -19,7 +12,6 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-#DEBUG=1
 #----------------------------------------------------------------------------------------
 # Routines.
 #----------------------------------------------------------------------------------------
@@ -45,15 +37,13 @@ pcp_cron_config() {
 	pcp_umount_bootpart >/dev/null 2>&1
 }
 
-# cat /proc/cmdline
-
 pcp_cron_reset() {
 	REBOOT="Disabled"
-	RB_H="2"
+	RB_H="0"
 	RB_WD="*"
 	RB_DMONTH="*"
 	RESTART="Disabled"
-	RS_H="2"
+	RS_H="0"
 	RS_WD="*"
 	RS_DMONTH="*"
 	CRON_COMMAND=""
@@ -65,22 +55,10 @@ pcp_cron_reset() {
 
 pcp_cron_debug() {
 	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
-		echo '                 [ DEBUG ] $RESTART: '$RESTART'<br  />'
-		echo '                 [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'
-		echo '                 [ DEBUG ] $RESTART_N: '$RESTART_N'<br />'
-		echo '                 [ DEBUG ] $RB_H: '$RB_H'<br />'
-		echo '                 [ DEBUG ] $RB_WD: '$RB_WD'<br />'
-		echo '                 [ DEBUG ] $RB_DMONTH: '$RB_DMONTH'<br />'
-		echo '                 [ DEBUG ] $RS_H: '$RS_H'<br />'
-		echo '                 [ DEBUG ] $RS_WD: '$RS_WD'<br />'
-		echo '                 [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
-		echo '                 [ DEBUG ] $RB_CRON: '$RB_CRON'<br />'
-		echo '                 [ DEBUG ] $RS_CRON: '$RS_CRON'<br />'
-		echo '                 [ DEBUG ] $CRON_COMMAND: '$CRON_COMMAND'</p>'
+		pcp_debug_variables "html" REBOOT RESTART RESTART_Y RESTART_N RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH RB_CRON RS_CRON CRON_COMMAND
 
 		pcp_textarea_inform "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
-		pcp_textarea_inform "Current config.cfg" "grep -C 4 RESTART= /usr/local/sbin/config.cfg" 150
+		pcp_textarea_inform "Current pcp.cfg" "grep -C 4 RESTART= $PCPCFG" 150
 	fi
 }
 
@@ -95,7 +73,7 @@ case $SUBMIT in
 		echo '<p class="info">[ INFO ] Resetting cronjobs to default...</p>'
 		pcp_cron_reset
 		pcp_cron_config delete
-		;;
+	;;
 	Clear)
 		echo '<p class="info">[ INFO ] Clearing all cronjobs...</p>'
 		pcp_cron_reset

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-24
+# Version: 4.0.0 2018-08-11
 
 #========================================================================================
 # References:
@@ -602,14 +602,14 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '</table>'
 
 	#====================================================================================
-	# Display current config.cfg - partial
+	# Display current pcp.cfg - partial
 	#------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Current config.cfg (partial)</legend>'
+	echo '          <legend>Current pcp.cfg (partial)</legend>'
 	echo '          <table class="bggrey percent100">'
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'

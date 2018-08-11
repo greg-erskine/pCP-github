@@ -1,27 +1,10 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.12 2017-02-26
-#	Updated to default rotation to 0. GE.
-#	Brown ribbon cable to bottom. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced formatting. GE.
-
-# Version: 0.01 2015-10-06
-#	Original. SBP.
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 
-pcp_html_head "Write to config.cfg" "SBP"
+pcp_html_head "Write to config.txt" "SBP"
 
 pcp_banner
 pcp_running_script
