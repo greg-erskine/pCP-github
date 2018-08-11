@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-11
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -1577,6 +1577,71 @@ pcp_mount_netdrives() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
+
+	echo '            <script>'
+	echo '              function setnetrequired(id) {'
+	echo '                var box = "NET";'
+	echo '                var Box = box.concat(id);'
+	echo '                var box1 = "NETPOINT";'
+	echo '                var Box1 = box1.concat(id);'
+	echo '                var box2 = "NETIP";'
+	echo '                var Box2 = box2.concat(id);'
+	echo '                var box3 = "NETSHARE";'
+	echo '                var Box3 = box3.concat(id);'
+	echo '                if (document.getElementById(Box).checked){'
+	echo '                  document.getElementById(Box1).setAttribute("required", "");'
+	echo '                  document.getElementById(Box2).setAttribute("required", "");'
+	echo '                  document.getElementById(Box3).setAttribute("required", "");'
+	echo '                }'
+	echo '                else {'
+	echo '                  document.getElementById(Box1).required = false;'
+	echo '                  document.getElementById(Box2).required = false;'
+	echo '                  document.getElementById(Box3).required = false;'
+	echo '                }'
+	echo '                setfsopts(id);'
+	echo '              }'
+	echo '              function setfsopts(id) {'
+	echo '                var box = "NET";'
+	echo '                var Box = box.concat(id);'
+	echo '                var box3 = "NETSHARE";'
+	echo '                var Box3 = box3.concat(id);'
+	echo '                var box4 = "NETOPTS";'
+	echo '                var Box4 = box4.concat(id);'
+	echo '                var box5 = "NETFS";'
+	echo '                var Box5 = box5.concat(id);'
+	echo '                if (document.getElementById(Box).checked && (document.getElementById(Box5).value == "cifs")){'
+	echo '                  var x = document.getElementById(Box4).value;'
+	echo '                  x = ( x.length > 0 ) ? x.concat(",") : x;'
+	echo '                  x = ( x.indexOf("uid=") != -1 ) ? x : x.concat("uid=1001");'
+	echo '                  x = ( x.indexOf("gid=") != -1 ) ? x : x.concat(",gid=50");'
+	echo '                  x = ( x.substr(x.length - 1) == ",") ? x.substring(0, x.length - 1) : x;'
+	echo '                  document.getElementById(Box4).value = x;'
+	echo '                }'
+	echo '                if (document.getElementById(Box5).value == "nfs"){'
+	echo '                  document.getElementById(Box3).pattern = "(^[\\/])[a-zA-Z0-9_\\- \\/]{1,32}";'
+	echo '                } else {'
+	echo '                  document.getElementById(Box3).pattern = "[a-zA-Z0-9_\\- ]{1,32}";'
+	echo '                }'
+	echo '              }'
+	echo '              function setfstype(id) {'
+	echo '                var box = "NETFS";'
+	echo '                var Box = box.concat(id);'
+	echo '                var box1 = "NETUSER";'
+	echo '                var Box1 = box1.concat(id);'
+	echo '                var box2 = "NETPASS";'
+	echo '                var Box2 = box2.concat(id);'
+	echo '                if (document.getElementById(Box).value == "nfs" ){'
+	echo '                  document.getElementById(Box1).setAttribute("disabled", "");'
+	echo '                  document.getElementById(Box2).setAttribute("disabled", "");'
+	echo '                }'
+	echo '                else {'
+	echo '                  document.getElementById(Box1).disabled = false;'
+	echo '                  document.getElementById(Box2).disabled = false;'
+	echo '                }'
+	echo '                setfsopts(id);'
+	echo '              }'
+	echo '            </script>'
+
 	echo '            <table class="bggrey percent100">'
 	COL1="75"
 	COL2="150"
@@ -1605,7 +1670,7 @@ pcp_mount_netdrives() {
 		case "$TST" in
 			yes|no)
 				[ "$TST" = "yes" ] && NETENABLEyes="checked" || NETENABLEyes=""
-				REQUIRED="required"
+				[ "$TST" = "yes" ] && REQUIRED="required" || REQUIRED=""
 				PNT=$(eval echo \${NETMOUNTPOINT${I}})
 				IP=$(eval echo \${NETMOUNTIP${I}})
 				SHARE=$(eval echo \${NETMOUNTSHARE${I}})
@@ -1613,6 +1678,8 @@ pcp_mount_netdrives() {
 				USER=$(eval echo \${NETMOUNTUSER${I}})
 				PASS=$(eval echo \${NETMOUNTPASS${I}})
 				OPTIONS=$(eval echo \${NETMOUNTOPTIONS${I}})
+				CIFS1yes=""
+				NFS1yes=""
 			;;
 			*)
 				NETENABLEyes=""
@@ -1638,21 +1705,21 @@ pcp_mount_netdrives() {
 		echo '                  <input class="small1" type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL2'">'
-		echo '                  <p>/mnt/<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
+		echo '                  <p>/mnt/<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL3'">'
 		echo '                  <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 		echo '                </td>'
 		echo '                <td class="column'$COL4'">'
-		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="^[a-zA-Z0-9_\-\ ]{1,32}$">'
+		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="" onclick="setfsopts('${I}')">'
 		echo '                </td>'
-		echo '                <td class="column'$COL5'">'
 
-	case "$FSTYPE" in
+		case "$FSTYPE" in
 			cifs) CIFS1yes="selected"; USERdisable="";;
-			nfs) NFS1yes="selected"; USERdisable="Disabled" ;;
+			nfs) NFS1yes="selected"; USERdisable="Disabled";;
 		esac
 
+		echo '                <td class="column'$COL5'">'
 		echo '                  <select class="large6" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only cifs(samba) and nfs shares are supported" onchange="setfstype('${I}')">'
 		echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
 		echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
@@ -1662,7 +1729,7 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL7'">'
-		echo '                  <input class="large6" type="text" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
+		echo '                  <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL8'">'
 		echo '                  <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
@@ -1672,65 +1739,10 @@ pcp_mount_netdrives() {
 		echo '                var share = "'${SHARE}'";'
 		echo '                ShareBox = "NETSHARE'${I}'";'
 		echo '                document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
+		echo '                setfsopts('${I}');'
 		echo '              </script>'
 		I=$((I+1))
 	done
-	echo '                <script>'
-	echo '                  function setnetrequired(id) {'
-	echo '                    var box = "NET";'
-	echo '                    var Box = box.concat(id);'
-	echo '                    var box1 = "NETPOINT";'
-	echo '                    var Box1 = box1.concat(id);'
-	echo '                    var box2 = "NETIP";'
-	echo '                    var Box2 = box2.concat(id);'
-	echo '                    var box3 = "NETSHARE";'
-	echo '                    var Box3 = box3.concat(id);'
-	echo '                    if (document.getElementById(Box).checked){'
-	echo '                      document.getElementById(Box1).setAttribute("required", "");'
-	echo '                      document.getElementById(Box2).setAttribute("required", "");'
-	echo '                      document.getElementById(Box3).setAttribute("required", "");'
-	echo '                      setcifsopts(id);'
-	echo '                    }'
-	echo '                    else {'
-	echo '                      document.getElementById(Box1).required = false;'
-	echo '                      document.getElementById(Box2).required = false;'
-	echo '                      document.getElementById(Box3).required = false;'
-	echo '                    }'
-	echo '                  }'
-	echo '                  function setcifsopts(id) {'
-	echo '                    var box = "NET";'
-	echo '                    var Box = box.concat(id);'
-	echo '                    var box4 = "NETOPTS";'
-	echo '                    var Box4 = box4.concat(id);'
-	echo '                    var box5 = "NETFS";'
-	echo '                    var Box5 = box5.concat(id);'
-	echo '                    if (document.getElementById(Box).checked && (document.getElementById(Box5).value == "cifs")){'
-	echo '                      var x = document.getElementById(Box4).value;'
-	echo '                      x = ( x.length > 0 ) ? x.concat(",") : x;'
-	echo '                      x = ( x.indexOf("uid=") != -1 ) ? x : x.concat("uid=1001");'
-	echo '                      x = ( x.indexOf("gid=") != -1 ) ? x : x.concat(",gid=50");'
-	echo '                      x = ( x.substr(x.length - 1) == ",") ? x.substring(0, x.length - 1) : x;'
-	echo '                      document.getElementById(Box4).value = x;'
-	echo '                    }'
-	echo '                  }'
-	echo '                  function setfstype(id) {'
-	echo '                    var box = "NETFS";'
-	echo '                    var Box = box.concat(id);'
-	echo '                    var box1 = "NETUSER";'
-	echo '                    var Box1 = box1.concat(id);'
-	echo '                    var box2 = "NETPASS";'
-	echo '                    var Box2 = box2.concat(id);'
-	echo '                    if (document.getElementById(Box).value == "nfs" ){'
-	echo '                      document.getElementById(Box1).setAttribute("disabled", "");'
-	echo '                      document.getElementById(Box2).setAttribute("disabled", "");'
-	echo '                    }'
-	echo '                    else {'
-	echo '                      document.getElementById(Box1).disabled = false;'
-	echo '                      document.getElementById(Box2).disabled = false;'
-	echo '                      setcifsopts(id);'
-	echo '                    }'
-	echo '                  }'
-	echo '                </script>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
