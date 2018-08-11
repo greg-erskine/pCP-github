@@ -447,6 +447,9 @@ build_mydata(){
 	#insitu update stage 2 is downloaded on demand.
 	rm -f ${MYDATA}/home/tc/www/cgi-bin/insitu_update_stage2.cgi
 
+	#Remove www/cgi-bin/dev_* web pages, they are development only
+	rm -f ${MYDATA}/home/tc/www/cgi-bin/dev_*
+
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/bootlocal.sh ${MYDATA}/opt/bootlocal.sh 0.50 775
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/bootsync.sh ${MYDATA}/opt/bootsync.sh 0.50 775
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/.filetool.lst ${MYDATA}/opt/.filetool.lst 0.50 664
