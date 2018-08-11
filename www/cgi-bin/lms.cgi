@@ -1555,7 +1555,7 @@ pcp_mount_netdrives() {
 	echo '                      <li>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</li>'
 	echo '                      <li>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</li>'
 	echo '                      <li>&#60;Username&#62; Username if needed for cifs mount.</li>'
-	echo '                      <li>&#60;Password&#62; Password if needed for cifs mount.</li>'
+	echo '                      <li>&#60;Password&#62; Password if needed for cifs mount. Password must be re-entered for change in mount.</li>'
 	echo '                      <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.'
 	echo '                        <ul>'
 	echo '                          <li>CIFS'
@@ -1639,6 +1639,15 @@ pcp_mount_netdrives() {
 	echo '                  document.getElementById(Box2).disabled = false;'
 	echo '                }'
 	echo '                setfsopts(id);'
+	echo '                setpwstyle(id);'
+	echo '              }'
+	echo '              function setpwstyle(id) {'
+	echo '                var Box = "NETFS" + id;'
+	echo '                var Box1 = "NETPASS" + id;'
+	echo '                if ( (document.getElementById(Box).value == "cifs") && (document.getElementById(Box1).value == "" ))'
+	echo '                  document.getElementById(Box1).style.borderColor = "red";'
+	echo '                else'
+	echo '                  document.getElementById(Box1).removeAttribute("style");'
 	echo '              }'
 	echo '            </script>'
 
@@ -1676,7 +1685,8 @@ pcp_mount_netdrives() {
 				SHARE=$(eval echo \${NETMOUNTSHARE${I}})
 				FSTYPE=$(eval echo \${NETMOUNTFSTYPE${I}})
 				USER=$(eval echo \${NETMOUNTUSER${I}})
-				PASS=$(eval echo \${NETMOUNTPASS${I}})
+#				PASS=$(eval echo \${NETMOUNTPASS${I}})
+				PASS=""
 				OPTIONS=$(eval echo \${NETMOUNTOPTIONS${I}})
 				CIFS1yes=""
 				NFS1yes=""
@@ -1729,7 +1739,7 @@ pcp_mount_netdrives() {
 		echo '                  <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL7'">'
-		echo '                  <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" '$USERdisable'>'
+		echo '                  <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" onchange="setpwstyle('${I}')" '$USERdisable'>'
 		echo '                </td>'
 		echo '                <td class="column'$COL8'">'
 		echo '                  <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0" >'
@@ -1740,6 +1750,7 @@ pcp_mount_netdrives() {
 		echo '                ShareBox = "NETSHARE'${I}'";'
 		echo '                document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
 		echo '                setfsopts('${I}');'
+		echo '                setpwstyle('${I}');'
 		echo '              </script>'
 		I=$((I+1))
 	done
