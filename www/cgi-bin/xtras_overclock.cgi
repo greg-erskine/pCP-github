@@ -37,6 +37,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 RPITYPE=$(pcp_rpi_type)
+REBOOT_REQUIRED=0
 
 #========================================================================================
 # Generate warning message
@@ -269,6 +270,8 @@ pcp_start_save() {
 	fi
 
 	pcp_umount_bootpart >/dev/null 2>&1
+	
+	REBOOT_REQUIRED=1
 }
 
 pcp_check_config_txt() {
@@ -627,6 +630,8 @@ fi
 
 pcp_footer
 pcp_copyright
+
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
 echo '</body>'
 echo '</html>'
