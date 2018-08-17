@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
-
-#========================================================================================
-# filetool.lst functions - Note filename hard coded.  Not needed
-#----------------------------------------------------------------------------------------
-#pcp_wifi_update_filetool() {
-#	sudo sed -i '/etc\/wpa_supplicant.conf/d' $FILETOOLLST
-#	if [ -f "/etc/wpa_supplicant.conf" ]; then
-#		sudo echo "etc/wpa_supplicant.conf" >> $FILETOOLLST
-#	fi
-#}
+# Version: 4.0.0 2018-08-17
 
 #========================================================================================
 # onboot.lst functions
@@ -50,7 +40,6 @@ pcp_wifi_load_extn() {
 	local ERROR=0
 
 	sudo -u tc pcp-load -i $1 >/dev/null 2>&1
-#	su tc -c "pcp-load -i $1"
 
 	if [ $? -eq 0 ]; then
 		pcp_message OK "$2 loaded." "$3"
@@ -151,7 +140,6 @@ pcp_wifi_read_wpa_supplicant() {
 
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
 
-		#for i in $(cat $WPACONFIGFILE); do
 		while read i; do
 			case $i in
 				*=*)
@@ -186,7 +174,6 @@ pcp_wifi_read_wpa_supplicant() {
 						;;
 					esac
 			esac
-#		done
 		done < $WPACONFIGFILE
 		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
@@ -208,7 +195,6 @@ pcp_wifi_read_newconfig() {
 
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_KEY_MGMT WPA_ENCRYPTION
 
-#		for i in $(cat $WPACONFIGFILE); do
 		while read i; do
 			case $i in
 				*=*)
@@ -231,7 +217,6 @@ pcp_wifi_read_newconfig() {
 						;;
 					esac
 			esac
-#		done
 		done < $WPACONFIGFILE
 		[ x"" = x"$WPA_KEY_MGMT" ] && WPA_ENCRYPTION=WPA-PSK
 		[ "$WPA_ENCRYPTION" != "WPA-PSK" ] && WPA_PASSPHRASE=""
