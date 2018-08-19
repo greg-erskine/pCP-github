@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-14
+# Version: 4.0.0 2018-08-19
 
 . pcp-functions
 . pcp-rpi-functions
@@ -467,15 +467,6 @@ echo '</table>'
 
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 #--------------------------------------Built-in Wifi-------------------------------------
-	echo '<script>'
-	echo 'function validatewifibt() {'
-	echo '    if ( document.builtinwifi.RPI3BPLUS.value == "false" && document.builtinwifi.RPI3INTWIFI[0].checked == true && document.builtinwifi.RPIBLUETOOTH[0].checked == true ){'
-	echo '      alert("RPI Wifi and Bluetooth\nmust NOT be enabled at the same time");'
-	echo '      return false;'
-	echo '    }'
-	echo '  return true;'
-	echo '}'
-	echo '</script>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -541,7 +532,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 		echo '                  <input type="hidden" name="RPI3BPLUS" value="false">'
 	fi
 	if [ "$WIFI" = "on" ]; then
-		echo '                  <input type="submit" name="ACTION" value="Save" onclick="return(validatewifibt());">'
+		echo '                  <input type="submit" name="ACTION" value="Save">'
 	else
 		echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
 	fi
