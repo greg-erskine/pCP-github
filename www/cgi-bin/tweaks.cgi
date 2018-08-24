@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-24
+# Version: 4.0.0 2018-08-25
 
 set -f
 
@@ -114,7 +114,7 @@ pcp_tweaks_timezone() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Password----------------------------------
-# Note: changing passwords through a script over html is not very secure.
+# Note: changing passwords through a script over http is not very secure.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_password() {
 	echo '          <form name="password" action="changepassword.cgi" method="get">'
@@ -132,7 +132,7 @@ pcp_tweaks_password() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p><b>Default:</b> piCore</p>'
-	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure.</p>'
+	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over http is not very secure.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -201,7 +201,7 @@ pcp_tweaks_playertabs() {
 pcp_tweaks_lmscontrols() {
 	case "$LMSCONTROLS" in
 		yes) LMSCONTROLSyes="checked" ;;
-		no)  LMSCONTROLSno="checked" ;;
+		no) LMSCONTROLSno="checked" ;;
 	esac
 
 	echo '          <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
@@ -322,7 +322,7 @@ pcp_tweaks_lmswebport() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Internet Check IP------------------------------------
+#--------------------------------------Internet Check IP---------------------------------
 pcp_tweaks_internet_check_ip() {
 	echo '          <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
@@ -437,12 +437,14 @@ echo '</table>'
 #========================================================================================
 # pCP OS/Kernel Tweaks
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>pCP Kernel Tweaks</legend>'
+if [ $MODE -ge $MODE_NORMAL ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>pCP Kernel Tweaks</legend>'
+fi
 #--------------------------------------Governor------------------------------------------
 pcp_tweaks_governor() {
 	echo '          <form name="governor" action= "writetooverclock.cgi" method="get">'
@@ -457,7 +459,7 @@ pcp_tweaks_governor() {
 	echo '                  <select class="large16" name="CPUGOVERNOR">'
 							  for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
 								  SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
-								  [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
+								  [ "$GOV" = "$SCALINGGOVERNOR" ] && SEL="selected" || SEL=""
 								  echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
 							  done
 	echo '                  </select>'
@@ -554,10 +556,7 @@ pcp_tweaks_overclock() {
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
-		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
-		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
-		echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
+		pcp_debug_variables "html" OVERCLOCK OCnone OCmild OCmoderate
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -565,7 +564,7 @@ pcp_tweaks_overclock() {
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------CPU Isolation--------------------------------------
-pcp_tweaks_cpuisol(){
+pcp_tweaks_cpuisol() {
 	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
@@ -587,11 +586,11 @@ pcp_tweaks_cpuisol(){
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Isolation means the kernel will not run user tasks on the selected CPUS, unless specified.</p>'
+	echo '                    <p>Isolation means the kernel will not run user tasks on the selected CPUs, unless specified.</p>'
 	echo '                    <p><b>Recommended setting:&nbsp;</b>0,3</p>'
-	echo '                    <p>CPU 0 to only run kernel interrupts</p>'
+	echo '                    <p>CPU 0 to only run kernel interrupts.</p>'
 	echo '                    <p>CPU 3 to run the squeezelite output thread.</p>'
-	echo '                    <p>Squeezelite process settings availiable after reboot with isolation</p>'
+	echo '                    <p>Squeezelite process settings available after reboot with isolation.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -607,12 +606,7 @@ pcp_tweaks_cpuisol(){
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		pcp_toggle_row_shade
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		pcp_debug_variables html CPUISOL
-		echo '  </td>'
-		echo '</tr>'
+		pcp_debug_variables "html" CPUISOL
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -683,23 +677,19 @@ pcp_tweaks_sqlite_affinity(){
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		pcp_toggle_row_shade
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		pcp_debug_variables html SQLAFFINITY SQLOUTAFFINITY
-		echo '  </td>'
-		echo '</tr>'
+		pcp_debug_variables "html" SQLAFFINITY SQLOUTAFFINITY
 		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_ADVANCED -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
 #----------------------------------------------------------------------------------------
-
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+if [ $MODE -ge $MODE_NORMAL ]; then
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -943,10 +933,9 @@ pcp_tweaks_auto_start() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
-		echo '                     [ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
-		echo '                     [ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
-		echo '                     [ DEBUG ] $FAVLIST: '$FAVLIST'</p>'
+		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
+		echo '    <p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'</p>'
+		          pcp_debug_variables "html" AUTOSTARTFAV FAVLIST
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1010,19 +999,6 @@ pcp_tweaks_auto_start() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
-		echo '                     [ DEBUG ] $A_S_LMS_Y: '$A_S_LMS_Y'<br />'
-		echo '                     [ DEBUG ] $A_S_LMS_N: '$A_S_LMS_N'</p>'
-		echo '  </td>'
-		echo '</tr>'
-		echo '<!-- End of debug info -->'
-	fi
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -1035,14 +1011,19 @@ pcp_tweaks_auto_start() {
 	echo '              </tr>'
 	echo '            </table>'
 	echo '          </form>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" AUTOSTARTLMS A_S_LMS_Y A_S_LMS_N
+		echo '<!-- End of debug info -->'
+	fi
+
 	#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-
-	[ $DEBUG -eq 1 ] && pcp_favorites
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
 
@@ -1127,17 +1108,13 @@ pcp_tweaks_install_jivelite() {
 		echo '              </td>'
 	fi
 	echo '            </tr>'
+	echo '          </table>'
 
 	if [ $DEBUG -eq 1 ]; then
-		echo '            <tr>'
-		echo '              <!-- Start of debug info -->'
-		echo '              <p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
-		echo '                               [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
-		echo '                               [ DEBUG ] $JIVEno: '$JIVEno'</p>'
-		echo '              <!-- End of debug info -->'
-		echo '            </tr>'
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
+		echo '<!-- End of debug info -->'
 	fi
-	echo '          </table>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
 
@@ -1246,7 +1223,7 @@ pcp_tweaks_vumeter() {
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
 		echo '                 <p class="debug">[ DEBUG ] Installed extensions</p>'
-		echo '               <td>'
+		echo '               </td>'
 		echo '             </tr>'
 		pcp_toggle_row_shade
 		echo '             <tr class="'$ROWSHADE'">'
@@ -1256,11 +1233,7 @@ pcp_tweaks_vumeter() {
 		echo '               </td>'
 		echo '             </tr>'
 		echo '           </table>'
-
-		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
-		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
-		echo '                 [ DEBUG ] $PACKAGEDIR: '$PACKAGEDIR'<br />'
-		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
+		pcp_debug_variables "html" LOADED_VU_METER DISPLAY PACKAGEDIR VUMETERS
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -1306,9 +1279,7 @@ pcp_tweaks_screenrotate() {
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
-		echo '                 [ DEBUG ] $SCREEN0: '$SCREEN0'<br />'
-		echo '                 [ DEBUG ] $SCREEN180: '$SCREEN180'</p>'
+		pcp_debug_variables "html" SCREENROTATE SCREEN0 SCREEN180
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -1348,8 +1319,7 @@ pcp_tweaks_screensize() {
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $JL_SCREEN_WIDTH: '$JL_SCREEN_WIDTH'<br />'
-		echo '                 [ DEBUG ] $JL_SCREEN_HEIGHT: '$JL_SCREEN_HEIGHT'</p>'
+		pcp_debug_variables "html" JL_SCREEN_WIDTH JL_SCREEN_HEIGHT
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -1497,9 +1467,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $SQUEEZELITE: '$SQUEEZELITE'<br />'
-		echo '                     [ DEBUG ] $SQUEEZELITEyes: '$SQUEEZELITEyes'<br />'
-		echo '                     [ DEBUG ] $SQUEEZELITEno: '$SQUEEZELITEno'</p>'
+		pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1538,9 +1506,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
-		echo '                     [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
-		echo '                     [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
+		pcp_debug_variables "html" SHAIRPORT SHAIRPORTyes SHAIRPORTno
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1579,9 +1545,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $ALSAlevelout: '$ALSAlevelout'<br />'
-		echo '                     [ DEBUG ] $ALSAdefault: '$ALSAdefault'<br />'
-		echo '                     [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
+		pcp_debug_variables "html" ALSAlevelout ALSAdefault ALSAcustom
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1625,9 +1589,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $ALSAeq: '$ALSAeq'<br />'
-		echo '                     [ DEBUG ] $ALSAeqno: '$ALSAeqno'<br />'
-		echo '                     [ DEBUG ] $ALSAeqyes: '$ALSAeqyes'</p>'
+		pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1715,9 +1677,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
-		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
-		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+		pcp_debug_variables "html" CMD CMDdefault CMDslow
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1750,9 +1710,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $FSM: '$CMD'<br />'
-		echo '                     [ DEBUG ] $FSMdefault: '$FSMdefault'<br />'
-		echo '                     [ DEBUG ] $FSMdisabled: '$FSMdisabled'</p>'
+		pcp_debug_variables "html" FSM FSMdefault FSMdisabled
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1799,13 +1757,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $FIQ: '$FIQ'<br />'
-		echo '                     [ DEBUG ] $selected1: '$selected1'<br />'
-		echo '                     [ DEBUG ] $selected2: '$selected2'<br />'
-		echo '                     [ DEBUG ] $selected3: '$selected3'<br />'
-		echo '                     [ DEBUG ] $selected4: '$selected4'<br />'
-		echo '                     [ DEBUG ] $selected5: '$selected5'<br />'
-		echo '                     [ DEBUG ] $selected6: '$selected6'</p>'
+		pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 selected5 selected6 selected7
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -2024,30 +1976,14 @@ pcp_tweaks_cron() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
-	#-------------------------------------Debug info-------------------------------------
+	echo '            </table>'
+
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
-		echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y'<br />'
-		echo '                     [ DEBUG ] $REBOOT_N: '$REBOOT_N'<br />'
-		echo '                     [ DEBUG ] $RESTART: '$RESTART'<br  />'
-		echo '                     [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'
-		echo '                     [ DEBUG ] $RESTART_N: '$RESTART_N'<br />'
-		echo '                     [ DEBUG ] $RB_H: '$RB_H'<br />'
-		echo '                     [ DEBUG ] $RB_WD: '$RB_WD'<br />'
-		echo '                     [ DEBUG ] $RB_DMONTH: '$RB_DMONTH'<br />'
-		echo '                     [ DEBUG ] $RS_H: '$RS_H'<br />'
-		echo '                     [ DEBUG ] $RS_WD: '$RS_WD'<br />'
-		echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
-		echo '                     [ DEBUG ] $CRON_COMMAND: '$CRON_COMMAND'</p>'
-		echo '  </td>'
-		echo '</tr>'
+		pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH CRON_COMMAND
 		echo '<!-- End of debug info -->'
 	fi
-	#------------------------------------------------------------------------------------
-	echo '            </table>'
+
 	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -2154,20 +2090,14 @@ pcp_tweaks_user_commands() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </table>'
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
-		echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
-		echo '                     [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
-		echo '  </td>'
-		echo '</tr>'
+		pcp_debug_variables "html" USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
 		echo '<!-- End of debug info -->'
 	fi
 
-	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
