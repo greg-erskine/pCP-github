@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-24
+# Version: 4.0.0 2018-08-25
 
 #========================================================================================
 # Setup debug logging
@@ -631,10 +631,9 @@ pcp_copyright() {
 	echo '<!-- End of pcp_copyright -->'
 }
 
-# Broken 2015-11-23 GE
 pcp_favorites() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=`sudo $HTTPD -d $FAVLIST`
+	FAVLIST=$(sudo $HTTPD -d $FAVLIST)
 
 	echo '<!-- Start of favorites toolbar -->'
 	echo '<table class="bgblack">'
@@ -676,7 +675,7 @@ pcp_favorites() {
 
 	}
 	END {
-		for (j=1; j<=7; j++) {
+		for (j=2; j<=8; j++) {
 			printf "        <a class=\"nav7\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
 		}
 	} '
