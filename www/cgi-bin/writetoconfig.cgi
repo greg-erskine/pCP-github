@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 4.0.0 2018-08-27
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -75,6 +75,7 @@ case "$SUBMIT" in
 			[ $PRIORITY -eq 0 ] && PRIORITY=""
 			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
 		fi
+		[ $SQUEEZELITE = "no" ] && unset RESTART_REQUIRED
 		echo '<p class="info">[ INFO ] Saving config file.</p>'
 		pcp_save_to_config
 	;;
