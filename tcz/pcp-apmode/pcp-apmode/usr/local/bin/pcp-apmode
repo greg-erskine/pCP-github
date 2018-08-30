@@ -3,7 +3,7 @@
 
 checkroot
 
-CONFIGCFG="/usr/local/sbin/config.cfg"
+CONFIGCFG="/usr/local/etc/pcp/pcp.cfg"
 . $CONFIGCFG
 
 if [ "$AP_IP" = "" ]; then
@@ -15,6 +15,9 @@ HOSTAPDCONF=/usr/local/etc/pcp/hostapd.conf
 DNSMASQCONF=/usr/local/etc/pcp/dnsmasq.conf
 HOSTAPD_PID=/var/run/hostapd.pid
 DNSMASQ_PID=/var/run/dnsmasq.pid
+
+APMODE_LOG=/var/log/pcp_apmode.log
+[ -e $APMODE_LOG ] || touch $APMODE_LOG
 
 #Internal variables
 ROUTER=3
@@ -70,12 +73,23 @@ killeth0
 #Need to make sure that pcp doesn't try to start wifi.
 disable_pcp_wifi
 
+echo "Waiting for wlan0 to populate....." >> $APMODE_LOG
+CNT=1
+until iwconfig 2>&1 | grep -q wlan0
+do
+	if [ $((CNT++)) -gt 40 ]; then
+		echo "Error: wlan0 not found" >> $APMODE_LOG
+		break
+	else
+		sleep 0.25
+	fi
+done
+
 ifconfig wlan0 down
 ifconfig wlan0 add ${WIFI_IP} netmask 255.255.255.0 up
 
 [ -d /var/run/hostapd ] || mkdir -p /var/run/hostapd
 start-stop-daemon --start --quiet -m -p ${HOSTAPD_PID} -b --startas /bin/sh -- -c "exec /usr/local/bin/hostapd ${HOSTAPDCONF} >> /var/log/pcp_hostapd.log"
-
 
 [ -d /var/lib/misc ] || mkdir -p /var/lib/misc
 echo -e "${WIFI_IP}\tpcp" > /usr/local/etc/pcp/pcp_hosts

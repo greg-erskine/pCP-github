@@ -1,9 +1,9 @@
 Title:          pcp-apmode.tcz
 Description:    piCorePlayer AP mode Scripts
-Version:        3.22
+Version:        4.0.0
 Author:         https://sourceforge.net/projects/picoreplayer/
 Original-site:  https://sourceforge.net/projects/picoreplayer/
 Copying-policy: GPLv3
 Size:           40k
-Extension_by:   piCorePlayer team: https://sites.google.com/site/picoreplayer
-Comments:       Compiled for piCore 8.x
+Extension_by:   piCorePlayer team: https://www.picoreplayer.org
+Comments:       Compiled for piCore 9.x
