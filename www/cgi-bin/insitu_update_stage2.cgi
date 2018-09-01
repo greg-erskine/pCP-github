@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-07
+# Version: 4.0.0 2018-09-01
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -566,6 +566,7 @@ outfile.close
 		rm -f /home/tc/www/cgi-bin/reboot.cgi
 		rm -f /home/tc/www/cgi-bin/shutdown.cgi
 		rm -f /home/tc/www/cgi-bin/xtras_graph.cgi
+		rm -f /home/tc/wifi.db
 	fi
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
