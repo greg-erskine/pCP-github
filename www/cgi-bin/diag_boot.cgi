@@ -1,33 +1,7 @@
 #!/bin/sh
 # Boot diagnostics script
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Changed to using pcp_log_header. GE.
-
-# Version: 0.07 2016-03-28 GE
-#	Changed log location to /var/log.
-
-# Version: 0.06 2015-07-02 GE
-#	Added /opt/eth0.sh
-
-# Version: 0.05 2015-05-08 GE
-#	Added /etc/init.d/dhcp.sh, /etc/init.d/settime.sh and /usr/bin/getTime.sh
-
-# Version: 0.04 2015-04-28 GE
-#	Minor updates.
-
-# Version: 0.03 2015-03-31 GE
-#	Added /usr/local/bin/wifi.sh
-#	Added navigation links at top of page.
-
-# Version: 0.02 2015-03-07 GE
-#	Minor updates.
-
-# version: 0.01 2014-10-22 GE
-#	Original.
+# Version: 4.0.0 2018-05-16
 
 . pcp-functions
 
@@ -70,13 +44,13 @@ echo '                  <li><a href="#06">/etc/init.d/settime.sh</a></li>'
 echo '                  <li><a href="#07">/usr/bin/getTime.sh</a></li>'
 echo '                  <li><a href="#08">/opt/bootsync.sh</a></li>'
 echo '                  <li><a href="#09">/opt/bootlocal.sh</a></li>'
-echo '                  <li><a href="#10">/home/tc/www/cgi-bin/do_rebootstuff.sh</a></li>'
+echo '                  <li><a href="#10">/home/tc/www/cgi-bin/pcp_startup.sh</a></li>'
 echo '                  <li><a href="#11">/home/tc/.profile</a></li>'
 echo '                  <li><a href="#12">/home/tc/.ashrc</a></li>'
 echo '                  <li><a href="#13">/etc/init.d/tc-functions</a></li>'
 echo '                  <li><a href="#14">/proc/cmdline</a></li>'
-echo '                  <li><a href="#15">/usr/local/bin/wifi.sh</a></li>'
-echo '                  <li><a href="#16">/opt/eth0.sh</a></li>'
+echo '                  <li><a href="#15">/opt/eth0.sh</a></li>'
+echo '                  <li><a href="#16">/opt/wlan0.sh</a></li>'
 echo '                </ol>'
 echo '              </td>'
 echo '            </tr>'
@@ -129,7 +103,7 @@ echo '                <div id="09">'
                         pcp_textarea_inform "" "cat /opt/bootlocal.sh" 110 log
 echo '                </div>'
 echo '                <div id="10">'
-                        pcp_textarea_inform "" "cat /home/tc/www/cgi-bin/do_rebootstuff.sh" 600 log
+                        pcp_textarea_inform "" "cat /home/tc/www/cgi-bin/pcp_startup.sh" 600 log
 echo '                </div>'
 echo '                <div id="11">'
                         pcp_textarea_inform "" "cat /home/tc/.profile" 530 log
@@ -169,10 +143,18 @@ echo '                <div id="14">'
                         pcp_textarea_inform "" "cat /proc/cmdline" 100 log
 echo '                </div>'
 echo '                <div id="15">'
-                        pcp_textarea_inform "" "cat /usr/local/bin/wifi.sh" 500 log
+                        if [ -f "/opt/eth0.sh" ]; then
+                            pcp_textarea_inform "" "cat /opt/eth0.sh" 150 log
+                        else
+                            pcp_textarea_inform "/opt/eth0.sh" "echo File does not exist." 30 log
+                        fi
 echo '                </div>'
 echo '                <div id="16">'
-                        pcp_textarea_inform "" "cat /opt/eth0.sh" 150 log
+                        if [ -f "/opt/wlan0.sh" ]; then
+                            pcp_textarea_inform "" "cat /opt/wlan0.sh" 150 log
+                        else
+                            pcp_textarea_inform "/opt/wlan0.sh" "echo File does not exist." 30 log
+                        fi
 echo '                </div>'
 echo '              </td>'
 echo '            </tr>'

@@ -1,83 +1,6 @@
 #!/bin/sh
-# pcp-functions
-# These are the common functions used by piCorePlayer.
 
-# Version: 3.5.0 2018-03-14
-#	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
-#	Added SQBINARY config setting. PH.
-#	Add Bootscript option for soundcard setup. PH.
-#	Add APMODE config variable. PH
-#	Add reboot pending notification. PH.
-#	Change pcp_restart_required to non-popup, and set return page. PH.
-#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
-#	HTML5 cleanup. GE.
-#	Added "nobody" parameter to pcp_html_head. GE.
-#	Added pcp_redirect_button. GE.
-#	Moved pcp_remove_query_string code to piCorePlayer.js. GE.
-
-# Version: 3.22 2017-07-23
-#	Added error colour and hyperlink ($TEST=0) to "BETA REPO Active" message in footer. GE.
-#	Added $INTERNET_CHECK_IP to config.cfg. GE.
-#	Added $ROTDASH to config.cfg. GE.
-
-# Version: 3.21 2017-07-02
-#	Added note for TEST 3 Active in footer. PH.
-#	Changed to allow booting from USB on RPi3. PH.
-#	Support multiple USB mounts. PH.
-#	Support multiple Network mounts. PH.
-#	Add ability to set column class on pcp_table functions. PH.
-
-# Version: 3.20 2017-04-16
-#	Updated SCREENROTATE default value. GE.
-#	Added Help tab to pcp_picoreplayers toolbar. GE.
-#	Reduced size of LMS tab on pcp_picoreplayers toolbar. GE.
-#	Added EXTERNALLINK character. GE.
-#	Moved variables DEBUG, TEST and MODE to config.cfg GE.
-#	Added variables JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
-#	Removed pcp_download_package, it is no longer used. PH.
-#	Added timestamp to css to assist with caching. PH.
-#	Change player tabs to display multi line on iPads better. PH.
-#	Firefox complained about <div> tag making </p> tag out of scope. PH.
-#	Changed reboot functions. PH.
-
-# Version: 3.11 2017-01-29
-#	Updated default soundcard for shairport to work out of box. SBP.
-
-# Version: 3.10 2016-12-26
-#	Added pcp_log_header. GE.
-#	Updated pcp_textarea_inform. GE.
-#	Addded pcp_create_rotdash. GE.
-#	Updated pcp_backup and pcp_backup_nohtml. GE.
-#	Added Samba. PH.
-#	Added correct unmute command for IQaudIO AMP. SBP.
-#	Updated pcp_squeezelite_status. GE.
-#	Simplfy sound card definitions. SBP.
-#	Added IR_GPIO_OUT. GE.
-#	Renamed IR_GPIO to IR_GPIO_IN. GE.
-#	Changes for Squeezelite extension. PH.
-#	Updated sourceforge repo locations. PH.
-
-# Version: 3.02 2016-09-19
-#	Added JS function to remove query string from URL History. PH.
-#	Added HiFiBerry Digi+ Pro support. SBP.
-#	Updated FIQ-split. SBP.
-#	Added pcp_green_tick, pcp_red_cross. GE.
-#	Added PICORE_REPO_1, PICORE_REPO_2. GE.
-#	Added pcp_pcp_repo_accessible, pcp_picore_repo_1_accessible, pcp_picore_repo_2_accessible. GE.
-#	Added pcp_reset_repository. GE.
-
-# Version: 3.01 2016-08-26
-#	Changed default lirc GPIO to 25. GE.
-#	Added enable/disable onboard sound for HiFiBerry DAC+ in shairport. SBP.
-#	Added clean-up of the sound drivers in the pcp_reset_config_to_defaults. SBP.
-
-# Version: 3.00 2016-08-09
-#	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
-#	Removed MAC address from footer. GE.
-#	Added WOL, WOL_NIC, WOL_LMSMACADDRESS variables to config. GE.
-#	Added pcp_clean_cmdlinetxt. GE.
-#	Standardised $HOST and $TIMEZONE. GE.
-#	Added IR_DEVICE. GE.
+# Version: 4.0.0 2018-08-25
 
 #========================================================================================
 # Setup debug logging
@@ -89,10 +12,50 @@ pcp_debug_log() {
 }
 
 #========================================================================================
+# Debug variables listing
+#----------------------------------------------------------------------------------------
+pcp_debug_variables() {
+	# FORMAT - colour|text|html
+	local FORMAT=$1
+
+	if [ $DEBUG -eq 1 ]; then
+		i=0
+
+		for VAR in $@
+		do
+			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
+			[ $i -ne 0 ] && pcp_message DEBUG "$MESSAGE" "$FORMAT"
+			i=$((i+1))
+		done
+	fi
+}
+
+#========================================================================================
+# Debug variables listing - OBSOLETE? GE
+#----------------------------------------------------------------------------------------
+pcp_debug_variables2() {
+	if [ $DEBUG -eq 1 ]; then
+		n=$#
+		i=1
+		echo '<!-- Start of pcp_debug_variables -->'
+		for VAR in $@
+		do
+			[ $i -eq 1 ] && echo -n '<p class="debug">' || echo -n '                 '
+			echo -n '[ DEBUG ] $'$VAR': '$(eval echo \$${VAR})
+			[ $i -eq $n ] && echo '</p>' || echo '<br />'
+			i=$((i+1))
+		done
+		echo '<!-- End of pcp_debug_variables -->'
+	fi
+}
+
+#========================================================================================
 # System wide variables
 #----------------------------------------------------------------------------------------
 pcp_config_file() {
-	CONFIGCFG="/usr/local/sbin/config.cfg"
+	PCPCFG="/usr/local/etc/pcp/pcp.cfg"
+	#Old habbits might die hard.
+	CONFIGCFG=$PCPCFG
 }
 
 pcp_variables() {
@@ -101,7 +64,7 @@ pcp_variables() {
 	# The following are standard piCorePlayer variables, do NOT edit!
 	# Note: This section is ONLY for variables as it can be run multiple times.
 	#------------------------------------------------------------------------------------
-	#Name of device that has tce.  Assume boot is partition 1 of that device.
+	# Name of device that has tce.  Assume boot is partition 1 of that device.
 	TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 	TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 	BOOTDEV=${TCEDEV%%?}1
@@ -115,7 +78,6 @@ pcp_variables() {
 	HTTPDCONF="/home/tc/httpd.conf"
 	HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
-	WIFIDB="/home/tc/wifi.db"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
 	VOLUME="$BOOTMNT"
 	DEVICE="$BOOTDEV"
@@ -123,10 +85,15 @@ pcp_variables() {
 	PCPHOME="/home/tc/www/cgi-bin"
 	LOGDIR="/var/log"
 	PACKAGEDIR="/etc/sysconfig/tcedir/optional"
+	PCPVERSIONCFG="/usr/local/etc/pcp/pcpversion.cfg"
 	SAMBACONF="/usr/local/etc/samba/smb.conf"
 	USBMOUNTCONF="/usr/local/etc/pcp/usbmounts.conf"
 	NETMOUNTCONF="/usr/local/etc/pcp/netmounts.conf"
 	REBOOT_PENDING="/tmp/rebootpending"
+	BASE_DIR="cgi-bin"
+	WPASUPPLICANTCONF="/usr/local/etc/pcp/wpa_supplicant.conf"
+	FILETOOLLST="/opt/.filetool.lst"
+	URL_DECODE="$HTTPD -i -d"
 
 	#------------------------------------------------------------------------------------
 	# Define modes
@@ -141,16 +108,15 @@ pcp_variables() {
 	#------------------------------------------------------------------------------------
 	# Define repositories
 	#------------------------------------------------------------------------------------
-	#REPOSITORY="http://ralph_irving.users.sourceforge.net/pico"  <--Everything has migrated from this to PCP_REPO
-	INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
-	PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+	INSITU_DOWNLOAD="https://repo.picoreplayer.org/insitu"
+	PCP_REPO="https://repo.picoreplayer.org/repo"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
 	# Use beta/test download area
 	if [ $TEST -eq 3 ]; then
-		INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/beta"
-		PCP_REPO="http://picoreplayer.sourceforge.net/beta"
+		INSITU_DOWNLOAD="https://repo.picoreplayer.org/beta"
+		PCP_REPO="https://repo.picoreplayer.org/beta"
 	fi
 
 	#------------------------------------------------------------------------------------
@@ -160,29 +126,86 @@ pcp_variables() {
 }
 
 pcp_config_file
-. $CONFIGCFG
+. $PCPCFG
 pcp_debug_log "$0 - Running pcp-functions..."
 pcp_variables
 
 #========================================================================================
 # ANSI colours
 #----------------------------------------------------------------------------------------
-CRE="$(echo -e '\r\033[K')"
-RED="$(echo -e '\033[1;31m')"
-GREEN="$(echo -e '\033[1;32m')"
-YELLOW="$(echo -e '\033[1;33m')"
-BLUE="$(echo -e '\033[1;34m')"
-MAGENTA="$(echo -e '\033[1;35m')"
-CYAN="$(echo -e '\033[1;36m')"
-WHITE="$(echo -e '\033[1;37m')"
-NORMAL="$(echo -e '\033[0;39m')"
+pcp_set_coloured_text() {
+	CRE="$(echo -e '\r\033[K')"
+	RED="$(echo -e '\033[1;31m')"
+	GREEN="$(echo -e '\033[1;32m')"
+	YELLOW="$(echo -e '\033[1;33m')"
+	BLUE="$(echo -e '\033[1;34m')"
+	MAGENTA="$(echo -e '\033[1;35m')"
+	CYAN="$(echo -e '\033[1;36m')"
+	WHITE="$(echo -e '\033[1;37m')"
+	NORMAL="$(echo -e '\033[0;39m')"
+}
+pcp_set_coloured_text
+
+pcp_unset_coloured_text() {
+	CRE=""
+	RED=""
+	GREEN=""
+	YELLOW=""
+	YELLOW=""
+	BLUE=""
+	MAGENTA=""
+	CYAN=""
+	WHITE=""
+	NORMAL=""
+}
 
 #========================================================================================
 # Routine to read config file.
 #----------------------------------------------------------------------------------------
 pcp_read_config() {
-	pcp_debug_log "$0 - Reading pCP config.cfg..."
-	. $CONFIGCFG
+	pcp_debug_log "$0 - Reading pCP pcp.cfg..."
+	. $PCPCFG
+}
+
+#========================================================================================
+# Messages.
+#----------------------------------------------------------------------------------------
+pcp_message() {
+	local TYPE=$1
+	local MESSAGE=$2
+#	FORMAT: colour|text|html
+	local FORMAT=$3
+
+	case $TYPE in
+		OK|ok)
+			case $FORMAT in
+				col*|COL*) echo "${GREEN}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ OK ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="ok">[ OK ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+		INFO|info)
+			case $FORMAT in
+				col*|COL*) echo "${YELLOW}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ INFO ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="info">[ INFO ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+		ERROR|error)
+			case $FORMAT in
+				col*|COL*) echo "${RED}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ ERROR ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="error">[ ERROR ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+		DEBUG|debug)
+			case $FORMAT in
+				col*|COL*) echo "${ORANGE}${MESSAGE}${NORMAL}" ;;
+				text|TEXT) echo '[ DEBUG ] '${MESSAGE} ;;
+				html|HTML) echo '<p class="debug">[ DEBUG ] '${MESSAGE}'</p>' ;;
+			esac
+		;;
+	esac
 }
 
 #========================================================================================
@@ -300,13 +323,8 @@ pcp_extn_is_installed() {
 # Test if the internet or repositories are accessible.
 #----------------------------------------------------------------------------------------
 pcp_internet_accessible() {
-	[ "$INTERNET_CHECK_IP" = "" ] && INTERNET_CHECK_IP="8.8.8.8"
+	[ x"" = x"$INTERNET_CHECK_IP" ] && INTERNET_CHECK_IP="8.8.8.8"
 	ping -w5 -c3 $INTERNET_CHECK_IP >/dev/null 2>&1
-	echo $?
-}
-
-pcp_sourceforge_accessible() {
-	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
@@ -392,10 +410,10 @@ pcp_clean_cmdlinetxt() {
 #
 # Called from:
 #			timezone.cgi
-#			do_rebootstuff.sh
+#			pcp_startup.sh
 #----------------------------------------------------------------------------------------
 pcp_set_timezone() {
-	. $CONFIGCFG
+	. $PCPCFG
 	pcp_timezone
 }
 
@@ -414,7 +432,7 @@ pcp_timezone() {
 
 #========================================================================================
 # The MAC addresses used by this piCorePlayer can be:
-#	1. An arbitrarily assigned MAC address via Squeezelite software (in config.cfg)
+#	1. An arbitrarily assigned MAC address via Squeezelite software (in pcp.cfg)
 #	2. The MAC address of the wireless card (if installed)
 #	3. The physical MAC address of ethernet card (Raspberry Pi)
 #		PLAYER_MAC=${MAC_ADDRESS:-$(pcp_eth0_mac_address)}
@@ -465,7 +483,7 @@ pcp_html_head() {
 	echo ''
 	echo '<!DOCTYPE html>'
 	echo '<!-- Start of pcp_html_head -->'
-	echo '<html>'
+	echo '<html lang="en">'
 	echo '<head>'
 	echo '  <meta charset="UTF-8">'
 	if [ $DEBUG -eq 0 ]; then
@@ -490,7 +508,7 @@ pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
 	echo '<table class="bgblack">'
 	echo '  <tr>'
-	echo '    <td  style="height:148px">'
+	echo '    <td style="height:148px">'
 	echo '      <p class="banner">'
 	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
 	echo '        <map name="hotspot">'
@@ -539,7 +557,7 @@ pcp_navigation() {
 	echo '  </tr>'
 	echo '</table>'
 	echo '<!-- End of pcp_navigation toolbar -->'
-	if [ -f $REBOOT_PENDING ]; then
+	if [ -f $REBOOT_PENDING ] && [ "$ACTION" != "reboot" ]; then
 		echo '<!-- Start of reboot notification toolbar -->'
 		echo '<table class="bggrey">'
 		echo '  <tr>'
@@ -550,7 +568,7 @@ pcp_navigation() {
 		echo '            <tr class="warning">'
 		echo '              <td>'
 		echo '                <p style="color:white"><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
-		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
+		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />'
 		echo '                </p>'
 		echo '              </td>'
 		echo '            </tr>'
@@ -613,10 +631,9 @@ pcp_copyright() {
 	echo '<!-- End of pcp_copyright -->'
 }
 
-# Broken 2015-11-23 GE
 pcp_favorites() {
 	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=`sudo $HTTPD -d $FAVLIST`
+	FAVLIST=$(sudo $HTTPD -d $FAVLIST)
 
 	echo '<!-- Start of favorites toolbar -->'
 	echo '<table class="bgblack">'
@@ -658,7 +675,7 @@ pcp_favorites() {
 
 	}
 	END {
-		for (j=1; j<=7; j++) {
+		for (j=2; j<=8; j++) {
 			printf "        <a class=\"nav7\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
 		}
 	} '
@@ -696,12 +713,12 @@ pcp_xtras() {
 	echo '    <td>'
 	echo '      <p>'
 	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Diag Test">Test</a>'
-	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Diag Asound">Asound</a>'
-	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Diag Bootcodes">Bootcodes</a>'
-	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Diag Controls">Controls</a>'
-	echo '        <a class="nav7" href="xtras_graph.cgi" title="pCP - Diag Graph">Graph</a>'
-	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Diag LMS CLI">LMS CLI</a>'
+	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Xtras Test">Test</a>'
+	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Xtras Asound">Asound</a>'
+	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Xtras Bootcodes">Bootcodes</a>'
+	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Xtras Controls">Controls</a>'
+	echo '        <a class="nav7" href="xtras_cpu_temp.cgi" title="pCP - Xtras CPU Temp">CPU Temp</a>'
+	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Xtras LMS CLI">LMS CLI</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -715,7 +732,7 @@ pcp_picoreplayers_toolbar() {
 
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<p style="margin-top: -12px;">'
-	echo '  <a class="tab20" href="http://picoreplayer.sourceforge.net/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
+	echo '  <a class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
 
 	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
 		while read line
@@ -727,7 +744,11 @@ pcp_picoreplayers_toolbar() {
 		done <$TMP
 		rm -r $TMP
 		if [ $MODE -ge $MODE_BETA ]; then
-			LMSIP=$(pcp_lmsip)
+			if [ "$LMSERVER" = "yes" ]; then
+				[ x"" = x"$(pcp_eth0_ip)" ] && LMSIP=$(pcp_wlan0_ip) || LMSIP=$(pcp_eth0_ip)
+			else
+				LMSIP=$(pcp_lmsip)
+			fi
 			[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 			echo '  <a class="tab20" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS '$EXTERNALLINK'</a>'
 		fi
@@ -766,8 +787,8 @@ pcp_mode() {
 	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
-	echo '  <div class="tab7end">pCP</div>'
 	echo '</p>'
+	echo '<div class="tab7end">pCP</div>'
 	echo '<!-- End of mode toolbar -->'
 }
 
@@ -779,8 +800,8 @@ pcp_picore_version() {
 }
 
 pcp_picoreplayer_version() {
-	. /usr/local/sbin/piversion.cfg
-	echo $PIVERS | awk '{ print $2 }'
+	. $PCPVERSIONCFG
+	echo $PCPVERS | awk '{ print $2 }'
 }
 
 pcp_squeezelite_version() {
@@ -794,6 +815,17 @@ pcp_squeezelite_build_option() {
 
 pcp_linux_release() {
 	uname -r
+}
+
+pcp_kernel() {
+	echo $(uname -r | sed -n 's/^.*-\(.*\)_.*/\1/p')
+}
+
+pcp_audio_core() {
+	case $(uname -r) in
+		*AudioCore*) echo 1;;
+		*) echo 0;;
+	esac
 }
 
 #========================================================================================
@@ -869,6 +901,11 @@ pcp_table_top() {
 	echo '              <td '$2'>'
 }
 
+pcp_table_textarea_top() {
+	pcp_table_top $1 $2
+	echo '                <textarea class="inform" style="height:'$3'px">'
+}
+
 pcp_table_middle() {
 	echo '              </td>'
 	echo '            </tr>'
@@ -888,6 +925,11 @@ pcp_table_end() {
 	echo '</table>'
 }
 
+pcp_table_textarea_end() {
+	echo '                </textarea>'
+	pcp_table_end
+}
+
 #========================================================================================
 # Busybox httpd
 #----------------------------------------------------------------------------------------
@@ -897,7 +939,7 @@ pcp_httpd_query_string() {
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
-# Needed when we want to store an encoded string in config.cfg
+# Needed when we want to store an encoded string in pcp.cfg
 pcp_httpd_query_string_no_decode() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
@@ -917,7 +959,7 @@ pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
 		echo '<script language="javascript">'
-		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [Cancel] to manually reboot later.'\'','\''reboot.cgi?RB=yes'\'')'
+		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
 		echo '</script>'
 	fi
 }
@@ -935,7 +977,7 @@ pcp_restart_required() {
 
 pcp_confirmation_required() {
 	echo '<script>'
-	echo '	pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
+	echo '  pcp_confirm('\'''$STRING1''\'','\'"$SCRIPT1"\'')'
 	echo '</script>'
 }
 
@@ -943,30 +985,35 @@ pcp_confirmation_required() {
 # Start/stop Squeezelite
 #----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
+	# $1 - nohtml
+	# $2 - display     (Used for taskset)
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	if [ "$SHAIRPORT" = "yes" ]; then
-		pcp_shairport_restart
+		pcp_shairport_restart $1
 	fi
-	echo '<p class="info">[ INFO ] '
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite start
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$CPUISOL" != "" ] && pcp_squeezelite_taskset $2
 }
 
 pcp_squeezelite_stop() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite stop
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_squeezelite_restart() {
+	# $1 - nohtml
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
-	echo '<p class="info">[ INFO ] '
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/squeezelite restart
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_squeezelite_status() {
@@ -983,25 +1030,51 @@ pcp_squeezelite_status() {
 	fi
 }
 
+pcp_squeezelite_taskset(){
+	local OUT=""
+	[ "$1" = "display" ] || OUT='> /dev/null'
+	CNT=0
+	while [ $(busybox ps -T | grep squeezelite | grep -v grep | wc -l) -ne 4 -a $CNT -lt 10 ]; do
+		CNT=$((CNT+1))
+		sleep 0.1
+	done
+	# Squeezelite starts only the output thread in SCHED_FIFO Mode, use that to isolate threads.
+	busybox ps -T | grep squeezelite | grep -v grep | sed 's/^[[:space:]]*//' | cut -d ' ' -f1 |
+		while read PROC; do
+			if [ $(chrt -p $PROC | grep policy | cut -d ':' -f2) = "SCHED_FIFO" ]; then
+				#Set the Output thread to run on selected CPU
+				[ "$SQLOUTAFFINITY" != "" ] && eval sudo taskset -pc $SQLOUTAFFINITY $PROC $OUT 2>&1
+			else
+				[ "$PRIORITY" != "" ] && P=$((PRIORITY-1)) || P=40
+				#Set the Other Threads to run FIFO, Priority 45
+				[ "$SQLAFFINITY" != "" ] && eval sudo taskset -pc $SQLAFFINITY $PROC $OUT 2>&1
+				sudo chrt -fp $P $PROC > /dev/null 2>&1
+			fi
+		done
+}
+
 #========================================================================================
 # Start/stop Shairport-sync
 #----------------------------------------------------------------------------------------
 pcp_shairport_start() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/shairport-sync start
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_shairport_stop() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/shairport-sync stop
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_shairport_restart() {
-	echo '<p class="info">[ INFO ] '
+	# $1 - nohtml
+	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
 	sudo /usr/local/etc/init.d/shairport-sync restart
-	echo '</p>'
+	[ "$1" = "nohtml" ] || echo '</p>'
 }
 
 pcp_shairport_status() {
@@ -1057,7 +1130,7 @@ pcp_wlan0_ip() {
 # Auto start LMS routine
 #	This routine will allow you to set a LMS command to auto start a LMS command after
 #	a "hard power on". This will be handy for people building pseudo radios. This routine
-#	is called from do_rebootstuff.sh.
+#	is called from pcp_startup.sh.
 #
 # Example $AUTOSTARTLMS:
 #	randomplay tracks
@@ -1147,18 +1220,29 @@ pcp_start_fav() {
 }
 
 pcp_user_commands() {
-    if [ x"" != x"$USER_COMMAND_1" ]; then
-        USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
-        eval "$USER_COMMAND_1" &
-    fi
-    if [ x"" != x"$USER_COMMAND_2" ]; then
-        USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
-        eval "$USER_COMMAND_2" &
-    fi
-    if [ x"" != x"$USER_COMMAND_3" ]; then
-        USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
-        eval "$USER_COMMAND_3" &
-    fi
+	if [ x"" != x"$USER_COMMAND_1" ]; then
+		USER_COMMAND_1=$(sudo $HTTPD -f -d "${USER_COMMAND_1}")
+		eval "$USER_COMMAND_1" &
+	fi
+	if [ x"" != x"$USER_COMMAND_2" ]; then
+		USER_COMMAND_2=$(sudo $HTTPD -f -d "${USER_COMMAND_2}")
+		eval "$USER_COMMAND_2" &
+	fi
+	if [ x"" != x"$USER_COMMAND_3" ]; then
+		USER_COMMAND_3=$(sudo $HTTPD -f -d "${USER_COMMAND_3}")
+		eval "$USER_COMMAND_3" &
+	fi
+
+# Requires testing. <== GE
+#
+#	for i in 0 1 2 3 4 5 6 7 8 9
+#	do
+#		if [ x"" != x"$(eval echo \$USER_COMMAND_${i})" ]; then
+#			eval USER_COMMAND_${i}='$(sudo ${HTTPD} -f -d "$(eval echo \$USER_COMMAND_${i})")'
+#			eval "\$USER_COMMAND_${i}" &
+#		fi
+#	done
+
 }
 
 #========================================================================================
@@ -1185,7 +1269,7 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
+	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }
 
@@ -1195,9 +1279,9 @@ pcp_redirect_button() {
 	# $3 - redirection delay
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '<form name="redirect button" action="'$2'" method="get">'
-	echo '	<p>'
-	echo '		<input class="large12" type="submit" class="large" value="'$1'" />&nbsp;&nbsp;<span id="countdown">Go to page.</span>'
-	echo '	</p>'
+	echo '  <p>'
+	echo '    <input class="large12" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
+	echo '  </p>'
 	echo '</form>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
 	echo '<!-- End of pcp_redirect_button -->'
@@ -1234,7 +1318,7 @@ pcp_backup() {
 	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
 
 	# Do a backup - filetool.sh backs up files in .filetool.lst
-	echo $NEWLINE $PCLASSINFO'[ INFO ] ' 
+	echo $NEWLINE $PCLASSINFO'[ INFO ] '
 	sudo filetool.sh -b | tee -a $LOG
 	[ "$1" = "nohtml" ] || echo $SLASHP
 	sync > /dev/null 2>&1
@@ -1382,124 +1466,116 @@ pcp_shutdown() {
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #----------------------------------------------------------------------------------------
 pcp_write_var_to_config() {
-	sed -i 's|\(^'$1'=\).*|\1"'$2'"|' $CONFIGCFG
+	sed -i 's|\(^'$1'=\).*|\1"'$2'"|' $PCPCFG
 }
 
 pcp_save_to_config() {
-	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
-	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $CONFIGCFG
-	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $CONFIGCFG
-	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $CONFIGCFG
-	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $CONFIGCFG
-	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $CONFIGCFG
-	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $CONFIGCFG
-	sudo sed -i "s/\(XCODEC=\).*/\1\"$XCODEC\"/" $CONFIGCFG
-	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $CONFIGCFG
-	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $CONFIGCFG
-	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"$MAC_ADDRESS\"/" $CONFIGCFG
-	sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $CONFIGCFG
-	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $CONFIGCFG
-	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $CONFIGCFG
-	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $CONFIGCFG
-	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $CONFIGCFG
-	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $CONFIGCFG
-	sudo sed -i "s@\(AUDIOBOOTSCRIPT=\).*@\1\"$AUDIOBOOTSCRIPT\"@" $CONFIGCFG
-	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $CONFIGCFG
-	sudo sed -i "s/\(CPUGOVERNOR=\).*/\1\"$CPUGOVERNOR\"/" $CONFIGCFG
-	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $CONFIGCFG
-	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $CONFIGCFG
-	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $CONFIGCFG
-	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $CONFIGCFG
-	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $CONFIGCFG
-	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $CONFIGCFG
-	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_WD=\).*/\1\"$RB_WD\"/" $CONFIGCFG
-	sudo sed -i "s/\(RB_DMONTH=\).*/\1\"$RB_DMONTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(RESTART=\).*/\1\"$RESTART\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_H=\).*/\1\"$RS_H\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_WD=\).*/\1\"$RS_WD\"/" $CONFIGCFG
-	sudo sed -i "s/\(RS_DMONTH=\).*/\1\"$RS_DMONTH\"/" $CONFIGCFG
-	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $CONFIGCFG
-	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $CONFIGCFG
-	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $CONFIGCFG
-	sudo sed -i "s@\(USER_COMMAND_1=\).*@\1\"$USER_COMMAND_1\"@" $CONFIGCFG
-	sudo sed -i "s@\(USER_COMMAND_2=\).*@\1\"$USER_COMMAND_2\"@" $CONFIGCFG
-	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $CONFIGCFG
-	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $CONFIGCFG
-	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $CONFIGCFG
-	sudo sed -i "s/\(JL_SCREEN_WIDTH=\).*/\1\"$JL_SCREEN_WIDTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $CONFIGCFG
-	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $CONFIGCFG
-	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $CONFIGCFG
-	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $CONFIGCFG
-	sudo sed -i "s/\(SQBINARY=\).*/\1\"$SQBINARY\"/" $CONFIGCFG
-	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $CONFIGCFG
-	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $CONFIGCFG
-	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $CONFIGCFG
-	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $CONFIGCFG
-	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $CONFIGCFG
-	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $CONFIGCFG
-	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $CONFIGCFG
-	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $CONFIGCFG
-	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $CONFIGCFG
-	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $CONFIGCFG
-	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $CONFIGCFG
-	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $CONFIGCFG
-	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $CONFIGCFG
-	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(RPIBLUETOOTH=\).*/\1\"$RPIBLUETOOTH\"/" $CONFIGCFG
-	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $CONFIGCFG
-	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $CONFIGCFG
-	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $CONFIGCFG
-	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS1=\).*/\1\"$PARAM1\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS2=\).*/\1\"$PARAM2\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS3=\).*/\1\"$PARAM3\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS4=\).*/\1\"$PARAM4\"/" $CONFIGCFG
-	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $CONFIGCFG
-	sudo sed -i "s/\(INTERNET_CHECK_IP=\).*/\1\"$INTERNET_CHECK_IP\"/" $CONFIGCFG
-	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $CONFIGCFG
-	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $CONFIGCFG
-	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $PCPCFG
+	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $PCPCFG
+	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $PCPCFG
+	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $PCPCFG
+	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $PCPCFG
+	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $PCPCFG
+	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $PCPCFG
+	sudo sed -i "s/\(BUFFER_SIZE=\).*/\1\"$BUFFER_SIZE\"/" $PCPCFG
+	sudo sed -i "s/\(_CODEC=\).*/\1\"$_CODEC\"/" $PCPCFG
+	sudo sed -i "s/\(XCODEC=\).*/\1\"$XCODEC\"/" $PCPCFG
+	sudo sed -i "s/\(PRIORITY=\).*/\1\"$PRIORITY\"/" $PCPCFG
+	sudo sed -i "s/\(MAX_RATE=\).*/\1\"$MAX_RATE\"/" $PCPCFG
+	sudo sed -i "s/\(UPSAMPLE=\).*/\1\"$UPSAMPLE\"/" $PCPCFG
+	sudo sed -i "s/\(MAC_ADDRESS=\).*/\1\"$MAC_ADDRESS\"/" $PCPCFG
+	sudo sed -i "s/\(SERVER_IP=\).*/\1\"$SERVER_IP\"/" $PCPCFG
+	sudo sed -i "s/\(LOGLEVEL=\).*/\1\"$LOGLEVEL\"/" $PCPCFG
+	sudo sed -i "s/\(LOGFILE=\).*/\1\"$LOGFILE\"/" $PCPCFG
+	sudo sed -i "s/\(DSDOUT=\).*/\1\"$DSDOUT\"/" $PCPCFG
+	sudo sed -i "s/\(VISUALISER=\).*/\1\"$VISUALISER\"/" $PCPCFG
+	sudo sed -i "s/\(CLOSEOUT=\).*/\1\"$CLOSEOUT\"/" $PCPCFG
+	sudo sed -i "s/\(UNMUTE=\).*/\1\"$UNMUTE\"/" $PCPCFG
+	sudo sed -i "s/\(ALSAVOLUME=\).*/\1\"$ALSAVOLUME\"/" $PCPCFG
+	sudo sed -i "s@\(OTHER=\).*@\1\"$OTHER\"@" $PCPCFG
+	sudo sed -i "s/\(AUDIO=\).*/\1\"$AUDIO\"/" $PCPCFG
+	sudo sed -i "s@\(AUDIOBOOTSCRIPT=\).*@\1\"$AUDIOBOOTSCRIPT\"@" $PCPCFG
+	sudo sed -i "s/\(HOST=\).*/\1\"$HOST\"/" $PCPCFG
+	sudo sed -i "s/\(CPUGOVERNOR=\).*/\1\"$CPUGOVERNOR\"/" $PCPCFG
+	sudo sed -i "s/\(OVERCLOCK=\).*/\1\"$OVERCLOCK\"/" $PCPCFG
+	sudo sed -i "s/\(ADVOVERCLOCK=\).*/\1\"$ADVOVERCLOCK\"/" $PCPCFG
+	sudo sed -i "s/\(CPUISOL=\).*/\1\"$CPUISOL\"/" $PCPCFG
+	sudo sed -i "s/\(SQLAFFINITY=\).*/\1\"$SQLAFFINITY\"/" $PCPCFG
+	sudo sed -i "s/\(SQLOUTAFFINITY=\).*/\1\"$SQLOUTAFFINITY\"/" $PCPCFG
+	sudo sed -i "s/\(CMD=\).*/\1\"$CMD\"/" $PCPCFG
+	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $PCPCFG
+	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $PCPCFG
+	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $PCPCFG
+	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $PCPCFG
+	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $PCPCFG
+	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $PCPCFG
+	sudo sed -i "s/\(RB_WD=\).*/\1\"$RB_WD\"/" $PCPCFG
+	sudo sed -i "s/\(RB_DMONTH=\).*/\1\"$RB_DMONTH\"/" $PCPCFG
+	sudo sed -i "s/\(RESTART=\).*/\1\"$RESTART\"/" $PCPCFG
+	sudo sed -i "s/\(RS_H=\).*/\1\"$RS_H\"/" $PCPCFG
+	sudo sed -i "s/\(RS_WD=\).*/\1\"$RS_WD\"/" $PCPCFG
+	sudo sed -i "s/\(RS_DMONTH=\).*/\1\"$RS_DMONTH\"/" $PCPCFG
+	sudo sed -i "s@\(CRON_COMMAND=\).*@\1\"$CRON_COMMAND\"@" $PCPCFG
+	sudo sed -i "s/\(AUTOSTARTLMS=\).*/\1\"$AUTOSTARTLMS\"/" $PCPCFG
+	sudo sed -i "s/\(A_S_LMS=\).*/\1\"$A_S_LMS\"/" $PCPCFG
+	sudo sed -i "s/\(AUTOSTARTFAV=\).*/\1\"$AUTOSTARTFAV\"/" $PCPCFG
+	sudo sed -i "s/\(A_S_FAV=\).*/\1\"$A_S_FAV\"/" $PCPCFG
+	sudo sed -i "s@\(USER_COMMAND_1=\).*@\1\"$USER_COMMAND_1\"@" $PCPCFG
+	sudo sed -i "s@\(USER_COMMAND_2=\).*@\1\"$USER_COMMAND_2\"@" $PCPCFG
+	sudo sed -i "s@\(USER_COMMAND_3=\).*@\1\"$USER_COMMAND_3\"@" $PCPCFG
+	sudo sed -i "s/\(JIVELITE=\).*/\1\"$JIVELITE\"/" $PCPCFG
+	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $PCPCFG
+	sudo sed -i "s/\(JL_SCREEN_WIDTH=\).*/\1\"$JL_SCREEN_WIDTH\"/" $PCPCFG
+	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $PCPCFG
+	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $PCPCFG
+	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $PCPCFG
+	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $PCPCFG
+	sudo sed -i "s/\(SQLT_VERSION=\).*/\1\"$SQLT_VERSION\"/" $PCPCFG
+	sudo sed -i "s/\(SQBINARY=\).*/\1\"$SQBINARY\"/" $PCPCFG
+	sudo sed -i "s/\(SQUEEZELITE=\).*/\1\"$SQUEEZELITE\"/" $PCPCFG
+	sudo sed -i "s/\(POWER_GPIO=\).*/\1\"$POWER_GPIO\"/" $PCPCFG
+	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $PCPCFG
+	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $PCPCFG
+	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $PCPCFG
+	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $PCPCFG
+	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $PCPCFG
+	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $PCPCFG
+	sudo sed -i "s@\(IR_CONFIG=\).*@\1\"$IR_CONFIG\"@" $PCPCFG
+	sudo sed -i "s/\(LMSWEBPORT=\).*/\1\"$LMSWEBPORT\"/" $PCPCFG
+	sudo sed -i "s/\(FSM=\).*/\1\"$FSM\"/" $PCPCFG
+	sudo sed -i "s/\(LMSCONTROLS=\).*/\1\"$LMSCONTROLS\"/" $PCPCFG
+	sudo sed -i "s/\(PLAYERTABS=\).*/\1\"$PLAYERTABS\"/" $PCPCFG
+	sudo sed -i "s/\(HDMIPOWER=\).*/\1\"$HDMIPOWER\"/" $PCPCFG
+	sudo sed -i "s/\(APMODE=\).*/\1\"$APMODE\"/" $PCPCFG
+	sudo sed -i "s/\(AP_IP=\).*/\1\"$AP_IP\"/" $PCPCFG
+	sudo sed -i "s/\(RPI3INTWIFI=\).*/\1\"$RPI3INTWIFI\"/" $PCPCFG
+	sudo sed -i "s/\(RPIBLUETOOTH=\).*/\1\"$RPIBLUETOOTH\"/" $PCPCFG
+	sudo sed -i "s/\(SAMBA=\).*/\1\"$SAMBA\"/" $PCPCFG
+	sudo sed -i "s/\(WOL=\).*/\1\"$WOL\"/" $PCPCFG
+	sudo sed -i "s/\(WOL_NIC=\).*/\1\"$WOL_NIC\"/" $PCPCFG
+	sudo sed -i "s/\(WOL_LMSMACADDRESS=\).*/\1\"$WOL_LMSMACADDRESS\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS1=\).*/\1\"$PARAM1\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS2=\).*/\1\"$PARAM2\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS3=\).*/\1\"$PARAM3\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS4=\).*/\1\"$PARAM4\"/" $PCPCFG
+	sudo sed -i "s/\(SPARAMS5=\).*/\1\"$PARAM5\"/" $PCPCFG
+	sudo sed -i "s/\(INTERNET_CHECK_IP=\).*/\1\"$INTERNET_CHECK_IP\"/" $PCPCFG
+	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $PCPCFG
+	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $PCPCFG
+	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $PCPCFG
 }
 
 #========================================================================================
-# Create a new config.cfg with defaults values.
+# Create a new pcp.cfg with defaults values.
 #
-# This routine will add new variables if missing in current config.cfg. The new variables
+# This routine will add new variables if missing in current pcp.cfg. The new variables
 # will have the default values loaded.
 #
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
 #----------------------------------------------------------------------------------------
 pcp_update_config_to_defaults() {
-	sudo cat <<EOF > $CONFIGCFG
-#########################
-# Edit the variables below to setup a wifi based system without LAN access
-# Change Wifi to "on". Valid options for Encryption are "WEP", "WPA" or "OPEN"
+	sudo cat <<EOF > $PCPCFG
 WIFI="off"
-SSID="wireless"
-PASSWORD="password"
-ENCRYPTION="WPA"
-# End Wifi setup
-##########################
 DEBUG="0"
 MODE="0"
 TEST="0"
@@ -1529,6 +1605,9 @@ TIMEZONE=""
 CPUGOVERNOR="ondemand"
 OVERCLOCK="NONE"
 ADVOVERCLOCK="None"
+CPUISOL=""
+SQLAFFINITY=""
+SQLOUTAFFINITY=""
 CMD="Default"
 FIQ="0xF"
 ALSAlevelout="Default"
@@ -1594,6 +1673,7 @@ EOF
 
 #========================================================================================
 # This is a developer routine only, do not use in normal scripts.
+# Note: This must be obsolete? <==== GE
 #----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
 	pcp_update_config_to_defaults
@@ -1623,7 +1703,7 @@ pcp_reset_config_to_defaults() {
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/wireless/d' $ONBOOTLST
-	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
+#	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
 
 	# Remove cron stuff
 	( crontab -l | grep -v "reboot" ) | crontab -

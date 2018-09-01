@@ -1,6 +1,10 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
+# Version: 4.0.0 2018-04-17
+#	Fixed log file name. GE.
+#	Changed repo to new server. PH.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -8,40 +12,10 @@
 #	Changed to using pcp_log_header. GE.
 #	Changed to using pcp_green_tick, pcp_red_cross. GE.
 #	Changes for Squeezelite extension. PH.
-#	removed squeezelite size. GE.
+#	Removed Squeezelite size. GE.
 
-# Version: 0.10 2016-04-23 GE
-#	Minor enhancements.
-#	Changed log location to /var/log.
-
-# Version: 0.09 2016-02-24 GE
-#	Minor enhancements.
-#	Changed to tick and cross indicator.
-#	Updated output to log file.
-
-# Version: 0.08 2016-02-03 GE
-#	Moved pcp_pastebin_button to Developer mode.
-
-# Version: 0.07 2015-12-24 GE
-#	Added Upload to pastebin feature.
-
-# Version: 0.06 2015-08-29 GE
-#	Added shortname.
-
-# Version: 0.05 2015-07-04 GE
-#	More updates.
-
-# Version: 0.04 2015-04-28 GE
-#	More minor updates.
-
-# Version: 0.03 2015-03-07 GE
-#	Added internet and sourceforge accessible.
-
-# Version: 0.02 2015-02-06 GE
-#	Reformatted.
-
-# Version: 0.01 2014-10-22 GE
-#	Original.
+# Version: 0.01 2014-10-22
+#	Original. GE.
 
 . pcp-functions
 . pcp-rpi-functions
@@ -53,13 +27,14 @@ pcp_banner
 pcp_diagnostics
 pcp_running_script
 
+LOG="${LOGDIR}/pcp_diag_rpi.log"
+
 #=========================================================================================
 # Add information to log file.
 #-----------------------------------------------------------------------------------------
 pcp_add_to_log() {
 	START="====================> Start <===================="
 	END="=====================> End <====================="
-	LOG="${LOGDIR}/pcp_diagrpi.log"
 
 	pcp_log_header $0
 
@@ -112,10 +87,10 @@ pcp_add_to_log() {
 	else
 		echo "Internet not found." >> $LOG
 	fi
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		echo "Sourceforge accessible." >> $LOG
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		echo "pCP repo accessible." >> $LOG
 	else
-		echo "Sourceforge not accessible." >> $LOG
+		echo "pCP repo not accessible." >> $LOG
 	fi
 }
 
@@ -432,10 +407,10 @@ echo '              <td class="column150">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
-                    if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-                        pcp_green_tick "Sourceforge accessible."
+                    if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+                        pcp_green_tick "pCP repo accessible."
                     else
-                        pcp_red_cross "Sourceforge not accessible."
+                        pcp_red_cross "pCP repo not accessible."
                     fi
 
 echo '              <td class="column150 center">'
@@ -453,7 +428,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button raspi
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "Raspberry-Pi"
 
 pcp_footer
 pcp_copyright

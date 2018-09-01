@@ -1,0 +1,53 @@
+#!/bin/bash
+
+TCZ=pcp-bt.tcz
+TCZINFO=${TCZ}.info
+VERSION=3.5.0
+
+
+BASEWD=$(pwd)
+EXT="pcp-bt"
+TCZ=${EXT}.tcz
+TCZINFO=${TCZ}.info
+
+cd $EXT
+echo "fixing directory access rights"
+find -type d | xargs chmod -v 755
+find * -not -type d > ${BASEWD}/${TCZ}.list
+cd ..
+
+mksquashfs ${EXT} ${TCZ} -all-root -noappend 2>&1 >/dev/null
+md5sum ${TCZ} > ${TCZ}.md5.txt
+
+echo "$EXT contains"
+unsquashfs -ll ${TCZ}
+
+echo -e "Title:          $TCZ" > $TCZINFO
+echo -e "Description:    piCorePlayer Bluetooth Scripts." >> $TCZINFO
+echo -e "Version:        $VERSION" >> $TCZINFO
+echo -e "Author:         paul-123" >> $TCZINFO
+echo -e "Original-site:" >> $TCZINFO
+echo -e "Copying-policy: See scripts for details" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Extension_by:   piCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore 9.x" >> $TCZINFO
+
+echo
+
+while true; do
+   read -p "Do you want to upload to local repo directories [y/n]? " yn
+   case $yn in
+      [Yy]* ) break;;
+      [Nn]* ) exit 0;;
+      * ) echo "Please answer yes or no.";;
+   esac
+done
+
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/9.x"
+ARMV6="$REPOPATH/armv6/tcz"
+ARMV7="$REPOPATH/armv7/tcz"
+
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV6
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV7
+
+

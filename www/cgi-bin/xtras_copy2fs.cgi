@@ -1,17 +1,19 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-17
+#	Another attempt to fix reloading page does not reboot pCP again. SBP.
+
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-04-16
 #	Fixed pcp-xxx-functions issues. GE.
-#  Changed reboot functions. PH.
+#	Changed reboot functions. PH.
 
-# Version: 0.01 2015-08-28 GE
-#	Original version.
+# Version: 0.01 2015-08-28
+#	Original version. GE.
 
 . pcp-functions
-#. $CONFIGCFG
 
 pcp_html_head "xtras copy2fs" "GE"
 
@@ -52,9 +54,9 @@ echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td class="column150">'
 echo '                    <p>copy2fs flag set</p>'
 echo '                  </td>'
-echo '                  <td class="column210">'
-echo '                    <input class="small1" type="radio" name="COPY2FS" id="COPY2FS" value="yes" '$COPY2FSyes'>Yes'
-echo '                    <input class="small1" type="radio" name="COPY2FS" id="COPY2FS" value="no" '$COPY2FSno'>No'
+echo '                  <td class="column150">'
+echo '                    <input class="small1" type="radio" name="COPY2FS" value="yes" '$COPY2FSyes'>Yes'
+echo '                    <input class="small1" type="radio" name="COPY2FS" value="no" '$COPY2FSno'>No'
 echo '                  </td>'
 echo '                  <td>'
 echo '                    <p>Set the copy2fs flag&nbsp;&nbsp;'
@@ -69,7 +71,7 @@ pcp_toggle_row_shade
 echo '                <tr class="'$ROWSHADE'">'
 echo '                  <td colspan="3">'
 echo '                    <input type="submit" name="SUBMIT" value="Save">'
-echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''reboot.cgi?RB=yes'\'')" />'
+echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')">'
 echo '                  </td>'
 echo '                </tr>'
 echo '            </table>'
@@ -88,7 +90,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Mounted filesystems</legend>'
+echo '          <legend>Current mounted filesystems</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
@@ -99,7 +101,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>Example showing copy2fs not set.</b></p>'
+echo '                <p><b>Example: copy2fs not set.</b></p>'
 echo '                <p>Note: There will be lots of loop mounted filesystems, one for each extension.</p>'
 echo '              </td>'
 echo '            </tr>'
@@ -110,11 +112,11 @@ echo                  '<textarea class="inform" style="height:160px">'
 echo                    'Filesystem           1K-blocks      Used Available Use% Mounted on'
 echo                    'tmpfs                   222492         0    222492   0% /dev/shm'
 echo                    '/dev/mmcblk0p2           36561     15244     18379  45% /mnt/mmcblk0p2'
-echo                    '/dev/loop0                 128       128         0 100% /tmp/tcloop/dropbear'
-echo                    '/dev/loop1                 128       128         0 100% /tmp/tcloop/busybox-httpd'
-echo                    '/dev/loop2                 256       256         0 100% /tmp/tcloop/libfaad'
-echo                    '/dev/loop3                  12        12         0 100% /tmp/tcloop/libogg'
-echo                    '/dev/loop4                 368       368         0 100% /tmp/tcloop/flac'
+echo                    '/dev/loop0                 128       128         0 100% /tmp/tcloop/pcp'
+echo                    '/dev/loop1                 128       128         0 100% /tmp/tcloop/pcp-base'
+echo                    '/dev/loop2                 128       128         0 100% /tmp/tcloop/alsa'
+echo                    '/dev/loop3                1152      1152         0 100% /tmp/tcloop/alsa-utils'
+echo                    '/dev/loop4                 128       128         0 100% /tmp/tcloop/busybox-httpd'
 echo                    '     .                      .         .          .   .          .'
 echo                    '     .                      .         .          .   .          .'
 echo                  '</textarea>'
@@ -123,7 +125,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>Example showing copy2fs set.</b></p>'
+echo '                <p><b>Example: copy2fs set.</b></p>'
 echo '                <p>Note: There are no loop mounted filesystems.</p>'
 echo '              </td>'
 echo '            </tr>'

@@ -1,24 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-14
-#	Code tidy up. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced format. GE.
-#	Set mmap=1 for all configurations. GE.
-
-# Version: 3.02 2016-09-19
-#	Added Hifiberry Digi+ Pro support. SBP.
-#	Fixed problem with selection of certain cards. GE/SBP.
-
-# Version: 3.00 2016-07-04
-#	Added new DACs - justboomdigi, justboomdac, dionaudio-loco. SBP.
-
-# Version: 0.01
-#	Original. SBP.
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -26,25 +8,17 @@
 # Store the original values so we can see if they are changed.
 ORIG_AUDIO="$AUDIO"
 
-pcp_html_head "Choose output" "SBP" "10" "squeezelite.cgi"
+pcp_httpd_query_string
+[ "$FROM_PAGE" = "" ] && FROM_PAGE="squeezelite.cgi"
+
+pcp_html_head "Choose output" "SBP"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
 pcp_debug_info() {
-	echo '<p class="debug">[ DEBUG ] $ORIG_AUDIO: '$ORIG_AUDIO'<br />'
-	echo '                 [ DEBUG ] $AUDIO: '$AUDIO'<br />'
-	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-	echo '                 [ DEBUG ] $DTOVERLAY: '$DTOVERLAY'<br />'
-	echo '                 [ DEBUG ] $PARAMS1: '$PARAMS1'<br />'
-	echo '                 [ DEBUG ] $PARAMS2: '$PARAMS2'<br />'
-	echo '                 [ DEBUG ] $PARAMS3: '$PARAMS3'<br />'
-	echo '                 [ DEBUG ] $PARAMS4: '$PARAMS4'<br />'
-	echo '                 [ DEBUG ] $PARAMS5: '$PARAMS5'<br />'
-	echo '                 [ DEBUG ] $OUTPUT: '$OUTPUT'<br />'
-	echo '                 [ DEBUG ] $ALSA_PARAMS: '$ALSA_PARAMS'<br />'
-	echo '                 [ DEBUG ] $DT_MODE: '$DT_MODE'</p>'
+	pcp_debug_variables "html" AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 OUTPUT ALSA_PARAMS DT_MODE
 }
 
 pcp_table_top "Choose output"
@@ -58,7 +32,7 @@ if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 else
 	echo '<p class="info">[ INFO ] Audio output changed from '$ORIG_AUDIO' to '$AUDIO'.</p>'
 	# The next line is needed to clear OUTPUT from here when selecting USB.
-	# Whereas when pcp_read_chosen_audio is called from do_rebootstuff it should use the correct USB OUTPUT from newconfig.
+	# Whereas when pcp_read_chosen_audio is called from pcp_startup.sh it should use the correct USB OUTPUT from newpcp.
 	USBOUTPUT=""
 	CHANGED=TRUE
 fi
@@ -68,8 +42,8 @@ if [ $CHANGED ]; then
 	pcp_squeezelite_stop
 	pcp_soundcontrol
 
-	# To save the default dt-overlay parameter (PARAMS1) in config.cfg
-	# Needed as PARAM1 is the value saved in config.cfg
+	# To save the default dt-overlay parameter (PARAMS1) in pcp.cfg
+	# Needed as PARAM1 is the value saved in pcp.cfg
 	PARAM1="$PARAMS1"
 
 	# Set the default settings
@@ -132,12 +106,12 @@ if [ $CHANGED ]; then
 	pcp_save_to_config
 	pcp_read_chosen_audio
 	[ $DEBUG -eq 1 ] && pcp_debug_info
-	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated config.cfg" "cat $CONFIGCFG" 380
+	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated pcp.cfg" "cat $PCPCFG" 380
 	pcp_backup
 fi
 
 pcp_table_middle
-pcp_go_back_button
+[ $DEBUG -eq 1 ] && pcp_redirect_button "Go Back" "$FROM_PAGE" 60 || pcp_redirect_button "Go Back" "$FROM_PAGE" 5
 pcp_table_end
 
 pcp_footer

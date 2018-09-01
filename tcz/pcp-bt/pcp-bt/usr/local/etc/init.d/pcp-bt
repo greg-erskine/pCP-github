@@ -1,0 +1,128 @@
+#!/bin/sh
+
+#========================================================================================
+# Bluetooth Speaker Init Script
+#----------------------------------------------------------------------------------------
+#
+# Version: 4.0.0 2018-06-15 PH
+#
+#----------------------------------------------------------------------------------------
+
+. /usr/local/etc/pcp/pcp.cfg
+. /usr/local/bin/pcp-bt-functions
+
+init() {
+	sudo modprobe hci_uart
+
+	if [ "$RPIBLUETOOTH" = "on" ]; then
+		HCIATTACH=/usr/local/bin/hciattach
+		SERIAL=`grep Serial /proc/cpuinfo | cut -c19-`
+		B1=`echo $SERIAL | cut -c3-4`
+		B2=`echo $SERIAL | cut -c5-6`
+		B3=`echo $SERIAL | cut -c7-8`
+		BDADDR=`printf b8:27:eb:%02x:%02x:%02x $((0x$B1 ^ 0xaa)) $((0x$B2 ^ 0xaa)) $((0x$B3 ^ 0xaa))`
+
+		# Rpi3 Serial port
+		SERIAL_DEV="/dev/ttyAMA0"
+
+		if [ "$(cat /proc/device-tree/aliases/uart0)" = "$(cat /proc/device-tree/aliases/serial1)" ] ; then
+			if [ "$(wc -c /proc/device-tree/soc/gpio@7e200000/uart0_pins/brcm\,pins | cut -f 1 -d ' ')" = "16" ] ; then
+				$HCIATTACH $SERIAL_DEV bcm43xx 3000000 flow - $BDADDR
+			else
+				$HCIATTACH $SERIAL_DEV bcm43xx 921600 noflow - $BDADDR
+			fi
+		else
+			$HCIATTACH $SERIAL_DEV bcm43xx 460800 noflow - $BDADDR
+		fi
+	fi
+
+	sudo /usr/local/etc/init.d/bluez start > /dev/null 2>&1
+
+	RET=$(pcp_bt_controller_address)
+	case $RET in
+		#RPi bluetooth or USB
+		B8:27:EB*) echo "RPi Bluetooth Hardware Address: $RET";;
+		*) echo "USB Bluetooth Hardware Address: $RET";;
+	esac
+	sed -i "s/\(\BTCONTROLLER=\).*/\1\"$RET\"/" $BTDEVICECONF
+
+	/usr/local/bin/bluealsa > /dev/null 2>&1 &
+
+	# Enable Controller
+	RET=$(pcp_bt_power_status)
+	if [ $RET -ne 0 ]; then
+		echo "Powering on the BT controller"
+		POWER=0
+		CNT=0
+		until [ $POWER -eq 1 ]; do
+			if [ $((CNT++)) -gt 3 ]; then
+				echo "Error powering on Bluetooth Adapter"
+				break
+			else
+				RET=$(pcp_bt_power_enable)
+				RET=$(pcp_bt_power_status)
+				if [ $RET -eq 0 ]; then
+					echo "Success."
+					POWER=1
+					touch /var/run/bt_init
+				else
+					sleep 0.5
+				fi
+			fi
+		done
+	else
+		echo "BT Controller Ready"
+		touch /var/run/bt_init
+	fi
+}
+
+PNAME="pcp-bt-connect-daemon"
+DAEMON_PID="/var/run/pcp-bt-connect-daemon.pid"
+
+start() {
+	OPTIONS="$1"
+	if [ ! -f /var/run/bt_init ]; then 
+		echo "Starting BT Controller"
+		init >>$BT_LOG
+	fi
+	echo "Starting BT Connect Daemon"
+	if [ -f /var/run/bt_init ]; then
+		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
+		echo "Allowing Speaker to Connect..."
+		sleep 5
+		exit 0
+	else
+		exit 1
+	fi
+}
+
+stop() {
+	echo "Stoping BT Connect Daemon"
+	start-stop-daemon --stop --quiet -p ${DAEMON_PID}
+	rm ${DAEMON_PID}
+}
+
+status() {
+	# Check if our squeezelite daemon is running.
+	if [ -f $DAEMON_PID ]; then
+		PID=`cat $DAEMON_PID`
+		ps ax | grep -v grep | grep -q $PID
+		if [ $? -eq 0 ]; then
+			echo "Connect Daemon is running. PID=$PID"
+			exit 0
+		fi
+	fi
+	echo "Connect Daemon not running."
+	exit 1
+}
+
+case $1 in
+	boot) start boot;;
+	start) start;;
+	stop) stop;;
+	status) status;;
+	restart) stop; sleep 5; start;;
+	*) echo -e "\n$0 [start|stop|restart|status]\n";;
+esac
+
+

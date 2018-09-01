@@ -1,40 +1,7 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-22
-#	HTML5 cleanup. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.02 2016-09-21
-#	Added default button. SBP.
-#	Added more help txt. SBP.
-#	Added repo indicator. SBP.
-#	Extensive update. GE.
-
-# Version: 3.00 2016-07-08
-#	Removed pcp_mode_lt_beta. GE.
-
-# Version: 0.06 2016-05-28 GE
-#	Major update.
-
-# Version: 0.05 2016-03-05 GE
-#	Changed indicators to tick and cross.
-
-# Version: 0.04 2016-01-06 GE
-#	Deleted pcp_free_space.
-
-# Version: 0.03 2015-11-15 GE
-#	Minor updates.
-
-# Version: 0.02 2015-08-25 GE
-#	Added link to Tiny Core Linux Repository browser.
-
-# Version: 0.01 2015-06-16 GE
-#	Original version.
+# Version: 4.0.0 2018-07-11
+#	Changed repo to new server. PH.
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
@@ -168,7 +135,7 @@ pcp_information_message() {
 	echo '                <p><b>piCorePlayer</b> uses two repositories for downloading extensions:</p>'
 	echo '                <ul>'
 	echo '                  <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
-	echo '                  <li><b>piCorePlayer sourceforge repository</b> - maintained by the piCorePlayer team.</li>'
+	echo '                  <li><b>piCorePlayer repository</b> - maintained by the piCorePlayer team.</li>'
 	echo '                </ul>'
 	echo '                <p><b>Extensions</b> can be:</p>'
 	echo '                <ul>'
@@ -332,9 +299,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '          <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
-	  pcp_green_tick "Internet accessible."
+		pcp_green_tick "Internet accessible."
 	else
-	  pcp_red_cross "Internet not accessible."
+		pcp_red_cross "Internet not accessible."
 	fi
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -350,9 +317,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '            </tr>'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
-	  pcp_green_tick "Official piCore repository accessible."
+		pcp_green_tick "Official piCore repository accessible."
 	else
-	  pcp_red_cross "Official piCore repository not accessible."
+		pcp_red_cross "Official piCore repository not accessible."
 	fi
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -368,9 +335,9 @@ if [ "$SUBMIT" = "Initial" ]; then
 	echo '            </tr>'
 	#------------------------------------------------------------------------------------
 	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-	  pcp_green_tick "piCorePlayer sourceforge repository accessible."
+		pcp_green_tick "piCorePlayer repository accessible."
 	else
-	  pcp_red_cross "piCorePlayer sourceforge repository not accessible."
+		pcp_red_cross "piCorePlayer repository not accessible."
 	fi
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -536,7 +503,7 @@ case "$MYMIRROR" in
 	;;
 	"$PCP_REPO")
 		SELECTED_2="selected"
-		STATUS="piCorePlayer sourceforge repository"
+		STATUS="piCorePlayer repository"
 	;;
 esac
 
@@ -558,7 +525,7 @@ echo '                </td>'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="MYMIRROR">'
 echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_1'>Official piCore repository</option>'
-echo '                    <option value="'$PCP_REPO'" '$SELECTED_2'>piCorePlayer sourceforge repository</option>'
+echo '                    <option value="'$PCP_REPO'" '$SELECTED_2'>piCorePlayer repository</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
@@ -569,7 +536,7 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Select either:</p>'
 echo '                    <ul>'
 echo '                      <li>Official piCore repository, or</li>'
-echo '                      <li>piCorePlayer sourceforge repository.</li>'
+echo '                      <li>piCorePlayer repository.</li>'
 echo '                    </ul>'
 echo '                    <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
 echo '                  </div>'
@@ -637,7 +604,7 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <ul>'
 echo '                      <li>Lists all extensions that are currently available for download from '$STATUS'</li>'
 echo '                      <li>If the <b>Official piCore repository</b> is selected, official piCore extensions are listed.</li>'
-echo '                      <li>If the <b>piCorePlayer Sourceforge repository</b> is selected, special piCorePlayer extensions are listed.</li>'
+echo '                      <li>If the <b>piCorePlayer repository</b> is selected, special piCorePlayer extensions are listed.</li>'
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'

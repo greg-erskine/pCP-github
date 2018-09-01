@@ -1,19 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-12
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.21 2017-07-11
-#	Added save to USB disk other than boot device. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Minor update. GE.
-
-# Version: 0.01 2014-06-24
-#	Original. GE.
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 
@@ -34,7 +21,7 @@ FAIL_MSG="OK"
 WAS_MOUNTED=0
 IS_MOUNTED=0
 
-pcp_html_head "Save configuration file to USB device" "SBP" "20" "main.cgi"
+pcp_html_head "Save configuration file to USB device" "SBP"
 
 pcp_banner
 pcp_running_script
@@ -108,11 +95,13 @@ if [ $USB_FOUND -eq 1 ]; then
 fi
 
 if [ $IS_MOUNTED -eq 1 ]; then
-	echo -n '[ INFO ] Copying configuration file to USB device...'
-	[ -f ${MNT_USB}/newconfig.cfg ] && sudo mv ${MNT_USB}/newconfig.cfg ${MNT_USB}/newconfig.cfg~
-	sudo /bin/cp -f /usr/local/sbin/config.cfg ${MNT_USB}/newconfig.cfg
+	echo -n '[ INFO ] Copying configuration files to USB device...'
+	[ -f ${MNT_USB}/newpcp.cfg ] && sudo mv ${MNT_USB}/newpcp.cfg ${MNT_USB}/newpcp.cfg~
+	sudo /bin/cp -f $PCPCFG ${MNT_USB}/newpcp.cfg
+	[ -f ${MNT_USB}/wpa_supplicant.conf ] && sudo mv ${MNT_USB}/wpa_supplicant.conf ${MNT_USB}/wpa_supplicant.conf~
+	sudo /bin/cp -f $WPASUPPLICANTCONF ${MNT_USB}/wpa_supplicant.conf
 	[ $? -eq 0 ] && echo " OK" || echo "" || FAIL_MSG="Failed to copy configuration file to USB device."
-	if [ -f ${MNT_USB}/newconfig.cfg ]; then
+	if [ -f ${MNT_USB}/newpcp.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'
 		FAIL_MSG="OK - Your configuration file has been saved to your USB device."
 		echo '[ NOTE ] If you boot with this USB device attached, this configuration file will used.'

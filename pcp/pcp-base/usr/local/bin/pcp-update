@@ -1,13 +1,8 @@
 #!/bin/sh
 #
-# Version 3.21 2017-05-20
-#	Use /etc/sysconfig/tcedir. PH.
-
-# Version 3.201 2017-04-30
-#	Added downloading information. PH.
+#	pcp-update - Update extensions from the piCorePlayer repository.
 #
-# Version 3.20 2017-03-19
-#	First Version. PH.
+#
 #
 
 usage() {
@@ -130,8 +125,10 @@ check_updates() {
 ########################### Main ######################################
 . /etc/init.d/tc-functions
 
+useBusybox
+
 #TCE_REPO="http://repo.tinycorelinux.net"
-PCP_REPO="http://picoreplayer.sourceforge.net/tcz_repo"
+PCP_REPO="https://repo.picoreplayer.org/repo"
 
 cd /etc/sysconfig/tcedir/optional
 EXTENSION_DIR=$(pwd)
@@ -142,7 +139,7 @@ KERNELVER=$(uname -r)
 [ ! -d $DL_DIR ] && mkdir -p $DL_DIR || sudo rm -rf $DL_DIR/*
 [ -f $DEPLIST ] && sudo rm $DEPLIST
 
-#For now use the armv7 repo, need to pull from tc-functions
+#from tc-functions
 TCE_VER="$(getMajorVer).x/$(getBuild)/tcz"
 FAIL=0
 

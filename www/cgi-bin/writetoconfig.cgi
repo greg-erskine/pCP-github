@@ -1,28 +1,11 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-19
-#	Added setting of which squeezelite binary to use. PH.
-#	Make sure DSDOUT is not set for regular binary. PH.
-#	Utilize updated pcp_restart_required. PH.
-#	Cosmetic cleanup. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced format. GE.
-#	Removed pcp_multi_alsa_mmap. GE.
-
-# Version: 3.02 2016-09-21
-#	Fixed blanking ALSA_PARAMS issue. GE.
-
-# Version: 0.01 2014-06-25
-#	Original. GE.
+# Version: 4.0.0 2018-08-27
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
 
-# Restore sparams variable value from config.cfg so it is not overwritten with default values
+# Restore sparams variable value from pcp.cfg so it is not overwritten with default values
 PARAM1="$SPARAMS1"
 PARAM2="$SPARAMS2"
 PARAM3="$SPARAMS3"
@@ -35,7 +18,7 @@ ORG_ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d':' -f4 )
 RESTART_REQUIRED=TRUE
 unset REBOOT_REQUIRED
 
-pcp_html_head "Write to config.cfg" "SBP" "15" "squeezelite.cgi"
+pcp_html_head "Write to pcp.cfg" "SBP" "15" "squeezelite.cgi"
 
 pcp_banner
 pcp_running_script
@@ -56,26 +39,26 @@ pcp_reset() {
 #----------------------------------------------------------------------------------------
 pcp_restore() {
 	pcp_mount_device sda1
-	. /mnt/sda1/newconfig.cfg
+	. /mnt/sda1/newpcp.cfg
 	pcp_umount_device sda1
 	pcp_save_to_config
 }
 
 #========================================================================================
-# Update config.cfg to the latest version
+# Update pcp.cfg to the latest version
 #
-# This will first create the latest version of config.cfg with default values, then,
+# This will first create the latest version of pcp.cfg with default values, then,
 # restore original values.
 #----------------------------------------------------------------------------------------
 pcp_update() {
-	echo '<p class="info">[ INFO ] Copying config.cfg to /tmp...</p>'
-	sudo cp $CONFIGCFG /tmp/config.cfg
-	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying config.cfg to /tmp...</p>'
-	echo '<p class="info">[ INFO ] Setting config.cfg to defaults...</p>'
+	echo '<p class="info">[ INFO ] Copying pcp.cfg to /tmp...</p>'
+	sudo cp $PCPCFG /tmp/pcp.cfg
+	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying pcp.cfg to /tmp...</p>'
+	echo '<p class="info">[ INFO ] Setting pcp.cfg to defaults...</p>'
 	pcp_update_config_to_defaults
-	echo '<p class="info">[ INFO ] Updating config.cfg with original values...</p>'
-	. $CONFIGCFG
-	. /tmp/config.cfg
+	echo '<p class="info">[ INFO ] Updating pcp.cfg with original values...</p>'
+	. $PCPCFG
+	. /tmp/pcp.cfg
 	pcp_save_to_config
 }
 
@@ -92,6 +75,7 @@ case "$SUBMIT" in
 			[ $PRIORITY -eq 0 ] && PRIORITY=""
 			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
 		fi
+		[ $SQUEEZELITE = "no" ] && unset RESTART_REQUIRED
 		echo '<p class="info">[ INFO ] Saving config file.</p>'
 		pcp_save_to_config
 	;;
@@ -136,7 +120,7 @@ case "$SUBMIT" in
 	;;
 esac
 
-. $CONFIGCFG
+. $PCPCFG
 
 if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	STRING1='ALSA equalizer is enabled. In order to use it "equal" must be used in the OUTPUT box. Press [OK] to go back and change or [Cancel] to continue'

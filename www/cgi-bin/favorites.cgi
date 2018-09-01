@@ -1,13 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.01 2015-01-13 GE
-#	Original.
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
-#. $CONFIGCFG
 
 pcp_html_head "Favorites" "GE"
 

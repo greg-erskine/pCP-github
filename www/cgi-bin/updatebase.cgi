@@ -1,58 +1,66 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-17
+#	Added pcp_redirect_button. GE.
+
 # Version: 3.20 2017-03-19
 #	First Version. PH.
 
 . pcp-functions
-#. $CONFIGCFG
 
-pcp_html_head "Updating pcp-base extension" "PH" "5" "main.cgi"
+pcp_html_head "Updating pcp-base extension" "PH"
 
 WGET="/bin/busybox wget"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
-REBOOT_REQUIRED=0
-RESULT=0
 
-pcp_table_top "Update Extension"
+unset REBOOT_REQUIRED
+
+#========================================================================================
+# Routines.
+#----------------------------------------------------------------------------------------
+pcp_end() {
+	echo '</body>'
+	echo '</html>'
+	exit
+}
+
 #----------------------------------------------------------------------------------------
 [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ACTION='$ACTION'</p>'
 case "${ACTION}" in
 	Update)
+		pcp_table_top "Update pcp-base extension"
 		SPACE_REQUIRED=15
 		pcp_sufficient_free_space $SPACE_REQUIRED
-		if [ $? -eq 0 ]; then
-		
-			pcp_table_top "Updating pcp-base and any needed dependencies"
-			echo '                <textarea class="inform" style="height:150px">'
-			pcp-update pcp-base
-			CHK=$?
-			if [ $CHK -eq 2 ]; then
-				echo '[ INFO ] There is no update for pcp-base at this time.'
-				REBOOT_REQUIRED=0
-			elif [ $CHK -eq 1 ]; then
-				echo '[ ERROR ] There was an error updating pcp-base, please try again later'
-				REBOOT_REQUIRED=0
-			else 
-				REBOOT_REQUIRED=1
-			fi
-			echo '                </textarea>'
-			pcp_table_end
+		[ $? -eq 0 ] || pcp_end
+		echo '                <textarea class="inform" style="height:150px">'
+		echo '[ INFO ] Updating pcp-base and any needed dependencies.'
+#		pcp-update pcp-base >/dev/null 2>&1
+		pcp-update pcp-base
+		CHK=$?
+		if [ $CHK -eq 2 ]; then
+			echo '[ INFO ] There is no update for pcp-base at this time.'
+			unset REBOOT_REQUIRED
+		elif [ $CHK -eq 1 ]; then
+			echo '[ ERROR ] There was an error updating pcp-base, please try again later!'
+			unset REBOOT_REQUIRED
+		else
+			echo '[ INFO ] A [Reboot] is required to complete the update.'
+			REBOOT_REQUIRED=TRUE
 		fi
+		echo '                </textarea>'
 	;;
-	*) echo '<p class="error">[ ERROR ] Option Error!'
+	*)
+		echo '<p class="error">[ ERROR ] Option Error!'
 	;;
 esac
 
-[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
-
 pcp_table_middle
-pcp_go_back_button
+pcp_redirect_button "Go to Main Page" "main.cgi" 10
 pcp_table_end
 pcp_footer
 pcp_copyright
-
-echo '</body>'
-echo '</html>'
+[ $REBOOT_REQUIRED ] && pcp_reboot_required
+pcp_end

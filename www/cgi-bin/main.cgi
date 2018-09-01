@@ -1,39 +1,62 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-21
-#	HTML5 cleanup. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3B. PH.
-
-# Version: 3.20 2017-04-16
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Changed reboot functions. PH.
-
-# Version: 3.11 2017-01-29
-#	Added button for Hotfix. PH.
-
-# Version: 3.10 2017-01-06
-#	Updated [Save to USB] more> help. GE.
-#	Changed indicators to use pcp_green_tick, pcp_red_cross. GE.
-#	Changes for Squeezelite extension. PH.
-
-# Version: 3.00 2016-07-08
-#	Moved Resize FS and Extensions to MODE_ADVANCED. GE.
-
-# Version: 0.01 2014-06-25
-#	Original. GE.
+# Version: 4.0.0 2018-08-11
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "Main Page" "SBP"
 
+pcp_running_script
+pcp_httpd_query_string
+
 pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
+
+#========================================================================================
+# Reboot page.
+#----------------------------------------------------------------------------------------
+if [ "$ACTION" = "reboot" ]; then
+	. pcp-rpi-functions
+	pcp_rpi_details
+	pcp_table_top "Rebooting"
+	echo '<p>pCP is rebooting...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' $RB_DELAY: '$RB_DELAY'</p>'
+	pcp_table_middle
+	pcp_redirect_button "Refresh Main Page" "main.cgi" $RB_DELAY
+	pcp_table_end
+	pcp_footer
+	pcp_copyright
+	pcp_remove_query_string
+	echo '</body>'
+	echo '</html>'
+	pcp rb
+	exit
+fi
+
+#========================================================================================
+# Shutdown page.
+#----------------------------------------------------------------------------------------
+if [ "$ACTION" = "shutdown" ]; then
+	. pcp-rpi-functions
+	pcp_rpi_details
+	pcp_table_top "Shutdown"
+	echo '<p>pCP is shutting down...</p>'
+	echo '<p><b>Note:</b> You need to reapply power to restart after a shutdown.</p>'
+	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' DELAY: 15</p>'
+	pcp_table_middle
+	pcp_redirect_button "Refresh Main Page" "main.cgi" 15
+	pcp_table_end
+	pcp_footer
+	pcp_copyright
+	pcp_remove_query_string
+	echo '</body>'
+	echo '</html>'
+	pcp sd
+	exit
+fi
 
 #========================================================================================
 # Padding
@@ -258,7 +281,6 @@ pcp_main_update_sqlt() {
 	echo '                  <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
 	echo '                </div>'
 	echo '              </td>'
-
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_update_sqlt
@@ -322,12 +344,12 @@ pcp_main_reboot() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''reboot.cgi?RB=yes'\'')" method="get">'
+	echo '                <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''main.cgi?ACTION=reboot'\'')" method="get">'
 	echo '                  <input type="submit" value="Reboot">'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Reboot piCorePlayer after enabling or disabling HDMI output&nbsp;&nbsp;'
+	echo '                <p>Reboot piCorePlayer&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -399,9 +421,10 @@ pcp_main_save_usb() {
 	echo '                  <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>If you then reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
+	echo '                    <li>If you reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
 	echo '                    <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
-	echo '                    <li>This configuration file is named newconfig.cfg and will be automatially renamed to usedconfig.cfg after rebooting.</li>'
+	echo '                    <li>This configuration file (newpcp.cfg) will be automatically renamed to usedpcp.cfg after rebooting.</li>'
+	echo '                    <li>This method will only work on basic piCorePlayer setups.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -494,7 +517,7 @@ pcp_main_shutdown() {
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''shutdown.cgi'\'')" method="get">'
+	echo '                <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''main.cgi?ACTION=shutdown'\'')" method="get">'
 	echo '                  <input type="submit" value="Shutdown">'
 	echo '                </form>'
 	echo '              </td>'
@@ -579,7 +602,7 @@ fi
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Static IP-------------------------------------
-pcp_main_static_ip(){
+pcp_main_static_ip() {
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -589,11 +612,13 @@ pcp_main_static_ip(){
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Static IP for wired networks&nbsp;&nbsp;'
+	echo '                <p>Static IP for network interface&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to set a static IP for wired networks (eth0).</p>'
+	echo '                  <p>The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</p>'
+	echo '                  <p>This option allows you to set a static IP for network interface.</p>'
+	echo '                  <p>You will need to re-install static IP after an insitu update.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -670,7 +695,7 @@ pcp_main_hotfix() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_hotfix
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------HotFix----------------------------------------
+#------------------------------------------Update pcp-base-------------------------------
 pcp_main_update_pcpbase() {
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -710,7 +735,6 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
-
 
 #------------------------------------------Reset ALL-------------------------------------
 pcp_main_reset_all() {

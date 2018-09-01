@@ -1,0 +1,130 @@
+#!/bin/sh
+
+# Version: 4.0.0 2018-08-08
+
+#========================================================================================
+# Start, stop, restart or get status of wifi daemons.
+#	Valid interfaces: wlan0, wlan1
+#----------------------------------------------------------------------------------------
+. /etc/init.d/tc-functions
+PCPFUNCTIONS=/home/tc/www/cgi-bin/pcp-functions
+
+[ -r $PCPFUNCTIONS ] && . $PCPFUNCTIONS
+pcp_variables
+[ -r $CONFIGCFG ] && . $CONFIGCFG
+
+INTERFACE="$1"
+ACTION="$2"
+
+# Use DHCP or static IP?
+checkbootparam nodhcp
+[ $? -eq 1 ] && DHCP=TRUE || unset DHCP
+
+#========================================================================================
+# Function to start the daemons - WPASUPPLICANTCONF
+#----------------------------------------------------------------------------------------
+do_start() {
+	# Return
+	#   0 if daemon has been started successfully
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+
+	echo "Starting WiFi on $INTERFACE..."
+	ps | grep wpa_supplicant | grep $INTERFACE > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		echo "$INTERFACE already started..."
+		return 1
+	fi
+	ifconfig $INTERFACE up > /dev/null 2>&1
+	[ $? -eq 0 ] || return 2
+	/usr/local/sbin/wpa_supplicant -i$INTERFACE -c$WPASUPPLICANTCONF -Dnl80211,wext -B > /dev/null 2>&1
+	[ $? -eq 0 ] || return 2
+	if [ $DHCP ]; then
+		/sbin/udhcpc -b -i $INTERFACE -x hostname:$NAME -p /var/run/udhcpc.${INTERFACE}.pid
+		[ $? -eq 0 ] && return 0 || return 2
+	else
+		[ -f /opt/${INTERFACE}.sh ] && . /opt/${INTERFACE}.sh
+	fi
+}
+
+#========================================================================================
+# Function to stop the daemons
+#----------------------------------------------------------------------------------------
+do_stop() {
+	# Return
+	#   0 if daemon has been stopped successfully
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+
+	echo "Stopping WiFi on $INTERFACE..."
+	ps | grep wpa_supplicant | grep $INTERFACE > /dev/null 2>&1
+	if [ $? -eq 1 ]; then
+		echo "$INTERFACE already stopped..."
+		return 1
+	fi
+	/usr/local/sbin/wpa_cli -i $INTERFACE disconnect > /dev/null 2>&1
+	[ $? -eq 0 ] || return 2
+	/usr/local/sbin/wpa_cli -i $INTERFACE terminate > /dev/null 2>&1
+	[ $? -eq 0 ] || return 2
+	if [ $DHCP ]; then
+		kill `ps | grep udhcpc | grep $INTERFACE | awk '{print $1}'` > /dev/null 2>&1
+		[ $? -eq 0 ] || return 2
+		rm -f /var/run/udhcpc.${INTERFACE}.pid
+		[ $? -eq 0 ] || return 2
+	fi
+	ifconfig $INTERFACE down > /dev/null 2>&1
+	[ $? -eq 0 ] && return 0 || return 2
+}
+
+#========================================================================================
+# Function to give status the daemons
+#----------------------------------------------------------------------------------------
+do_status() {
+	# Return
+	#   0 if daemons are running
+	#   1 if daemons not running
+
+	ps | grep wpa_supplicant | grep $INTERFACE > /dev/null 2>&1
+	[ $? -eq 0 ] && echo "wpa_supplicant running for $INTERFACE" || ( echo "wpa_supplicant not running for $INTERFACE"; return 1 )
+	if [ $DHCP ]; then
+		ps | grep udhcpc | grep $INTERFACE > /dev/null 2>&1
+		[ $? -eq 0 ] && echo "udhcpc running for $INTERFACE" || ( echo "udhcpc not running for $INTERFACE"; return 1 )
+	fi
+}
+
+#========================================================================================
+# Help
+#----------------------------------------------------------------------------------------
+do_help() {
+	echo "Usage: $0 [wlan0|wlan1] [start|stop|restart|status]"
+	exit 1
+}
+
+#========================================================================================
+# Action
+#----------------------------------------------------------------------------------------
+if ! ( [ "$INTERFACE" = "wlan0" ] || [ "$INTERFACE" = "wlan1" ] ); then
+	do_help
+fi
+
+case "$ACTION" in
+	start)
+		do_start
+	;;
+	stop)
+		do_stop
+	;;
+	restart)
+		do_stop
+		sleep 1
+		do_start
+		sleep 1
+		do_status
+	;;
+	status)
+		do_status
+	;;
+	*)
+		do_help
+	;;
+esac

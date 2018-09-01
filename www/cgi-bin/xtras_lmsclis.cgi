@@ -1,26 +1,10 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Added find_servers. GE.
-
-# Version: 0.04 2016-05-09 GE
-#	Renamed variable HTPPD to HTTPD.
-
-# Version: 0.03 2016-03-25 GE
-#	Updated.
-
-# Version: 0.02 2015-09-22 GE
-#	Updated.
-
-# Version: 0.01 2014-10-22 GE
-#	Original.
+# Version: 4.0.0 2018-05-26
+#	Updates for JSON requests
 
 . pcp-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "Controls Adv" "GE"
 
@@ -107,7 +91,7 @@ echo '<p>'$(pcp_lms_player_status)'</p>'
 #--------------------------------------pcp_lms_artists-----------------------------------
 echo '<h2>Artists: (pcp_lms_artists)</h2>'
 echo '<p><b>Note:</b> Limited to first 20 artists.</p>'
-echo '<p>'$(pcp_lms_artists)'</p>'
+echo '<p>'$(pcp_lms_artists 20)'</p>'
 echo '<br />'
 
 #--------------------------------------pcp_lms_mode--------------------------------------
@@ -218,16 +202,16 @@ echo '<p>'$(pcp_lms_info_total_songs)'</p>'
 echo '<h2>Show: (pcp_lms_show)</h2>'
 echo '<p>'$(pcp_lms_show)'</p>'
 
-echo '</div>'
-
 #===============================================================
-echo '<h1>Old functions</h1>'
 
+[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 echo '<br />'
 echo '<div>'
-echo '<img src="http://'$(pcp_lmsip)':9000/music/current/cover.jpg" alt="Currently playing" style="height:250px; width:250px; border:1px solid black;"/>'
+echo '<img src="http://'$(pcp_lmsip)':'${LMSPORT}$(pcp_lms_show)'" alt="Currently playing" style="height:250px; width:250px; border:1px solid black;"/>'
 echo '</div>'
 echo '<br />'
+
+echo '</div>'
 
 pcp_footer
 pcp_copyright

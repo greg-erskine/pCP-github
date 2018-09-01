@@ -2,6 +2,9 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer.
 
+# Version: 4.0.0 2018-04-17
+#	Added $RB_DELAY to pcp_rpi_details. GE.
+
 # Version: 3.5.0 2018-03-18
 #	Added support for RPi3B+. GE.
 
@@ -54,33 +57,33 @@ pcp_rpi_revision() {
 
 pcp_rpi_details() {
 	case $(pcp_rpi_revision) in
-		*Beta)  TYPE=1;  MODEL=B;      PCBREV=Beta; MEMORY=256;;
-		*0002)  TYPE=1;  MODEL=B;      PCBREV=1;    MEMORY=256;;
-		*0003)  TYPE=1;  MODEL=B;      PCBREV=1+;   MEMORY=256;;
-		*0004)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;;
-		*0005)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;;
-		*0006)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;;
-		*0007)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;;
-		*0008)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;;
-		*0009)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;;
-		*000d)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;;
-		*000e)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;;
-		*000f)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;;
-		*0010)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;;
-		*0011)  TYPE=1;  MODEL=CM;     PCBREV=1.0;  MEMORY=512;;
-		*0012)  TYPE=1;  MODEL=A+;     PCBREV=1;    MEMORY=256;;
-		*0013)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;;
-		*0014)  TYPE=1;  MODEL=CM;     PCBREV=1.1;  MEMORY=512;;		# Check PCBREV
-		*0015)  TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=256;;
-		*041)   TYPE=2;  MODEL=2B;     PCBREV=1;    MEMORY=1024;;
-		*042)   TYPE=2;  MODEL=2B;     PCBREV=1.2;  MEMORY=1024;;
-		*092)   TYPE=0;  MODEL=ZERO;   PCBREV=1.2;  MEMORY=512;;
-		*093)   TYPE=0;  MODEL=ZERO;   PCBREV=1.3;  MEMORY=512;;
-		*082)   TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;;		# a22082
-		*0a0)   TYPE=3;  MODEL=CM3;    PCBREV=1;    MEMORY=1024;;
-		*0c1)   TYPE=0;  MODEL=ZERO-W; PCBREV=1;    MEMORY=512;;
-		*0d3)   TYPE=3;  MODEL=3B+;    PCBREV=1;    MEMORY=1024;;		# a020d3
-		*)      TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;;
+		*Beta)  TYPE=1;  MODEL=B;      PCBREV=Beta; MEMORY=256;  RB_DELAY=60;;
+		*0002)  TYPE=1;  MODEL=B;      PCBREV=1;    MEMORY=256;  RB_DELAY=60;;
+		*0003)  TYPE=1;  MODEL=B;      PCBREV=1+;   MEMORY=256;  RB_DELAY=60;;
+		*0004)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
+		*0005)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
+		*0006)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
+		*0007)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
+		*0008)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
+		*0009)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
+		*000d)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;  RB_DELAY=60;;
+		*000e)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;  RB_DELAY=60;;
+		*000f)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;  RB_DELAY=60;;
+		*0010)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;  RB_DELAY=60;;
+		*0011)  TYPE=1;  MODEL=CM;     PCBREV=1.0;  MEMORY=512;  RB_DELAY=60;;
+		*0012)  TYPE=1;  MODEL=A+;     PCBREV=1;    MEMORY=256;  RB_DELAY=60;;
+		*0013)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;  RB_DELAY=60;;
+		*0014)  TYPE=1;  MODEL=CM;     PCBREV=1.1;  MEMORY=512;  RB_DELAY=60;;		# Check PCBREV
+		*0015)  TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=256;  RB_DELAY=60;;
+		*041)   TYPE=2;  MODEL=2B;     PCBREV=1;    MEMORY=1024; RB_DELAY=40;;
+		*042)   TYPE=2;  MODEL=2B;     PCBREV=1.2;  MEMORY=1024; RB_DELAY=40;;
+		*092)   TYPE=0;  MODEL=ZERO;   PCBREV=1.2;  MEMORY=512;  RB_DELAY=50;;
+		*093)   TYPE=0;  MODEL=ZERO;   PCBREV=1.3;  MEMORY=512;  RB_DELAY=50;;
+		*082)   TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024; RB_DELAY=40;;		# a22082
+		*0a0)   TYPE=3;  MODEL=CM3;    PCBREV=1;    MEMORY=1024; RB_DELAY=40;;
+		*0c1)   TYPE=0;  MODEL=ZERO-W; PCBREV=1;    MEMORY=512;  RB_DELAY=50;;
+		*0d3)   TYPE=3;  MODEL=3B+;    PCBREV=1;    MEMORY=1024; RB_DELAY=35;;		# a020d3
+		*)      TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;    RB_DELAY=60;;
 	esac
 
 	case "${MODEL}${PCBREV}" in

@@ -1,32 +1,20 @@
 #!/bin/sh +x
 
-# Version: 3.5.0 2018-02-17
-#	Cleanup. GE.
-
-# Version: 3.21 2017-05-29
-#	Changes for booting from USB on RPi3. PH.
-#	Forward compatibility for pcp_mount_mmcblk0p1. PH.
-
-# Version: 3.20 2017-03-07
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.02 2016-08-29
-#	Updated Static IP to wait for USB ethernet to be detected. PH.
-
-# Version: 0.01 2015-05-19
-#	Original. GE.
+# Version: 4.0.0 2018-07-31
 
 #########################################################################################
 # FIX: This script does an excessive number of backups. Very painful if backup is large.
 #########################################################################################
 
-VERSION="v3.5.0"
+VERSION="v4.0.0"
 BACKTITLE="piCorePlayer Basic Setup - $VERSION"
 
 PCPHOME="/home/tc/www/cgi-bin"
 STATICIP="/opt/eth0.sh"
 
 . ${PCPHOME}/pcp-functions
+. ${PCPHOME}/pcp-wifi-functions
+
 
 if [ ! $(type -t pcp_mount_mmcblk0p1) ]; then
 	pcp_mount_mmcblk0p1() {
@@ -143,7 +131,7 @@ pcp_main_menu() {
 		0 0 0 \
 		\
 		"Wifi"          "Setup Wifi" \
-		"Static IP"     "Setup Static IP (wired networks only)" \
+		"Static IP"     "Setup Static IP (for wired networks ONLY)" \
 		"WebGUI"        "Enable/Disable Web GUI" \
 		"Backup"        "Backup $NAME configuration file" \
 		"Reboot"        "Reboot $NAME" \
@@ -222,7 +210,7 @@ pcp_webgui_menu() {
 #----------------------------------------------------------------------------------------
 pcp_webgui_enable() {
 	sudo /usr/local/etc/init.d/httpd start >/dev/null 2>&1
-	sed -i '/httpd start/s/^#\+//' $PCPHOME/do_rebootstuff.sh >/dev/null 2>&1
+	sed -i '/httpd start/s/^#\+//' ${PCPHOME}/pcp_startup.sh >/dev/null 2>&1
 	pcp_backup_nohtml >/dev/null 2>&1
 }
 
@@ -231,7 +219,7 @@ pcp_webgui_enable() {
 #----------------------------------------------------------------------------------------
 pcp_webgui_disable() {
 	sudo /usr/local/etc/init.d/httpd stop >/dev/null 2>&1
-	sed -i '/httpd start/s/^/#/g' $PCPHOME/do_rebootstuff.sh >/dev/null 2>&1
+	sed -i '/httpd start/s/^/#/g' ${PCPHOME}/pcp_startup.sh >/dev/null 2>&1
 	pcp_backup_nohtml >/dev/null 2>&1
 }
 
@@ -242,7 +230,7 @@ pcp_get_webgui_status() {
 	WEBGUI=0
 	ps | grep -v grep | grep httpd
 	[ $? -eq 0 ] || WEBGUI=$(($WEBGUI + 1))
-	cat /home/tc/www/cgi-bin/do_rebootstuff.sh | grep "#/usr/local/etc/init.d/httpd"
+	cat ${PCPHOME}/pcp_startup.sh | grep "#/usr/local/etc/init.d/httpd"
 	[ $? -eq 0 ] && WEBGUI=$(($WEBGUI + 1))
 }
 
@@ -485,10 +473,19 @@ pcp_wireless_menu() {
 }
 
 pcp_write_wifi() {
-	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $CONFIGCFG
-	sudo sed -i "s/\(SSID=\).*/\1\"$SSID\"/" $CONFIGCFG
-	sudo sed -i "s/\(PASSWORD=\).*/\1\"$PASSWORD\"/" $CONFIGCFG
-	sudo sed -i "s/\(ENCRYPTION=\).*/\1\"$ENCRYPTION\"/" $CONFIGCFG
+	sudo sed -i "s/\(WIFI=\).*/\1\"$WIFI\"/" $PCPCFG
+	WPA_SSID=$SSID
+	WPA_PASSWORD=$PASSWORD
+	WPA_KEY_MGMT=$ENCRYPTION
+	[ "$WPA_KEY_MGMT" = "WPA" ] && WPA_ENCRYPTION=WPA-PSK
+	[ "$WPA_KEY_MGMT" = "WEP" ] && WPA_ENCRYPTION=WEP
+	[ "$WPA_KEY_MGMT" = "NONE" ] && WPA_ENCRYPTION=NONE
+	WPA_HIDDENSSID=0
+	WPA_LOCATION=$WPASUPPLICANTCONF
+	WPASUPPLICANTCONF=`mktemp`
+	pcp_wifi_write_wpa_supplicant "text"
+	sudo mv $WPASUPPLICANTCONF $WPA_LOCATION
+	sudo chmod 600 $WPA_LOCATION
 	pcp_backup_nohtml >/dev/null 2>&1
 }
 

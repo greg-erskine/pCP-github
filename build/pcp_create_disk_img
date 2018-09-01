@@ -80,14 +80,14 @@ if [ $? -ne 0 ]; then
 fi
 
 #Set the pCP version
-. ../pcp/mydata/usr/local/sbin/piversion.cfg
+. ../pcp/mydata/usr/local/etc/pcp/pcpversion.cfg
 
 echo "Select the pCP version"
 select i in Plain Audio;
 do
 	case $i in
-		Plain) PCP="$(echo $PIVERS | tr -d [[:space:]])";;
-		Audio) PCP="$(echo $PIVERS | tr -d [[:space:]])-Audio";;
+		Plain) PCP="$(echo $PCPVERS | tr -d [[:space:]])";;
+		Audio) PCP="$(echo $PCPVERS | tr -d [[:space:]])-Audio";;
 	esac
 	break
 done
@@ -303,6 +303,7 @@ LICENCE.piCorePlayer
 README
 RELEASE
 ssh
+wpa_supplicant.conf.sample
 EOF
 
 	rsync --files-from=${FILELIST} ${BUILDROOT}/../pcp/mmcblk0p1 $PART1
@@ -354,7 +355,7 @@ copy_part2(){
 	find $PART2/* -type d | grep -v lost | xargs chmod 775
 
 	pcp_txt_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/onboot.lst $PART2/tce/onboot.lst 1001.50 664
-	pcp_txt_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/piCorePlayer.dep $PART2/tce/piCorePlayer.dep 1001.50 664
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/piCorePlayer.dep $PART2/tce/piCorePlayer.dep 1001.50 664
 
 	EXT=$(ls -1 ${BUILDROOT}/tcz-for-img/*.tcz)
 
@@ -362,6 +363,8 @@ copy_part2(){
 		J=$(basename ${I%%.*})
 		pcp_tcz_cp ${BUILDROOT}/tcz-for-img/$J ${PART2}/tce/optional/$J 1001.50 664	
 	done
+
+	pcp_tcz_cp ${BUILDROOT}/../pcp/mmcblk0p2/tce/optional/never_remove ${PART2}/tce/optional/never_remove 1001.50 664
 
 #	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/firmware-brcmwifi/repo/firmware-brcmwifi ${PART2}/tce/optional/firmware-brcmwifi 1001.50 664
 #	pcp_tcz_cp ${BUILDROOT}/git/picoreplayer-picoreplayer/tcz/RTL_firmware/firmware-rtlwifi ${PART2}/tce/optional/firmware-rtlwifi 1001.50 664
@@ -406,8 +409,9 @@ build_mydata(){
 	chmod 775 ${MYDATA}/opt/bootsync.sh
 	chmod 664 ${MYDATA}/opt/tcemirror
 	chmod 775 ${MYDATA}/opt/.xfiletool.lst
-	chown 0.50 ${MYDATA}/etc/sysconfig/*
-	chmod 664 ${MYDATA}/etc/sysconfig/*
+# Nothing currently in this folder
+#	chown 0.50 ${MYDATA}/etc/sysconfig/*
+#	chmod 664 ${MYDATA}/etc/sysconfig/*
 
 	find ${MYDATA}/etc -not -type d | xargs -r dos2unix -s -q
 
@@ -419,14 +423,14 @@ build_mydata(){
 
 	# These files have already been copied, but this is setting ownership,type and dos2unix.
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/asound.conf ${MYDATA}/etc/asound.conf root.staff 664
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/motd ${MYDATA}/etc/motd root.staff 664
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/motd ${MYDATA}/etc/motd root.staff 664
 #	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/modprobe.conf ${MYDATA}/etc/modprobe.conf root.staff 664
 
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/copywww.sh ${MYDATA}/home/tc/.local/bin/copywww.sh 1001.50 755
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/.pbtemp ${MYDATA}/home/tc/.local/bin/.pbtemp 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.alsaequal.presets ${MYDATA}/home/tc/.alsaequal.presets 1001.50 644
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.ashrc ${MYDATA}/home/tc/.ashrc 1001.50 644
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/wifi.db ${MYDATA}/home/tc/wifi.db root.root 600
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/powerscript.sh ${MYDATA}/home/tc/powerscript.sh 1001.50 755
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/pcp-powerbutton.sh ${MYDATA}/home/tc/pcp-powerbutton.sh 1001.50 755
 
@@ -443,14 +447,17 @@ build_mydata(){
 	#insitu update stage 2 is downloaded on demand.
 	rm -f ${MYDATA}/home/tc/www/cgi-bin/insitu_update_stage2.cgi
 
+	#Remove www/cgi-bin/dev_* web pages, they are development only
+	rm -f ${MYDATA}/home/tc/www/cgi-bin/dev_*
+
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/bootlocal.sh ${MYDATA}/opt/bootlocal.sh 0.50 775
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/bootsync.sh ${MYDATA}/opt/bootsync.sh 0.50 775
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/opt/.filetool.lst ${MYDATA}/opt/.filetool.lst 0.50 664
 
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/sbin/config.cfg ${MYDATA}/usr/local/sbin/config.cfg 1001.50 664
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/sbin/piversion.cfg ${MYDATA}/usr/local/sbin/piversion.cfg 1001.50 664
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/pcp.cfg ${MYDATA}/usr/local/etc/pcp/pcp.cfg 1001.50 664
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/pcpversion.cfg ${MYDATA}/usr/local/etc/pcp/pcpversion.cfg 1001.50 664
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/pointercal ${MYDATA}/usr/local/etc/pointercal root.root 644
-	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/init.d/httpd ${MYDATA}/usr/local/etc/init.d/httpd root.root 755
+#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/usr/local/etc/init.d/httpd ${MYDATA}/usr/local/etc/init.d/httpd root.root 755
 
 	touch ${MYDATA}/var/lib/alsa/asound.state
 	touch ${MYDATA}/var/spool/cron/crontabs/root
@@ -848,6 +855,43 @@ cd /tmp
 [ -f ${PCP}.zip ] && rm ${PCP}.zip
 md5sum ${PCP}.img > ${PCP}.img.md5.txt
 zip -9 ${PCP}.zip ${PCP}.img*
+
+echo ""
+echo "${BLUE}*******************************************************************************************"
+echo ""
+while true; do
+   read -p "${BLUE}Do you want to copy kernel modules to local repo for upload (y)es, (n)o ? ${NORMAL}" yn
+   case $yn in
+      [Yy]* ) UPDATE_REPO=1; break;;
+      [Nn]* ) UPDATE_REPO=0; break;;
+      * ) echo "${RED}[ ERROR ] Please answer yes or no.${NORMAL}";;
+   esac
+done
+
+if [ $UPDATE_REPO -eq 1 ]; then
+	SRC_V6="${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}"
+	SRC_V7="${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}"
+
+	REPO="/home/paul/git/repo.picoreplayer.org/repo/9.x"
+	REPO_V6="${REPO}/armv6/tcz"
+	REPO_V7="${REPO}/armv7/tcz"
+
+	EXT="tcz tcz.dep tcz.info tcz.list tcz.md5.txt"
+
+	REPOS="V6 V7"
+	for I in $REPOS; do
+		SRC=$(eval echo  "\${SRC_${I}}")
+		DEST=$(eval echo "\${REPO_${I}}")
+
+		FILES=$(ls -1 $SRC/*.tcz | xargs basename -a)
+		for J in $FILES; do
+			echo "${BLUE}[ INFO ] Copying Extension ${J%%//.*}"
+			for K in $EXT; do
+				[ -r $SRC/${J%.*}.${K} ] && cp -f $SRC/${J%.*}.${K} ${DEST}/${J%.*}.${K}
+			done
+		done
+	done
+fi
 
 echo ""
 echo "DONE"

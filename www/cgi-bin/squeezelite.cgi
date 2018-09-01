@@ -1,36 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-20
-#	Added setting of which squeezelite binary to use. PH.
-#	Increase ALSA buffer field width, when size expressed in bytes. PH.
-#	Added dsd to codec, xcodec field. PH.
-#	Change -D field based on which binary is being used. PH.
-#	Add form some validation prior to submit. PH.
-#	HTML5 cleanup. GE.
-
-# Version: 3.20 2017-03-08
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Added Advanced Options button. GE.
-#	Cleaned Audio selection and made a dynamic drop-down list. SBP.
-#	Changes for Squeezelite extension. PH.
-
-# Version: 3.02 2016-09-20
-#	Added Hifiberry Digi+ Pro support. SBP.
-#	Fixed pattern for ALSA settings to allow 24_3.
-#	Added missing raspidac3CHECKED. GE.
-#	Fixed -i option only when Jivelite and LIRC enabled. RI.
-
-# Version: 3.00 2016-07-25
-#	Added note regaring hw: option for output. PH.
-#	Added new DACs. SBP.
-#	Removed & from $STRING. GE.
-#	Standardised/expanded <input> tags. GE.
-
-# Version: 0.01 2014-06-25 GE
-#	Original.
+# Version: 4.0.0 2018-07-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -88,7 +58,11 @@ pcp_cards_controls() {
 	CARDNO=0
 	for CARD in $(cat /proc/asound/card[0-9]/id)
 	do
-		echo '                      <li>Card '$CARDNO': '$CARD' - Control: '$(amixer scontrols -c ${CARDNO} | awk -F"'" '{print $2}')'</li>'
+		amixer -c $CARD scontrols | awk -F"'" '{printf "\047%s\047\n", $2}' |
+		while read MCONTROL; do
+			amixer -c $CARD sget $MCONTROL | grep -q "volume"
+			[ $? -eq 0 ] && echo '                      <li>Card '$CARDNO': '$CARD' - Control: '$(echo $MCONTROL | cut -d"'" -f2)'</li>'
+		done
 		CARDNO=$((CARDNO+1))
 	done
 
@@ -187,7 +161,7 @@ echo '    </td>'
 echo '  </tr>'
 #----------------------------------------------------------------------------------------
 
-. $CONFIGCFG
+. $PCPCFG
 
 #========================================================================================
 # Start Squeezelite settings table
@@ -904,7 +878,7 @@ pcp_squeezelite_volume() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_squeezelite_volume
+[ $MODE -ge $MODE_BETA -a "$CARD" != "RPiCirrus" ] && pcp_squeezelite_volume
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off GPIO---------------------------------

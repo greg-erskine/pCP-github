@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-17
+#	Changed repo to new server. PH.
+
 # Version: 3.5 2017-11-08
 #	Changed name of lirc package. PH.
 
 # Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
+#	Changed to allow booting from USB on RPi3. PH.
 
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
@@ -21,12 +24,11 @@
 #	Changed to pcp-load to fetch the packages. SBP.
 #	Added PCremote support. GE.
 
-# Version: 0.01 2016-03-15 GE
-#	Original.
+# Version: 0.01 2016-03-15
+#	Original. GE.
 
 . pcp-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 ORIG_IR_LIRC=$IR_LIRC			# <=== GE not implemented yet
 ORIG_IR_DEVICE=$IR_DEVICE		# <=== GE not implemented yet
@@ -67,14 +69,14 @@ pcp_internet_indicator() {
 }
 
 #========================================================================================
-# Check we have sourceforge access - set FAIL_MSG if not accessible
+# Check we have pCP repo access - set FAIL_MSG if not accessible
 #----------------------------------------------------------------------------------------
-pcp_sourceforge_indicator() {
-	if [ $(pcp_sourceforge_accessible) -eq 0 ]; then
-		SOURCEFORGE_STATUS="Sourceforge repository accessible."
+pcp_repo_indicator() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		REPO_STATUS="pCP repository accessible."
 	else
-		SOURCEFORGE_STATUS="Sourceforge repository not accessible!!"
-		FAIL_MSG="Sourceforge not accessible!!"
+		REPO_STATUS="pCP repository not accessible!!"
+		FAIL_MSG="pCP repo not accessible!!"
 	fi
 }
 
@@ -504,9 +506,9 @@ if [ "$ACTION" != "Initial" ]; then
 		pcp_internet_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$INTERNET_STATUS
-		pcp_sourceforge_indicator
+		pcp_repo_indicator
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		echo '[ INFO ] '$SOURCEFORGE_STATUS
+		echo '[ INFO ] '$REPO_STATUS
 		pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
 		pcp_lirc_install
 		BACKUP_REQUIRED=TRUE

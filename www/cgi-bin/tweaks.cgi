@@ -1,41 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-02-28
-#	Cosmetic change to jivelite install. GE.
-#	Moved Scaling governor to tweaks page, set in config and set at boot. PH.
-#	HTML5 cleanup. GE.
-
-# Version: 3.22 2017-07-22
-#	Added Internet check IP. GE.
-#	Added rotdash button. GE.
-
-# Version: 3.21 2017-06-06
-#	Changed to allow booting from USB on RPI3. PH.
-#	Removed HDMI Power warning for high sample rates....this is fixed in kernel/firmware. PH.
-
-# Version: 3.20 2017-04-22
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-#	Updated screen rotate. GE.
-#	Added JL_SCREEN_WIDTH, JL_SCREEN_HEIGHT. GE.
-#	Update jivelite install to PCP_REPO.  UPDATE PROCESS NOT FINISHED. PH.
-#	Added HDMI Power warning for high sample rates....until fixed by RPi. PH.
-
-# Version: 3.02 2016-09-05
-#	Updated FIQ-split. SBP.
-
-# Version: 3.01 2016-08-20
-#	Modified User Command Strings to display using javascript. PH.
-
-# Version: 3.00 2016-08-10
-#	Added LIRC IR remote controls. SBP.
-#	Reorganized order. PH. GE.
-#	Created USB Audio tweaks fieldset. GE.
-#	Modified User commands. GE.
-#	Added WOL interface. GE.
-
-# Version: 0.01 2014-08-06
-#	Original version. GE.
+# Version: 4.0.0 2018-08-25
 
 set -f
 
@@ -49,13 +14,6 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-
-pcp_tweaks_padding() {
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
-	echo '            </tr>'
-}
 
 #========================================================================================
 # pCP System Tweaks
@@ -156,7 +114,7 @@ pcp_tweaks_timezone() {
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Password----------------------------------
-# Note: changing passwords through a script over html is not very secure.
+# Note: changing passwords through a script over http is not very secure.
 #----------------------------------------------------------------------------------------
 pcp_tweaks_password() {
 	echo '          <form name="password" action="changepassword.cgi" method="get">'
@@ -174,7 +132,7 @@ pcp_tweaks_password() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p><b>Default:</b> piCore</p>'
-	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over html is not very secure.</p>'
+	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over http is not very secure.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -199,123 +157,6 @@ pcp_tweaks_password() {
 [ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Governor------------------------------------------
-pcp_tweaks_governor() {
-	echo '          <form name="governor" action= "writetooverclock.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>CPU Governor</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="CPUGOVERNOR">'
-							  for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-								  SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
-								  [ $GOV = $SCALINGGOVERNOR ] && SEL="selected" || SEL=""
-								  echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
-							  done
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Change CPU Governor &nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Available CPU Governors:</b></p>'
-	echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | sed 's/ $//' | sed 's/ /|/g' )'&gt;</p>'
-	echo '                    <p><b>Commonly used CPU Governors:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>ondemand = Sets the CPU frequency depending on the current system load.</li>'
-	echo '                      <li>powersave = Sets the CPU statically to the lowest frequency.</li>'
-	echo '                      <li>performance = Sets the CPU statically to the highest frequency.</li>'
-	echo '                    </ul>'
-	echo '                    <p>Dynamically set, no reboot is required.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="ACTION" value="gov">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </form>'
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_governor
-
-#---------------------------------------Overclock----------------------------------------
-pcp_tweaks_overclock() {
-	case "$OVERCLOCK" in
-		NONE) OCnone="selected" ;;
-		MILD) OCmild="selected" ;;
-		MODERATE) OCmoderate="selected" ;;
-	esac
-
-	# Only works for Raspberry Pi Model 1, disable for the others.
-	case "$(pcp_rpi_type)" in
-		1)     DISABLED="" ;;
-		0|2|3) DISABLED="disabled" ;;
-	esac
-
-	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Overclock</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <select class="large16" name="OVERCLOCK" '$DISABLED'>'
-	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
-	echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
-	echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
-	echo '                    <p><b>Note:</b> Only suitable for Raspberry Pi Model 1.</p>'
-	echo '                    <p>Reboot is needed.<p>'
-	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
-	echo '                    <ul>'
-	echo '                      <li>hold down the shift key during booting, or</li>'
-	echo '                      <li>edit the config.txt file manually</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="ACTION" value="oc">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save" '$DISABLED'>'
-	[ $MODE -ge $MODE_BETA ] &&
-	echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </form>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $OVERCLOCK: '$OVERCLOCK'<br />'
-		echo '                 [ DEBUG ] $OCnone: '$OCnone'<br />'
-		echo '                 [ DEBUG ] $OCmild: '$OCmild'<br />'
-		echo '                 [ DEBUG ] $OCmoderate: '$OCmoderate'</p>'
-		echo '<!-- End of debug info -->'
-	fi
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_overclock
-#----------------------------------------------------------------------------------------
-
 #----------------------------------------------Player Tabs-------------------------------
 pcp_tweaks_playertabs() {
 	case "$PLAYERTABS" in
@@ -326,7 +167,7 @@ pcp_tweaks_playertabs() {
 	echo '          <form name="playertabs" action="writetoconfig.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
-	pcp_start_row_shade
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>piCorePlayer Tabs</p>'
@@ -360,7 +201,7 @@ pcp_tweaks_playertabs() {
 pcp_tweaks_lmscontrols() {
 	case "$LMSCONTROLS" in
 		yes) LMSCONTROLSyes="checked" ;;
-		no)  LMSCONTROLSno="checked" ;;
+		no) LMSCONTROLSno="checked" ;;
 	esac
 
 	echo '          <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
@@ -481,7 +322,7 @@ pcp_tweaks_lmswebport() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Internet Check IP------------------------------------
+#--------------------------------------Internet Check IP---------------------------------
 pcp_tweaks_internet_check_ip() {
 	echo '          <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
@@ -591,6 +432,264 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# pCP OS/Kernel Tweaks
+#----------------------------------------------------------------------------------------
+if [ $MODE -ge $MODE_NORMAL ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>pCP Kernel Tweaks</legend>'
+fi
+#--------------------------------------Governor------------------------------------------
+pcp_tweaks_governor() {
+	echo '          <form name="governor" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>CPU Governor</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="CPUGOVERNOR">'
+							  for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
+								  SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+								  [ "$GOV" = "$SCALINGGOVERNOR" ] && SEL="selected" || SEL=""
+								  echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
+							  done
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Change CPU Governor &nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Available CPU Governors:</b></p>'
+	echo '                    <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | sed 's/ $//' | sed 's/ /|/g' )'&gt;</p>'
+	echo '                    <p><b>Commonly used CPU Governors:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>ondemand = Sets the CPU frequency depending on the current system load.</li>'
+	echo '                      <li>powersave = Sets the CPU statically to the lowest frequency.</li>'
+	echo '                      <li>performance = Sets the CPU statically to the highest frequency.</li>'
+	echo '                    </ul>'
+	echo '                    <p>Dynamically set, no reboot is required.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="ACTION" value="gov">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_governor
+
+#---------------------------------------Overclock----------------------------------------
+pcp_tweaks_overclock() {
+	case "$OVERCLOCK" in
+		NONE) OCnone="selected" ;;
+		MILD) OCmild="selected" ;;
+		MODERATE) OCmoderate="selected" ;;
+	esac
+
+	# Only works for Raspberry Pi Model 1, disable for the others.
+	case "$(pcp_rpi_type)" in
+		1)     DISABLED="" ;;
+		0|2|3) DISABLED="disabled" ;;
+	esac
+
+	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Overclock</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <select class="large16" name="OVERCLOCK" '$DISABLED'>'
+	echo '                    <option value="NONE" '$OCnone'>No overclocking</option>'
+	echo '                    <option value="MILD" '$OCmild'>Mild overclocking</option>'
+	echo '                    <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
+	echo '                    <p><b>Note:</b> Only suitable for Raspberry Pi Model 1.</p>'
+	echo '                    <p>Reboot is needed.<p>'
+	echo '                    <p><b>Note:</b> If Raspberry Pi fails to boot:</p>'
+	echo '                    <ul>'
+	echo '                      <li>hold down the shift key during booting, or</li>'
+	echo '                      <li>edit the config.txt file manually</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <input type="hidden" name="ACTION" value="oc">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save" '$DISABLED'>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Use Advanced Overclocking page for RPi Zero/2/3</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" OVERCLOCK OCnone OCmild OCmoderate
+		echo '<!-- End of debug info -->'
+	fi
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_overclock
+#----------------------------------------------------------------------------------------
+
+#-------------------------------------CPU Isolation--------------------------------------
+pcp_tweaks_cpuisol() {
+	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>CPU Isolation</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="CPUISOL"'
+	echo '                         value="'$CPUISOL'"'
+	echo '                         pattern="([0-3]+)?(,*[0-3]){0,3}"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Comma separated list of CPUs to isolate&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Isolation means the kernel will not run user tasks on the selected CPUs, unless specified.</p>'
+	echo '                    <p><b>Recommended setting:&nbsp;</b>0,3</p>'
+	echo '                    <p>CPU 0 to only run kernel interrupts.</p>'
+	echo '                    <p>CPU 3 to run the squeezelite output thread.</p>'
+	echo '                    <p>Squeezelite process settings available after reboot with isolation.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="ACTION" value="isol">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" CPUISOL
+		echo '<!-- End of debug info -->'
+	fi
+}
+[ $MODE -ge $MODE_ADVANCED -a $(pcp_rpi_type) -ge 2 ] && pcp_tweaks_cpuisol
+#----------------------------------------------------------------------------------------
+
+#-------------------------------------Squeezelite cpu affinity---------------------------
+pcp_tweaks_sqlite_affinity(){
+	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Squeezelite CPU</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="SQLAFFINITY"'
+	echo '                         value="'$SQLAFFINITY'"'
+	echo '                         pattern="([0-3]+)?(,*[0-3]){0,3}"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Comma separated list of CPUs to run squeezelite process&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Recommended:&nbsp;</b>blank</p>'
+	echo '                    <p>blank:&nbsp;Kernel decides which CPU to run Squeezelite threads.</p>'
+	echo '                    <p>If not resampling, then use the same settings as the output thread in next box.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Squeezelite Output CPU</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="large16"'
+	echo '                         type="text"'
+	echo '                         name="SQLOUTAFFINITY"'
+	echo '                         value="'$SQLOUTAFFINITY'"'
+	echo '                         pattern="[0-3]"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>CPU to run squeezelite output thread&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p><b>Recommended:&nbsp;</b>3</p>'
+	echo '                    <p>CPU 3 to run the squeezelite output thread.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="ACTION" value="sqlaffinity">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" SQLAFFINITY SQLOUTAFFINITY
+		echo '<!-- End of debug info -->'
+	fi
+}
+[ $MODE -ge $MODE_ADVANCED -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
+#----------------------------------------------------------------------------------------
+if [ $MODE -ge $MODE_NORMAL ]; then
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -793,7 +892,7 @@ pcp_tweaks_auto_start() {
 		}
 	}
 	END {
-		for (j=1; j<=i; j++) {
+		for (j=2; j<=i; j++) {
 			printf "                    <option value=\"%s\" %s>%s</option>\n",name[j],sel[j],name[j]
 		}
 	} '
@@ -834,10 +933,9 @@ pcp_tweaks_auto_start() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
-		echo '                     [ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'<br />'
-		echo '                     [ DEBUG ] LMS IP: '$(pcp_lmsip)'<br />'
-		echo '                     [ DEBUG ] $FAVLIST: '$FAVLIST'</p>'
+		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
+		echo '    <p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'</p>'
+		          pcp_debug_variables "html" AUTOSTARTFAV FAVLIST
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -901,19 +999,6 @@ pcp_tweaks_auto_start() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
-		echo '                     [ DEBUG ] $A_S_LMS_Y: '$A_S_LMS_Y'<br />'
-		echo '                     [ DEBUG ] $A_S_LMS_N: '$A_S_LMS_N'</p>'
-		echo '  </td>'
-		echo '</tr>'
-		echo '<!-- End of debug info -->'
-	fi
-
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -926,14 +1011,19 @@ pcp_tweaks_auto_start() {
 	echo '              </tr>'
 	echo '            </table>'
 	echo '          </form>'
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" AUTOSTARTLMS A_S_LMS_Y A_S_LMS_N
+		echo '<!-- End of debug info -->'
+	fi
+
 	#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
-
-	[ $DEBUG -eq 1 ] && pcp_favorites
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
 
@@ -966,67 +1056,64 @@ fi
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
-	echo '            <table class="bggrey percent100">'
+	echo '          <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
+	echo '            <tr class="'$ROWSHADE'">'
 
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-		echo '                <td class="column150">'
-		echo '                  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
-		echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
-		echo '                    <input type="submit" name="ACTION" value="Install">'
-		echo '                  </form>'
-		echo '                </td>'
-		echo '                <td class="column210">'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>Install Jivelite on pCP&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>This will install Jivelite and VuMeters on pCP.</p>'
-		echo '                  </div>'
-		echo '                </td>'
+		echo '              <td class="column150">'
+		echo '                <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+		echo '                  <input type="submit" name="ACTION" value="Install">'
+		echo '                </form>'
+		echo '              </td>'
+		echo '              <td class="column210">'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p>Install Jivelite on pCP&nbsp;&nbsp;'
+		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                </p>'
+		echo '                <div id="'$ID'" class="less">'
+		echo '                  <p>This will install Jivelite and VuMeters on pCP.</p>'
+		echo '                </div>'
+		echo '              </td>'
 	else
-		echo '                <td class="column360">'
-		echo '                  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
-		echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
-		echo '                    <input type="submit" name="ACTION" value="Update">'
-		echo '                    <input type="submit" name="ACTION" value="Reset">'
-		echo '                    <input type="submit" name="ACTION" value="Remove">'
-		echo '                  </form>'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
-		echo '                    <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
-		echo '                    <p>A reboot after installation is needed.<p>'
-		echo '                    <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
-		echo '                    <ul>'
-		echo '                      <li>Install - Downloads and installs Jivelite.</li>'
-		echo '                      <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
-		echo '                      <li>Reset - Resets Jivelite preferences.</li>'
-		echo '                      <li>Remove - Removes all traces of Jivelite.</li>'
-		echo '                    </ul>'
-		echo '                    <p>Jivelite requires resizing the file system.<p>'
-		echo '                    <p>Installing Jivelite will also install the VU Meters.<p>'
-		echo '                  </div>'
-		echo '                </td>'
+		echo '              <td class="column360">'
+		echo '                <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+		echo '                  <input type="submit" name="ACTION" value="Update">'
+		echo '                  <input type="submit" name="ACTION" value="Reset">'
+		echo '                  <input type="submit" name="ACTION" value="Remove">'
+		echo '                </form>'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
+		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                </p>'
+		echo '                <div id="'$ID'" class="less">'
+		echo '                  <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
+		echo '                  <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
+		echo '                  <p>A reboot after installation is needed.<p>'
+		echo '                  <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
+		echo '                  <ul>'
+		echo '                    <li>Install - Downloads and installs Jivelite.</li>'
+		echo '                    <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
+		echo '                    <li>Reset - Resets Jivelite preferences.</li>'
+		echo '                    <li>Remove - Removes all traces of Jivelite.</li>'
+		echo '                  </ul>'
+		echo '                  <p>Jivelite requires resizing the file system.<p>'
+		echo '                  <p>Installing Jivelite will also install the VU Meters.<p>'
+		echo '                </div>'
+		echo '              </td>'
 	fi
-	echo '              </tr>'
+	echo '            </tr>'
+	echo '          </table>'
 
 	if [ $DEBUG -eq 1 ]; then
-		echo '              <tr>'
-		echo '                <!-- Start of debug info -->'
-		echo '                <p class="debug">[ DEBUG ] $JIVELITE: '$JIVELITE'<br />'
-		echo '                                 [ DEBUG ] $JIVEyes: '$JIVEyes'<br />'
-		echo '                                 [ DEBUG ] $JIVEno: '$JIVEno'</p>'
-		echo '                <!-- End of debug info -->'
-		echo '              </tr>'
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
+		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
@@ -1035,13 +1122,13 @@ pcp_tweaks_install_jivelite() {
 pcp_tweaks_enable_jivelite() {
 	pcp_incr_id
 	pcp_toggle_row_shade
+	echo '          <form name="jivelite2" action="writetojivelite.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <form name="jivelite2" action="writetojivelite.cgi" method="get">'
-	echo '                    <input type="hidden" name="OPTION" value="JIVELITE">'
-	echo '                    <input type="hidden" name="ACTION" value="Onboot">'
-	echo '                    <input type="submit" value="Set Autostart" '$JLDISABLED'>'
-	echo '                  </form>'
+	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
+	echo '                  <input type="hidden" name="ACTION" value="Onboot">'
+	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED'>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1058,6 +1145,7 @@ pcp_tweaks_enable_jivelite() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_enable_jivelite
 #----------------------------------------------------------------------------------------
@@ -1073,7 +1161,6 @@ pcp_tweaks_vumeter() {
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
 	pcp_start_row_shade
-	pcp_tweaks_padding
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Jivelite VU Meter</p>'
@@ -1110,7 +1197,6 @@ pcp_tweaks_vumeter() {
 	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_tweaks_padding
 	echo '            </table>'
 	echo '          </form>'
 
@@ -1137,7 +1223,7 @@ pcp_tweaks_vumeter() {
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
 		echo '                 <p class="debug">[ DEBUG ] Installed extensions</p>'
-		echo '               <td>'
+		echo '               </td>'
 		echo '             </tr>'
 		pcp_toggle_row_shade
 		echo '             <tr class="'$ROWSHADE'">'
@@ -1147,11 +1233,7 @@ pcp_tweaks_vumeter() {
 		echo '               </td>'
 		echo '             </tr>'
 		echo '           </table>'
-
-		echo '<p class="debug">[ DEBUG ] $LOADED_VU_METER: '$LOADED_VU_METER'<br />'
-		echo '                 [ DEBUG ] $DISPLAY: '$DISPLAY'<br />'
-		echo '                 [ DEBUG ] $PACKAGEDIR: '$PACKAGEDIR'<br />'
-		echo '                 [ DEBUG ] $VUMETERS: '$VUMETERS'</p>'
+		pcp_debug_variables "html" LOADED_VU_METER DISPLAY PACKAGEDIR VUMETERS
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -1197,9 +1279,7 @@ pcp_tweaks_screenrotate() {
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $SCREENROTATE: '$SCREENROTATE'<br />'
-		echo '                 [ DEBUG ] $SCREEN0: '$SCREEN0'<br />'
-		echo '                 [ DEBUG ] $SCREEN180: '$SCREEN180'</p>'
+		pcp_debug_variables "html" SCREENROTATE SCREEN0 SCREEN180
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -1239,8 +1319,7 @@ pcp_tweaks_screensize() {
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<p class="debug">[ DEBUG ] $JL_SCREEN_WIDTH: '$JL_SCREEN_WIDTH'<br />'
-		echo '                 [ DEBUG ] $JL_SCREEN_HEIGHT: '$JL_SCREEN_HEIGHT'</p>'
+		pcp_debug_variables "html" JL_SCREEN_WIDTH JL_SCREEN_HEIGHT
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -1388,9 +1467,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $SQUEEZELITE: '$SQUEEZELITE'<br />'
-		echo '                     [ DEBUG ] $SQUEEZELITEyes: '$SQUEEZELITEyes'<br />'
-		echo '                     [ DEBUG ] $SQUEEZELITEno: '$SQUEEZELITEno'</p>'
+		pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1429,9 +1506,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $SHAIRPORT: '$SHAIRPORT'<br />'
-		echo '                     [ DEBUG ] $SHAIRPORTyes: '$SHAIRPORTyes'<br />'
-		echo '                     [ DEBUG ] $SHAIRPORTno: '$SHAIRPORTno'</p>'
+		pcp_debug_variables "html" SHAIRPORT SHAIRPORTyes SHAIRPORTno
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1470,9 +1545,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $ALSAlevelout: '$ALSAlevelout'<br />'
-		echo '                     [ DEBUG ] $ALSAdefault: '$ALSAdefault'<br />'
-		echo '                     [ DEBUG ] $ALSAcustom: '$ALSAcustom'</p>'
+		pcp_debug_variables "html" ALSAlevelout ALSAdefault ALSAcustom
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1516,9 +1589,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $ALSAeq: '$ALSAeq'<br />'
-		echo '                     [ DEBUG ] $ALSAeqno: '$ALSAeqno'<br />'
-		echo '                     [ DEBUG ] $ALSAeqyes: '$ALSAeqyes'</p>'
+		pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1606,9 +1677,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $CMD: '$CMD'<br />'
-		echo '                     [ DEBUG ] $CMDdefault: '$CMDdefault'<br />'
-		echo '                     [ DEBUG ] $CMDslow: '$CMDslow'</p>'
+		pcp_debug_variables "html" CMD CMDdefault CMDslow
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1641,9 +1710,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $FSM: '$CMD'<br />'
-		echo '                     [ DEBUG ] $FSMdefault: '$FSMdefault'<br />'
-		echo '                     [ DEBUG ] $FSMdisabled: '$FSMdisabled'</p>'
+		pcp_debug_variables "html" FSM FSMdefault FSMdisabled
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1690,13 +1757,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $FIQ: '$FIQ'<br />'
-		echo '                     [ DEBUG ] $selected1: '$selected1'<br />'
-		echo '                     [ DEBUG ] $selected2: '$selected2'<br />'
-		echo '                     [ DEBUG ] $selected3: '$selected3'<br />'
-		echo '                     [ DEBUG ] $selected4: '$selected4'<br />'
-		echo '                     [ DEBUG ] $selected5: '$selected5'<br />'
-		echo '                     [ DEBUG ] $selected6: '$selected6'</p>'
+		pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 selected5 selected6 selected7
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1743,6 +1804,13 @@ pcp_tweaks_cron() {
 		Disabled) RESTART_N="checked" ;;
 	esac
 
+	/etc/init.d/services/crond status >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		pcp_green_tick " is running"
+	else
+		pcp_red_cross " is not running"
+	fi
+
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1751,8 +1819,27 @@ pcp_tweaks_cron() {
 	echo '          <legend>Schedule CRON jobs</legend>'
 	echo '          <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
+	#-------------------------------------crond indicator--------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column210 center">'
+	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td colspan="2">'
+	echo '                <p>crond is '$STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = crond running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = crond not running.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	#-------------------------------------piCorePlayer reboot----------------------------
+	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
 	echo '                  <p>Schedule piCorePlayer reboot<p>'
@@ -1790,6 +1877,8 @@ pcp_tweaks_cron() {
 	echo '                  <input class="small1" type="radio" name="REBOOT" value="Disabled" '$REBOOT_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
+	#-------------------------------------Squeezelite restart----------------------------
+	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
@@ -1850,6 +1939,7 @@ pcp_tweaks_cron() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#-------------------------------------Custom Cron command----------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1876,6 +1966,7 @@ pcp_tweaks_cron() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#-------------------------------------Buttons----------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan=3>'
@@ -1885,30 +1976,14 @@ pcp_tweaks_cron() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </table>'
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $REBOOT: '$REBOOT'<br />'
-		echo '                     [ DEBUG ] $REBOOT_Y: '$REBOOT_Y'<br />'
-		echo '                     [ DEBUG ] $REBOOT_N: '$REBOOT_N'<br />'
-		echo '                     [ DEBUG ] $RESTART: '$RESTART'<br  />'
-		echo '                     [ DEBUG ] $RESTART_Y: '$RESTART_Y'<br />'
-		echo '                     [ DEBUG ] $RESTART_N: '$RESTART_N'<br />'
-		echo '                     [ DEBUG ] $RB_H: '$RB_H'<br />'
-		echo '                     [ DEBUG ] $RB_WD: '$RB_WD'<br />'
-		echo '                     [ DEBUG ] $RB_DMONTH: '$RB_DMONTH'<br />'
-		echo '                     [ DEBUG ] $RS_H: '$RS_H'<br />'
-		echo '                     [ DEBUG ] $RS_WD: '$RS_WD'<br />'
-		echo '                     [ DEBUG ] $RS_DMONTH: '$RS_DMONTH'<br />'
-		echo '                     [ DEBUG ] $CRON_COMMAND: '$CRON_COMMAND'</p>'
-		echo '  </td>'
-		echo '</tr>'
+		pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH CRON_COMMAND
 		echo '<!-- End of debug info -->'
 	fi
 
-	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -2015,20 +2090,14 @@ pcp_tweaks_user_commands() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	echo '            </table>'
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		echo '    <p class="debug">[ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
-		echo '                     [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
-		echo '                     [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
-		echo '  </td>'
-		echo '</tr>'
+		pcp_debug_variables "html" USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
 		echo '<!-- End of debug info -->'
 	fi
 
-	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'

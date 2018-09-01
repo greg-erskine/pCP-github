@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-17
+#	Added pcp_redirect_button. GE.
+#	HTML5 cleanup. GE.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
@@ -7,16 +11,15 @@
 #	Enhanced formatting. GE.
 #	Added pcp_squeezelite_status. GE.
 
-# Version: 0.02 2014-12-09 GE
-#	HTML5 formatted.
-
 # Version: 0.01 2014-06-24 GE
-#	Original.
+#	Original. GE.
 
 . pcp-functions
 
-pcp_html_head "Stop Squeezelite" "SBP" "5" "main.cgi"
+pcp_httpd_query_string
+[ "$FROM_PAGE" = "" ] && FROM_PAGE="main.cgi"
 
+pcp_html_head "Stop Squeezelite" "SBP"
 pcp_banner
 pcp_running_script
 
@@ -24,6 +27,8 @@ pcp_table_top "Stopping Squeezelite"
 pcp_squeezelite_stop
 sleep 1
 pcp_squeezelite_status "html"
+pcp_table_middle
+pcp_redirect_button "Go to Main Page" "$FROM_PAGE" 5
 pcp_table_end
 
 pcp_footer

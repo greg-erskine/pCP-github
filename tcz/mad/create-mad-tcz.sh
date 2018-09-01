@@ -30,12 +30,13 @@ if [ -f $SRC/config.log ]; then
 	make clean >> $LOG
 	cd $STARTDIR >> $LOG
 else
-	if [ ! -f $SRC.tar.gz ]; then
-		wget -O $SRC.tar.gz https://sourceforge.net/projects/mad/files/$MAD/$MADVERSION/$SRC.tar.gz/download
+	if [ ! -f $SRC-8.tar.gz ]; then
+		echo "Should be including the repository."
+		exit
 	fi
 	echo "Extracting source..."
-	if [ -f $SRC.tar.gz ]; then
-		bsdtar -xf $SRC.tar.gz >> $LOG
+	if [ -f $SRC-8.tar.gz ]; then
+		bsdtar -xf $SRC-8.tar.gz >> $LOG
 	else
 		echo "Source download failed."
 		exit

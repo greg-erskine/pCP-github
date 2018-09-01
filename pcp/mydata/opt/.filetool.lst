@@ -1,12 +1,10 @@
 opt
 home
-etc/passwd
-etc/shadow
+etc/asound.conf
 etc/group
 etc/gshadow
-etc/motd
-etc/asound.conf
-etc/sysconfig/wifi-wpadrv
+etc/passwd
+etc/shadow
 usr/local/etc/pointercal
 usr/local/etc/ssh/ssh_host_dsa_key
 usr/local/etc/ssh/ssh_host_dsa_key.pub
@@ -16,9 +14,6 @@ usr/local/etc/ssh/ssh_host_ed25519_key
 usr/local/etc/ssh/ssh_host_ed25519_key.pub
 usr/local/etc/ssh/ssh_host_rsa_key
 usr/local/etc/ssh/ssh_host_rsa_key.pub
-usr/local/etc/init.d/httpd
-usr/local/sbin/config.cfg
-usr/local/sbin/piversion.cfg
 usr/local/etc/pcp
 var/lib/alsa/asound.state
 var/spool/cron/crontabs

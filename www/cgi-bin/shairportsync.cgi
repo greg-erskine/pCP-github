@@ -1,16 +1,12 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-01-07
-#	First version SBP.
-
+# Version: 4.0.0 2018-06-15
 
 . pcp-functions
-#pcp_read_config
-#. pcp-lms-functions
 . pcp-soundcard-functions
 
 
-SHAIRPORT_CONFIG="$CONFIGCFG"
+SHAIRPORT_CONFIG="$PCPCFG"
 
 unset BACKUP_REQUIRED REBOOT_REQUIRED 
 

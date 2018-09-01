@@ -1,10 +1,9 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-18
-#	Initial version. PH.
+# Version: 4.0.0 2018-06-18
 
 . pcp-functions
-[ -e /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
+[ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
 
 pcp_html_head "Bluetooth Settings" "PH"
 
@@ -114,6 +113,7 @@ case "$ACTION" in
 		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
+		sleep 2
 	;;
 	Scan)
 		pcp_table_top "Bluetooth Scanning"
@@ -146,6 +146,7 @@ case "$ACTION" in
 		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
+		sleep 2
 	;;
 	Stop)
 		pcp_table_top "Bluetooth"
@@ -231,64 +232,67 @@ esac
 
 [ -f $TCEMNT/tce/optional/pcp-bt.tcz ] && DISABLE_BT="" || DISABLE_BT="disabled"
 
-pcp_incr_id
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <p class="'$PWR_CLASS'">'$PWR_INDICATOR'</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>BT Controller is '$PWR_STATUS'&nbsp;&nbsp;'
-echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                </p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <ul>'
-echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Controller Power is on.</li>'
-echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Controller Power is off.</li>'
-echo '                    <li>Controller address '$BTCONTROLLER
-echo '                    <li>If the controller power remains off.</li>'
-echo '                    <li>If using Rpi internal bluetooth, make sure controller is enabled on the <a href="wifi.cgi">Wifi Page</a></li>'
-echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a></li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
-pcp_incr_id
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <p class="'$CD_CLASS'">'$CD_INDICATOR'</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Connect Daemon is '$CD_STATUS'&nbsp;&nbsp;'
-echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                </p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <ul>'
-echo '                    <li><span class="indicator_green">&#x2714;</span> = Connect Daemon is running.</li>'
-echo '                    <li><span class="indicator_red">&#x2718;</span> = Connect Daemon is not running.</li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
-pcp_incr_id
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <p class="'$DEV_CLASS'">'$DEV_INDICATOR'</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>BT Device is '$DEV_STATUS'&nbsp;&nbsp;'
-echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                </p>'
-echo '                <div id="'$ID'" class="less">'
-echo '                  <ul>'
-echo '                    <li><span class="indicator_green">&#x2714;</span> = Device is connected.</li>'
-echo '                    <li><span class="indicator_red">&#x2718;</span> = Device is not connected.</li>'
-echo '                  </ul>'
-echo '                </div>'
-echo '              </td>'
-echo '            </tr>'
+pcp_bt_status_indicators() {
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$PWR_CLASS'">'$PWR_INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>BT Controller is '$PWR_STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Controller Power is on.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Controller Power is off.</li>'
+	echo '                    <li>Controller address '$BTCONTROLLER
+	echo '                    <li>If the controller power remains off.</li>'
+	echo '                    <li>If using Rpi internal bluetooth, make sure controller is enabled on the <a href="wifi.cgi">Wifi Page</a></li>'
+	echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a></li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$CD_CLASS'">'$CD_INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Connect Daemon is '$CD_STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = Connect Daemon is running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = Connect Daemon is not running.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$DEV_CLASS'">'$DEV_INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>BT Device is '$DEV_STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = Device is connected.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = Device is not connected.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_bt_status_indicators
 #----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="padding '$ROWSHADE'">'
@@ -296,7 +300,18 @@ echo '              <td></td>'
 echo '              <td></td>'
 echo '            </tr>'
 
-#------------------------------------------Install/uninstall AP Mode---------------------
+
+pcp_bt_beta_mode_required() {
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b> Beta Mode is required for Bluetooth functions to be enabled.</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+}
+
+#------------------------------------------Install/uninstall BT Mode---------------------
 pcp_bt_install() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -332,8 +347,9 @@ pcp_bt_install() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bt_install
+[ $MODE -ge $MODE_BETA ] && pcp_bt_install || pcp_bt_beta_mode_required
 #----------------------------------------------------------------------------------------
+
 #------------------------------------------Start and Stop BT Daemon---------------------
 pcp_bt_startstop() {
 	pcp_incr_id

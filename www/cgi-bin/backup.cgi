@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-17
+#	Format cleanup. GE.
+
 # Version: 3.5.0 2018-03-12
 #	Added pcp_redirect_button. GE.
 
@@ -24,7 +27,7 @@ LOG="${LOGDIR}/pcp_backup.log"
 pcp_log_header $0
 
 pcp_table_top "Backup"
-pcp_textarea_inform "none" 'pcp_backup "nohtml"' "100"
+pcp_backup
 pcp_table_middle
 pcp_redirect_button "Go to Main Page" "main.cgi" 10
 pcp_table_end

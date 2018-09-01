@@ -1,25 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2017-12-02
-#	Add Bootscript option for soundcard setup. PH.
-
-# Version: 3.23 2017-10-02
-#	Minor cosmetic changes. GE.
-
-# Version: 3.21 2017-07-08
-#	Added Analogue and Analogue Boost, Alsa Simple Controls. SBP.
-#	Added Cardnumber routine to keep alsaequal working with selected card. PH.
-
-# Version: 3.20 2017-03-12
-#	Added check for /tmp/dropdown.cfg in pcp_sound_card_dropdown. SBP.
-#	Added shini conf parser. SBP.
-#	Suppress already mounted message during do_rebootstuff newconfig process. PH.
-
-# Version: 3.11 2017-01-20
-#	Fixed the issue with shairport not working when using USB cards. SBP.
-
-# Version: 3.10 2016-12-11
-#	Original. SBP.
+# Version: 4.0.0 2018-07-14
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -61,7 +42,7 @@ pcp_re_enable_analog() {
 pcp_disable_i2s() {
 	pcp_re_enable_analog
 	# unset DTOVERLAY both the old one that is removed on chooseoutput.cgi and
-	# the one from config.cfg to clear all traces of audio dtoverlays
+	# the one from pcp.cfg to clear all traces of audio dtoverlays
 	shini_parse ${DACLOCATION}/${ORIG_AUDIO}.conf
 	[ x"" != x"${DTOVERLAY}" ] && sed -i '/dtoverlay='"$DTOVERLAY"'/d' $CONFIGTXT
 
@@ -127,42 +108,11 @@ pcp_read_chosen_audio() {
 pcp_generic_card_control() {
 	case "$GENERIC_CARD" in
 		TI51XX)
-			amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || DSPfound="no" 
-			if [ "$DSPfound" = "yes" ]; then
-				DSP="DSP Program,0"
-				FILTER1="Low latency IIR with de-emphasis"
-				FILTER2="FIR interpolation with de-emphasis"
-				FILTER3="High attenuation with de-emphasis"
-				FILTER4="Fixed process flow"
-				FILTER5="Ringing-less low latency FIR"
-			fi
 
 			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
-			ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk '{ print $2 }' | tr -d "'")
 
-			case "$DSPFILTER" in
-				FILTER1) FILTER="$FILTER1" ;;
-				FILTER2) FILTER="$FILTER2" ;;
-				FILTER3) FILTER="$FILTER3" ;;
-				FILTER4) FILTER="$FILTER4" ;;
-				FILTER5) FILTER="$FILTER5" ;;
-			esac
-
-			# Logic to make checked radiobuttons - needs to clear it otherwise we have two FILTERS_CHECK checked.
-			FILTER1_CHECK=""
-			FILTER2_CHECK=""
-			FILTER3_CHECK=""
-			FILTER4_CHECK=""
-			FILTER5_CHECK=""
-
-			case "$ACTUAL_FILTER" in
-				Low) FILTER1_CHECK="checked" ;;
-				FIR) FILTER2_CHECK="checked" ;;
-				High) FILTER3_CHECK="checked" ;;
-				Fixed) FILTER4_CHECK="checked" ;;
-				Ringing-less) FILTER5_CHECK="checked" ;;
-			esac
+			pcp_DSP_program_selection
 
 			# Logic that will check for Simple mixer controls Analogue and Analogue Playback Boost
 			# SMC_ANALOGUE=$(amixer -c $CARD sget Analogue | grep "Capabilities: pvolume"aw)
@@ -191,6 +141,43 @@ pcp_generic_card_control() {
 			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
 		;;
 
+		Katana)
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Right: Playback" | awk '{ print $5 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget Master | grep "Right: Playback" | awk '{ print $6 }' | tr -d "[]")
+
+			pcp_DSP_program_selection
+
+			#Deemphasis Section
+			amixer -c $CARD scontrols | grep -q 'Deemphasis' && Deemfound="yes" || Deemfound="no" 
+			if [ "$Deemfound" = "yes" ]; then
+				LIST=$(amixer -c $CARD sget 'Deemphasis' | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
+				I=1
+				DONE=0
+				while [ $DONE = 0 ]; do
+					TMP="$(echo $LIST | cut -d ':' -f$I)"
+					if [ "$TMP" == "" ]; then
+						DONE=1
+					else
+						eval DEEM${I}=\"$TMP\"
+						I=$((I+1))
+					fi
+				done
+				NUMDEEM=$I
+
+				ACTUAL_DEEM=$(amixer -c $CARD sget 'Deemphasis' | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
+
+				I=1
+				while [ $I -le $NUMDEEM ]; do
+					# Populate Web Page Labels and radio button selection
+					TMP=$(eval echo "\${DEEM${I}}")
+					[ "$ACTUAL_DEEM" == "$TMP" ] && eval DEEM${I}_CHECK="checked" || eval DEEM${I}_CHECK=""
+					#Form Selection of the Deemphasis filter for setting mixer
+					[ "$DEEMPHASIS" == "DEEM$I" ] && DEEM="$TMP"
+					I=$((I+1))
+				done
+			fi
+		;;
+		
 #		ES9023)
 #			CARD="ALSA"
 #			SSET="PCM"
@@ -204,6 +191,42 @@ pcp_generic_card_control() {
 }
 
 #========================================================================================
+# Section that populates the DSP Filter Options.  Not all cards have the same number or 
+#	Description, avoid having to hardcode the filter names, but rather extract from amixer
+#----------------------------------------------------------------------------------------
+pcp_DSP_program_selection() {
+	amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || DSPfound="no" 
+	if [ "$DSPfound" = "yes" ]; then
+		DSP="DSP Program"
+		LIST=$(amixer -c $CARD sget 'DSP Program,0' | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
+		I=1
+		DONE=0
+		while [ $DONE = 0 ]; do
+			TMP="$(echo $LIST | cut -d ':' -f$I)"
+			if [ "$TMP" == "" ]; then
+				DONE=1
+			else
+				eval FILTER${I}=\"$TMP\"
+				I=$((I+1))
+			fi
+		done
+		NUMFILTERS=$I
+
+		ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
+
+		I=1
+		while [ $I -le $NUMFILTERS ]; do
+			# Populate Web Page Labels and radio button selection
+			TMP=$(eval echo "\${FILTER${I}}")
+			[ "$ACTUAL_FILTER" == "$TMP" ] && eval FILTER${I}_CHECK="checked" || eval FILTER${I}_CHECK=""
+			#Form Selection of the DSP filter for setting mixer
+			[ "$DSPFILTER" == "FILTER$I" ] && FILTER="$TMP"
+			I=$((I+1))
+		done
+	fi
+}
+
+#========================================================================================
 # This will get us all available AUDIO DACs
 #----------------------------------------------------------------------------------------
 AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print $1 }')
@@ -213,7 +236,7 @@ AUDIO_OPTIONS_EXTRA=$(ls "$DACLOCATION" | grep ".conf" | awk -F'.conf' '{ print 
 #----------------------------------------------------------------------------------------
 pcp_sound_card_dropdown() {
 	pcp_blank_audio_conf
-	. $CONFIGCFG
+	. $PCPCFG
 	if [ -e /tmp/dropdown.cfg ]; then
 		sudo sed -i 's/:selected:/:notselected:/' /tmp/dropdown.cfg
 		sudo sed -i "/${AUDIO}:/s/:notselected:/:selected:/" /tmp/dropdown.cfg
@@ -238,7 +261,7 @@ pcp_load_card_conf() {
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	case $CARD in
 		USB*) CARDNAME="USB";;
-		*) CARDNAME=$(echo $OUTPUT | cut -d '=' -f2);;
+		*) CARDNAME=$CARD;;
 	esac
 	CARDNO=$(cat /proc/asound/cards | grep '\[' | grep $CARDNAME | cut -d ' ' -f2)
 }
@@ -289,7 +312,7 @@ pcp_soundcontrol() {
 #----------------------------------------------------------------------------------------
 pcp_selected_soundcontrol() {
 	pcp_blank_audio_conf
-	. $CONFIGCFG
+	. $PCPCFG
 
 	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal"
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
@@ -313,6 +336,8 @@ pcp_blank_audio_conf() {
 	PARAMS5=""
 	RPI_MODEL=""
 	AUDIOBOOTSCRIPT=""
+	SHAIRPORT_OUT=""
+	SHAIRPORT_CONTROL=""
 	I=1
 	while true; do
 		eval CHK="\${TEXT${I}}"

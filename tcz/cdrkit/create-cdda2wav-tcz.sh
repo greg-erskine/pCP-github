@@ -77,5 +77,5 @@ echo -e "Original-site:\thttps://sourceforge.net/projects/wodim/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tGPL" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $TCZLIBINFO
 

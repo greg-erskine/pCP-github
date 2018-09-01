@@ -1,34 +1,20 @@
 #!/bin/sh
 
+# Version: 4.0.0 2018-04-17
+#	Added pcp_redirect_button. GE.
+
 # Version: 3.20 2017-03-08
 #	Fixed pcp-xxx-functions issues. GE.
 
 # Version: 3.10 2017-01-06
 #	Enhanced formatting. GE.
 
-# Version: 0.05 2015-09-18 SBP
-#	Added pcp_save_to_config, pcp_mount_bootpart and pcp_umount_bootpart.
-#	Removed httpd decoding.
-
-# Version: 0.04 2015-06-25 SBP
-#	Removed reboot button - not needed anymore.
-
-# Version: 0.03 2015-05-10 SBP
-#	Fixed the saving command so that slashes are saved as well.
-
-# Version: 0.03 2014-12-10 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
-# Version: 0.02 2014-09-04 GE
-#	Moved code to pcp_set_timezone routine.
-
-# Version: 0.01 2014-06-24 GE
-#	Original.
+# Version: 0.01 2014-06-24
+#	Original. GE.
 
 . pcp-functions
 
-pcp_html_head "Set Timezone" "GE" "10" "tweaks.cgi"
+pcp_html_head "Set Timezone" "GE"
 
 pcp_banner
 pcp_running_script
@@ -45,8 +31,9 @@ pcp_umount_bootpart
 
 pcp_backup
 pcp_table_middle
-pcp_go_back_button
+pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 5
 pcp_table_end
+
 pcp_footer
 pcp_copyright
 pcp_reboot_required

@@ -11,7 +11,7 @@ TCZLIBINFO=pcp-lib${FAAD}.tcz.info
 TCZ=pcp-${FAAD}.tcz
 TCZINFO=pcp-${FAAD}.tcz.info
  
-# Build requires these extra packages in addition to the debian jessie 8.3+ build tools
+# Build requires these extra packages in addition to the debian stretch 9.2+ build tools
 # sudo apt-get install squashfs-tools bsdtar
 
 ## Start
@@ -27,23 +27,21 @@ fi
 
 mkdir -p $OUTPUT >> $LOG
 
-if [ -f $SRC/config.log ]; then
-	cd $SRC >> $LOG
-	make clean >> $LOG
-	cd $STARTDIR >> $LOG
-else
-	if [ ! -f $SRC.tar.bz2 ]; then
-		wget http://downloads.sourceforge.net/faac/$SRC.tar.bz2
-	fi
-	echo "Extracting source..."
-	if [ -f $SRC.tar.bz2 ]; then
-		bsdtar -xf $SRC.tar.bz2 >> $LOG
-	else
-		echo "Source download failed."
-		exit
-	fi
+if [ ! -d $SRC ]; then
+        git clone https://github.com/ralph-irving/faad2.git $SRC
 fi
 
+
+cd $SRC
+git pull
+
+if [ ! -d autom4te.cache ]; then
+	sh bootstrap
+else
+	make distclean
+fi
+
+cd $STARTDIR
 
 echo "Compiling..."
 ./compile-faad.sh $SRC $OUTPUT >> $LOG
@@ -78,17 +76,19 @@ echo -e "Title:\t\t$TCZ" > $TCZINFO
 echo -e "Description:\tMPEG-4 and MPEG-2 AAC decoder command line tool." >> $TCZINFO
 echo -e "Version:\t$FAADVERSION" >> $TCZINFO
 echo -e "Authors:\tM. Bakker,Alexander Kurpiers,Volker Fischer,Gian-Carlo Pascutto" >> $TCZINFO
+echo -e "Commit:\t\t$(cd $SRC; git show | grep commit | awk '{print $2}')" >> $TCZINFO
+echo -e "Source-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TCZINFO
 echo -e "Original-site:\thttp://www.audiocoding.com/faad2.html" >> $TCZINFO
 echo -e "Copying-policy:\tGPLv2" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
 
 if [ -f $TCZLIB ]; then
 	rm $TCZLIB >> $LOG
 fi
 
-echo -e "usr/local/bin\n\nusr/local/lib/libfaad.la\nusr/local/lib/libmp4ff.a\nusr/local/include\nusr/local/share" > $STARTDIR/onlylib
+echo -e "usr/local/bin\n\nusr/local/lib/libfaad.la\nusr/local/lib/libmp4ff.la\nusr/local/include\nusr/local/share" > $STARTDIR/onlylib
 mksquashfs $OUTPUT $TCZLIB -all-root -ef $STARTDIR/onlylib >> $LOG
 md5sum `basename $TCZLIB` > ${TCZLIB}.md5.txt
 rm $STARTDIR/onlylib
@@ -100,9 +100,11 @@ echo -e "Title:\t\t$TCZLIB" > $TCZLIBINFO
 echo -e "Description:\tMPEG-4 and MPEG-2 AAC decoder runtime library." >> $TCZLIBINFO
 echo -e "Version:\t$FAADVERSION" >> $TCZLIBINFO
 echo -e "Authors:\tM. Bakker,Alexander Kurpiers,Volker Fischer,Gian-Carlo Pascutto" >> $TCZLIBINFO
+echo -e "Commit:\t\t$(cd $SRC; git show | grep commit | awk '{print $2}')" >> $TCZLIBINFO
+echo -e "Source-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TCZLIBINFO
 echo -e "Original-site:\thttp://www.audiocoding.com/faad2.html" >> $TCZLIBINFO
 echo -e "Copying-policy:\tGPLv2" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 9.x" >> $TCZLIBINFO
 

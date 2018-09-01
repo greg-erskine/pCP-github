@@ -1,0 +1,8 @@
+pcp.tcz
+wpa_supplicant.tcz
+wireless_tools.tcz
+firmware-atheros.tcz
+firmware-brcmwifi.tcz
+firmware-ralinkwifi.tcz
+firmware-rpi3-wireless.tcz
+firmware-rtlwifi.tcz
