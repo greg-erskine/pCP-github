@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 4.0.1 2018-09-04
 
 . pcp-functions
 . pcp-lms-functions
@@ -244,7 +244,7 @@ pcp_main_restart_shairport() {
 [ $MODE -le $MODE_BASIC ] && pcp_main_padding
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Update Squeezelite - Ralphy-------------------
+#------------------------------------------Update Squeezelite----------------------------
 pcp_main_update_sqlt() {
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -551,8 +551,8 @@ pcp_main_resize_fs() {
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This command will resize the file system to fit the SD card.</p>'
-	echo '                  <p>Only required if you need to add extra extensions.</p>'
+	echo '                  <p>This command will resize the file system on the SD card.</p>'
+	echo '                  <p><b>Note:</b> Only required if you need to add extra extensions.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
