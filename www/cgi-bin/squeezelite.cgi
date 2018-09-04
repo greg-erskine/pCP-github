@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-15
+# Version: 4.0.0 2018-09-04
 
 . pcp-functions
 . pcp-rpi-functions
@@ -115,9 +115,6 @@ echo '                </td>'
 echo '                <td class="column250">'
 echo '                  <select name="AUDIO">'
 
-# GE. This does not produce correct HTML5 code.
-#awk -F: '{ print "<option value=\""$1"\" "$2" >" $3"</option>" ""$4""}' /tmp/dropdown.cfg | grep $RP_MODEL
-
 cat /tmp/dropdown.cfg | grep $RP_MODEL | sed 's/notselected//' | awk -F: '{ print "<option value=\""$1"\" "$2">"$3"</option>"}'
 
 echo '                  </select>'
@@ -224,7 +221,8 @@ echo '                <td class="column150">'
 echo '                  <p>Output setting</p>'
 echo '                </td>'
 echo '                <td class="column210">'
-echo '                  <input class="large15"'
+echo '                  <input id="input'$ID'"'
+echo '                         class="large15"'
 echo '                         type="text"'
 echo '                         name="OUTPUT"'
 echo '                         value="'$OUTPUT'"'
@@ -247,9 +245,17 @@ else
 	echo '                      <li>Default: default</li>'
 	echo '                      <li>- = output to stdout</li>'
 	echo '                    </ul>'
-	echo '                    <p>Squeezelite found these output devices:</p>'
+	echo '                    <p>Available output devices (click to use):</p>'
 	echo '                    <ul>'
-	                            ${SQLT_BIN} -l | awk '/^  / { print "                      <li> "$1"</li>" }'
+
+	OPTION=1
+	OUT_DEVICES=$(aplay -L | grep -v '^  ')
+	for OD in $OUT_DEVICES; do
+		echo '                      <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${OPTION}\'')">'
+		echo '                        <span id="option'${OPTION}'">'$OD'</span></li>'
+		OPTION=$(($OPTION + 1))
+	done
+
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
