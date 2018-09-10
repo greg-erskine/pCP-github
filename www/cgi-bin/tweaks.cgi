@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-25
+# Version: 4.0.0 2018-09-05
 
 set -f
 
@@ -1075,7 +1075,7 @@ pcp_tweaks_install_jivelite() {
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
-		echo '                  <p>This will install Jivelite and VuMeters on pCP.</p>'
+		echo '                  <p>This will install Jivelite and VU meters on pCP.</p>'
 		echo '                </div>'
 		echo '              </td>'
 	else

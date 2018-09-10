@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-25
+# Version: 4.0.0 2018-09-08
 
 #========================================================================================
 # Setup debug logging
@@ -281,10 +281,12 @@ pcp_sufficient_free_space() {
 	else
 		echo $PCLASSERROR'[ ERROR ] Not enough space.'$SLASHP
 		echo $PCLASSINFO'[ INFO ] Try expanding your partition.'$SLASHP
-		STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort'
-		SCRIPT1=xtras_resize.cgi
-		pcp_confirmation_required
-		pcp_go_back_button
+		if [ "$1" != "nohtml" ]; then
+			STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort'
+			SCRIPT1=xtras_resize.cgi
+			pcp_confirmation_required
+			pcp_go_back_button
+		fi
 		return 1
 	fi
 }
@@ -902,7 +904,7 @@ pcp_table_top() {
 }
 
 pcp_table_textarea_top() {
-	pcp_table_top $1 $2
+	pcp_table_top "$1" "$2"
 	echo '                <textarea class="inform" style="height:'$3'px">'
 }
 
