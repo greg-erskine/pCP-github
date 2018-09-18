@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-04
+# Version: 4.0.1 2018-09-18
 
 . pcp-functions
 
@@ -51,11 +51,12 @@ AVAILABLE_SPACE=$(($SD_MAX_SIZE - ($P1_ACTUAL_SIZE + $P2_ACTUAL_SIZE)))
 [ "$P2_ACTUAL_SIZE" -ge 285 ] || [ "$SD_MAX_SIZE" -le 300 ] && DISABLED300=disabled
 [ "$P2_ACTUAL_SIZE" -ge 475 ] || [ "$SD_MAX_SIZE" -le 500 ] && DISABLED500=disabled
 [ "$P2_ACTUAL_SIZE" -ge 950 ] || [ "$SD_MAX_SIZE" -le 1000 ] && DISABLED1000=disabled
+[ "$P2_ACTUAL_SIZE" -ge 1900 ] || [ "$SD_MAX_SIZE" -le 2000 ] && DISABLED2000=disabled
 #----------------------------------------------------------------------------------------
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" DISABLED000 DISABLED100 DISABLED200 DISABLED300 DISABLED500 DISABLED1000 P1_ACTUAL_SIZE_BYTES P1_ACTUAL_SIZE P2_ACTUAL_SIZE_BYTES P2_ACTUAL_SIZE SD_MAX_SIZE_BYTES SD_MAX_SIZE P2_MAX_SIZE AVAILABLE_SPACE SD_CARD_SIZE
+	pcp_debug_variables "html" DISABLED000 DISABLED100 DISABLED200 DISABLED300 DISABLED500 DISABLED1000 DISABLED2000 P1_ACTUAL_SIZE_BYTES P1_ACTUAL_SIZE P2_ACTUAL_SIZE_BYTES P2_ACTUAL_SIZE SD_MAX_SIZE_BYTES SD_MAX_SIZE P2_MAX_SIZE AVAILABLE_SPACE SD_CARD_SIZE
 	echo '<!-- End of debug info -->'
 fi
 
@@ -104,6 +105,7 @@ else
 			echo '                    <option value="315" '"$DISABLED300"'>300 MB</option>'
 			echo '                    <option value="525" '"$DISABLED500"'>500 MB</option>'
 			echo '                    <option value="1049" '"$DISABLED1000"'>1000 MB</option>'
+			echo '                    <option value="2098" '"$DISABLED2000"'>2000 MB</option>'
 			echo '                    <option value="" '"$DISABLED000"'>Whole SD card</option>'
 			echo '                  </select>'
 			echo '                </td>'

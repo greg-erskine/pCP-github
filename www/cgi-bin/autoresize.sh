@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 3.50 2017-11-06
-#	Fixed for changed format of fdisk (BusyBox v1.27.2). PH.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
-
-# Version: 3.10 2017-01-06
-#	Added selectable partition size. SBP.
-
-# Version: 0.01 2015-11-27 GE
-#	Original version.
+# Version: 4.0.1 2018-09-18
 
 SCRATCH="/home/tc"
 #DEBUG=TRUE
@@ -50,7 +40,6 @@ pcp_fdisk() {
 	[ $DEBUG ] && clear
 	LAST_PARTITION_NUM=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
 	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 4)
-	P2_SIZE="+${PARTITION_SIZE}M"
 
 	echo 'Last partition:  '$LAST_PARTITION_NUM
 	echo 'Partition start: '$PARTITION_START
@@ -88,12 +77,14 @@ pcp_pause() {
 # Main
 #----------------------------------------------------------------------------------------
 if [ -f ${SCRATCH}/partition_size.cfg ]; then
+	echo "partition_size.cfg file found"
 	. ${SCRATCH}/partition_size.cfg
 	PARTITION_SIZE=$SIZE
-	echo "partition_size.cfg file found"
-else
-	PARTITION_SIZE=""
-	echo "partition_size.cfg file not found and whole SD card will be used."
+	if [ "$PARTITION_SIZE" = "" ]; then
+		P2_SIZE=""
+	else
+		P2_SIZE="+${PARTITION_SIZE}M"
+	fi
 fi
 
 if [ -f ${SCRATCH}/fdisk_required ]; then
