@@ -1,17 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Another attempt to fix reloading page does not reboot pCP again. SBP.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-04-16
-#	Fixed pcp-xxx-functions issues. GE.
-#	Changed reboot functions. PH.
-
-# Version: 0.01 2015-08-28
-#	Original version. GE.
+# Version: 4.0.1 2018-09-19
 
 . pcp-functions
 

@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-11
-#	Changed repo to new server. PH.
+# Version: 4.0.1 2018-09-19
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz

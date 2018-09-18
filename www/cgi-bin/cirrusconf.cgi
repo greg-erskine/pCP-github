@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-01-13
-#	Initial version. PH.  (Thanks to M-H for his help in debugging and testing).
+# Version: 4.0.1 2018-09-19
+
+# Thanks to M-H for his help in debugging and testing.
 
 . pcp-functions
 . pcp-lms-functions

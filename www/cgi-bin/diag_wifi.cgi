@@ -1,7 +1,8 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.0.0 2018-08-09 
+# Version: 4.0.1 2018-09-19
+
 . pcp-functions
 . pcp-rpi-functions
 . pcp-wifi-functions

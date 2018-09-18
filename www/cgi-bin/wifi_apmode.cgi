@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-21
-#	Initial version. PH.
+# Version: 4.0.1 2018-09-19
 
 . pcp-functions
 . pcp-rpi-functions

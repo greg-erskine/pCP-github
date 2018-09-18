@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPI3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.01 2016-05-07
-#	Original. GE.
+# Version: 4.0.1 2018-09-19
 
 . pcp-functions
 

@@ -2,21 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 4.0.0 2018-04-22
-#	Changed to javascript controls and lms jsonrpc interface. PH.
-
-# Version: 3.20 2017-03-08
-#	Changed pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.12 2017-01-30
-#	Added OPTIONS to .slimconfig.cfg for commandline options
-
-# Version: 3.10 2016-12-23
-#	Fixed players tabs for new changes in the LMS cli. PH.
-
-# Version: 0.01 2015-02-03 GE
-#	Original.
+# Version: 4.0.1 2018-09-19
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 

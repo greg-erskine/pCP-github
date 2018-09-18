@@ -2,18 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-04-17
-#	Added $RB_DELAY to pcp_rpi_details. GE.
-
-# Version: 3.5.0 2018-03-18
-#	Added support for RPi3B+. GE.
-
-# Version: 3.20 2017-03-18
-#	Fixed pcp-xxx-functions issues. GE.
-#	Added support for RPi2B v1.2, CM3, and ZeroW. PH.
-
-# Version: 0.01 2014-10-22
-#	Original. GE.
+# Version: 4.0.1 2018-09-19
 
 pcp_debug_log "$0 - Running pcp-rpi-functions..."
 

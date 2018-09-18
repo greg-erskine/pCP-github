@@ -1,31 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Changed repo to new server. PH.
-
-# Version: 3.5 2017-11-08
-#	Changed name of lirc package. PH.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2016-12-22
-#	Added lirc[0-9] and hidraw[0-9]. GE.
-#	Added LIRC gpio out for IR transmitter. GE.
-#	Sourceforge repo updates. PH
-
-# Version: 3.01 2016-08-27
-#	Changed default lirc GPIO to 25. GE.
-
-# Version: 3.00 2016-08-09
-#	Changed to pcp-load to fetch the packages. SBP.
-#	Added PCremote support. GE.
-
-# Version: 0.01 2016-03-15
-#	Original. GE.
+# Version: 4.0.1 2018-09-19
 
 . pcp-functions
 . pcp-lms-functions

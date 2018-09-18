@@ -1,16 +1,8 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.02 2016-02-09 SBP
-#	Added slider values. Does not work for IE.
-
-# Version: 0.01 2016-01-29 GE
-#	Original version.
+# Version: 4.0.1 2018-09-19
 
 . pcp-functions
-#. $CONFIGCFG
 
 SET_EQUAL="sudo amixer -D equal cset numid="
 BAND=1

@@ -1,14 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Changed pcp_picoreplayers_toolbar and pcp_controls. GE.
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.02 2015-10-02 GE
-#	Added pcp_lms_controls.
-
-# Version: 0.01 2015-02-25 GE
-#   Original version.
+# Version: 4.0.1 2018-09-19
 
 #========================================================================================
 # This page shows the various types of LMS controls that are in development.
@@ -19,7 +11,6 @@
 
 . pcp-functions
 . pcp-lms-functions
-#. $CONFIGCFG
 
 pcp_html_head "xtras_controls" "GE"
 
