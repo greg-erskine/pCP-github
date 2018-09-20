@@ -3,3 +3,4 @@ hostapd.tcz
 dnsmasq.tcz
 iptables.tcz
 wireless_tools.tcz
+bridge-utils.tcz

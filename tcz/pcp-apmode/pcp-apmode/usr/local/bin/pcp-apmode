@@ -11,16 +11,53 @@ if [ "$AP_IP" = "" ]; then
 else
 	WIFI_IP=$AP_IP
 fi
+
+APMODECONF=/usr/local/etc/pcp/apmode.conf
 HOSTAPDCONF=/usr/local/etc/pcp/hostapd.conf
 DNSMASQCONF=/usr/local/etc/pcp/dnsmasq.conf
 HOSTAPD_PID=/var/run/hostapd.pid
 DNSMASQ_PID=/var/run/dnsmasq.pid
-
+IPDATA_TMP=/tmp/pcp_bridge_ip_backup
 APMODE_LOG=/var/log/pcp_apmode.log
 [ -e $APMODE_LOG ] || touch $APMODE_LOG
 
+# This is for pCP4.0.0 compatability
+[ -f $APMODECONF ] && . $APMODECONF
+[ -z $AP_BRIDGE ] && AP_BRIDGE=0
+
 #Internal variables
+#3 = Not configured
 ROUTER=3
+BRIDGE=3
+
+ETH0_ADDR=""
+ETH0_MASK=""
+ETH0_GW=""
+
+#Read IP configuration from previous run, or from eth0
+[ -f $IPDATA_TMP ] && . $IPDATA_TMP
+
+if [ $AP_BRIDGE -eq 1 -a "$ETH0_ADDR" = "" ]; then 
+	echo "Waiting for eth0 to be up for Bridge" >> $APMODE_LOG
+	until ifconfig eth0 | grep -q Bcast
+	do
+		if [ $((CNT++)) -gt 40 ]; then
+			echo "Error: eth0 not found" >> $APMODE_LOG
+			AP_BRIDGE=0
+			break
+		else
+			sleep 0.25
+		fi
+	done
+	#Get configured address of eth0
+	ETH0_ADDR="$(ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+	ETH0_MASK="$(ifconfig eth0 | sed -En 's/127.0.0.1//;s/.* (Mask:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+	ETH0_GW="$(route | grep default | tr -s ' ' | cut -d' ' -f2)"
+	#Write the IP configuration to a tmp file, for restarting daemon.
+	echo "ETH0_ADDR=$ETH0_ADDR" > $IPDATA_TMP
+	echo "ETH0_MASK=$ETH0_MASK" >> $IPDATA_TMP
+	echo "ETH0_GW=$ETH0_GW" >> $IPDATA_TMP
+fi
 
 checketh0(){
 	echo `cat /sys/class/net/eth0/carrier`
@@ -31,7 +68,6 @@ killeth0(){
 	kill $(cat /var/run/udhcpc.eth0.pid)
 	# bring backup, or carrier is not valid
 	ifconfig eth0 up
-
 }
 
 disable_pcp_wifi(){
@@ -39,37 +75,62 @@ disable_pcp_wifi(){
 }
 
 set_router_on(){
-if [ $ROUTER -ne 1 ]; then
-#	echo "ROUTER ON"
-	#delete any default route udhcpc will add automatically
-	route delete default
-	DEVICE="eth0"
-	/sbin/udhcpc -b -i $DEVICE -x hostname:$(/bin/hostname) -p /var/run/udhcpc.$DEVICE.pid >/dev/null 2>&1 &
-	sleep 1
-	/usr/local/sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-	/usr/local/sbin/iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-	/usr/local/sbin/iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
-	echo "1" > /proc/sys/net/ipv4/ip_forward
-	ROUTER=1
-fi
+	if [ $ROUTER -ne 1 ]; then
+	#	echo "ROUTER ON"
+		#delete any default route udhcpc will add automatically
+		route delete default
+		DEVICE="eth0"
+		/sbin/udhcpc -b -i $DEVICE -x hostname:$(/bin/hostname) -p /var/run/udhcpc.$DEVICE.pid >/dev/null 2>&1 &
+		sleep 1
+		/usr/local/sbin/iptables --table nat --flush
+		/usr/local/sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+		/usr/local/sbin/iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+		/usr/local/sbin/iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+		echo "1" > /proc/sys/net/ipv4/ip_forward
+		ROUTER=1
+	fi
 }
 
 set_router_off(){
-if [ $ROUTER -ne 0 ]; then
-#	echo "ROUTER OFF"
-	iptables --table nat --flush
-	echo "0" > /proc/sys/net/ipv4/ip_forward
-	killeth0
-	route delete default
-	route add default gw $WIFI_IP wlan0
-	ROUTER=0
-fi
+	if [ $ROUTER -ne 0 ]; then
+	#	echo "ROUTER OFF"
+		iptables --table nat --flush
+		echo "0" > /proc/sys/net/ipv4/ip_forward
+		killeth0
+		route delete default
+		route add default gw $WIFI_IP wlan0
+		ROUTER=0
+	fi
+}
+
+set_bridge_on() {
+	#Check to see if bridge was already brought up
+	if [ $BRIDGE -ne 1 ]; then
+		brctl delbr br0 >/dev/null 2>&1
+		brctl addbr br0
+		brctl addif br0 eth0 wlan0
+		route delete default
+		ifconfig eth0 0.0.0.0
+		ifconfig wlan0 0.0.0.0
+		ifconfig br0 $ETH0_ADDR netmask $ETH0_MASK up
+		route add default gw $ETH0_GW br0
+		BRIDGE=1
+	fi
+}
+
+set_bridge_off() {
+	if [ $BRIDGE -ne 0 ]; then
+		ifconfig br0 down
+		brctl delbr br0
+		ifconfig wlan0 ${WIFI_IP} netmask 255.255.255.0 up
+		BRIDGE=0
+	fi
 }
 
 ########Start#######
 
-#Kill udhcpc on eth 0  we will bring it back later if we see wire connected
-killeth0
+#In Router Mode: Kill udhcpc on eth 0  we will bring it back later if we see wire connected
+[ $AP_BRIDGE -eq 0 ] && killeth0 || brctl delbr br0 >/dev/null 2>&1
 #Need to make sure that pcp doesn't try to start wifi.
 disable_pcp_wifi
 
@@ -91,14 +152,21 @@ ifconfig wlan0 add ${WIFI_IP} netmask 255.255.255.0 up
 [ -d /var/run/hostapd ] || mkdir -p /var/run/hostapd
 start-stop-daemon --start --quiet -m -p ${HOSTAPD_PID} -b --startas /bin/sh -- -c "exec /usr/local/bin/hostapd ${HOSTAPDCONF} >> /var/log/pcp_hostapd.log"
 
-[ -d /var/lib/misc ] || mkdir -p /var/lib/misc
-echo -e "${WIFI_IP}\tpcp" > /usr/local/etc/pcp/pcp_hosts
+if [ $AP_BRIDGE -eq 0 ]; then
+	[ -d /var/lib/misc ] || mkdir -p /var/lib/misc
+	echo -e "${WIFI_IP}\tpcp" > /usr/local/etc/pcp/pcp_hosts
 
-[ -e /var/log/dnsmasq.log ] || touch /var/log/pcp_dnsmasq.log
-chmod 666 /var/log/pcp_dnsmasq.log
-start-stop-daemon --start --quiet -m -p ${DNSMASQ_PID} -b --exec /usr/local/sbin/dnsmasq -- -C ${DNSMASQCONF}
+	[ -e /var/log/dnsmasq.log ] || touch /var/log/pcp_dnsmasq.log
+	chmod 666 /var/log/pcp_dnsmasq.log
+	start-stop-daemon --start --quiet -m -p ${DNSMASQ_PID} -b --exec /usr/local/sbin/dnsmasq -- -C ${DNSMASQCONF}
+fi
 
 while [ "X" = "X" ]; do
-	[ $(checketh0) -eq 1 ] && set_router_on || set_router_off
-	sleep 10
+	if [ $AP_BRIDGE -eq 0 ]; then
+		[ $(checketh0) -eq 1 ] && set_router_on || set_router_off
+		sleep 10
+	else
+		[ $(checketh0) -eq 1 ] && set_bridge_on || set_bridge_off
+		sleep 10
+	fi
 done
