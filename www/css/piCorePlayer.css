@@ -1,6 +1,6 @@
 /* piCorePlayer style sheet
 
-Version: 4.0.0 2018-05-18
+Version: 4.0.0 2018-09-20
 
 */
 
@@ -298,6 +298,18 @@ button:focus {
 
 .column420 {
 	width:420px;
+}
+
+.column500 {
+	width:500px;
+}
+
+.column520 {
+	width:520px;
+}
+
+.column550 {
+	width:550px;
 }
 
 /* Used for adding padding rows in tables */

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-19
+# Version: 4.0.1 2018-09-20
 
 . pcp-functions
 
@@ -28,12 +28,19 @@ echo '          <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
 for PAGE in $DEV_PAGES
 do
-	PAGE=$(basename $PAGE)
-	if [ "$PAGE" != "$0" ]; then
+	pcp_get_page_info $PAGE
+	[ "$TITLE" = "" ] && TITLE=$BASENAME
+	if [ "$BASENAME" != "$0" ]; then
 		pcp_toggle_row_shade
 		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td class="column300">'
-		echo '                <p><a href="'$PAGE'">'${PAGE/.cgi/}'</a></p>'
+		echo '              <td class="column200">'
+		echo '                <p><a href="'$BASENAME'">'$TITLE'</a></p>'
+		echo '              </td>'
+		echo '              <td class="column550">'
+		echo '                <p>'$DESCR'</a></p>'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p>'$VERSION'</a></p>'
 		echo '              </td>'
 		echo '            </tr>'
 	fi

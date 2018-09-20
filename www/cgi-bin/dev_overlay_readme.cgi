@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-14
+# Version: 4.0.1 2018-09-20
+
+# Title: Overlays README
+# Description: Easy method for viewing the README file in /mnt/mmcblk0p1/overlays
 
 . pcp-functions
 

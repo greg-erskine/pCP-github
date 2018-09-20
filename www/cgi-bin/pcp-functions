@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-09-20
+# Version: 4.0.0 2018-09-21
 
 #========================================================================================
 # Setup debug logging
@@ -206,6 +206,16 @@ pcp_message() {
 			esac
 		;;
 	esac
+}
+
+#========================================================================================
+# Routine to read title, description and version (if defined).
+#----------------------------------------------------------------------------------------
+pcp_get_page_info() {
+	BASENAME=$(basename $1)
+	VERSION=$(cat $BASENAME | grep -m 1 "^# Version: " | sed "s/^# Version: //")
+	TITLE=$(cat $BASENAME | grep -m 1 "^# Title: " | sed "s/^# Title: //")
+	DESCR=$(cat $BASENAME | grep -m 1 "^# Description: " | sed "s/^# Description: //")
 }
 
 #========================================================================================
