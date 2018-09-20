@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 4.0.1 2018-09-20
 
 . pcp-functions
 . pcp-rpi-functions
@@ -2154,7 +2154,7 @@ pcp_samba() {
 		echo '                  <td class="column150 center">'
 		echo '                    <input type="hidden" name="COMMAND" value="setconfig">'
 		echo '                    <input type="hidden" name="SC" value="'$SC'">'
-		echo '                    <button type="submit" name="ACTION" value="setconfig">Set Samba</button>'
+		echo '                    <button type="submit" name="ACTION" value="setconfig">Set Shares</button>'
 		echo '                  </td>'
 		echo '                  <td colspan=4> </td>'
 		echo '                </tr>'
