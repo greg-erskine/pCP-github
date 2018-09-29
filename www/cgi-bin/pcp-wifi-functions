@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-17
+# Version: 4.0.0 2018-09-29
 
 #========================================================================================
 # onboot.lst functions
@@ -338,9 +338,9 @@ pcp_wifi_generate_passphrase() {
 
 	pcp_message INFO "Generating new passphrase..." "$1"
 	if [ "$ENCODED_WPA_PASSWORD" != "" ] && [ "$WPA_ENCRYPTION" = "WPA-PSK" ]; then
-		WPA_PASSPHRASE=$($URL_DECODE $ENCODED_WPA_PASSWORD | wpa_passphrase "$(printf "%s" "$($URL_DECODE $ENCODED_WPA_SSID)")")
+		WPA_PASSPHRASE=$($URL_DECODE $ENCODED_WPA_PASSWORD | wpa_passphrase "$(printf "%s" "$($URL_DECODE $ENCODED_WPA_SSID)")" | sed -E 's/#psk=.*//' | grep "psk")
 		if [ $? -eq 0 ]; then
-			WPA_PASSPHRASE=$(echo $WPA_PASSPHRASE | cut -d = -f 5 | cut -b 1-64)
+			WPA_PASSPHRASE=$(echo $WPA_PASSPHRASE | cut -d = -f 2 | cut -b 1-64)
 			WPA_PASSWORD=""
 		fi
 	else
