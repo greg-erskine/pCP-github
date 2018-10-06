@@ -1,7 +1,6 @@
 pcp-base.tcz
 alsa.tcz
 alsa-utils.tcz
-busybox-httpd.tcz
 openssh.tcz
 dialog.tcz
 pcp-squeezelite.tcz

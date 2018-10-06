@@ -706,7 +706,7 @@ fi
 
 #*******************************************************************************************
 # Check piversion.cfg and PCP image name.  They should match.
-. ${BUILDROOT}/../pcp/mydata/usr/local/sbin/piversion.cfg
+. ${BUILDROOT}/../pcp/mydata/usr/local/etc/pcp/pcpversion.cfg
 
 VERSION=$(echo $PIVERS | cut -d ' ' -f2)
 case $PCP in

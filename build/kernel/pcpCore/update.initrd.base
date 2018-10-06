@@ -1,0 +1,68 @@
+#!/bin/bash
+
+BINPATH="/mnt/nfs/Raspberry_Pi/picoreplayer/initrd/binaries"
+BUSYBOXTAR=${BINPATH}/busybox.tar.gz
+BUSYBOXSUIDTAR=${BINPATH}/busybox.suid.tar.gz
+KMODTAR=${BINPATH}/kmod.tar.gz
+TCCONFIG="/home/paul/git/Core-scripts/etc/init.d/tc-config"
+
+INITRD="/tmp/initrd-working"
+
+# ANSI COLORS
+CRE="$(echo -e '\r\033[K')"
+RED="$(echo -e '\033[1;31m')"
+GREEN="$(echo -e '\033[1;32m')"
+YELLOW="$(echo -e '\033[1;33m')"
+BLUE="$(echo -e '\033[1;34m')"
+MAGENTA="$(echo -e '\033[1;35m')"
+CYAN="$(echo -e '\033[1;36m')"
+WHITE="$(echo -e '\033[1;37m')"
+NORMAL="$(echo -e '\033[0;39m')"
+
+# Check that you are running the script as root
+if [ "$(id -u)" != "0" ]; then
+	echo "${RED}[ ERROR ] Script must be run as root.${NORMAL}"
+	exit 1
+else
+	echo "${GREEN}[ INFO ] Script is running as root.${NORMAL}"
+	echo
+fi
+
+if [ -r $BUSYBOXTAR -a -r $BUSYBOXSUIDTAR -a -r $KMODTAR ]; then
+	echo "Removing old Busybox and Kmod"
+else
+	echo "New Binary tar packages missing"
+	exit 1
+fi
+
+find -L ${INITRD}/sbin -samefile ${INITRD}/bin/busybox | grep ${INITRD} | xargs rm -f
+find -L ${INITRD}/usr/bin -samefile ${INITRD}/bin/busybox | grep ${INITRD} | xargs rm -f
+find -L ${INITRD}/usr/sbin -samefile ${INITRD}/bin/busybox | grep ${INITRD} | xargs rm -f
+find -L ${INITRD}/bin -samefile ${INITRD}/bin/busybox | grep ${INITRD} | xargs rm -f
+rm -f ${INITRD}/bin/busybox
+
+find -L ${INITRD}/sbin -samefile ${INITRD}/bin/busybox.suid | grep ${INITRD} | xargs rm -f
+find -L ${INITRD}/usr/bin -samefile ${INITRD}/bin/busybox.suid | grep ${INITRD} | xargs rm -f
+find -L ${INITRD}/usr/sbin -samefile ${INITRD}/bin/busybox.suid | grep ${INITRD} | xargs rm -f
+find -L ${INITRD}/bin -samefile ${INITRD}/bin/busybox.suid | grep ${INITRD} | xargs rm -f
+rm -f ${INITRD}/bin/busybox.suid
+
+find -L ${INITRD}/sbin -samefile ${INITRD}/sbin/kmod | grep ${INITRD} | xargs rm -f
+rm -f ${INITRD}/sbin/kmod
+
+echo "Extracting Busybox and kmod"
+tar xf $BUSYBOXTAR -C $INITRD --no-same-owner
+tar xf $BUSYBOXSUIDTAR -C $INITRD --no-same-owner
+tar xf $KMODTAR -C $INITRD --no-same-owner
+
+echo "Setting Symlinks and suid bits"
+#Make sure bin/mount is linked to /usr/bin/mount
+ln -f -r -s ${INITRD}/usr/bin/mount ${INITRD}/bin/mount
+
+#Make sure suid bits are set.
+chmod u+s ${INITRD}/bin/busybox.suid
+chmod u+s ${INITRD}/usr/bin/mount
+
+echo "Replacing tc-config"
+cp -f $TCCONFIG ${INITRD}/etc/init.d/tc-config
+chmod 755 ${INITRD}/etc/init.d/tc-config

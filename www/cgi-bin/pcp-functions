@@ -76,7 +76,7 @@ pcp_variables() {
 	SHUTDOWN="/opt/shutdown.sh"
 	PB100="/home/tc/.local/bin/.pbtemp"
 	HTTPDCONF="/home/tc/httpd.conf"
-	HTTPD="/usr/local/sbin/busybox-httpd"
+	HTTPD="/usr/sbin/httpd"
 	ASOUNDCONF="/etc/asound.conf"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
 	VOLUME="$BOOTMNT"

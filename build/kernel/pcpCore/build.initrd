@@ -21,15 +21,17 @@
 BASEWD=$(pwd)
 INITRDWRK="/tmp/initrd-working"
 
-BUSYBOX=$(which busybox)
-if [ "$BUSYBOX" == "" ]; then
-	echo "busybox with depmod support is required in path"
-	exit 1
-else
-	DEPMOD="${BUSYBOX} depmod"
-	$DEPMOD --help > /dev/null 2>&1
-	[ $? -ne 0 ] && (echo "busybox does not have depmod support"; exit 1)
-fi
+#BUSYBOX=$(which busybox)
+#if [ "$BUSYBOX" == "" ]; then
+#	echo "busybox with depmod support is required in path"
+#	exit 1
+#else
+#	DEPMOD="${BUSYBOX} depmod"
+#	$DEPMOD --help > /dev/null 2>&1
+#	[ $? -ne 0 ] && (echo "busybox does not have depmod support"; exit 1)
+#fi
+
+DEPMOD=/sbin/depmod
 
 if [ -d armv6 -o -d armv7 ]; then
 	echo
@@ -141,19 +143,26 @@ echo
 echo "*****************************************************************"
 echo "Gzipping Modules"
 find -name "*.ko" | xargs -r -I {} sudo gzip -9 {}
-echo "Setting up kernel.tclocal symlink"
-cd ..
-sudo ln -s /usr/local/lib/modules/$NEWKERNEL/kernel kernel.tclocal
-cd $BASEWD
 sudo rm -rf $INITRDWRK/usr/local/lib/modules/${OLDKERNEL%.old}
 sudo mkdir -p $INITRDWRK/usr/local/lib/modules/$NEWKERNEL/kernel
 echo
 echo "Copy Builtin Module Files"
+cd $BASEWD
 sudo cp modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/modules.builtin $INITRDWRK/lib/modules/$NEWKERNEL/
 sudo cp modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/modules.devname $INITRDWRK/lib/modules/$NEWKERNEL/
 sudo cp modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/modules.order $INITRDWRK/lib/modules/$NEWKERNEL/
-echo "Running busybox depmod"
+
+#remove kernel.tclocal to prevent kmod from printing an error message
+cd $DESTMODPATH
+cd ..
+[ -f kernel.tclocal ] && sudo rm -f kernel.tclocal
+
+#echo "Running busybox depmod"
+echo "Running kmod depmod"
 sudo $DEPMOD -b $INITRDWRK $NEWKERNEL
+
+echo "Setting up kernel.tclocal symlink"
+sudo ln -s /usr/local/lib/modules/$NEWKERNEL/kernel kernel.tclocal
 cd $BASEWD
 
 
