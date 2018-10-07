@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-17
+# Version: 4.0.1 2018-10-07
 
 BACKUP=0
 # Read from pcp-functions file
@@ -675,13 +675,13 @@ fi
 
 if [ "$A_S_LMS" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start LMS...${NORMAL}"
-	pcp_auto_start_lms
+	pcp_lms_auto_start_lms
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ "$A_S_FAV" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start FAV...${NORMAL}"
-	pcp_auto_start_fav
+	pcp_lms_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
 

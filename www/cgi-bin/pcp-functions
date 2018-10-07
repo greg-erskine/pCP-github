@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-21
+# Version: 4.0.1 2018-10-07
 
 #========================================================================================
 # Setup debug logging
@@ -76,7 +76,7 @@ pcp_variables() {
 	SHUTDOWN="/opt/shutdown.sh"
 	PB100="/home/tc/.local/bin/.pbtemp"
 	HTTPDCONF="/home/tc/httpd.conf"
-	HTTPD="/usr/sbin/httpd"
+	[ -x /usr/sbin/httpd ] && HTTPD="/usr/sbin/httpd" || HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
 	VOLUME="$BOOTMNT"
@@ -643,62 +643,6 @@ pcp_copyright() {
 	echo '<!-- End of pcp_copyright -->'
 }
 
-pcp_favorites() {
-	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=$(sudo $HTTPD -d $FAVLIST)
-
-	echo '<!-- Start of favorites toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-#------------------------------------------awk-------------------------------------------
-	echo $FAVLIST | awk '
-	BEGIN {
-		RS="id:"
-		FS=":"
-		i = 0
-	}
-	#main
-	{
-		i++
-		split($1,a," ")
-		id[i]=a[1]
-		split(id[i],b,".")
-		num[i]=b[2]
-		name[i]=$2
-		gsub(" type","",name[i])
-		hasitems[i]=$5
-		gsub("count","",hasitems[i])
-#		if ( hasitems[i] != "0 " ) {
-#			i--
-#		}
-
-		isaudio[i]=$3
-		gsub(" hasitems","",isaudio[i])
-		if ( isaudio[i] == "0" ) {
-			i--
-		}
-		isfavorite[i]=$6
-		gsub(" title","",isfavorite[i])
-		if ( isfavorite[i] == "33 favorites items 0 100" ) {
-			i--
-		}
-
-	}
-	END {
-		for (j=2; j<=8; j++) {
-			printf "        <a class=\"nav7\" href=\"favorites.cgi?STARTFAV=%s\" title=\"%s\">%s</a>\n",id[j],id[j],name[j]
-		}
-	} '
-#----------------------------------------------------------------------------------------
-		echo '      </p>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-		echo '<!-- End of favorites toolbar -->'
-}
-
 pcp_diagnostics() {
 	echo '<!-- Start of diagnostics toolbar -->'
 	echo '<table class="bgblack">'
@@ -947,15 +891,8 @@ pcp_table_textarea_end() {
 #----------------------------------------------------------------------------------------
 pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
-#	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-#	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
-
-#	Don't glob query strings.   Needs more testing.
-	for i in $(echo $QUERY_STRING | sed 's/+/ /g;s/\\/\\\\/g;s/\(%\)\([0-9a-fA-F][0-9a-fA-F]\)/\\x\2/g' | awk -F'&' '{for (i=1;i<=NF;i++) { printf "%s'\''\n",$i} }' | sed 's/=/='\''/')
-	do 
-		eval $(printf "$i\n")
-	done
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$($URL_DECODE $QUERY_STRING)'</p>'
+	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
 # Needed when we want to store an encoded string in pcp.cfg
@@ -1143,99 +1080,6 @@ pcp_eth0_ip() {
 
 pcp_wlan0_ip() {
 	ifconfig wlan0 | grep inet | awk '{ print $2 }' | awk -F: ' { print $2 }'
-}
-
-#========================================================================================
-# Auto start LMS routine
-#	This routine will allow you to set a LMS command to auto start a LMS command after
-#	a "hard power on". This will be handy for people building pseudo radios. This routine
-#	is called from pcp_startup.sh.
-#
-# Example $AUTOSTARTLMS:
-#	randomplay tracks
-#	playlist play http://opml.radiotime.com/Tune.ashx?id=s99312&formats=aac,ogg,mp3&partnerId=16&serial=05edb36d50ac02d1d1eeaa23a487968a
-#	playlist play http://stream-tx1.radioparadise.com/aac-32
-#	playlist play http://radioparadise.com/m3u/aac-128.m3u
-#----------------------------------------------------------------------------------------
-pcp_auto_start_lms() {
-	if [ x"" != x"$AUTOSTARTLMS" ] && [ "$A_S_LMS" = "Enabled" ]; then
-		AUTOSTARTLMS=$(sudo $HTTPD -d $AUTOSTARTLMS)
-		PLAYER_MAC=$(pcp_controls_mac_address)
-		for i in 1 2 3 4 5
-		do
-			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
-			if [ $RESULT -eq 1 ]; then
-				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
-				(echo "$PLAYER_MAC $AUTOSTARTLMS"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_lms.log
-				break
-			fi
-			echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_lms.log
-			sleep 1
-		done
-	fi
-}
-
-pcp_autofav_id() {
-	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	# Decode variable using httpd, no quotes
-	FAVLIST=`sudo $HTTPD -d $FAVLIST`
-	#------------------------------------------awk---------------------------------------
-	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
-	BEGIN {
-		RS="id:"
-		FS=":"
-		i = 0
-	}
-	# main
-	{
-		i++
-		split($1,a," ")
-		id[i]=a[1]
-		name[i]=$2
-		gsub(" type","",name[i])
-		if ( name[i] == autostartfav ) {
-			result=id[i]
-		}
-		hasitems[i]=$5
-		gsub("count","",hasitems[i])
-		if ( hasitems[i] != "0 " ) {
-			i--
-		}
-	}
-	END {
-		printf "%s",result
-	} '
-	#------------------------------------------------------------------------------------
-}
-
-pcp_auto_start_fav() {
-	if [ x"" != x"$AUTOSTARTFAV" ] && [ "$A_S_FAV" = "Enabled" ]; then
-		PLAYER_MAC=$(pcp_controls_mac_address)
-		for i in 1 2 3 4 5
-		do
-			RESULT=`( echo "$PLAYER_MAC connected ?"; echo exit ) | nc $(pcp_lmsip) 9090 | awk '{ print $3 }'`
-			if [ $RESULT -eq 1 ]; then
-				echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
-				(echo "$PLAYER_MAC favorites playlist play item_id:$(pcp_autofav_id)"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
-				break
-			fi
-			echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
-			sleep 1
-		done
-	fi
-}
-
-pcp_start_fav() {
-	PLAYER_MAC=$(pcp_controls_mac_address)
-	for i in 1 2 3 4 5
-	do
-		if [ $(pcp_lms_connected) -eq 1 ]; then
-			echo "$i. Connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
-			(echo "$PLAYER_MAC favorites playlist play item_id:$1"; echo "exit") | nc $(pcp_lmsip) 9090 >> ${LOGDIR}/pcp_auto_start_fav.log
-			break
-		fi
-		echo "$i. Not connected..." >> ${LOGDIR}/pcp_auto_start_fav.log
-	done
 }
 
 pcp_user_commands() {
