@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-09-05
+# Version: 4.0.0 2018-10-07
 
 set -f
 
@@ -847,12 +847,6 @@ pcp_tweaks_auto_start() {
 	echo '        <fieldset>'
 	echo '          <legend>Auto start tweaks</legend>'
 
-	#----------------------------------------------Auto start favorite-----------------------------
-	#b8:27:eb:b8:7d:33 favorites items 0 100 title:Favorites id:0 name:702 ABC Sydney | (Public Radio) type:audio isaudio:1 hasitems:0 id:1 name:ABC Grandstand (Sports Talk and News) type:audio
-	#isaudio:1 hasitems:0 id:2 name:Elephant type:playlist isaudio:1 hasitems:1 id:3 name:ABC NewsRadio 630 (National News) type:audio isaudio:1 hasitems:0 id:4 name:16 Of Their Greatest Hits
-	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
-	#----------------------------------------------------------------------------------------------
-
 	echo '          <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
@@ -862,40 +856,7 @@ pcp_tweaks_auto_start() {
 	echo '                <td class="column420">'
 	echo '                  <select class="large30" name="AUTOSTARTFAV">'
 
-	# Generate a list of options
-	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=$(sudo $HTTPD -d $FAVLIST)
-	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
-	BEGIN {
-		RS="id:"
-		FS=":"
-		i = 0
-	}
-	# Main
-	{
-		i++
-		name[i]=$2
-		gsub(" type","",name[i])
-		sel[i]=""
-		if ( name[i] == autostartfav ) {
-			sel[i]="selected"
-		}
-		isaudio[i]=$3
-		gsub(" hasitems","",isaudio[i])
-		if ( isaudio[i] == "0" ) {
-			i--
-		}
-		isfavorite[i]=$6
-		gsub(" title","",isfavorite[i])
-		if ( isfavorite[i] == "33 favorites items 0 100" ) {
-			i--
-		}
-	}
-	END {
-		for (j=2; j<=i; j++) {
-			printf "                    <option value=\"%s\" %s>%s</option>\n",name[j],sel[j],name[j]
-		}
-	} '
+	pcp_lms_favorites_list select
 
 	echo '                  </select>'
 	echo '                </td>'
@@ -935,7 +896,8 @@ pcp_tweaks_auto_start() {
 		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
 		echo '    <p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'</p>'
-		          pcp_debug_variables "html" AUTOSTARTFAV FAVLIST
+		          pcp_debug_variables "html" AUTOSTARTFAV
+				  pcp_textarea_inform FAVLIST "cat /tmp/json_list" 50
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'

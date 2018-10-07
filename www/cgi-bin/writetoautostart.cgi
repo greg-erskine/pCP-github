@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-19
+# Version: 4.0.1 2018-10-07
 
 . pcp-functions
 . pcp-lms-functions
@@ -11,19 +11,7 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-if [ $DEBUG -eq 1 ]; then
-	echo '<!-- Start of debug info -->'
-	echo '<p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
-	echo '                 [ DEBUG ] $AUTOSTART: '$AUTOSTART'<br />'
-	echo '                 [ DEBUG ] $A_S_LMS: '$A_S_LMS'<br />'
-	echo '                 [ DEBUG ] $AUTOSTARTLMS: '$AUTOSTARTLMS'<br />'
-	echo '                 [ DEBUG ] $A_S_FAV: '$A_S_FAV'<br />'
-	echo '                 [ DEBUG ] $AUTOSTARTFAV: '$AUTOSTARTFAV'<br />'
-	echo '                 [ DEBUG ] $USER_COMMAND_1: '$USER_COMMAND_1'<br />'
-	echo '                 [ DEBUG ] $USER_COMMAND_2: '$USER_COMMAND_2'<br />'
-	echo '                 [ DEBUG ] $USER_COMMAND_3: '$USER_COMMAND_3'</p>'
-	echo '<!-- End of debug info -->'
-fi
+pcp_debug_variables "html" SUBMIT AUTOSTART A_S_LMS AUTOSTARTLMS A_S_FAV AUTOSTARTFAV USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
 
 #========================================================================================
 # Auto start Favorite.
@@ -46,7 +34,7 @@ pcp_set_austostart_fav() {
 	pcp_backup
 
 	if [ "$SUBMIT" = "Test" ]; then
-		pcp_auto_start_fav
+		pcp_lms_auto_start_fav
 	fi
 }
 
@@ -71,7 +59,7 @@ pcp_set_austostart_lms() {
 	pcp_backup
 
 	if [ "$SUBMIT" = "Test" ]; then
-		pcp_auto_start_lms
+		pcp_lms_auto_start_lms
 	fi
 }
 
