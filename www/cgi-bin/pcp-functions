@@ -947,15 +947,8 @@ pcp_table_textarea_end() {
 #----------------------------------------------------------------------------------------
 pcp_httpd_query_string() {
 	# Process the $QUERY_STRING from httpd
-#	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-#	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
-
-#	Don't glob query strings.   Needs more testing.
-	for i in $(echo $QUERY_STRING | sed 's/+/ /g;s/\\/\\\\/g;s/\(%\)\([0-9a-fA-F][0-9a-fA-F]\)/\\x\2/g' | awk -F'&' '{for (i=1;i<=NF;i++) { printf "%s'\''\n",$i} }' | sed 's/=/='\''/')
-	do 
-		eval $(printf "$i\n")
-	done
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$($URL_DECODE $QUERY_STRING)'</p>'
+	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
 }
 
 # Needed when we want to store an encoded string in pcp.cfg
