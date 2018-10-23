@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-10-07
+# Version: 4.0.1 2018-10-24
 
 #========================================================================================
 # Setup debug logging
@@ -1426,6 +1426,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(ROTDASH=\).*/\1\"$ROTDASH\"/" $PCPCFG
 	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $PCPCFG
 	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $PCPCFG
+	sudo sed -i "s/\(NETWORK_WAIT=\).*/\1\"$NETWORK_WAIT\"/" $PCPCFG
 }
 
 #========================================================================================
@@ -1531,6 +1532,7 @@ INTERNET_CHECK_IP=""
 ROTDASH="no"
 SHAIRPORT_OUT="Please change"
 SHAIRPORT_CONTROL="Please change"
+NETWORK_WAIT="50"
 EOF
 }
 

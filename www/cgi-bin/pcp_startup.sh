@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-10-07
+# Version: 4.0.1 2018-10-24
 
 BACKUP=0
 # Read from pcp-functions file
@@ -324,7 +324,7 @@ echo -n "${YELLOW}Waiting for network."
 CNT=1
 until ifconfig | grep -q Bcast
 do
-	if [ $((CNT++)) -gt 50 ]; then
+	if [ $((CNT++)) -gt $NETWORK_WAIT ]; then
 		echo -n "${RED} No network found!${NORMAL}"
 		break
 	else
