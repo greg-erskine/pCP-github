@@ -1,7 +1,7 @@
 #!/bin/sh
 #!/bin/sh
 
-# Version: 4.0.1 2018-10-26
+# Version: 4.0.1 2018-11-05
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -35,7 +35,13 @@ ACTUAL_ONBOARD_STATUS=$?
 #========================================ACTIONS=========================================
 case "$ACTION" in
 	Test)
-		sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+		#Special case for rpi card to allow for setting 0db
+		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
+			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
+		else
+			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+		fi
+		
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 
 		if [ x"$SMCFILTER1" = x"" ]; then
@@ -73,20 +79,12 @@ case "$ACTION" in
 		pcp_generic_card_control
 	;;
 	Save)
-		VolInputName=$((VolInputName*100))
-
-		if [ $DEBUG -eq 1 ]; then
-			pcp_debug_variables "html" CARD SSET VolInputName
-			echo '<textarea style="height:100px">'
-			sudo amixer -c $CARD sset -- $SSET "$VolInputName"
-			echo '</textarea>'
+		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
+			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
 		else
-#			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
-			sudo amixer -c $CARD sset -- $SSET "$VolInputName" >/dev/null 2>&1
+			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
 		fi
-
-#		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
-		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset -- "Subwoofer" $VolInputSubName >/dev/null 2>&1
+		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 		pcp_generic_card_control
 		AUDIO="$ORIG_AUDIO"
@@ -349,7 +347,7 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '                </p>'
 			echo '              </td>'
 			echo '              <td>'
-			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsp;pct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
+			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsp;pct of max. <b>Current:</b> '"$ACTUAL_SUB_DB"''
 			echo '              </td>'
 			echo '            </tr>'
 		;;
@@ -374,14 +372,14 @@ pcp_soundcard_volume_options() {
 		echo '                         id="VolInputId"'
 		echo '                         type="range"'
 		echo '                         name="VolInputName"'
-		echo '                         value='"$(echo $ACTUAL_DB | tr -d "dB")"''
-		echo '                         min="-102"'
-		echo '                         max="4"'
-		echo '                         oninput="VolOutputId.value = VolInputId.value">'
+		echo '                         value='"$ACTUAL_VOL"''
+		echo '                         min="1"'
+		echo '                         max="100"'
+		echo '                         oninput="VolOutputId.value = VolInputId.value;">'
 		echo '                </p>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <output name="VolOutputName" id="VolOutputId"></output> (<b>Range:</b> -102dB to 4dB) <b>Current:</b> '"$ACTUAL_DB"''
+		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsp;pct of max. <b>Current:</b> '"$ACTUAL_DB"''
 		echo '              </td>'
 		echo '            </tr>'
 		row_padding
@@ -406,9 +404,11 @@ pcp_volume_filter_buttons() {
 		echo '              <td class="column120 center">'
 		echo '                <input type="submit" name="ACTION" value="0dB">'
 		echo '              </td>'
-		echo '              <td class="column120 center">'
-		echo '                <input type="submit" name="ACTION" value="4dB">'
-		echo '              </td>'
+		if [ $CARD = "ALSA" ]; then
+			echo '              <td class="column120 center">'
+			echo '                <input type="submit" name="ACTION" value="4dB">'
+			echo '              </td>'
+		fi
 		echo '              <td>'
 		echo '                <p>'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -419,7 +419,9 @@ pcp_volume_filter_buttons() {
 		echo '                    <li><b>Set Mixer</b> - The above value(s) will be written to ALSA, so you can hear the changes.</li>'
 		echo '                    <li><b>Save</b> - The output setting(s) are saved up to make them available after a reboot.</li>'
 		echo '                    <li><b>0dB</b> - Set output level to 0dB.</li>'
-		echo '                    <li><b>4dB</b> - Set output level to 4dB (100%).</li>'
+		if [ $CARD = "ALSA" ]; then
+			echo '                    <li><b>4dB</b> - Set output level to 4dB (100%).</li>'
+		fi
 		echo '                  </ul>'
 		echo '                </div>'
 		echo '              </td>'
