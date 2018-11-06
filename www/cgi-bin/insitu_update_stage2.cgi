@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-09-01
+# Version: 4.0.1 2018-11-05
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -45,7 +45,7 @@ PATCH_VERSION=$(echo "$vtmp" | cut -d '-' -f1)
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
 case "${VERSION}" in
-	piCorePlayer4.0.0*)
+	piCorePlayer4.0.*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=26900
 	;;
@@ -180,6 +180,16 @@ pcp_get_kernel_modules() {
 					esac
 				;;
 				*) NEWKERNELVER=4.14.56;;
+			esac
+			PICOREVERSION=9.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
+		piCorePlayer4.0.1*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			case $CORE in
+				*pcpAudioCore*) NEWKERNELVER=4.14.79-rt44;;
+				*) NEWKERNELVER=4.14.79;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -467,6 +477,13 @@ pcp_finish_install() {
 			if [ "$WIFI" = "on" ]; then
 				pcp_update_onbootlst "add" "wireless_tools.tcz"
 				pcp_update_onbootlst "add" "wpa_supplicant.tcz"
+			fi
+		;;
+		piCorePlayer4.0.1*)
+			pcp_update_onbootlst "del" "busybox-httpd.tcz"
+			rm -f ${PACKAGEDIR}/busybox-httpd.*
+			if [ "$WIFI" = "on" ]; then
+				pcp_update_onbootlst "add" "crda.tcz"
 			fi
 		;;
 	esac

@@ -4,20 +4,20 @@
 
 [PI0]
 initramfs pcp_9.2.gz followkernel
-kernel kernel41471.img
+kernel kernel41479.img
 
 [PI1]
 initramfs pcp_9.2.gz followkernel
-kernel kernel41471.img
+kernel kernel41479.img
 
 [PI2]
 initramfs pcp_9.2v7.gz followkernel
-kernel kernel41471v7.img
+kernel kernel41479v7.img
 total_mem=1024
 
 [PI3]
 initramfs pcp_9.2v7.gz followkernel
-kernel kernel41471v7.img
+kernel kernel41479v7.img
 total_mem=1024
 
 [ALL]
