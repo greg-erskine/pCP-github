@@ -26,6 +26,7 @@ pcp_wifi_update_wifi_onbootlst() {
 	pcp_wifi_update_onbootlst "add" "firmware-ralinkwifi.tcz"
 	pcp_wifi_update_onbootlst "add" "firmware-rtlwifi.tcz"
 	pcp_wifi_update_onbootlst "add" "firmware-rpi3-wireless.tcz"
+	pcp_wifi_update_onbootlst "add" "crda.tcz"
 	pcp_wifi_update_onbootlst "add" "wireless_tools.tcz"
 	pcp_wifi_update_onbootlst "add" "wpa_supplicant.tcz"
 }
@@ -60,6 +61,8 @@ pcp_wifi_load_wifi_extns() {
 	pcp_message INFO "Loading wifi extensions..." "$FORMAT"
 
 	pcp_wifi_load_extn "wireless_tools.tcz" "Wireless tools" "$FORMAT"
+	[ $? -eq 0 ] || ERROR=$((ERROR+1))
+	pcp_wifi_load_extn "crda.tcz" "CRDA" "$FORMAT"
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	pcp_wifi_load_extn "wpa_supplicant.tcz" "WPA supplicant" "$FORMAT"
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
@@ -110,6 +113,7 @@ pcp_wifi_unload_wifi_extns() {
 	pcp_message INFO "Unloading wifi extensions..." "$FORMAT"
 	pcp_wifi_update_onbootlst "remove" "wireless_tools.tcz"
 	pcp_wifi_update_onbootlst "remove" "wpa_supplicant.tcz"
+	pcp_wifi_update_onbootlst "remove" "crda.tcz"
 	pcp_message OK "Done." "$FORMAT"
 	REBOOT_REQUIRED=TRUE
 }
