@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer.
 
-# Version: 4.0.1 2018-09-19
+# Version: 4.0.1 2018-11-16
 
 pcp_debug_log "$0 - Running pcp-rpi-functions..."
 
@@ -28,7 +28,7 @@ pcp_debug_log "$0 - Running pcp-rpi-functions..."
 #    PROCESSOR      12: 0=2835    1=2836
 #    TYPE           04: 0=MODELA  1=MODELB    2=MODELA+  3=MODELB+  4=MODEL2B  5=ALPHA???
 #                       6=CM      7=???       8=MODEL3B  9=ZERO     a=CM3      b=???
-#                       c=ZERO-W  d=MODEL3B+
+#                       c=ZERO-W  d=MODEL3B+  e=MODEL3A+
 #    REV            00: 0=REV0    1=REV1      2=REV2
 
 #    *a21041
@@ -72,6 +72,7 @@ pcp_rpi_details() {
 		*0a0)   TYPE=3;  MODEL=CM3;    PCBREV=1;    MEMORY=1024; RB_DELAY=40;;
 		*0c1)   TYPE=0;  MODEL=ZERO-W; PCBREV=1;    MEMORY=512;  RB_DELAY=50;;
 		*0d3)   TYPE=3;  MODEL=3B+;    PCBREV=1;    MEMORY=1024; RB_DELAY=35;;		# a020d3
+		*0e0)   TYPE=3;  MODEL=3A+;    PCBREV=1.0;  MEMORY=512;  RB_DELAY=35;;		# 9020e0
 		*)      TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;    RB_DELAY=60;;
 	esac
 
@@ -89,6 +90,7 @@ pcp_rpi_details() {
 		ZERO*) HARDWARE=BCM2708; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		3B+*)  HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		3B*)   HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		3A*)   HARDWARE=BCM2710; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*)     HARDWARE=X;       ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 	esac
 }
@@ -141,7 +143,7 @@ pcp_rpi_model_unknown() {
 # The shortname is a unique identifier intended to be used with pastebin uploading
 pcp_rpi_shortname() {
 	pcp_rpi_details
-	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ] || [ "$MODEL" = "ZERO-W" ]; then
+	if [ "$MODEL" = "A" ] || [ "$MODEL" = "A+" ] || [ "$MODEL" = "ZERO" ] || [ "$MODEL" = "ZERO-W" ] || [ "$MODEL" = "3A+" ]; then
 		SHORTMAC=$(pcp_wlan0_mac_address)
 	else
 		SHORTMAC=$(pcp_eth0_mac_address)
@@ -215,6 +217,11 @@ pcp_rpi_is_model_3Bplus() {
 	[ "$MODEL" = "3B+" ] && echo 0 || echo 1
 }
 
+pcp_rpi_is_model_3Aplus() {
+	pcp_rpi_details
+	[ "$MODEL" = "3A+" ] && echo 0 || echo 1
+}
+
 PB101=$(cat $PB100)
 set -- $PB101
 PB102=$(pcp_pb_get $1)
@@ -236,7 +243,7 @@ pcp_rpi_is_hat() {
 
 pcp_rpi_has_inbuilt_wifi() {
 	pcp_rpi_details
-	if ([ "$MODEL" = "ZERO-W" ] || [ "$MODEL" = "3B" ] || [ "$MODEL" = "3B+" ]); then
+	if ([ "$MODEL" = "ZERO-W" ] || [ "$MODEL" = "3B" ] || [ "$MODEL" = "3B+" ] || [ "$MODEL" = "3A+" ]); then
 		echo 0
 	else
 		echo 1
