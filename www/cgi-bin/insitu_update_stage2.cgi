@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-11-05
+# Version: 4.0.1 2018-11-17
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -188,8 +188,8 @@ pcp_get_kernel_modules() {
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.14.79-rt44;;
-				*) NEWKERNELVER=4.14.79;;
+				*pcpAudioCore*) NEWKERNELVER=4.14.81-rt47;;
+				*) NEWKERNELVER=4.14.81;;
 			esac
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
