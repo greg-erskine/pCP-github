@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-27
+# Version: 4.0.1 2018-11-17
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -62,6 +62,21 @@ pcp_update() {
 	pcp_save_to_config
 }
 
+install_shutdown_monitor() {
+	if [ ! -f $PACKAGEDIR/shutdown-monitor.tcz ]; then
+		echo "Installing Shutdown Monitor"
+		sudo -u tc pcp-load -r $PCP_REPO -w shutdown-monitor.tcz
+		if -f $PACKAGEDIR/shutdown-monitor.tcz ]; then
+			sudo -u tc pcp-load -i shutdown-monitor.tcz
+			echo "shutdown-monitor.tcz" >> $ONBOOTLST
+		fi
+	else
+		sed -i '/shutdown-monitor.tcz/d' $ONBOOTLST
+		echo "shutdown-monitor.tcz" >> $ONBOOTLST
+		sudo -u tc pcp-load -i shutdown-monitor.tcz
+	fi
+}
+
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
@@ -115,6 +130,50 @@ case "$SUBMIT" in
 	Update*)
 		pcp_update
 	;;
+	Poweroff)
+		unset RESTART_REQUIRED
+		REBOOT_REQUIRED=1
+		case $GPIOPOWEROFF in
+			yes)
+				pcp_mount_bootpart_nohtml
+				sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
+				[ $GPIOPOWEROFF_HI = "yes" ] && ACTIVELOW="" || ACTIVELOW=",active_low=1"
+				echo "dtoverlay=gpio-poweroff,gpiopin=${GPIOPOWEROFF_GPIO}${ACTIVELOW}" >> $CONFIGTXT
+				pcp_umount_bootpart_nohtml
+			;;
+			no)
+				pcp_mount_bootpart_nohtml
+				sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
+				pcp_umount_bootpart_nohtml
+			;;
+		esac
+		pcp_save_to_config
+	;;
+	Shutdown)
+		unset RESTART_REQUIRED
+		REBOOT_REQUIRED=1
+		case $GPIOSHUTDOWN in
+			yes)
+				pcp_mount_bootpart_nohtml
+				sed -i '/dtoverlay=gpio-shutdown/d' $CONFIGTXT
+				[ $GPIOSHUTDOWN_HI = "yes" ] && ACTIVELOW="active_low=0" || ACTIVELOW="active_low=1"
+				echo "dtoverlay=gpio-shutdown,gpio_pin=${GPIOSHUTDOWN_GPIO},${ACTIVELOW},gpio_pull=${GPIOSHUTDOWN_PU}" >> $CONFIGTXT
+				pcp_umount_bootpart_nohtml
+				install_shutdown_monitor
+			;;
+			no)
+				pcp_mount_bootpart_nohtml
+				sed -i '/dtoverlay=gpio-shutdown/d' $CONFIGTXT
+				pcp_umount_bootpart_nohtml
+				sed -i '/shutdown-monitor.tcz/d' $ONBOOTLST
+			;;
+		esac
+		pcp_save_to_config
+	;;
+	Install-monitor)
+		unset RESTART_REQUIRED
+		install_shutdown_monitor
+	;;
 	*)
 		echo '<p class="error">[ ERROR ] Invalid case argument.</p>'
 	;;
@@ -130,7 +189,7 @@ fi
 
 pcp_backup
 pcp_table_middle
-[ $RESTART_REQUIRED ] || pcp_go_back_button
+[ $RESTART_REQUIRED ] || pcp_redirect_button "Go Back" $FROM_PAGE 5
 pcp_table_end
 pcp_footer
 pcp_copyright

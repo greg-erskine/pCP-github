@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-10-24
+# Version: 4.0.1 2018-11-17
 
 BACKUP=0
 # Read from pcp-functions file
@@ -131,6 +131,19 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 			fi
 			echo "${GREEN}Done.${NORMAL}"
+		fi
+		# Setup GPIO Shutdown and Poweroff overlays
+		if [ "$GPIOPOWEROFF" = "yes" ]; then
+			echo -n "${BLUE}[ INFO ] Adding gpio-poweroff overlay to config.txt...${NORMAL}"
+			sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
+			[ $GPIOPOWEROFF_HI = "yes" ] && ACTIVELOW="" || ACTIVELOW=",active_low=1"
+			echo "dtoverlay=gpio-poweroff,gpiopin=${GPIOPOWEROFF_GPIO}${ACTIVELOW}" >> $CONFIGTXT
+		fi
+		if [ "$GPIOSHUTDOWN" = "yes" ]; then
+			echo -n "${BLUE}[ INFO ] Adding gpio-shutdown overlay to config.txt...${NORMAL}"
+			sed -i '/dtoverlay=gpio-shutdown/d' $CONFIGTXT
+			[ $GPIOSHUTDOWN_HI = "yes" ] && ACTIVELOW="active_low=0" || ACTIVELOW="active_low=1"
+			echo "dtoverlay=gpio-shutdown,gpio_pin=${GPIOSHUTDOWN_GPIO},${ACTIVELOW},gpio_pull=${GPIOSHUTDOWN_PU}" >> $CONFIGTXT
 		fi
 		# Setup CPU Isolation
 		if [ "$CPUISOL" = "enabled" ]; then
