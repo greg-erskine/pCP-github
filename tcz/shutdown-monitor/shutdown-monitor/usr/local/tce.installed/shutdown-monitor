@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#Monitor /dev/input/by-path/platform-soc:shutdown_button-event for a shutdown key event
+#Event provided by dtoverlay=gpio-shutdown overlay and gpio-keys driver.
+
+LOG=/var/log/pcp_shutdown.log
+
+echo "Loading gpio-keys module." >> $LOG
+modprobe gpio-keys
+
+echo "Waiting for device to populate." >> $LOG
+CNT=0
+while [ $((CNT++)) -lt 10 ]; do
+	if [ -r /dev/input/by-path/platform-soc:shutdown_button-event ]; then
+		echo "DONE" >> $LOG
+		/usr/local/bin/shutdown-monitor >> $LOG 2>&1 &
+		break
+	else
+		sleep 0.5
+	fi
+done
+
+if [ $CNT -eq 10 ]; then
+	echo "Device not found" >> $LOG
+fi
