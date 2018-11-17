@@ -43,6 +43,8 @@ fi
 echo "Setting up Sudo....."
 sudo echo
 
+[ "$1" = "-a" ] && AUTO=1 || AUTO=0
+
 AVAILINITRD=$(ls -r --sort=time initrd)
 
 echo "Please Select the base initrd to use"
@@ -63,8 +65,6 @@ OLDINITRD=$(find ${BASEWD}/* -name "*.gz" | grep --max-count=1 ${OLD})
 echo "*****************************************************************"
 echo "Selecting initrd ${OLDINITRD}"
 echo
-echo "Press enter to continue"
-read key
 
 if [ -f "${OLDINITRD}" ]; then
 	echo "*****************************************************************"
@@ -138,7 +138,7 @@ echo "initrd has been updated with modules. ${GREEN}Please add any modules that 
 echo "New kernel is $NEWKERNEL Located in $NEWKERNELDIR"
 echo ""
 echo "Press any key to continue"
-read key
+[ $AUTO -eq 0 ] && read key
 echo
 echo "*****************************************************************"
 echo "Gzipping Modules"
@@ -165,28 +165,29 @@ echo "Setting up kernel.tclocal symlink"
 sudo ln -s /usr/local/lib/modules/$NEWKERNEL/kernel kernel.tclocal
 cd $BASEWD
 
-
+if [ $AUTO -eq 0 ]; then
 echo "*****************************************************************"
-while true
-do 
-	PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
-	echo "Release name is: ${PCPOSVER}"
-	echo
-	echo "Please enter new string, or enter to keep the same"
-	read key
-	if [ "$key" != "" ]; then
-		PCPOSVER=${key//[$'\t\r\n ']}
-		echo "You entered :${PCPOSVER}"
-	else
-		echo "Keeping the string :${PCPOSVER}"
-	fi
-	read -p "Is this correct? (y/n) " yn
-	case $yn in
-		[Yy]* ) sudo sh -c "echo ${PCPOSVER} > $INITRDWRK/usr/share/doc/tc/release.txt";break;;
-		[Nn]* ) ;;
-		* ) echo "Please answer yes or no.";;
-	esac
-done
+	while true
+	do
+		PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
+		echo "Release name is: ${PCPOSVER}"
+		echo
+		echo "Please enter new string, or enter to keep the same"
+		read key
+		if [ "$key" != "" ]; then
+			PCPOSVER=${key//[$'\t\r\n ']}
+			echo "You entered :${PCPOSVER}"
+		else
+			echo "Keeping the string :${PCPOSVER}"
+		fi
+		read -p "Is this correct? (y/n) " yn
+		case $yn in
+			[Yy]* ) sudo sh -c "echo ${PCPOSVER} > $INITRDWRK/usr/share/doc/tc/release.txt";break;;
+			[Nn]* ) ;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	done
+fi
 
 echo "*****************************************************************"
 echo "Removing old modules"
@@ -204,13 +205,17 @@ sudo rm -rf $INITRDWRK/lib/modules/$OLDKERNEL
 #	fi
 #done
 
-echo "*****************************************************************"
-echo "Name for the initrd for kernel $NEWKERNELDIR"
-echo 
-echo "Old initrd name was $(basename ${OLDINITRD})"
-echo
-echo "Enter new name, or press enter to keep old name"
-read key
+if [ $AUTO -eq 0 ]; then
+	echo "*****************************************************************"
+	echo "Name for the initrd for kernel $NEWKERNELDIR"
+	echo 
+	echo "Old initrd name was $(basename ${OLDINITRD})"
+	echo
+	echo "Enter new name, or press enter to keep old name"
+	read key
+else
+	key=""
+fi
 if [ "${key}" != "" ]; then
 	NEWINITRD=${key//[$'\t\r\n ']}
 else
@@ -220,7 +225,7 @@ echo
 echo "*****************************************************************"
 echo "Ready to build new initrd $NEWINITRD"
 echo "Press any key to continue, or ctrl-c to abort"
-read key
+[ $AUTO -eq 0 ] && read key
 NEWINITRDDIR=$BASEWD/initrd/$NEWKERNELDIR
 mkdir -p $NEWINITRDDIR
 cd $DESTMODPATH
