@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-11-17
+# Version: 4.1.0 2018-11-17
 
 BACKUP=0
 # Read from pcp-functions file
@@ -25,7 +25,7 @@ WPACONFIGFOUND=0
 SSH=0
 NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 for DISK in $NEWCFGLIST; do
-	echo "${BLUE}Checking for newpcp.cfg on $DISK...${NORMAL}"
+	echo "${BLUE}Checking for boot codes on $DISK...${NORMAL}"
 	# Check if $DISK is mounted, otherwise mount it.
 	if mount | grep ${DISK}; then
 		eval ${DISK}WASMNT=1
@@ -38,7 +38,24 @@ for DISK in $NEWCFGLIST; do
 	#------------------------------------------------------------------------------------
 	# Look for ssh file on boot partition. Only start sshd if file found.
 	#------------------------------------------------------------------------------------
-	[ -f /mnt/${DISK}/ssh ] && SSH=1
+	echo -n "${BLUE}Checking for ssh...${YELLOW}"
+	[ -f /mnt/${DISK}/ssh ] && SSH=1 || SSH=0
+	[ $SSH -eq 1 ] && echo "found, ssh will start." || echo "not found, ssh disabled"
+	#------------------------------------------------------------------------------------
+	# Look for netusb on boot partition, and load net-usb-KERNEL.tcz
+	#------------------------------------------------------------------------------------
+	echo -n "${BLUE}Checking for netusb...${YELLOW}"
+	if [ -f /mnt/${DISK}/netusb ]; then
+		tce-status -i | grep -q "net-usb"
+		if [ $? -eq 1 ]; then
+			echo "Loading net-usb kernel modules.${NORMAL}"
+			echo "net-usb-KERNEL.tcz" >> $ONBOOTLST
+			sudo -u tc tce-load -i net-usb-KERNEL.tcz
+			/etc/init.d/dhcp.sh &
+		else
+			echo "net-usb modules already loaded."
+		fi
+	fi
 	#------------------------------------------------------------------------------------
 	# Look for wpa_supplicant.conf on boot partition.
 	#------------------------------------------------------------------------------------
@@ -50,6 +67,8 @@ for DISK in $NEWCFGLIST; do
 		chmod u=rw,g=,o= $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && mv /mnt/${DISK}/wpa_supplicant.conf /mnt/${DISK}/used_wpa_supplicant.conf
 	fi
+	#------------------------------------------------------------------------------------
+	# Look for newpcp.cfg on boot partition.......normally part of insitu_upgrade
 	#------------------------------------------------------------------------------------
 	if [ -f /mnt/${DISK}/newpcp.cfg ]; then
 		echo "${YELLOW}  newpcp.cfg found on ${DISK}.${NORMAL}"
