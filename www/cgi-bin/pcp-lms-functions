@@ -252,17 +252,22 @@ pcp_lms_show() {
 
 pcp_lms_players() {
 	[ "$1" = "" ] && model="squeezelite" || model=$1
+	firmware="$2"
 	REQUEST=$(pcp_lms_build_request - players 0 999)
 	NO_OF_PLAYERS=$(pcp_lms_json_request_list)
-
 	i=0
 	while [ $i -lt $NO_OF_PLAYERS ]; do
-		NAMES=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"name\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"name\"\][[:space:]]{1,9}//' | sed 's/\"//g')
-		MODEL=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"model\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"model\"\][[:space:]]{1,9}//' | sed 's/\"//g')
-		IP=$(cat /tmp/json_list | egrep  "\[\"result\",\"players_loop\",${i},\"ip\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"ip\"\][[:space:]]{1,9}//')
-		IPADDR=$(echo ${IP%\:*} | sed 's/\"//g')
+		local NAMES=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"name\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"name\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		local MODEL=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"model\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"model\"\][[:space:]]{1,9}//' | sed 's/\"//g')
+		local IP=$(cat /tmp/json_list | egrep  "\[\"result\",\"players_loop\",${i},\"ip\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"ip\"\][[:space:]]{1,9}//')
+		local IPADDR=$(echo ${IP%\:*} | sed 's/\"//g')
+		local FIRMWARE=$(cat /tmp/json_list | egrep "\[\"result\",\"players_loop\",${i},\"firmware\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"model\"\][[:space:]]{1,9}//' | sed 's/\"//g')
 		CONNECTED=$(cat /tmp/json_list | egrep  "\[\"result\",\"players_loop\",${i},\"connected\"\]" | sed -r 's/\[\"result\",\"players_loop\",[0-9]{1,3},\"connected\"\][[:space:]]{1,9}//' | sed 's/\"//g')
-		[ "$MODEL" = "$model" ] && printf "%s,%s,%s\n" "$NAMES" "$IPADDR" "$CONNECTED"
+		if [ "$MODEL" = "$model" ]; then
+			case $FIRMWARE in
+				*$firmware) printf "%s,%s,%s\n" "$NAMES" "$IPADDR" "$CONNECTED";;
+			esac
+		fi
 		i=$((i+1))
 	done
 }
