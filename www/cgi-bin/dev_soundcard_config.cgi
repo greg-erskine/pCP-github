@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-20
+# Version: 4.1.0 2018-09-20
 
 # Title: Soundcard config files
 # Description: Easy method for viewing the Soundcard configuration files

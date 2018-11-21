@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-19
+# Version: 4.1.0 2018-09-19
 
 # Thanks to M-H for his help in debugging and testing.
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-19
+# Version: 4.1.0 2018-09-19
 
 #========================================================================================
 # This script checks for required extensions in repositories.
@@ -39,8 +39,8 @@ pcp_downloaded_extensions() {
 	echo alsa-modules-${VERSION}-pcpCore_v7.tcz >> $EXTENLIST
 	echo alsa-utils.tcz                         >> $EXTENLIST
 	echo alsa.tcz                               >> $EXTENLIST
-	echo busybox-httpd.tcz                      >> $EXTENLIST
 	echo ca-certificates.tcz                    >> $EXTENLIST
+	echo crda.tcz                               >> $EXTENLIST
 	echo dialog.tcz                             >> $EXTENLIST
 	echo firmware-atheros.tcz                   >> $EXTENLIST
 	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
@@ -453,7 +453,6 @@ pcp_message "standard extensions"
 pcp_check_extension alsa-modules-${KERNELVER}.tcz
 pcp_check_extension alsa-utils.tcz
 pcp_check_extension alsa.tcz
-pcp_check_extension busybox-httpd.tcz
 pcp_check_extension dialog.tcz
 pcp_check_extension libasound.tcz
 pcp_check_extension libedit.tcz

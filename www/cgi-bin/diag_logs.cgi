@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-10-22
+# Version: 4.1.0 2018-10-22
 
 . pcp-functions
 . pcp-pastebin-functions

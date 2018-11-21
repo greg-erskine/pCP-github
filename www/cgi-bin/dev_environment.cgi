@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-21
+# Version: 4.1.0 2018-09-21
 
 # Title: Print the current environment
 # Description: Future, set the enviroment of busybox-httpd by launching

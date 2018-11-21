@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer.
 
-# Version: 4.0.1 2018-11-16
+# Version: 4.1.0 2018-11-16
 
 pcp_debug_log "$0 - Running pcp-rpi-functions..."
 

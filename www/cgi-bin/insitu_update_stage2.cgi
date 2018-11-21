@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-11-17
+# Version: 4.1.0 2018-11-17
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -184,7 +184,7 @@ pcp_get_kernel_modules() {
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
-		piCorePlayer4.0.1*)
+		piCorePlayer4.1.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
@@ -479,7 +479,7 @@ pcp_finish_install() {
 				pcp_update_onbootlst "add" "wpa_supplicant.tcz"
 			fi
 		;;
-		piCorePlayer4.0.1*)
+		piCorePlayer4.1.*)
 			pcp_update_onbootlst "del" "busybox-httpd.tcz"
 			rm -f ${PACKAGEDIR}/busybox-httpd.*
 			if [ "$WIFI" = "on" ]; then

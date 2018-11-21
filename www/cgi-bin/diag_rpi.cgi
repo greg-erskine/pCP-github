@@ -1,7 +1,7 @@
 #!/bin/sh
 # Raspberry Pi diagnostics script
 
-# Version: 4.0.1 2018-09-19
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 . pcp-rpi-functions

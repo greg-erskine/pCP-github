@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-11-19
+# Version: 4.1.0 2018-11-19
 
 # Title: HAT information
 # Description: Easy method for viewing the HAT information

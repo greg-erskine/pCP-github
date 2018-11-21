@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.1 2018-09-20
+# Version: 4.1.0 2018-09-20
 
 # Title: Overlays README
 # Description: Easy method for viewing the README file in /mnt/mmcblk0p1/overlays
