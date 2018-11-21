@@ -510,22 +510,22 @@ if [ -f  ${USBMOUNTCONF} ]; then
 				case "$FSTYPE" in
 					ntfs)
 						umount $DEVICE  # ntfs cannot be dual mounted.
-						OPTIONS="-v -t ntfs-3g -o permissions"
+						OPTIONS="-v -t ntfs-3g -o permissions,noatime"
 					;;
 					vfat|fat32)
 						# If Filesystem support installed, use utf-8 charset for fat.
 						df | grep -qs ntfs
 						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-						OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
+						OPTIONS="-v -t vfat -o noauto,users,noatime,exec,umask=000,flush${CHARSET}"
 					;;
 					exfat)
 						CHARSET=",iocharset=utf8"
 						umount $DEVICE  # Need to unmount incase 1st mount is not utf8.
-						OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
+						OPTIONS="-v -o noauto,users,noatime,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
 					;;
 					*)
-						OPTIONS="-v"
+						OPTIONS="-v -o noatime"
 					;;
 				esac
 				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
