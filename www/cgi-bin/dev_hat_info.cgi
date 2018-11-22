@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-19
+# Version: 4.1.0 2018-11-23
 
 # Title: HAT information
 # Description: Easy method for viewing the HAT information
@@ -28,7 +28,6 @@ pcp_overlays_loaded() {
 	OVERLAYS=$(cat ${VOLUME}/config.txt | grep dtoverlay)
 	pcp_umount_bootpart nohtml >/dev/null 2>&1
 }
-pcp_overlays_loaded
 
 #========================================================================================
 # Main HTML
@@ -45,19 +44,30 @@ pcp_start_row_shade
 
 for HEADING in $HATHEADINGS
 do
-	echo $HEADING': '$(cat ${HATDIRECTORY}${HEADING}) >>$LOG
-	pcp_incr_id
-	pcp_toggle_row_shade
+	INFO=$(cat ${HATDIRECTORY}${HEADING})
+	DATA=$DATA'"'$INFO'", '
 
+	echo $HEADING': '$INFO >>$LOG
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150">'
 	echo '                <p>'$HEADING'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>'$(cat ${HATDIRECTORY}${HEADING})'</p>'
+	echo '                <p>'$INFO'</p>'
 	echo '              </td>'
 	echo '            </tr>'
 done
+
+pcp_toggle_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column150">'
+echo '                <p>DATA:</p>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p>'$DATA'</p>'
+echo '              </td>'
+echo '            </tr>'
 
 echo '          </table>'
 echo '        </fieldset>'
@@ -89,6 +99,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Overlays text area----------------------------
+pcp_overlays_loaded
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -114,3 +125,8 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
+
+exit
+
+"hat", "Digi+ Pro", "0x0000", "0x0000", "2154f80b-0f92-45e4-96db-c1643ec2b46b", "HiFiBerry", 
+"hat", "JustBoom Digi HAT v1.1", "0x0002", "0x0101", "20781897-663c-429a-938c-00000000041f", "JustBoom", 
