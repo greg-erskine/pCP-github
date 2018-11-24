@@ -39,8 +39,8 @@ for DISK in $NEWCFGLIST; do
 	# Look for ssh file on boot partition. Only start sshd if file found.
 	#------------------------------------------------------------------------------------
 	echo -n "${BLUE}Checking for ssh...${YELLOW}"
-	[ -f /mnt/${DISK}/ssh ] && SSH=1 || SSH=0
-	[ $SSH -eq 1 ] && echo "found, ssh will start." || echo "not found, ssh disabled"
+	[ -f /mnt/${DISK}/ssh ] && SSH=1
+	[ $SSH -eq 1 ] && echo "found, ssh will start."
 	#------------------------------------------------------------------------------------
 	# Look for netusb on boot partition, and load net-usb-KERNEL.tcz
 	#------------------------------------------------------------------------------------
