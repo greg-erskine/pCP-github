@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-15
-#	Changed dosfsck to fsck.fat. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.01 2015-02-17
-#	Original version. GE.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 . pcp-lms-functions

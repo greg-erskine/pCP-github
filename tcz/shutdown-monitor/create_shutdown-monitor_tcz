@@ -1,0 +1,36 @@
+#!/bin/sh
+
+BASEWD=$(pwd)
+EXT="shutdown-monitor"
+TCZ=${EXT}.tcz
+TCZINFO=${TCZ}.info
+
+cd $EXT
+echo "fixing directory access rights"
+find -type d | xargs chmod -v 755
+find * -not -type d > ${BASEWD}/${TCZ}.list
+cd ..
+
+mksquashfs ${EXT} ${TCZ} -all-root -noappend 2>&1 >/dev/null
+
+cd ${BASEWD}
+md5sum ${TCZ} > ${TCZ}.md5.txt
+
+echo "$EXT contains"
+unsquashfs -ll ${TCZ}
+
+while true; do
+	read -p "Do you want to upload to the repo directories [y/n]? " yn
+	case $yn in
+		[Yy]* ) break;;
+		[Nn]* ) exit 0;;
+		* ) echo "Please answer yes or no.";;
+	esac
+done
+
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/9.x"
+ARMV6="$REPOPATH/armv6/tcz"
+ARMV7="$REPOPATH/armv7/tcz"
+
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV6
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV7

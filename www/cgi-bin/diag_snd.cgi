@@ -1,41 +1,7 @@
 #!/bin/sh
 # Sound diagnostics script
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Changed to using pcp_log_header. GE.
-
-# Version: 0.09 2016-05-16 GE
-#	Fixed card1 pcm0p sub0.
-#	Changed name of log file.
-
-# Version: 0.08 2016-03-28 GE
-#	Changed log location to /var/log.
-
-# Version: 0.07 2016-02-03 GE
-#	Moved pcp_pastebin_button to Developer mode.
-
-# Version: 0.06 2015-12-24 GE
-#	Added Upload to pastebin feature.
-
-# Version: 0.05 2015-07-04 GE
-#	Minor updates.
-
-# Version: 0.04 2015-05-13 GE
-#	Added /usr/local/tce.installed/alsa,
-#		  /usr/local/etc/udev/rules.d/90-alsa-restore.rules.
-#		  /usr/local/share/alsa/alsa.conf
-
-# Version: 0.03 2015-04-28 GE
-#	Minor updates.
-
-# Version: 0.02 2015-03-07 GE
-#	Minor updates.
-
-# version: 0.01 2014-10-22 GE
-#	Original.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 . pcp-rpi-functions

@@ -1,20 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced formatting. GE.
-
-# Version: 0.03 2015-09-19 SBP
-#	Removed httpd decoding.
-
-# Version: 0.02 2014-12-10 GE
-#	Using pcp_html_head now.
-#	HTML5 formatting.
-
-# Version: 0.01 2014-06-24 GE
-#	Original.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 

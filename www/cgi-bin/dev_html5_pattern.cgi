@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-09
+# Version: 4.1.0 2018-09-20
+
+# Title: HTML5 Pattern Test
+# Description: Used for testing HTML regex pattern matching
 
 . pcp-functions
 

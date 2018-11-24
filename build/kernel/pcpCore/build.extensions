@@ -30,6 +30,8 @@ fi
 
 BASEWD=$(pwd)
 
+[ "$1" = "-a" ] && AUTO=1 || AUTO=0
+
 AVAILKERNEL=$(ls -r --sort=time extensions)
 
 echo "Please Select the Kernel version to use for starting module file listings"
@@ -70,8 +72,6 @@ done
 OLDKERNEL=$(ls -1 modules/${OLD}/lib/modules)
 NEWKERNEL=$(ls -1 modules/${NEW}/lib/modules)
 
-
-
 cd extensions/$OLD
 
 #This is the list of extension names
@@ -84,7 +84,6 @@ SRCMODPATH="modules/${NEW}/lib/modules/${NEWKERNEL}/kernel"
 MODPROBEPATH="${BASEWD}/../modprobe.d"
 
 for I in ${EXT}; do
-	echo
 	echo "*****************************************************************"
 	echo "Creating Module Extension for ${YELLOW}$I-$NEWKERNEL${NORMAL}"
 	cd ${SRCMODPATH}
@@ -105,21 +104,28 @@ for I in ${EXT}; do
 	cd ${BASEWD}/extensions/${NEW}/${I}-${NEWKERNEL}
 	[ -f /tmp/${I}-modprobe.tar ] && tar xf /tmp/${I}-modprobe.tar
 	cd ${BASEWD}
-	echo
-	echo "New module is located at "
-	echo "${DESTMODPATH}"
-	echo
-	echo "Add and new modules that you need to.   Then Press any key to continue"
-	read key
+	if [ $AUTO -eq 0 ]; then
+		echo
+		echo "New module is located at "
+		echo "${DESTMODPATH}"
+		echo
+		echo "Add and new modules that you need to.   Then Press any key to continue"
+		read key
+	fi
 	cd extensions/${NEW}/${I}-${NEWKERNEL}
-	echo "fixing directory access rights"
-	find -type d | xargs chmod -v 755
+	if [ $AUTO -eq 0 ]; then
+		echo "fixing directory access rights"
+		VERBOSE="-v"
+	else
+		VERBOSE=""
+	fi
+	find -type d | xargs chmod $VERBOSE 755
 	find * -not -type d > ../${I}-${NEWKERNEL}.tcz.list
 	cd ..
-	echo "Squashing Extension"
+	[ $AUTO -eq 0 ] && echo "Squashing Extension"
 	mksquashfs ${I}-${NEWKERNEL} ${I}-${NEWKERNEL}.tcz -all-root -noappend > /dev/null
 	md5sum ${I}-${NEWKERNEL}.tcz > ${I}-${NEWKERNEL}.tcz.md5.txt
-	echo "Updating Extension Info"
+	[ $AUTO -eq 0 ] && echo "Updating Extension Info"
 	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep
 	[ -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ] && cp -f ${LISTPATH}/${I}-${OLDKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep.pcp
 	rm -f ${I}-${NEWKERNEL}.tcz.info
@@ -194,12 +200,12 @@ for I in ${EXT}; do
 		[ $P -eq 1 ] && printf '%s%s\n' "${V1}" "${V2}" >> ${I}-${NEWKERNEL}.tcz.info
 	done < ${LISTPATH}/${I}-${OLDKERNEL}.tcz.info
 	[ -f ${I}-${NEWKERNEL}.tcz.dep ] && cp -f ${I}-${NEWKERNEL}.tcz.dep ${I}-${NEWKERNEL}.tcz.dep.pcp || echo "BOGUS.tcz" > ${I}-${NEWKERNEL}.tcz.dep.pcp
-	echo "${I}-${NEWKERNEL}.tcz Done...."
-	echo
+	[ $AUTO -eq 0 ] && echo "${I}-${NEWKERNEL}.tcz Done...."
+	[ $AUTO -eq 0 ] && echo
 
 	cd $BASEWD
 
-	echo "Cleaning Up"
+	[ $AUTO -eq 0 ] && echo "Cleaning Up"
 	rm -f /tmp/${I}-${NEWKERNEL}.tar
 	rm -f /tmp/${I}-modprobe.tar
 	rm -f /tmp/${I}.list

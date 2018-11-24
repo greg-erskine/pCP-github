@@ -1,13 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-14
-#	Added "nobody" parameter to pcp_html_head. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.01 2014-06-27
-#	Original. GE.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 . pcp-lms-functions

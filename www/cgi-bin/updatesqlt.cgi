@@ -1,21 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-04-17
-#	Fixed pcp-xxx-functions issues. GE.
-#	Change Full Update to use pcp-update. PH.
-
-# Version: 3.10 2017-01-04
-#	Changes for Squeezelite extension. PH.
-#	Formatting Changes for textareas. SBP.
-
-# Version: 0.01 2014-06-24
-#	Original. GE.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 

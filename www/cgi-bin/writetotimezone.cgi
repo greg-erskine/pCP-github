@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Added pcp_redirect_button. GE.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Enhanced formatting. GE.
-
-# Version: 0.01 2014-06-24
-#	Original. GE.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 

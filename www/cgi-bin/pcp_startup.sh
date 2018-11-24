@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-17
+# Version: 4.1.0 2018-11-17
 
 BACKUP=0
 # Read from pcp-functions file
@@ -25,7 +25,7 @@ WPACONFIGFOUND=0
 SSH=0
 NEWCFGLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 for DISK in $NEWCFGLIST; do
-	echo "${BLUE}Checking for newpcp.cfg on $DISK...${NORMAL}"
+	echo "${BLUE}Checking for boot codes on $DISK...${NORMAL}"
 	# Check if $DISK is mounted, otherwise mount it.
 	if mount | grep ${DISK}; then
 		eval ${DISK}WASMNT=1
@@ -38,7 +38,24 @@ for DISK in $NEWCFGLIST; do
 	#------------------------------------------------------------------------------------
 	# Look for ssh file on boot partition. Only start sshd if file found.
 	#------------------------------------------------------------------------------------
+	echo -n "${BLUE}Checking for ssh...${YELLOW}"
 	[ -f /mnt/${DISK}/ssh ] && SSH=1
+	[ $SSH -eq 1 ] && echo "found, ssh will start."
+	#------------------------------------------------------------------------------------
+	# Look for netusb on boot partition, and load net-usb-KERNEL.tcz
+	#------------------------------------------------------------------------------------
+	echo -n "${BLUE}Checking for netusb...${YELLOW}"
+	if [ -f /mnt/${DISK}/netusb ]; then
+		tce-status -i | grep -q "net-usb"
+		if [ $? -eq 1 ]; then
+			echo "Loading net-usb kernel modules.${NORMAL}"
+			echo "net-usb-KERNEL.tcz" >> $ONBOOTLST
+			sudo -u tc tce-load -i net-usb-KERNEL.tcz
+			/etc/init.d/dhcp.sh &
+		else
+			echo "net-usb modules already loaded."
+		fi
+	fi
 	#------------------------------------------------------------------------------------
 	# Look for wpa_supplicant.conf on boot partition.
 	#------------------------------------------------------------------------------------
@@ -50,6 +67,8 @@ for DISK in $NEWCFGLIST; do
 		chmod u=rw,g=,o= $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && mv /mnt/${DISK}/wpa_supplicant.conf /mnt/${DISK}/used_wpa_supplicant.conf
 	fi
+	#------------------------------------------------------------------------------------
+	# Look for newpcp.cfg on boot partition.......normally part of insitu_upgrade
 	#------------------------------------------------------------------------------------
 	if [ -f /mnt/${DISK}/newpcp.cfg ]; then
 		echo "${YELLOW}  newpcp.cfg found on ${DISK}.${NORMAL}"
@@ -131,6 +150,19 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 			fi
 			echo "${GREEN}Done.${NORMAL}"
+		fi
+		# Setup GPIO Shutdown and Poweroff overlays
+		if [ "$GPIOPOWEROFF" = "yes" ]; then
+			echo -n "${BLUE}[ INFO ] Adding gpio-poweroff overlay to config.txt...${NORMAL}"
+			sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
+			[ $GPIOPOWEROFF_HI = "yes" ] && ACTIVELOW="" || ACTIVELOW=",active_low=1"
+			echo "dtoverlay=gpio-poweroff,gpiopin=${GPIOPOWEROFF_GPIO}${ACTIVELOW}" >> $CONFIGTXT
+		fi
+		if [ "$GPIOSHUTDOWN" = "yes" ]; then
+			echo -n "${BLUE}[ INFO ] Adding gpio-shutdown overlay to config.txt...${NORMAL}"
+			sed -i '/dtoverlay=gpio-shutdown/d' $CONFIGTXT
+			[ $GPIOSHUTDOWN_HI = "yes" ] && ACTIVELOW="active_low=0" || ACTIVELOW="active_low=1"
+			echo "dtoverlay=gpio-shutdown,gpio_pin=${GPIOSHUTDOWN_GPIO},${ACTIVELOW},gpio_pull=${GPIOSHUTDOWN_PU}" >> $CONFIGTXT
 		fi
 		# Setup CPU Isolation
 		if [ "$CPUISOL" = "enabled" ]; then
@@ -324,7 +356,7 @@ echo -n "${YELLOW}Waiting for network."
 CNT=1
 until ifconfig | grep -q Bcast
 do
-	if [ $((CNT++)) -gt 50 ]; then
+	if [ $((CNT++)) -gt $NETWORK_WAIT ]; then
 		echo -n "${RED} No network found!${NORMAL}"
 		break
 	else
@@ -478,22 +510,22 @@ if [ -f  ${USBMOUNTCONF} ]; then
 				case "$FSTYPE" in
 					ntfs)
 						umount $DEVICE  # ntfs cannot be dual mounted.
-						OPTIONS="-v -t ntfs-3g -o permissions"
+						OPTIONS="-v -t ntfs-3g -o permissions,noatime"
 					;;
 					vfat|fat32)
 						# If Filesystem support installed, use utf-8 charset for fat.
 						df | grep -qs ntfs
 						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-						OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
+						OPTIONS="-v -t vfat -o noauto,users,noatime,exec,umask=000,flush${CHARSET}"
 					;;
 					exfat)
 						CHARSET=",iocharset=utf8"
 						umount $DEVICE  # Need to unmount incase 1st mount is not utf8.
-						OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
+						OPTIONS="-v -o noauto,users,noatime,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
 					;;
 					*)
-						OPTIONS="-v"
+						OPTIONS="-v -o noatime"
 					;;
 				esac
 				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
@@ -675,13 +707,13 @@ fi
 
 if [ "$A_S_LMS" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start LMS...${NORMAL}"
-	pcp_auto_start_lms
+	pcp_lms_auto_start_lms
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ "$A_S_FAV" = "Enabled" ]; then
 	echo -n "${BLUE}Starting auto start FAV...${NORMAL}"
-	pcp_auto_start_fav
+	pcp_lms_auto_start_fav
 	echo "${GREEN}Done.${NORMAL}"
 fi
 

@@ -1,6 +1,7 @@
 #!/bin/sh
+#!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 4.1.0 2018-11-05
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -25,8 +26,8 @@ pcp_httpd_query_string
 pcp_selected_soundcontrol
 pcp_generic_card_control
 
-# Check for onboard soundcard presence
-cat /proc/asound/cards | grep -q bcm2835 
+# Check for built-in soundcard
+cat /proc/asound/cards | grep -q bcm2835
 ACTUAL_ONBOARD_STATUS=$?
 [ $ACTUAL_ONBOARD_STATUS -eq 0 ] && ONBOARD_SND="On" || ONBOARD_SND="Off"
 [ "$ONBOARD_SND" = "On" ] && ONBOARD_SOUND_CHECK="checked" || ONBOARD_SOUND_CHECK=""
@@ -34,7 +35,13 @@ ACTUAL_ONBOARD_STATUS=$?
 #========================================ACTIONS=========================================
 case "$ACTION" in
 	Test)
-		sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+		#Special case for rpi card to allow for setting 0db
+		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
+			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
+		else
+			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+		fi
+		
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 
 		if [ x"$SMCFILTER1" = x"" ]; then
@@ -54,12 +61,12 @@ case "$ACTION" in
 		fi
 		#----------------------------Allo Piano Plus Dac Controls------------------------
 		case "$PIANOSUBMODE" in
-			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /dev/null 2>&1;;
-			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" > /dev/null 2>&1;;
+			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
+			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
 			"2.1"|"2.2")
 				df | grep -q "allo-piano"
 				if [ $? -eq 0 ]; then
-					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" > /dev/null 2>&1
+					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1
 				else
 					echo '<p class="error">[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.</p>'
 				fi
@@ -71,8 +78,12 @@ case "$ACTION" in
 		#--------------------------------------------------------------------------------
 		pcp_generic_card_control
 	;;
-	Backup)
-		sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+	Save)
+		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
+			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
+		else
+			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
+		fi
 		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 		pcp_generic_card_control
@@ -87,6 +98,18 @@ case "$ACTION" in
 	0dB)
 		sudo amixer -c $CARD sset $SSET 0dB >/dev/null 2>&1
 		pcp_generic_card_control
+		ALSAlevelout="Custom"
+		pcp_save_to_config
+		sudo alsactl store
+		pcp_backup
+	;;
+	4dB)
+		sudo amixer -c $CARD sset $SSET 4dB >/dev/null 2>&1
+		pcp_generic_card_control
+		ALSAlevelout="Custom"
+		pcp_save_to_config
+		sudo alsactl store
+		pcp_backup
 	;;
 	Select)
 		AUDIO="$ORIG_AUDIO"
@@ -124,9 +147,12 @@ esac
 #======================================DEBUG=============================================
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" AUDIO CARD SSET DSP DTOVERLAY GENERIC_CARD PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 \
-		FILTER1 FILTER2 FILTER3 FILTER4 FILTER5 FILTER6 FILTER7 TEXT1 TEXT2 TEXT3 TEXT4 TEXT5 ACTUAL_VOL ACTUAL_DB ACTUAL_FILTER \
-		FILTER FILTER1_CHECK FILTER2_CHECK FILTER3_CHECK FILTER4_CHECK FILTER5_CHECK FILTER6_CHECK FILTER7_CHECK \
+	pcp_debug_variables "html" AUDIO CARD SSET DSP DTOVERLAY GENERIC_CARD \
+		PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 \
+		FILTER1 FILTER2 FILTER3 FILTER4 FILTER5 FILTER6 FILTER7 \
+		TEXT1 TEXT2 TEXT3 TEXT4 TEXT5 \
+		ACTUAL_VOL ACTUAL_DB ACTUAL_FILTER FILTER \
+		FILTER1_CHECK FILTER2_CHECK FILTER3_CHECK FILTER4_CHECK FILTER5_CHECK FILTER6_CHECK FILTER7_CHECK \
 		DEEMPHASIS DEEM1 DEEM2 DEEM3 DEEM4 DEEM1_CHECK DEEM2_CHECK DEEM3_CHECK DEEM4_CHECK ALSA_PARAMS
 	echo '<!-- End of debug info -->'
 fi
@@ -321,7 +347,7 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '                </p>'
 			echo '              </td>'
 			echo '              <td>'
-			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsp;pct of max. This equals: <b>'"$ACTUAL_SUB_DB"'</b>'
+			echo '                <output name="VolOutputSubName" id="VolOutputSubId">'"$ACTUAL_SUB_VOL"'</output>&nbsp;pct of max. <b>Current:</b> '"$ACTUAL_SUB_DB"''
 			echo '              </td>'
 			echo '            </tr>'
 		;;
@@ -349,11 +375,11 @@ pcp_soundcard_volume_options() {
 		echo '                         value='"$ACTUAL_VOL"''
 		echo '                         min="1"'
 		echo '                         max="100"'
-		echo '                         oninput="VolOutputId.value = VolInputId.value">'
+		echo '                         oninput="VolOutputId.value = VolInputId.value;">'
 		echo '                </p>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsp;pct of max. This equals: <b>'"$ACTUAL_DB"'</b>'
+		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsp;pct of max. <b>Current:</b> '"$ACTUAL_DB"''
 		echo '              </td>'
 		echo '            </tr>'
 		row_padding
@@ -373,12 +399,16 @@ pcp_volume_filter_buttons() {
 		echo '                <button type="submit" name="ACTION" value="Test">Set Mixer</button>'
 		echo '              </td>'
 		echo '              <td class="column120 center">'
-		echo '                <input type="submit" name="ACTION" value="Backup">'
+		echo '                <input type="submit" name="ACTION" value="Save">'
 		echo '              </td>'
 		echo '              <td class="column120 center">'
-		[ x"$ACTUAL_DB" != x"" ] &&
 		echo '                <input type="submit" name="ACTION" value="0dB">'
 		echo '              </td>'
+		if [ $CARD = "ALSA" ]; then
+			echo '              <td class="column120 center">'
+			echo '                <input type="submit" name="ACTION" value="4dB">'
+			echo '              </td>'
+		fi
 		echo '              <td>'
 		echo '                <p>'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
@@ -387,8 +417,11 @@ pcp_volume_filter_buttons() {
 		echo '                  <p>Use above control(s) to set the ALSA mixer, then</p>'
 		echo '                  <ul>'
 		echo '                    <li><b>Set Mixer</b> - The above value(s) will be written to ALSA, so you can hear the changes.</li>'
-		echo '                    <li><b>Backup</b> - The output setting(s) are backed up to make them available after a reboot.</li>'
-		echo '                    <li><b>0dB Button</b> - Force output level to 0dB.</li>'
+		echo '                    <li><b>Save</b> - The output setting(s) are saved up to make them available after a reboot.</li>'
+		echo '                    <li><b>0dB</b> - Set output level to 0dB.</li>'
+		if [ $CARD = "ALSA" ]; then
+			echo '                    <li><b>4dB</b> - Set output level to 4dB (100%).</li>'
+		fi
 		echo '                  </ul>'
 		echo '                </div>'
 		echo '              </td>'
@@ -447,9 +480,9 @@ pcp_soundcard_parameter_options() {
 }
 
 #========================================================================================
-# Enable/disable build-in analoq sound
+# Enable/disable built-in analoq sound
 #----------------------------------------------------------------------------------------
-pcp_disable_enable_buildin_sound() {
+pcp_disable_enable_builtin_sound() {
 	if [ "$GENERIC_CARD" != "ONBOARD" ]; then
 		pcp_start_row_shade
 		pcp_incr_id
@@ -459,7 +492,7 @@ pcp_disable_enable_buildin_sound() {
 		echo '                <p><input type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'>'
 		echo '              </td>'
 		echo '              <td colspan="2">'
-		echo '                <p>When checked - built-in audio  is enabled&nbsp;&nbsp;'
+		echo '                <p>When checked - built-in audio is enabled&nbsp;&nbsp;'
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
@@ -488,9 +521,20 @@ if [ "$GENERIC_CARD" = "TI51XX" ] || [ "$GENERIC_CARD" = "ONBOARD" ] || [ "$GENE
 	pcp_soundcard_parameter_options
 fi
 
-[ "$GENERIC_CARD" = "Katana" ] && pcp_soundcard_DSP_options && pcp_soundcard_Deemphasis_options && pcp_soundcard_volume_options && pcp_volume_filter_buttons && pcp_soundcard_parameter_options
+if [ "$GENERIC_CARD" = "Katana" ]; then
+	pcp_soundcard_DSP_options
+	pcp_soundcard_Deemphasis_options
+	pcp_soundcard_volume_options
+	pcp_volume_filter_buttons
+	pcp_soundcard_parameter_options
+fi
 
-[ "$GENERIC_CARD" = "ES9023" ] && pcp_soundcard_DSP_options && pcp_soundcard_volume_options && pcp_volume_filter_buttons && pcp_soundcard_parameter_options
+if [ "$GENERIC_CARD" = "ES9023" ]; then
+	pcp_soundcard_DSP_options
+	pcp_soundcard_volume_options
+	pcp_volume_filter_buttons
+	pcp_soundcard_parameter_options
+fi
 
 [ x"$GENERIC_CARD" = x"" ] && echo "$TEXT"
 
@@ -501,7 +545,7 @@ if [ "$GENERIC_CARD" = "ONBOARD" ]; then
 fi
 pcp_table_end
 
-pcp_disable_enable_buildin_sound
+pcp_disable_enable_builtin_sound
 echo '</form>'
 #----------------------------------------------------------------------------------------
 

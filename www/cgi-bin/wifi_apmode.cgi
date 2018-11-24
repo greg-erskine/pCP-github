@@ -1,11 +1,17 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-21
-#	Initial version. PH.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 . pcp-rpi-functions
 . pcp-lms-functions
+. pcp-wifi-functions
+
+APMODECONF="/usr/local/etc/pcp/apmode.conf"
+HOSTAPDCONF="/usr/local/etc/pcp/hostapd.conf"
+DNSMASQCONF="/usr/local/etc/pcp/dnsmasq.conf"
+
+[ -f $APMODECONF ] && . $APMODECONF
 
 pcp_html_head "WIFI AP Mode Settings" "PH"
 
@@ -16,8 +22,7 @@ pcp_navigation
 pcp_remove_query_string
 pcp_httpd_query_string
 
-HOSTAPDCONF="/usr/local/etc/pcp/hostapd.conf"
-DNSMASQCONF="/usr/local/etc/pcp/dnsmasq.conf"
+[ -z $AP_BRIDGE ] && AP_BRIDGE=0
 
 #----------------------------------Routines----------------------------------------------
 pcp_install_apmode() {
@@ -31,18 +36,8 @@ pcp_install_apmode() {
 		sudo -u tc pcp-load -i firmware-rtlwifi.tcz
 		sudo -u tc pcp-load -i firmware-rpi3-wireless.tcz
 		sudo -u tc pcp-load -i pcp-apmode.tcz
-		sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
-		sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
-		sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
-		sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
-		sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
-		sudo sed -i '/pcp-apmode.tcz/d' $ONBOOTLST
-		sudo echo 'firmware-atheros.tcz' >> $ONBOOTLST
-		sudo echo 'firmware-brcmwifi.tcz' >> $ONBOOTLST
-		sudo echo 'firmware-rpi3-wireless.tcz' >> $ONBOOTLST
-		sudo echo 'firmware-ralinkwifi.tcz' >> $ONBOOTLST
-		sudo echo 'firmware-rtlwifi.tcz' >> $ONBOOTLST
-		sudo echo 'pcp-apmode.tcz' >> $ONBOOTLST
+		pcp_wifi_update_wifi_onbootlst
+		pcp_wifi_update_onbootlst "add" "pcp-apmode.tcz"
 		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] pcp-apmode is added to onboot.lst'
 		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
 		echo '[ INFO ] If wifi is not recognized, please reboot device...'
@@ -60,6 +55,7 @@ pcp_remove_apmode() {
 	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/pcp-apmode.tcz/d' $ONBOOTLST
 	echo "Removing configuration files..."
+	rm -f $APMODECONF
 	rm -f $HOSTAPDCONF
 	rm -f $DNSMASQCONF
 	rm -f /usr/local/etc/pcp/pcp_hosts
@@ -87,6 +83,11 @@ set_hostapd_conf() {
 	sudo sed -i "s/\(^hw_mode=\).*/\1$AP_HWMODE/" $HOSTAPDCONF
 	echo '[ INFO ] Setting AP 80211AC to '$AP_80211AC
 	sudo sed -i "s/\(^ieee80211ac=\).*/\1$AP_80211AC/" $HOSTAPDCONF
+}
+
+set_apmode_conf() {
+	echo '[ INFO ] Setting Bridge mode to '$AP_BRIDGE
+	echo "AP_BRIDGE=$AP_BRIDGE" > $APMODECONF
 }
 
 set_dnsmasq_conf() {
@@ -178,6 +179,7 @@ case "$ACTION" in
 		pcp_table_top "AP Mode configuration"
 		echo '                <textarea class="inform" style="height:180px">'
 		echo '[ INFO ] Setting AP Mode Configuration...'
+		set_apmode_conf
 		set_hostapd_conf
 		if [ $(echo $AP_IP | awk -F. '{print $4}') -ne 1 ]; then
 			echo '[ WARN ] Router IP address must end in .1'
@@ -195,7 +197,7 @@ case "$ACTION" in
 	;;
 	Update)
 		pcp_table_top "AP Mode"
-		pcp_sufficient_free_space 4500
+		pcp_sufficient_free_space 4700
 		echo '                <textarea class="inform" style="height:100px">'
 		echo '[ INFO ] Updating AP Mode Extensions...'
 		sudo -u tc pcp-update pcp-apmode.tcz
@@ -511,7 +513,7 @@ pcp_ap_configure(){
 	pcp_toggle_row_shade
 	case $AP_80211AC in
 		1)AP_80211ACyes="checked";;
-		0)AP_80211ACno="checked";;
+		*)AP_80211ACno="checked";;
 	esac
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -554,6 +556,31 @@ pcp_ap_configure(){
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Clients that connect to this AP will get a DHCP address in starting at .10 of the same IP range.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#----------------------------------AP Mode Bridge Mode------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	case $AP_BRIDGE in
+		1)AP_BRIDGEyes="checked";;
+		*)AP_BRIDGEno="checked";;
+	esac
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p class="row">Bridge Mode</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="AP_BRIDGE" value="1" '$AP_BRIDGEyes'>Yes&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="AP_BRIDGE" value="0" '$AP_BRIDGEno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Use Bridge mode, instead of Router mode.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Yes - wlan0 is bridged to eth0.</p>'
+	echo '                    <p>No - wlan0 is a NAT router.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'

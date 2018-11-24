@@ -2,4 +2,6 @@ wpa_supplicant.tcz
 hostapd.tcz
 dnsmasq.tcz
 iptables.tcz
+crda.tcz
 wireless_tools.tcz
+bridge-utils.tcz

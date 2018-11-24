@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-25
+# Version: 4.1.0 2018-11-11
 
 set -f
 
@@ -847,12 +847,6 @@ pcp_tweaks_auto_start() {
 	echo '        <fieldset>'
 	echo '          <legend>Auto start tweaks</legend>'
 
-	#----------------------------------------------Auto start favorite-----------------------------
-	#b8:27:eb:b8:7d:33 favorites items 0 100 title:Favorites id:0 name:702 ABC Sydney | (Public Radio) type:audio isaudio:1 hasitems:0 id:1 name:ABC Grandstand (Sports Talk and News) type:audio
-	#isaudio:1 hasitems:0 id:2 name:Elephant type:playlist isaudio:1 hasitems:1 id:3 name:ABC NewsRadio 630 (National News) type:audio isaudio:1 hasitems:0 id:4 name:16 Of Their Greatest Hits
-	#type:playlist isaudio:1 hasitems:1 id:5 name:greg isaudio:0 hasitems:1 count:6
-	#----------------------------------------------------------------------------------------------
-
 	echo '          <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	pcp_incr_id
@@ -862,40 +856,7 @@ pcp_tweaks_auto_start() {
 	echo '                <td class="column420">'
 	echo '                  <select class="large30" name="AUTOSTARTFAV">'
 
-	# Generate a list of options
-	FAVLIST=`( echo "$(pcp_controls_mac_address) favorites items 0 100"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-	FAVLIST=$(sudo $HTTPD -d $FAVLIST)
-	echo $FAVLIST | awk -v autostartfav="$AUTOSTARTFAV" '
-	BEGIN {
-		RS="id:"
-		FS=":"
-		i = 0
-	}
-	# Main
-	{
-		i++
-		name[i]=$2
-		gsub(" type","",name[i])
-		sel[i]=""
-		if ( name[i] == autostartfav ) {
-			sel[i]="selected"
-		}
-		isaudio[i]=$3
-		gsub(" hasitems","",isaudio[i])
-		if ( isaudio[i] == "0" ) {
-			i--
-		}
-		isfavorite[i]=$6
-		gsub(" title","",isfavorite[i])
-		if ( isfavorite[i] == "33 favorites items 0 100" ) {
-			i--
-		}
-	}
-	END {
-		for (j=2; j<=i; j++) {
-			printf "                    <option value=\"%s\" %s>%s</option>\n",name[j],sel[j],name[j]
-		}
-	} '
+	pcp_lms_favorites_list select
 
 	echo '                  </select>'
 	echo '                </td>'
@@ -935,7 +896,8 @@ pcp_tweaks_auto_start() {
 		echo '  <td colspan="3">'
 		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
 		echo '    <p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'</p>'
-		          pcp_debug_variables "html" AUTOSTARTFAV FAVLIST
+		          pcp_debug_variables "html" AUTOSTARTFAV
+				  pcp_textarea_inform FAVLIST "cat /tmp/json_list" 50
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
@@ -1075,7 +1037,7 @@ pcp_tweaks_install_jivelite() {
 		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                </p>'
 		echo '                <div id="'$ID'" class="less">'
-		echo '                  <p>This will install Jivelite and VuMeters on pCP.</p>'
+		echo '                  <p>This will install Jivelite and VU meters on pCP.</p>'
 		echo '                </div>'
 		echo '              </td>'
 	else
@@ -1405,6 +1367,164 @@ pcp_tweaks_lirc() {
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
+# Poweroff/Shutdown Table
+#----------------------------------------------------------------------------------------
+pcp_tweaks_poweroff() {
+	case $GPIOPOWEROFF in
+		yes) GPIOPOWEROFF_yes="checked";;
+		no)  GPIOPOWEROFF_no="checked";;
+	esac
+	case $GPIOPOWEROFF_HI in
+		yes) GPIOPOWEROFF_HI_yes="checked";;
+		no)  GPIOPOWEROFF_HI_no="checked";;
+	esac
+	case $GPIOSHUTDOWN in
+		yes) GPIOSHUTDOWN_yes="checked";;
+		no)  GPIOSHUTDOWN_no="checked";;
+	esac
+	case $GPIOSHUTDOWN_HI in
+		yes) GPIOSHUTDOWN_HI_yes="checked";;
+		no)  GPIOSHUTDOWN_HI_no="checked";;
+	esac
+	case $GPIOSHUTDOWN_PU in
+		up)   GPIOSHUTDOWN_PU_up="checked";;
+		down) GPIOSHUTDOWN_PU_down="checked";;
+		off)  GPIOSHUTDOWN_PU_off="checked";;
+	esac
+
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Poweroff/Shutdown Overlays</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <p>Poweroff GPIO&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Drives a GPIO pin High/Low to signal external device to power down.</p>'
+	echo '                    <p>Refer to '$BOOTMNT'/overlays/README<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td >'
+	echo '                  <p>Shutdown GPIO&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Defines a GPIO pin as a linux KEY_POWER event</p>'
+	echo '                    <p>Works in conjunction with shutdown-monitor.tcz -or- a custom shell script.</p>'
+	echo '                    <p>Refer to '$BOOTMNT'/overlays/README<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="poweroff" action="writetoconfig.cgi" method="get">'
+	echo '              <table class="bggrey percent100">'
+	echo '                <tr class="'$ROWSHADE'">'
+	echo '                  <td class="column150">'
+	echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
+	echo '                    <button type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
+	echo '                  </td>'
+	echo '                  <td class="column100">'
+	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF" value="yes" '$GPIOPOWEROFF_yes'>yes'
+	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF" value="no" '$GPIOPOWEROFF_no'>no'
+	echo '                  </td>'
+	echo '                  <td class="column80">'
+	echo '                    <input class="small4"'
+	echo '                         type="number"'
+	echo '                         name="GPIOPOWEROFF_GPIO"'
+	echo '                         value="'$GPIOPOWEROFF_GPIO'"'
+	echo '                         title="( 0 - 31 )"'
+	echo '                         min="0"'
+	echo '                         max="31"'
+	echo '                    >'
+	echo '                  </td>'
+	echo '                  <td class="column210">'
+	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>Active High'
+	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>Active Low'
+	echo '                  </td>'
+	echo '                </tr>'
+	echo '              </table>'
+	echo '            </form>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="shutdown" action="writetoconfig.cgi" method="get">'
+	echo '              <table class="bggrey percent100">'
+	echo '                <tr class="'$ROWSHADE'">'
+	echo '                  <td class="column150">'
+	echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
+	echo '                    <button type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
+	echo '                  </td>'
+	echo '                  <td class="column100">'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN" value="yes" '$GPIOSHUTDOWN_yes'>yes'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN" value="no" '$GPIOSHUTDOWN_no'>no'
+	echo '                  </td>'
+	echo '                  <td class="column80">'
+	echo '                    <input class="small4"'
+	echo '                         type="number"'
+	echo '                         name="GPIOSHUTDOWN_GPIO"'
+	echo '                         value="'$GPIOSHUTDOWN_GPIO'"'
+	echo '                         title="( 0 - 31 )"'
+	echo '                         min="0"'
+	echo '                         max="31"'
+	echo '                    >'
+	echo '                  </td>'
+	echo '                  <td class="column210">'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="yes" '$GPIOSHUTDOWN_HI_yes'>Active High'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="no" '$GPIOSHUTDOWN_HI_no'>Active Low'
+	echo '                  </td>'
+	echo '                  <td class="column210">'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="up" '$GPIOSHUTDOWN_PU_up'>Pull Up'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="down" '$GPIOSHUTDOWN_PU_down'>Pull Down'
+	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="off" '$GPIOSHUTDOWN_PU_off'>Off'
+	echo '                  </td>'
+	echo '                </tr>'
+	echo '              </table>'
+	echo '            </form>'
+	if [ "$GPIOSHUTDOWN" == "yes" -a ! -f /usr/local/bin/shutdown-monitor ]; then
+		echo '            <form name="shutdown-monitor" action="writetoconfig.cgi" method="get">'
+		echo '              <table class="bggrey percent100">'
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '                <tr class="'$ROWSHADE'">'
+		echo '                  <td class="column150">'
+		echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
+		echo '                    <button type="submit" name="SUBMIT" value="Install-monitor">Install Monitor</button>'
+		echo '                  </td>'
+		echo '                  <td>'
+		echo '                    <p>Install Shutdown Monitor (REQURIED to actually shutdown pCP)&nbsp;&nbsp;'
+		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    </p>'
+		echo '                    <div id="'$ID'" class="less">'
+		echo '                      <p>Monitors the gpio-keys driver for a linux KEY_POWER event</p>'
+		echo '                      <p>issues a system shutdown.</p>'
+		echo '                    </div>'
+		echo '                  </td>'
+		echo '                </tr>'
+		echo '              </table>'
+		echo '            </form>'
+	fi
+	#----------------------------------------------------------------------------------------
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_poweroff
+
+#========================================================================================
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
@@ -1517,18 +1637,19 @@ pcp_tweaks_audio_tweaks() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>ALSA output level</p>'
+	echo '                  <p>ALSA Mixer controls</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Default" '$ALSAdefault'>Default'
 	echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Custom" '$ALSAcustom'>Custom'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Custom option allows the ALSA output level to be restored after reboot&nbsp;&nbsp;'
+	echo '                  <p>Custom option allows ALSA mixer level and controls to be restored after reboot&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA output level.</p>'
+	echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA mixer controls.</p>'
+	echo '                    <p><b>Note: </b>This will be automatically set to Custom, if you use the "Card Control" settings from the squeezelite page.</p>'
 	echo '                    <p><b>Step:</b></p>'
 	echo '                    <ol>'
 	echo '                      <li>Login via ssh.</li>'

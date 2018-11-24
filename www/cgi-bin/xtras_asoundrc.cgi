@@ -1,16 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.03 2015-11-22 GE
-#	Moved to MODE_BETA.
-
-# Version: 0.02 2015-05-01 GE
-#	Continued development.
-
-# Version: 0.01 2015-03-10 GE
-#	Original version.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 #. $CONFIGCFG

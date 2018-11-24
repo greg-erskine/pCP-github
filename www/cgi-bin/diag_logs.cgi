@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-19
+# Version: 4.1.0 2018-10-22
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -41,6 +41,12 @@ LMSLOGS=$(cd "${LOGDIR}"; ls slimserver/*.log)
 [ x"" != x"$LMSLOGS" ] && LOGS=${LOGS}" "$LMSLOGS
 [ x"" = x"$LOGS" ] && FIRST="No log files found." || FIRST="All"
 
+if [ $DEBUG -eq 1 ]; then
+	echo '<!-- Start of debug info -->'
+	pcp_debug_variables "html" LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
+	echo '<!-- End of debug info -->'
+fi
+
 #========================================================================================
 # Log selection form
 #----------------------------------------------------------------------------------------
@@ -62,7 +68,8 @@ echo '                    <option value="'$FIRST'">'$FIRST'</option>'
 
 	                      for LOG in $LOGS
 	                      do
-	                          LOGNAME=$(echo ${LOG:4,${#LOG}} | sed 's/[._]/ /g')
+#	                          LOGNAME=$(echo ${LOG:4,${#LOG}} | sed 's/[._]/ /g') <== GE. ,${#LOG} broke in pCP4.0.1
+	                          LOGNAME=$(echo ${LOG:4} | sed -e 's/.log//' -e 's/[._]/ /g')
 	                          echo '                    <option value="'$LOG'">'$LOGNAME'</option>'
 	                      done
 

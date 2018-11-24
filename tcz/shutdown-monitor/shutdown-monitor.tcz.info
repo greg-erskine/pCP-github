@@ -1,0 +1,9 @@
+Title:          shutdown-monitor.tcz
+Description:    piCorePlayer shutdown monitor
+Version:        4.0.0
+Author:         https://www.picoreplayer.org
+Original-site:  https://www.picoreplayer.org
+Copying-policy: GPLv3
+Size:           4k
+Extension_by:   piCorePlayer team: https://www.picoreplayer.org
+Comments:       Compiled for piCore 9.x

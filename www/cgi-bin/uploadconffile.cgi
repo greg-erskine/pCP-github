@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-30
+# Version: 4.1.0 2018-11-17
 
 . pcp-functions
 
@@ -25,9 +25,28 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 	while read HEADER; do
 		case $HEADER in
 			*CUSTOMCONVERT*)
+				FROM_PAGE=lms.cgi
 				echo "custom_convert.conf"
 				UPLOADED_FILE="/usr/local/slimserver/custom-convert.conf"
 				RESTART_LMS=1
+				BACKUP_REQUIRED=0
+				REBOOT_REQUIRED=0
+				break
+			;;
+			*LIRCCONF*)
+				FROM_PAGE=lirc.cgi
+				echo "lirc.conf"
+				UPLOADED_FILE="/usr/local/etc/lirc/lircd.conf"
+				BACKUP_REQUIRED=1
+				REBOOT_REQUIRED=1
+				break
+			;;
+			*LIRCRC*)
+				FROM_PAGE=lirc.cgi
+				echo "lircrc"
+				UPLOADED_FILE="/home/tc/.lircrc"
+				BACKUP_REQUIRED=1
+				REBOOT_REQUIRED=1
 				break
 			;;
 		esac
@@ -67,10 +86,13 @@ if [ $RESTART_LMS -eq 1 ]; then
 	/usr/local/etc/init.d/slimserver stop
 	/usr/local/etc/init.d/slimserver start
 fi
+
+[ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "nohtml"
 echo '</textarea>'
 
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 pcp_table_middle
-pcp_redirect_button "Go to LMS" "lms.cgi" 5
+pcp_redirect_button "Go Back" $FROM_PAGE 5
 pcp_table_end
 pcp_footer
 pcp_copyright

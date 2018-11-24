@@ -1,13 +1,6 @@
 #!/bin/sh
 
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 0.2 2016-02-13 GE
-#	Added Analog/HDMI option.
-
-# Version: 0.1 2016-01-27 GE
-#	Original version.
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 #. $CONFIGCFG

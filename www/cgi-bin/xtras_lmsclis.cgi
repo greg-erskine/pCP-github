@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-26
-#	Updates for JSON requests
+# Version: 4.1.0 2018-09-19
 
 . pcp-functions
 . pcp-lms-functions

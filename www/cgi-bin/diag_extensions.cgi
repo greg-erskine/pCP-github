@@ -1,18 +1,6 @@
 #!/bin/sh
 
-# Version: 3.5.0 2018-03-07
-#	Updated extension lists. PH.
-#	Busybox >1.26 changed wget -s to --spider command line option to be compatible with gnu wget. PH.
-#	Added a bit more repository available checking. GE.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2017-01-06
-#	Original version. GE.
+# Version: 4.1.0 2018-09-19
 
 #========================================================================================
 # This script checks for required extensions in repositories.
@@ -51,8 +39,8 @@ pcp_downloaded_extensions() {
 	echo alsa-modules-${VERSION}-pcpCore_v7.tcz >> $EXTENLIST
 	echo alsa-utils.tcz                         >> $EXTENLIST
 	echo alsa.tcz                               >> $EXTENLIST
-	echo busybox-httpd.tcz                      >> $EXTENLIST
 	echo ca-certificates.tcz                    >> $EXTENLIST
+	echo crda.tcz                               >> $EXTENLIST
 	echo dialog.tcz                             >> $EXTENLIST
 	echo firmware-atheros.tcz                   >> $EXTENLIST
 	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
@@ -465,7 +453,6 @@ pcp_message "standard extensions"
 pcp_check_extension alsa-modules-${KERNELVER}.tcz
 pcp_check_extension alsa-utils.tcz
 pcp_check_extension alsa.tcz
-pcp_check_extension busybox-httpd.tcz
 pcp_check_extension dialog.tcz
 pcp_check_extension libasound.tcz
 pcp_check_extension libedit.tcz

@@ -1,31 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-04-17
-#	Changed repo to new server. PH.
-
-# Version: 3.5 2017-11-08
-#	Changed name of lirc package. PH.
-
-# Version: 3.21 2017-05-20
-#	Changed to allow booting from USB on RPi3. PH.
-
-# Version: 3.20 2017-03-08
-#	Fixed pcp-xxx-functions issues. GE.
-
-# Version: 3.10 2016-12-22
-#	Added lirc[0-9] and hidraw[0-9]. GE.
-#	Added LIRC gpio out for IR transmitter. GE.
-#	Sourceforge repo updates. PH
-
-# Version: 3.01 2016-08-27
-#	Changed default lirc GPIO to 25. GE.
-
-# Version: 3.00 2016-08-09
-#	Changed to pcp-load to fetch the packages. SBP.
-#	Added PCremote support. GE.
-
-# Version: 0.01 2016-03-15
-#	Original. GE.
+# Version: 4.1.0 2018-11-17
 
 . pcp-functions
 . pcp-lms-functions
@@ -330,10 +305,51 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
+	echo '            </form>'
 
 	#----------------------------------------------------------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Customlirc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
+	echo '                </td>'
+	echo '                <td class="column200">'
+	echo '                  <input class="large22" type="file" id="file" name="LIRCCONF" onclick="document.getElementById('\''UP1'\'').disabled = false">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Upload custom <b>lirc.conf</b> to pCP.&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Used to define ir remote functions.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 	echo '            </form>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Customlircrc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button id="UP2" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
+	echo '                </td>'
+	echo '                <td class="column200">'
+	echo '                  <input class="large22" type="file" id="file" name="LIRCRC" onclick="document.getElementById('\''UP2'\'').disabled = false">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Upload custom <b>lircrc</b> to pCP.&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Used to define ir remote functions.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+
+	#----------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 4.1.0 2018-11-17
 
 . pcp-functions
 . pcp-rpi-functions
@@ -874,10 +874,10 @@ pcp_lms_customconvert() {
 	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <button type="submit" name="ACTION" value="Custom" '$DISABLE_LMS'>Upload</button>'
+	echo '                  <button id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '                </td>'
 	echo '                <td class="column200">'
-	echo '                  <input class="large22" type="file" id="file" name="CUSTOMCONVERT">'
+	echo '                  <input class="large22" type="file" id="file" name="CUSTOMCONVERT" onclick="document.getElementById('\''UP1'\'').disabled = false">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Upload custom-convert to LMS.&nbsp;'
@@ -891,7 +891,7 @@ pcp_lms_customconvert() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_lms_customconvert
+[ $MODE -ge $MODE_BETA -a "$DISABLE_LMS" = "" ] && pcp_lms_customconvert
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Update LMS--------------------------------------------
@@ -2154,7 +2154,7 @@ pcp_samba() {
 		echo '                  <td class="column150 center">'
 		echo '                    <input type="hidden" name="COMMAND" value="setconfig">'
 		echo '                    <input type="hidden" name="SC" value="'$SC'">'
-		echo '                    <button type="submit" name="ACTION" value="setconfig">Set Samba</button>'
+		echo '                    <button type="submit" name="ACTION" value="setconfig">Set Shares</button>'
 		echo '                  </td>'
 		echo '                  <td colspan=4> </td>'
 		echo '                </tr>'

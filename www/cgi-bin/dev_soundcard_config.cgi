@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-14
+# Version: 4.1.0 2018-09-20
+
+# Title: Soundcard config files
+# Description: Easy method for viewing the Soundcard configuration files
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -18,7 +21,7 @@ PCPSOUNDCARDS=$(ls "${DACLOCATION}")
 #----------------------------------------------------------------------------------------
 pcp_overlays_loaded() {
 	pcp_mount_bootpart_nohtml >/dev/null 2>&1
-	OVERLAYS=$(cat ${VOLUME}/config.txt  | grep ^dtoverlay | sed 's/dtoverlay=//')
+	OVERLAYS=$(cat ${VOLUME}/config.txt | grep ^dtoverlay | sed 's/dtoverlay=//')
 	pcp_umount_bootpart_nohtml >/dev/null 2>&1
 }
 pcp_overlays_loaded

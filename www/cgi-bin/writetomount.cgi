@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 4.1.0 2018-11-21
 
 . pcp-functions
 . pcp-lms-functions
@@ -175,22 +175,22 @@ case "$MOUNTTYPE" in
 								ntfs)
 									echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
 									umount $DEVICE
-									OPTIONS="-v -t ntfs-3g -o permissions"
+									OPTIONS="-v -t ntfs-3g -o permissions,noatime"
 								;;
 								vfat|fat32)
 									#if Filesystem support installed, use utf-8 charset for fat.
 									df | grep -qs ntfs
 									[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
 									umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
-									OPTIONS="-v -t vfat -o noauto,users,exec,umask=000,flush${CHARSET}"
+									OPTIONS="-v -t vfat -o noauto,users,noatime,exec,umask=000,flush${CHARSET}"
 								;;
 								exfat)
 									CHARSET=",iocharset=utf8"
 									umount $DEVICE  # need to unmount incase 1st mount is not utf8
-									OPTIONS="-v -o noauto,users,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
+									OPTIONS="-v -o noauto,users,noatime,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
 								;;
 								*)
-									OPTIONS="-v"
+									OPTIONS="-v -o noatime"
 								;;
 							esac
 							echo '<p class="info">[ INFO ] Mounting Disk.</p>'

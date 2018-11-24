@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-28
+# Version: 4.0.0 2018-10-06
 
 . pcp-functions
 . pcp-lms-functions
@@ -16,7 +16,7 @@ pcp_table_top "Favorites toolbar"
 #echo '<h1>Favorites toolbar</h1>'
 echo '<p><b>Note: </b>Your favorites should be appearing in the toolbar below.</p>'
 pcp_table_end
-pcp_favorites
+pcp_lms_favorites
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
