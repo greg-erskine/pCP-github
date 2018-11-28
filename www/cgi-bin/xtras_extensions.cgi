@@ -93,6 +93,24 @@ pcp_delete_extn() {
 	echo '      </div>'
 }
 
+pcp_update_extn() {
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>Updating '$EXTN' . . . </legend>'
+	echo '          <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	                      pcp_textarea_inform "none" "sudo -u tc pcp-update $EXTN" 50
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+}
+
+
+
 #========================================================================================
 # This routine uses the piCore's search.sh script to update /tmp/tags.db
 #----------------------------------------------------------------------------------------
@@ -275,6 +293,10 @@ case "$SUBMIT" in
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Resetting repository to Official piCore repository...</p>'
 		pcp_reset_repository
 		pcp_cleanup
+	;;
+	Update)
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Updating '$EXTN'...</p>'
+		pcp_update_extn
 	;;
 	*)
 		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
@@ -604,6 +626,8 @@ echo '                    <ul>'
 echo '                      <li>Lists all extensions that are currently available for download from '$STATUS'</li>'
 echo '                      <li>If the <b>Official piCore repository</b> is selected, official piCore extensions are listed.</li>'
 echo '                      <li>If the <b>piCorePlayer repository</b> is selected, special piCorePlayer extensions are listed.</li>'
+echo '                      <li><b>Info</b> will display additional information about the package, <b>Load</b> will install and load the package, <b>Update</b> will check for a new version and update package if needed.</li>'
+
 echo '                    </ul>'
 echo '                  </div>'
 echo '                </td>'
@@ -613,6 +637,7 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Info">'
 echo '                  <input type="submit" name="SUBMIT" value="Load">'
+echo '                  <input type="submit" name="SUBMIT" value="Update">'
 echo '                </td>'
 echo '              </tr>'
 
