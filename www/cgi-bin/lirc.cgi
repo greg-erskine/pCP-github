@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 4.2.0 2018-12-01
 
 . pcp-functions
 . pcp-lms-functions
@@ -146,11 +146,13 @@ pcp_lirc_install() {
 	# Add lirc-rpi dtoverlay to config.txt
 	pcp_mount_bootpart_nohtml
 	echo '[ INFO ] Adding lirc-rpi overlay to config.txt... '
+	#lirc-rpi is obsolete, make sure there are no remnants
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	if [ "$IR_GPIO_OUT" = "" ]; then
-		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
-	else
-		sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+	sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
+	sudo echo "dtoverlay=gpio-ir,gpio_pin=$IR_GPIO_IN" >> $CONFIGTXT
+	if [ "$IR_GPIO_OUT" != "" ]; then
+		#might need testing, some recommend dtoverlay=pwm-ir-tx 
+		sudo echo "dtoverlay=gpio-ir-tx,gpio_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 	fi
 	pcp_umount_bootpart_nohtml
 
@@ -184,6 +186,7 @@ pcp_lirc_uninstall() {
 
 	pcp_mount_bootpart_nohtml
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+	sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=lirc-rpi removed." || FAIL_MSG="Can not remove dtoverlay=lirc-rpi."
 	pcp_umount_bootpart_nohtml
 

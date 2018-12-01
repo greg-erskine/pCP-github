@@ -143,11 +143,13 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		# Setup LIRC overlay
 		if [ "$IR_LIRC" = "yes" ]; then
 			echo -n "${BLUE}[ INFO ] Adding lirc-rpi overlay to config.txt...${NORMAL}"
+			#lirc-rpi is obsolete, make sure there are no remnants
 			sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-			if [ "$IR_GPIO_OUT" = "" ]; then
-				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
-			else
-				sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+			sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
+			sudo echo "dtoverlay=gpio-ir,gpio_pin=$IR_GPIO_IN" >> $CONFIGTXT
+			if [ "$IR_GPIO_OUT" != "" ]; then
+				#might need testing, some recommend dtoverlay=pwm-ir-tx 
+				sudo echo "dtoverlay=gpio-ir-tx,gpio_pin=$IR_GPIO_OUT" >> $CONFIGTXT
 			fi
 			echo "${GREEN}Done.${NORMAL}"
 		fi
