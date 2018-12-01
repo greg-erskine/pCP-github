@@ -872,7 +872,7 @@ if [ $UPDATE_REPO -eq 1 ]; then
 	SRC_V6="${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}"
 	SRC_V7="${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}"
 
-	REPO="/home/paul/git/repo.picoreplayer.org/repo/9.x"
+	REPO="/home/paul/git/repo.picoreplayer.org/repo/10.x"
 	REPO_V6="${REPO}/armv6/tcz"
 	REPO_V7="${REPO}/armv7/tcz"
 

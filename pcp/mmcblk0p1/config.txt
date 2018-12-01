@@ -3,21 +3,21 @@
 # Some settings may impact device functionality. See link above for details
 
 [PI0]
-initramfs pcp_9.2.gz followkernel
-kernel kernel41481.img
+initramfs pcp_10.1.gz followkernel
+kernel kernel4195.img
 
 [PI1]
-initramfs pcp_9.2.gz followkernel
-kernel kernel41481.img
+initramfs pcp_10.1.gz followkernel
+kernel kernel4195.img
 
 [PI2]
-initramfs pcp_9.2v7.gz followkernel
-kernel kernel41481v7.img
+initramfs pcp_10.1v7.gz followkernel
+kernel kernel4195v7.img
 total_mem=1024
 
 [PI3]
-initramfs pcp_9.2v7.gz followkernel
-kernel kernel41481v7.img
+initramfs pcp_10.1v7.gz followkernel
+kernel kernel4195v7.img
 total_mem=1024
 
 [ALL]

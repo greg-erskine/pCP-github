@@ -22,16 +22,16 @@ end='\e[0m'
 TCE_REPO="http://repo.tinycorelinux.net"
 PCP_REPO="http://repo.picoreplayer.org/repo"
 #For now use the armv7 repo
-TCE_VER="9.x/armv7/tcz"
+TCE_VER="10.x/armv7/tcz"
 
 #This list does not include kernel modules
-TCE_EXT="alsa-utils alsa busybox-httpd dialog openssh openssl readline libedit \
+TCE_EXT="alsa-utils alsa dialog openssh openssl readline libedit \
 firmware-atheros firmware-ralinkwifi libiw libnl ncurses \
 wireless_tools"
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
 pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi wiringpi \
-wpa_supplicant ca-certificates firmware-rpi3-wireless"
+wpa_supplicant crda ca-certificates firmware-rpi3-wireless"
 
 archive(){
 	echo "${YELLOW}*****************************************************************"
