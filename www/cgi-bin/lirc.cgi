@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-01
+# Version: 4.2.0 2018-12-05
 
 . pcp-functions
 . pcp-lms-functions
@@ -120,41 +120,33 @@ pcp_html_end() {
 }
 
 #========================================================================================
-# Delete a file from the local repository
-#----------------------------------------------------------------------------------------
-pcp_delete_file() {
-	echo -n '[ INFO ] Deleting '$1'... '
-	rm -f $TCEMNT/tce/optional/${1}
-	[ $? -eq 0 ] || FAIL_MSG="Cannot delete ${1}."
-	[ "$FAIL_MSG" = "ok" ] && echo "OK" || echo "FAILED"
-}
-
-#========================================================================================
 # LIRC install
 #----------------------------------------------------------------------------------------
-pcp_lirc_install() {
+pcp_lirc_upd_dtoverlay() {
+	# Add lirc-rpi dtoverlay to config.txt
+	pcp_mount_bootpart_nohtml
+	echo '[ INFO ] Adding gpio-ir overlay to config.txt... '
+	# lirc-rpi is obsolete, make sure there are no remnants
+	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+	sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
+	sudo echo "dtoverlay=gpio-ir,gpio_pin=$IR_GPIO_IN" >> $CONFIGTXT
+	if [ "$IR_GPIO_OUT" != "" ]; then
+		# might need testing, some recommend dtoverlay=pwm-ir-tx 
+		sudo echo "dtoverlay=gpio-ir-tx,gpio_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+	fi
+	pcp_umount_bootpart_nohtml
+}
 
+pcp_lirc_install() {
 	echo '[ INFO ] Installing packages for IR remote control.'
 	echo '[ INFO ] This can take a couple of minutes. Please wait...'
 	sudo -u tc pcp-load -r $PCP_REPO -wi pcp-lirc.tcz
 
 	echo '[ INFO ] Updating configuration files... '
-
 	touch /home/tc/.lircrc
 	sudo chown tc:staff /home/tc/.lircrc
 
-	# Add lirc-rpi dtoverlay to config.txt
-	pcp_mount_bootpart_nohtml
-	echo '[ INFO ] Adding lirc-rpi overlay to config.txt... '
-	#lirc-rpi is obsolete, make sure there are no remnants
-	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
-	sudo echo "dtoverlay=gpio-ir,gpio_pin=$IR_GPIO_IN" >> $CONFIGTXT
-	if [ "$IR_GPIO_OUT" != "" ]; then
-		#might need testing, some recommend dtoverlay=pwm-ir-tx 
-		sudo echo "dtoverlay=gpio-ir-tx,gpio_pin=$IR_GPIO_OUT" >> $CONFIGTXT
-	fi
-	pcp_umount_bootpart_nohtml
+	pcp_lirc_upd_dtoverlay
 
 	# Add lirc conf to the .filetool.lst
 	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
@@ -176,7 +168,6 @@ pcp_lirc_install() {
 # LIRC uninstall
 #----------------------------------------------------------------------------------------
 pcp_lirc_uninstall() {
-	#Should we move this to tce-audit delete ?
 	sudo -u tc tce-audit builddb
 	[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-lirc.tcz
 
@@ -187,7 +178,7 @@ pcp_lirc_uninstall() {
 	pcp_mount_bootpart_nohtml
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 	sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
-	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=lirc-rpi removed." || FAIL_MSG="Can not remove dtoverlay=lirc-rpi."
+	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=gpio-ir removed." || FAIL_MSG="Can not remove dtoverlay=gpio-ir."
 	pcp_umount_bootpart_nohtml
 
 	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
@@ -318,11 +309,11 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                <td class="column150 center">'
 	echo '                  <button id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '                </td>'
-	echo '                <td class="column200">'
+	echo '                <td class="column280">'
 	echo '                  <input class="large22" type="file" id="file" name="LIRCCONF" onclick="document.getElementById('\''UP1'\'').disabled = false">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Upload custom <b>lirc.conf</b> to pCP.&nbsp;'
+	echo '                  <p>Upload custom <b>lirc.conf</b> to pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -338,11 +329,11 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                <td class="column150 center">'
 	echo '                  <button id="UP2" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '                </td>'
-	echo '                <td class="column200">'
+	echo '                <td class="column280">'
 	echo '                  <input class="large22" type="file" id="file" name="LIRCRC" onclick="document.getElementById('\''UP2'\'').disabled = false">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Upload custom <b>lircrc</b> to pCP.&nbsp;'
+	echo '                  <p>Upload custom <b>lircrc</b> to pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -370,12 +361,12 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>LIRC Settings</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="settings" action="'$0'" method="get">'
+	echo '          <form name="settings" action="'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
 	#----------------------------------------------------------------------------------------
 
 	#------------------------------------------LIRC GPIO IN-----------------------------------
-	# gpio_in_pin    GPIO for input (default "18")
+	# gpio_in_pin    GPIO for input
 	#-----------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -383,14 +374,11 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                <td class="column150 center">'
 	echo '                  <input class="input"'
 	echo '                         type="number"'
-#	echo '                         type="text"'
 	echo '                         name="IR_GPIO_IN"'
 	echo '                         value="'$IR_GPIO_IN'"'
 	echo '                         title="( 0 - 31 )"'
-#	echo '                         title="( 4,5,6,12,13,16,17,20,22,23,24,25,26,27 )"'
 	echo '                         min="0"'
 	echo '                         max="31"'
-#	echo '                         pattern="(4|5|6|12|13|16|17|20|22|23|24|25|26|27)"'
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
@@ -399,12 +387,10 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;0 - 31&gt;</p>'
-#	echo '                    <p>&lt;4,5,6,12,13,16,17,20,22,23,24,25,26,27&gt;</p>'
 	echo '                    <p><b>Default:</b> '$DEFAULT_IR_GPIO_IN'</p>'
 	echo '                    <p>Set GPIO in number to match the GPIO used to connect the IR Receiver.</p>'
 	echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
 	echo '                    <p><b>Note:</b> Not used for USB PCRemote.</p>'
-	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -412,7 +398,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 
 	if [ $MODE -ge $MODE_BETA ]; then
 		#------------------------------------------LIRC GPIO OUT---------------------------------
-		# gpio_out_pin    GPIO for output (default "17")
+		# gpio_out_pin    GPIO for output
 		#----------------------------------------------------------------------------------------
 		pcp_incr_id
 		pcp_toggle_row_shade
@@ -436,7 +422,6 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '                    <p><b>Default:</b> '$DEFAULT_IR_GPIO_OUT'</p>'
 		echo '                    <p>Set GPIO out number to match the GPIO used to connect the IR Transmitter.</p>'
 		echo '                    <p><b>Warning:</b> Be careful not to set the GPIO to one being used for another purpose.</p>'
-		echo '                    </ul>'
 		echo '                  </div>'
 		echo '                </td>'
 		echo '              </tr>'
@@ -480,7 +465,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		pcp_incr_id
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150 center" colspan="3">'
+		echo '                <td class="column150 center" colspan="2">'
 		echo '                  <input type="submit"'
 		echo '                         name="ACTION"'
 		echo '                         value="Save"'
@@ -492,8 +477,8 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	#----------------------------------------------------------------------------------------
 
 	#----------------------------------------------------------------------------------------
-	echo '            </form>'
-	echo '          </table>'
+	echo '            </table>'
+	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -590,7 +575,7 @@ if [ "$ACTION" != "Initial" ]; then
 				fi
 			fi
 
-			if [ "$SDA1_MOUNTED" ]; then
+			if [ $SDA1_MOUNTED ]; then
 				echo "[ INFO ] Looking for configuration file(s) on /mnt/sda1..."
 				if [ -f $MNTUSB/lircd.conf ]; then
 					echo "[ INFO ] Copying /tmp/lircd.conf..."
@@ -622,15 +607,7 @@ if [ "$ACTION" != "Initial" ]; then
 	if [ "$ACTION" = "Save" ]; then
 		echo '                  <textarea class="inform" style="height:50px">'
 		[ "$FAIL_MSG" = "ok" ] && pcp_save_to_config
-		pcp_mount_bootpart_nohtml
-		echo '[ INFO ] Changing '$CONFIGTXT'... '
-		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-		if [ "$IR_GPIO_OUT" = "" ]; then
-			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN" >> $CONFIGTXT
-		else
-			sudo echo "dtoverlay=lirc-rpi,gpio_in_pin=$IR_GPIO_IN,gpio_out_pin=$IR_GPIO_OUT" >> $CONFIGTXT
-		fi
-		pcp_umount_bootpart_nohtml
+		pcp_lirc_upd_dtoverlay
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
 	fi
@@ -650,10 +627,9 @@ fi
 
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "Debug"
-	echo '<p class="debug">[ DEBUG ] $IR_LIRC: '$IR_LIRC'<br />'
-	echo '                 [ DEBUG ] $IR_GPIO_IN: '$IR_GPIO_IN'<br />'
-	echo '                 [ DEBUG ] $IR_GPIO_OUT: '$IR_GPIO_OUT'<br />'
-	echo '                 [ DEBUG ] $IR_DEVICE: '$IR_DEVICE'</p>'
+	echo '<!-- Start of debug info -->'
+	pcp_debug_variables "html" IR_LIRC IR_GPIO_IN IR_GPIO_OUT IR_DEVICE
+	echo '<!-- End of debug info -->'
 	pcp_mount_bootpart
 	echo '<p class="info">[ INFO ] Last few lines of config.txt</p>'
 	pcp_textarea_inform "none" "tail -2 $CONFIGTXT" "30"
