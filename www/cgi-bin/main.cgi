@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-04
+# Version: 4.2.0 2018-12-05
 
 . pcp-functions
 . pcp-lms-functions
@@ -22,8 +22,12 @@ if [ "$ACTION" = "reboot" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
 	pcp_table_top "Rebooting"
-	echo '<p>pCP is rebooting...</p>'
-	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' $RB_DELAY: '$RB_DELAY'</p>'
+	echo '<p>'$NAME' is rebooting...</p>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" MODEL RB_DELAY
+		echo '<!-- End of debug info -->'
+	fi
 	pcp_table_middle
 	pcp_redirect_button "Refresh Main Page" "main.cgi" $RB_DELAY
 	pcp_table_end
@@ -43,9 +47,13 @@ if [ "$ACTION" = "shutdown" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
 	pcp_table_top "Shutdown"
-	echo '<p>pCP is shutting down...</p>'
+	echo '<p>'$NAME' is shutting down...</p>'
 	echo '<p><b>Note:</b> You need to reapply power to restart after a shutdown.</p>'
-	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' DELAY: 15</p>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" MODEL RB_DELAY
+		echo '<!-- End of debug info -->'
+	fi
 	pcp_table_middle
 	pcp_redirect_button "Refresh Main Page" "main.cgi" 15
 	pcp_table_end
