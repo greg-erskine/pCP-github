@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-05
+# Version: 4.2.0 2018-12-07
 
 . pcp-functions
 . pcp-lms-functions
@@ -23,13 +23,14 @@ DEFAULT_IR_GPIO_IN="25"
 DEFAULT_IR_GPIO_OUT=""
 
 #========================================================================================
-#  335872 irda-4.1.13-piCore+.tcz
-#  221184 pcp-lirc.tcz
+#  225280 pcp-lirc.tcz
+#   57344 media-rc-KERNEL.tcz
+#  376832 libasound.tcz
 #    8192 libcofi.tcz
 # --------
-#  565248
+#  667648
 #----------------------------------------------------------------------------------------
-SPACE_REQUIRED=600
+SPACE_REQUIRED=700
 
 #========================================================================================
 # Check we have internet access - set FAIL_MSG if not accessible
@@ -123,7 +124,7 @@ pcp_html_end() {
 # LIRC install
 #----------------------------------------------------------------------------------------
 pcp_lirc_upd_dtoverlay() {
-	# Add lirc-rpi dtoverlay to config.txt
+	# Add gpio-ir dtoverlay to config.txt
 	pcp_mount_bootpart_nohtml
 	echo '[ INFO ] Adding gpio-ir overlay to config.txt... '
 	# lirc-rpi is obsolete, make sure there are no remnants
