@@ -693,6 +693,9 @@ pcp_squeezelite_log_level() {
 		output=info)      LOGLEVEL13="selected" ;;
 		output=debug)     LOGLEVEL14="selected" ;;
 		output=sdebug)    LOGLEVEL15="selected" ;;
+		ir=info)          LOGLEVEL16="selected" ;;
+		ir=debug)         LOGLEVEL17="selected" ;;
+		ir=sdebug)        LOGLEVEL18="selected" ;;
 		*)                LOGLEVEL0="selected" ;;
 	esac
 
@@ -720,6 +723,9 @@ pcp_squeezelite_log_level() {
 	echo '                    <option value="output=info" '$LOGLEVEL13'>output=info</option>'
 	echo '                    <option value="output=debug" '$LOGLEVEL14'>output=debug</option>'
 	echo '                    <option value="output=sdebug" '$LOGLEVEL15'>output=sdebug</option>'
+	echo '                    <option value="ir=info" '$LOGLEVEL16'>ir=info</option>'
+	echo '                    <option value="ir=debug" '$LOGLEVEL17'>ir=debug</option>'
+	echo '                    <option value="ir=sdebug" '$LOGLEVEL18'>ir=sdebug</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
@@ -729,7 +735,7 @@ pcp_squeezelite_log_level() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;log&gt;=&lt;level&gt;</p>'
 	echo '                    <ul>'
-	echo '                      <li>log: all|slimproto|stream|decode|output</li>'
+	echo '                      <li>log: all|slimproto|stream|decode|output|ir</li>'
 	echo '                      <li>level: info|debug|sdebug</li>'
 	echo '                    </ul>'
 	echo '                    <p><b>Note:</b> Log file is /var/log/pcp_squeezelite.log</p>'
