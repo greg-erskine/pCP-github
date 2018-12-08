@@ -173,73 +173,73 @@ pcp_lms_player_count() {
 }
 
 pcp_lms_player_id() {
-	REQUEST=$(pcp_lms_build_request $NAME player id 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player id 0 ?)
 	RESULT=$(pcp_lms_build_result result _id)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_uuid() {
-	REQUEST=$(pcp_lms_build_request $NAME player uuid 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player uuid 0 ?)
 	RESULT=$(pcp_lms_build_result result _uuid)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_name() {
-	REQUEST=$(pcp_lms_build_request $NAME player name 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player name 0 ?)
 	RESULT=$(pcp_lms_build_result result _name)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_ip() {
-	REQUEST=$(pcp_lms_build_request $NAME player ip 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player ip 0 ?)
 	RESULT=$(pcp_lms_build_result result _ip)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_model() {
-	REQUEST=$(pcp_lms_build_request $NAME player model 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player model 0 ?)
 	RESULT=$(pcp_lms_build_result result _model)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_isplayer() {
-	REQUEST=$(pcp_lms_build_request $NAME player isplayer 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player isplayer 0 ?)
 	RESULT=$(pcp_lms_build_result result _isplayer)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_displaytype() {
-	REQUEST=$(pcp_lms_build_request $NAME player displaytype 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player displaytype 0 ?)
 	RESULT=$(pcp_lms_build_result result _displaytype)
 	pcp_lms_json_request
 }
 
 pcp_lms_player_canpoweroff() {
-	REQUEST=$(pcp_lms_build_request $NAME player canpoweroff 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" player canpoweroff 0 ?)
 	RESULT=$(pcp_lms_build_result result _canpoweroff)
 	pcp_lms_json_request
 }
 
 pcp_lms_signalstrength() {
-	REQUEST=$(pcp_lms_build_request $NAME signalstrength 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" signalstrength 0 ?)
 	RESULT=$(pcp_lms_build_result result _signalstrength)
 	pcp_lms_json_request
 }
 
 pcp_lms_name() {
-	REQUEST=$(pcp_lms_build_request $NAME name 0 ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" name 0 ?)
 	RESULT=$(pcp_lms_build_result result _value)
 	pcp_lms_json_request
 }
 
 pcp_lms_connected() {
-	REQUEST=$(pcp_lms_build_request $NAME connected ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" connected ?)
 	RESULT=$(pcp_lms_build_result result _connected)
 	pcp_lms_json_request
 }
 
 pcp_lms_show() {
-	REQUEST=$(pcp_lms_build_request $NAME status - 1 tags:cgABbehldiqtyrSuoKLNJ)
+	REQUEST=$(pcp_lms_build_request "$NAME" status - 1 tags:cgABbehldiqtyrSuoKLNJ)
 	RESULT=$(pcp_lms_build_result result remoteMeta artwork_url)
 	URL=$(pcp_lms_json_request)
 	if [ "$URL" == "" ]; then
@@ -277,35 +277,35 @@ pcp_lms_power() {
 		on) VALUE=1 ;;
 		off) VALUE=0 ;;
 	esac
-	REQUEST=$(pcp_lms_build_request $NAME power $VALUE)
+	REQUEST=$(pcp_lms_build_request "$NAME" power $VALUE)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_volume_up() {
 	AMOUNT=5
-	REQUEST=$(pcp_lms_build_request $NAME mixer volume +$AMOUNT)
+	REQUEST=$(pcp_lms_build_request "$NAME" mixer volume +$AMOUNT)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_volume_down() {
 	AMOUNT=5
-	REQUEST=$(pcp_lms_build_request $NAME mixer volume -$AMOUNT)
+	REQUEST=$(pcp_lms_build_request "$NAME" mixer volume -$AMOUNT)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_volume_set() {
 	AMOUNT=$1
-	REQUEST=$(pcp_lms_build_request $NAME mixer volume $AMOUNT)
+	REQUEST=$(pcp_lms_build_request "$NAME" mixer volume $AMOUNT)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_player_status() {
 ##  All player information is returned
-	REQUEST=$(pcp_lms_build_request $NAME status -)
+	REQUEST=$(pcp_lms_build_request "$NAME" status -)
 	RESULT="NONE"
 	pcp_lms_json_request
 	cat /tmp/json_req
@@ -313,7 +313,7 @@ pcp_lms_player_status() {
 
 pcp_lms_connect() {
 	NEWLMSIP=$1
-	REQUEST=$(pcp_lms_build_request $NAME connect $NEWLMSIP)
+	REQUEST=$(pcp_lms_build_request "$NAME" connect $NEWLMSIP)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
@@ -457,99 +457,99 @@ pcp_lms_artists() {
 #	playlistcontrol
 
 pcp_lms_play() {
-	REQUEST=$(pcp_lms_build_request $NAME play)
+	REQUEST=$(pcp_lms_build_request "$NAME" play)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_stop() {
-	REQUEST=$(pcp_lms_build_request $NAME stop)
+	REQUEST=$(pcp_lms_build_request "$NAME" stop)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_pause() {
-	REQUEST=$(pcp_lms_build_request $NAME pause)
+	REQUEST=$(pcp_lms_build_request "$NAME" pause)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_mode() {
-	REQUEST=$(pcp_lms_build_request $NAME mode ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" mode ?)
 	RESULT=$(pcp_lms_build_result result _mode)
 	pcp_lms_json_request
 }
 
 # Todo: jump forward, jump back, not past value of duration
 pcp_lms_time() {
-	REQUEST=$(pcp_lms_build_request $NAME time ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" time ?)
 	RESULT=$(pcp_lms_build_result result _time)
 	pcp_lms_json_request
 }
 
 pcp_lms_genre() {
-	REQUEST=$(pcp_lms_build_request $NAME genre ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" genre ?)
 	RESULT=$(pcp_lms_build_result result _genre)
 	pcp_lms_json_request
 }
 
 pcp_lms_artist() {
-	REQUEST=$(pcp_lms_build_request $NAME artist ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" artist ?)
 	RESULT=$(pcp_lms_build_result result _artist)
 	pcp_lms_json_request
 }
 
 pcp_lms_album() {
-	REQUEST=$(pcp_lms_build_request $NAME album ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" album ?)
 	RESULT=$(pcp_lms_build_result result _album)
 	pcp_lms_json_request
 }
 
 pcp_lms_title() {
-	REQUEST=$(pcp_lms_build_request $NAME title ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" title ?)
 	RESULT=$(pcp_lms_build_result result _title)
 	pcp_lms_json_request
 }
 
 pcp_lms_duration() {
-	REQUEST=$(pcp_lms_build_request $NAME duration ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" duration ?)
 	RESULT=$(pcp_lms_build_result result _duration)
 	pcp_lms_json_request
 }
 
 pcp_lms_remote() {
-	REQUEST=$(pcp_lms_build_request $NAME remote ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" remote ?)
 	RESULT=$(pcp_lms_build_result result _remote)
 	pcp_lms_json_request
 }
 
 pcp_lms_current_title() {
-	REQUEST=$(pcp_lms_build_request $NAME current_title ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" current_title ?)
 	RESULT=$(pcp_lms_build_result result _current_title)
 	pcp_lms_json_request
 }
 
 pcp_lms_path() {
-	REQUEST=$(pcp_lms_build_request $NAME path ?)
+	REQUEST=$(pcp_lms_build_request "$NAME" path ?)
 	RESULT=$(pcp_lms_build_result result _path)
 	pcp_lms_json_request
 }
 
 pcp_lms_next() {
-	REQUEST=$(pcp_lms_build_request $NAME playlist jump +1)
+	REQUEST=$(pcp_lms_build_request "$NAME" playlist jump +1)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_prev() {
-	REQUEST=$(pcp_lms_build_request $NAME playlist jump -1)
+	REQUEST=$(pcp_lms_build_request "$NAME" playlist jump -1)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_playlist_play() {
 	if [ "$1" != "" ]; then
-		REQUEST=$(pcp_lms_build_request $NAME playlist play $1)
+		REQUEST=$(pcp_lms_build_request "$NAME" playlist play $1)
 		RESULT="NONE"
 		pcp_lms_json_request
 	fi
@@ -588,14 +588,14 @@ pcp_lms_auto_start_lms() {
 }
 
 pcp_lms_start_command() {
-	REQUEST=$(pcp_lms_build_request $NAME $($URL_DECODE "$@"))
+	REQUEST=$(pcp_lms_build_request "$NAME" $($URL_DECODE "$@"))
 	RESULT="NONE"
 	pcp_lms_json_request
 }
 
 pcp_lms_start_fav() {
 #	$1 - is the id of the favorite
-	REQUEST=$(pcp_lms_build_request $NAME favorites playlist play item_id:$1)
+	REQUEST=$(pcp_lms_build_request "$NAME" favorites playlist play item_id:$1)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
@@ -660,7 +660,7 @@ pcp_lms_favorites_list() {
 #---------------------------------------------------------------------------------------
 pcp_lms_randomplay() {
 	MODE=tracks
-	REQUEST=$(pcp_lms_build_request $NAME randomplay $MODE)
+	REQUEST=$(pcp_lms_build_request "$NAME" randomplay $MODE)
 	RESULT="NONE"
 	pcp_lms_json_request
 }
