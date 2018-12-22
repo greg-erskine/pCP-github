@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 4.2.0 2018-12-22
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -194,6 +194,16 @@ pcp_get_kernel_modules() {
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
+		piCorePlayer4.2.0*)
+			# Set the below for the new kernel
+			KUPDATE=1
+			case $CORE in
+				*pcpAudioCore*) NEWKERNELVER=4.19.12-rt8;;
+				*) NEWKERNELVER=4.19.12;;
+			esac
+			PICOREVERSION=10.x
+			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+		;;
 		*)  KUPDATE=0
 		;;
 	esac
@@ -217,10 +227,16 @@ pcp_get_kernel_modules() {
 		if [ "$FAIL_MSG" = "ok" ]; then
 			# Get list of kernel modules matching current kernel
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
-			# Get list of kernel modules not matching current kernel
+			# Get list of kernel modules not matching new kernel
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
-			#Remove Backlight from Modules list, it does not exist anymore
-			sed -i '/backlight/d' /tmp/current
+			
+			if [ $MAJOR_VERSION -ge 4 ]; then
+				if [ $MINOR_VERSION -ge 2 ]; then
+					#irda changes to media-rc in >4.2.0
+					sed -s 's/irda/media-rc/' /tmp/current
+				fi
+			fi
+			
 			# Show the old modules that do not have a current kernel version.
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
 			echo '[ INFO ] Downloading new kernel modules: '$MODULES
