@@ -225,8 +225,9 @@ EOF
 	losetup -o `expr $P2ST \* 512` --sizelimit `expr $P2BLKS \* 512` ${LOOP2} /tmp/${PCP}.img
 
 	echo "${YELLOW}"
-	mkfs.vfat -n PCP -s 4 -f 2 -F 16 ${LOOP1}
+	mkfs.vfat -n PCP_BOOT -s 4 -f 2 -F 16 ${LOOP1}
 	mkfs.ext4 ${LOOP2}
+	tune2fs -L PCP_ROOT ${LOOP2}
 
 	while true; do
 		read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
