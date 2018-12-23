@@ -142,7 +142,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		echo "${GREEN}Done.${NORMAL}"
 		# Setup LIRC overlay
 		if [ "$IR_LIRC" = "yes" ]; then
-			echo -n "${BLUE}[ INFO ] Adding lirc-rpi overlay to config.txt...${NORMAL}"
+			echo -n "${BLUE}[ INFO ] Adding gpio-ir overlay to config.txt...${NORMAL}"
 			#lirc-rpi is obsolete, make sure there are no remnants
 			sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
 			sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
