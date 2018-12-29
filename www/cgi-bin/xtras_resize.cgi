@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-27
+# Version: 4.2.0 2018-12-28
 
 . pcp-functions
 
@@ -150,7 +150,7 @@ case "$SUBMIT" in
 					echo '                    <option value="500" '"$DISABLED500"'>500 MB</option>'
 					echo '                    <option value="1000" '"$DISABLED1000"'>1000 MB</option>'
 					echo '                    <option value="2000" '"$DISABLED2000"'>2000 MB</option>'
-					echo '                    <option value="" '"$DISABLED000"'>Whole SD card</option>'
+					echo '                    <option value="'$(($P2_MAX_SIZE-100))'" '"$DISABLED000"'>Whole SD card</option>'
 					echo '                  </select>'
 					echo '                </td>'
 					echo '                <td>'
