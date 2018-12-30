@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 4.2.0 2018-12-31
 
 BACKUP=0
 # Read from pcp-functions file
@@ -45,7 +45,7 @@ for DISK in $NEWCFGLIST; do
 	# Look for netusb on boot partition, and load net-usb-KERNEL.tcz
 	#------------------------------------------------------------------------------------
 	echo -n "${BLUE}Checking for netusb...${YELLOW}"
-	if [ -f /mnt/${DISK}/netusb ]; then
+	if [ -f /mnt/${DISK}/netusb -o  -f /mnt/${DISK}/netusb.txt ]; then
 		tce-status -i | grep -q "net-usb"
 		if [ $? -eq 1 ]; then
 			echo "Loading net-usb kernel modules.${NORMAL}"
