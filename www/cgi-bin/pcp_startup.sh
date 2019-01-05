@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-31
+# Version: 4.2.0 2019-01-05
 
 BACKUP=0
 # Read from pcp-functions file
@@ -735,6 +735,7 @@ echo -n $CPUGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_gov
 echo "${GREEN} Done.${NORMAL}"
 
 echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
+sudo su -c 'echo "Finished piCorePlayer setup." > /dev/kmsg'
 
 if [ "$JIVELITE" = "yes" ]; then
 	echo -n "${BLUE}Starting Jivelite...${NORMAL}"
