@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-05
+# Version: 4.2.0 2019-01-06
 
 #========================================================================================
 # onboot.lst functions
@@ -465,4 +465,43 @@ pcp_wifi_html_end() {
 	echo '</body>'
 	echo '</html>'
 	exit
+}
+
+#========================================================================================
+# Test and error message when wifi is not being used.
+#----------------------------------------------------------------------------------------
+pcp_wifi_using_wifi() {
+	[ "$(pcp_controls_mac_address)" = "$(pcp_wlan0_mac_address)" ] && echo 0 || echo 1
+}
+
+pcp_wifi_not_using_wifi () {
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] Physical MAC: '$(pcp_eth0_mac_address)'</p>'
+		echo '<p class="debug">[ DEBUG ] Wireless MAC: '$(pcp_wlan0_mac_address)'</p>'
+		echo '<p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
+		echo '<p class="debug">[ DEBUG ] Not using wifi interface.</p>'
+	fi
+
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b></p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">piCorePlayer is not currently using the wifi interface.</li>'
+	echo '                  <li style="color:white">Squeezelite/piCorePlayer will default to the wired interface.</li>'
+	echo '                  <li style="color:white">Shutdown, remove the ethernet cable, then reboot to use the wifi interface.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 }

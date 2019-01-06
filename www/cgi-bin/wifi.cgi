@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-19
+# Version: 4.2.0 2019-01-06
 
 . pcp-functions
 . pcp-rpi-functions
@@ -726,5 +726,4 @@ wifi_apmode_page() {
 [ $MODE -ge $MODE_BETA ] && wifi_apmode_page
 #----------------------------------------------------------------------------------------
 
-pcp_wifi_html_end
 pcp_wifi_html_end
