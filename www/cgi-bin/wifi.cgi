@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-06
+# Version: 4.2.0 2019-01-07
 
 . pcp-functions
 . pcp-rpi-functions
@@ -19,11 +19,13 @@ pcp_banner
 pcp_navigation
 pcp_httpd_query_string_no_decode
 [ $DEBUG -eq 0 ] && pcp_remove_query_string
+
 [ -n "$WPA_PASSWORD" ] && ENCODED_WPA_PASSWORD="${WPA_PASSWORD}"
 [ -n "$WPA_SSID" ] && ENCODED_WPA_SSID="${WPA_SSID}"
 WPA_PASSWORD=""
 WPA_SSID=""
-#Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
+
+# Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
 # it would need to be manually decoded like this
 # [ -n "$ACTION" ] && ACTION=$($URL_DECODE $ACTION)
 # in this case, no other variables can contain encoded data.
@@ -119,7 +121,15 @@ case "$ACTION" in
 		pcp_backup "nohtml"
 		pcp_table_textarea_end
 	;;
-#----------------------------------DEBUG - Developer options-----------------------------
+	Network_wait)
+		pcp_wifi_error_messages
+		pcp_table_textarea_top "Network wait" "" "50"
+		pcp_wifi_read_wpa_supplicant "text"
+		pcp_save_to_config
+		pcp_backup "nohtml"
+		pcp_table_textarea_end
+	;;
+	#----------------------------------DEBUG - Developer options-----------------------------
 	Read)
 		pcp_wifi_error_messages
 		pcp_table_textarea_top "Read option" "" "30"
@@ -245,7 +255,7 @@ echo '                    <p>&lt;On|Off&gt;</p>'
 echo '                    <ul>'
 echo '                      <li>Turning wifi on will enable the remaining fields.</li>'
 echo '                      <li>Turn wifi on if you have Raspberry Pi with built-in wifi.</li>'
-echo '                      <li>Turn wifi on if you have compatible USB wifi adaptor installed.</li>'
+echo '                      <li>Turn wifi on if you have compatible USB wifi adapter installed.</li>'
 echo '                      <li>Set wifi to off if you are not using wifi.</li>'
 echo '                    </ul>'
 echo '                  </div>'
@@ -724,6 +734,60 @@ wifi_apmode_page() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_BETA ] && wifi_apmode_page
+#----------------------------------------------------------------------------------------
+
+#-----------------------------------Network wait-----------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form id="Network_wait" name="Network_wait" action="'$0'" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Network wait</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_start_row_shade
+pcp_incr_id
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="'$COLUMN1'">'
+echo '                  <p>Network wait</p>'
+echo '                </td>'
+echo '                <td class="column100">'
+echo '                  <input class="large6"'
+echo '                         type="text"'
+echo '                         name="NETWORK_WAIT"'
+echo '                         value="'$NETWORK_WAIT'"'
+echo '                         pattern="\d*"'
+echo '                         title="Use numbers."'
+echo '                  >'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Adjust network wait&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>&lt;xx&gt;</p>'
+echo '                    <p><b>Default: </b>50 (25 seconds)</p>'
+echo '                    <p>During the boot process, some USB wifi adapters take a long time to be set by DHCP.</p>'
+echo '                    <p>Usually the default value of 50 (25 seconds) is long enough.</p>'
+echo '                    <p>If you have a slow USB wifi adapter, DHCP server or network it may be benficial to increase the network wait time.</p>'
+echo '                    <p>You can check the startup log to see how long piCorePayer waited for the network. ie. Waiting for network. Done (1).</p>'
+echo '                    <p><b>Note: </b>piCorePlayer uses half second increments, so 50 equals 25 seconds wait time.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
+echo '                  <button type="submit" name="ACTION" value="Network_wait">Save</button>'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_wifi_html_end
