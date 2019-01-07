@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-13
+# Version: 4.2.0 2019-01-08
 
 # Title: Temperature monitor
 # Description: Temperature using DS18B20
@@ -39,8 +39,8 @@ DEBUG=1
 #----------------------------------------------------------------------------------------
 # Directory
 # =========
-# /sys/bus/w1/devices/28-00000xxxxxxx/
-# /sys/devices/w1_bus_master1/28-00000xxxxxxx/w1_slave
+# /sys/bus/w1/devices/28-xxxxxxxxxxxx/
+# /sys/devices/w1_bus_master1/28-xxxxxxxxxxxx/w1_slave
 #----------------------------------------------------------------------------------------
 W1_MASTER_SLAVE_COUNT=$( cat /sys/devices/w1_bus_master1/w1_master_slave_count )
 W1_MASTER_SLAVES=$( cat /sys/devices/w1_bus_master1/w1_master_slaves )
@@ -54,7 +54,7 @@ W1_MASTER_SLAVES=$( cat /sys/devices/w1_bus_master1/w1_master_slaves )
 pcp_get_temperature() {
 	W1_SLAVE=$1
 	if ( echo $W1_SLAVE | grep "crc=.. YES" >/dev/null ); then
-		echo $W1_SLAVE | awk -F"t=" '{printf "%s&deg;C (%s&deg;F)",$2/1000,(($2*9)/5000)+32}'
+		echo $W1_SLAVE | awk -F"t=" '{printf "%4.3f&deg;C (%4.3f&deg;F)",$2/1000,(($2*9)/5000)+32}'
 	else
 		echo "[ ERROR ] CRC failure. "
 	fi
@@ -84,7 +84,7 @@ W1_MASTER_SLAVES=\$( cat /sys/devices/w1_bus_master1/w1_master_slaves )
 pcp_get_temperature() {
 	W1_SLAVE=\$1
 	if ( echo \$W1_SLAVE | grep "crc=.. YES" >/dev/null ); then
-		STRING=\${STRING}\$(echo \$W1_SLAVE | awk -F"t=" '{printf " %s", \$2/1000}')
+		STRING=\${STRING}\$(echo \$W1_SLAVE | awk -F"t=" '{printf " %4.3f", \$2/1000}')
 	fi
 }
 
@@ -275,7 +275,7 @@ echo '</table>'
 #========================================================================================
 # Debug
 #----------------------------------------------------------------------------------------
-if [ $DEBUG = 1 ]; then
+if [ $DEBUG -eq 1 ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
