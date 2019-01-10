@@ -1,19 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
-#	Move config.cfg location
-
-# Version: 3.20 2017-03-29
-#	Fixed issue with equalizer and shairport-sync. Still an issue if using USB DAC, equalizer and shairport-sync
-
-# Version: 3.11 2017-01-20
-#	Fixed the issue with shairport not working when using USB cards. SBP.
-
-# Version: 3.10 2016-11-13
-#	Update for pcp-shairportsync.tcz. RE.
-
-# Version: 0.01 2016-01-06
-#	Original. SBP.
+# Version: 4.2.0 2019-01-11
 
 PNAME="Shairport-sync"
 DESC="Shairport-sync player"
@@ -28,16 +15,16 @@ DESC="Shairport-sync player"
 . /usr/local/etc/pcp/pcp.cfg
 
 if [ x"$SHAIRPORT_CONTROL" = x"" ]; then
-       SHAIRPORT_CONTROL=''
+	SHAIRPORT_CONTROL=''
 else
-       SHAIRPORT_CONTROL='-c '"$SHAIRPORT_CONTROL"''
+	SHAIRPORT_CONTROL='-c '"$SHAIRPORT_CONTROL"''
 fi
 
 case "$1" in
 	start)
 		echo "Starting $DESC: $PNAME..."
 		start-stop-daemon --start --quiet --exec $DAEMON \
-						  -- -a $NAME -o alsa -S soxr -d -D -R \
+						  -- -a "$NAME" -o alsa -S soxr -d -D -R \
 						  --metadata-pipename=/tmp/shairport-sync-metadata --get-coverart \
 						  -- -d $SHAIRPORT_OUT $SHAIRPORT_CONTROL
 	;;
