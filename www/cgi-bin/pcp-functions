@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-10-24
+# Version: 4.2.0 2019-01-11
 
 #========================================================================================
 # Setup debug logging
@@ -19,7 +19,7 @@ pcp_debug_variables() {
 	local FORMAT=$1
 
 	if [ $DEBUG -eq 1 ]; then
-		i=0
+		local i=0
 
 		for VAR in $@
 		do
@@ -31,22 +31,15 @@ pcp_debug_variables() {
 }
 
 #========================================================================================
-# Debug variables listing - OBSOLETE? GE
+# Table padding
 #----------------------------------------------------------------------------------------
-pcp_debug_variables2() {
-	if [ $DEBUG -eq 1 ]; then
-		n=$#
-		i=1
-		echo '<!-- Start of pcp_debug_variables -->'
-		for VAR in $@
-		do
-			[ $i -eq 1 ] && echo -n '<p class="debug">' || echo -n '                 '
-			echo -n '[ DEBUG ] $'$VAR': '$(eval echo \$${VAR})
-			[ $i -eq $n ] && echo '</p>' || echo '<br />'
-			i=$((i+1))
-		done
-		echo '<!-- End of pcp_debug_variables -->'
-	fi
+pcp_table_padding() {
+	[ x"$1" = x"" ] && COLSPAN="" || COLSPAN=' colspan="'$1'"'
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td'$COLSPAN'>'
+	echo '              </td>'
+	echo '            </tr>'
 }
 
 #========================================================================================
@@ -54,7 +47,7 @@ pcp_debug_variables2() {
 #----------------------------------------------------------------------------------------
 pcp_config_file() {
 	PCPCFG="/usr/local/etc/pcp/pcp.cfg"
-	#Old habbits might die hard.
+	# Old habbits might die hard.
 	CONFIGCFG=$PCPCFG
 }
 

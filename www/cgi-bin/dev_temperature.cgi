@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-08
+# Version: 4.2.0 2019-01-11
 
 # Title: Temperature monitor
 # Description: Temperature using DS18B20
@@ -58,14 +58,6 @@ pcp_get_temperature() {
 	else
 		echo "[ ERROR ] CRC failure. "
 	fi
-}
-
-pcp_padding() {
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	echo '              </td>'
-	echo '            </tr>'
 }
 
 #========================================================================================
@@ -183,7 +175,7 @@ if [ "$ACTION" = "Initial" ]; then
 		echo '              </tr>'
 	else
 		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
+		echo '                <td colspan="2">'
 		echo '                  <p>Number of sensors: '$W1_MASTER_SLAVE_COUNT'</p>'
 		echo '                </td>'
 		echo '              </tr>'
@@ -298,7 +290,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                </textarea>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_padding
+	pcp_table_padding
 	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -312,7 +304,21 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                </textarea>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_padding
+	pcp_table_padding
+	#------------------------------------------------------------------------------------
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td>'
+	echo '                <textarea class="inform" style="height:70px">'
+	                        echo 'Looking for errors in dmesg...'
+	                        if ! dmesg | grep w1_slave_driver; then
+	                          echo '[ ERROR ] Nothing found in dmesg.'
+	                          FAIL_MSG="No errors found in dmesg."
+	                        fi
+	echo '                </textarea>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_table_padding
 	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -326,7 +332,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                </textarea>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_padding
+	pcp_table_padding
 	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -340,7 +346,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                </textarea>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_padding
+	pcp_table_padding
 	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -350,7 +356,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '                </textarea>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_padding
+	pcp_table_padding
 	#------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
