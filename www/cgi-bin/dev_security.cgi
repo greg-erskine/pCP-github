@@ -185,7 +185,7 @@ echo '                </td>'
 echo '              </tr>'
 pcp_toggle_row_shade
 pcp_incr_id
-echo '              <tr class="'$ROWSHADE'" >'
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="'$COLUMN1'">'
 echo '                  <button type="submit"'
 echo '                          name="ACTION"'
@@ -232,9 +232,9 @@ pcp_ssh_status() {
 
 BOOTDEVLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
 
-COLUMN1="column150"
-COLUMN2="column120"
-COLUMN3="column210"
+COLUMN1="column210"
+COLUMN2="column210"
+COLUMN3="column210"     #<======= GE
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -244,12 +244,37 @@ echo '        <fieldset>'
 echo '          <legend>ssh</legend>'
 echo '          <form name="ssh" action="'$0'" method="get">'
 echo '            <table class="bggrey percent100">'
-echo '              <tr>'
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="'$COLUMN1'">'
 echo '                  <p>'$(pcp_ssh_status)'</p>'
 echo '                </td>'
 echo '                <td class="'$COLUMN2'">'
+pcp_ssh_status >/dev/null 2>&1
 echo '                  <p>Error result: '$RESULT'</p>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+pcp_incr_id
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="'$COLUMN1'">'
+echo '                  <p>Boot device</p>'
+echo '                </td>'
+echo '                <td class="'$COLUMN2'">'
+echo '                  <select name="BOOTDEV">'
+for DEV in $BOOTDEVLIST;
+do
+echo '                    <option value="'$DEV'">'$DEV'</option>'
+done
+echo '                  </select>'
+echo '                </td>'
+echo '                <td class="'$COLUMN3'">'
+echo '                  <p>Select boot device&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>sd[a-z]1|mmcblk0p1</p>'
+echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
 echo '            </table>'

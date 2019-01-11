@@ -120,7 +120,7 @@ echo '                  <p>Set name of Shairport-sync output device&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>If not changed Shairport output device will be the default DAC specific values.</p>'
+echo '                    <p>If not changed Shairport-sync output device will be the default DAC specific values.</p>'
 echo '                    <p>If equalizer is enabled use equal as output device name.</p>'
 echo '                    <p>Please experiment if default settings are wrong.</p>'
 echo '                  </div>'
@@ -145,8 +145,8 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>Often the control name is Digital or PCM or left empty.</p>'
-echo '                    <p>If not changed Shairport sync will use the default DAC specific values.</p>'
-echo '                    <p>If equalizer is enabled the control name should be left empty.</p>'
+echo '                    <p>If not changed Shairport-sync will use the default DAC specific values.</p>'
+echo '                    <p>If equalizer is enabled, the control name should be left empty.</p>'
 echo '                    <p>Please experiment if default settings are wrong.</p>'
 echo '                  </div>'
 echo '                </td>'
@@ -170,7 +170,7 @@ echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>If needed change the settings and restart Shairport-sync to test the new settings.</p>'
-echo '                    <p>Remember to save your settings.... And restart Shairport-sync</p>'
+echo '                    <p>Remember to save your settings... and restart Shairport-sync</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -184,7 +184,7 @@ echo '                <td class="'$COLUMN1'" colspan="2">'
 echo '                  <input type="submit"'
 echo '                         name="ACTION"'
 echo '                         value="Save"'
-echo '                         title="Save Shairport settings"'
+echo '                         title="Save Shairport-sync settings"'
 echo '                  />'
 echo '                </td>'
 echo '              </tr>'
@@ -214,7 +214,7 @@ echo '          <form name="buttons" action="'$0'" method="get">'
 echo '            <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
 
-#------------------------------------Shairport Indication--------------------------------
+#----------------------------------Shairport-sync Indication-----------------------------
 pcp_main_shairport_indication() {
 
 	if [ $(pcp_shairport_status) -eq 0 ]; then
@@ -230,17 +230,17 @@ pcp_main_shairport_indication() {
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Shairport is '$STATUS'&nbsp;&nbsp;'
+	echo '                <p>Shairport-sync is '$STATUS'&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
 	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport-sync running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport-sync not running.</li>'
 	echo '                  </ul>'
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
-	echo '                    <li>Shairport must be running for music to play from iDevices.</li>'
+	echo '                    <li>Shairport-sync must be running for music to play from iDevices.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -261,8 +261,9 @@ if ! [ "$STATUS" = "running" ]; then
 	echo '                  />'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 else
-	#------------------------------------Stop button-------------------------------------
+	#--------------------------------Stop/Restart button---------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
