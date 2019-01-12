@@ -307,6 +307,19 @@ echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
 
+#https://forums.slimdevices.com/showthread.php?109777-Starting-piCorePlayer-without-on-screen-console-messages-possible
+
+#logo.nologo  <==== Raspberry Pi logo
+#console=tty3 <==== Redirect to nowhere
+#disable_splash=1 in config.txt <==== splash screen
+
+#/opt/bootlocal.sh
+
+#pCPstart------
+#/home/tc/www/cgi-bin/pcp_startup.sh 2>&1 | tee -a /var/log/pcp_boot.log
+#/home/tc/www/cgi-bin/pcp_startup.sh > /var/log/pcp_boot.log 2>&1
+#pCPstop------
+
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
