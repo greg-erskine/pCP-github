@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-11
+# Version: 4.2.0 2019-01-14
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -36,12 +36,14 @@ pcp_shairport_default
 #========================================================================================
 # Debug information
 #----------------------------------------------------------------------------------------
+SHAIRPORT_VERSION=$(/usr/local/sbin/shairport-sync -V)
+
 pcp_debug_information() {
 	if [ $DEBUG -eq 1 ]; then
 		pcp_table_top "Debug information"
 		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" SHAIRPORT_OUT SHAIRPORT_CONTROL SH_OUTPUT OUTPUT \
-		SH_CONTROL SSET SHAIRPORTSYNC_SHAIRPORT SHAIRPORT 
+		pcp_debug_variables "html" SHAIRPORT_VERSION SHAIRPORT_OUT SHAIRPORT_CONTROL \
+		OUTPUT SHAIRPORTSYNC_SHAIRPORT SHAIRPORT
 		echo '<!-- End of debug info -->'
 		pcp_table_end
 	fi
