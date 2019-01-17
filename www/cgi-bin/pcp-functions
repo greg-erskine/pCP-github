@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-11
+# Version: 4.2.0 2019-01-17
 
 #========================================================================================
 # Setup debug logging
@@ -408,6 +408,21 @@ pcp_clean_cmdlinetxt() {
 	cp /tmp/cmdline.txt $CMDLINETXT
 	sed -i '$s/$/ /' $CMDLINETXT
 	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
+}
+
+pcp_bootcode_add() {
+	REBOOT_REQUIRED=TRUE
+	pcp_clean_cmdlinetxt
+	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
+	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
+}
+
+pcp_bootcode_equal_add() {
+	REBOOT_REQUIRED=TRUE
+	pcp_clean_cmdlinetxt
+	STR="$1=$2"
+	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
+	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
 }
 
 #========================================================================================

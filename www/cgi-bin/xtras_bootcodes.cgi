@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-12
+# Version: 4.2.0 2019-01-17
 
 . pcp-functions
 
@@ -24,7 +24,7 @@ pcp_httpd_query_string
 #========================================================================================
 # Missing bootcodes - add these sometime in the future?
 #----------------------------------------------------------------------------------------
-# local={hda1|sda1}          Specify PPI directory or loopback file
+# local={hda1|sda1}          Specify directory or loopback file
 # vga=7xx                    7xx from table above
 # settime                    Set UTC time at boot, internet required
 # embed                      Stay on initramfs
@@ -35,24 +35,6 @@ pcp_httpd_query_string
 # console=ttyAMA0,115200
 # console=tty1
 #----------------------------------------------------------------------------------------
-
-#========================================================================================
-# Routines
-#----------------------------------------------------------------------------------------
-pcp_bootcode_add() {
-	REBOOT_REQUIRED=TRUE
-	pcp_clean_cmdlinetxt
-	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
-	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
-}
-
-pcp_bootcode_equal_add() {
-	REBOOT_REQUIRED=TRUE
-	pcp_clean_cmdlinetxt
-	STR="$1=$2"
-	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
-	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
-}
 
 #========================================================================================
 # Generate warning message
