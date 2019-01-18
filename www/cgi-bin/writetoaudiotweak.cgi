@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-04
+# Version: 4.2.0 2019-01-18
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -13,9 +13,6 @@ ORIG_ALSAlevelout=$ALSAlevelout
 ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
 ORIG_FSM=$FSM
-
-WGET="/bin/busybox wget"
-CAPS="caps-0.4.5"
 
 unset VARIABLE_CHANGED
 unset REBOOT_REQUIRED
@@ -63,8 +60,13 @@ fi
 #========================================================================================
 # SHAIRPORT section
 #----------------------------------------------------------------------------------------
+# libcofi.tcz                   8192
+# pcp-shairportsync.tcz       970752
+#
+# Total size (bytes)          978944
+#----------------------------------------------------------------------------------------
 pcp_download_shairport(){
-	pcp_sufficient_free_space 500
+	pcp_sufficient_free_space 1000
 	echo '<p class="info">[ INFO ] Downloading Shairport-sync...</p>'
 	sudo -u tc pcp-load -r ${PCP_REPO} -w pcp-shairportsync.tcz
 	if [ $? -eq 0 ]; then
@@ -150,13 +152,14 @@ fi
 #========================================================================================
 # ALSA Equalizer section
 #----------------------------------------------------------------------------------------
-#  24576 alsaequal.tcz
-# 733184 caps-0.4.5.tcz
-# ------
-# 757760
+# alsaequal.tcz          24576
+# caps.tcz              258048
+# libasound.tcz         364544
+#
+# Total size (bytes)    647168
 #----------------------------------------------------------------------------------------
 pcp_download_alsaequal() {
-	pcp_sufficient_free_space 800
+	pcp_sufficient_free_space 700
 	echo '<p class="info">[ INFO ] Downloading ALSA Equalizer from repository...</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${PCP_REPO}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
