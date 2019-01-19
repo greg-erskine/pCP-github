@@ -502,6 +502,10 @@ pcp_finish_install() {
 				pcp_update_onbootlst "add" "crda.tcz"
 			fi
 		;;
+		piCorePlayer4.2.*)
+			sed -i 's/firmware-rpi3-wireless/firmware-rpi-wifi/' $ONBOOTLST
+			rm -f ${PACKAGEDIR}/firmware-rpi3-wireless.*
+		;;
 	esac
 	echo "content of mnt onboot.lst after:"; cat $ONBOOTLST
 

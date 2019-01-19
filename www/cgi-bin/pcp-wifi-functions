@@ -25,7 +25,7 @@ pcp_wifi_update_wifi_onbootlst() {
 	pcp_wifi_update_onbootlst "add" "firmware-brcmwifi.tcz"
 	pcp_wifi_update_onbootlst "add" "firmware-ralinkwifi.tcz"
 	pcp_wifi_update_onbootlst "add" "firmware-rtlwifi.tcz"
-	pcp_wifi_update_onbootlst "add" "firmware-rpi3-wireless.tcz"
+	pcp_wifi_update_onbootlst "add" "firmware-rpi-wifi.tcz"
 	pcp_wifi_update_onbootlst "add" "crda.tcz"
 	pcp_wifi_update_onbootlst "add" "wireless_tools.tcz"
 	pcp_wifi_update_onbootlst "add" "wpa_supplicant.tcz"
@@ -91,7 +91,7 @@ pcp_wifi_load_wifi_firmware_extns() {
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	pcp_wifi_load_extn "firmware-rtlwifi.tcz" "Realtek firmware" "$FORMAT"
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
-	pcp_wifi_load_extn "firmware-rpi3-wireless.tcz" "RPi Broadcom firmware" "$FORMAT"
+	pcp_wifi_load_extn "firmware-rpi-wifi.tcz" "RPi Broadcom firmware" "$FORMAT"
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 
 	if [ $ERROR -eq 0 ]; then
@@ -127,7 +127,7 @@ pcp_wifi_unload_wifi_firmware_extns() {
 	pcp_wifi_update_onbootlst "remove" "firmware-brcmwifi.tcz"
 	pcp_wifi_update_onbootlst "remove" "firmware-ralinkwifi.tcz"
 	pcp_wifi_update_onbootlst "remove" "firmware-rtlwifi.tcz"
-	pcp_wifi_update_onbootlst "remove" "firmware-rpi3-wireless.tcz"
+	pcp_wifi_update_onbootlst "remove" "firmware-rpi-wifi.tcz"
 	pcp_message OK "Done." "$FORMAT"
 	REBOOT_REQUIRED=TRUE
 }
@@ -327,7 +327,7 @@ pcp_wifi_all_extensions_installed() {
 	local FORMAT=$1
 
 	EXTN_LIST="wireless_tools wpa_supplicant crda
-	firmware-atheros firmware-brcmwifi firmware-ralinkwifi firmware-rtlwifi firmware-rpi3-wireless"
+	firmware-atheros firmware-brcmwifi firmware-ralinkwifi firmware-rtlwifi firmware-rpi-wifi"
 
 	for i in $EXTN_LIST; do
 		pcp_wifi_extension_installed "$FORMAT" $i

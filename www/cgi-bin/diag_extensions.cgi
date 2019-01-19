@@ -45,7 +45,7 @@ pcp_downloaded_extensions() {
 	echo firmware-atheros.tcz                   >> $EXTENLIST
 	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
 	echo firmware-ralinkwifi.tcz                >> $EXTENLIST
-	echo firmware-rpi3-wireless.tcz             >> $EXTENLIST
+	echo firmware-rpi-wifi.tcz             >> $EXTENLIST
 	echo firmware-rtlwifi.tcz                   >> $EXTENLIST
 	echo libasound.tcz                          >> $EXTENLIST
 	echo libedit.tcz                            >> $EXTENLIST
@@ -472,7 +472,7 @@ pcp_message "wifi"
 pcp_check_extension firmware-atheros.tcz
 #pcp_check_extension firmware-brcmwifi.tcz
 pcp_check_extension firmware-ralinkwifi.tcz
-pcp_check_extension firmware-rpi3-wireless.tcz
+pcp_check_extension firmware-rpi-wifi.tcz
 pcp_check_extension firmware-rtlwifi.tcz
 pcp_check_extension wifi.tcz
 #pcp_check_extension wireless-${KERNELVER}.tcz
