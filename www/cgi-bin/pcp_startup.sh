@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-05
+# Version: 4.2.0 2019-01-23
 
 BACKUP=0
 # Read from pcp-functions file
@@ -726,16 +726,9 @@ if [ $BACKUP -eq 1 ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
-# Display the IP address.
-ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}eth0 IP: $(pcp_eth0_ip)${NORMAL}"
-ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE}wlan0 IP: $(pcp_wlan0_ip)${NORMAL}"
-
 echo -n "${BLUE}Setting cpu scaling governor...${NORMAL}"
 echo -n $CPUGOVERNOR | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 echo "${GREEN} Done.${NORMAL}"
-
-echo "${GREEN}Finished piCorePlayer setup.${NORMAL}"
-sudo su -c 'echo "Finished piCorePlayer setup." > /dev/kmsg'
 
 if [ "$JIVELITE" = "yes" ]; then
 	echo -n "${BLUE}Starting Jivelite...${NORMAL}"
@@ -759,6 +752,21 @@ if [ "$JIVELITE" = "yes" ]; then
 	fi
 fi
 
-echo "${BLUE}crond syncing time...${NORMAL}"
+if [ "$JIVELITE" = "no" ]; then
+	echo ""
+	echo "${GREEN}Finished piCorePlayer startup.${NORMAL}"
+	echo ""
+	echo "${BLUE}To setup piCorePlayer, use the web interface via a browser:${NORMAL}"
+	# Display the IP address.
+	ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE} - http://$(pcp_eth0_ip)${NORMAL}"
+	ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE} - http:/$(pcp_wlan0_ip)${NORMAL}"
+	echo ""
+	echo "${BLUE}Press [Enter] to access console.${NORMAL}"
+	echo ""
+	echo "${YELLOW}In the background, ntpd is syncing time between piCorePlayer and the internet...${NORMAL}"
+	echo "${YELLOW}A large offset between 1970 and now is normal.${NORMAL}"
+fi
+
+sudo su -c 'echo "Finished piCorePlayer startup." > /dev/kmsg'
 
 unset ORIG_AUDIO
