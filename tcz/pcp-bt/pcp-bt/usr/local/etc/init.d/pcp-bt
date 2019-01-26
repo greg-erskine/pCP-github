@@ -4,9 +4,6 @@
 # Bluetooth Speaker Init Script
 #----------------------------------------------------------------------------------------
 #
-# Version: 4.0.0 2018-06-15 PH
-#
-#----------------------------------------------------------------------------------------
 
 . /usr/local/etc/pcp/pcp.cfg
 . /usr/local/bin/pcp-bt-functions
@@ -22,17 +19,18 @@ init() {
 		B3=`echo $SERIAL | cut -c7-8`
 		BDADDR=`printf b8:27:eb:%02x:%02x:%02x $((0x$B1 ^ 0xaa)) $((0x$B2 ^ 0xaa)) $((0x$B3 ^ 0xaa))`
 
-		# Rpi3 Serial port
-		SERIAL_DEV="/dev/ttyAMA0"
+		uart0="`cat /proc/device-tree/aliases/uart0`"
+		serial1="`cat /proc/device-tree/aliases/serial1`"
 
-		if [ "$(cat /proc/device-tree/aliases/uart0)" = "$(cat /proc/device-tree/aliases/serial1)" ] ; then
-			if [ "$(wc -c /proc/device-tree/soc/gpio@7e200000/uart0_pins/brcm\,pins | cut -f 1 -d ' ')" = "16" ] ; then
-				$HCIATTACH $SERIAL_DEV bcm43xx 3000000 flow - $BDADDR
+		if [ "$uart0" = "$serial1" ] ; then
+			uart0_pins="`wc -c /proc/device-tree/soc/gpio@7e200000/uart0_pins/brcm\,pins | cut -f 1 -d ' '`"
+			if [ "$uart0_pins" = "16" ] ; then
+				$HCIATTACH /dev/serial1 bcm43xx 3000000 flow - $BDADDR
 			else
-				$HCIATTACH $SERIAL_DEV bcm43xx 921600 noflow - $BDADDR
+				$HCIATTACH /dev/serial1 bcm43xx 921600 noflow - $BDADDR
 			fi
 		else
-			$HCIATTACH $SERIAL_DEV bcm43xx 460800 noflow - $BDADDR
+			$HCIATTACH /dev/serial1 bcm43xx 460800 noflow - $BDADDR
 		fi
 	fi
 

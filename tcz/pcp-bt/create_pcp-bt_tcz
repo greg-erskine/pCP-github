@@ -43,7 +43,7 @@ while true; do
    esac
 done
 
-REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/9.x"
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/10.x"
 ARMV6="$REPOPATH/armv6/tcz"
 ARMV7="$REPOPATH/armv7/tcz"
 
