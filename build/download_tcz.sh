@@ -31,7 +31,7 @@ wireless_tools"
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
 pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi wiringpi \
-wpa_supplicant crda ca-certificates firmware-rpi3-wireless"
+wpa_supplicant crda ca-certificates firmware-rpi-wifi"
 
 archive(){
 	echo "${YELLOW}*****************************************************************"
