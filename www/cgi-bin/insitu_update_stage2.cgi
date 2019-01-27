@@ -198,8 +198,8 @@ pcp_get_kernel_modules() {
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.19.12-rt8;;
-				*) NEWKERNELVER=4.19.12;;
+				*pcpAudioCore*) NEWKERNELVER=4.19.17-rt12;;
+				*) NEWKERNELVER=4.19.17;;
 			esac
 			PICOREVERSION=10.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
