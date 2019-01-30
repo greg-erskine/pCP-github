@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-05
+# Version: 4.2.0 2019-01-31
 
 . pcp-functions
 . pcp-lms-functions
@@ -591,6 +591,29 @@ pcp_main_extensions() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Diagnostics-----------------------------------
+pcp_main_diagnostics() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Diagnostics" action="diagnostics.cgi" method="get">'
+	echo '                  <input type="submit" value="Diagnostics">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Go to Diagnostics page&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will go to the Diagnostics page.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_diagnostics
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Beta mode fieldset----------------------------
 if [ $MODE -ge $MODE_BETA ]; then
 	echo '          </table>'
@@ -632,29 +655,6 @@ pcp_main_static_ip() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Diagnostics-----------------------------------
-pcp_main_diagnostics() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Diagnostics" action="diagnostics.cgi" method="get">'
-	echo '                  <input type="submit" value="Diagnostics">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Go to Diagnostics page&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will go to the Diagnostics page.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_diagnostics
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Extras----------------------------------------

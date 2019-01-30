@@ -1,12 +1,12 @@
 #!/bin/sh
 # Boot diagnostics script
 
-# Version: 4.2.0 2019-01-14
+# Version: 4.2.0 2019-01-31
 
 . pcp-functions
 
 # Local variables
-LOG="${LOGDIR}/pcp_diag_boot.log"
+LOG="${LOGDIR}/pcp_diag_boot_process.log"
 
 pcp_html_head "Boot Diagnostics" "GE"
 

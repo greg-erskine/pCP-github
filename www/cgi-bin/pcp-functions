@@ -371,27 +371,6 @@ pcp_reset_repository() {
 }
 
 #========================================================================================
-# Test mode level. <- DEPRECIATED
-#----------------------------------------------------------------------------------------
-pcp_mode_lt_beta() {
-	if [ $MODE -lt $MODE_BETA ]; then
-		echo '<p class="error">[ ERROR ] Wrong mode. Min: Beta</p>'
-		echo '</body>'
-		echo '</html>'
-		exit 1
-	fi
-}
-
-pcp_mode_lt_developer() {
-	if [ $MODE -lt $MODE_DEVELOPER ]; then
-		echo '<p class="error">[ ERROR ] Wrong mode. Min: Developer</p>'
-		echo '</body>'
-		echo '</html>'
-		exit 1
-	fi
-}
-
-#========================================================================================
 # cmdline.txt routines
 #----------------------------------------------------------------------------------------
 pcp_backup_cmdlinetxt() {
@@ -660,7 +639,7 @@ pcp_diagnostics() {
 	echo '        <a class="nav6" href="main.cgi" title="pCP - Main Page">Main Page</a>'
 	echo '        <a class="nav6" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
 	echo '        <a class="nav6" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
-	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
+	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot Process">Boot Process</a>'
 	echo '        <a class="nav6" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
 	echo '        <a class="nav6" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
 	echo '      </p>'
