@@ -12,7 +12,7 @@ find * -not -type d | xargs dos2unix
 find * -not -type d > ${BASEWD}/${TCZ}.list
 cd ..
 
-mksquashfs ${EXT} ${TCZ} -all-root -noappend 2>&1 >/dev/null
+mksquashfs ${EXT} ${TCZ} 2>&1 >/dev/null
 
 cd ${BASEWD}
 md5sum ${TCZ} > ${TCZ}.md5.txt
