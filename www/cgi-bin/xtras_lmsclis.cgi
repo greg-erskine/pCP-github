@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 4.2.0 2019-02-02
 
 . pcp-functions
 . pcp-lms-functions
@@ -18,19 +18,20 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 #========================================================================================
-# 
+#
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Main piCorePlayer operations</legend>'
-echo '          <table class="bggrey percent100">'
+echo '          <legend>Select LMS</legend>'
+echo '          <form name="new-lms-ip" action="'$0'" method="get">'
+echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <form name="new-lms-ip" action="'$0'" method="get">'
+echo '              <tr class="'$ROWSHADE'">'
+
 echo '                <td class="column150 center">'
 echo '                  <input type="submit" name="SUBMIT" value="Connect">'
 echo '                </td>'
@@ -53,10 +54,9 @@ echo '                  <div id="'$ID'" class="less">'
 echo '                    <p>This will connect piCorePlayer to selected LMS.</p>'
 echo '                  </div>'
 echo '                </td>'
-echo '              </form>'
-echo '            </tr>'
-
-echo '          </table>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </form>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -66,25 +66,18 @@ echo '</table>'
 [ "$SUBMIT" = "Connect" ] && pcp_lms_connect "$NEWLMSIP"
 
 #========================================================================================
-echo '<h1>Testing the functions in pcp-lms-functions</h1>'
-echo '<div>'
+pcp_table_top "Testing the functions in pcp-lms-functions"
 
 #--------------------------------------pcp_lms_players-----------------------------------
 echo '<h2>Squeezelite players: (pcp_lms_players squeezelite)</h2>'
 echo '<p>'$(pcp_lms_players squeezelite)'</p>'
 
-echo '<table>'
-echo '  <tr>'
-
 PLAYERDATA=$(pcp_lms_players squeezelite)
-GREG=$(echo $PLAYERDATA | awk '{ for(i=1;i<=NF;i++) { printf "<p>%s</p>", $i} }')
-echo $GREG
-
-echo '  </tr>'
-echo '<table>'
+PLAYERS=$(echo $PLAYERDATA | awk -F",1 " '{ for(i=1;i<=NF;i++) { printf "<p>%s</p>", $i} }')
+echo $PLAYERS
 
 #--------------------------------------pcp_lms_player_status-----------------------------
-echo '<h2>Mode: (pcp_lms_player_status)</h2>'
+echo '<h2>Status: (pcp_lms_player_status)</h2>'
 echo '<p>'$(pcp_lms_player_status)'</p>'
 
 #--------------------------------------pcp_lms_artists-----------------------------------
@@ -210,7 +203,7 @@ echo '<img src="http://'$(pcp_lmsip)':'${LMSPORT}$(pcp_lms_show)'" alt="Currentl
 echo '</div>'
 echo '<br />'
 
-echo '</div>'
+pcp_table_end
 
 pcp_footer
 pcp_copyright
