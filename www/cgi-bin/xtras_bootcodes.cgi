@@ -1,16 +1,17 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-17
+# Version: 4.2.0 2019-02-11
 
 . pcp-functions
 
 USER=""
 TZ=""
 
-# Define red cross
+#========================================================================================
+# Define green tick and red cross
+#----------------------------------------------------------------------------------------
 RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
 RED=""
-# Define green tick
 GREEN='&nbsp;<span class="indicator_green">&#x2714;</span>'
 
 pcp_html_head "xtras_bootcodes" "GE"
@@ -31,9 +32,7 @@ pcp_httpd_query_string
 # bkg=image.{jpg|png|gif}    Set background from /opt/backgrounds
 # multivt                    Allows for multiple virtual terminals
 # lst=yyy.lst                Load alternate yyy.lst on boot. yyy.lst is expected to reside
-#                            in $DRIVE/tce where $DRIVE is the drive specified by the tce= bootcode.
-# console=ttyAMA0,115200
-# console=tty1
+#                            in $DRIVE/tce where $DRIVE is the drive specified by the tce=bootcode.
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -109,7 +108,6 @@ if [ "$SUBMIT" = "Save" ]; then
 		mydata)      pcp_bootcode_equal_add mydata "$MYDATA" ;;
 		nbd)         pcp_bootcode_equal_add nbd "$NBD" ;;
 		nfsmount)    pcp_bootcode_equal_add nfsmount "$NFSMOUNT" ;;
-#		noicons)     pcp_bootcode_equal_add noicons "$NOICONS" ;;
 		ntpserver)   pcp_bootcode_equal_add ntpserver "$NTPSERVER" ;;
 		opt)         pcp_bootcode_equal_add opt "$MYOPT" ;;
 		pretce)      pcp_bootcode_equal_add pretce "$PRETCE" ;;
@@ -127,10 +125,12 @@ if [ "$SUBMIT" = "Save" ]; then
 		#--------------------------------------------------------------------------------
 		# Kernel bootcodes ( VARIABLE=value )
 		#--------------------------------------------------------------------------------
+		console)              pcp_bootcode_equal_add2 console "$CONSOLE" ;;
 		consoleblank)         pcp_bootcode_equal_add consoleblank "$CONSOLEBLANK" ;;
 		dwc_otg.fiq_fsm_mask) pcp_bootcode_equal_add iq_fsm_mask "$IQ_FSM_MASK" ;;
 		dwc_otg.lpm_enable)   pcp_bootcode_equal_add lpm_enable "$LPM_ENABLE" ;;
 		elevator)             pcp_bootcode_equal_add elevator "$ELEVATOR" ;;
+		fbcon)                pcp_bootcode_equal_add2 fbcon "$FBCON" ;;
 		isolcpus)             pcp_bootcode_equal_add isolcpus "$ISOLCPUS" ;;
 		loglevel)             pcp_bootcode_equal_add loglevel "$LOGLEVEL" ;;
 		root)                 pcp_bootcode_equal_add root "$ROOT" ;;
@@ -170,12 +170,17 @@ if [ "$SUBMIT" = "Save" ]; then
 	esac
 fi
 
+BLACKLIST=""
+CONSOLE=""
+FBCON=""
+
 for i in $(cat $CMDLINETXT); do
 	case $i in
 		*=*)
 			case $i in
 				#---------------------------------------------------
-				# Standard Tiny Core bootcodes ( VARIABLE=value )
+				# Standard Tiny Core bootcodes
+				# ( VARIABLE=value ) or ( VARIABLE=value value)
 				#---------------------------------------------------
 				aoe*)       AOE=${i#*=} ;;
 				blacklist*) BLACKLIST="$BLACKLIST ${i#*=}" ;;
@@ -190,7 +195,6 @@ for i in $(cat $CMDLINETXT); do
 				mydata*)    MYDATA=${i#*=} ;;
 				nbd*)       NBD=${i#*=} ;;
 				nfsmount*)  NFSMOUNT=${i#*=} ;;
-#				noicons*)   NOICONS=${i#*=} ;;
 				ntpserver*) NTPSERVER=${i#*=} ;;
 				opt*)       MYOPT=${i#*=} ;;
 				pretce*)    PRETCE=${i#*=} ;;
@@ -206,12 +210,15 @@ for i in $(cat $CMDLINETXT); do
 				waitusb*)   WAITUSB=${i#*=} ;;
 				xvesa*)     XVESA=${i#*=} ;;
 				#---------------------------------------------------
-				# Kernel bootcodes ( VARIABLE=value )
+				# Kernel bootcodes
+				# ( VARIABLE=value ) or ( VARIABLE=value value)
 				#---------------------------------------------------
+				console=*)             CONSOLE="$CONSOLE ${i#*=}" ;;
 				consoleblank*)         CONSOLEBLANK=${i#*=} ;;
 				dwc_otg.fiq_fsm_mask*) FIQ_FSM_MASK=${i#*=} ;;
 				dwc_otg.lpm_enable*)   LPM_ENABLE=${i#*=} ;;
 				elevator*)             ELEVATOR=${i#*=} ;;
+				fbcon*)                FBCON="$FBCON ${i#*=}" ;;
 				isolcpus*)             ISOLCPUS=${i#*=} ;;
 				loglevel*)             LOGLEVEL=${i#*=} ;;
 				root*)                 ROOT=${i#*=} ;;
@@ -258,7 +265,6 @@ for i in $(cat $CMDLINETXT); do
 done
 
 pcp_warning_message
-[ $MODE -le $MODE_NORMAL ] && pcp_html_end && exit
 [ $MODE -lt $MODE_DEVELOPER ] && [ "$REBOOT_REQUIRED" ] && pcp_reboot_required
 
 #----------------------------------------------------------------------------------------
@@ -803,43 +809,6 @@ pcp_bootcode_nfsmount() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_nfsmount
-#----------------------------------------------------------------------------------------
-
-#--------------------------------------noicons-------------------------------------------
-# Note: both noicons or noicons=ondemand are options. Disable this one.
-#----------------------------------------------------------------------------------------
-pcp_bootcode_noicons() {
-	[ x"" = x"$NOICONS" ] && INDICATOR=$RED || INDICATOR=$GREEN
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COL1' right">'
-	echo '                <p>noicons=</p>'
-	echo '              </td>'
-	echo '              <td class="'$COL2'">'
-	echo '                <form id="noicons" action="'$0'" method="get">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="NOICONS"'
-	echo '                         value="'$NOICONS'"'
-	echo '                  >'$INDICATOR
-	echo '                  <input type="hidden" name="VARIABLE" value="noicons">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td class="'$COL3' center">'
-	echo '                <input form="noicons" type="submit" name="SUBMIT" value="Save">'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Do not use icons&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>Do not use icons.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_XXXXXXX ] && pcp_bootcode_noicons
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------ntpserver-----------------------------------------
@@ -2159,6 +2128,44 @@ echo '              </th>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
+#---------------------------------------console------------------------------------------
+pcp_bootcode_console() {
+	[ x"" = x"$CONSOLE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1' right">'
+	echo '                <p>console=</p>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'">'
+	echo '                <form id="console" action="'$0'" method="get">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="CONSOLE"'
+	echo '                         value="'$CONSOLE'"'
+	echo '                  >'$INDICATOR
+	echo '                  <input type="hidden" name="VARIABLE" value="console">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td class="'$COL3' center">'
+	echo '                <input form="console" type="submit" name="SUBMIT" value="Save">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Set console&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>&lt;console=tty1&gt;</p>'
+	echo '                  <p>&lt;console=tty3&gt;</p>'
+	echo '                  <p>&lt;console=ttyAMA0,115200&gt;</p>'
+	echo '                  <p>To set multiple values, use a space to separate values ie. tty1 ttyAMA0,115200</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_console
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------consoleblank--------------------------------------
 pcp_bootcode_consoleblank() {
 	[ x"" = x"$CONSOLEBLANK" ] && INDICATOR=$RED || INDICATOR=$GREEN
@@ -2302,6 +2309,43 @@ pcp_bootcode_elevator() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_elevator
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------fbcon-------------------------------------------
+pcp_bootcode_fbcon() {
+	[ x"" = x"$FBCON" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1' right">'
+	echo '                <p>fbcon=</p>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'">'
+	echo '                <form id="fbcon" action="'$0'" method="get">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="FBCON"'
+	echo '                         value="'$FBCON'"'
+	echo '                  >'$INDICATOR
+	echo '                  <input type="hidden" name="VARIABLE" value="fbcon">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td class="'$COL3' center">'
+	echo '                <input form="fbcon" type="submit" name="SUBMIT" value="Save">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Set fbcon&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>&lt;fbcon=map:10&gt;</p>'
+	echo '                  <p>&lt;fbcon=font:ProFont6x11&gt;</p>'
+	echo '                  <p>To set multiple values, use a space to separate values ie. map:10 font:ProFont6x11.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_fbcon
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------isolcpus------------------------------------------

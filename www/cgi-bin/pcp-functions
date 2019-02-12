@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-17
+# Version: 4.2.0 2019-02-11
 
 #========================================================================================
 # Setup debug logging
@@ -404,6 +404,16 @@ pcp_bootcode_equal_add() {
 	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
 }
 
+pcp_bootcode_equal_add2() {
+	REBOOT_REQUIRED=TRUE
+	pcp_clean_cmdlinetxt
+	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
+	VALUES=$(echo $2 | awk '{ for (i=NF; i>1; i--) printf("%s ",$i); print $1; }')
+	for S in $VALUES; do
+		STR="$1=$S"
+		[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
+	done
+}
 #========================================================================================
 # Update the Timezone routine
 #
