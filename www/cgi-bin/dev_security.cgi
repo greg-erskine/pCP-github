@@ -1,19 +1,212 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-11
+# Version: 4.2.0 2019-02-17
 
 # Title: Security
-# Description: Gathering pieces of code to increase security
+# Description: Security related configuration
 
 . pcp-functions
-
-DEBUG=1 #<============= GE
 
 pcp_html_head "Security" "GE"
 
 pcp_banner
 pcp_running_script
 pcp_httpd_query_string
+
+unset REBOOT_REQUIRED
+
+#========================================================================================
+# Web GUI
+#----------------------------------------------------------------------------------------
+STOP_HTTPD_SH="/tmp/stop_httpd.sh"
+
+case $ACTION in
+	Save\ GUI)
+		pcp_save_to_config
+		pcp_backup >/dev/null 2>&1
+		REBOOT_REQUIRED=TRUE
+	;;
+	Abort\ GUI)
+		sudo killall $STOP_HTTPD_SH
+		REBOOT_REQUIRED=TRUE
+	;;
+	*)
+		pcp_security_ssh
+	;;
+esac
+
+COLUMN1="column210"
+COLUMN2="column210"
+#---------------------------------------web GUI------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <form id="GUI_Disable" name="GUI_Disable" action="'$0'" method="get">'
+echo '        <div class="row">'
+echo '          <fieldset>'
+echo '            <legend>Disable web GUI</legend>'
+echo '            <table class="bggrey percent100">'
+pcp_start_row_shade
+pcp_incr_id
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="'$COLUMN1'">'
+echo '                  <p>Disable web GUI</p>'
+echo '                </td>'
+echo '                <td class="'$COLUMN2'">'
+echo '                  <input class="large6"'
+echo '                         type="text"'
+echo '                         name="GUI_DISABLE"'
+echo '                         value="'$GUI_DISABLE'"'
+echo '                         pattern="\d*"'
+echo '                         title="Use numbers."'
+echo '                  > seconds'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set disable web GUI time&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>&lt;xx seconds&gt;</p>'
+echo '                    <p><b>Default: </b>0 = enable web GUI</p>'
+echo '                    <p>1 = never start web GUI</p>'
+echo '                    <p>&gt;20 = minimum value</p>'
+echo '                    <p>This sets the time, in seconds, between piCorePlayer booting and the web GUI being disabled.</p>'
+echo '                    <p>This increases security because it gives limited access window to the web GUI.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
+echo '                  <button type="submit" name="ACTION" value="Save GUI">Save</button>'
+                        [ -f $STOP_HTTPD_SH ] &&
+echo '                  <button type="submit" name="ACTION" value="Abort GUI">Abort</button>'
+echo '                </td>'
+echo '              </tr>'
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# SSH section
+#----------------------------------------------------------------------------------------
+pcp_ssh_status() {
+	sudo /usr/local/etc/init.d/openssh status
+	RESULT=$?
+}
+
+#------------------------------------------------------------------------------------
+# Look for ssh file on boot partition. Only start sshd if file found.
+#------------------------------------------------------------------------------------
+BOOTDEVLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
+
+pcp_security_ssh() {
+	[ $DEBUG -eq 1 ] && pcp_table_top "Debug Information"
+	SSH_FOUND=0
+
+	for DISK in $BOOTDEVLIST; do
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Checking for ssh file on $DISK..." "html"
+		# Check if $DISK is mounted, otherwise mount it.
+		if mount | grep ${DISK} >/dev/null 2>&1; then
+			eval ${DISK}WASMNT=1
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "/dev/${DISK} mounted." "html"
+		else
+			eval ${DISK}WASMNT=0
+			[ -d /mnt/$DISK ] || mkdir -p /mnt/$DISK
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "Mounting /dev/${DISK}." "html"
+			mount /dev/$DISK >/dev/null 2>&1
+		fi
+
+		[ $1 = "enable" ] && touch /mnt/${DISK}/ssh
+		[ $1 = "disable" ] && rm -f /mnt/${DISK}/ssh
+
+		if [ -f /mnt/${DISK}/ssh ]; then
+			SSH_FOUND=$(($SSH_FOUND + 1))
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH found on ${DISK}." "html"
+		else
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH NOT found on ${DISK}." "html"
+		fi
+
+		if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
+			umount /mnt/$DISK
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "/mnt/${DISK} unmounted." "html"
+		fi
+	done
+
+	[ $DEBUG -eq 1 ] && pcp_table_end
+}
+
+case $ACTION in
+	Enable\ SSH)
+		pcp_security_ssh enable
+		REBOOT_REQUIRED=TRUE
+	;;
+	Disable\ SSH)
+		pcp_security_ssh disable
+		REBOOT_REQUIRED=TRUE
+	;;
+	*)
+		pcp_security_ssh
+	;;
+esac
+
+COLUMN1="column210"
+COLUMN2="column210"
+#----------------------------------------------------------------------------------------
+echo '<table class="bggrey">'
+echo '  <tr>'
+echo '    <td>'
+echo '      <div class="row">'
+echo '        <fieldset>'
+echo '          <legend>Disable ssh</legend>'
+echo '          <form name="ssh" action="'$0'" method="get">'
+echo '            <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
+pcp_start_row_shade
+pcp_incr_id
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="'$COLUMN1'">'
+echo '                  <p>'$(pcp_ssh_status)'</p>'
+echo '                </td>'
+echo '                <td class="'$COLUMN2'">'
+echo '                  <p>Number of SSH files found: '$SSH_FOUND'</p>'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Disable SSH on boot&nbsp;&nbsp;'
+echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+echo '                  </p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p><b>Default:</b> Secure Shell daemon (sshd) is started.</p>'
+echo '                    <p>To decrease access to pCP and increase security you can disable SSH.</p>'
+echo '                    <p>SSH will start automatically if an ssh file is found in the pCP boot partition.</p>'
+echo '                    <p>A reboot required to activate new setting.</p>'
+echo '                  </div>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
+                      if [ $SSH_FOUND -eq 0 ]; then
+echo '                  <input type="submit" name="ACTION" value="Enable SSH">'
+                      else
+echo '                  <input type="submit" name="ACTION" value="Disable SSH">'
+                      fi
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
+echo '            </table>'
+echo '          </form>'
+echo '        </fieldset>'
+echo '      </div>'
+echo '    </td>'
+echo '  </tr>'
+echo '</table>'
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Change Password Section
@@ -44,7 +237,7 @@ pcp_security_check_password() {
 pcp_security_change_password() {
 	pcp_table_top "Changing password"
 	pcp_security_check_password
-	
+
 	if [ "$NEWPASSWORD" = "$CONFIRMPASSWORD" ]; then
 		if [ $DEBUG -eq 1 ]; then
 			pcp_message INFO "NEWPASSWORD: $NEWPASSWORD" "html"
@@ -83,9 +276,6 @@ pcp_security_get_currentpasswdhash() {
 	SALT=$(echo $CURRENTPASSWDHASH | cut -d$ -f3)
 }
 
-#pcp_security_get_currentpasswdhash
-#DEFAULTPASSWDHASH=$(pcp_security_passwd_hash "$DEFAULTPASSWD")
-
 case $ACTION in
 	SavePW)
 		pcp_security_change_password
@@ -117,33 +307,30 @@ echo '</script>'
 COLUMN1="column200"
 COLUMN2="column210"
 #========================================================================================
-# Main password HTML
+# password main
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Password</legend>'
+echo '          <legend>Change password</legend>'
 #----------------------------------------------------------------------------------------
 
 #-----------------------------------Password---------------------------------------------
-# Note: changing passwords through a script over http is not very secure.
-#----------------------------------------------------------------------------------------
 echo '          <form name="password" action="'$0'" method="get">'
 echo '            <table class="bggrey percent100">'
-pcp_start_row_shade
 if [ "$CURRENTPASSWDHASH" = "$(pcp_security_passwd_hash "$DEFAULTPASSWD")" ]; then
 	echo '              <tr class="warning">'
 	echo '                <td>'
 	echo '                  <div style="color:white">'
-	echo '                    <p><b>WARNING: </b>Using default password.</p>'
+	echo '                    <p><b>WARNING: </b>Using piCorePlayer default password.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	pcp_table_padding
 fi
-pcp_toggle_row_shade
+pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="'$COLUMN1'">Change password for "'$(pcp_tc_user)'"</td>'
 echo '                <td class="'$COLUMN2'">'
@@ -212,137 +399,10 @@ echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
 
-#========================================================================================
-# SSH
-#----------------------------------------------------------------------------------------
-# Start openssh if file ssh found. $SSH set in NEWCONFIGFOUND process.
-#----------------------------------------------------------------------------------------
-pcp_ssh_start() {
-	/usr/local/etc/init.d/openssh start >/dev/null 2>&1
-}
-
-pcp_ssh_stop() {
-	/usr/local/etc/init.d/openssh stop >/dev/null 2>&1
-}
-
-pcp_ssh_status() {
-	sudo /usr/local/etc/init.d/openssh status
-	RESULT=$?
-}
-
-BOOTDEVLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
-
-COLUMN1="column210"
-COLUMN2="column210"
-COLUMN3="column210"     #<======= GE
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>ssh</legend>'
-echo '          <form name="ssh" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p>'$(pcp_ssh_status)'</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-pcp_ssh_status >/dev/null 2>&1
-echo '                  <p>Error result: '$RESULT'</p>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-pcp_incr_id
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p>Boot device</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <select name="BOOTDEV">'
-for DEV in $BOOTDEVLIST;
-do
-echo '                    <option value="'$DEV'">'$DEV'</option>'
-done
-echo '                  </select>'
-echo '                </td>'
-echo '                <td class="'$COLUMN3'">'
-echo '                  <p>Select boot device&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>sd[a-z]1|mmcblk0p1</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </form>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Web GUI</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <tr>'
-echo '              <td>'
-
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-#----------------------------------------------------------------------------------------
-
-#https://forums.slimdevices.com/showthread.php?109777-Starting-piCorePlayer-without-on-screen-console-messages-possible
-
-#logo.nologo  <==== Raspberry Pi logo
-#console=tty3 <==== Redirect to nowhere
-#disable_splash=1 in config.txt <==== splash screen
-
-#/opt/bootlocal.sh
-
-#pCPstart------
-#/home/tc/www/cgi-bin/pcp_startup.sh 2>&1 | tee -a /var/log/pcp_boot.log
-#/home/tc/www/cgi-bin/pcp_startup.sh > /var/log/pcp_boot.log 2>&1
-#pCPstop------
-
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Quiet boot</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <tr>'
-echo '              <td>'
-
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-#----------------------------------------------------------------------------------------
-
 pcp_footer
 pcp_copyright
+pcp_remove_query_string
+[ $REBOOT_REQUIRED ] && pcp_reboot_required
 
 echo '</body>'
 echo '</html>'

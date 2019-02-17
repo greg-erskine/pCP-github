@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-01-23
+# Version: 4.2.0 2019-02-16
 
 BACKUP=0
 # Read from pcp-functions file
@@ -697,10 +697,36 @@ if [ "$SAMBA" = "yes" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+#========================================================================================
+# Start httpd server
+#----------------------------------------------------------------------------------------
+STOP_HTTPD_SH="/tmp/stop_httpd.sh"
+
+pcp_create_stop_http() {
+	sudo cat <<EOF > $STOP_HTTPD_SH
+#!/bin/sh
+
+sleep $GUI_DISABLE
+sudo /usr/local/etc/init.d/httpd stop >/dev/null 2>&1
+sudo su -c 'echo "httpd stopped." > /dev/kmsg'
+EOF
+
+	sudo chmod u=rwx,og=rx $STOP_HTTPD_SH
+}
+
 echo -n "${BLUE}Starting httpd web server...${NORMAL}"
-/usr/local/etc/init.d/httpd start >/dev/null 2>&1
+if [ $GUI_DISABLE -ne 1 ]; then
+	/usr/local/etc/init.d/httpd start >/dev/null 2>&1
+	if [ $GUI_DISABLE -ge 20 ]; then
+		pcp_create_stop_http
+		eval "$STOP_HTTPD_SH" &
+	fi
+fi
 echo "${GREEN}Done.${NORMAL}"
 
+#========================================================================================
+# Run user commands
+#----------------------------------------------------------------------------------------
 if [ x"" != x"$USER_COMMAND_1" ] || [ x"" != x"$USER_COMMAND_2" ] || [ x"" != x"$USER_COMMAND_3" ]; then
 	echo -n "${BLUE}Starting user commands...${NORMAL}"
 	pcp_user_commands
