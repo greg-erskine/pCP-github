@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2018-12-22
+# Version: 5.0.0 2019-01-17
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -48,6 +48,10 @@ case "${VERSION}" in
 	piCorePlayer4.0.*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=26900
+	;;
+	piCorePlayer5.0.*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=27700
 	;;
 	*)
 		SPACE_REQUIRED=15000
@@ -194,12 +198,12 @@ pcp_get_kernel_modules() {
 			PICOREVERSION=9.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 		;;
-		piCorePlayer4.2.0*)
+		piCorePlayer5.0.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.19.17-rt12;;
-				*) NEWKERNELVER=4.19.17;;
+				*pcpAudioCore*) NEWKERNELVER=4.19.20-rt12;;
+				*) NEWKERNELVER=4.19.20;;
 			esac
 			PICOREVERSION=10.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -230,8 +234,8 @@ pcp_get_kernel_modules() {
 			# Get list of kernel modules not matching new kernel
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
 			
-			if [ $MAJOR_VERSION -ge 4 ]; then
-				if [ $MINOR_VERSION -ge 2 ]; then
+			if [ $MAJOR_VERSION -ge 5 ]; then
+				if [ $MINOR_VERSION -ge 0 ]; then
 					#irda changes to media-rc in >4.2.0
 					sed -s 's/irda/media-rc/' /tmp/current
 				fi
@@ -482,8 +486,9 @@ pcp_finish_install() {
 	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
-	case "${VERSION}" in
-		piCorePlayer4.*)
+
+	if [ $MAJOR_VERSION -ge 4 ]; then
+		if [ $MINOR_VERSION -ge 0 ]; then
 			#>pcp4.0.0 wifi is changed.
 			echo "Removing old boot extensions from onboot.lst:"
 			pcp_update_onbootlst "del" "wifi.tcz"
@@ -494,19 +499,22 @@ pcp_finish_install() {
 				pcp_update_onbootlst "add" "wireless_tools.tcz"
 				pcp_update_onbootlst "add" "wpa_supplicant.tcz"
 			fi
-		;;
-		piCorePlayer4.1.*)
+		fi
+		if [ $MINOR_VERSION -ge 1 ]; then
 			pcp_update_onbootlst "del" "busybox-httpd.tcz"
 			rm -f ${PACKAGEDIR}/busybox-httpd.*
 			if [ "$WIFI" = "on" ]; then
 				pcp_update_onbootlst "add" "crda.tcz"
 			fi
-		;;
-		piCorePlayer4.2.*)
+		fi
+	fi
+	if [ $MAJOR_VERSION -ge 5 ]; then
+		if [ $MINOR_VERSION -ge 0 ]; then
 			sed -i 's/firmware-rpi3-wireless/firmware-rpi-wifi/' $ONBOOTLST
 			rm -f ${PACKAGEDIR}/firmware-rpi3-wireless.*
-		;;
-	esac
+		fi
+	fi
+
 	echo "content of mnt onboot.lst after:"; cat $ONBOOTLST
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
@@ -516,8 +524,8 @@ pcp_finish_install() {
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst > /opt/.filetool.lst
 	sudo chown root:staff /opt/.filetool.lst
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
-	case "${VERSION}" in
-		piCorePlayer4.*)
+	if [ $MAJOR_VERSION -ge 4 ]; then
+		if [ $MINOR_VERSION -ge 0 ]; then
 			echo "Updating .filetool.lst :"
 			sed -i '/etc\/motd/d' /opt/.filetool.lst
 			sed -i '/etc\/sysconfig\/wifi-wpadrv/d' /opt/.filetool.lst
@@ -530,8 +538,8 @@ pcp_finish_install() {
 			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
 			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
 			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
-		;;
-	esac
+		fi
+	fi
 
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
