@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-02-09
+# Version: 4.2.0 2019-02-21
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
@@ -28,6 +28,7 @@ pcp_debug_info
 #========================================================================================
 # Set variables
 #----------------------------------------------------------------------------------------
+cd /tmp
 TCELOAD="tce-load"
 EXTNFOUND=0
 LOG="${LOGDIR}/pcp_extensions.log"
@@ -35,13 +36,16 @@ PCP_REPO=${PCP_REPO}/
 TAGS_PCP_DB="/tmp/tags_pcp.db"
 TAGS_PICORE_DB="/tmp/tags_picore.db"
 
+SIZELIST_PCP="/tmp/sizelist_pcp"
+SIZELIST_PICORE="/tmp/sizelist_picore"
+
 #========================================================================================
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
 	echo '<!-- Start of debug info -->'
 	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR PICORE_REPO_1 \
-	PICORE_REPO_2 PCP_REPO CALLED_BY EXTNFOUND
+	PICORE_REPO_2 PCP_REPO CALLED_BY EXTNFOUND KERNELVER
 	echo '<!-- End of debug info -->'
 }
 
@@ -49,6 +53,7 @@ pcp_debug_info() {
 # Generate extensions report
 #----------------------------------------------------------------------------------------
 pcp_generate_report() {
+	ORIG_PWD=$PWD
 	(echo $0; date) > $LOG
 	cat /etc/motd >>$LOG
 	echo "" >>$LOG
@@ -57,6 +62,7 @@ pcp_generate_report() {
 	pcp_write_to_log "Downloaded extensions" "cd $PACKAGEDIR; ls *.tcz | sort -f"
 	pcp_write_to_log "onboot.lst" "cat $ONBOOTLST"
 	pcp_write_to_log "Extension dependency tree" "pcp_full_dependency_tree text"
+	cd $ORIG_PWD
 }
 
 #========================================================================================
@@ -74,14 +80,14 @@ pcp_search_extn() {
 pcp_find_extn() {
 	EXTNFOUND=0
 	EXTN="${EXTN%.tcz}.tcz"
-	if grep -q ${EXTN} $TAGS_PCP_DB; then
-		DB="$TAGS_PCP_DB"
-		MYMIRROR=$PCP_REPO
-		EXTNFOUND=1
-	fi
 	if grep -q ${EXTN} $TAGS_PICORE_DB; then
 		DB="$TAGS_PICORE_DB"
 		MYMIRROR=$PICORE_REPO_1
+		EXTNFOUND=1
+	fi
+	if grep -q ${EXTN} $TAGS_PCP_DB; then
+		DB="$TAGS_PCP_DB"
+		MYMIRROR=$PCP_REPO
 		EXTNFOUND=1
 	fi
 	pcp_set_repository
@@ -165,6 +171,10 @@ pcp_init_search() {
 		echo $PICORE_REPO_1 > /opt/tcemirror
 		search.sh picoreplayer
 		sudo mv /tmp/tags.db $TAGS_PICORE_DB
+
+#		tce-size picoreplayer
+#		sudo mv /tmp/sizelist $SIZELIST_PICORE
+
 	fi
 
 	ANSWER=$(find $TAGS_PCP_DB -mmin $MINUTES)
@@ -172,7 +182,14 @@ pcp_init_search() {
 		echo $PCP_REPO > /opt/tcemirror
 		search.sh picoreplayer
 		sudo mv /tmp/tags.db $TAGS_PCP_DB
+
+		tce-size picoreplayer
+		sudo mv /tmp/sizelist $SIZELIST_PCP
+
 	fi
+
+#	cat $SIZELIST_PICORE > /tmp/sizelist
+#	cat $SIZELIST_PCP >> /tmp/sizelist
 
 	echo $ORIG_MYMIRROR > /opt/tcemirror
 }
@@ -183,8 +200,8 @@ pcp_init_search() {
 #----------------------------------------------------------------------------------------
 pcp_cleanup() {
 #	rm -f /tmp/tags.db
-	rm -f /tmp/*.tree
-	rm -f /tmp/sizelist
+	rm -f /tmp/*.treeXXX
+	rm -f /tmp/sizelistXXX
 }
 
 #========================================================================================
@@ -238,7 +255,7 @@ pcp_display_info() {
 		sudo -u tc tce-fetch.sh "${EXTN}.info"
 		if [ $? -eq 0 ]; then
 			cat "${EXTN}.info"
-			rm -f "${EXTN}.info"
+#			rm -f "${EXTN}.info"
 		else
 			echo "${EXTN}.info not found!"
 		fi
@@ -249,7 +266,7 @@ pcp_display_depends() {
 	sudo -u tc tce-fetch.sh "${EXTN}.dep"
 	if [ $? -eq 0 ]; then
 		cat "${EXTN}.dep"
-		rm -f "${EXTN}.dep"
+#		rm -f "${EXTN}.dep"
 	else
 		echo "${EXTN}.dep not found!"
 	fi
@@ -259,12 +276,13 @@ pcp_display_tree() {
 	sudo -u tc tce-fetch.sh "${EXTN}.tree"
 	if [ $? -eq 0 ]; then
 		cat "${EXTN}.tree"
-		rm -f "${EXTN}.tree"
+#		rm -f "${EXTN}.tree"
 	else
 		echo "${EXTN}.tree not found!"
 	fi
 }
 
+# Downloads sizelist
 pcp_display_size() {
 	sudo -u tc tce-size "$EXTN"
 }
@@ -273,7 +291,7 @@ pcp_display_files() {
 	sudo -u tc tce-fetch.sh "${EXTN}.list"
 	if [ $? -eq 0 ]; then
 		cat "${EXTN}.list"
-		rm -f "${EXTN}.list"
+#		rm -f "${EXTN}.list"
 	else
 		echo "${EXTN}.list not found!"
 	fi
@@ -701,8 +719,8 @@ pcp_show_installed_extns() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Update">'
+#	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+#	echo '                  <input type="submit" name="SUBMIT" value="Update">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 	echo '                  <input type="hidden" name="CALLED_BY" value="Installed">'
 	echo '                  <input type="hidden" name="DB" value="'$DB'">'
@@ -765,8 +783,8 @@ pcp_show_uninstalled_extns() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Install">'
+#	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+#	echo '                  <input type="submit" name="SUBMIT" value="Install">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 	echo '                  <input type="hidden" name="CALLED_BY" value="Uninstalled">'
 	echo '                  <input type="hidden" name="DB" value="'$DB'">'
@@ -827,14 +845,14 @@ pcp_show_downloaded_extns() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="hidden" name="CALLED_BY" value="Downloaded">'
-	echo '                  <input type="hidden" name="DB" value="'$DB'">'
-	echo '                </td>'
-	echo '              </tr>'
+#	pcp_toggle_row_shade
+#	echo '              <tr class="'$ROWSHADE'">'
+#	echo '                <td colspan="3">'
+#	echo '                  <input type="submit" name="SUBMIT" value="Info">'
+#	echo '                  <input type="hidden" name="CALLED_BY" value="Downloaded">'
+#	echo '                  <input type="hidden" name="DB" value="'$DB'">'
+#	echo '                </td>'
+#	echo '              </tr>'
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -935,15 +953,15 @@ case "$CALLED_BY" in
 	Installed)
 		pcp_show_installed_extns
 		case "$SUBMIT" in
-			Info) pcp_find_extn; pcp_display_information;;
-			Update) pcp_update_extn;;
+#			Info) pcp_find_extn; pcp_display_information;;
+#			Update) pcp_update_extn;;
 			Delete) pcp_delete_extn;;
 		esac
 	;;
 	Uninstalled)
 		pcp_show_uninstalled_extns
 		case "$SUBMIT" in
-			Info) pcp_find_extn; pcp_display_information;;
+#			Info) pcp_find_extn; pcp_display_information;;
 			Install) pcp_install_extn;;
 			Delete) pcp_delete_extn;;
 		esac
@@ -951,7 +969,7 @@ case "$CALLED_BY" in
 	Downloaded)
 		pcp_show_downloaded_extns
 		case "$SUBMIT" in
-			Info) pcp_find_extn; pcp_display_information;;
+#			Info) pcp_find_extn; pcp_display_information;;
 			Delete) pcp_delete_extn;;
 		esac
 	;;
