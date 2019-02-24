@@ -237,7 +237,7 @@ pcp_get_kernel_modules() {
 			if [ $MAJOR_VERSION -ge 5 ]; then
 				if [ $MINOR_VERSION -ge 0 ]; then
 					#irda changes to media-rc in >4.2.0
-					sed -s 's/irda/media-rc/' /tmp/current
+					sed -i 's/irda/media-rc/' /tmp/current
 				fi
 			fi
 			
