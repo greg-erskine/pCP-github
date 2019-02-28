@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-18
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 [ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions

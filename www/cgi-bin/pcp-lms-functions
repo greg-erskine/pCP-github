@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 4.1.0 2018-10-07
+# Version: 5.0.0 2019-03-01
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.0.0 2019-03-01
 
 #========================================================================================
 # This script checks for required extensions in repositories.

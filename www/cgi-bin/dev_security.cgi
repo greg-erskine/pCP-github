@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-02-17
+# Version: 5.0.0 2019-03-01
 
 # Title: Security
 # Description: Security related configuration
