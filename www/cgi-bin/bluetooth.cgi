@@ -360,7 +360,7 @@ pcp_bt_startstop() {
 	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_BT'/>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Start Bluetooth Connect Daemon on pCP&nbsp;&nbsp;'
+	echo '                  <p>Start Bluetooth Connect Daemon on pCP. To enable build-in bluetooth go to <a href="wifi.cgi">Wifi Page</a> first&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
