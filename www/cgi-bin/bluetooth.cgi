@@ -63,7 +63,7 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_table_top "Downloading Bluetooth"
-		pcp_sufficient_free_space 4500
+		pcp_sufficient_free_space 17000
 		if [ $? -eq 0 ] ; then
 			echo '                <textarea class="inform" style="height:160px">'
 			pcp_install_bt
