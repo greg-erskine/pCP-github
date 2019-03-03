@@ -255,6 +255,7 @@ pcp_bt_status_indicators() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
+	[ "$PWR_STATUS" = "Off" ] && pcp_showmore $ID
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -360,7 +361,7 @@ pcp_bt_startstop() {
 	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_BT'/>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Start Bluetooth Connect Daemon on pCP. To enable build-in bluetooth go to <a href="wifi.cgi">Wifi Page</a> first&nbsp;&nbsp;'
+	echo '                  <p>Start Bluetooth Connect Daemon on pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
