@@ -1,7 +1,7 @@
 #!/bin/sh
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-05
+# Version: 5.0.0 2019-03-03
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -34,7 +34,7 @@ ACTUAL_ONBOARD_STATUS=$?
 
 #========================================ACTIONS=========================================
 case "$ACTION" in
-	Test)
+	Save)
 		#Special case for rpi card to allow for setting 0db
 		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
 			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
@@ -77,16 +77,7 @@ case "$ACTION" in
 		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		#--------------------------------------------------------------------------------
 		pcp_generic_card_control
-	;;
-	Save)
-		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
-			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
-		else
-			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
-		fi
-		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
-		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
-		pcp_generic_card_control
+
 		AUDIO="$ORIG_AUDIO"
 		OUTPUT="$ORIG_OUTPUT"
 		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
@@ -396,9 +387,6 @@ pcp_volume_filter_buttons() {
 		pcp_incr_id
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="column120 center">'
-		echo '                <button type="submit" name="ACTION" value="Test">Set Mixer</button>'
-		echo '              </td>'
-		echo '              <td class="column120 center">'
 		echo '                <input type="submit" name="ACTION" value="Save">'
 		echo '              </td>'
 		echo '              <td class="column120 center">'
@@ -416,7 +404,6 @@ pcp_volume_filter_buttons() {
 		echo '                <div id="'$ID'" class="less">'
 		echo '                  <p>Use above control(s) to set the ALSA mixer, then</p>'
 		echo '                  <ul>'
-		echo '                    <li><b>Set Mixer</b> - The above value(s) will be written to ALSA, so you can hear the changes.</li>'
 		echo '                    <li><b>Save</b> - The output setting(s) are saved up to make them available after a reboot.</li>'
 		echo '                    <li><b>0dB</b> - Set output level to 0dB.</li>'
 		if [ $CARD = "ALSA" ]; then
@@ -450,7 +437,7 @@ pcp_soundcard_parameter_options() {
 		done
 		#--------------------------------------------------------------------------------
 		pcp_table_middle
-		echo '                <input type="submit" name="ACTION" value="Select">'
+		echo '                <button type="submit" name="ACTION" value="Select">Save</button>'
 	fi
 
 	if [ x"$TEXT1" != x ]; then
