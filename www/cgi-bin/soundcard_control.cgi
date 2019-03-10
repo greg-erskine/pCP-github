@@ -1,7 +1,6 @@
 #!/bin/sh
-#!/bin/sh
 
-# Version: 5.0.0 2019-03-03
+# Version: 5.0.0 2019-03-10
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -41,7 +40,7 @@ case "$ACTION" in
 		else
 			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
 		fi
-		
+
 		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
 
 		if [ x"$SMCFILTER1" = x"" ]; then
