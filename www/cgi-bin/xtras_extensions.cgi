@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.2.0 2019-02-21
+# Version: 5.0.0 2019-03-10
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
@@ -183,8 +183,8 @@ pcp_init_search() {
 		search.sh picoreplayer
 		sudo mv /tmp/tags.db $TAGS_PCP_DB
 
-		tce-size picoreplayer
-		sudo mv /tmp/sizelist $SIZELIST_PCP
+#		tce-size picoreplayer
+#		sudo mv /tmp/sizelist $SIZELIST_PCP
 
 	fi
 
@@ -199,9 +199,9 @@ pcp_init_search() {
 # Note: Temporary files are written to /tmp so they will be deleted by a reboot.
 #----------------------------------------------------------------------------------------
 pcp_cleanup() {
-#	rm -f /tmp/tags.db
-	rm -f /tmp/*.treeXXX
-	rm -f /tmp/sizelistXXX
+	rm -f /tmp/tags.db
+	rm -f /tmp/*.tree
+	rm -f /tmp/sizelist
 }
 
 #========================================================================================
@@ -233,9 +233,9 @@ pcp_information_message() {
 	echo '                <p><b>Extensions</b> can be:</p>'
 	echo '                <ul>'
 	echo '                  <li><b>Available</b> - the extension is available for download from the above repositories.</li>'
-	echo '                  <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
-	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
-	echo '                  <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
+#	echo '                  <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
+#	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
+#	echo '                  <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -251,7 +251,6 @@ pcp_information_message() {
 # The following section of code is based on piCore tce-ab script
 #----------------------------------------------------------------------------------------
 pcp_display_info() {
-#	if [ -n "$EXTN" ]; then
 		sudo -u tc tce-fetch.sh "${EXTN}.info"
 		if [ $? -eq 0 ]; then
 			cat "${EXTN}.info"
@@ -259,7 +258,6 @@ pcp_display_info() {
 		else
 			echo "${EXTN}.info not found!"
 		fi
-#	fi
 }
 
 pcp_display_depends() {
@@ -917,7 +915,8 @@ echo '<!-- Start of pcp_extension_tabs toolbar -->'
 echo '<p style="margin-top:8px;">'
 
 [ x"" = x"$CALLED_BY" ] && CALLED_BY="Information"
-for tab in Information Available  Installed Uninstalled Downloaded onboot.lst; do
+#for tab in Information Available Installed Uninstalled Downloaded onboot.lst; do
+for tab in Information Available onboot.lst; do
 	[ "$tab" = "$CALLED_BY" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
 	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='$tab'" title="'$tab'">'$tab'</a>'
 done
