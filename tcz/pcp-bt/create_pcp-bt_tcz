@@ -16,7 +16,7 @@ find -type d | xargs chmod -v 755
 find * -not -type d > ${BASEWD}/${TCZ}.list
 cd ..
 
-mksquashfs ${EXT} ${TCZ} -all-root -noappend 2>&1 >/dev/null
+mksquashfs ${EXT} ${TCZ} -noappend 2>&1 >/dev/null
 md5sum ${TCZ} > ${TCZ}.md5.txt
 
 echo "$EXT contains"
