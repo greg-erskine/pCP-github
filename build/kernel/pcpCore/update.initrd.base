@@ -70,3 +70,5 @@ chmod 755 ${INITRD}/etc/init.d/tc-config
 echo "Replacing tce*"
 cp -f $CORE_SCRIPTS/usr/bin/tce* ${INITRD}/usr/bin
 chmod 755 ${INITRD}/usr/bin/tce*
+
+rm -f ${INITRD}/etc/motd

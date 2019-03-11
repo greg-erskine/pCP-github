@@ -87,6 +87,9 @@ fi
 
 OLDKERNEL=$(ls $INITRDWRK/lib/modules)
 
+# Update the initrd from busybox/kmod/Core-Scripts
+sudo $BASEWD/../update.initrd.base
+
 echo "*****************************************************************"
 echo "Unpacked initrd is located $INITRDWRK"
 echo "Kernel in the base initrd is $OLDKERNEL"
