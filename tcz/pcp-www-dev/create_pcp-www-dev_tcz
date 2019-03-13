@@ -1,0 +1,62 @@
+#!/bin/bash
+
+VERSION=5.0.0
+PCVERSION=10.x
+
+BASEWD=$(pwd)
+EXT="pcp-www-dev"
+TCZ=${EXT}.tcz
+TCZINFO=${TCZ}.info
+TEMPDIR="${EXT}/home/tc/www/cgi-bin"
+
+
+echo "copying dev_* to tmp"
+mkdir -p $TEMPDIR
+cp ../../www/cgi-bin/dev_*.* $TEMPDIR
+
+echo "fixing directory access rights"
+cd $TEMPDIR
+find * -not -type d | xargs chmod -v 755
+find * -not -type d | xargs dos2unix
+find * -not -type d > ${BASEWD}/${TCZ}.list
+cd ${BASEWD}
+
+mksquashfs ${BASEWD}/${EXT} ${TCZ} -all-root -noappend 2>&1 >/dev/null
+
+cd ${BASEWD}
+md5sum ${TCZ} > ${TCZ}.md5.txt
+
+echo "$EXT contains"
+unsquashfs -ll ${TCZ}
+
+echo -e "Title:          $TCZ" > $TCZINFO
+echo -e "Description:    piCorePlayer Development Scripts." >> $TCZINFO
+echo -e "Version:        $VERSION" >> $TCZINFO
+echo -e "Author:         Various, see script files" >> $TCZINFO
+echo -e "Original-site:" >> $TCZINFO
+echo -e "Copying-policy: See scripts for details" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
+echo -e "Extension_by:   piCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore $PCVERSION" >> $TCZINFO
+
+echo
+
+rm -rf ${BASEWD}/${EXT}
+
+while true; do
+   read -p "Do you want to upload to image and repo directories [y/n]? " yn
+   case $yn in
+      [Yy]* ) break;;
+      [Nn]* ) exit 0;;
+      * ) echo "Please answer yes or no.";;
+   esac
+done
+
+IMAGEPATH="${BASEWD}/../../build/tcz-for-img"
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/${PCVERSION}"
+ARMV6="$REPOPATH/armv6/tcz"
+ARMV7="$REPOPATH/armv7/tcz"
+
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $IMAGEPATH
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV6
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV7
