@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TCZ=pcp-base.tcz
-TCZINFO=${TCZ}.info
+#TCZ=pcp-base.tcz
+#TCZINFO=${TCZ}.info
 VERSION=5.0.0
 
 
@@ -35,7 +35,7 @@ echo -e "Version:        $VERSION" >> $TCZINFO
 echo -e "Author:         Various, see script files" >> $TCZINFO
 echo -e "Original-site:" >> $TCZINFO
 echo -e "Copying-policy: See scripts for details" >> $TCZINFO
-echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
 echo -e "Extension_by:   piCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
 echo -e "Comments:       Compiled for piCore 10.x" >> $TCZINFO
 
