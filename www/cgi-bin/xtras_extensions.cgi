@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-10
+# Version: 5.0.0 2019-03-14
 
 #========================================================================================
 # This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
@@ -233,8 +233,8 @@ pcp_information_message() {
 	echo '                <p><b>Extensions</b> can be:</p>'
 	echo '                <ul>'
 	echo '                  <li><b>Available</b> - the extension is available for download from the above repositories.</li>'
-#	echo '                  <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
-#	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
+	echo '                  <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
+	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
 #	echo '                  <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
 	echo '                </ul>'
 	echo '              </td>'
@@ -697,18 +697,19 @@ pcp_show_installed_extns() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>List of installed extensions&nbsp;&nbsp;'
+	echo '                  <p>List of '$(tce-status -i | wc -l)' installed extensions&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
 	echo '                      <li>Lists all extensions that are currently installed.</li>'
 	echo '                      <li>These extensions are usually loaded at boot via '$ONBOOTLST'.</li>'
+	echo '                      <li>There are '$(find /usr/local/tce.installed -not -type d | wc -l)' extensions in the tce.installed directory.</li>'
 	echo '                    </ul>'
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
-	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
+#	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
+#	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
 	echo '                      <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -762,7 +763,7 @@ pcp_show_uninstalled_extns() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>List of uninstalled extensions&nbsp;&nbsp;'
+	echo '                  <p>List of '$(tce-status -u | wc -l)' uninstalled extensions&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -771,8 +772,8 @@ pcp_show_uninstalled_extns() {
 	echo '                    </ul>'
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
-	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-	echo '                      <li><b>[Install]</b> will install the extension.</li>'
+#	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
+#	echo '                      <li><b>[Install]</b> will install the extension.</li>'
 	echo '                      <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -916,7 +917,7 @@ echo '<p style="margin-top:8px;">'
 
 [ x"" = x"$CALLED_BY" ] && CALLED_BY="Information"
 #for tab in Information Available Installed Uninstalled Downloaded onboot.lst; do
-for tab in Information Available onboot.lst; do
+for tab in Information Available Installed Uninstalled onboot.lst; do
 	[ "$tab" = "$CALLED_BY" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
 	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='$tab'" title="'$tab'">'$tab'</a>'
 done
