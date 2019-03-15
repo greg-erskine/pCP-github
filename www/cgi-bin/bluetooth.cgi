@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-03-14
 
 . pcp-functions
 [ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
@@ -40,7 +40,7 @@ pcp_remove_bt() {
 	sed -i '/var\/lib\/bluetooth/d' /opt/.filetool.lst
 }
 
-pcp_bt_status(){
+pcp_bt_status() {
 	sudo $DAEMON_INITD status >/dev/null 2>&1
 	echo $?
 }
@@ -138,7 +138,7 @@ case "$ACTION" in
 		pcp_table_top "Bluetooth"
 		echo '                <textarea class="inform" style="height:40px">'
 		if [ ! -x $DAEMON_INITD ]; then
-			echo '[ INFO ] Loading pCP AP Mode extensions...'
+			echo '[ INFO ] Loading pCP AP Mode extensions...'	# <==GE AP Mode ???
 			sudo -u tc tce-load -i pcp-bt.tcz
 		fi
 		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
@@ -161,12 +161,12 @@ case "$ACTION" in
 		pcp_table_top "Update Bluetooth"
 		pcp_sufficient_free_space 4500
 		echo '                <textarea class="inform" style="height:100px">'
-		echo '[ INFO ] Updating AP Mode Extensions...'
+		echo '[ INFO ] Updating AP Mode Extensions...'	# <==GE AP Mode ???
 		sudo -u tc pcp-update pcp-bt.tcz
 		case $? in
 			0) echo '[ INFO ] Reboot Required to finish update'; REBOOT_REQUIRED=1;;
-			2) echo '[ INFO ] No Update Availiable';;
-			*) echo '[ ERROR] Try again later';;
+			2) echo '[ INFO ] No Update Available';;
+			*) echo '[ ERROR ] Try again later';;
 		esac
 		echo '                </textarea>'
 		pcp_table_end
@@ -187,7 +187,7 @@ echo '        <fieldset>'
 echo '          <legend>Bluetooth Speaker Setup</legend>'
 echo '          <table class="bggrey percent100">'
 
-#------------------------------------Indication--------------------------------------
+#------------------------------------Indication------------------------------------------
 if [ $(pcp_bt_power_status) -eq 0 ]; then
 	PWR_INDICATOR=$HEAVY_CHECK_MARK
 	PWR_CLASS="indicator_green"
@@ -216,9 +216,9 @@ else
 	DEV_STATUS="Not Connected"
 fi
 
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Determine state of check boxes.
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Function to check the radio button according to config file
 case "$APMODE" in
 	yes) APMODEyes="checked" ;;
@@ -249,8 +249,8 @@ pcp_bt_status_indicators() {
 	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Controller Power is off.</li>'
 	echo '                    <li>Controller address '$BTCONTROLLER
 	echo '                    <li>If the controller power remains off.</li>'
-	echo '                    <li>If using Rpi internal bluetooth, make sure controller is enabled on the <a href="wifi.cgi">Wifi Page</a></li>'
-	echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a></li>'
+	echo '                    <li>If using RPi built-in bluetooth, make sure controller is enabled on the <a href="wifi.cgi">Wifi Settings page</a>.</li>'
+	echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a>.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -340,7 +340,6 @@ pcp_bt_install() {
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-
 		echo '                    <p>This will remove Bluetooth extension and all the extra packages that were added.</p>'
 		echo '                  </div>'
 	fi
@@ -351,7 +350,7 @@ pcp_bt_install() {
 [ $MODE -ge $MODE_BETA ] && pcp_bt_install || pcp_bt_beta_mode_required
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Start and Stop BT Daemon---------------------
+#------------------------------------------Start and Stop BT Daemon----------------------
 pcp_bt_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -378,12 +377,12 @@ pcp_bt_startstop() {
 	echo '                  <input type="submit" name="ACTION" value="Stop" '$DISABLE_BT'/>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Stop Bluetooth Connect Daemon on pCP.&nbsp;&nbsp;'
+	echo '                  <p>Stop Bluetooth Connect Daemon on pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will restart the Bluetooth Connect Daemon on pCP.</p>'
-	echo '                    <p>It the speaker is already connected, this will not affect connection status/playback.</p>'
+	echo '                    <p>This will stop the Bluetooth Connect Daemon on pCP.</p>'
+	echo '                    <p>If the speaker is already connected, this will not affect connection status/playback.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -401,7 +400,7 @@ pcp_bt_startstop() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>This will restart the Bluetooth Connect Daemon on pCP.</p>'
-	echo '                    <p>It the speaker is already connected, this will not affect connection status/playback.</p>'
+	echo '                    <p>If the speaker is already connected, this will not affect connection status/playback.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -475,7 +474,7 @@ pcp_bt_scan() {
 	if [ -f /tmp/btscan.out ]; then
 		# Mark the currently paired device as selected.
 		sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
-		#Remove unneeded space
+		# Remove unneeded space
 		sed -i 's/ \#/\#/' /tmp/btscan.dd
 		PAIR_DISABLED=""
 	else
@@ -503,7 +502,7 @@ pcp_bt_scan() {
 		if [ "$BTNAME" != "" ]; then
 			echo '                  <p>Select device to pair. List also includes previously paired devices.</p>'
 		else
-			echo '                  <p>Run a Scan to Find Devices</p>'
+			echo '                  <p>Run a Scan to Find Devices.</p>'
 		fi
 		echo '                </td>'
 		echo '              </tr>'
@@ -521,7 +520,7 @@ pcp_bt_scan() {
 	if [ -f $PAIRED_LIST ]; then
 		# Mark the currently paired device as selected.
 		sed '/^'$BTDEVICE'/! s/selected/notselected/' < $PAIRED_LIST > /tmp/paired.dd
-		#Remove unneeded space
+		# Remove unneeded space
 		sed -i 's/ \#/\#/' /tmp/paired.dd
 		SELECT_DISABLED=""
 	else
@@ -542,14 +541,14 @@ pcp_bt_scan() {
 	echo '                </td>'
 	echo '                <td>'
 	if [ "$BTNAME" != "" ]; then
-		echo '                  <p>Select from previosly paired device to change output device.</p>'
+		echo '                  <p>Select from previously paired device to change output device.</p>'
 	else
-		echo '                  <p>Run a Scan to Find Devices</p>'
+		echo '                  <p>Run a Scan to Find Devices.</p>'
 	fi
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
-	
+
 	if [ -f /tmp/paired.dd ]; then
 		FORGET_DISABLED=""
 	else
@@ -573,8 +572,6 @@ pcp_bt_scan() {
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </form>'
-	
-	
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_scan
 
@@ -610,7 +607,6 @@ pcp_bt_logview() {
 }
 [ "$LOGSHOW" = "yes" ] && pcp_bt_logview
 #----------------------------------------------------------------------------------------
-
 
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode
