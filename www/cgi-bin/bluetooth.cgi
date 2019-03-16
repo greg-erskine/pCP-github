@@ -138,7 +138,7 @@ case "$ACTION" in
 		pcp_table_top "Bluetooth"
 		echo '                <textarea class="inform" style="height:40px">'
 		if [ ! -x $DAEMON_INITD ]; then
-			echo '[ INFO ] Loading pCP AP Mode extensions...'	# <==GE AP Mode ???
+			echo '[ INFO ] Loading pCP Bluetooth extensions...'
 			sudo -u tc tce-load -i pcp-bt.tcz
 		fi
 		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
@@ -161,7 +161,7 @@ case "$ACTION" in
 		pcp_table_top "Update Bluetooth"
 		pcp_sufficient_free_space 4500
 		echo '                <textarea class="inform" style="height:100px">'
-		echo '[ INFO ] Updating AP Mode Extensions...'	# <==GE AP Mode ???
+		echo '[ INFO ] Updating pCP Bluetooth Extensions...'
 		sudo -u tc pcp-update pcp-bt.tcz
 		case $? in
 			0) echo '[ INFO ] Reboot Required to finish update'; REBOOT_REQUIRED=1;;
