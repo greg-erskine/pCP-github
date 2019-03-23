@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-14
+# Version: 5.0.0 2019-03-23
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -40,7 +40,8 @@ pcp_re_enable_analog() {
 # Remove Audio dtoverlays
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
-	pcp_re_enable_analog
+	# If using an i2s card, don't change the onboard analog
+	[ $CARD = "ALSA" ] && pcp_re_enable_analog
 	# unset DTOVERLAY both the old one that is removed on chooseoutput.cgi and
 	# the one from pcp.cfg to clear all traces of audio dtoverlays
 	shini_parse ${DACLOCATION}/${ORIG_AUDIO}.conf
@@ -54,7 +55,8 @@ pcp_disable_i2s() {
 # Add Audio dtoverlays
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s() {
-	pcp_re_enable_analog
+	# If using an i2s card, don't change the onboard analog
+	[ $CARD = "ALSA" ] && pcp_re_enable_analog
 	pcp_selected_soundcontrol
 	[ x"$SPARAMS1" != x"" ] && PAR1=','"$SPARAMS1"'' || PAR1="$SPARAMS1"
 	[ x"$SPARAMS2" != x"" ] && PAR2=','"$SPARAMS2"'' || PAR2="$SPARAMS2"
