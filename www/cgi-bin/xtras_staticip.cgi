@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-08
+# Version: 5.0.0 2019-03-30
 
 #========================================================================================
 # This script sets a static IP.
@@ -36,13 +36,25 @@ pcp_httpd_query_string
 
 VALIDNETWORKS=$(ls /sys/class/net | sed '/^lo/d')
 
+#========================================================================================
+# Look for existing static IP script - if found, set $NETWORK to it
+#----------------------------------------------------------------------------------------
 if [ x"" = x"$NETWORK" ]; then
 	for i in $VALIDNETWORKS; do
 		[ -f "/opt/${i}.sh" ] && NETWORK="$i" && break
 	done
 fi
 
-[ x"" = x"$NETWORK" ] && NETWORK="eth0"
+#========================================================================================
+# If $NETWORK not set, set to default eth0 or wlan0
+#----------------------------------------------------------------------------------------
+if [ x"" = x"$NETWORK" ]; then
+	for i in $VALIDNETWORKS; do
+		NETWORK="$i"
+		break
+	done
+fi
+
 STATICIP="/opt/${NETWORK}.sh"
 
 #========================================================================================
@@ -205,8 +217,10 @@ pcp_set_defaults() {
 # Display variables debug information.
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	pcp_debug_variables "html" NETWORK IP BROADCAST NAMESERVER1 CLASS EXAMPLE1 EXAMPLE2 EXAMPLE3 EXAMPLE4 EXAMPLE5 EXAMPLE6 EXAMPLE7 EXAMPLE8 VALIDNETWORKS
-}
+	pcp_debug_variables "html" DHCP NETWORK IP BROADCAST NAMESERVER1 NAMESERVER2 CLASS \
+		EXAMPLE1 EXAMPLE2 EXAMPLE3 EXAMPLE4 EXAMPLE5 EXAMPLE6 EXAMPLE7 EXAMPLE8 \
+		VALIDNETWORKS
+} 
 
 #========================================================================================
 # Network tabs.
@@ -247,6 +261,7 @@ case "$SUBMIT" in
 	;;
 	Delete)
 		rm -f $STATICIP
+		pcp_backup #>/dev/null
 	;;
 	Defaults)
 		pcp_set_defaults
@@ -320,6 +335,7 @@ pcp_network_tabs
 
 COLUMN1="column150"
 COLUMN2="column240"
+#----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
