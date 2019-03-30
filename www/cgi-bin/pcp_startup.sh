@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-03-31
 
 BACKUP=0
 # Read from pcp-functions file
@@ -785,7 +785,7 @@ if [ "$JIVELITE" = "no" ]; then
 	echo "${BLUE}To setup piCorePlayer, use the web interface via a browser:${NORMAL}"
 	# Display the IP address.
 	ifconfig eth0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE} - http://$(pcp_eth0_ip)${NORMAL}"
-	ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE} - http:/$(pcp_wlan0_ip)${NORMAL}"
+	ifconfig wlan0 2>&1 | grep inet >/dev/null 2>&1 && echo "${BLUE} - http://$(pcp_wlan0_ip)${NORMAL}"
 	echo ""
 	echo "${BLUE}Press [Enter] to access console.${NORMAL}"
 	echo ""
