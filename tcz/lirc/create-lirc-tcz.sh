@@ -5,9 +5,12 @@ LIRCVERSION=0.9.0
 SRC=${LIRC}-$LIRCVERSION
 STARTDIR=`pwd`
 LOG=$STARTDIR/config.log
-OUTPUT=$STARTDIR/${LIRC}-build  
+OUTPUT=$STARTDIR/${LIRC}-build
+OUTPUTDEV=$STARTDIR/${LIRC}-build-dev
 TCZ=pcp-${LIRC}.tcz
 TCZINFO=pcp-${LIRC}.tcz.info
+TCZDEV=pcp-${LIRC}-dev.tcz
+TCZDEVINFO=pcp-${LIRC}-dev.tcz.info
 
 # Build requires these extra packages in addition to the raspbian 8.3 build tools
 #     sudo apt-get install squashfs-tools bsdtar
@@ -21,6 +24,10 @@ date > $LOG
 # Clean up
 if [ -d $OUTPUT ]; then
         sudo rm -rf $OUTPUT >> $LOG
+fi
+
+if [ -d $OUTPUTDEV ]; then
+        rm -rf $OUTPUTDEV >> $LOG
 fi
 
 if [ -d $SRC ]; then
@@ -65,6 +72,10 @@ if [ -f $TCZ ]; then
         rm $TCZ >> $LOG
 fi
 
+if [ -f $TCZDEV ]; then
+        rm $TCZDEV >> $LOG
+fi
+
 mkdir -p $OUTPUT/usr/local/etc/lirc >> $LOG
 mkdir -p $OUTPUT/usr/local/share/lirc/files >> $LOG
 mkdir -p $OUTPUT/usr/local/tce.installed >> $LOG
@@ -90,8 +101,11 @@ cp -p $STARTDIR/lircd.conf $OUTPUT/usr/local/share/lirc/files
 cp -p $STARTDIR/lircd-jivelite $OUTPUT/usr/local/share/lirc/files
 cp -p $STARTDIR/lircd-jivelite-RMTD116A $OUTPUT/usr/local/share/lirc/files
 
-rm $OUTPUT/usr/local/lib/liblirc_client.la
-mv $OUTPUT/usr/local/lib/liblirc_client.a $STARTDIR/
+mkdir -p $OUTPUTDEV/usr/local/lib
+mkdir -p $OUTPUTDEV/usr/local/include
+cp -pr $STARTDIR/$SRC/pkg/usr/local/include/* $OUTPUTDEV/usr/local/include
+mv $OUTPUT/usr/local/lib/liblirc_client.la $OUTPUTDEV/usr/local/lib
+mv $OUTPUT/usr/local/lib/liblirc_client.a $OUTPUTDEV/usr/local/lib
 
 sudo chown -Rh root:root usr >> $LOG
 sudo chown tc:staff usr/local/etc/lirc >> $LOG
@@ -100,6 +114,9 @@ sudo chown tc:staff usr/local/share/lirc/files/* >> $LOG
 sudo chmod 664 usr/local/share/lirc/files/* >> $LOG
 
 sudo chown root:root $OUTPUT
+
+cd $OUTPUT >> $LOG
+find * -not -type d > $STARTDIR/${TCZ}.list
 
 cd $STARTDIR
 mksquashfs $OUTPUT $TCZ >> $LOG
@@ -112,8 +129,23 @@ echo -e "Author:\t\tAlec Leamas" >> $TCZINFO
 echo -e "Original-site:\thttp://www.lirc.org" >> $TCZINFO
 echo -e "Copying-policy:\tGPL" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
 echo -e "Tags:\tIR remote control" >> $TCZINFO
-echo -e "Comments:\tBinaries only" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
-echo -e "Change-log:\t$(cat README.md)" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZINFO
+
+cd $OUTPUTDEV >> $LOG
+find * -not -type d > $STARTDIR/${TCZDEV}.list
+
+cd $STARTDIR
+mksquashfs $OUTPUTDEV $TCZDEV -all-root >> $LOG
+md5sum $TCZDEV > ${TCZDEV}.md5.txt
+
+echo -e "Title:\t\t$TCZDEV" > $TCZDEVINFO
+echo -e "Description:\tLIRC remote control development files" >> $TCZDEVINFO
+echo -e "Version:\t$LIRCVERSION" >> $TCZDEVINFO
+echo -e "Author:\t\tAlec Leamas" >> $TCZDEVINFO
+echo -e "Original-site:\thttp://www.lirc.org" >> $TCZDEVINFO
+echo -e "Copying-policy:\tGPL" >> $TCZDEVINFO
+echo -e "Size:\t\t$(ls -lk $TCZDEV | awk '{print $5}')k" >> $TCZDEVINFO
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZDEVINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZDEVINFO
