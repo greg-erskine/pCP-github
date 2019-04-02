@@ -9,12 +9,12 @@ echo "Using $2 for DESTDIR"
 
 cd $1
 
-export CFLAGS="-march=armv6 -mfloat-abi=hard -mfpu=vfp -s"
+export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard -s"
 
 ./configure \
     --prefix=/usr/local \
     --disable-debug \
-    --disable-static \
+    --enable-static \
     --disable-avresample \
     --disable-dxva2 \
     --disable-fontconfig \
@@ -61,6 +61,4 @@ export CFLAGS="-march=armv6 -mfloat-abi=hard -mfpu=vfp -s"
 
 make -j 4 || return 1
 
-#make DESTDIR=$1 install-headers
-#make DESTDIR=$1 install-libs
 make DESTDIR=$2 install
