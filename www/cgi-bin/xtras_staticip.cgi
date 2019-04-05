@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-30
+# Version: 5.0.0 2019-04-06
 
 #========================================================================================
 # This script sets a static IP.
@@ -116,8 +116,8 @@ pcp_write_script() {
 		echo 'NWOK=1' >>$STATICIP
 		echo 'until [ -d /sys/class/net/'${NETWORK}' ]' >>$STATICIP
 		echo 'do' >>$STATICIP
-		echo '    if [ $((CNT++)) -gt 20 ]; then' >>$STATICIP
-		echo '        echo -n "${RED}No Ethernet Adapter Found!${NORMAL}"' >>$STATICIP
+		echo '    if [ $((CNT++)) -gt '$NETWORK_WAIT' ]; then' >>$STATICIP
+		echo '        echo -n "${RED}No Ethernet Adapter ['${NETWORK}'] Found!${NORMAL}"' >>$STATICIP
 		echo '        NWOK=0' >>$STATICIP
 		echo '        break' >>$STATICIP
 		echo '    else' >>$STATICIP
@@ -213,14 +213,23 @@ pcp_set_defaults() {
 	[ x"" = x"$NAMESERVER1" ] && NAMESERVER1=$GATEWAY
 }
 
+pcp_clear_defaults() {
+	IP=""
+	NETMASK=""
+	BROADCAST=""
+	GATEWAY=""
+	NAMESERVER1=""
+	NAMESERVER2=""
+}
+
 #========================================================================================
 # Display variables debug information.
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	pcp_debug_variables "html" DHCP NETWORK IP BROADCAST NAMESERVER1 NAMESERVER2 CLASS \
-		EXAMPLE1 EXAMPLE2 EXAMPLE3 EXAMPLE4 EXAMPLE5 EXAMPLE6 EXAMPLE7 EXAMPLE8 \
-		VALIDNETWORKS
-} 
+	pcp_debug_variables "html" DHCP NETWORK VALIDNETWORKS STATICIP IP NETMASK BROADCAST\
+		GATEWAY NAMESERVER1 NAMESERVER2 CLASS EXAMPLE1 EXAMPLE2 EXAMPLE3 EXAMPLE4\
+		EXAMPLE5 EXAMPLE6 EXAMPLE7 EXAMPLE8 EXAMPLE9
+}
 
 #========================================================================================
 # Network tabs.
@@ -240,17 +249,42 @@ pcp_network_tabs() {
 }
 
 #========================================================================================
+# Look for nodhcp boot code in /mnt/mmcblk0p1/cmdline.txt
+#----------------------------------------------------------------------------------------
+pcp_get_nodhcp() {
+	pcp_mount_bootpart "nohtml" >/dev/null
+	if mount | grep $VOLUME >/dev/null; then
+		cat $CMDLINETXT | grep nodhcp >/dev/null
+		case $? in
+			0)
+				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code found in '$CMDLINETXT'.</p>'
+				NODHCPYES="checked"
+				DHCP="off"
+			;;
+			*)
+				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code not found in '$CMDLINETXT'.</p>'
+				NODHCPNO="checked"
+				DHCP="on"
+			;;
+		esac
+		pcp_umount_bootpart "nohtml" >/dev/null
+	else
+		[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] '$VOLUME' not mounted.</p>'
+	fi
+}
+
+#========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
 [ $DEBUG -eq 1 ] && pcp_table_top "Debug information"
 pcp_which_class
+[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] SUBMIT -> '$SUBMIT' option...</p>'
 
 case "$SUBMIT" in
 	Save)
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing '$STATICIP'...</p>'
-		pcp_set_defaults
-		pcp_write_script
 		if [ "$DHCP" = "off" ]; then
+			pcp_set_defaults
+			pcp_write_script
 			pcp_nodhcp_bootcode add
 			[ "${NETWORK:0:3}" = "eth" ] && pcp_edit_bootlocal add
 		else
@@ -261,43 +295,24 @@ case "$SUBMIT" in
 	;;
 	Delete)
 		rm -f $STATICIP
-		pcp_backup #>/dev/null
+		pcp_clear_defaults
+		pcp_backup >/dev/null
 	;;
 	Defaults)
 		pcp_set_defaults
 		pcp_write_script
+		pcp_backup >/dev/null
 	;;
 	*)
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Reading '$STATICIP'...</p>'
+		SUBMIT="Initial"
+		pcp_get_nodhcp
 	;;
 esac
 
 [ $DEBUG -eq 1 ] && pcp_debug_info
-pcp_read_script
+[ -f "/opt/${NETWORK}.sh" ] && pcp_read_script
 
-#========================================================================================
-# Look for nodhcp boot code in /mnt/mmcblk0p1/cmdline.txt
-#----------------------------------------------------------------------------------------
-pcp_mount_bootpart "nohtml" >/dev/null
-if mount | grep $VOLUME >/dev/null; then
-	cat $CMDLINETXT | grep nodhcp >/dev/null
-	case $? in
-		0)
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code found in '$CMDLINETXT'.</p>'
-			NODHCPYES="checked"
-			DHCP="off"
-		;;
-		*)
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code not found in '$CMDLINETXT'.</p>'
-			NODHCPNO="checked"
-			DHCP="on"
-		;;
-	esac
-	pcp_umount_bootpart "nohtml" >/dev/null
-else
-	[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] '$VOLUME' not mounted.</p>'
-fi
-
+pcp_get_nodhcp
 [ $DEBUG -eq 1 ] && pcp_table_end
 
 #========================================================================================
@@ -305,27 +320,17 @@ fi
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Warning message-----------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
+echo '<table class="bgred">'
+echo '  <tr class="warning">'
 echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <table class="bggrey percent100">'
-echo '            <tr class="warning">'
-echo '              <td>'
-echo '                <p style="color:white"><b>Warning:</b></p>'
-echo '                <ul>'
-echo '                  <li style="color:white">The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</li>'
-echo '                  <li style="color:white">You will need to re-install static IP after an insitu update.</li>'
-echo '                  <li style="color:white">You must get all the IP addresses and mask correct, or unusual network issues will occur.</li>'
-echo '                  <li style="color:white">All network interfaces must be DHCP or static IP, not mixed.</li>'
-echo '                  <li style="color:white">The network interface tabs will automatically show available network interfaces on the RPi.</li>'
-echo '                </ul>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
+echo '      <p style="color:white"><b>Warning:</b></p>'
+echo '      <ul>'
+echo '        <li style="color:white">The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</li>'
+echo '        <li style="color:white">You will need to re-install static IP after an insitu update.</li>'
+echo '        <li style="color:white">You must get all the IP addresses and mask correct, or unusual network issues will occur.</li>'
+echo '        <li style="color:white">All network interfaces must be DHCP or static IP, not mixed.</li>'
+echo '        <li style="color:white">The network interface tabs will automatically show available network interfaces.</li>'
+echo '      </ul>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
@@ -365,190 +370,189 @@ echo '                    <p>Dynamic Host Configuration Protocol (DHCP)</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-#--------------------------------------IP------------------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">Static IP address</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="IP"'
-echo '                         value="'$IP'"'
-echo '                         title="xxx.xxx.xxx.xxx"'
-echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-echo '                  >*'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row">Set static IP address&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <ul>'
-echo '                      <li>Static IP must be unique and not clash with any other IP on your network.</li>'
-echo '                      <li>Static IP must not be in the range of IP addresses controlled by DHCP.</li>'
-echo '                    </ul>'
-echo '                    <p><b>Example: </b></p>'
-echo '                    <ul>'
-echo '                      <li>'$EXAMPLE1'</li>'
-echo '                      <li>'$EXAMPLE2'</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------NETMASK-------------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">Netmask</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="NETMASK"'
-echo '                         value="'$NETMASK'"'
-echo '                         title="xxx.xxx.xxx.xxx"'
-echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-echo '                  >*'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row">Set netmask address&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The netmask must be the same on all your devices.</p>'
-echo '                    <p><b>Example: </b>'$EXAMPLE3'</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------BROADCAST-----------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">Broadcast</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="BROADCAST"'
-echo '                         value="'$BROADCAST'"'
-echo '                         title="xxx.xxx.xxx.xxx"'
-echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-echo '                  >*'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row">Set broadcast address&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The broadcast address is fixed and can not be used for other purposes.</p>'
-echo '                    <p><b>Example:</b></p>'
-echo '                    <ul>'
-echo '                      <li>'$EXAMPLE4'</li>'
-echo '                      <li>'$EXAMPLE5'</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------GATEWAY-------------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">Default gateway</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="GATEWAY"'
-echo '                         value="'$GATEWAY'"'
-echo '                         title="xxx.xxx.xxx.xxx"'
-echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-echo '                  >*'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row">Set default gateway address&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The gateway address is usually your modem IP address.</p>'
-echo '                    <p><b>Example:</b></p>'
-echo '                    <ul>'
-echo '                      <li>'$EXAMPLE6'</li>'
-echo '                      <li>'$EXAMPLE7'</li>'
-echo '                      <li>'$EXAMPLE8'</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------NAMESERVER1---------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">Nameserver 1</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="NAMESERVER1"'
-echo '                         value="'$NAMESERVER1'"'
-echo '                         title="xxx.xxx.xxx.xxx"'
-echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-echo '                  >*'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row">Set nameserver (DNS) address &nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The nameserver address is usually your modem IP address.</p>'
-echo '                    <p><b>Example:</b></p>'
-echo '                    <ul>'
-echo '                      <li>'$EXAMPLE6'</li>'
-echo '                      <li>'$EXAMPLE7'</li>'
-echo '                      <li>'$EXAMPLE8'</li>'
-echo '                      <li>'$EXAMPLE9'</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------NAMESERVER2---------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">Nameserver 2</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="NAMESERVER2"'
-echo '                         value="'$NAMESERVER2'"'
-echo '                         title="xxx.xxx.xxx.xxx"'
-echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-echo '                  >'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p class="row">Set nameserver (DNS) address &nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The nameserver address is usually your modem IP address.</p>'
-echo '                    <p><b>Example:</b></p>'
-echo '                    <ul>'
-echo '                      <li>'$EXAMPLE6'</li>'
-echo '                      <li>'$EXAMPLE7'</li>'
-echo '                      <li>'$EXAMPLE8'</li>'
-echo '                      <li>'$EXAMPLE9'</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+#----------------------------------------------------------------------------------------
+
+if [ "$DHCP" = "off" ]; then
+	#--------------------------------------IP--------------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p class="row">Static IP address</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="IP"'
+	echo '                         value="'$IP'"'
+	echo '                         title="xxx.xxx.xxx.xxx"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '                  >*'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="row">Set static IP address&nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li>Static IP must be unique and not clash with any other IP on your network.</li>'
+	echo '                      <li>Static IP must not be in the range of IP addresses controlled by DHCP.</li>'
+	echo '                    </ul>'
+	echo '                    <p><b>Example: </b></p>'
+	echo '                    <ul>'
+	echo '                      <li>'$EXAMPLE1'</li>'
+	echo '                      <li>'$EXAMPLE2'</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------NETMASK---------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p class="row">Netmask</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NETMASK"'
+	echo '                         value="'$NETMASK'"'
+	echo '                         title="xxx.xxx.xxx.xxx"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '                  >*'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="row">Set netmask address&nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The netmask must be the same on all your devices.</p>'
+	echo '                    <p><b>Example: </b>'$EXAMPLE3'</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------BROADCAST-------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p class="row">Broadcast</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="BROADCAST"'
+	echo '                         value="'$BROADCAST'"'
+	echo '                         title="xxx.xxx.xxx.xxx"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '                  >*'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="row">Set broadcast address&nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The broadcast address is fixed and can not be used for other purposes.</p>'
+	echo '                    <p><b>Example:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>'$EXAMPLE4'</li>'
+	echo '                      <li>'$EXAMPLE5'</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------GATEWAY---------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p class="row">Default gateway</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="GATEWAY"'
+	echo '                         value="'$GATEWAY'"'
+	echo '                         title="xxx.xxx.xxx.xxx"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '                  >*'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="row">Set default gateway address&nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The gateway address is usually your modem IP address.</p>'
+	echo '                    <p><b>Example:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>'$EXAMPLE6'</li>'
+	echo '                      <li>'$EXAMPLE7'</li>'
+	echo '                      <li>'$EXAMPLE8'</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------NAMESERVER1-----------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p class="row">Nameserver 1</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NAMESERVER1"'
+	echo '                         value="'$NAMESERVER1'"'
+	echo '                         title="xxx.xxx.xxx.xxx"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '                  >*'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="row">Set nameserver 1 (DNS) address &nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>The nameserver address is usually your modem IP address.</p>'
+	echo '                    <p><b>Example:</b></p>'
+	echo '                    <ul>'
+	echo '                      <li>'$EXAMPLE6'</li>'
+	echo '                      <li>'$EXAMPLE7'</li>'
+	echo '                      <li>'$EXAMPLE8'</li>'
+	echo '                      <li>'$EXAMPLE9'</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#--------------------------------------NAMESERVER2-----------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COLUMN1'">'
+	echo '                  <p class="row">Nameserver 2</p>'
+	echo '                </td>'
+	echo '                <td class="'$COLUMN2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="NAMESERVER2"'
+	echo '                         value="'$NAMESERVER2'"'
+	echo '                         title="xxx.xxx.xxx.xxx"'
+	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p class="row">Set nameserver 2 (DNS) address &nbsp;&nbsp;'
+	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Alternative nameserver address, incase nameserver 1 is not available.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	#------------------------------------------------------------------------------------
+fi
+
 #--------------------------------------BUTTONS-------------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
@@ -556,6 +560,7 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column400">'
 echo '                  <input type="submit" title="Save configuration to /opt/'${NETWORK}'.sh" name="SUBMIT" value="Save">'
 echo '                  <input type="hidden" name="NETWORK" value="'$NETWORK'">'
+[ "$DHCP" = "off" ] &&
 echo '                  <input type="submit" title="Fill-in blanks with default values" name="SUBMIT" value="Defaults">'
 [ -f "/opt/${NETWORK}.sh" ] &&
 echo '                  <input type="submit" title="Delete /opt/'${NETWORK}'.sh" name="SUBMIT" value="Delete">'
