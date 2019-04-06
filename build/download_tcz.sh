@@ -25,13 +25,15 @@ PCP_REPO="http://repo.picoreplayer.org/repo"
 TCE_VER="10.x/armv7/tcz"
 
 #This list does not include kernel modules
-TCE_EXT="alsa-utils alsa dialog openssh openssl readline libedit \
-firmware-atheros firmware-ralinkwifi libiw libnl ncurses \
-wireless_tools"
+#TCE_EXT="alsa-utils alsa dialog openssh openssl readline libedit \
+#firmware-atheros firmware-ralinkwifi libiw libnl ncurses \
+#wireless_tools"
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
 pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi wiringpi \
-wpa_supplicant crda ca-certificates firmware-rpi-wifi"
+wpa_supplicant crda ca-certificates firmware-rpi-wifi alsa-utils alsa dialog openssh openssl readline libedit \
+firmware-atheros firmware-ralinkwifi libiw libnl ncurses \
+wireless_tools"
 
 archive(){
 	echo "${YELLOW}*****************************************************************"
