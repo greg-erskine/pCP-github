@@ -424,6 +424,10 @@ if [ "$OUTPUT" = "equal" ]; then
 	echo "${GREEN}Done.${NORMAL}"
 fi
 
+#Check the pcm input card.....Only finds the first recording card.
+INCARD=$(pcp_get_input_cardnumber)
+[ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/card [0-9]/card '$INCARD'/' /etc/asound.conf
+
 #========================================================================================
 # WOL="yes"|"no"
 # WOL_NIC="eth0"|"wlan0"|"wlan1"|... does wlan1 exist if user adds WiFi dongle on RPi3 with onboard WiFi enabled?
