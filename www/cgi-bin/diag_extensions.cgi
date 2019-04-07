@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-04-07
 
 #========================================================================================
 # This script checks for required extensions in repositories.
@@ -25,7 +25,7 @@ getMirror
 
 #VERBOSE=TRUE
 
-#ValidMajorVer="8.x 9.x"
+#ValidMajorVer="8.x 9.x 10.x"
 #ValidBuild="ARM6 ARM7"
 
 #========================================================================================
@@ -45,7 +45,7 @@ pcp_downloaded_extensions() {
 	echo firmware-atheros.tcz                   >> $EXTENLIST
 	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
 	echo firmware-ralinkwifi.tcz                >> $EXTENLIST
-	echo firmware-rpi-wifi.tcz             >> $EXTENLIST
+	echo firmware-rpi-wifi.tcz                  >> $EXTENLIST
 	echo firmware-rtlwifi.tcz                   >> $EXTENLIST
 	echo libasound.tcz                          >> $EXTENLIST
 	echo libedit.tcz                            >> $EXTENLIST
@@ -54,6 +54,7 @@ pcp_downloaded_extensions() {
 	echo ncurses.tcz                            >> $EXTENLIST
 	echo net-usb-${VERSION}-pcpCore.tcz         >> $EXTENLIST
 	echo net-usb-${VERSION}-pcpCore_v7.tcz      >> $EXTENLIST
+	echo never_remove.tcz                       >> $EXTENLIST
 	echo openssh.tcz                            >> $EXTENLIST
 	echo openssl.tcz                            >> $EXTENLIST
 	echo pcp.tcz                                >> $EXTENLIST
@@ -67,7 +68,6 @@ pcp_downloaded_extensions() {
 	echo pcp-libvorbis.tcz                      >> $EXTENLIST
 	echo pcp-squeezelite.tcz                    >> $EXTENLIST
 	echo readline.tcz                           >> $EXTENLIST
-	echo wifi.tcz                               >> $EXTENLIST
 	echo wireless-${VERSION}-pcpCore.tcz        >> $EXTENLIST
 	echo wireless-${VERSION}-pcpCore_v7.tcz     >> $EXTENLIST
 	echo wireless_tools.tcz                     >> $EXTENLIST
@@ -142,7 +142,7 @@ pcp_check_extension() {
 	fi
 }
 
-pcp_message() {
+pcp_extn_message() {
 	echo "" | tee -a $LOG
 	echo "[ INFO ] Checking extensions for ${1}..." | tee -a $LOG
 }
@@ -152,10 +152,9 @@ pcp_message() {
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
 	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $SUBMIT: '$SUBMIT'<br />'
-		echo '                 [ DEBUG ] $PICORE_REPO_1: '$PICORE_REPO_1'<br />'
-		echo '                 [ DEBUG ] $PICORE_REPO_2: '$PICORE_REPO_2'<br />'
-		echo '                 [ DEBUG ] $PCP_REPO: '$PCP_REPO'</p>'
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" PICORE_REPO_1 PICORE_REPO_2 PCP_REPO LOG
+		echo '<!-- End of debug info -->'
 	fi
 }
 
@@ -381,18 +380,18 @@ echo "Checking repositories for extensions" >> $LOG
 #========================================================================================
 pcp_set_repo ${PCP_REPO%/}
 #========================================================================================
-pcp_message "LIRC"
+pcp_extn_message "LIRC"
 #-----------------
 pcp_check_extension pcp-lirc.tcz
-pcp_check_extension irda-${KERNELVER}.tcz
 pcp_check_extension libcofi.tcz
+pcp_check_extension media-rc-${KERNELVER}.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Raspberry Pi Touch Screen"
+pcp_extn_message "Raspberry Pi Touch Screen"
 #--------------------------------------
 pcp_check_extension touchscreen-${KERNELVER}.tcz
 pcp_check_extension libts.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Jivelite"
+pcp_extn_message "Jivelite"
 #---------------------
 pcp_check_extension libts.tcz
 pcp_check_extension libcofi.tcz
@@ -405,11 +404,11 @@ pcp_check_extension VU_Meter_Jstraw_Vintage.tcz
 pcp_check_extension VU_Meter_Logitech_Black.tcz
 pcp_check_extension VU_Meter_Logitech_White.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Audiophonics"
+pcp_extn_message "Audiophonics"
 #-------------------------
 pcp_check_extension Audiophonics-powerscript.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "LMS"
+pcp_extn_message "LMS"
 #----------------
 pcp_check_extension slimserver.tcz
 pcp_check_extension slimserver-CPAN.tcz
@@ -424,21 +423,21 @@ pcp_check_extension perl_crypt_openssl_rsa.tcz
 pcp_check_extension perl_common_sense.tcz
 pcp_check_extension perl_linux_inotify2.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Broadcom USB wifi adaptor"
+pcp_extn_message "Broadcom USB wifi adaptor"
 #--------------------------------------
 pcp_check_extension firmware-brcmwifi.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Shairport-sync"
+pcp_extn_message "Shairport-sync"
 #---------------------------
 pcp_check_extension pcp-shairportsync.tcz
 pcp_check_extension libcofi.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "ALSA equaliser"
+pcp_extn_message "ALSA equaliser"
 #---------------------------
 pcp_check_extension alsaequal.tcz
 pcp_check_extension caps-0.4.5.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "networking"
+pcp_extn_message "networking"
 #-----------------------
 pcp_check_extension ntfs-3g.tcz
 pcp_check_extension filesystems-${KERNELVER}.tcz
@@ -448,7 +447,7 @@ pcp_check_extension net-usb-${KERNELVER}.tcz
 #========================================================================================
 pcp_set_repo ${PICORE_REPO_1%/}
 #========================================================================================
-pcp_message "standard extensions"
+pcp_extn_message "standard extensions"
 #--------------------------------
 pcp_check_extension alsa-modules-${KERNELVER}.tcz
 pcp_check_extension alsa-utils.tcz
@@ -463,27 +462,24 @@ pcp_check_extension openssh.tcz
 pcp_check_extension openssl.tcz
 pcp_check_extension readline.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "pastebin"
+pcp_extn_message "pastebin"
 #---------------------
 pcp_check_extension wget.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "wifi"
+pcp_extn_message "wifi"
 #-----------------
 pcp_check_extension firmware-atheros.tcz
-#pcp_check_extension firmware-brcmwifi.tcz
 pcp_check_extension firmware-ralinkwifi.tcz
 pcp_check_extension firmware-rpi-wifi.tcz
 pcp_check_extension firmware-rtlwifi.tcz
-pcp_check_extension wifi.tcz
-#pcp_check_extension wireless-${KERNELVER}.tcz
 pcp_check_extension wireless_tools.tcz
 pcp_check_extension wpa_supplicant.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "wifi diagnositcs"
+pcp_extn_message "wifi diagnositcs"
 #-----------------------------
 pcp_check_extension usbutils.tcz
 #----------------------------------------------------------------------------------------
-pcp_message "Common extensions"
+pcp_extn_message "Common extensions"
 #------------------------------
 pcp_check_extension nano.tcz
 #----------------------------------------------------------------------------------------
