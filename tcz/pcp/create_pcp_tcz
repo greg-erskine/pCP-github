@@ -1,5 +1,7 @@
 #!/bin/sh
 
+VERSION=5.0.0
+
 BASEWD=$(pwd)
 EXT="pcp"
 TCZ=${EXT}.tcz
@@ -22,40 +24,33 @@ md5sum ${TCZ} > ${TCZ}.md5.txt
 echo "$EXT contains"
 unsquashfs -ll ${TCZ}
 
+echo -e "Title:          $TCZ" > $TCZINFO
+echo -e "Description:    piCorePlayer." >> $TCZINFO
+echo -e "Version:        $VERSION" >> $TCZINFO
+echo -e "Author:         Various, see script files" >> $TCZINFO
+echo -e "Original-site:" >> $TCZINFO
+echo -e "Copying-policy: See scripts for details" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
+echo -e "Extension_by:   piCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore 10.x" >> $TCZINFO
+
 echo
+
 while true; do
-	read -p "Do you want to upload to sourceforge project-web [y/n]? " yn
-	case $yn in
-		[Yy]* ) break;;
-		[Nn]* ) exit 0;;
-		* ) echo "Please answer yes or no.";;
-	esac
+   read -p "Do you want to upload to image and repo directories [y/n]? " yn
+   case $yn in
+      [Yy]* ) break;;
+      [Nn]* ) exit 0;;
+      * ) echo "Please answer yes or no.";;
+   esac
 done
 
-REPO="web.sourceforge.net"
-LOCATION_v6="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv6/tcz/"
-LOCATION_v7="/home/project-web/picoreplayer/htdocs/tcz_repo/9.x/armv7/tcz/"
+IMAGEPATH="${BASEWD}/../../build/tcz-for-img"
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/10.x"
+ARMV6="$REPOPATH/armv6/tcz"
+ARMV7="$REPOPATH/armv7/tcz"
 
-read -p "Enter your sourceforge username: " USER
-# Would need to use linux expect to use passwords
-# read -ps "Enter your password: " PASS
-
-echo
-echo "Ready to upload"
-echo "USER=${USER}"
-echo "REPO=${REPO}"
-echo "LOCATION_v6=${LOCATION_v6}"
-echo "LOCATION_v7=${LOCATION_v7}"
-echo
-read -p "Press Enter to continue, or <ctrl>-C to abort" key
-
-echo "Uploading to first location."
-scp pcp.tcz* ${USER}@${REPO}:${LOCATION_v6}
-echo
-echo "Uploading to second location."
-scp pcp.tcz* ${USER}@${REPO}:${LOCATION_v7}
-
-
-
-
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $IMAGEPATH
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV6
+find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV7
 
