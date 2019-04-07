@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-06
+# Version: 5.0.0 2019-04-08
 
 #========================================================================================
 # This script sets a static IP.
@@ -35,6 +35,7 @@ pcp_navigation
 pcp_httpd_query_string
 
 VALIDNETWORKS=$(ls /sys/class/net | sed '/^lo/d')
+unset REBOOT_REQUIRED
 
 #========================================================================================
 # Look for existing static IP script - if found, set $NETWORK to it
@@ -292,6 +293,7 @@ case "$SUBMIT" in
 			[ "${NETWORK:0:3}" = "eth" ] && pcp_edit_bootlocal delete
 		fi
 		pcp_backup >/dev/null
+		REBOOT_REQUIRED=TRUE
 	;;
 	Delete)
 		rm -f $STATICIP
@@ -680,6 +682,8 @@ fi
 
 pcp_footer
 pcp_copyright
+
+[ $REBOOT_REQUIRED ] && pcp_reboot_required
 
 echo '</body>'
 echo '</html>'
