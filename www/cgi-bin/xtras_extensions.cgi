@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-14
+# Version: 5.0.0 2019-04-07
 
 #========================================================================================
-# This script installs piCore extensions ie. nano.tcz, wget.tcz, dialog.tcz
+# This script installs extensions, reports on extensions.
 #
 # Complications:
 #   1. Sufficient space, need to expand file system.
@@ -45,7 +45,7 @@ SIZELIST_PICORE="/tmp/sizelist_picore"
 pcp_debug_info() {
 	echo '<!-- Start of debug info -->'
 	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR PICORE_REPO_1 \
-	PICORE_REPO_2 PCP_REPO CALLED_BY EXTNFOUND KERNELVER
+		PICORE_REPO_2 PCP_REPO CALLED_BY EXTNFOUND KERNELVER
 	echo '<!-- End of debug info -->'
 }
 
@@ -380,74 +380,130 @@ pcp_display_information() {
 }
 
 #========================================================================================
-# Check for internet, TinyCore and piCore repository access
+# Check for access to the internet, piCore and piCorePlayer repositories
+#----------------------------------------------------------------------------------------
+pcp_internet() {
+	if [ $(pcp_internet_accessible) -eq 0 ]; then
+		pcp_green_tick "Internet accessible."
+		echo "[  OK  ] Internet accessible." >> $LOG
+		INTERNET_ACCESSIBLE=TRUE
+	else
+		pcp_red_cross "Internet not accessible."
+		echo "[ ERROR ] Internet not accessible." >> $LOG
+		unset INTERNET_ACCESSIBLE
+	fi
+}
+
+pcp_picore_repo_1() {
+	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
+		pcp_green_tick "Official piCore repository accessible ($PICORE_REPO_1)."
+		echo "[  OK  ] Official piCore repository accessible. ($PICORE_REPO_1)" >> $LOG
+		PICORE_REPO_1_ACCESSIBLE=TRUE
+	else
+		pcp_red_cross "Official piCore repository not accessible ($PICORE_REPO_1)."
+		echo "[ ERROR ] Official piCore repository not accessible. ($PICORE_REPO_1)" >> $LOG
+		unset PICORE_REPO_1_ACCESSIBLE
+	fi
+}
+
+pcp_picore_repo_2() {
+	if [ $(pcp_picore_repo_2_accessible) -eq 0 ]; then
+		pcp_green_tick "Official piCore mirror repository accessible ($PICORE_REPO_2)."
+		echo "[  OK  ] Official piCore mirror repository accessible. ($PICORE_REPO_2)" >> $LOG
+		PICORE_REPO_2_ACCESSIBLE=TRUE
+	else
+		pcp_red_cross "Official piCore mirror repository not accessible ($PICORE_REPO_2)."
+		echo "[ ERROR ] Official piCore mirror repository not accessible. ($PICORE_REPO_2)" >> $LOG
+		unset PICORE_REPO_2_ACCESSIBLE
+	fi
+}
+
+pcp_pcp_repo() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer SourceForge repository accessible ($PCP_REPO)."
+		echo "[  OK  ] piCorePlayer SourceForge repository accessible. ($PCP_REPO)" >> $LOG
+		PCP_REPO_ACCESSIBLE=TRUE
+	else
+		pcp_red_cross "piCorePlayer SourceForge repository not accessible ($PCP_REPO)."
+		echo "[ ERROR ] piCorePlayer SourceForge repository not accessible. ($PCP_REPO)" >> $LOG
+		unset PCP_REPO_ACCESSIBLE
+	fi
+}
+
+pcp_indicator_js() {
+	echo '<script>'
+	echo 'var theIndicator = document.querySelector("#indicator'$ID'");'
+	echo '	theIndicator.classList.add("'$CLASS'");'
+	echo '	document.getElementById("indicator'$ID'").innerHTML = "'$INDICATOR'";'
+	echo '	document.getElementById("status'$ID'").innerHTML = "'$STATUS'";'
+	echo '</script> '
+}
+
+#----------------------------------------------------------------------------------------
+# Internet and repository accessibility indicators.
 #----------------------------------------------------------------------------------------
 pcp_internet_check() {
-	INTERNET=TRUE
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Checking Internet accessiblity. . . </legend>'
+	echo '          <legend>Checking repositories accessiblity. . . </legend>'
 	echo '          <table class="bggrey percent100">'
-	#------------------------------------------------------------------------------------
-	if [ $(pcp_internet_accessible) -eq 0 ]; then
-		pcp_green_tick "Internet accessible."
-	else
-		pcp_red_cross "Internet not accessible."
-		INTERNET=FALSE
-	fi
+	#--------------------------------Internet accessible---------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '                <p id="indicator'$ID'">?</p>'
 	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <p>'$STATUS'</p>'
-	echo '              </td>'
-	echo '              <td class="column150">'
-	echo '                <p></p>'
+	echo '              <td>'
+	echo '                <p id="status'$ID'">Checking internet...</p>'
 	echo '              </td>'
 	echo '            </tr>'
-	#------------------------------------------------------------------------------------
-	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
-		pcp_green_tick "Official piCore repository accessible."
-	else
-		pcp_red_cross "Official piCore repository not accessible."
-		INTERNET=FALSE
-	fi
+	pcp_internet
+	pcp_indicator_js
+	#------------------------Oficial piCore repository accessible------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '                <p id="indicator'$ID'">?</p>'
 	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <p>'$STATUS'</p>'
-	echo '              </td>'
-	echo '              <td class="column150">'
-	echo '                <p></p>'
+	echo '              <td>'
+	echo '                <p id="status'$ID'">Checking piCore repository...</p>'
 	echo '              </td>'
 	echo '            </tr>'
-	#------------------------------------------------------------------------------------
-	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		pcp_green_tick "piCorePlayer repository accessible."
-	else
-		pcp_red_cross "piCorePlayer repository not accessible."
-		INTERNET=FALSE
+	pcp_picore_repo_1
+	pcp_indicator_js
+	#--------------------Official piCore mirror repository accessible--------------------
+	if [ $MODE -ge $MODE_DEVELOPER ]; then
+		pcp_toggle_row_shade
+		pcp_incr_id
+		echo '            <tr class="'$ROWSHADE'">'
+		echo '              <td class="column50 center">'
+		echo '                <p id="indicator'$ID'">?</p>'
+		echo '              </td>'
+		echo '              <td>'
+		echo '                <p id="status'$ID'">Checking piCore mirror repository...</p>'
+		echo '              </td>'
+		echo '            </tr>'
+		pcp_picore_repo_2
+		pcp_indicator_js
 	fi
+	#-------------------piCorePlayer SourceForge repository accessible-------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '                <p id="indicator'$ID'">?</p>'
 	echo '              </td>'
-	echo '              <td class="column300">'
-	echo '                <p>'$STATUS'</p>'
-	echo '              </td>'
-	echo '              <td class="column150">'
-	echo '                <p></p>'
+	echo '              <td>'
+	echo '                <p id="status'$ID'">Checking piCorePlayer SourceForge repository...</p>'
 	echo '              </td>'
 	echo '            </tr>'
+	pcp_pcp_repo
+	pcp_indicator_js
 	#------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
@@ -547,7 +603,7 @@ pcp_select_repository() {
 	echo '          <fieldset>'
 	echo '            <legend>Set extension repository</legend>'
 	echo '            <table class="bggrey percent100">'
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -573,7 +629,7 @@ pcp_select_repository() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	if [ "$SELECTED_PICORE" = "selected" ]; then
 		echo '              <tr class="'$ROWSHADE'">'
@@ -593,7 +649,7 @@ pcp_select_repository() {
 		echo '                </td>'
 		echo '              </tr>'
 	fi
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -916,7 +972,6 @@ echo '<!-- Start of pcp_extension_tabs toolbar -->'
 echo '<p style="margin-top:8px;">'
 
 [ x"" = x"$CALLED_BY" ] && CALLED_BY="Information"
-#for tab in Information Available Installed Uninstalled Downloaded onboot.lst; do
 for tab in Information Available Installed Uninstalled onboot.lst; do
 	[ "$tab" = "$CALLED_BY" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
 	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='$tab'" title="'$tab'">'$tab'</a>'
