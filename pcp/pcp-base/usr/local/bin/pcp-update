@@ -20,6 +20,45 @@ echo ""
 exit 1
 }
 
+pcp_free_space() {
+	case "$1" in
+		k) set -- $(/bin/busybox df -k | grep $TCEDEV); echo $4 ;;
+		m) set -- $(/bin/busybox df -m | grep $TCEDEV); echo $4 ;;
+		p) set -- $(/bin/busybox df -h | grep $TCEDEV); echo $5 | sed 's/%//' ;;
+		*) set -- $(/bin/busybox df -h | grep $TCEDEV); echo $4 ;;
+	esac
+}
+
+pcp_sufficient_free_space() {
+	REQUIRED=$1
+	SPACE=$(pcp_free_space k)
+
+	if [ $REQUIRED -lt $SPACE ]; then
+		return 0
+	else
+		echo ""
+		echo "[ ERROR ] Not enough free space to download ${2} - ${REQUIRED}k."
+		echo "[ INFO ] Try expanding your partition."
+		exit 1
+	fi
+}
+
+get_sizelist() {
+	cd /tmp
+	if [ ! -f pcp_sizelist ]; then
+		wget ${PCP_REPO}/${TCE_VER}/sizelist.gz -O pcp_sizelist.gz 2>&1 > /dev/null || return 1
+		gunzip -f pcp_sizelist.gz
+		touch pcp_sizelist
+	else # Check if the file is older than 5 hours
+		age=$((`date +%s` - `date -r pcp_sizelist +%s`))
+		if [ $age -ge 18000 ]; then
+			 wget ${PCP_REPO}/${TCE_VER}/sizelist.gz -O pcp_sizelist.gz 2>&1 > /dev/null || return 1
+			gunzip -f pcp_sizelist.gz
+			touch pcp_sizelist
+		fi
+	fi
+}
+
 readfile() {
 	while read -r line
 	do
@@ -43,18 +82,18 @@ getdep() {
 				while read -r line; do
 					case $line in
 						*BOGUS*)break;;
-						*)	cp -f $DL_DIR/${EXT}.dep.pcp $DL_DIR/${EXT}.dep
+						*)	cp -pf $DL_DIR/${EXT}.dep.pcp $DL_DIR/${EXT}.dep
 							readfile $DL_DIR/${EXT}.dep
 							break
 						;;
 					esac
 				done < $DL_DIR/${EXT}.dep.pcp
 			else
-				echo "[ ERROR ] There was a problem downloading dependency ${REPO_ADDR}/${TCE_VER}/${EXT}.dep.pcp"
+				echo "[ ERROR ] Downloading dependency ${EXT}.dep.pcp"
 				exit 1
 			fi
 		fi
-	fi	
+	fi
 }
 
 build_full_deps() {
@@ -70,25 +109,38 @@ check_updates() {
 	I=$(echo $1 | sed "s/KERNEL/${KERNELVER}/")
 	R=PCP
 	eval REPO_ADDR=\${${R}_REPO}
+	local MATCH
 	printf "[ INFO ] Checking: %-40s" "${I}"
 	wget ${REPO_ADDR}/${TCE_VER}/${I}.md5.txt -P $DL_DIR >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
-		echo "[ ERROR ] downloading ${REPO_ADDR}/${TCE_VER}/${I}.md5.txt"
+		echo "[ ERROR ] Downloading ${I}.md5.txt"
 		FAIL=1
 	else
 		diff -q ${I}.md5.txt $DL_DIR/${I}.md5.txt >/dev/null 2>&1
-		if [ $? -ne 0 ]; then
+		if [ $? -eq 0 ]; then
+			echo " Extension version Matches"
+			MATCH=1
+			[ -f ${I}.dep ] && cp -pf ${I}.dep $DL_DIR/${I}.dep
+			# Query, no update neede exit code 2
+			[ $UPDATE -eq 0 ] && exit 2
+		else
 			echo " Update Required."
-			if [ $UPDATE -eq 1 ]; then
-				#Build Full Deps from REPO
-				if [ x"$2" = "xFIRST" ]; then
-					STORE=$I
-					build_full_deps $I
-					while read -r line; do
-						check_updates $line
-					done < $DEPLIST
-					I=$STORE
-				fi
+			MATCH=0
+			SIZE_B=$(grep "^${I}" /tmp/pcp_sizelist | cut -d ' ' -f2)
+			[ "$SIZE_B" != "" ] && SIZE_K=$(expr $SIZE_B / 1024) || SIZE_K=50000
+			pcp_sufficient_free_space $SIZE_K ${I}
+		fi
+		if [ $UPDATE -eq 1 ]; then
+			#Build Full Deps from REPO
+			if [ x"$2" = "xFIRST" ]; then
+				STORE=$I
+				build_full_deps $I
+				while read -r line; do
+					check_updates $line
+				done < $DEPLIST
+				I=$STORE
+			fi
+			if [ $MATCH -ne 1 ]; then
 				echo ""
 				printf "[ INFO ] Downloading: %-37s" "${I}"
 				wget ${REPO_ADDR}/${TCE_VER}/${I} -P $DL_DIR >/dev/null 2>&1
@@ -105,19 +157,15 @@ check_updates() {
 					[ $? -eq 0 ] && mv -f $DL_DIR/${I}* ${UPGRADE_DIR} || FAIL=1
 					cd ${EXTENSION_DIR}
 				fi
-			else
-				#Query Only Requested
-				#Update needed exit code 3
-				exit 2
-			fi
-
-			if [ $UPDATE -eq 0 ] || [ $FAIL -ne 0 ]; then
-				rm -rf $DL_DIR
 			fi
 		else
-			echo " Extension version Matches"
-			# Base extension not needing to be updated exit code 2
-			[ x"$2" = "xFIRST" ] && exit 2
+			#Query Only Requested
+			#Update needed exit code 3
+			exit 3
+		fi
+
+		if [ $UPDATE -eq 0 ] || [ $FAIL -ne 0 ]; then
+			rm -rf $DL_DIR
 		fi
 	fi
 }
@@ -130,9 +178,10 @@ useBusybox
 #TCE_REPO="http://repo.tinycorelinux.net"
 PCP_REPO="https://repo.picoreplayer.org/repo"
 
-cd /etc/sysconfig/tcedir/optional
-EXTENSION_DIR=$(pwd)
+EXTENSION_DIR=/etc/sysconfig/tcedir/optional
 UPGRADE_DIR=${EXTENSION_DIR}/upgrade
+TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+
 DL_DIR="/tmp/upgrade_ext"
 DEPLIST="/tmp/newdep.lst"
 KERNELVER=$(uname -r)
@@ -148,17 +197,31 @@ FAIL=0
 if [ "$1" = "query" ]; then 
 	UPDATE=0
 	shift
-else 
+else
 	UPDATE=1
 fi
+
+# Download the latest sizelist
+get_sizelist
+if [ $? -ne 0 ]; then
+	echo "Unable to get extension sizelist, continue with caution"
+	read -p "Press <Enter> to continue, <ctrl>-C to quit" key
+fi
+
+cd $EXTENSION_DIR
+
 echo "[ INFO ] Checking for Updates"
 echo ""
 check_updates "${1%.tcz}.tcz" "FIRST"
+echo ""
 echo "[ INFO ] Done checking for updates"
 echo ""
 
 if [ $FAIL -ne 0 ]; then
 	exit 1
 fi
-echo "[ INFO ] Reboot is required to complete update."
+NEW_EXT=$(ls -1 $UPGRADE_DIR/*.tcz 2>/dev/null)
+if [ "$NEW_EXT" != "" ]; then
+	echo "[ INFO ] Reboot is required to complete update."
+fi
 exit 0
