@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-03-13
 
-# Title: Security
-# Description: Security related configuration
+# Title: Quiet boot
+# Description: Disables boot messages and startup script output
 
 . pcp-functions
 
