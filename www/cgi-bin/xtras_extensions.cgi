@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-07
+# Version: 5.0.0 2019-04-09
 
 #========================================================================================
 # This script installs extensions, reports on extensions.
@@ -32,7 +32,7 @@ cd /tmp
 TCELOAD="tce-load"
 EXTNFOUND=0
 LOG="${LOGDIR}/pcp_extensions.log"
-PCP_REPO=${PCP_REPO}/
+PCP_REPO="${PCP_REPO%/}/"
 TAGS_PCP_DB="/tmp/tags_pcp.db"
 TAGS_PICORE_DB="/tmp/tags_picore.db"
 
@@ -44,8 +44,8 @@ SIZELIST_PICORE="/tmp/sizelist_picore"
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR PICORE_REPO_1 \
-		PICORE_REPO_2 PCP_REPO CALLED_BY EXTNFOUND KERNELVER
+	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG PCP_REPO \
+		PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER
 	echo '<!-- End of debug info -->'
 }
 
@@ -208,8 +208,8 @@ pcp_cleanup() {
 # This routine creates /opt/localmirrors
 #----------------------------------------------------------------------------------------
 pcp_create_localmirrors() {
-	echo $PICORE_REPO_1 > /opt/localmirrors
-	echo $PCP_REPO >> /opt/localmirrors
+	echo $PCP_REPO > /opt/localmirrors
+	echo $PICORE_REPO_1 >> /opt/localmirrors
 }
 
 #========================================================================================
@@ -227,8 +227,8 @@ pcp_information_message() {
 	echo '              <td>'
 	echo '                <p><b>piCorePlayer</b> uses two repositories for downloading extensions:</p>'
 	echo '                <ul>'
+	echo '                  <li><b>piCorePlayer repository</b> - maintained by the piCorePlayer team (default repository).</li>'
 	echo '                  <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
-	echo '                  <li><b>piCorePlayer repository</b> - maintained by the piCorePlayer team.</li>'
 	echo '                </ul>'
 	echo '                <p><b>Extensions</b> can be:</p>'
 	echo '                <ul>'
@@ -380,7 +380,7 @@ pcp_display_information() {
 }
 
 #========================================================================================
-# Check for access to the internet, piCore and piCorePlayer repositories
+# Check for access to the internet, piCorePlayer and piCore repositories
 #----------------------------------------------------------------------------------------
 pcp_internet() {
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
@@ -391,6 +391,18 @@ pcp_internet() {
 		pcp_red_cross "Internet not accessible."
 		echo "[ ERROR ] Internet not accessible." >> $LOG
 		unset INTERNET_ACCESSIBLE
+	fi
+}
+
+pcp_pcp_repo() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer repository accessible ($PCP_REPO)."
+		echo "[  OK  ] piCorePlayer repository accessible. ($PCP_REPO)" >> $LOG
+		PCP_REPO_ACCESSIBLE=TRUE
+	else
+		pcp_red_cross "piCorePlayer repository not accessible ($PCP_REPO)."
+		echo "[ ERROR ] piCorePlayer repository not accessible. ($PCP_REPO)" >> $LOG
+		unset PCP_REPO_ACCESSIBLE
 	fi
 }
 
@@ -418,18 +430,6 @@ pcp_picore_repo_2() {
 	fi
 }
 
-pcp_pcp_repo() {
-	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		pcp_green_tick "piCorePlayer SourceForge repository accessible ($PCP_REPO)."
-		echo "[  OK  ] piCorePlayer SourceForge repository accessible. ($PCP_REPO)" >> $LOG
-		PCP_REPO_ACCESSIBLE=TRUE
-	else
-		pcp_red_cross "piCorePlayer SourceForge repository not accessible ($PCP_REPO)."
-		echo "[ ERROR ] piCorePlayer SourceForge repository not accessible. ($PCP_REPO)" >> $LOG
-		unset PCP_REPO_ACCESSIBLE
-	fi
-}
-
 pcp_indicator_js() {
 	echo '<script>'
 	echo 'var theIndicator = document.querySelector("#indicator'$ID'");'
@@ -448,7 +448,7 @@ pcp_internet_check() {
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Checking repositories accessiblity. . . </legend>'
+	echo '          <legend>Checking Internet and repository accessiblity. . . </legend>'
 	echo '          <table class="bggrey percent100">'
 	#--------------------------------Internet accessible---------------------------------
 	pcp_start_row_shade
@@ -463,7 +463,20 @@ pcp_internet_check() {
 	echo '            </tr>'
 	pcp_internet
 	pcp_indicator_js
-	#------------------------Oficial piCore repository accessible------------------------
+	#-------------------------piCorePlayer repository accessible-------------------------
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column50 center">'
+	echo '                <p id="indicator'$ID'">?</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p id="status'$ID'">Checking piCorePlayer repository...</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_pcp_repo
+	pcp_indicator_js
+	#------------------------Official piCore repository accessible-----------------------
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
@@ -491,19 +504,6 @@ pcp_internet_check() {
 		pcp_picore_repo_2
 		pcp_indicator_js
 	fi
-	#-------------------piCorePlayer SourceForge repository accessible-------------------
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking piCorePlayer SourceForge repository...</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_pcp_repo
-	pcp_indicator_js
 	#------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
@@ -531,7 +531,7 @@ pcp_free_space_check() {
 	echo '                  <p>'$(pcp_free_space)' free space</p>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p><b>WARNING:</b> Check you have sufficient free space before you download the required extension.</p>'
+	echo '                  <p><b>WARNING:</b> Check there is sufficient free space before downloading extensions.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
@@ -580,15 +580,15 @@ pcp_set_repo_status() {
 	MYMIRROR=$(cat /opt/tcemirror)
 
 	case "$MYMIRROR" in
-		"$PICORE_REPO_1")
-			SELECTED_PICORE="selected"
-			STATUS="Official piCore repository"
-			DB="$TAGS_PICORE_DB"
-		;;
 		"$PCP_REPO")
 			SELECTED_PCP="selected"
 			STATUS="piCorePlayer repository"
 			DB="$TAGS_PCP_DB"
+		;;
+		"$PICORE_REPO_1")
+			SELECTED_PICORE="selected"
+			STATUS="Official piCore repository"
+			DB="$TAGS_PICORE_DB"
 		;;
 	esac
 }
@@ -612,8 +612,8 @@ pcp_select_repository() {
 	echo '                </td>'
 	echo '                <td class="column300">'
 	echo '                  <select class="large22" name="MYMIRROR">'
-	echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_PICORE'>Official piCore repository</option>'
 	echo '                    <option value="'$PCP_REPO'" '$SELECTED_PCP'>piCorePlayer repository</option>'
+	echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_PICORE'>Official piCore repository</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
@@ -623,15 +623,15 @@ pcp_select_repository() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Select either:</p>'
 	echo '                    <ul>'
-	echo '                      <li>Official piCore repository, or</li>'
-	echo '                      <li>piCorePlayer repository.</li>'
+	echo '                      <li>piCorePlayer repository (default repository), or</li>'
+	echo '                      <li>Official piCore repository.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
-	if [ "$SELECTED_PICORE" = "selected" ]; then
+	if [ "$SELECTED_PCP" = "selected" ]; then
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td colspan="3">'
 		echo '                  <input type="submit" name="SUBMIT" value="Set">'
@@ -987,8 +987,8 @@ echo '<!-- End of pcp_extension_tabs toolbar -->'
 case "$CALLED_BY" in
 	Information)
 		pcp_information_message
-		pcp_free_space_check
 		pcp_internet_check
+		pcp_free_space_check
 		pcp_init_search
 		[ $DEBUG -eq 1 ] && pcp_tce_mirror
 	;;

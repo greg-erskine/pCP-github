@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-07
+# Version: 5.0.0 2019-04-09
 
 #========================================================================================
 # This script checks for required extensions in repositories.
@@ -17,8 +17,8 @@ pcp_navigation
 #========================================================================================
 # Set variables
 #----------------------------------------------------------------------------------------
-PCP_REPO=${PCP_REPO}/
-KERNELVER=$(uname -r)
+PCP_REPO="${PCP_REPO%/}/"
+KERNELVER="$(uname -r)"
 EXTENLIST="/tmp/pcp_extensions.lst"
 WGET="/bin/busybox wget"
 getMirror
@@ -91,6 +91,18 @@ pcp_internet() {
 	fi
 }
 
+pcp_pcp_repo() {
+	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer repository accessible ($PCP_REPO)."
+		echo "[  OK  ] piCorePlayer repository accessible. ($PCP_REPO)" >> $LOG
+		PCP_REPO_ACCESSIBLE=TRUE
+	else
+		pcp_red_cross "piCorePlayer repository not accessible ($PCP_REPO)."
+		echo "[ ERROR ] piCorePlayer repository not accessible. ($PCP_REPO)" >> $LOG
+		unset PCP_REPO_ACCESSIBLE
+	fi
+}
+
 pcp_picore_repo_1() {
 	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
 		pcp_green_tick "Official piCore repository accessible ($PICORE_REPO_1)."
@@ -112,18 +124,6 @@ pcp_picore_repo_2() {
 		pcp_red_cross "Official piCore mirror repository not accessible ($PICORE_REPO_2)."
 		echo "[ ERROR ] Official piCore mirror repository not accessible. ($PICORE_REPO_2)" >> $LOG
 		unset PICORE_REPO_2_ACCESSIBLE
-	fi
-}
-
-pcp_pcp_repo() {
-	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		pcp_green_tick "piCorePlayer SourceForge repository accessible ($PCP_REPO)."
-		echo "[  OK  ] piCorePlayer SourceForge repository accessible. ($PCP_REPO)" >> $LOG
-		PCP_REPO_ACCESSIBLE=TRUE
-	else
-		pcp_red_cross "piCorePlayer SourceForge repository not accessible ($PCP_REPO)."
-		echo "[ ERROR ] piCorePlayer SourceForge repository not accessible. ($PCP_REPO)" >> $LOG
-		unset PCP_REPO_ACCESSIBLE
 	fi
 }
 
@@ -200,6 +200,19 @@ echo '              </td>'
 echo '            </tr>'
 pcp_internet
 pcp_indicator_js
+#--------------------------------------piCorePlayer repository accessible----------------
+pcp_toggle_row_shade
+pcp_incr_id
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td class="column50 center">'
+echo '                <p id="indicator'$ID'">?</p>'
+echo '              </td>'
+echo '              <td>'
+echo '                <p id="status'$ID'">Checking piCorePlayer repository...</p>'
+echo '              </td>'
+echo '            </tr>'
+pcp_pcp_repo
+pcp_indicator_js
 #--------------------------------------Official piCore repository accessible-------------
 pcp_toggle_row_shade
 pcp_incr_id
@@ -228,19 +241,6 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	pcp_picore_repo_2
 	pcp_indicator_js
 fi
-#--------------------------------------piCorePlayer SourceForge repository accessible----
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column50 center">'
-echo '                <p id="indicator'$ID'">?</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p id="status'$ID'">Checking piCorePlayer SourceForge repository...</p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_pcp_repo
-pcp_indicator_js
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
@@ -435,7 +435,7 @@ pcp_check_extension libcofi.tcz
 pcp_extn_message "ALSA equaliser"
 #---------------------------
 pcp_check_extension alsaequal.tcz
-pcp_check_extension caps-0.4.5.tcz
+pcp_check_extension caps.tcz
 #----------------------------------------------------------------------------------------
 pcp_extn_message "networking"
 #-----------------------
@@ -443,10 +443,6 @@ pcp_check_extension ntfs-3g.tcz
 pcp_check_extension filesystems-${KERNELVER}.tcz
 pcp_check_extension net-usb-${KERNELVER}.tcz
 #----------------------------------------------------------------------------------------
-
-#========================================================================================
-pcp_set_repo ${PICORE_REPO_1%/}
-#========================================================================================
 pcp_extn_message "standard extensions"
 #--------------------------------
 pcp_check_extension alsa-modules-${KERNELVER}.tcz
