@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-11
+# Version: 5.0.0 2019-04-13
 
 set -f
 
@@ -1551,6 +1551,11 @@ pcp_tweaks_audio_tweaks() {
 		yes) ALSAeqyes="checked" ;;
 		no) ALSAeqno="checked" ;;
 	esac
+	# Function to check the ALSA-EQ radio button according to config file
+	case "$STREAMER" in
+		yes) STREAMERyes="checked" ;;
+		no) STREAMERno="checked" ;;
+	esac
 
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -1715,6 +1720,37 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
+
+	#--------------------------------------PCP Streamer--------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Streamer for Line Input</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="STREAMER" value="yes" '$STREAMERyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="STREAMER" value="no" '$STREAMERno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>'
+	echo '                    Run streaming server for audio line-in.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>To play stream from LMS, play URL as follows.</p>'
+	echo '                    <ul>'
+	echo '                      <li id="stream_usage"></li>'
+	echo '                      <li id="stream_flac"></li>'
+	echo '                      <li>pCP will stream 16bit, 44.1khz, 2 channels, flac output on port 9100.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            <script>'
+	echo '              document.getElementById("stream_usage").innerHTML = "http://" + window.location.hostname + ":9100/&lt;format&gt;/&lt;rate&gt;/&lt;channels&gt;/&lt;F-flac or M-mp3&gt;";'
+	echo '              document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
+	echo '            </script>'
 
 	#----------------------------------------------------------------------------------------
 	pcp_start_row_shade

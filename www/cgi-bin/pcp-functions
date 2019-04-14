@@ -1372,6 +1372,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $PCPCFG
+	sudo sed -i "s/\(STREAMER=\).*/\1\"$STREAMER\"/" $PCPCFG
 	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $PCPCFG
 	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $PCPCFG
 	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $PCPCFG
@@ -1488,6 +1489,7 @@ CMD="Default"
 FIQ="0xF"
 ALSAlevelout="Default"
 ALSAeq="no"
+STREAMER="no"
 REBOOT="Disabled"
 RB_H="0"
 RB_WD="*"

@@ -728,6 +728,9 @@ if [ $GUI_DISABLE -ne 1 ]; then
 fi
 echo "${GREEN}Done.${NORMAL}"
 
+# Start pCP Streamer
+[ "$STREAMER" = "yes" ] && /usr/local/etc/init.d/streamer start
+
 #========================================================================================
 # Run user commands
 #----------------------------------------------------------------------------------------
