@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-04-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -90,7 +90,19 @@ fi
 # Populate sound card drop-down options
 #---------------------------------------------------------------------------------------- 
 pcp_sound_card_dropdown
- 
+
+echo '<script>'
+echo '  function load_defaults() {'
+echo '    var sel = document.getElementById("audiocard");'
+echo '    var card= sel.options[sel.selectedIndex].text;'
+echo '    if (confirm("Load default Alsa parameters, when selecting " + card + "?\nNote: <Cancel> = No")) {'
+echo '      document.setaudio.save_out.value="yes";'
+echo '    } else {'
+echo '      document.setaudio.save_out.value="no";'
+echo '    }'
+echo '  }'
+echo '</script>'
+
 #========================================================================================
 # Start Audio output table
 #----------------------------------------------------------------------------------------
@@ -107,13 +119,15 @@ pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
-echo '                  <input type="submit"'
+echo '                  <input id="save_out" type="submit"'
+echo '                         name="DEFAULTS"'
 echo '                         value="Save"'
 echo '                         title="Save &quot;Audio output&quot; to configuration file"'
-echo '                  >'
+[ $MODE -ge $MODE_DEVELOPER ] && echo '                         onclick=load_defaults();'
+echo '                   >'
 echo '                </td>'
 echo '                <td class="column250">'
-echo '                  <select name="AUDIO">'
+echo '                  <select id="audiocard" name="AUDIO">'
 
 cat /tmp/dropdown.cfg | grep $RP_MODEL | sed 's/notselected//' | awk -F: '{ print "<option value=\""$1"\" "$2">"$3"</option>"}'
 

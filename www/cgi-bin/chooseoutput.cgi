@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 5.0.0 2019-04-14
 
 . pcp-functions
 . pcp-soundcard-functions
 
 # Store the original values so we can see if they are changed.
 ORIG_AUDIO="$AUDIO"
+ORIG_ALSA_PARAMS="$ALSA_PARAMS"
 
 pcp_httpd_query_string
 [ "$FROM_PAGE" = "" ] && FROM_PAGE="squeezelite.cgi"
@@ -15,6 +16,7 @@ pcp_html_head "Choose output" "SBP"
 
 pcp_banner
 pcp_running_script
+pcp_remove_query_string
 pcp_httpd_query_string
 
 pcp_debug_info() {
@@ -27,8 +29,16 @@ pcp_table_top "Choose output"
 
 if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 	echo '<p class="info">[ INFO ] Audio output unchanged, still '$AUDIO'.</p>'
-	echo '<p class="info">[ INFO ] Nothing to do.</p>'
-	unset CHANGED
+	if [ "$DEFAULTS" = "yes" ]; then
+		echo '<p class="info">[ INFO ] Setting default Alsa parameters.</p>'
+		pcp_squeezelite_stop
+		pcp_soundcontrol
+		pcp_squeezelite_start
+		pcp_save_to_config
+	else
+		echo '<p class="info">[ INFO ] Nothing to do.</p>'
+		unset CHANGED
+	fi
 else
 	echo '<p class="info">[ INFO ] Audio output changed from '$ORIG_AUDIO' to '$AUDIO'.</p>'
 	# The next line is needed to clear OUTPUT from here when selecting USB.
@@ -41,6 +51,8 @@ fi
 if [ $CHANGED ]; then
 	pcp_squeezelite_stop
 	pcp_soundcontrol
+
+	[ "$DEFAULTS" = "no" ] && ALSA_PARAMS=$ORIG_ALSA_PARAMS
 
 	# To save the default dt-overlay parameter (PARAMS1) in pcp.cfg
 	# Needed as PARAM1 is the value saved in pcp.cfg
