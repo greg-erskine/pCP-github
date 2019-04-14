@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-19
+# Version: 5.0.0 2019-04-15
 
 #========================================================================================
 # Setup debug logging
@@ -1440,6 +1440,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(NETWORK_WAIT=\).*/\1\"$NETWORK_WAIT\"/" $PCPCFG
 	sudo sed -i "s/\(NETWORK_WAIT=\).*/\1\"$NETWORK_WAIT\"/" $PCPCFG
 	sudo sed -i "s/\(GUI_DISABLE=\).*/\1\"$GUI_DISABLE\"/" $PCPCFG
+	sudo sed -i "s/\(WWW_PORT=\).*/\1\"$WWW_PORT\"/" $PCPCFG
 }
 
 #========================================================================================
@@ -1555,6 +1556,7 @@ SHAIRPORT_OUT="Please change"
 SHAIRPORT_CONTROL="Please change"
 NETWORK_WAIT="50"
 GUI_DISABLE="0"
+WWW_PORT="80"
 EOF
 }
 
