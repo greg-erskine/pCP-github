@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-02
+# Version: 5.0.0 2019-04-15
 
 # Note: Need to use $WWWROOT someday.
 . /home/tc/www/cgi-bin/pcp-functions
@@ -45,6 +45,11 @@ pcp_cli_help() {
 #	echo " - pcp t3             : test 3"
 #	echo " - pcp a0             : all 0"
 #	echo " - pcp a1             : all 1"
+	echo "-----------------------------------------------------------------------------------------"
+	echo " Jivelite"
+	echo " --------"
+	echo " - pcp kj             : (k)ill (j)ivelite"
+#	echo " - pcp sj             : (s)tart (j)ivelite"
 	echo "-----------------------------------------------------------------------------------------"
 }
 
@@ -145,6 +150,12 @@ case "$1" in
 		TEST=1
 		pcp_save_to_config
 	;;
+	kj)
+		sudo pkill jivelite
+	;;
+#	sj)
+#		sudo /opt/jivelite/bin/jivelite.sh &
+#	;;
 	*)
 		pcp_cli_help 
 	;;
