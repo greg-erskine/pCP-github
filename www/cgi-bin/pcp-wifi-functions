@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-04-14
 
 #========================================================================================
 # onboot.lst functions
@@ -13,7 +13,7 @@ pcp_wifi_update_onbootlst() {
 	sudo sed -i '/'$EXTENSION'/d' $ONBOOTLST
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	if [ "$1" = "add" ]; then
-		sudo echo $EXTENSION >> $ONBOOTLST
+		[ -f $PACKAGEDIR/$EXTENSION ] && sudo echo $EXTENSION >> $ONBOOTLST
 		[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	fi
 

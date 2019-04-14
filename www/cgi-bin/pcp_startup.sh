@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-31
+# Version: 5.0.0 2019-04-14
 
 BACKUP=0
 # Read from pcp-functions file
@@ -303,17 +303,19 @@ fi
 
 #----------------------------------------------------------------------------------------
 # **** Catch all for broken onboot.lst during pCP4.0.0 beta testing. ****
+# Pretty sure this was an insitu_update problem, this is preventing some users wanting
+# to remove extra firmware to speed up boot time.
 #----------------------------------------------------------------------------------------
-if [ "$WIFI" = "on" ]; then
-	grep firmware-ralinkwifi.tcz ${ONBOOTLST} >/dev/null 2>&1
-	if [ $? -eq 1 ]; then
-		pcp_wifi_update_wifi_onbootlst
-		echo "${RED}Reboot needed to enable wifi...${NORMAL}"
-		sleep 3
-		sudo reboot
-		exit 0
-	fi
-fi
+# if [ "$WIFI" = "on" ]; then
+	# grep firmware-ralinkwifi.tcz ${ONBOOTLST} >/dev/null 2>&1
+	# if [ $? -eq 1 ]; then
+		# pcp_wifi_update_wifi_onbootlst
+		# echo "${RED}Reboot needed to enable wifi...${NORMAL}"
+		# sleep 3
+		# sudo reboot
+		# exit 0
+	# fi
+# fi
 #----------------------------------------------------------------------------------------
 
 if [ "$WIFI" = "on" ]; then
