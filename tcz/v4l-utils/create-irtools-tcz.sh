@@ -1,13 +1,14 @@
 #!/bin/bash
 
 V4L=v4l-utils
-V4LVERSION=1.16.2
+V4LVERSION=1.16.5
 SRC=$V4L-$V4LVERSION
 SRCTAR=${V4L}-${V4LVERSION}.tar.bz2
 STARTDIR=`pwd`
 LOG=$PWD/config.log
 OUTPUT=$PWD/${V4L}-build
-TCZ=pcp-irtools.tcz
+TOOLS=irtools
+TCZ=pcp-$TOOLS.tcz
 TCZINFO=$TCZ.info
  
 # Build requires these extra packages in addition to the debian stretch 9.3+ build tools
@@ -53,8 +54,12 @@ echo "Creating $TCZs..."
 find $OUTPUT/usr/local/bin -type f -exec strip --strip-unneeded {} \; >> $LOG
 
 mkdir -p $OUTPUT/usr/local/etc/keytables
-awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-slimdevices.csv | sed -e 's/"//g' > $OUTPUT/usr/local/etc/keytables/slimdevices
-awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-justboomIR.csv | sed -e 's/"//g' > $OUTPUT/usr/local/etc/keytables/justboomir
+mkdir -p $OUTPUT/usr/local/share/pcp-$TOOLS/files
+cp -p $SRC/COPYING $OUTPUT/usr/local/share/pcp-$TOOLS
+echo "# table: slimdevices, type: nec" > $OUTPUT/usr/local/share/pcp-$TOOLS/files/slimdevices
+awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-slimdevices.csv | sed -e 's/"//g' >> $OUTPUT/usr/local/share/pcp-$TOOLS/files/slimdevices
+echo "# table: justboomir, type: rc-5" > $OUTPUT/usr/local/share/pcp-$TOOLS/files/justboomir
+awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-justboomIR.csv | sed -e 's/"//g' >> $OUTPUT/usr/local/share/pcp-$TOOLS/files/justboomir
 
 cd $OUTPUT >> $LOG
 
