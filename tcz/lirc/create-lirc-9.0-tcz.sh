@@ -98,8 +98,8 @@ cd $OUTPUT >> $LOG
 cp -p $STARTDIR/tce.lirc $OUTPUT/usr/local/tce.installed/pcp-lirc
 cp -p $STARTDIR/lircrc-squeezebox $OUTPUT/usr/local/share/lirc/files
 cp -p $STARTDIR/lircd.conf $OUTPUT/usr/local/share/lirc/files
-cp -p $STARTDIR/lircd-jivelite $OUTPUT/usr/local/share/lirc/files
-cp -p $STARTDIR/lircd-jivelite-RMTD116A $OUTPUT/usr/local/share/lirc/files
+cp -p $STARTDIR/lircd-justboomIR  $OUTPUT/usr/local/share/lirc/files
+cp -p $STARTDIR/lircrc-justboomIR $OUTPUT/usr/local/share/lirc/files
 
 mkdir -p $OUTPUTDEV/usr/local/lib
 mkdir -p $OUTPUTDEV/usr/local/include
