@@ -141,28 +141,33 @@ pcp_lirc_upd_dtoverlay() {
 pcp_lirc_install() {
 	echo '[ INFO ] Installing packages for IR remote control.'
 	echo '[ INFO ] This can take a couple of minutes. Please wait...'
-	sudo -u tc pcp-load -r $PCP_REPO -wi pcp-lirc.tcz
+	if [ "$JIVELITE" = "no" ]; then
+		sudo -u tc pcp-load -r $PCP_REPO -wi pcp-lirc.tcz
+	else
+		sudo -u tc pcp-load -r $PCP_REPO -wi pcp-irtools.tcz
+	fi
 
 	echo '[ INFO ] Updating configuration files... '
-	touch /home/tc/.lircrc
-	sudo chown tc:staff /home/tc/.lircrc
+
+	if [ "$JIVELITE" = "no" ]; then
+		touch /home/tc/.lircrc
+		sudo chown tc:staff /home/tc/.lircrc
+
+		# Add lirc conf to the .filetool.lst
+		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
+		sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
+		sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
+		sudo sed -i '/.lircrc/d' /opt/.filetool.lst
+		sudo echo 'home/tc/.lircrc' >> /opt/.filetool.lst
+		sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
+	else
+		sudo cp -f /usr/local/share/pcp-irtools/files/slimdevices /usr/local/etc/keytables/jivelite
+		sudo echo 'usr/local/etc/keytables/jivelite' >> /opt/.filetool.lst
+	fi
 
 	pcp_lirc_upd_dtoverlay
 
-	# Add lirc conf to the .filetool.lst
-	[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
-	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
-	sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
-	sudo sed -i '/.lircrc/d' /opt/.filetool.lst
-	sudo echo 'home/tc/.lircrc' >> /opt/.filetool.lst
-
-	if [ "$JIVELITE" = "yes" ]; then
-		sudo cp -f /usr/local/share/lirc/files/lircd-jivelite /usr/local/etc/lirc/lircd.conf
-	else
-		sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
-	fi
-
-	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && pcp_save_to_config
+	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && IR_CONFIG="/home/tc/.lircrc" && pcp_save_to_config
 }
 
 #========================================================================================
@@ -170,11 +175,13 @@ pcp_lirc_install() {
 #----------------------------------------------------------------------------------------
 pcp_lirc_uninstall() {
 	sudo -u tc tce-audit builddb
-	[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-lirc.tcz
+	if [ "$JIVELITE" = "no" ]; then
+		[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-lirc.tcz
+	else
+		[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-irtools.tcz
+	fi
 
 	echo '[ INFO ] Removing configuration files... '
-
-	rm -f /home/tc/.lircrc
 
 	pcp_mount_bootpart_nohtml
 	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
@@ -182,9 +189,17 @@ pcp_lirc_uninstall() {
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=gpio-ir removed." || FAIL_MSG="Can not remove dtoverlay=gpio-ir."
 	pcp_umount_bootpart_nohtml
 
-	sudo sed -i '/lirc.tcz/d' $ONBOOTLST
-	sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
-	sudo sed -i '/.lircrc/d' /opt/.filetool.lst
+	if [ "$JIVELITE" = "no" ]; then
+		rm -f /home/tc/.lircrc
+
+		sudo sed -i '/pcp-lirc.tcz/d' $ONBOOTLST
+		sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
+		sudo sed -i '/.lircrc/d' /opt/.filetool.lst
+	else
+		sudo sed -i '/pcp-irtools.tcz/d' $ONBOOTLST
+		sudo rm /usr/local/etc/keytables/jivelite
+		sudo sed -i '/usr\/local\/etc\/keytables\/jivelite/d' /opt/.filetool.lst
+	fi
 
 	if [ "$FAIL_MSG" = "ok" ]; then
 		IR_LIRC="no"
@@ -293,8 +308,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                    </ol>'
 	echo '                    <p><b>Note:</b></p>'
 	echo '                    <ul>'
-	echo '                      <li>If you use <b>LIRC with Jivelite</b> the configuration file should be named <b>"lircd.conf</b>".</li>'
-	echo '                      <li>If you use <b>LIRC on a headless system (no Jivelite)</b> you will need to provide'
+	echo '                      <li>To use <b>LIRC on a headless system (no Jivelite)</b> you will need to provide'
 	echo '                       both <b>"lircd.conf" and "lircrc"</b> configuration files.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -629,7 +643,7 @@ fi
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "Debug"
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" IR_LIRC IR_GPIO_IN IR_GPIO_OUT IR_DEVICE
+	pcp_debug_variables "html" IR_LIRC IR_GPIO_IN IR_GPIO_OUT IR_DEVICE IR_CONFIG
 	echo '<!-- End of debug info -->'
 	pcp_mount_bootpart
 	echo '<p class="info">[ INFO ] Last few lines of config.txt</p>'
