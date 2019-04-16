@@ -680,14 +680,14 @@ pcp_xtras() {
 }
 
 pcp_picoreplayers_toolbar() {
-	TMP=$(mktemp)
-	pcp_lms_players squeezelite pCP>$TMP
-
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<p style="margin-top: -12px;">'
 	echo '  <a class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
 
 	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
+		TMP=$(mktemp)
+		pcp_lms_players squeezelite pCP>$TMP
+
 		while read line
 		do
 			TITLE=$(echo $line | awk -F, '{ print $1 }')
