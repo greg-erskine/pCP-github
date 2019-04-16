@@ -60,6 +60,8 @@ echo "# table: slimdevices, type: nec" > $OUTPUT/usr/local/share/pcp-$TOOLS/file
 awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-slimdevices.csv | sed -e 's/"//g' >> $OUTPUT/usr/local/share/pcp-$TOOLS/files/slimdevices
 echo "# table: justboomir, type: rc-5" > $OUTPUT/usr/local/share/pcp-$TOOLS/files/justboomir
 awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-justboomIR.csv | sed -e 's/"//g' >> $OUTPUT/usr/local/share/pcp-$TOOLS/files/justboomir
+echo "# table: rmt-d117a, type: sony" > $OUTPUT/usr/local/share/pcp-$TOOLS/files/sony-rmtd117a
+awk -F, '{printf "%s\t%s\n",$1,$2}' keytable-jivelite-sony-rmtd117a.csv | sed -e 's/"//g' >> $OUTPUT/usr/local/share/pcp-$TOOLS/files/sony-rmtd117a
 
 cd $OUTPUT >> $LOG
 
