@@ -503,7 +503,9 @@ pcp_html_head() {
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
-	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$(date -r ../css/piCorePlayer.css +%H%M%S)'">'
+	local CSS_VER
+	[ $MODE -ge $MODE_DEVELOPER ] && CSS_VER=$(date -r ../css/piCorePlayer.css +%H%M%S) || CSS_VER=$(pcp_picoreplayer_version)
+	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$CSS_VER'">'
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
