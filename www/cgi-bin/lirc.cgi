@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-04-17
 
 . pcp-functions
 . pcp-lms-functions
@@ -353,6 +353,26 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Used to define ir remote functions.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Customkeytable" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button id="UP3" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
+	echo '                </td>'
+	echo '                <td class="column280">'
+	echo '                  <input class="large22" type="file" id="file" name="KEYTABLE" onclick="document.getElementById('\''UP3'\'').disabled = false">'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Upload custom <b>jivelite keytables</b> to pCP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Used to define ir remote functions for jivelite.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'

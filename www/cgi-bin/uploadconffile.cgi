@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-04-17
 
 . pcp-functions
 
@@ -45,6 +45,14 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 				FROM_PAGE=lirc.cgi
 				echo "lircrc"
 				UPLOADED_FILE="/home/tc/.lircrc"
+				BACKUP_REQUIRED=1
+				REBOOT_REQUIRED=1
+				break
+			;;
+			*KEYTABLE*)
+				FROM_PAGE=lirc.cgi
+				echo "jivelite keytables"
+				UPLOADED_FILE="/usr/local/etc/keytables/jivelite"
 				BACKUP_REQUIRED=1
 				REBOOT_REQUIRED=1
 				break
