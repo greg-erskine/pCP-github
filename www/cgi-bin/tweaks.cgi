@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-13
+# Version: 5.0.0 2019-04-17
 
 set -f
 
@@ -188,6 +188,7 @@ pcp_tweaks_playertabs() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -228,6 +229,7 @@ pcp_tweaks_lmscontrols() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -313,6 +315,7 @@ pcp_tweaks_lmswebport() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -355,7 +358,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-
+	echo '                <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	if [ $DEBUG -eq 1 ]; then
 		echo '                <td class="column150">'
 		echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -418,6 +421,7 @@ pcp_tweaks_rotdash() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -809,6 +813,7 @@ pcp_tweaks_wol() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
