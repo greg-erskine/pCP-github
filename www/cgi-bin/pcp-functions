@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-15
+# Version: 5.0.0 2019-04-21
 
 #========================================================================================
 # Setup debug logging
@@ -58,8 +58,9 @@ pcp_variables() {
 	# Note: This section is ONLY for variables as it can be run multiple times.
 	#------------------------------------------------------------------------------------
 	# Name of device that has tce.  Assume boot is partition 1 of that device.
-	TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
-	TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	TMPDEV="$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	TCEDEV="/dev/$TMPDEV"
+	TCEMNT="/mnt/$TMPDEV"
 	BOOTDEV=${TCEDEV%%?}1
 	BOOTMNT=${TCEMNT%%?}1
 	CONFIGTXT="$BOOTMNT/config.txt"
@@ -68,7 +69,7 @@ pcp_variables() {
 	BOOTSYNC="/opt/bootsync.sh"
 	SHUTDOWN="/opt/shutdown.sh"
 	PB100="/home/tc/.local/bin/.pbtemp"
-	HTTPDCONF="/home/tc/httpd.conf"
+	HTTPD_CONF="/etc/httpd.conf"
 	[ -x /usr/sbin/httpd ] && HTTPD="/usr/sbin/httpd" || HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
@@ -894,10 +895,19 @@ pcp_table_textarea_end() {
 #========================================================================================
 # Busybox httpd
 #----------------------------------------------------------------------------------------
-pcp_httpd_query_string() {
+pcp_httpd_query_string_double_quote() {
 	# Process the $QUERY_STRING from httpd
 	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+pcp_httpd_query_string_single_quote() {
+	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\047\n",$i} }' | sed "s/=/='/")
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+pcp_httpd_query_string() {
+	pcp_httpd_query_string_single_quote
 }
 
 # Needed when we want to store an encoded string in pcp.cfg
