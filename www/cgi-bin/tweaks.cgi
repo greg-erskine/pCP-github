@@ -1545,12 +1545,6 @@ pcp_tweaks_audio_tweaks() {
 		no) SHAIRPORTno="checked" ;;
 	esac
 
-	# Function to check the ALSA radio button according to config file
-	case "$ALSAlevelout" in
-		Default) ALSAdefault="checked" ;;
-		Custom) ALSAcustom="checked" ;;
-	esac
-
 	# Function to check the ALSA-EQ radio button according to config file
 	case "$ALSAeq" in
 		yes) ALSAeqyes="checked" ;;
@@ -1637,46 +1631,6 @@ pcp_tweaks_audio_tweaks() {
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
 		pcp_debug_variables "html" SHAIRPORT SHAIRPORTyes SHAIRPORTno
-		echo '  </td>'
-		echo '</tr>'
-		echo '<!-- End of debug info -->'
-	fi
-
-	#-------------------------------------------ALSAlevelout---------------------------------
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>ALSA Mixer controls</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Default" '$ALSAdefault'>Default'
-	echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Custom" '$ALSAcustom'>Custom'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Custom option allows ALSA mixer level and controls to be restored after reboot&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA mixer controls.</p>'
-	echo '                    <p><b>Note: </b>This will be automatically set to Custom, if you use the "Card Control" settings from the squeezelite page.</p>'
-	echo '                    <p><b>Step:</b></p>'
-	echo '                    <ol>'
-	echo '                      <li>Login via ssh.</li>'
-	echo '                      <li>Use "alsamixer" to set the ALSA output level.</li>'
-	echo '                      <li>Save ALSA settings by typing "sudo alsactl store".</li>'
-	echo '                      <li>Backup ALSA settings by typing "pcp bu".</li>'
-	echo '                      <li>Select Custom option on this Tweak page.</li>'
-	echo '                    </ol>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		pcp_debug_variables "html" ALSAlevelout ALSAdefault ALSAcustom
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'

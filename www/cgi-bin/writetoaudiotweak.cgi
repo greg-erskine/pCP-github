@@ -9,7 +9,6 @@
 ORIG_ALSAeq=$ALSAeq
 ORIG_SHAIRPORT=$SHAIRPORT
 ORIG_SQUEEZELITE=$SQUEEZELITE
-ORIG_ALSAlevelout=$ALSAlevelout
 ORIG_STREAMER=$STREAMER
 ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
@@ -129,25 +128,6 @@ if [ "$ORIG_SHAIRPORT" != "$SHAIRPORT" ]; then
 	esac
 else
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $SHAIRPORT variable unchanged.</p>'
-fi
-
-#========================================================================================
-# ALSA output level section
-#----------------------------------------------------------------------------------------
-# Only do something if variable has changed.
-#----------------------------------------------------------------------------------------
-if [ "$ORIG_ALSAlevelout" != "$ALSAlevelout" ]; then
-	VARIABLE_CHANGED=TRUE
-
-	echo '<p class="info">[ INFO ] $ALSAlevelout is set to: '$ALSAlevelout'</p>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'<br />'
-		echo '                 [ DEBUG ] $ALSAlevelout is: '$ALSAlevelout'</p>'
-	fi
-
-else
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $ALSAlevelout variable unchanged.</p>'
 fi
 
 #========================================================================================
