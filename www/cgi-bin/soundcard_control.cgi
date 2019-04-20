@@ -48,7 +48,7 @@ case "$ACTION" in
 			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
 		fi
 
-		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
+		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP_CONTROL" "$FILTER" >/dev/null 2>&1
 
 		if [ x"$SMCFILTER1" = x"" ]; then
 			sudo amixer -c $CARD sset 'Analogue' 0 >/dev/null 2>&1
@@ -165,7 +165,7 @@ fi
 #======================================DEBUG=============================================
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" AUDIO CARD SSET DSP DTOVERLAY GENERIC_CARD \
+	pcp_debug_variables "html" AUDIO CARD SSET DSP_CONTROL DTOVERLAY GENERIC_CARD \
 		PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 \
 		FILTER1 FILTER2 FILTER3 FILTER4 FILTER5 FILTER6 FILTER7 \
 		TEXT1 TEXT2 TEXT3 TEXT4 TEXT5 \
@@ -560,6 +560,13 @@ fi
 if [ "$GENERIC_CARD" = "Katana" ]; then
 	pcp_soundcard_DSP_options
 	pcp_soundcard_Deemphasis_options
+	pcp_soundcard_volume_options
+	pcp_volume_filter_buttons
+	pcp_soundcard_parameter_options
+fi
+
+if [ "$GENERIC_CARD" = "ISABRE" ]; then
+	pcp_soundcard_DSP_options
 	pcp_soundcard_volume_options
 	pcp_volume_filter_buttons
 	pcp_soundcard_parameter_options

@@ -179,7 +179,12 @@ pcp_generic_card_control() {
 				done
 			fi
 		;;
-		
+		ISABRE)
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+
+			pcp_DSP_program_selection
+		;;
 #		ES9023)
 #			CARD="ALSA"
 #			SSET="PCM"
@@ -197,10 +202,14 @@ pcp_generic_card_control() {
 #	Description, avoid having to hardcode the filter names, but rather extract from amixer
 #----------------------------------------------------------------------------------------
 pcp_DSP_program_selection() {
-	amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || DSPfound="no" 
+	# DSP Program is the default DSP name, some cards are using different names, defined in the .conf file.
+	[ "$DSP_CONTROL" = "" ] && DSP_CONTROL="DSP Program,0"
+
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[DSP] Start DSP Function</p>'
+	amixer -c $CARD scontrols | grep -q "${DSP_CONTROL%,0}" && DSPfound="yes" || DSPfound="no" 
 	if [ "$DSPfound" = "yes" ]; then
-		DSP="DSP Program"
-		LIST=$(amixer -c $CARD sget 'DSP Program,0' | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[DSP] DSP Found</p>'
+		LIST=$(amixer -c $CARD sget "$DSP_CONTROL" | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
 		I=1
 		DONE=0
 		while [ $DONE = 0 ]; do
@@ -214,7 +223,7 @@ pcp_DSP_program_selection() {
 		done
 		NUMFILTERS=$I
 
-		ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
+		ACTUAL_FILTER=$(amixer -c $CARD sget "$DSP_CONTROL" | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
 
 		I=1
 		while [ $I -le $NUMFILTERS ]; do
@@ -341,6 +350,7 @@ pcp_blank_audio_conf() {
 	CONTROL_PAGE=""
 	LISTNAME=""
 	DTOVERLAY=""
+	DSP_CONTROL=""
 	SSET=""
 	PARAMS1=""
 	PARAMS2=""
