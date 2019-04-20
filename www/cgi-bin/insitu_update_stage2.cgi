@@ -604,6 +604,8 @@ outfile.close
 	sudo chown tc.staff /usr/local/etc/pcp/cards/*
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
+	[ ! -f /etc/httpd.conf ] && sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/httpd.conf /etc/httpd.conf
+	
 	# Remove files that are obsolete
 	if [ $MAJOR_VERSION -ge 4 ]; then
 		rm -f /usr/local/etc/pcp/cards/raspidac3.conf
