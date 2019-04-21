@@ -1055,6 +1055,15 @@ pcp_shairport_status() {
 }
 
 #========================================================================================
+# Reload keytables for jivelite
+#----------------------------------------------------------------------------------------
+pcp_load_keytables() {
+	KEY_EXEC="/usr/local/bin/ir-keytable"
+	KEY_CONF="/usr/local/etc/keytables/jivelite"
+	if [ -x $KEY_EXEC -a -f $KEY_EXEC ] && $KEY_EXEC -c -w $KEY_EXEC
+}
+
+#========================================================================================
 # Determine the system uptime in seconds or minutes
 #----------------------------------------------------------------------------------------
 pcp_uptime_seconds() {

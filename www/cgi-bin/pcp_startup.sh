@@ -784,6 +784,9 @@ if [ "$JIVELITE" = "yes" ]; then
 	else
 		echo "${RED}There is a problem with the Jivelite installation. Please remove and reinstall jivelite.${NORMAL}"
 	fi
+	echo -n "${BLUE}Loading Keytables..."
+	pcp_load_keytables
+	echo "${GREEN}Done.${NORMAL}"
 fi
 
 if [ "$JIVELITE" = "no" ]; then

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-17
+# Version: 5.0.0 2019-04-21
 
 . pcp-functions
 
@@ -54,7 +54,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 				echo "jivelite keytables"
 				UPLOADED_FILE="/usr/local/etc/keytables/jivelite"
 				BACKUP_REQUIRED=1
-				REBOOT_REQUIRED=1
+				pcp_load_keytables
 				break
 			;;
 		esac
