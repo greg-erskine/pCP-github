@@ -54,7 +54,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 				echo "jivelite keytables"
 				UPLOADED_FILE="/usr/local/etc/keytables/jivelite"
 				BACKUP_REQUIRED=1
-				pcp_load_keytables
+				RELOAD_KEYTABLE=1
 				break
 			;;
 		esac
@@ -87,6 +87,11 @@ if [ $RESTART_LMS -eq 1 ]; then
 	echo "[ INFO ] Restarting LMS"
 	/usr/local/etc/init.d/slimserver stop
 	/usr/local/etc/init.d/slimserver start
+fi
+
+if [ $RELOAD_KEYTABLE -eq 1 ]; then
+	echo "[ INFO ] Loading keytable"
+	pcp_load_keytables
 fi
 
 [ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "nohtml"

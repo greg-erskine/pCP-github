@@ -449,15 +449,7 @@ fi
 # INFRARED remote control - Start lircd if needed.
 #----------------------------------------------------------------------------------------
 if [ "$IR_LIRC" = "yes" ]; then
-	if [ "$JIVELITE" = "yes" ]; then
-		IRKEYTABLE=/usr/local/bin/ir-keytable
-
-		if [ -x $IRKEYTABLE ]; then
-			echo -n "${BLUE}Loading kernel keytable Jivelite support...${NORMAL}"
-			$IRKEYTABLE -c -w /usr/local/etc/keytables/jivelite
-			echo "${GREEN}Done.${NORMAL}"
-		fi
-	else
+	if [ "$JIVELITE" = "no" ]; then
 		LIRCD=/usr/local/sbin/lircd
 
 		if [ -x $LIRCD ]; then
