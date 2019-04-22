@@ -1060,7 +1060,7 @@ pcp_shairport_status() {
 pcp_load_keytables() {
 	KEY_EXEC="/usr/local/bin/ir-keytable"
 	KEY_CONF="/usr/local/etc/keytables/jivelite"
-	if [ -x $KEY_EXEC -a -f $KEY_EXEC ] && $KEY_EXEC -c -w $KEY_EXEC
+	[ -x $KEY_EXEC -a -f $KEY_EXEC ] && $KEY_EXEC -c -w $KEY_EXEC
 }
 
 #========================================================================================
