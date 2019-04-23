@@ -1,15 +1,17 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.0.0 2019-04-24
+
+# Title: Linux command line
+# Description: Method for running Linux commands vi GUI.
 
 . pcp-functions
 . pcp-lms-functions
 
-pcp_html_head "Xtras Command Line" "GE"
+pcp_html_head "Command Line" "GE"
 
 pcp_banner
 pcp_running_script
-pcp_xtras
 
 pcp_httpd_query_string_no_decode
 LINUXCMD=$(sudo $HTTPD -d $LINUXCMD)
