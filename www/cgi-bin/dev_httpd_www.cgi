@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-21
+# Version: 5.0.0 2019-04-22
 
 # Title: Configure httpd
 # Description: Tool to adjust /etc/httpd.conf
@@ -11,57 +11,95 @@ pcp_html_head "web admin" "GE"
 
 pcp_banner
 pcp_running_script
-
 pcp_httpd_query_string
 
-#$HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/'
-#echo "<br>"
-#$HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\047\n",$i} }' | sed "s/=/='/"
-#
-#DIR_FROM="/home/tc/www/"
-#DIR_TO="/var/www/"
-
-DEBUG=1
+#DEBUG=1
+#unset HTTPD_PARAM
 
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
-pcp_save_www() {
+pcp_save_httpd_conf() {
 	pcp_save_to_config
-	pcp_www_write_httpd_conf
+	pcp_httpd_generate_passwd_hash
+	pcp_httpd_write_httpd_conf
 	pcp_backup "nohtml"
-	pcp_www_read_httpd_conf
+	pcp_httpd_read_httpd_conf
 }
 
 #========================================================================================
 # httpd routines
 #----------------------------------------------------------------------------------------
-pcp_httpd_start() {
-	sudo /usr/local/etc/init.d/httpd start
+pcp_httpd() {
+	case $HTTPD_PARAM in
+		restart)
+			sudo /usr/local/etc/init.d/httpd restart
+		;;
+		start)
+			sudo /usr/local/etc/init.d/httpd start
+		;;
+		stop)
+			sudo /usr/local/etc/init.d/httpd stop
+		;;
+		status)
+			sudo /usr/local/etc/init.d/httpd status
+		;;
+		*) :
+		;;
+	esac
 }
 
-pcp_httpd_stop() {
-	sudo /usr/local/etc/init.d/httpd stop
+#========================================================================================
+# Password routines
+#----------------------------------------------------------------------------------------
+pcp_httpd_generate_passwd_hash() {
+	RANDOM_SALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 8 | head -n 1)
+	HTTPD_PWD_HASH=$(openssl passwd -1 -salt $RANDOM_SALT $HTTPD_PWD)
 }
 
-pcp_httpd_restart() {
-	sudo /usr/local/etc/init.d/httpd restart
+#========================================================================================
+# Warning message
+#----------------------------------------------------------------------------------------
+pcp_httpd_warning_message() {
+	echo '<table class="bgred">'
+	echo '  <tr class="warning">'
+	echo '    <td>'
+	echo '      <p style="color:white"><b>Warning:</b></p>'
+	echo '      <ul>'
+	echo '        <li style="color:white">'$HTTPD_CONF' is marked as \"Maintained by user\".</li>'
+	echo '        <li style="color:white">Configuration file will be not be editted by piCorePlayer.</li>'
+	echo '        <li style="color:white">Use manual methods to maintain.</li>'
+	echo '      </ul>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	pcp_httpd_html_end
+	exit
 }
 
-pcp_httpd_status() {
-	sudo /usr/local/etc/init.d/httpd status
+#========================================================================================
+# HTML end
+#----------------------------------------------------------------------------------------
+pcp_httpd_html_end() {
+	pcp_footer
+	pcp_copyright
+	pcp_remove_query_string
+
+	echo '</body>'
+	echo '</html>'
 }
+
 #========================================================================================
 # Read current httpd.conf
 #----------------------------------------------------------------------------------------
-pcp_www_read_httpd_conf() {
+pcp_httpd_read_httpd_conf() {
 	# FORMAT - colour|text|html
 	local FORMAT=$1
 
 	if [ -f $HTTPD_CONF ]; then
 		pcp_message INFO "Reading from $HTTPD_CONF..." "$FORMAT"
-
-#		unset WWW_HOME WWW_USER_PWD WWW_USER WWW_PWD
+		unset HTTPD_HOME HTTPD_USER_PWD HTTPD_USER HTTPD_PWD HTTPD_PWD_HASH HTTPD_USER_ACTIVE
+		MAINTAINED="user"
 
 		while read i; do
 			case $i in
@@ -76,48 +114,67 @@ pcp_www_read_httpd_conf() {
 				*:*)
 					case $i in
 						H:*)
-							WWW_HOME=${i#*:}
+							HTTPD_HOME=${i#*:}
 						;;
 						/cgi-bin:*)
-							WWW_USER_PWD=${i#*:}
-							WWW_USER=${WWW_USER_PWD%:*}
-							WWW_PWD=${WWW_USER_PWD#*:}
+							HTTPD_USER_PWD=${i#*:}
+							HTTPD_USER=${HTTPD_USER_PWD%:*}
+							HTTPD_PWD_HASH=${HTTPD_USER_PWD#*:}
+							HTTPD_USER_ENABLED="yes"
+						;;
+						\#/cgi-bin:*)
+							HTTPD_USER_ENABLED="no"
 						;;
 					esac
+				;;
 			esac
 		done < $HTTPD_CONF
 	fi
 }
 
+#		if [ ${HTTPD_PWD:0:3} = '$1$' ]; then
+#			HTTPD_PWD_HASH=$HTTPD_PWD
+#		else
+#			HTTPD_PWD_HASH=$(pcp_httpd_generate_passwd_hash)
+#		fi
+
 #========================================================================================
 # Write httpd.conf
 #----------------------------------------------------------------------------------------
-pcp_www_write_httpd_conf() {
+pcp_httpd_write_httpd_conf() {
 	# FORMAT - colour|text|html
 	local FORMAT=$1
 
-	if [ "$MAINTAINED" = "user" ]; then
-		sudo echo '# Maintained by user'           > $HTTPD_CONF
-	else
-		sudo echo '# Maintained by piCorePlayer'   > $HTTPD_CONF
-	fi
-
-	sudo echo 'H:'${WWW_HOME:-/home/tc/www}       >> $HTTPD_CONF
-	sudo echo "/cgi-bin:${WWW_USER}:${WWW_PWD}"   >> $HTTPD_CONF
+	sudo echo '# Maintained by piCorePlayer'               > $HTTPD_CONF
+	sudo echo 'H:'${HTTPD_HOME:-/home/tc/www}             >> $HTTPD_CONF
+	sudo echo "/cgi-bin:${HTTPD_USER}:${HTTPD_PWD_HASH}"  >> $HTTPD_CONF
 
 	sudo chown root:root $HTTPD_CONF
 	sudo chmod u=rw,go=r $HTTPD_CONF
 }
 
+
+pcp_httpd_user_password() {
+	local GREG=$1
+
+	[ $1 = "enable" ] && sed -i "s/\#\/cgi-bin:/\/cgi-bin:/g" $HTTPD_CONF
+	[ $1 = "disable" ] && sed -i "s/^\/cgi-bin:/\#\/cgi-bin:/g" $HTTPD_CONF
+
+}
+
 #========================================================================================
 # Action
 #----------------------------------------------------------------------------------------
-pcp_table_top "Action"
+[ $DEBUG -eq 1 ] && pcp_table_top "Action"
 
 case "$ACTION" in
 	Save)
-		pcp_message INFO "Saving..." "html"
-		pcp_save_www
+		[ $DEBUG -eq 1 ] && pcp_message INFO "Saving..." "html"
+		pcp_save_httpd_conf
+		HTTPD_PARAM=restart
+	;;
+	Restart)
+		HTTPD_PARAM=restart
 	;;
 	Start)
 		pcp_httpd_start
@@ -125,24 +182,38 @@ case "$ACTION" in
 	Stop)
 		pcp_httpd_stop
 	;;
-	Restart)
-		pcp_httpd_restart
+	Status)
+		HTTPD_PARAM=status
+	;;
+	Defaults)
+		HTTPD_USER="admin"
+		HTTPD_PWD="admin"
+		pcp_httpd_write_httpd_conf
+	;;
+	Enable)
+		pcp_httpd_user_password enable
+	;;
+	Disable)
+		pcp_httpd_user_password disable
 	;;
 	*)
-		pcp_message INFO "Initial..." "html"
+		[ $DEBUG -eq 1 ] && pcp_message INFO "Initial..." "html"
 		ACTION="Initial"
-		pcp_www_read_httpd_conf "html"
+		pcp_httpd_read_httpd_conf "html"
 	;;
 esac
 
-pcp_table_end
+[ $DEBUG -eq 1 ] && pcp_table_end
+
+[ "$ACTION" = "Initial" ] && [ "$MAINTAINED" = "user" ] && pcp_httpd_warning_message
 
 #========================================================================================
 # Debug information.
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] Information"
-	pcp_debug_variables "html" ACTION MAINTAINED HTTPD_CONF WWW_HOME WWW_USER_PWD WWW_USER WWW_PWD
+	pcp_debug_variables "html" DEBUG ACTION MAINTAINED HTTPD_CONF HTTPD_HOME HTTPD_USER_PWD\
+		HTTPD_USER HTTPD_PWD HTTPD_PWD_HASH HTTPD_USER_ENABLED RANDOM_SALT HTTPD_PARAM
 	pcp_table_end
 
 	pcp_table_top "[ DEBUG ] $HTTPD_CONF"
@@ -178,7 +249,7 @@ echo '                         type="number"'
 echo '                         name="WWW_PORT"'
 echo '                         value="'$WWW_PORT'"'
 echo '                         required'
-echo '                  >'
+echo '                  >*'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>www port&nbsp;&nbsp;'
@@ -190,25 +261,29 @@ echo '                    <p>Define port.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-#------------------------------------------Maintained by---------------------------------
+#------------------------------------User/password enbled--------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
+
+	case "$HTTPD_USER_ENABLED" in
+		yes) HUEyes="checked" ;;
+		no) HUEno="checked" ;;
+	esac
+
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="'$COL1'">'
-echo '                  <p>Maintained by</p>'
+echo '                  <p>User/password</p>'
 echo '                </td>'
 echo '                <td class="'$COL2'">'
-echo '                  <select name="MAINTAINED">'
-echo '                    <option value="piCorePlayer" '$MBP'>piCorePlayer</option>'
-echo '                    <option value="user" '$MBU'>user</option>'
-echo '                  </select>'
+echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="Yes" '$HUEyes'>Enabled&nbsp;&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="No" '$HUEno'>Disabled'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Maintained by piCorePlayer/User&nbsp;&nbsp;'
+echo '                  <p>Enable User/password for httpd&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Manual configuration = Maintained by user.</p>'
+echo '                    <p>Accessing the web GUI will require a username and password.</p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
@@ -223,15 +298,15 @@ if ! [ "$MAINTAINED" = "user" ]; then
 	echo '                <td class="'$COL2'">'
 	echo '                  <input class="large15"'
 	echo '                         type="text"'
-	echo '                         name="WWW_USER"'
-	echo '                         value="'$WWW_USER'"'
+	echo '                         name="HTTPD_USER"'
+	echo '                         value="'$HTTPD_USER'"'
 	echo '                         required'
 	echo '                         title="Invalid characters: $ &amp; ` / &quot;"'
 	echo '                         pattern="[^$&`/\x22]+"'
-	echo '                  >'
+	echo '                  >*'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>www user&nbsp;&nbsp;'
+	echo '                  <p>httpd user&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -252,15 +327,15 @@ if ! [ "$MAINTAINED" = "user" ]; then
 	echo '                <td class="'$COL2'">'
 	echo '                  <input class="large15"'
 	echo '                         type="text"'
-	echo '                         name="WWW_PWD"'
-	echo '                         value="'$WWW_PWD'"'
+	echo '                         name="HTTPD_PWD"'
+	echo '                         value="'$HTTPD_PWD'"'
 	echo '                         required'
-	#echo '                         title="Invalid characters: $ &amp; ` / &quot;"'
-	#echo '                         pattern="[^$&`/\x22]+"'
-	echo '                  >'
+#	echo '                         title="Invalid characters: $ &amp; ` / &quot;"'
+#	echo '                         pattern="[^$&`/\x22]+"'
+	echo '                  >*'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>www password&nbsp;&nbsp;'
+	echo '                  <p>httpd password&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -270,11 +345,40 @@ if ! [ "$MAINTAINED" = "user" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 fi
+#---------------------------------------www password hash--------------------------------
+if ! [ "$MAINTAINED" = "user" ]  && [ $DEBUG -eq 1 ] ; then
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COL1'">'
+	echo '                  <p>Password hash</p>'
+	echo '                </td>'
+	echo '                <td class="'$COL2'">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="HTTPD_PWD_HASH"'
+	echo '                         value="'$HTTPD_PWD_HASH'"'
+	echo '                         maxlength="34"'
+	echo '                         disabled'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>httpd password hash&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Auto-generated password hash.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+fi
 #--------------------------------------Buttons-------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="ACTION" value="Save">'
+echo '                  <input type="submit" name="ACTION" value="Defaults">'
+#echo '                  <input type="hidden" name="HTTPD_PWD" value="'$HTTPD_PWD'">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -290,36 +394,40 @@ echo '</table>'
 #========================================================================================
 # DEVELOPER options
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>DEVELOPER options</legend>'
-echo '          <form name="developer" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
-pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="3">'
-echo '                  <input type="submit" name="ACTION" value="Start">'
-echo '                  <input type="submit" name="ACTION" value="Stop">'
-echo '                  <input type="submit" name="ACTION" value="Restart">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </form>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+if [ $MODE -ge $MODE_DEVELOPER ]; then
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>DEVELOPER options</legend>'
+	echo '          <form name="developer" action="'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="ACTION" value="Restart">'
+	echo '                  <input type="submit" name="ACTION" value="Start">'
+	echo '                  <input type="submit" name="ACTION" value="Stop">'
+	echo '                  <input type="submit" name="ACTION" value="Status">'
+	echo '                  <input type="submit" name="ACTION" value="Enable">'
+	echo '                  <input type="submit" name="ACTION" value="Disable">'
+	echo '                </td>'
+	echo '              </tr>'
+	#------------------------------------------------------------------------------------
+	echo '            </table>'
+	echo '          </form>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-pcp_remove_query_string
+pcp_httpd_html_end
+[ x"$HTTPD_PARAM" = x"" ] || pcp_httpd $HTTPD_PARAM
 
-echo '</body>'
-echo '</html>'
+exit
