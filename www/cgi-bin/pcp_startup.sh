@@ -376,6 +376,7 @@ if [ "$ALSAlevelout" = "Custom" ]; then
 	# It seems the first attempt to load the state fails with some error. Looking at debug, it appears that not everything is initialized
 	# yet.  Since the state may contain extra cards, Load only the asound state for the selected card,
 	# and make sure it completes without error.
+	alsactl init $CARDNAME
 	CNT=1
 	until false; do
 		alsactl restore $CARDNAME

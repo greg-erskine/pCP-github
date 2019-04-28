@@ -41,6 +41,49 @@ fi
 case "$ACTION" in
 	Save)
 		echo '[ INFO ] Setting Alsa mixer.'
+		#----------------------------Allo Piano Plus Dac Controls------------------------
+		# Setting Dual Mode first, as it affects how the driver controls volume.
+		case "$PIANOSUBMODE" in
+			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
+			Dual-Mono) 
+				amixer -q -c $CARD sset 'Dual Mode' "$PIANOSUBMODE"
+				amixer -q -c $CARD sset 'Master' frontright,unmute
+				amixer -q -c $CARD sset 'Master' frontleft,unmute
+				amixer -q -c $CARD sset 'Digital' unmute
+				amixer -q -c $CARD sset 'Digital' frontright,mute
+				amixer -q -c $CARD sset 'Digital' $VolInputName'%'
+				amixer -q -c $CARD sset 'Subwoofer' unmute
+				amixer -q -c $CARD sset 'Subwoofer' frontleft,mute
+				amixer -q -c $CARD sset 'Subwoofer' $VolInputName'%'
+			;;
+			Dual-Stereo) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" >/dev/null 2>&1
+				amixer -q -c $CARD sset 'Master' frontright,unmute
+				amixer -q -c $CARD sset 'Master' frontleft,unmute
+				amixer -q -c $CARD sset 'Digital' unmute
+				amixer -q -c $CARD sset 'Subwoofer' unmute
+			;;
+			"2.1"|"2.2")
+				tce-status -i | grep -q "allo-piano"
+				if [ $? -eq 0 ]; then
+					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1
+				else
+					echo '[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.'
+				fi
+			;;
+			*);;
+		esac
+		# Set some specific mixer control for the Allo PianoPlus
+		if [ $CARD = "PianoDACPlus" ]; then
+			[ "$PIANODEEM" = "on" ] || PIANODEEM="off"
+			amixer -q -c $CARD sset 'Deemphasis' "$PIANODEEM"
+			amixer -q -c $CARD sset 'Volume Ramp Down Rate' '1 sample/update'
+			amixer -q -c $CARD sset 'Volume Ramp Up Rate' '1 sample/update'
+			amixer -q -c $CARD sset 'Volume Ramp Down Step' '1dB/step'
+			amixer -q -c $CARD sset 'Volume Ramp Up Step' '1dB/step'
+			[ "$PIANOLOWPASS" != "" ] && sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
+			[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
+		fi
+
 		#Special case for rpi card to allow for setting 0db
 		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
 			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
@@ -65,22 +108,6 @@ case "$ACTION" in
 		if [ $CARD = "Katana" ]; then
 			sudo amixer -c $CARD sset Deemphasis "$DEEM" >/dev/null 2>&1
 		fi
-		#----------------------------Allo Piano Plus Dac Controls------------------------
-		case "$PIANOSUBMODE" in
-			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
-			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
-			"2.1"|"2.2")
-				df | grep -q "allo-piano"
-				if [ $? -eq 0 ]; then
-					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1
-				else
-					echo '<p class="error">[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.</p>'
-				fi
-			;;
-			*);;
-		esac
-		[ "$PIANOLOWPASS" != "" ] && sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
-		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		#--------------------------------------------------------------------------------
 		pcp_generic_card_control
 
@@ -233,7 +260,7 @@ pcp_soundcard_SMC_Analogue_options() {
 		echo '                <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOGUE_CHECK"'>'
 		echo '              </td>'
 		echo '              <td class="'$COL2'" colspan="2">'
-		echo '                <p>Toggle a 6dB increase on analog output level</p>'
+		echo '                <p>Toggle a 6dB increase on analog output level (Checked = 0dB Setting).</p>'
 		echo '              </td>'
 		echo '            </tr>'
 		if [ x"$SMC_ANALOGUE_BOOST" != x"" ]; then
@@ -242,7 +269,7 @@ pcp_soundcard_SMC_Analogue_options() {
 			echo '                <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOGUE_BOOST_CHECK"'>'
 			echo '              </td>'
 			echo '              <td class="'$COL2'" colspan="2">'
-			echo '                <p>Toggle a 0.80dB increase on analog output level</p>'
+			echo '                <p>Toggle a 0.80dB increase on analog output level (Unchecked = 0dB Setting).</p>'
 			echo '              </td>'
 			echo '            </tr>'
 		fi
@@ -283,17 +310,31 @@ pcp_soundcard_Deemphasis_options() {
 # Allo Piano Plus Custom Controls
 #----------------------------------------------------------------------------------------
 pcp_allo_piano_plus_custom_controls(){
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="colspan 3">'
+	echo '                <p><b>Piano Plus Custom Mixer Controls:</b></p>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	PIANODEEM_CHECK=$(amixer -c $CARD sget 'Deemphasis' | grep 'Mono:' | awk '{ print $3 }' | tr -d "[]")
+	[ "$PIANODEEM_CHECK" = "on" ] && PIANODEEM_CHECK="checked" || PIANODEEM_CHECK=""
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1'">'
+	echo '                <input type="checkbox" name="PIANODEEM" value="on" '"$PIANODEEM_CHECK"'>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'" colspan="2">'
+	echo '                <p>Toggle Deemphasis setting.</p>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	pcp_toggle_row_shade
+
 	SUBMODE=$(amixer -c $CARD sget "Subwoofer mode" | grep "Item0" | awk -F\' '{print $2}')
 	[ $DEBUG -eq 1 ] && echo '<p class="error">[MODE] Submode='$SUBMODE':</p>'
 	[ "$SUBMODE" = "None" ] && SUBMODE=$(amixer -c $CARD sget "Dual Mode" | grep "Item0" | awk -F\' '{print $2}')
 	[ $DEBUG -eq 1 ] && echo '<p class="error">[MODE] Dual Mode='$SUBMODE':</p>'
 	LOWPASS=$(amixer -c $CARD sget "Lowpass" | grep "Item0" | awk -F\' '{print $2}')
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="colspan 3">'
-	echo '                <p><b>Piano Plus Custom Mixer Controls:</b></p>'
-	echo '              </td>'
-	echo '            </tr>'
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL1'">'
 	echo '                <select class="large10" name="PIANOSUBMODE" >'
