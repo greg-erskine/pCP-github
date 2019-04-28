@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 4.0.0 2018-07-31
+# Version: 4.1.1 2019-04-27
 
 . pcp-functions
 
@@ -84,128 +84,14 @@ pcp_apply_fixes() {
 	fi
 }
 
-pcp_do_fixes_311() {
+pcp_do_fixes_410() {
 	#Leading / is removed
 	#EXE files get set to root.staff mode 755
 	HF_FILES_EXE="home/tc/www/cgi-bin/insitu_update_stage1.cgi"
-	HFDIR="/tmp/hf"
-	HOTFIX="hotfix311a.tgz"
-	HOTFIXMD5="${HOTFIX}.md5.txt"
-	echo "[ INFO ] Retreiving Hotfix 3.11a."
-	rm -rf ${HFDIR}
-	mkdir -p ${HFDIR}
-	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIX} -O ${HFDIR}/${HOTFIX}
-	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded' ${HOTFIX}
-	else
-		echo '[ ERROR ] Error downloading '${HOTFIX}
-		FAIL_MSG="Error downloading ${HOTFIX}"
-	fi
-	echo "[ INFO ] Retreiving Hotfix 3.11a md5sum"
-	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIXMD5} -O ${HFDIR}/${HOTFIXMD5}
-	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded' ${HOTFIXMD5}
-	else
-		echo '[ ERROR ] Error downloading '${HOTFIXMD5}
-		FAIL_MSG="Error downloading ${HOTFIX}"
-	fi
-	if [ "$FAIL_MSG" = "ok" ]; then
-		echo "[ INFO ] Verifying Hotfix 3.11a"
-		cd ${HFDIR}
-		md5sum -sc ${HOTFIXMD5}
-		if [ $? -eq 0 ]; then
-			echo '[ INFO ] Hotfix Verified.'
-		else
-			echo '[ ERROR ] '$HOTFIX' verification failed.'
-			FAIL_MSG="$HOTFIX verification failed."
-		fi
-	fi
-#Apply the Fix
-	if [ "$FAIL_MSG" = "ok" ]; then
-		echo '[ INFO ] Extracting Hotfix 3.11a'
-		tar xf ${HOTFIX}
-		for EXE in ${HF_FILES_EXE}; do
-			dos2unix $EXE
-			chown tc:staff $EXE
-			chmod 750 $EXE
-			cp -fp $EXE /${EXE} 
-		done
-	fi
-}
-
-pcp_do_fixes_310() {
-	#Leading / is removed
-	#EXE files get set to root.staff mode 755
-	HF_FILES_EXE="	home/tc/www/cgi-bin/about.cgi home/tc/www/cgi-bin/pcp-soundcard-functions \
-		home/tc/www/cgi-bin/lms.cgi home/tc/www/cgi-bin/main.cgi home/tc/www/cgi-bin/writetoaudiotweak.cgi \
-		home/tc/www/cgi-bin/writetosamba.cgi home/tc/www/cgi-bin/xtras_staticip.cgi"
 	#CFG files get set to root.staff mode 664
-	HF_FILES_CFG="usr/local/etc/pcp/cards/HDMI.conf usr/local/sbin/piversion.cfg"
+	HF_FILES_CFG="usr/local/etc/pcp/pcpversion.cfg"
 	HFDIR="/tmp/hf"
-	HOTFIX="hotfix311.tgz"
-	HOTFIXMD5="${HOTFIX}.md5.txt"
-	echo "[ INFO ] Retreiving Hotfix 3.11."
-	rm -rf ${HFDIR}
-	mkdir -p ${HFDIR}
-	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIX} -O ${HFDIR}/${HOTFIX}
-	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded' ${HOTFIX}
-	else
-		echo '[ ERROR ] Error downloading '${HOTFIX}
-		FAIL_MSG="Error downloading ${HOTFIX}"
-	fi
-	echo "[ INFO ] Retreiving Hotfix 3.11 md5sum"
-	$WGET ${INSITU_DOWNLOAD}/piCorePlayer3.11/${HOTFIXMD5} -O ${HFDIR}/${HOTFIXMD5}
-	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded' ${HOTFIXMD5}
-	else
-		echo '[ ERROR ] Error downloading '${HOTFIXMD5}
-		FAIL_MSG="Error downloading ${HOTFIX}"
-	fi
-	if [ "$FAIL_MSG" = "ok" ]; then
-		echo "[ INFO ] Verifying Hotfix 3.11"
-		cd ${HFDIR}
-		md5sum -sc ${HOTFIXMD5}
-		if [ $? -eq 0 ]; then
-			echo '[ INFO ] Hotfix Verified.'
-		else
-			echo '[ ERROR ] '$HOTFIX' verification failed.'
-			FAIL_MSG="$HOTFIX verification failed."
-		fi
-	fi
-#Apply the Fix
-	if [ "$FAIL_MSG" = "ok" ]; then
-		echo '[ INFO ] Extracting Hotfix 3.11'
-		tar xf ${HOTFIX}
-		for EXE in ${HF_FILES_EXE}; do
-			dos2unix $EXE
-			chown tc:staff $EXE
-			chmod 750 $EXE
-			cp -fp $EXE /${EXE} 
-		done
-		for CFG in ${HF_FILES_CFG}; do
-			dos2unix $CFG
-			chown root:staff $CFG
-			chmod 664 $CFG
-			cp -fp $CFG /${CFG}
-		done
-	fi
-	#Apply pcp-functions change with sed, as to not change user modes.
-	if [ "$FAIL_MSG" = "ok" ]; then
-		FILE="/home/tc/www/cgi-bin/pcp-functions"
-		sed -i 's@OUTPUT=\"sysdefault:CARD=ALSA\"@OUTPUT=\"hw:CARD=ALSA\"@' $FILE
-	fi
-}
-
-pcp_do_fixes_350() {
-	#Leading / is removed
-	#EXE files get set to root.staff mode 755
-	HF_FILES_EXE="home/tc/www/cgi-bin/lms.cgi home/tc/www/cgi-bin/do_rebootstuff.sh \
-		home/tc/www/cgi-bin/writetomount.cgi home/tc/www/cgi-bin/tweaks.cgi"
-	#CFG files get set to root.staff mode 664
-	HF_FILES_CFG=""
-	HFDIR="/tmp/hf"
-	HOTFIX="hotfix350.tgz"
+	HOTFIX="hotfix410.tgz"
 	HOTFIXMD5="${HOTFIX}.md5.txt"
 
 	pcp_download_hotfix
@@ -465,24 +351,12 @@ fi
 
 if [ "$ACTION" = "fix" ]; then
 	case $(pcp_picoreplayer_version) in
-		3.10*)
-			echo '[ INFO ] Hotfix for pCP 3.10 to address shairport sync issues.'
-			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_310
-			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
-			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Please Reselect sound card if using USB or HDMI.'
-			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Please reinstall shairport-sync for final step.'
-		;;
-		3.11*)
-			echo '[ INFO ] Hotfix for pCP 3.10 to allow insitu_update to 3.20.'
-			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_311
-			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
-		;;
-		3.5.0*)
-			echo '[ INFO ] Hotfix for pCP 3.5.0 to allow exfat mounts to work.'
-			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_350
+		4.1.0*)
+			echo '[ INFO ] Hotfix for pCP 4.1.0 for update changes.'
+			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_410
 			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
 			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Operation Complete.'
-			REBOOT_REQUIRED=1
+			REBOOT_REQUIRED=0
 		;;
 		*)
 			# No Fixes for this version

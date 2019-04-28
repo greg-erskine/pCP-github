@@ -50,17 +50,36 @@ pcp_repo_indicator() {
 }
 
 #========================================================================================
+# Download a list of piCorePlayer versions that are available on pCP repo - insitu.cfg
+#----------------------------------------------------------------------------------------
+pcp_get_insitu_cfg() {
+	if [ -d $UPD_PCP ]; then
+		sudo rm -rf $UPD_PCP
+		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
+	fi
+	sudo mkdir -m 755 $UPD_PCP
+	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
+	$WGET_IUS1 ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
+	if [ $? -eq 0 ]; then
+		echo '[  OK  ] Successfully downloaded insitu.cfg'
+	else
+		echo '[ ERROR ] Error downloading insitu.cfg'
+		FAIL_MSG="Error downloading insitu.cfg"
+	fi
+}
+
+#========================================================================================
 # Download the new update script from repo - insitu_update_stage2.cgi
 #----------------------------------------------------------------------------------------
 pcp_get_newinstaller() {
 	echo '[ INFO ] Step 2A. - Removing the old update script...'
 	sudo rm "${PCPHOME}/insitu_update_stage2.cgi"
-	echo '[ INFO ] Step 2B. - Downloading the new update script...'
+	echo '[ INFO ] Step 2B. - Downloading the new update script for '$VERSION'...'
 
 	# The web storage does not allow for cgi downloads.
 	PACKAGE="insitu_update_stage2.gz"
 	[ -e ${PCPHOME}/${PACKAGE} ] && rm -f ${PCPHOME}/${PACKAGE}
-	$WGET_IUS1 ${INSITU_DOWNLOAD}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1
+	$WGET_IUS1 ${INSITU_DOWNLOAD}/${VERSION}/${PACKAGE} -P ${PCPHOME} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded the new update script.'
 		gunzip ${PCPHOME}/${PACKAGE}
@@ -181,6 +200,7 @@ if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
 	echo '[ INFO ] '$REPO_STATUS
 	echo '[ INFO ] You are currently using piCorePlayer v'$(pcp_picoreplayer_version)
+	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
 fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
@@ -211,6 +231,15 @@ echo '</table>'
 #========================================================================================
 # Initial
 #----------------------------------------------------------------------------------------
+#========================================================================================
+# Initial
+#----------------------------------------------------------------------------------------
+case $(uname -r) in
+	*pcpAudioCore*) PCPAUDIOCOREyes="checked";PCPCOREyes="";;
+	*) PCPCOREyes="checked";PCPAUDIOCORE="";;
+esac
+COL1=50
+COL2=300
 if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_incr_id
 	echo '<table class="bggrey">'
@@ -218,17 +247,68 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu update</legend>'
+	echo '          <legend>piCorePlayer insitu update: Select Kernel Type and Version</legend>'
 	echo '          <form name="initial" action= "'$0'" method="get">'
 	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Standard version [Recommended]</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>pcpCore Kernel&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version is recommended for 99% of users.</p>'
+	echo '                    <p>This version uses the kernel code and config from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column'$COL1' center">'
+	echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
+	echo '                </td>'
+	echo '                <td class="column'$COL2'">'
+	echo '                  <p>Audio enthusiast version [Experimental]</p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>pcpAudioCore Kernel&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This version is recommended for experimenters only.</p>'
+	echo '                    <p>This version starts with the same kernel code from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
+	echo '                    <p>The kernel is then patched with extra drivers and modifications to support additional custom DACs and higher sample rates.</p>'
+	echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version.</p>'
+	echo '                    <p>This version should not be used for server applications such as LMS.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="large18 center">'
+	echo '                  <select name="VERSION">'
+	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
+	echo '                  </select>'
+	echo '                </td>'
+	echo '                <td colspan="2">'
+	echo '                  <p>Select the update version of piCorePlayer required.</p>'
+	echo '                </td>'
+	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="large18 center">'
 	echo '                  <input class="large12" type="submit" value="Next >">'
 	echo '                  <input type="hidden" name="ACTION" value="download">'
 	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Press the [ Next > ] button to download new update script.</p>'
+	echo '                <td colspan="2">'
+	echo '                  <p>Press the [ Next > ] button to download version installer.</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
@@ -239,7 +319,6 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '  </tr>'
 	echo '</table>'
 fi
-
 #========================================================================================
 # Download
 #----------------------------------------------------------------------------------------
