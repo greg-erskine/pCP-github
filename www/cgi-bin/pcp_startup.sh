@@ -429,7 +429,7 @@ fi
 
 #Check the pcm input card.....Only finds the first recording card.
 INCARD=$(pcp_get_input_cardnumber)
-[ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/card [0-9]/card '$INCARD'/' /etc/asound.conf
+[ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/hw:[0-9],[0-9]/hw:'$INCARD',0/' /etc/asound.conf
 
 #========================================================================================
 # WOL="yes"|"no"

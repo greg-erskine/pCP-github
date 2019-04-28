@@ -268,7 +268,7 @@ if [ "$ORIG_STREAMER" != "$STREAMER" ]; then
 			else
 				pcp_download_streamer
 			fi
-			[ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/card [0-9]/card '$INCARD'/' /etc/asound.conf || echo '<p class="error">[ ERROR ] Unable to determine Card Number to setup pCP Streamer</p>'
+			[ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/hw:[0-9],[0-9]/hw:'$INCARD',0/' /etc/asound.conf || echo '<p class="error">[ ERROR ] Unable to determine Card Number to setup pCP Streamer</p>'
 			/usr/local/etc/init.d/streamer start
 		;;
 		no)
