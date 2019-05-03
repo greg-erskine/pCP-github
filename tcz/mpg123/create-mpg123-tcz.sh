@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MPG123=mpg123
-MPG123VERSION=1.23.8
+MPG123VERSION=1.25.10
 SRC=$MPG123-$MPG123VERSION
 STARTDIR=`pwd`
 LOG=$PWD/config.log
@@ -81,8 +81,8 @@ echo -e "Author:\t\tMichael Hipp" >> $TCZINFO
 echo -e "Original-site:\thttps://www.mpg123.de/" >> $TCZINFO
 echo -e "Copying-policy:\tGPLv2" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZINFO
 
 if [ -f $TCZLIB ]; then
 	rm $TCZLIB >> $LOG
@@ -103,6 +103,6 @@ echo -e "Author:\t\tMichael Hipp" >> $TCZLIBINFO
 echo -e "Original-site:\thttps://www.mpg123.de/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tGPLv2" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZLIBINFO
 

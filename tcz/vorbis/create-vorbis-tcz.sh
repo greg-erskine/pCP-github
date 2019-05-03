@@ -1,12 +1,12 @@
 #!/bin/bash
 
 VORBIS=libvorbis
-VORBISVERSION=1.3.5
+VORBISVERSION=1.3.6
 SRC=$VORBIS-$VORBISVERSION
 STARTDIR=`pwd`
 LOG=$PWD/config.log
 OUTPUT=$PWD/${VORBIS}-build
-OGGHEADERS=$STARTDIR/../ogg/libogg-1.3.2-headers.tar.gz 
+OGGHEADERS=$STARTDIR/../ogg/libogg-1.3.3-headers.tar.gz 
 TCZLIB=pcp-${VORBIS}.tcz
 TCZLIBINFO=pcp-${VORBIS}.tcz.info
  
@@ -84,6 +84,5 @@ echo -e "Author:\t\tXiph.Org Foundation" >> $TCZLIBINFO
 echo -e "Original-site:\thttps://xiph.org/vorbis/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tLesser GPL" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
-
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZLIBINFO

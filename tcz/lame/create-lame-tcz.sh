@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LAME=lame
-LAMEVERSION=3.99.5
+LAMEVERSION=3.100
 SRC=$LAME-$LAMEVERSION
 SRCTAR=${LAME}-${LAMEVERSION}.tar.gz
 STARTDIR=`pwd`
@@ -32,7 +32,7 @@ fi
 mkdir -p $OUTPUT >> $LOG
 
 if [ ! -f $SRCTAR ]; then
-	wget -O $SRCTAR https://sourceforge.net/projects/$LAME/files/$LAME/3.99/$SRCTAR/download
+	wget -O $SRCTAR https://sourceforge.net/projects/$LAME/files/$LAME/$LAMEVERSION/$SRCTAR/download
 fi
 
 echo "Extracting source..."
@@ -73,6 +73,5 @@ echo -e "Authors:\tRobert Hegemann, Alexander Leidinger, Rogerio Brito" >> $TCZI
 echo -e "Original-site:\thttp://lame.sourceforge.net/" >> $TCZINFO
 echo -e "Copying-policy:\tLGPLv2" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZINFO
-
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZINFO
