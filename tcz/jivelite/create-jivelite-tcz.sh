@@ -45,8 +45,8 @@ mkdir -p $OUTPUT/opt/jivelite/lib
 cp -pr lib $OUTPUT/opt/jivelite
 cp -pr share $OUTPUT/opt/jivelite
 
-# Install shared libraries from installed squeezeplay-fb_7.8.0~982_armhf.deb debian package.
-# Justboom Smart remote OK segfault fixed in r982.
+# Install shared libraries from installed squeezeplay-fb_7.8.0~1116_armhf.deb debian package.
+# Justboom Smart remote OK button segfault fixed in r982.
 cd /opt/squeezeplay/lib
 tar -cf - libexpat.so* libfreetype.so* libjpeg.so* libpng.so* libpng12.so* libSDL_gfx.so* libSDL_image-1.2.so.* libSDL_ttf-2.0.so* libSDL-1.2.so* | (cd $OUTPUT/opt/jivelite/lib; tar -xvf -)
 
@@ -150,7 +150,7 @@ echo -e "Original-site:\thttp://www.lua.org/" >> $LUATCZINFO
 echo -e "Copying-policy:\tMIT http://www.lua.org/license.html" >> $LUATCZINFO
 echo -e "Size:\t\t$(ls -lk $LUATCZ | awk '{print $5}')k" >> $LUATCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $LUATCZINFO
-echo -e "\t\tCompiled for piCore 9.x" >> $LUATCZINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $LUATCZINFO
 
 ./split-jivelite-tcz.sh
 
@@ -163,7 +163,7 @@ echo -e "Original-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TC
 echo -e "Copying-policy:\tGPLv3" >> $TCZINFO
 echo -e "Size:\t\t$(ls -lk pcp-$JIVELITE.tcz | awk '{print $5}')k" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZINFO
 
 ./create-vumeters-tcz.sh
 
