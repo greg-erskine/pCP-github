@@ -46,25 +46,25 @@ pcp_diag_rpi_lmsip() {
 
 pcp_install_iperf3() {
 	RESULT=0
-	echo '[ INFO ] Downloading iperf3.</p>'
+	echo '[ INFO ] Downloading iperf3.'
 	sudo -u tc pcp-load -r $PCP_REPO -w iperf3.tcz
 	if [ -f $TCEMNT/tce/optional/iperf3.tcz ]; then
 		echo '[ INFO ] Loading iperf3'
 		sudo -u tc tce-load -i iperf3.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 		if [ $RESULT -eq 0 ]; then
-			echo '[ INFO ] Iperf3 loaded...</p>'
+			echo '[ INFO ] Iperf3 loaded...'
 		else
-			echo '[ ERROR ] Extensions not loaded, try again later!</p>'
+			echo '[ ERROR ] Extensions not loaded, try again later!'
 		fi
 	fi
 }
 
 pcp_remove_iperf3() {
-	echo '[ INFO ] Removing Extensions</p>'
+	echo '[ INFO ] Removing Extensions'
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete iperf3.tcz
-	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!</p>'
+	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!'
 }
 
 pcp_load_iperf3() {
@@ -316,6 +316,12 @@ echo '          <legend>Network Performance (iperf3)</legend>'
 echo '          <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
+echo '            <tr class="'$ROWSHADE'">'
+echo '              <td>'
+echo '                <p>&nbsp;&nbsp;&nbsp;&nbsp;For help setting up an iperf server on another machine. Please goto <a href="https://software.es.net/iperf/" target="_blank">ESNet</a> or <a href="https://iperf.fr/" target="_blank">iperf.fr</a></p>'
+echo '              </td>'
+echo '             </tr>'
+pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '                <td class="column150 center">'
 if [ ! -f $TCEMNT/tce/optional/iperf3.tcz ]; then
