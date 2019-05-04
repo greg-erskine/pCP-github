@@ -185,30 +185,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	######## CONFIG.TXT Section End
 	# During an newconfig update, turn HDMI back on, and turn off Overclocking Variables incase there are problems.
 	HDMIPOWER="on"
-	OVERCLOCK="NONE"
-	ADVOVERCLOCK="None"
-	# If MOUNTUUID and MOUNTPOINT Exist in newconfig, then create a usbdrives.conf
-	if [ "$MOUNTUUID" != "no" -a "$MOUNTPOINT" != "" ]; then
-		echo -n "${BLUE}[ INFO ] Upgrading USB mount configuration files.${NORMAL}"
-		echo "[newconfig]" >> $USBMOUNTCONF
-		echo "USBDISK=enabled" >> $USBMOUNTCONF
-		echo "MOUNTPOINT=${MOUNTPOINT}" >> $USBMOUNTCONF
-		echo "MOUNTUUID=${MOUNTUUID}" >> $USBMOUNTCONF
-		echo "${GREEN}Done.${NORMAL}"
-	fi
-	if [ "$NETMOUNT1" != "no" -a "$NETMOUNT1POINT" != "" ]; then
-		echo -n "${BLUE}[ INFO ] Upgrading Network mount configuration files.${NORMAL}"
-		echo "[newconfig]" >> $NETMOUNTCONF
-		echo "NETENABLE=yes" >> $NETMOUNTCONF
-		echo "NETMOUNTPOINT=${NETMOUNT1POINT}" >> $NETMOUNTCONF
-		echo "NETMOUNTIP=${NETMOUNT1IP}" >> $NETMOUNTCONF
-		echo "NETMOUNTSHARE=${NETMOUNT1SHARE}" >> $NETMOUNTCONF
-		echo "NETMOUNTFSTYPE=${NETMOUNT1FSTYPE}" >> $NETMOUNTCONF
-		echo "NETMOUNTUSER=${NETMOUNT1USER}" >> $NETMOUNTCONF
-		echo "NETMOUNTPASS=${NETMOUNT1PASS}" >> $NETMOUNTCONF
-		echo "NETMOUNTOPTIONS=${NETMOUNT1OPTIONS}" >> $NETMOUNTCONF
-		echo "${GREEN}Done.${NORMAL}"
-	fi
+
 	# Disable alsaequal if it doesn't exists on new image.
 	if [ "$OUTPUT" = "equal" ]; then
 		if [ ! -f $TCEMNT/tce/optional/alsaequal.tcz ]; then
@@ -265,7 +242,7 @@ if [ "$ROTDASH" = "yes" ]; then
 fi
 
 # Set default repository in case it has been set to something non-standard.
-echo -n "${BLUE}Setting piCore repository...${NORMAL}"
+echo -n "${BLUE}Setting piCorePlayer repository...${NORMAL}"
 pcp_reset_repository &
 echo "${GREEN}Done.${NORMAL}"
 
