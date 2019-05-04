@@ -4,20 +4,20 @@
 
 [PI0]
 initramfs pcp_10.1.gz followkernel
-kernel kernel41936.img
+kernel kernel41937.img
 
 [PI1]
 initramfs pcp_10.1.gz followkernel
-kernel kernel41936.img
+kernel kernel41937.img
 
 [PI2]
 initramfs pcp_10.1v7.gz followkernel
-kernel kernel41936v7.img
+kernel kernel41937v7.img
 total_mem=1024
 
 [PI3]
 initramfs pcp_10.1v7.gz followkernel
-kernel kernel41936v7.img
+kernel kernel41937v7.img
 total_mem=1024
 
 [ALL]
