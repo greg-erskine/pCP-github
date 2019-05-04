@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-01-17
+# Version: 5.0.0 2019-05-04
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -45,10 +45,6 @@ PATCH_VERSION=$(echo "$vtmp" | cut -d '-' -f1)
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
 case "${VERSION}" in
-	piCorePlayer4.0.*)
-		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=26900
-	;;
 	piCorePlayer5.0.*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=27700
@@ -153,57 +149,18 @@ pcp_create_download_directory() {
 }
 
 #========================================================================================
-# Download a list of piCorePlayer versions that are available on pCP repo - insitu.cfg
-#----------------------------------------------------------------------------------------
-pcp_get_insitu_cfg() {
-	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
-	$WGET_IUS2 ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
-	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded insitu.cfg'
-	else
-		echo '[ ERROR ] Error downloading insitu.cfg'
-		FAIL_MSG="Error downloading insitu.cfg"
-	fi
-}
-
-#========================================================================================
 # Download kernel modules for new kernel
 #----------------------------------------------------------------------------------------
 
 pcp_get_kernel_modules() {
 	BUILD=$(getBuild)
 	case "${VERSION}" in
-		piCorePlayer4.0.0*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			case $CORE in
-				*pcpAudioCore*)
-					case $BUILD in
-						armv6) NEWKERNELVER=4.14.56-rt34;;
-						armv7) NEWKERNELVER=4.14.56-rt34;;
-					esac
-				;;
-				*) NEWKERNELVER=4.14.56;;
-			esac
-			PICOREVERSION=9.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		piCorePlayer4.1.0*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.14.81-rt47;;
-				*) NEWKERNELVER=4.14.81;;
-			esac
-			PICOREVERSION=9.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
 		piCorePlayer5.0.0*)
 			# Set the below for the new kernel
 			KUPDATE=1
 			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.19.27-rt16;;
-				*) NEWKERNELVER=4.19.27;;
+				*pcpAudioCore*) NEWKERNELVER=4.19.37-rt19;;
+				*) NEWKERNELVER=4.19.37;;
 			esac
 			PICOREVERSION=10.x
 			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -213,7 +170,6 @@ pcp_get_kernel_modules() {
 	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="https://repo.picoreplayer.org/repo"
-#		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
 		case $BUILD in
@@ -243,7 +199,7 @@ pcp_get_kernel_modules() {
 			
 			# Show the old modules that do not have a current kernel version.
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
-			echo '[ INFO ] Downloading new kernel modules: '$MODULES
+			echo '[ INFO ] Step 3A. Downloading new kernel modules: '$MODULES
 			if [ -z "${MODULES}" ]; then
 				echo '[ INFO ] All new Kernel modules for '${NEWKERNEL}' already present.'
 			else
@@ -261,7 +217,7 @@ pcp_get_kernel_modules() {
 # Download the boot files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
-	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
+	echo '[ INFO ] Step 3C. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
 	$WGET_IUS2 ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz 2>&1
@@ -434,7 +390,7 @@ outfile.close
 # Download the tce files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
-	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
+	echo '[ INFO ] Step 3B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
 	$WGET_IUS2 ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz 2>&1
@@ -487,27 +443,6 @@ pcp_finish_install() {
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
 
-	if [ $MAJOR_VERSION -ge 4 ]; then
-		if [ $MINOR_VERSION -ge 0 ]; then
-			#>pcp4.0.0 wifi is changed.
-			echo "Removing old boot extensions from onboot.lst:"
-			pcp_update_onbootlst "del" "wifi.tcz"
-			rm -f ${PACKAGEDIR}/wifi.tcz
-			rm -f ${TCEMNT}/tce/piCorePlayer.dep
-			# If wifi is on, then add extensions to onboot....the firmware would already be there.
-			if [ "$WIFI" = "on" ]; then
-				pcp_update_onbootlst "add" "wireless_tools.tcz"
-				pcp_update_onbootlst "add" "wpa_supplicant.tcz"
-			fi
-		fi
-		if [ $MINOR_VERSION -ge 1 ]; then
-			pcp_update_onbootlst "del" "busybox-httpd.tcz"
-			rm -f ${PACKAGEDIR}/busybox-httpd.*
-			if [ "$WIFI" = "on" ]; then
-				pcp_update_onbootlst "add" "crda.tcz"
-			fi
-		fi
-	fi
 	if [ $MAJOR_VERSION -ge 5 ]; then
 		if [ $MINOR_VERSION -ge 0 ]; then
 			sed -i 's/firmware-rpi3-wireless/firmware-rpi-wifi/' $ONBOOTLST
@@ -524,22 +459,11 @@ pcp_finish_install() {
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst > /opt/.filetool.lst
 	sudo chown root:staff /opt/.filetool.lst
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
-	if [ $MAJOR_VERSION -ge 4 ]; then
-		if [ $MINOR_VERSION -ge 0 ]; then
-			echo "Updating .filetool.lst :"
-			sed -i '/etc\/motd/d' /opt/.filetool.lst
-			sed -i '/etc\/sysconfig\/wifi-wpadrv/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/etc\/init.d\/httpd/d' /opt/.filetool.lst
-			sed -i '/etc\/modprobe.conf/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/config.cfg/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/piversion.cfg/d' /opt/.filetool.lst
-			#cleanup from previous versions, make sure these were done.
-			sed -i '/usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
-		fi
-	fi
+	# if [ $MAJOR_VERSION -ge 5 ]; then
+		# if [ $MINOR_VERSION -ge 0 ]; then
+			# echo "Updating .filetool.lst :"
+		# fi
+	# fi
 
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -605,16 +529,7 @@ outfile.close
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
 	[ ! -f /etc/httpd.conf ] && sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/httpd.conf /etc/httpd.conf
-	
-	# Remove files that are obsolete
-	if [ $MAJOR_VERSION -ge 4 ]; then
-		rm -f /usr/local/etc/pcp/cards/raspidac3.conf
-		rm -f /home/tc/www/cgi-bin/do_rebootstuff.sh
-		rm -f /home/tc/www/cgi-bin/reboot.cgi
-		rm -f /home/tc/www/cgi-bin/shutdown.cgi
-		rm -f /home/tc/www/cgi-bin/xtras_graph.cgi
-		rm -f /home/tc/wifi.db
-	fi
+
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
 }
@@ -693,21 +608,17 @@ pcp_html_end() {
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	initial)
-		STEP="Step 3 - Downloading available versions"
-		pcp_warning_message
-		pcp_internet_indicator
-		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_repo_indicator
-		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_create_download_directory
+		FAIL_MSG="Reached initial in error."
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 	;;
 	download)
-		STEP="Step 4 - Downloading files"
+		STEP="Step 3 - Downloading files"
 		pcp_warning_message
+		pcp_create_download_directory
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 	;;
 	install)
-		STEP="Step 5 - Installing files"
+		STEP="Step 4 - Installing files"
 		pcp_warning_message
 	;;
 	*)
@@ -731,12 +642,6 @@ pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:130px">'
-#----------------------------------------------------------------------------------------
-if [ "$ACTION" = "initial" ]; then
-	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$REPO_STATUS
-	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
-fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
 	echo '[ INFO ] You are downloading '${VERSION}
@@ -790,95 +695,6 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-#========================================================================================
-# Initial
-#----------------------------------------------------------------------------------------
-case $(uname -r) in
-	*pcpAudioCore*) PCPAUDIOCOREyes="checked";PCPCOREyes="";;
-	*) PCPCOREyes="checked";PCPAUDIOCORE="";;
-esac
-COL1=50
-COL2=300
-if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
-	pcp_incr_id
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>piCorePlayer insitu update: Select Kernel Type and Version</legend>'
-	echo '          <form name="initial" action= "'$0'" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
-	echo '                </td>'
-	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Standard version [Recommended]</p>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>pcpCore Kernel&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This version is recommended for 99% of users.</p>'
-	echo '                    <p>This version uses the kernel code and config from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
-	echo '                </td>'
-	echo '                <td class="column'$COL2'">'
-	echo '                  <p>Audio enthusiast version [Experimental]</p>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>pcpAudioCore Kernel&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This version is recommended for experimenters only.</p>'
-	echo '                    <p>This version starts with the same kernel code from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
-	echo '                    <p>The kernel is then patched with extra drivers and modifications to support additional custom DACs and higher sample rates.</p>'
-	echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version.</p>'
-	echo '                    <p>This version should not be used for server applications such as LMS.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="large18 center">'
-	echo '                  <select name="VERSION">'
-	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td colspan="2">'
-	echo '                  <p>Select the update version of piCorePlayer required.</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="large18 center">'
-	echo '                  <input class="large12" type="submit" value="Next >">'
-	echo '                  <input type="hidden" name="ACTION" value="download">'
-	echo '                </td>'
-	echo '                <td colspan="2">'
-	echo '                  <p>Press the [ Next > ] button to download update files.</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </form>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
 
 #========================================================================================
 # Download
