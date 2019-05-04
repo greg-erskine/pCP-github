@@ -39,8 +39,8 @@ DEBUG=0
 
 BUILDROOT="$(pwd)"
 
-LOOP1="/dev/loop100"
-LOOP2="/dev/loop101"
+LOOP1="/dev/loop200"
+LOOP2="/dev/loop201"
 
 PART1="/tmp/part1"
 PART2="/tmp/part2"
