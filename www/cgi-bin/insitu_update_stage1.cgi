@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-07
+# Version: 4.1.1 2010-05-04
 
 . pcp-functions
 
@@ -58,7 +58,7 @@ pcp_get_insitu_cfg() {
 		[ $? -ne 0 ] && FAIL_MSG="Can not remove directory $UPD_PCP"
 	fi
 	sudo mkdir -m 755 $UPD_PCP
-	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
+	echo '[ INFO ] Step 1. - Downloading insitu.cfg...'
 	$WGET_IUS1 ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] Successfully downloaded insitu.cfg'
@@ -336,7 +336,9 @@ if [ "$ACTION" = "download" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="large18 center">'
 	echo '                  <input type="submit" value="Next >">'
-	echo '                  <input type="hidden" name="ACTION" value="initial">'
+	echo '                  <input type="hidden" name="ACTION" value="download">'
+	echo '                  <input type="hidden" name="CORE" value="'$CORE'">'
+	echo '                  <input type="hidden" name="VERSION" value="'$VERSION'">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Press the [ Next > ] button to start the update process.</p>'
