@@ -133,6 +133,20 @@ cp -p $STARTDIR/squashfs-root/usr/local/lib/libwiringPi.so $SRC/lib
 rm -rf $STARTDIR/squashfs-root
 rm $STARTDIR/$PKG
 
+PKG=openssl-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/openssl $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=openssl.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -p $STARTDIR/squashfs-root/usr/local/lib/lib*.so $SRC/lib
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
 echo "Compiling..."
 
 ./compile-squeezelite.sh >> $LOG
@@ -168,9 +182,9 @@ echo -e "Title:\t\t$TCZ" > $TCZINFO
 echo -e "Description:\tLightweight headless squeezebox player." >> $TCZINFO
 echo -e "Version:\t$($OUTPUT/usr/local/bin/squeezelite -? | grep ^Squeezelite\ v | awk -F'[v,]' '{printf "%s", $2}')" >> $TCZINFO
 echo -e "Commit:\t\t$(cd $SRC; git show | grep commit | awk '{print $2}')" >> $TCZINFO
-echo -e "Authors:\tAdrian Smith, Ralph Irving" >> $TCZINFO
+echo -e "Authors:\tAdrian Smith, Ralph Irving, Others" >> $TCZINFO
 echo -e "Original-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TCZINFO
 echo -e "Copying-policy:\tGPLv3" >> $TCZINFO
-echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Size:\t\t$(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
 echo -e "\t\tCompiled for piCore 10.x" >> $TCZINFO
