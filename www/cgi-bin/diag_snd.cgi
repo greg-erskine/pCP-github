@@ -1,7 +1,7 @@
 #!/bin/sh
 # Sound diagnostics script
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.0.0 2019-05-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -40,8 +40,9 @@ echo '              <td>'
                       pcp_textarea_inform "amixer cset numid=3" "sudo amixer cset numid=3" 80 log
                       pcp_textarea_inform "Loaded sound modules" "lsmod | grep snd" 360 log
                       pcp_textarea_inform "Current /proc/asound" "ls -al /proc/asound" 210 log
-                      pcp_textarea_inform "PLAYBACK Hardware Devices" "aplay -l" 240 log
                       pcp_textarea_inform "Sound devices" "aplay -L" 100 log
+                      pcp_textarea_inform "PLAYBACK Hardware Devices" "alsacap" 240 log
+                      pcp_textarea_inform "RECORDING Hardware Devices" "alsacap -R" 240 log
 
                       pcp_textarea_inform "Current card0 pcm0p sub0" "cat /proc/asound/card0/pcm0p/sub0/hw_params" 130 log
                       pcp_textarea_inform "Current card0 pcm0p sub1" "cat /proc/asound/card0/pcm0p/sub1/hw_params" 130 log
