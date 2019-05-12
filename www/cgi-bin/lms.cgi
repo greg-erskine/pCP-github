@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 5.0.0 2019-05-12
 
 . pcp-functions
 . pcp-rpi-functions
@@ -1374,6 +1374,11 @@ pcp_mount_usbdrives() {
 			if [ "${LMSDATA:4}" = "$UUID" ]; then
 				DISABLE="disabled"
 				KEEPENABLED="USBDISK${NUM_USB_ATTACHED}"
+			fi
+			#We must have a UUID defined.
+			if [ "$UUID" = "" ]; then
+				DISABLE="disabled"
+				UUID="Invalid UUID, Please check/reformat disk"
 			fi
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
