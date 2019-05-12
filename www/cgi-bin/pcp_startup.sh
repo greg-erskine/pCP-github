@@ -176,14 +176,14 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		# This will read newconfig and create wpa_supplicant.conf
 		# Used during the upgrade from 3.5.0 to 4.0.0
 		# DO NOT PROMOTE THIS METHOD IT WILL BE DELETE <=== GE
-		if [ "$WIFI" = "on" -a ! -f $WPASUPPLICANTCONF ]; then
-			WPACONFIGFILE="/tmp/newconfig/usedpcp.cfg"
-			pcp_wifi_update_wifi_onbootlst
-			pcp_wifi_read_newconfig "colour"
-			pcp_wifi_write_wpa_supplicant "colour"
-		fi
+		# if [ "$WIFI" = "on" -a ! -f $WPASUPPLICANTCONF ]; then
+			# WPACONFIGFILE="/tmp/newconfig/usedpcp.cfg"
+			# pcp_wifi_update_wifi_onbootlst
+			# pcp_wifi_read_newconfig "colour"
+			# pcp_wifi_write_wpa_supplicant "colour"
+		# fi
 	######## CONFIG.TXT Section End
-	# During an newconfig update, turn HDMI back on, and turn off Overclocking Variables incase there are problems.
+	# During an newconfig update, turn HDMI back on.
 	HDMIPOWER="on"
 
 	# Disable alsaequal if it doesn't exists on new image.
@@ -203,13 +203,16 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 	fi
 	# pcp_read_chosen_audio works from $PCPCFG, so lets write what we have so far.
 	pcp_save_to_config
-	pcp_disable_HDMI
-	echo -n "${BLUE}[ INFO ] Setting Soundcard from newpcp.cfg...${NORMAL}"
-	[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
-	pcp_read_chosen_audio noumount
-	pcp_save_to_config
-	echo "${GREEN}Done.${NORMAL}"
-
+	#if Audio is not ALSA, then this is an upgrade, lets leave things alone.
+	if [ "$AUDIO" = "ALSA" ]; then
+		pcp_disable_HDMI
+		echo -n "${BLUE}[ INFO ] Setting Soundcard from newpcp.cfg...${NORMAL}"
+		[ "$AUDIO" = "USB" ] && USBOUTPUT="$OUTPUT"
+		pcp_read_chosen_audio noumount
+		pcp_save_to_config
+		echo "${GREEN}Done.${NORMAL}"
+	fi
+	
 	# Cleanup all old kernel modules.
 	CURRENTKERNEL=$(uname -r)
 	# Get list of kernel modules not matching current kernel and remove them.

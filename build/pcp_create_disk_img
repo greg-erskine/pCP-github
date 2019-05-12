@@ -830,9 +830,13 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_boot.tar.gz${NORMAL}"
 	cd $PART1
+	# We are keeping old files and updating for insitu_update
+	mv -f $PART1/config.txt $PART1/config.txt.default
+	mv -f $PART1/cmdline.txt $PART1/cmdline.txt.default
 	echo "BOOT Partition used size: $(du -ks 2>/dev/null| awk '{print $1}')"
 	rm -f /tmp/${PCP}_boot.tar.gz
 	tar zcf /tmp/${PCP}_boot.tar.gz .
+
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
 	cd $PART2/tce
@@ -843,10 +847,13 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	rm -f /tmp/${PCP}_tce.tar.gz
 	echo "TCE Partition used size Minus Kernel Extensions: $(du -ks --exclude=*pcpCore* --exclude=*pcpAudioCore* 2>/dev/null| awk '{print $1}')"
 	tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
+	# remove bootfix and put back configs for full image
+	rm -rf $PART2/tce/bootfix
+	mv -f $PART1/config.txt.default $PART1/config.txt
+	mv -f $PART1/cmdline.txt.default $PART1/cmdline.txt
 	echo
 	echo "${GREEN}Done building insitu update packages."
-	# remove bootfix from the image
-	rm -rf $PART2/tce/bootfix
+
 fi
 
 cd $BUILDROOT

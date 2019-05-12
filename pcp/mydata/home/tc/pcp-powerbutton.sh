@@ -40,7 +40,7 @@ validate_pin(){
 	return 1
 }
 
-O=$(/usr/bin/getopt -al help,low,high,debug -- i:o:h "$@") || exit 1
+O=$(getopt -al help,low,high,debug -- i:o:h "$@") || exit 1
 eval set -- "$O"
 
 [ "$1" = "--" ] && echo "No command line settings, Using defaults"; echo ""

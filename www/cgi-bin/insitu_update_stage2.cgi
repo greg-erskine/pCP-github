@@ -44,14 +44,27 @@ PATCH_VERSION=$(echo "$vtmp" | cut -d '-' -f1)
 # 35977609 bytes
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
+BUILD=$(getBuild)
 case "${VERSION}" in
 	piCorePlayer5.0.*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=27700
+		#These are used for sed modification of config.txt
+		CNF_INITRD="pcp_10.1"
+		CNF_KERNEL="kernel41940"
+		# Set the below for downloading new kernel modules
+		KUPDATE=1
+		case $CORE in
+			*pcpAudioCore*) NEWKERNELVER="4.19.40-rt19";;
+			*) NEWKERNELVER="4.19.40";;
+		esac
+		PICOREVERSION="10.x"
+		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 	;;
 	*)
 		SPACE_REQUIRED=15000
-		BOOT_SIZE_REQUIRED=27000
+		BOOT_SIZE_REQUIRED=27800
+		KUPDATE=0
 	;;
 esac
 
@@ -153,21 +166,6 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 
 pcp_get_kernel_modules() {
-	BUILD=$(getBuild)
-	case "${VERSION}" in
-		piCorePlayer5.0.0*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.19.37-rt19;;
-				*) NEWKERNELVER=4.19.37;;
-			esac
-			PICOREVERSION=10.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		*)  KUPDATE=0
-		;;
-	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="https://repo.picoreplayer.org/repo"
 		CURRENTKERNEL=$(uname -r)
@@ -240,27 +238,36 @@ pcp_install_boot_files() {
 	echo '[ INFO ] Backing up old OS...'
 	tar -cf /tmp/osbackup.tar *
 	cd
-	pcp_save_custom_boot_config
 
 	if [ "$FAIL_MSG" = "ok" ]; then
-		# Delete all files from the boot partition
-		sudo rm -rf ${BOOTMNT}/*
-		[ $? -eq 0 ] || FAIL_MSG="Error deleting files ${BOOTMNT}/*"
+		# Delete version specific files from the boot partition
+		find ${BOOTMNT} | grep -E "(kernel|pcp_|\.dtb)" | xargs rm -f
+		[ $? -eq 0 ] || FAIL_MSG="Error deleting files from ${BOOTMNT}"
+
 		pcp_save_configuration
 	fi
 	if [ "$FAIL_MSG" = "ok" ]; then
 		# Untar the boot files
 		echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
-		sudo tar -xvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1
+		#config.txt and cmdline.txt should not be in insitu archive, but just incase, exlude them.
+		tar --exclude config.txt --exclude cmdline.txt -xvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1
 		TST=$?
 		if [ $TST -eq 0 ]; then
 			echo '[  OK  ] Successfully untarred boot tar.'
-			pcp_restore_custom_boot_config
 		else
 			echo '[ ERROR ] Error untarring boot tar. Result: '$TST
 			FAIL_MSG="Error untarring boot tar."
 		fi
 	fi
+
+	#We are not replacing the current config.txt and cmdline.txt, so make appropriate updates.
+	if [ "$FAIL_MSG" = "ok" ]; then
+		sed -i -r "s/^initramfs pcp_[0-9]{1,2}\.[0-9]/initramfs ${CNF_INITRD}/g" ${BOOTMNT}/config.txt
+		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
+		sed -i -r "s/^kernel kernel[0-9]{4,7}/kernel ${CNF_KERNEL}/g" ${BOOTMNT}/config.txt
+		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
+	fi
+
 	if [ "$FAIL_MSG" != "ok" ]; then
 		echo '[ INFO ] Restoring old OS...'
 		rm -rf ${BOOTMNT}/*
@@ -274,116 +281,16 @@ pcp_install_boot_files() {
 # Save configuration files to the boot partiton
 #-----------------------------------------------------------------------------------------
 pcp_save_configuration() {
-	#(Cleanup for next 4.x release)
 	local V
 	echo '[ INFO ] Saving configuration files.'
-	[ -r /usr/local/sbin/config.cfg ] && sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newpcp.cfg
 	[ -r /usr/local/etc/pcp/pcp.cfg ] && sudo cp -f /usr/local/etc/pcp/pcp.cfg ${BOOTMNT}/newpcp.cfg
 	sudo dos2unix -u ${BOOTMNT}/newpcp.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	#save the current pcpversion to determine potential bootfix(es) later  
-	[ -r /usr/local/sbin/piversion.cfg ] && . /usr/local/sbin/piversion.cfg
 	[ -r $PCPVERSIONCFG ] && . $PCPVERSIONCFG
-	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
 	[ -e ${BOOTMNT}/oldpcpversion.cfg ] && rm -f ${BOOTMNT}/oldpcpversion.cfg
-	[ "$PIVERS" != "" ] && V=$PIVERS || V=$PCPVERS
 	echo "OLDPCPVERS=\"$V\"" > ${BOOTMNT}/oldpcpversion.cfg;
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
-}
-
-pcp_save_custom_boot_config() {
-	WAITUSB=0
-	for i in `cat $CMDLINETXT`; do
-		case $i in
-			*=*)
-				case $i in
-					waitusb*)   WAITUSB=${i#*=} ;;
-				esac
-			;;
-		esac
-	done
-	cp -f ${BOOTMNT}/config.txt /tmp/orig_config.txt 2>&1
-	echo '[ INFO ] Scanning config.txt for custom boot configuration.'
-/usr/bin/micropython -c '
-import os
-import sys
-infile = open("/tmp/orig_config.txt", "r")
-outfile = open("/tmp/custom_config.txt", "w")
-CUT=0
-FOUND=0
-while True:
-	ln = infile.readline()
-	if ln == "":
-		break
-	if CUT == 0:
-		if "Begin-Custom" in ln:
-			CUT=1
-	else:
-		if "End-Custom" in ln:
-			CUT=0
-		else:
-			outfile.write(ln)
-			FOUND=1
-infile.close
-outfile.close
-if FOUND == 0:
-	os.system("rm -f /tmp/custom_config.txt")
-'
-	[ $? -eq 0 ] || FAIL_MSG="Error saving custom boot configuration."
-	if [ "$FAIL_MSG" = "ok" -a -f "/tmp/custom_config.txt" ]; then
-		echo '[  OK  ] Your custom boot configuration saved.' 
-	else
-		echo '[  OK  ] No custom boot configuration found.'
-	fi
-}
-
-pcp_restore_custom_boot_config() {
-	#remove old waitusb value
-	sudo sed -r -i 's/waitusb[=][0-9]+//g' $CMDLINETXT
-	[ $WAITUSB -gt 0 ] && sudo sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
-	pcp_clean_cmdlinetxt
-	if [ -f "/tmp/custom_config.txt" ]; then
-		cp -f ${BOOTMNT}/config.txt /tmp/upgraded_config.txt
-		echo '[ INFO ] Restoring custom boot configuration to config.txt.'
-		rm -f /tmp/config.txt
-		[ $DEBUG -eq 1 ] && echo '[DEBUG] Current config.txt'; cat ${BOOTMNT}/config.txt
-/usr/bin/micropython -c '
-import os
-import sys
-infile = open("/tmp/upgraded_config.txt", "r")
-infilecustom = open("/tmp/custom_config.txt", "r")
-outfile = open("/tmp/config.txt", "w")
-INS=0
-def writecustom():
-	while True:
-		ln1 = infilecustom.readline()
-		if ln1 == "":
-			break
-		outfile.write(ln1)
-
-while True:
-	ln = infile.readline()
-	if ln == "":
-		break
-	outfile.write(ln)
-	if "Begin-Custom" in ln:
-		INS=1
-		writecustom()
-if INS == 0:
-	#Custom Tags not found in the new config.txt, add section in.
-	outfile.write("#Custom Configuration Area, for config settings that are not managed by pCP.\n")
-	outfile.write("#pCP will retain these settings during insitu-update\n")
-	outfile.write("#---Begin-Custom-(Do not alter Begin or End Tags)-----\n")
-	writecustom()
-	outfile.write("#---End-Custom----------------------------------------\n")
-
-infile.close
-infilecustom.close
-outfile.close
-'
-	cp -f /tmp/config.txt ${BOOTMNT}/config.txt
-	[ $DEBUG -eq 1 ] && echo '[DEBUG] New config.txt'; cat ${BOOTMNT}/config.txt
-	fi
 }
 
 #========================================================================================
@@ -436,10 +343,10 @@ pcp_finish_install() {
 	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
 	# So check that the final onboot contains all from the new version and add eventual extra from the old
 	sudo chown tc:staff $ONBOOTLST
-	echo "content of mnt onboot.lst before:"; cat $ONBOOTLST
+	echo "[ INFO ] content of mnt onboot.lst before:"; cat $ONBOOTLST
 	sudo cat $ONBOOTLST >> ${UPD_PCP}/mydata/onboot.lst
 	sort -u ${UPD_PCP}/mydata/onboot.lst > $ONBOOTLST
-	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
+	echo "[INFO] content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
 
@@ -450,7 +357,7 @@ pcp_finish_install() {
 		fi
 	fi
 
-	echo "content of mnt onboot.lst after:"; cat $ONBOOTLST
+	echo "[ INFO ] content of mnt onboot.lst after:"; cat $ONBOOTLST
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -461,7 +368,7 @@ pcp_finish_install() {
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
 	# if [ $MAJOR_VERSION -ge 5 ]; then
 		# if [ $MINOR_VERSION -ge 0 ]; then
-			# echo "Updating .filetool.lst :"
+			# echo "[ INFO ] Updating .filetool.lst :"
 		# fi
 	# fi
 
@@ -529,6 +436,12 @@ outfile.close
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
 	[ ! -f /etc/httpd.conf ] && sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/httpd.conf /etc/httpd.conf
+	
+	# Add pcm.pcpinput section to asound.conf
+	cat $ASOUNDCONF | grep -q "pcm.pcpinput"
+	if [ $? -ne 0 ]; then
+		sed '/^#---ALSA EQ/i pcm.pcpinput {\n\ttype plug\n\tslave.pcm \"hw:0.0\"\n}\n' $ASOUNDCONF
+	fi
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
