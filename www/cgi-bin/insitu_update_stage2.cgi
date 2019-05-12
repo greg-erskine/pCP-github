@@ -44,17 +44,27 @@ PATCH_VERSION=$(echo "$vtmp" | cut -d '-' -f1)
 # 35977609 bytes
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
+BUILD=$(getBuild)
 case "${VERSION}" in
 	piCorePlayer5.0.*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=27700
 		#These are used for sed modification of config.txt
 		CNF_INITRD="pcp_10.1"
-		CNF_KERNEL="kernel41937"
+		CNF_KERNEL="kernel41940"
+		# Set the below for downloading new kernel modules
+		KUPDATE=1
+		case $CORE in
+			*pcpAudioCore*) NEWKERNELVER="4.19.40-rt19";;
+			*) NEWKERNELVER="4.19.40";;
+		esac
+		PICOREVERSION="10.x"
+		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 	;;
 	*)
 		SPACE_REQUIRED=15000
 		BOOT_SIZE_REQUIRED=27800
+		KUPDATE=0
 	;;
 esac
 
@@ -156,21 +166,6 @@ pcp_create_download_directory() {
 #----------------------------------------------------------------------------------------
 
 pcp_get_kernel_modules() {
-	BUILD=$(getBuild)
-	case "${VERSION}" in
-		piCorePlayer5.0.0*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.19.37-rt19;;
-				*) NEWKERNELVER=4.19.37;;
-			esac
-			PICOREVERSION=10.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		*)  KUPDATE=0
-		;;
-	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="https://repo.picoreplayer.org/repo"
 		CURRENTKERNEL=$(uname -r)
