@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-14
+# Version: 5.0.0 2019-05-12
 
 BACKUP=0
 # Read from pcp-functions file
@@ -777,6 +777,6 @@ if [ "$JIVELITE" = "no" ]; then
 	echo "${YELLOW}A large offset between 1970 and now is normal.${NORMAL}"
 fi
 
-sudo su -c 'echo "Finished piCorePlayer startup." > /dev/kmsg'
+sudo su -c 'echo "Finished piCorePlayer v'$(pcp_picoreplayer_version)' startup." > /dev/kmsg'
 
 unset ORIG_AUDIO
