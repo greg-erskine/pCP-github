@@ -17,9 +17,15 @@ MSGCNT=0
 [ "$1" = "boot" ] && BOOT=1 || BOOT=0
 
 . /usr/local/bin/pcp-bt-functions
-[ -f $BTDEVICECONF ] || (echo "Need to pair device. \n Please run pcp-bt-pair"  >> $BT_LOG; exit 1 )
 
-[ "$BTDEVICE" = "" -a "$BTDELAY" = "" ] && (echo "Need to pair device. \n Please run pcp-bt-pair" >> $BT_LOG; exit 1 )
+if [ ! -f $BTDEVICECONF ]; then
+	echo "Need to pair device. \n Please run pcp-bt-pair"  >> $BT_LOG
+	exit 1
+fi
+if [ "$BTDEVICE" = "" -a "$BTDELAY" = "" ]; then
+	echo "Need to pair device. \n Please run pcp-bt-pair" >> $BT_LOG
+	exit 1
+fi
 
 connect() {
 	RET=$(pcp_bt_connect_device)
