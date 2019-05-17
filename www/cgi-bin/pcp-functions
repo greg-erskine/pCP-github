@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-21
+# Version: 5.0.0 2019-05-18
 
 #========================================================================================
 # Setup debug logging
@@ -595,34 +595,55 @@ pcp_navigation() {
 }
 
 pcp_footer() {
-	BETAREPOACTIVE='<a class="error" href="debug.cgi?t=0">BETA REPO Active</a> |'
-
-	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
-	SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
-
-	if [ -f /etc/sysconfig/timezone ]; then
-		. /etc/sysconfig/timezone
-		TIMESTAMP=$(TZ=$TZ date)
+	if [ "$1" = "static" ]; then
+		echo '<!-- Start of pcp_footer -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p class="footer">
+		                '$NAME' |
+		                piCorePlayer v'$(pcp_picoreplayer_version)' |
+		                linux '$(pcp_linux_release)' |
+		                piCore v'$(pcp_picore_version)' |
+		                Squeezelite v'$(pcp_squeezelite_version)'</p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_footer -->'
 	else
-		TIMESTAMP="No Timezone"
-	fi
+		if [ -f "/tmp/footer.html" ] && [ $MODE -lt $MODE_DEVELOPER ]; then
+			cat /tmp/footer.html
+		else
+			BETAREPOACTIVE='<a class="error" href="debug.cgi?t=0">BETA REPO Active</a> |'
 
-	echo '<!-- Start of pcp_footer -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p class="footer">
-					'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
-					'$NAME' |
-					piCorePlayer v'$(pcp_picoreplayer_version)' |
-					linux '$(pcp_linux_release)' |
-					piCore v'$(pcp_picore_version)' |
-					'`echo $SQUEEZELITEfoot`' |
-					'`echo $TIMESTAMP`'</p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<!-- End of pcp_footer -->'
+			[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
+			SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
+
+			if [ -f /etc/sysconfig/timezone ]; then
+				. /etc/sysconfig/timezone
+				TIMESTAMP=$(TZ=$TZ date)
+			else
+				TIMESTAMP="No Timezone"
+			fi
+
+			echo '<!-- Start of pcp_footer -->'
+			echo '<table class="bgblack">'
+			echo '  <tr>'
+			echo '    <td>'
+			echo '      <p class="footer">
+							'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
+							'$NAME' |
+							piCorePlayer v'$(pcp_picoreplayer_version)' |
+							linux '$(pcp_linux_release)' |
+							piCore v'$(pcp_picore_version)' |
+							'`echo $SQUEEZELITEfoot`' |
+							'`echo $TIMESTAMP`'</p>'
+			echo '    </td>'
+			echo '  </tr>'
+			echo '</table>'
+			echo '<!-- End of pcp_footer -->'
+		fi
+	fi
 }
 
 pcp_copyright() {

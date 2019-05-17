@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-12
+# Version: 5.0.0 2019-05-18
 
 BACKUP=0
 # Read from pcp-functions file
@@ -776,6 +776,11 @@ if [ "$JIVELITE" = "no" ]; then
 	echo "${YELLOW}In the background, ntpd is syncing time between piCorePlayer and the internet...${NORMAL}"
 	echo "${YELLOW}A large offset between 1970 and now is normal.${NORMAL}"
 fi
+
+#========================================================================================
+# Create static footer
+#----------------------------------------------------------------------------------------
+[ $MODE -ge $MODE_DEVELOPER ] || pcp_footer static >/tmp/footer.html
 
 sudo su -c 'echo "Finished piCorePlayer v'$(pcp_picoreplayer_version)' startup." > /dev/kmsg'
 
