@@ -351,7 +351,7 @@ fi
 
 if [ "$ACTION" = "fix" ]; then
 	case $(pcp_picoreplayer_version) in
-		4.1.0*)
+		4.1*)
 			echo '[ INFO ] Hotfix for pCP 4.1.0 for update changes.'
 			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_410
 			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
