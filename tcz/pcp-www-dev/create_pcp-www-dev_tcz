@@ -57,6 +57,5 @@ REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/${PCVERSION}"
 ARMV6="$REPOPATH/armv6/tcz"
 ARMV7="$REPOPATH/armv7/tcz"
 
-find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $IMAGEPATH
 find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV6
 find * -not -type d | egrep "^${TCZ}" | xargs -r -I {} cp -f {} $ARMV7
