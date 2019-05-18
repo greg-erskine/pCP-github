@@ -26,9 +26,10 @@ fi
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
-INSITU_DOWNLOAD=$(echo "$INSITU_DOWNLOAD" | sed 's/http:\/\/picoreplayer.sourceforge.net/https:\/\/repo.picoreplayer.org/')
 
-# Parse out numerical versions...
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
+# Parse out numerical versions of upgrade version (comes from query string)...
 VERS=$(echo "$VERSION" | awk -F'piCorePlayer' '{ print $2 }' | cut -d '-' -f1)
 MAJOR_VERSION=$(echo "$VERS" | cut -d '.' -f1)
 vtmp=$(echo "$VERS" | cut -d '.' -f2)
@@ -67,6 +68,12 @@ case "${VERSION}" in
 		KUPDATE=0
 	;;
 esac
+case $BUILD in
+	armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
+	armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
+esac
+
+
 
 #========================================================================================
 # DEBUG info showing variables
@@ -170,10 +177,6 @@ pcp_get_kernel_modules() {
 		PCP_REPO="https://repo.picoreplayer.org/repo"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
-		case $BUILD in
-			armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
-			armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
-		esac
 		PCP_DL="${PCP_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
 		echo '[ INFO ] PCP_DL='$PCP_DL
 		# Do a space check based on current kernel modules installed, then doubled for safety
@@ -329,6 +332,7 @@ pcp_install_tce_files() {
 # Finish the install process
 #----------------------------------------------------------------------------------------
 pcp_finish_install() {
+	OLDPCPVERSION=$(pcp_picoreplayer_version)
 	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct locations
 	sudo mkdir -p ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
 	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz -C ${UPD_PCP}/mydata
@@ -445,6 +449,20 @@ outfile.close
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
+	
+	if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
+		echo '[ INFO ] Updating installed extensions.'
+		echo "https://repo.picoreplayer.org/repo" > /opt/tcemirror
+		echo "10.1pCP" > /usr/share/doc/tc/release.txt
+		
+		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz jivelite.tcz"
+		for UPG in $UPGRADE_LIST; do
+			if [ -f ${PACKAGEDIR}/$UPG ]; then
+				echo '[ INFO ] '$UPG' found, updating....'
+				sudo -u tc pcp-update kernel $NEWKERNEL $UPG
+			fi
+		done
+	fi
 }
 
 #========================================================================================
@@ -464,7 +482,6 @@ pcp_warning_message() {
 	echo '                  <li style="color:white">Assume an insitu update will overwrite ALL the data on your SD card.</li>'
 	echo '                  <li style="color:white">Any user modified or added files may be lost or overwritten.</li>'
 	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
-	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
 	echo '                  <li style="color:white">You may need to manually update your plugins, extensions, static IP etc.</li>'
 	echo '                </ul>'
 	echo '              </td>'
@@ -557,25 +574,45 @@ echo '                <td>'
 echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
-	echo '[ INFO ] You are downloading '${VERSION}
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 
+	if [ $(version $(pcp_picoreplayer_version)) -lt $(version "5.0.0") ]; then
+		echo '[ INFO ] Updating extensions with known requirements. This will increase free space required for upgrade.'
+
+		#For 5.0.0, these extensions are upgraded automatically, make sure there is free space.
+		if [ -f ${PACKAGEDIR}/alsaequal.tcz ]; then
+			echo '[ INFO ] alsaequal found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 300`
+		fi
+		if [ -f ${PACKAGEDIR}/nano.tcz ]; then
+			echo '[ INFO ] nano found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 800`
+		fi
+		if [ -f ${PACKAGEDIR}/slimserver.tcz ]; then
+			echo '[ INFO ] slimserver found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 44000`
+		fi
+		if [ -f ${PACKAGEDIR}/jivelite.tcz ]; then
+			echo '[ INFO ] jivelite found, will be automatically updated.'
+			VU_SIZE=`expr $(ls -1 ${PACKAGEDIR}/VU_Meter*.tcz | wc -l) \* 475`
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 10200 + $VU_SIZE` 
+		fi
+	fi
+
 	case "${VERSION}" in
-		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
-			VVV=$(pcp_picoreplayer_version)
-			[ $(echo $VVV | awk -F. '{print $1}') -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+		piCorePlayer5.0*)  # Requires 4.1.2 version for update
+			[ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.2") ] || FAIL_MSG="You must be using 4.1.2 or higher to update. Run Hotfix."
 		;;
 	esac
-	# busybox 27 changed fdisk format
-	if [ $(busybox fdisk --help 2>&1 | grep "BusyBox v" | awk -F. '{print $2}') -ge 27 ]; then
-		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
-	else
-		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
-	fi
+
+	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"
 	fi
+	echo '[ INFO ] Space required for update and extensions: '$SPACE_REQUIRED'k'
+	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
+	echo '[ INFO ] You are downloading '${VERSION}
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_kernel_modules
 	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
 
