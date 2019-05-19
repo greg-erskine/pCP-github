@@ -268,6 +268,8 @@ pcp_sound_card_dropdown() {
 
 # Load Card Variables from Config file, and Find card number for asound.conf when using alsaequal
 pcp_load_card_conf() {
+	#OUTPUT is declared in card conf file.  Delcare local context, so OUTPUT=equal is not changed.
+	local OUTPUT
 	pcp_blank_audio_conf
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	case $CARD in
