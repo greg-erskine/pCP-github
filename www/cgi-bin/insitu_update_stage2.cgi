@@ -444,7 +444,7 @@ outfile.close
 	# Add pcm.pcpinput section to asound.conf
 	cat $ASOUNDCONF | grep -q "pcm.pcpinput"
 	if [ $? -ne 0 ]; then
-		sed '/^#---ALSA EQ/i pcm.pcpinput {\n\ttype plug\n\tslave.pcm \"hw:0.0\"\n}\n' $ASOUNDCONF
+		sed -i '/^#---ALSA EQ/i pcm.pcpinput {\n\ttype plug\n\tslave.pcm \"hw:0.0\"\n}\n' $ASOUNDCONF
 	fi
 
 	# Backup changes to make a new mydata.tgz containing an updated version
@@ -455,13 +455,14 @@ outfile.close
 		echo "https://repo.picoreplayer.org/repo" > /opt/tcemirror
 		echo "10.1pCP" > /usr/share/doc/tc/release.txt
 		
-		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz jivelite.tcz"
+		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz pcp-jivelite.tcz pcp-lirc.tcz"
 		for UPG in $UPGRADE_LIST; do
 			if [ -f ${PACKAGEDIR}/$UPG ]; then
 				echo '[ INFO ] '$UPG' found, updating....'
 				sudo -u tc pcp-update kernel $NEWKERNEL $UPG
 			fi
 		done
+		rm -f /home/tc/.alsaequal.bin
 	fi
 }
 
@@ -592,10 +593,14 @@ if [ "$ACTION" = "download" ]; then
 			echo '[ INFO ] slimserver found, will be automatically updated.'
 			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 44000`
 		fi
-		if [ -f ${PACKAGEDIR}/jivelite.tcz ]; then
-			echo '[ INFO ] jivelite found, will be automatically updated.'
+		if [ -f ${PACKAGEDIR}/pcp-jivelite.tcz ]; then
+			echo '[ INFO ] pcp-jivelite found, will be automatically updated.'
 			VU_SIZE=`expr $(ls -1 ${PACKAGEDIR}/VU_Meter*.tcz | wc -l) \* 475`
-			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 10200 + $VU_SIZE` 
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 10200 + $VU_SIZE`
+		fi
+		if [ -f ${PACKAGEDIR}/pcp-lirc.tcz ]; then
+			echo '[ INFO ] pcp-lirc found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 235`
 		fi
 	fi
 
