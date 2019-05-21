@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-04
+# Version: 5.0.0 2019-05-21
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -190,14 +190,12 @@ pcp_get_kernel_modules() {
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
 			# Get list of kernel modules not matching new kernel
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
-			
-			if [ $MAJOR_VERSION -ge 5 ]; then
-				if [ $MINOR_VERSION -ge 0 ]; then
+
+			if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
 					#irda changes to media-rc in >4.2.0
 					sed -i 's/irda/media-rc/' /tmp/current
-				fi
 			fi
-			
+
 			# Show the old modules that do not have a current kernel version.
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
 			echo '[ INFO ] Step 3A. Downloading new kernel modules: '$MODULES
@@ -354,11 +352,9 @@ pcp_finish_install() {
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
 
-	if [ $MAJOR_VERSION -ge 5 ]; then
-		if [ $MINOR_VERSION -ge 0 ]; then
-			sed -i 's/firmware-rpi3-wireless/firmware-rpi-wifi/' $ONBOOTLST
-			rm -f ${PACKAGEDIR}/firmware-rpi3-wireless.*
-		fi
+	if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
+		sed -i 's/firmware-rpi3-wireless/firmware-rpi-wifi/' $ONBOOTLST
+		rm -f ${PACKAGEDIR}/firmware-rpi3-wireless.*
 	fi
 
 	echo "[ INFO ] content of mnt onboot.lst after:"; cat $ONBOOTLST
@@ -449,12 +445,12 @@ outfile.close
 
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
-	
+
 	if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
-		echo '[ INFO ] Updating installed extensions.'
+		echo '[ INFO ] Updating installed/required extensions.'
 		echo "https://repo.picoreplayer.org/repo" > /opt/tcemirror
 		echo "10.1pCP" > /usr/share/doc/tc/release.txt
-		
+
 		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz pcp-jivelite.tcz pcp-lirc.tcz"
 		for UPG in $UPGRADE_LIST; do
 			if [ -f ${PACKAGEDIR}/$UPG ]; then
@@ -462,6 +458,13 @@ outfile.close
 				sudo -u tc pcp-update kernel $NEWKERNEL $UPG
 			fi
 		done
+		for METER in $(PACKAGEDIR/VU_Meter*.tcz); do
+			echo '[ INFO ] '$METER' found, updating....'
+			sudo -u tc pcp-update $METER
+		done
+		if [ "$JIVELITE" = "yes" -a "$IR_LIRC" = "yes" ]; then
+			sudo -u tc pcp-load -wi pcp-irtools.tcz
+		fi
 		rm -f /home/tc/.alsaequal.bin
 	fi
 }
