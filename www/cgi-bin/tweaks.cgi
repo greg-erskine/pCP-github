@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-17
+# Version: 5.0.0 2019-05-19
 
 set -f
 
@@ -1320,7 +1320,7 @@ pcp_tweaks_lirc() {
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>LIRC remote control</legend>'
+	echo '          <legend>IR remote control</legend>'
 
 	#----------------------------------------------------------------------------------------
 	# Function to check the IR_LIRC radio button according to config file
@@ -1346,7 +1346,7 @@ pcp_tweaks_lirc() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Go to LIRC page to...</p>'
+	echo '                    <p>Go to IR page to...</p>'
 	echo '                    <p>Install/remove LIRC.</p>'
 	echo '                    <p>Configure LIRC.</p>'
 	echo '                    <p>Change GPIO number.</p>'
@@ -1356,7 +1356,7 @@ pcp_tweaks_lirc() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="LIRC page">'
+	echo '                  <input type="submit" name="SUBMIT" value="IR page">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'

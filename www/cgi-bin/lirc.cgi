@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-17
+# Version: 5.0.0 2019-05-19
 
 . pcp-functions
 . pcp-lms-functions
@@ -269,11 +269,11 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Install LIRC&nbsp;&nbsp;'
+		echo '                  <p>Install LIRC for Squeezelite or IR tools for jivelite.&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>Install LIRC from repository.</p>'
+		echo '                    <p>Install packages from repository.</p>'
 		echo '                  </div>'
 		echo '                </td>'
 	fi
