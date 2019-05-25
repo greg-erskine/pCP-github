@@ -612,20 +612,25 @@ if [ "$LMSERVER" != "yes" ]; then
 fi
 
 # Automatically set the timezone.
-if [ x"" = x"$TIMEZONE" ] && [ $(pcp_internet_accessible) = 0 ]; then
+if [ "$TIMEZONE" = "" ]; then
 	echo "${BLUE}Auto set timezone settings, can be updated on tweaks page...${NORMAL}"
-	# Fetch timezone from Ubuntu's geoip server.
-	TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
-	# Translate country/city to timezone string.
-	TIMEZONE=`wget -O - -q http://svn.fonosfera.org/fon-ng/trunk/luci/modules/admin-fon/root/etc/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
-	echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
-	pcp_save_to_config
-	pcp_mount_bootpart_nohtml >/dev/null 2>&1
-	pcp_set_timezone >/dev/null 2>&1
-	pcp_umount_bootpart_nohtml >/dev/null 2>&1
-	TZ=$TIMEZONE
-	BACKUP=1
-	echo "${GREEN}Done.${NORMAL}"
+	wget --spider -q https://www.picoreplayer.org/assets/timezones.db >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		# Fetch timezone from Ubuntu's geoip server.
+		TZ1=`wget -O - -q http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'`
+		# Translate country/city to timezone string.
+		TIMEZONE=`wget -O - -q https://www.picoreplayer.org/assets/timezones.db | grep $TZ1 | sed "s@$TZ1 @@"`
+		echo "${YELLOW}Timezone settings for $TZ1 are used.${NORMAL}"
+		pcp_save_to_config
+		pcp_mount_bootpart_nohtml >/dev/null 2>&1
+		pcp_set_timezone >/dev/null 2>&1
+		pcp_umount_bootpart_nohtml >/dev/null 2>&1
+		TZ=$TIMEZONE
+		BACKUP=1
+		echo "${GREEN}Done.${NORMAL}"
+	else
+		echo "${RED}There was a problem reaching sites for automatic timezone, please set manually on tweaks page.${NORMAL}"
+	fi
 fi
 
 if [ "$LMSERVER" = "yes" ]; then
