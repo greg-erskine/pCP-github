@@ -115,7 +115,7 @@ rm $STARTDIR/$PKG
 PKG=pcp-lirc.tcz
 wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
 unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
-cp -p $STARTDIR/squashfs-root/usr/local/lib/liblirc_client.so* $SRC/lib
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
 rm -rf $STARTDIR/squashfs-root
 rm $STARTDIR/$PKG
 
@@ -129,7 +129,7 @@ rm $STARTDIR/$PKG
 PKG=wiringpi.tcz
 wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
 unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
-cp -p $STARTDIR/squashfs-root/usr/local/lib/libwiringPi.so $SRC/lib
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
 rm -rf $STARTDIR/squashfs-root
 rm $STARTDIR/$PKG
 
@@ -143,7 +143,7 @@ rm $STARTDIR/$PKG
 PKG=openssl.tcz
 wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
 unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
-cp -p $STARTDIR/squashfs-root/usr/local/lib/lib*.so $SRC/lib
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
 rm -rf $STARTDIR/squashfs-root
 rm $STARTDIR/$PKG
 
