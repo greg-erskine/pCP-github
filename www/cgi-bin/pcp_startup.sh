@@ -485,23 +485,26 @@ if [ -f  ${USBMOUNTCONF} ]; then
 			if [ $? -eq 0 ]; then
 				mkdir -p /mnt/$POINT
 				chown tc.staff /mnt/$POINT
-				DEVICE=$(blkid -U $UUID)
+				USBDEVICE=$(blkid -U $UUID)
 				FSTYPE=$(blkid -U $UUID | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 				case "$FSTYPE" in
 					ntfs)
-						umount $DEVICE  # ntfs cannot be dual mounted.
+						# ntfs cannot be dual mounted.
+						umount $USBDEVICE >/dev/null 2>&1
 						OPTIONS="-v -t ntfs-3g -o permissions,noatime"
 					;;
 					vfat|fat32)
 						# If Filesystem support installed, use utf-8 charset for fat.
 						df | grep -qs ntfs
 						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
-						umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
+						 # need to unmount vfat incase 1st mount is not utf8
+						umount $USBDEVICE >/dev/null 2>&1
 						OPTIONS="-v -t vfat -o noauto,users,noatime,exec,umask=000,flush${CHARSET}"
 					;;
 					exfat)
 						CHARSET=",iocharset=utf8"
-						umount $DEVICE  # Need to unmount incase 1st mount is not utf8.
+						# Need to unmount incase 1st mount is not utf8.
+						umount $USBDEVICE >/dev/null 2>&1
 						OPTIONS="-v -o noauto,users,noatime,exec,umask=000,flush,uid=1001,gid=50${CHARSET}"
 					;;
 					*)
@@ -510,7 +513,7 @@ if [ -f  ${USBMOUNTCONF} ]; then
 				esac
 				echo "${BLUE}Mounting USB Drive: $UUID...${YELLOW}"
 				case "$FSTYPE" in
-					exfat) modprobe fuse; mount.exfat $OPTIONS $DEVICE /mnt/$POINT;;
+					exfat) modprobe fuse; mount.exfat $OPTIONS $USBDEVICE /mnt/$POINT;;
 					*) mount $OPTIONS --uuid $UUID /mnt/$POINT;;
 				esac
 				if [ $? -eq 0 ]; then
