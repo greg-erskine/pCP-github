@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-18
+# Version: 5.0.0 2019-05-26
 
 BACKUP=0
 # Read from pcp-functions file
@@ -679,7 +679,7 @@ fi
 
 if [ "$SAMBA" = "yes" ]; then
 	echo "${BLUE}Starting Samba Server...${NORMAL}"
-	[ -x /usr/local/etc/init.d/samba ] && /usr/local/etc/init.d/samba start
+	[ -x /usr/local/etc/init.d/samba4 ] && /usr/local/etc/init.d/samba4 start
 	echo "${GREEN}Done.${NORMAL}"
 fi
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-12
+# Version: 5.0.0 2019-05-26
 
 . pcp-functions
 . pcp-rpi-functions
@@ -125,7 +125,7 @@ pcp_remove_exfat() {
 pcp_install_samba4() {
 	RESULT=0
 	echo '[ INFO ] Downloading Samba4...'
-	sudo -u tc pcp-load -w samba4.tcz
+	sudo -u tc pcp-load -r $PCP_REPO -w samba4.tcz
 	[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 	echo '<p>'
 	if [ $RESULT -eq 0 ]; then
@@ -136,80 +136,9 @@ pcp_install_samba4() {
 	if [ $RESULT -eq 0 ]; then
 		echo "samba4.tcz" >> $ONBOOTLST
 		echo '[ INFO ] Samba Support Loaded...</p>'
-		cat << EOF > /usr/local/etc/init.d/samba
-#!/bin/sh
-NAME="Samba"
-DESC="File Sharing"
-CONF=/usr/local/etc/samba/smb.conf
-
-startsmb(){
-	grep -q "path" \$CONF
-	if [ \$? -eq 0 ]; then
-		echo "Starting SAMBA..."
-		/usr/local/sbin/smbd
-		/usr/local/sbin/nmbd
-	else
-		echo "Samba not Configured......exiting"
-	fi
-}
-
-stopsmb(){
-	echo -n "Stopping SAMBA"
-	pkill nmbd
-	pkill smbd
-	CNT=0
-	while [ \$CNT -lt 50 ]; do
-		[ \$((CNT++)) ]
-		PID=\$(pidof nmbd)
-		[ -z "\$PID" ] && PID=\$(pidof smbd)
-		[ -z "\$PID" ] && break
-		sleep .1
-		echo -n "."
-	done
-	echo "Stopped."
-}
-
-#Must Run as Root for ownership
-if [ \$(/usr/bin/id -u) -ne 0 ]; then
-	echo "Need to run as root." >&2
-	exit 1
-fi
-
-case "\$1" in
-	start)
-		startsmb
-	;;
-	stop)
-		stopsmb
-	;;
-	restart)
-		echo "Restarting SAMBA..."
-		stopsmb
-		sleep 3
-		startsmb
-	;;
-	status)
-		PID=\$(pidof smbd)
-		if [ -n "\$PID" ]; then
-			echo "Samba Running"
-			exit 0
-		else
-			echo "Samba Not Running"
-			exit 1
-		fi
-	;;
-	*)
-		echo ""
-		echo -e "Usage: /usr/local/etc/init.d/\$(basename \$0) [start|stop|restart|status]"
-		echo ""
-		exit 1
-	;;
-esac
-exit 0
-EOF
-		chmod 755 /usr/local/etc/init.d/samba
+		mkdir -p /usr/local/var/lib/samba
+		mkdir -p /usr/local/etc/samba
 		touch /usr/local/etc/samba/smb.conf
-		echo "usr/local/etc/init.d/samba" >> /opt/.filetool.lst
 		echo "usr/local/var/lib/samba" >> /opt/.filetool.lst
 		echo "usr/local/etc/samba/smb.conf" >> /opt/.filetool.lst
 		SAMBA="yes"
@@ -225,6 +154,7 @@ pcp_remove_samba4() {
 	sed -i '/samba4.tcz/d' $ONBOOTLST
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete samba4.tcz
+	# The init.d script is now part of the extension, but make sure it is not in backup
 	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/var\/lib\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/etc\/samba\/smb.conf/d' /opt/.filetool.lst
@@ -232,8 +162,8 @@ pcp_remove_samba4() {
 }
 
 pcp_samba_status() {
-	if [ -f /usr/local/etc/init.d/samba ]; then
-		/usr/local/etc/init.d/samba status 1>/dev/null
+	if [ -f /usr/local/etc/init.d/samba4 ]; then
+		/usr/local/etc/init.d/samba4 status 1>/dev/null
 		echo $?
 	else
 		echo 1
@@ -393,17 +323,17 @@ case "$ACTION" in
 	;;
 	SambaStart)
 		pcp_table_top "Starting Samba"
-		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba start" 40
+		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba4 start" 40
 		pcp_table_end
 	;;
 	SambaStop)
 		pcp_table_top "Stopping Samba"
-		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba stop" 40
+		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba4 stop" 40
 		pcp_table_end
 	;;
 	SambaRestart)
 		pcp_table_top "Re-Starting Samba"
-		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba restart" 40
+		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba4 restart" 40
 		pcp_table_end
 	;;
 	Mysb)
