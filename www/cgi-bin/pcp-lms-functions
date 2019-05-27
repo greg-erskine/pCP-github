@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.0.0 2019-05-27
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
@@ -659,7 +659,8 @@ pcp_lms_favorites_list() {
 #	MusicIP 
 #---------------------------------------------------------------------------------------
 pcp_lms_randomplay() {
-	MODE=tracks
+	# MODE=tracks|albums|contributors|year|disable
+	MODE=${1:-tracks}
 	REQUEST=$(pcp_lms_build_request "$NAME" randomplay $MODE)
 	RESULT="NONE"
 	pcp_lms_json_request

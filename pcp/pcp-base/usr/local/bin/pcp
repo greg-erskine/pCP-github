@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-15
+# Version: 5.0.0 2019-05-27
 
 # Note: Need to use $WWWROOT someday.
 . /home/tc/www/cgi-bin/pcp-functions
@@ -19,7 +19,7 @@ pcp_cli_help() {
 	echo " - pcp down           : volume down"
 	echo " - pcp next           : next track"
 	echo " - pcp prev           : previous track"
-	echo " - pcp rand           : generate random track playlist"
+	echo " - pcp rand           : generate random playlist"
 	echo " - pcp power [on|off] : software power on or off"
 	echo " - pcp volume [0-100] : set volume between 0 to 100"
 	echo " - pcp rescan         : look for new and changed media files in connected LMS library"
@@ -76,7 +76,7 @@ case "$1" in
 		pcp_lms_prev
 	;;
 	rand*)
-		pcp_lms_randomplay
+		pcp_lms_randomplay $2
 	;;
 	power)
 		pcp_lms_power $2
