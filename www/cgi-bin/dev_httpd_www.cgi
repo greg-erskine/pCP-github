@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-22
+# Version: 5.0.0 2019-05-19
 
 # Title: Configure httpd
 # Description: Tool to adjust /etc/httpd.conf
@@ -102,7 +102,7 @@ pcp_httpd_read_httpd_conf() {
 		MAINTAINED="user"
 
 		while read i; do
-			case $i in
+			case "$i" in
 				\#\ Maintained\ by\ piCorePlayer)
 					MAINTAINED="pCP"
 					MBP="selected"
@@ -112,7 +112,7 @@ pcp_httpd_read_httpd_conf() {
 					MBU="selected"
 				;;
 				*:*)
-					case $i in
+					case "$i" in
 						H:*)
 							HTTPD_HOME=${i#*:}
 						;;
@@ -123,6 +123,9 @@ pcp_httpd_read_httpd_conf() {
 							HTTPD_USER_ENABLED="yes"
 						;;
 						\#/cgi-bin:*)
+							HTTPD_USER_PWD=${i#*:}
+							HTTPD_USER=${HTTPD_USER_PWD%:*}
+							HTTPD_PWD_HASH=${HTTPD_USER_PWD#*:}
 							HTTPD_USER_ENABLED="no"
 						;;
 					esac
@@ -132,12 +135,6 @@ pcp_httpd_read_httpd_conf() {
 	fi
 }
 
-#		if [ ${HTTPD_PWD:0:3} = '$1$' ]; then
-#			HTTPD_PWD_HASH=$HTTPD_PWD
-#		else
-#			HTTPD_PWD_HASH=$(pcp_httpd_generate_passwd_hash)
-#		fi
-
 #========================================================================================
 # Write httpd.conf
 #----------------------------------------------------------------------------------------
@@ -145,21 +142,23 @@ pcp_httpd_write_httpd_conf() {
 	# FORMAT - colour|text|html
 	local FORMAT=$1
 
-	sudo echo '# Maintained by piCorePlayer'               > $HTTPD_CONF
-	sudo echo 'H:'${HTTPD_HOME:-/home/tc/www}             >> $HTTPD_CONF
-	sudo echo "/cgi-bin:${HTTPD_USER}:${HTTPD_PWD_HASH}"  >> $HTTPD_CONF
+	sudo echo '# Maintained by piCorePlayer'                   > $HTTPD_CONF
+	sudo echo 'H:'${HTTPD_HOME:-/home/tc/www}                 >> $HTTPD_CONF
+	if [ "$HTTPD_USER_ENABLED" = "yes" ]; then
+		sudo echo "/cgi-bin:${HTTPD_USER}:${HTTPD_PWD_HASH}"  >> $HTTPD_CONF
+	else
+		sudo echo "#/cgi-bin:${HTTPD_USER}:${HTTPD_PWD_HASH}" >> $HTTPD_CONF
+	fi
 
 	sudo chown root:root $HTTPD_CONF
 	sudo chmod u=rw,go=r $HTTPD_CONF
 }
 
-
 pcp_httpd_user_password() {
-	local GREG=$1
+	local ENABLE=$1
 
-	[ $1 = "enable" ] && sed -i "s/\#\/cgi-bin:/\/cgi-bin:/g" $HTTPD_CONF
-	[ $1 = "disable" ] && sed -i "s/^\/cgi-bin:/\#\/cgi-bin:/g" $HTTPD_CONF
-
+	[ "$ENABLE" = "enable" ] && sed -i "s/\#\/cgi-bin:/\/cgi-bin:/g" $HTTPD_CONF
+	[ "$ENABLE" = "disable" ] && sed -i "s/^\/cgi-bin:/\#\/cgi-bin:/g" $HTTPD_CONF
 }
 
 #========================================================================================
@@ -212,8 +211,9 @@ esac
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "[ DEBUG ] Information"
-	pcp_debug_variables "html" DEBUG ACTION MAINTAINED HTTPD_CONF HTTPD_HOME HTTPD_USER_PWD\
-		HTTPD_USER HTTPD_PWD HTTPD_PWD_HASH HTTPD_USER_ENABLED RANDOM_SALT HTTPD_PARAM
+	pcp_debug_variables "html" DEBUG ACTION MAINTAINED MBP MBU HTTPD_CONF HTTPD_HOME\
+		HTTPD_USER_PWD HTTPD_USER HTTPD_PWD HTTPD_PWD_HASH HTTPD_USER_ENABLED\
+		RANDOM_SALT HTTPD_PARAM
 	pcp_table_end
 
 	pcp_table_top "[ DEBUG ] $HTTPD_CONF"
@@ -265,18 +265,18 @@ echo '              </tr>'
 pcp_incr_id
 pcp_toggle_row_shade
 
-	case "$HTTPD_USER_ENABLED" in
-		yes) HUEyes="checked" ;;
-		no) HUEno="checked" ;;
-	esac
+case "$HTTPD_USER_ENABLED" in
+	yes) HUEyes="checked" ;;
+	no) HUEno="checked" ;;
+esac
 
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="'$COL1'">'
 echo '                  <p>User/password</p>'
 echo '                </td>'
 echo '                <td class="'$COL2'">'
-echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="Yes" '$HUEyes'>Enabled&nbsp;&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="No" '$HUEno'>Disabled'
+echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="yes" '$HUEyes'>Enabled&nbsp;&nbsp;&nbsp;'
+echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="no" '$HUEno'>Disabled'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enable User/password for httpd&nbsp;&nbsp;'
@@ -346,7 +346,7 @@ if ! [ "$MAINTAINED" = "user" ]; then
 	echo '              </tr>'
 fi
 #---------------------------------------www password hash--------------------------------
-if ! [ "$MAINTAINED" = "user" ]  && [ $DEBUG -eq 1 ] ; then
+if ! [ "$MAINTAINED" = "user" ] && [ $DEBUG -eq 1 ]; then
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
