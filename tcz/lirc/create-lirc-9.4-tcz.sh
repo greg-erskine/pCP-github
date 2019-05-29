@@ -41,10 +41,16 @@ mkdir -p $OUTPUT
 echo "Untarring..."
 bsdtar -xf $SRC.tar.bz2 >> $LOG 
 
+echo "Removing udev development files..."
+sudo apt-get -y purge libudev-dev
+
 cd $SRC >> $LOG
 
 make distclean >> $LOG
 ./autogen.sh
+
+echo "Patching..."
+patch -p1 -i $OUTPUT/../lirc-gpio-ir.patch || exit 1
 
 echo "Configuring..."
 
@@ -190,3 +196,7 @@ echo -e "Copying-policy:\tGPL" >> $TCZDEVINFO
 echo -e "Size:\t\t$(ls -lk $TCZDEV | awk '{print $5}')k" >> $TCZDEVINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZDEVINFO
 echo -e "\t\tCompiled for piCore 10.x" >> $TCZDEVINFO
+
+echo "Reinstalling udev development files.."
+sudo apt-get -y install libudev-dev
+
