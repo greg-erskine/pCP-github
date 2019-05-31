@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-21
+# Version: 5.0.0 2019-05-28
 
 . pcp-functions
 . pcp-lms-functions
@@ -72,7 +72,7 @@ case ${ACTION} in
 	;;
 	Permissions)
 		MOUNTTYPE="skip"
-		ALLPARTS=$(mount | grep -e "/dev/sd[a-z][1-9]" | cut -d ' ' -f3)
+		ALLPARTS=$(mount | grep -e "/dev/\(sd[a-z][1-9]\|mmcblk0p[3-9]\)" | cut -d ' ' -f3)
 		for I in $ALLPARTS; do
 			# Do not show the boot Drive
 			if [ "$I" != "${BOOTMNT}" -a "$I" != "${TCEMNT}" ]; then

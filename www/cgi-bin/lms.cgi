@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-26
+# Version: 5.0.0 2019-05-28
 
 . pcp-functions
 . pcp-rpi-functions
@@ -1386,7 +1386,7 @@ pcp_mount_usbdrives() {
 	echo '                    <button type="submit" name="ACTION" value="Save">Set USB Mount</button>'
 	echo '                  </td>'
 	echo '                  <td class="column150 center">'
-	echo '                    <button type="submit" name="ACTION" value="Permissions" onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
+	echo '                    <button type="submit" name="ACTION" value="Permissions" onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted SD or USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
 	echo '                  </td>'
 	case $LMSDATA in
 		usb*)
