@@ -213,7 +213,7 @@ case "$OPTION" in
 				pcp_save_to_config
 				pcp_backup "nohtml"
 				echo '             </textarea>'
-				REBOOT_REQUIRED=FALSE
+				unset REBOOT_REQUIRED
 			;;
 			Remove)
 				MTYPE="text"
@@ -225,14 +225,14 @@ case "$OPTION" in
 				REBOOT_REQUIRED=TRUE
 			;;
 			Reset)
-				REBOOT_REQUIRED=FALSE
+				unset REBOOT_REQUIRED
 				MTYPE="text"
 				pcp_table_textarea_top "Resetting Jivelite" "" "100"
 				pcp_message "info" 'Resetting Jivelite Configuration...' $MTYPE
 				rm -f /home/tc/.jivelite/userpath/settings/*.lua
 				pcp_backup "nohtml"
 
-				sudo pkill -SIGTERM jivelite
+				sudo kill -SIGTERM `pidof jivelite`
 
 				if [ $? -ne 0 ]; then
 					pcp_message "error" 'Jivelite not killed...' $MTYPE
@@ -253,10 +253,10 @@ case "$OPTION" in
 					CHK=$?
 					if [ $CHK -eq 2 ]; then
 						pcp_message "info" 'There is no update for Jivelite at this time.' $MTYPE
-						REBOOT_REQUIRED=FALSE
+						unset REBOOT_REQUIRED
 					elif [ $CHK -eq 1 ]; then
 						pcp_message "error" 'There was an error updating Jivelite, please try again later.' $MTYPE
-						REBOOT_REQUIRED=FALSE
+						unset REBOOT_REQUIRED
 					else
 						REBOOT_REQUIRED=TRUE
 					fi
@@ -274,7 +274,7 @@ case "$OPTION" in
 				MTYPE="text"
 				[ $DEBUG -eq 1 ] && pcp_message "debug" 'JIVELITE: '$JIVELITE
 				pcp_message "error" 'JIVELITE: '$JIVELITE', Bad ACTION:'$ACTION $MTYPE
-				REBOOT_REQUIRED=FALSE
+				unset REBOOT_REQUIRED
 			;;
 		esac
 	;;
@@ -286,7 +286,8 @@ case "$OPTION" in
 				pcp_install_vumeter
 				pcp_message "info" 'A restart of Jivelite is needed in order to finalize!' $MTYPE
 				pcp_message "info" 'Jivelite will now restart!' $MTYPE
-				sudo pkill -SIGTERM jivelite
+				sudo kill -SIGTERM `pidof jivelite`
+				unset REBOOT_REQUIRED
 			;;
 			Download)
 				pcp_download_vumeters
