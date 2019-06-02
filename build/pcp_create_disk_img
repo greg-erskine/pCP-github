@@ -39,8 +39,31 @@ DEBUG=0
 
 BUILDROOT="$(pwd)"
 
-LOOP1="/dev/loop200"
-LOOP2="/dev/loop201"
+LOOPNUM=100
+DONE=0
+while [ $DONE -eq 0 ]; do
+	LOOP1="/dev/loop${LOOPNUM}"
+	LOOPNUM=$((LOOPNUM + 1))
+	LOOP2="/dev/loop${LOOPNUM}"
+	losetup -l | grep -q $LOOP1
+	if [ $? -eq 0 ]; then
+		losetup -l | grep $LOOP1 | grep -q "piCore"
+		if [ $? -eq 0 ]; then
+			echo "Exisiting pCP image mounted at $LOOP1"
+			break
+		else
+			echo "Sonething else using $LOOP1, Changing loop numbers"
+		fi
+	else
+		losetup -l | grep -q $LOOP2
+		if [ $? -eq 0 ]; then
+			echo "Something using $LOOP2, Changing loop numbers"
+		else
+			break
+		fi
+	fi
+	LOOPNUM=$((LOOPNUM + 1))
+done
 
 PART1="/tmp/part1"
 PART2="/tmp/part2"
@@ -494,7 +517,7 @@ build_mydata(){
 
 mount_loops() {
 	losetup -l | grep -q $LOOP1
-	if [ $? -eq 1 ]; then 
+	if [ $? -eq 1 ]; then
 		pcp_set_image_sizes
 		losetup -o `expr $P1ST \* 512` --sizelimit `expr $P1BLKS \* 512` ${LOOP1} /tmp/${PCP}.img
 		if [ $? -ne 0 ]; then
