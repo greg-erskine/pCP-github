@@ -25,9 +25,7 @@ PCP_REPO="http://repo.picoreplayer.org/repo"
 TCE_VER="10.x/armv7/tcz"
 
 #This list does not include kernel modules
-#TCE_EXT="alsa-utils alsa dialog openssh openssl readline libedit \
-#firmware-atheros firmware-ralinkwifi libiw libnl ncurses \
-#wireless_tools"
+TCE_EXT=""
 
 PCP_EXT="pcp pcp-base libasound pcp-libogg pcp-libmpg123 pcp-libfaad2 pcp-libsoxr \
 pcp-libmad pcp-libvorbis pcp-libflac pcp-squeezelite firmware-rtlwifi firmware-brcmwifi wiringpi \
@@ -175,8 +173,8 @@ check_updates(){
 	echo " Checking for Updates"
 	echo "*****************************************************************"
 	echo ""
-	REPOS=(TCE PCP)
-	
+	REPOS=(PCP)
+
 	for R in ${REPOS[@]}; do
 		eval REPO_ADDR=\${${R}_REPO} 
 		eval EXTENSIONS=\${${R}_EXT}
@@ -187,7 +185,7 @@ check_updates(){
 			wget ${REPO_ADDR}/${TCE_VER}/${I}.tcz.md5.txt -P /tmp >/dev/null 2>&1
 			if [ $? -ne 0 ]; then
 				echo "${RED}ERROR downloading ${REPO_ADDR}/${TCE_VER}/${I}.tcz.md5.txt"
-			else		
+			else
 				diff -q ${I}.tcz.md5.txt /tmp/${I}.tcz.md5.txt >/dev/null 2>&1
 				if [ $? -ne 0 ]; then
 					echo -e "${YELLOW} Different md5 signature found."
@@ -221,7 +219,7 @@ check_updates(){
 							echo "${RED} Error downloading part of ${I}, extension not updated.{$YELLOW}"
 						fi
 					fi
-					if [ $UPDATE -eq 0 ] || [ $FAIL -ne 0 ]; then  
+					if [ $UPDATE -eq 0 ] || [ $FAIL -ne 0 ]; then
 						rm -f /tmp/${I}*
 					fi
 				else
