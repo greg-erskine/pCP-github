@@ -23,6 +23,8 @@ if [ -n $CORE ]; then
 	esac
 fi
 
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
@@ -705,9 +707,10 @@ echo '                  <textarea class="inform" style="height:130px">'
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
 	echo '[ INFO ] '$REPO_STATUS
-	if [ $(echo "$(pcp_picoreplayer_version)" | cut -d '.' -f1) -lt 5 ]; then
+	
+	if [ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.0") ]; then
 		echo ''
-		echo 'Need to upgrade to 4.1.1 before upgrading to next version will be possible'
+		echo 'Need to run HotFix before upgrading to next version will be possible.'
 		HOTFIX="yes"
 	else
 		HOTFIX="no"
