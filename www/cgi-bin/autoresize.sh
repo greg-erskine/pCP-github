@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-18
+# Version: 5.0.0 2019-06-04
 
 SCRATCH="/home/tc"
 #DEBUG=TRUE
@@ -9,21 +9,13 @@ TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 BOOTDEV=${TCEDEV%%?}1
 
 case $BOOTDEV in
-	*/sd?*)
-		[ $DEBUG ] && fdisk -l ${BOOTDEV%%?}
-		DEVICE=${BOOTDEV%%?}
-	;;
-	*mmcblk*)
-		[ $DEBUG ] && fdisk -l ${BOOTDEV%%??}
-		DEVICE=${BOOTDEV%%??}
-	;;
-	*)
-		[ $DEBUG ] echo "ERROR in device"
-	;;
+	*/sd?*) DEVICE=${BOOTDEV%%?} ;;
+	*mmcblk*) DEVICE=${BOOTDEV%%??} ;;
+	*) [ $DEBUG ] echo "ERROR in device" ;;
 esac
 
 #========================================================================================
-# fdisk routine
+# fdisk function
 #
 # $ fdisk -l
 # Disk /dev/mmcblk0: 3724 MB, 3904897024 bytes, 7626752 sectors
@@ -34,67 +26,89 @@ esac
 # /dev/mmcblk0p1    128,0,1     127,3,16          8192      73727      65536 32.0M  c Win95 FAT32 (LBA)
 # /dev/mmcblk0p2    128,0,1     639,3,16         73728     172031      98304 48.0M 83 Linux
 #
-#   Field 1         Field 2      Field 3         Field 4
+#       f 1           f 2         f 3            f 4         f 5
 #----------------------------------------------------------------------------------------
-pcp_fdisk() {
+pcp_fdisk_part2() {
 	[ $DEBUG ] && clear
-	LAST_PARTITION_NUM=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
-	PARTITION_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 4)
+	PART2_START=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 4)
 
-	echo 'Last partition:  '$LAST_PARTITION_NUM
-	echo 'Partition start: '$PARTITION_START
-	echo 'Partition size:  '$P2_SIZE
+	echo
+	echo 'Partition 2 - fdisk'
+	echo 'Partition 2 start: '$PART2_START
+	echo 'Partition 2 size: '$PART2_SIZE
 
 	fdisk -u $DEVICE <<EOF
 p
 d
-$LAST_PARTITION_NUM
+2
 n
 p
-$LAST_PARTITION_NUM
-$PARTITION_START
-$P2_SIZE
+2
+$PART2_START
+$PART2_SIZE
+w
+EOF
+	[ $DEBUG ] && pcp_pause
+}
+
+pcp_fdisk_part3() {
+	[ $DEBUG ] && clear
+	PART2_END=$(fdisk -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 5)
+	PART3_START=$((PART2_END + 1))
+
+	echo
+	echo 'Partition 3 - fdisk'
+	echo 'Partition 2 end: '$PART2_END
+	echo 'Partition 3 start: '$PART3_START
+
+	fdisk -u $DEVICE <<EOF
+n
+p
+3
+$PART3_START
+
 w
 EOF
 	[ $DEBUG ] && pcp_pause
 }
 
 #========================================================================================
-# resize2fs routine
+# resize2fs routines
 #----------------------------------------------------------------------------------------
-pcp_resize2fs() {
+pcp_resize2fs_part2() {
 	[ $DEBUG ] && clear
-	echo 'resize2fs can take a couple of minutes. Please wait...'
+	echo 'resize2fs partition 2 can take a couple of minutes. Please wait...'
 	sudo resize2fs $TCEDEV
 	[ $DEBUG ] && pcp_pause
 }
 
 pcp_pause() {
 	read -n1 -r -p "Press any key to continue..." KEY
+	echo
 }
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-if [ -f ${SCRATCH}/partition_size.cfg ]; then
-	echo "partition_size.cfg file found"
-	. ${SCRATCH}/partition_size.cfg
+if [ -f ${SCRATCH}/fdisk_part2_required ]; then
+	. ${SCRATCH}/fdisk_part2_required
 	PARTITION_SIZE=$SIZE
 	if [ "$PARTITION_SIZE" = "" ]; then
-		P2_SIZE=""
+		PART2_SIZE=""
 	else
-		P2_SIZE="+${PARTITION_SIZE}M"
+		PART2_SIZE="+${PARTITION_SIZE}M"
 	fi
-fi
 
-if [ -f ${SCRATCH}/fdisk_required ]; then
-	echo "Resizing partition using fdisk..."
-	pcp_fdisk
-	rm -f ${SCRATCH}/fdisk_required
-	rm -f ${SCRATCH}/partition_size.cfg
+	echo
+	echo "==============================================================================="
+	echo "Resizing partition 2 using fdisk..."
+	echo "-------------------------------------------------------------------------------"
+	echo "Please wait. System will reboot when ready."
+	pcp_fdisk_part2
+	rm -f ${SCRATCH}/fdisk_part2_required
 	sleep 1
-	if [ ! -f ${SCRATCH}/fdisk_required ]; then
-		touch ${SCRATCH}/resize2fs_required
+	if [ ! -f ${SCRATCH}/fdisk_part2_required ]; then
+		touch ${SCRATCH}/resize2fs_part2_required
 		sudo filetool.sh -b
 		sync; sync
 		sleep 1
@@ -103,12 +117,54 @@ if [ -f ${SCRATCH}/fdisk_required ]; then
 	exit
 fi
 
-if [ -f ${SCRATCH}/resize2fs_required ]; then
-	echo "Resizing partition using resize2fs...Please wait. System will reboot when ready"
-	pcp_resize2fs
-	rm -f ${SCRATCH}/resize2fs_required
+if [ -f ${SCRATCH}/resize2fs_part2_required ]; then
+	echo
+	echo "==============================================================================="
+	echo "Resizing partition 2 using resize2fs..."
+	echo "-------------------------------------------------------------------------------"
+	echo "Please wait. System will reboot when ready."
+	pcp_resize2fs_part2
+	rm -f ${SCRATCH}/resize2fs_part2_required
 	sleep 1
-	if [ ! -f ${SCRATCH}/resize2fs_required ]; then
+	if [ ! -f ${SCRATCH}/resize2fs_part2_required ]; then
+		sudo filetool.sh -b
+		sync; sync
+		sleep 1
+		sudo reboot
+	fi
+	exit
+fi
+
+if [ -f ${SCRATCH}/fdisk_part3_required ]; then
+	echo
+	echo "==============================================================================="
+	echo "Creating partition 3 using fdisk..."
+	echo "-------------------------------------------------------------------------------"
+	echo "Please wait. System will reboot when ready."
+	pcp_fdisk_part3
+	rm -f ${SCRATCH}/fdisk_part3_required
+	sleep 1
+	if [ ! -f ${SCRATCH}/fdisk_part3_required ]; then
+		touch ${SCRATCH}/mkfs_part3_required
+		sudo filetool.sh -b
+		sync; sync
+		sleep 1
+		sudo reboot
+	fi
+	exit
+fi
+
+if [ -f ${SCRATCH}/mkfs_part3_required ]; then
+	echo
+	echo "==============================================================================="
+	echo "Formatting partition 3 using mkfs.ext4..."
+	echo "-------------------------------------------------------------------------------"
+	echo "Please wait. System will reboot when ready."
+	sleep 10
+	mkfs.ext4 -L "PCP_DATA" /dev/mmcblk0p3
+	rm -f ${SCRATCH}/mkfs_part3_required
+	sleep 1
+	if [ ! -f ${SCRATCH}/mkfs_part3_required ]; then
 		sudo filetool.sh -b
 		sync; sync
 		sleep 1
@@ -118,3 +174,5 @@ if [ -f ${SCRATCH}/resize2fs_required ]; then
 fi
 
 echo "Autoresize.sh skipped..."
+echo 
+exit
