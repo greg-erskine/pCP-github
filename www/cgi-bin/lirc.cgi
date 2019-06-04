@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-19
+# Version: 5.0.0 2019-06-02
 
 . pcp-functions
 . pcp-lms-functions
@@ -138,76 +138,86 @@ pcp_lirc_upd_dtoverlay() {
 	pcp_umount_bootpart_nohtml
 }
 
-pcp_lirc_install() {
+pcp_ir_install() {
 	echo '[ INFO ] Installing packages for IR remote control.'
 	echo '[ INFO ] This can take a couple of minutes. Please wait...'
-	if [ "$JIVELITE" = "no" ]; then
-		sudo -u tc pcp-load -r $PCP_REPO -wi pcp-lirc.tcz
-	else
-		sudo -u tc pcp-load -r $PCP_REPO -wi pcp-irtools.tcz
-	fi
+	case $1 in
+		lirc) EXTN="pcp-lirc.tcz";;
+		irtools) EXTN="pcp-irtools.tcz";;
+		*) FAIL_MSG="Bad Package";;
+	esac
+	[ "$FAIL_MSG" = "ok" ] && sudo -u tc pcp-load -r $PCP_REPO -wi $EXTN
 
 	echo '[ INFO ] Updating configuration files... '
 
-	if [ "$JIVELITE" = "no" ]; then
-		touch /home/tc/.lircrc
-		sudo chown tc:staff /home/tc/.lircrc
+	case $1 in
+		lirc)
+			touch /home/tc/.lircrc
+			sudo chown tc:staff /home/tc/.lircrc
 
-		# Add lirc conf to the .filetool.lst
-		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
-		sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
-		sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
-		sudo sed -i '/.lircrc/d' /opt/.filetool.lst
-		sudo echo 'home/tc/.lircrc' >> /opt/.filetool.lst
-		sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
-	else
-		sudo cp -f /usr/local/share/pcp-irtools/files/slimdevices /usr/local/etc/keytables/jivelite
-		sudo echo 'usr/local/etc/keytables/jivelite' >> /opt/.filetool.lst
-	fi
-
+			# Add lirc conf to the .filetool.lst
+			[ $DEBUG -eq 1 ] && echo '[ DEBUG ] lirc configuration is added to .filetool.lst'
+			sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
+			sudo echo 'usr/local/etc/lirc/lircd.conf' >> /opt/.filetool.lst
+			sudo sed -i '/.lircrc/d' /opt/.filetool.lst
+			sudo echo 'home/tc/.lircrc' >> /opt/.filetool.lst
+			sudo cp -f /usr/local/share/lirc/files/lircd.conf /usr/local/etc/lirc/lircd.conf
+			[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && IR_CONFIG="/home/tc/.lircrc"
+		;;
+		irtools)
+			sudo cp -f /usr/local/share/pcp-irtools/files/slimdevices /usr/local/etc/keytables/jivelite
+			sudo echo 'usr/local/etc/keytables/jivelite' >> /opt/.filetool.lst
+			[ "$FAIL_MSG" = "ok" ] && IR_KEYTABLES="yes"
+		;;
+	esac
+	pcp_save_to_config
 	pcp_lirc_upd_dtoverlay
-
-	[ "$FAIL_MSG" = "ok" ] && IR_LIRC="yes" && IR_CONFIG="/home/tc/.lircrc" && pcp_save_to_config
 }
 
 #========================================================================================
 # LIRC uninstall
 #----------------------------------------------------------------------------------------
-pcp_lirc_uninstall() {
+pcp_ir_uninstall() {
 	sudo -u tc tce-audit builddb
-	if [ "$JIVELITE" = "no" ]; then
-		[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-lirc.tcz
-	else
-		[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete pcp-irtools.tcz
-	fi
+	case $1 in
+		lirc) EXTN="pcp-lirc.tcz";;
+		irtools) EXTN="pcp-irtools.tcz";;
+	esac
+	sudo -u tc tce-audit delete $EXTN
 
 	echo '[ INFO ] Removing configuration files... '
 
-	pcp_mount_bootpart_nohtml
-	sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
-	sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
-	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=gpio-ir removed." || FAIL_MSG="Can not remove dtoverlay=gpio-ir."
-	pcp_umount_bootpart_nohtml
+	case $1 in
+		lirc)
+			rm -f /home/tc/.lircrc
 
-	if [ "$JIVELITE" = "no" ]; then
-		rm -f /home/tc/.lircrc
+			sudo sed -i '/pcp-lirc.tcz/d' $ONBOOTLST
+			sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
+			sudo sed -i '/.lircrc/d' /opt/.filetool.lst
+			IR_LIRC="no"
+		;;
+		irtools)
+			sudo sed -i '/pcp-irtools.tcz/d' $ONBOOTLST
+			sudo rm /usr/local/etc/keytables/jivelite
+			sudo sed -i '/usr\/local\/etc\/keytables\/jivelite/d' /opt/.filetool.lst
+			IR_KEYTABLES="no"
+		;;
+	esac
 
-		sudo sed -i '/pcp-lirc.tcz/d' $ONBOOTLST
-		sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
-		sudo sed -i '/.lircrc/d' /opt/.filetool.lst
-	else
-		sudo sed -i '/pcp-irtools.tcz/d' $ONBOOTLST
-		sudo rm /usr/local/etc/keytables/jivelite
-		sudo sed -i '/usr\/local\/etc\/keytables\/jivelite/d' /opt/.filetool.lst
-	fi
+	if [ "$IR_LIRC" = "no" -a "$IR_KEYTABLES" = "no" ]; then
+		pcp_mount_bootpart_nohtml
+		sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
+		sed -i '/dtoverlay=gpio-ir/d' $CONFIGTXT
+		[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=gpio-ir removed." || FAIL_MSG="Can not remove dtoverlay=gpio-ir."
+		pcp_umount_bootpart_nohtml
 
-	if [ "$FAIL_MSG" = "ok" ]; then
-		IR_LIRC="no"
-		IR_GPIO_IN=$DEFAULT_IR_GPIO_IN
-		IR_GPIO_OUT=$DEFAULT_IR_GPIO_OUT
-		IR_DEVICE="lirc0"
-		IR_CONFIG=""
-		pcp_save_to_config
+		if [ "$FAIL_MSG" = "ok" ]; then
+			IR_GPIO_IN=$DEFAULT_IR_GPIO_IN
+			IR_GPIO_OUT=$DEFAULT_IR_GPIO_OUT
+			IR_DEVICE="lirc0"
+			IR_CONFIG=""
+			pcp_save_to_config
+		fi
 	fi
 }
 
@@ -215,12 +225,15 @@ pcp_lirc_uninstall() {
 # Main				<==== GE. This section is a little weird.
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
-	Install)
-		ACTION=$ACTION
+	Install*)
+		EXTENSION="$ACTION"
+		ACTION="Install"
 		pcp_sufficient_free_space "$SPACE_REQUIRED"
 	;;
-	Uninstall)
-		ACTION=$ACTION
+	Uninstall*)
+		EXTENSION=$ACTION
+		ACTION="Uninstall"
+		
 	;;
 	Custom)
 		ACTION=$ACTION
@@ -238,14 +251,91 @@ esac
 # Linux Infrared Remote Control (LIRC) table
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
+
+	#========================================================================================
+	# Jivelite Keytable table
+	#----------------------------------------------------------------------------------------
+	if [ "$JIVELITE" = "yes" ]; then
+		echo '<table class="bggrey">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <div class="row">'
+		echo '        <fieldset>'
+		echo '          <legend>Kernel Keytables</legend>'
+		#------------------------------------------Install/Unintall IRTOOLS----------------------
+		pcp_incr_id
+		pcp_start_row_shade
+		echo '          <form name="main" action="'$0'" method="get">'
+		echo '            <table class="bggrey percent100">'
+		echo '              <tr class="'$ROWSHADE'">'
+		if [ "$IR_KEYTABLES" = "yes" ]; then
+			UPLKEYDIS=""
+			echo '                <td class="column150 center">'
+			echo '                  <button type="submit" name="ACTION" value="Uninstall-irtools">Uninstall</button>'
+			echo '                </td>'
+			echo '                <td>'
+			echo '                  <p>Uninstall IR-Tools&nbsp;&nbsp;'
+			echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>Uninstall IR-Tools from '$NAME'.</p>'
+			echo '                  </div>'
+			echo '                </td>'
+		else
+			UPLKEYDIS="disabled"
+			echo '                <td class="column150 center">'
+			echo '                  <button type="submit" name="ACTION" value="Install-irtools">Install</button>'
+			echo '                </td>'
+			echo '                <td>'
+			echo '                  <p>Install IR tools for use with jivelite.&nbsp;&nbsp;'
+			echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <p>Install packages from repository.</p>'
+			echo '                  </div>'
+			echo '                </td>'
+		fi
+		echo '              </tr>'
+		echo '            </table>'
+		echo '          </form>'
+		#---------------------------------Upload Custon Keytable---------------------------------
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '          <form name="Customkeytable" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+		echo '            <table class="bggrey percent100">'
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 center">'
+		echo '                  <button id="UP3" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
+		echo '                </td>'
+		echo '                <td class="column280">'
+		echo '                  <input class="large22" type="file" id="file1" name="KEYTABLE" onclick="document.getElementById('\''UP3'\'').disabled = false" '$UPLKEYDIS'>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Upload custom <b>jivelite keytables</b> to pCP&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Used to define ir remote functions for jivelite.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </table>'
+		echo '          </form>'
+		echo '        </fieldset>'
+		echo '      </div>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+	fi
+
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Linux Infrared Remote Control (LIRC)</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <form name="main" action="'$0'" method="get">'
+	echo '          <form name="main" action="'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
 
 	#------------------------------------------Install/Unintall LIRC-------------------------
 	pcp_incr_id
@@ -254,7 +344,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 
 	if [ "$IR_LIRC" = "yes" ]; then
 		echo '                <td class="column150 center">'
-		echo '                  <input type="submit" name="ACTION" value="Uninstall" />'
+		echo '                  <button type="submit" name="ACTION" value="Uninstall-lirc">Uninstall</button>'
 		echo '                </td>'
 		echo '                <td>'
 		echo '                  <p>Uninstall LIRC&nbsp;&nbsp;'
@@ -266,10 +356,10 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '                </td>'
 	else
 		echo '                <td class="column150 center">'
-		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                  <button type="submit" name="ACTION" value="Install-lirc">Install</button>'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Install LIRC for Squeezelite or IR tools for jivelite.&nbsp;&nbsp;'
+		echo '                  <p>Install LIRC for Squeezelite.&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
@@ -314,18 +404,20 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 
 	#----------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Customlirc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '          <form name="Customlirc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '                </td>'
 	echo '                <td class="column280">'
-	echo '                  <input class="large22" type="file" id="file" name="LIRCCONF" onclick="document.getElementById('\''UP1'\'').disabled = false">'
+	echo '                  <input class="large22" type="file" id="file2" name="LIRCCONF" onclick="document.getElementById('\''UP1'\'').disabled = false">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Upload custom <b>lirc.conf</b> to pCP&nbsp;&nbsp;'
@@ -336,16 +428,18 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Customlircrc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '          <form name="Customlircrc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button id="UP2" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '                </td>'
 	echo '                <td class="column280">'
-	echo '                  <input class="large22" type="file" id="file" name="LIRCRC" onclick="document.getElementById('\''UP2'\'').disabled = false">'
+	echo '                  <input class="large22" type="file" id="file3" name="LIRCRC" onclick="document.getElementById('\''UP2'\'').disabled = false">'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Upload custom <b>lircrc</b> to pCP&nbsp;&nbsp;'
@@ -356,30 +450,9 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Customkeytable" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <button id="UP3" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
-	echo '                </td>'
-	echo '                <td class="column280">'
-	echo '                  <input class="large22" type="file" id="file" name="KEYTABLE" onclick="document.getElementById('\''UP3'\'').disabled = false">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Upload custom <b>jivelite keytables</b> to pCP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Used to define ir remote functions for jivelite.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-
+	echo '            </table>'
+	echo '          </form>'
 	#----------------------------------------------------------------------------------------
-	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -395,7 +468,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>LIRC Settings</legend>'
+	echo '          <legend>IR device Settings</legend>'
 	echo '          <form name="settings" action="'$0'" method="get">'
 	echo '            <table class="bggrey percent100">'
 	#----------------------------------------------------------------------------------------
@@ -417,7 +490,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set LIRC GPIO in number (IR receiver)&nbsp;&nbsp;'
+	echo '                  <p>Set IR GPIO in number (IR receiver)&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -496,7 +569,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	#----------------------------------------------------------------------------------------
 
 	#------------------------------------------Save------------------------------------------
-	if [ "$IR_LIRC" = "yes" ]; then
+	if [ "$IR_LIRC" = "yes" -o "$IR_KEYTABLES" = "yes" ]; then
 		pcp_incr_id
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
@@ -549,7 +622,8 @@ if [ "$ACTION" != "Initial" ]; then
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 		echo '[ INFO ] '$REPO_STATUS
 		pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
-		pcp_lirc_install
+		[ "$EXTENSION" = "Install-lirc" ] && pcp_ir_install lirc
+		[ "$EXTENSION" = "Install-irtools" ] && pcp_ir_install irtools
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
 	fi
@@ -558,7 +632,10 @@ if [ "$ACTION" != "Initial" ]; then
 	#---------------------------------------Uninstall----------------------------------------
 	if [ "$ACTION" = "Uninstall" ]; then
 		echo '                  <textarea class="inform" style="height:200px">'
-		[ "$FAIL_MSG" = "ok" ] && pcp_lirc_uninstall
+		if [ "$FAIL_MSG" = "ok" ]; then
+			[ "$EXTENSION" = "Uninstall-lirc" ] && pcp_ir_uninstall lirc
+			[ "$EXTENSION" = "Uninstall-irtools" ] && pcp_ir_uninstall irtools
+		fi
 		BACKUP_REQUIRED=TRUE
 		REBOOT_REQUIRED=TRUE
 	fi
@@ -663,11 +740,11 @@ fi
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "Debug"
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" IR_LIRC IR_GPIO_IN IR_GPIO_OUT IR_DEVICE IR_CONFIG
+	pcp_debug_variables "html" IR_LIRC IR_KEYTABLES IR_GPIO_IN IR_GPIO_OUT IR_DEVICE IR_CONFIG EXTENSION
 	echo '<!-- End of debug info -->'
 	pcp_mount_bootpart
 	echo '<p class="info">[ INFO ] Last few lines of config.txt</p>'
-	pcp_textarea_inform "none" "tail -2 $CONFIGTXT" "30"
+	pcp_textarea_inform "none" "tail -4 $CONFIGTXT" "30"
 	pcp_umount_bootpart
 	pcp_table_end
 fi

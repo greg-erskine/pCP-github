@@ -141,7 +141,7 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		esac
 		echo "${GREEN}Done.${NORMAL}"
 		# Setup LIRC overlay
-		if [ "$IR_LIRC" = "yes" ]; then
+		if [ "$IR_LIRC" = "yes" -o "$IR_KEYTABLES" = "yes" ]; then
 			echo -n "${BLUE}[ INFO ] Adding gpio-ir overlay to config.txt...${NORMAL}"
 			#lirc-rpi is obsolete, make sure there are no remnants
 			sed -i '/dtoverlay=lirc-rpi/d' $CONFIGTXT
@@ -150,6 +150,11 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 			if [ "$IR_GPIO_OUT" != "" ]; then
 				#might need testing, some recommend dtoverlay=pwm-ir-tx 
 				sudo echo "dtoverlay=gpio-ir-tx,gpio_pin=$IR_GPIO_OUT" >> $CONFIGTXT
+			fi
+			if [ "$JIVELITE" = "yes" -a "$IR_LIRC" = "yes" -a -f $PACKAGEDIR/pcp-irtools.tcz ]; then
+				IR_KEYTABLES=yes
+				sed -i '/usr\/local\/etc\/keytables\/jivelite/d' /opt/.filetool.lst
+				echo 'usr/local/etc/keytables/jivelite' >> /opt/.filetool.lst
 			fi
 			echo "${GREEN}Done.${NORMAL}"
 		fi

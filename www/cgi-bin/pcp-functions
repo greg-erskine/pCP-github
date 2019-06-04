@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-18
+# Version: 5.0.0 2019-06-02
 
 #========================================================================================
 # Setup debug logging
@@ -1454,6 +1454,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $PCPCFG
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $PCPCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $PCPCFG
+	sudo sed -i "s/\(IR_KEYTABLES=\).*/\1\"$IR_KEYTABLES\"/" $PCPCFG
 	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $PCPCFG
 	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $PCPCFG
 	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $PCPCFG
@@ -1571,6 +1572,7 @@ POWER_GPIO=""
 POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
+IR_KEYTABLES="no"
 IR_GPIO_IN="25"
 IR_GPIO_OUT=""
 IR_DEVICE="lirc0"

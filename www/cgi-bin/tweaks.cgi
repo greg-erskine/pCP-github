@@ -1346,6 +1346,7 @@ pcp_tweaks_lirc() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>LIRC will not automatically start if jivelite is installed.</p>'
 	echo '                    <p>Go to IR page to...</p>'
 	echo '                    <p>Install/remove LIRC.</p>'
 	echo '                    <p>Configure LIRC.</p>'
@@ -1353,6 +1354,35 @@ pcp_tweaks_lirc() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	if [ "$JIVELITE" = "yes" ]; then
+		if [ $IR_KEYTABLES = "yes" ]; then
+			pcp_green_tick "loaded"
+		else
+			pcp_red_cross "not loaded"
+		fi
+
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150">'
+		echo '                  <p>IR remote control</p>'
+		echo '                </td>'
+		echo '                <td class="column210">'
+		echo '                 <p class="'$CLASS'">'$INDICATOR'</p>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>IR remote control for jivelite, using kernel keytables, is '$STATUS' &nbsp;&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Go to IR page to...</p>'
+		echo '                    <p>Install/remove IR Tools.</p>'
+		echo '                    <p>Change GPIO number for ir receiver.</p>'
+		echo '                    <p>Upload keytable map.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
