@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-06-04
+# Version: 5.1.0 2019-06-05
 
 . pcp-functions
 
@@ -85,7 +85,7 @@ fi
 pcp_log_header $0
 
 #========================================================================================
-# Resize or waiting tables
+# Resize partition 2 / add partition 3 tables
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Resize)
@@ -102,7 +102,7 @@ case "$SUBMIT" in
 		echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 		echo '[ INFO ] The bigger the partition, the longer the process will take.'
 		pcp_backup_nohtml
-		echo '[ INFO ] Click Refresh or Reload after a few minutes.'
+		echo '[ INFO ] Click [Go to Main Page] or [Refresh] after a few minutes.'
 		(sleep 1; sudo reboot) &
 		echo '                </textarea>'
 		pcp_table_middle
@@ -120,7 +120,7 @@ case "$SUBMIT" in
 		echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 		touch /home/tc/fdisk_part3_required
 		pcp_backup_nohtml
-		echo '[ INFO ] Click Refresh or Reload after a few minutes.'
+		echo '[ INFO ] Click [Go to Main Page] or [Refresh] after a few minutes.'
 		(sleep 1; sudo reboot) &
 		echo '                </textarea>'
 		pcp_table_middle
@@ -129,6 +129,9 @@ case "$SUBMIT" in
 		pcp_table_end
 	;;
 	*)
+		#================================================================================
+		# Main table
+		#--------------------------------------------------------------------------------
 		pcp_start_row_shade
 		pcp_incr_id
 		echo '<table class="bggrey">'
@@ -139,7 +142,9 @@ case "$SUBMIT" in
 		echo '        <legend>Resize partition 2 (PCP_ROOT)</legend>'
 		echo '          <form name="auto" action="'$0'" method="get">'
 		echo '            <table class="bggrey percent100">'
-
+		#========================================================================================
+		# Resize partition 2 - PCP_ROOT
+		#----------------------------------------------------------------------------------------
 		if [ $SDVALID -eq 0 ]; then
 			if [ $AVAILABLE_SPACE_MB -gt 100 ]; then
 				echo '              <tr class="'$ROWSHADE'">'
@@ -193,7 +198,7 @@ case "$SUBMIT" in
 			echo '                </td>'
 			echo '              </tr>'
 		fi
-
+		#----------------------------------------------------------------------------------------
 		echo '            </table>'
 		echo '          </form>'
 		echo '        </fieldset>'
@@ -202,6 +207,8 @@ case "$SUBMIT" in
 		echo '  </tr>'
 		echo '</table>'
 
+		#========================================================================================
+		# Add partition 3 - PCP_DATA - BETA
 		#----------------------------------------------------------------------------------------
 		if [ $MODE -ge $MODE_BETA ]; then
 			pcp_start_row_shade
@@ -214,6 +221,21 @@ case "$SUBMIT" in
 			echo '        <legend>Add partition 3 (PCP_DATA)</legend>'
 			echo '          <form name="add" action="'$0'" method="get">'
 			echo '            <table class="bggrey percent100">'
+			echo '              <tr class="'$ROWSHADE'">'
+			echo '                <td>'
+			echo '                  <p>It is NOT recommended adding partition 3 to your SD card&nbsp;&nbsp;'
+			echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '                  </p>'
+			echo '                  <div id="'$ID'" class="less">'
+			echo '                    <ul>'
+			echo '                      <li>This operation will add an ext4 formatted partition 3, starting at the end of partition 2 and filling up the rest of the SD card.</li>'
+			echo '                      <li>It is more reliable to store your data on a USB stick or HDD.</li>'
+			echo '                      <li>Once partition 3 is added, it will be very difficult to increase the size of partition 2.</li>'
+			echo '                      <li>Use [LMS] > "Pick from the following detected USB disks to mount" to mount partition.</li>'
+			echo '                    </ul>'
+			echo '                  </div>'
+			echo '                </td>'
+			echo '              </tr>'
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td class="warning">'
 			if [ $AVAILABLE_SPACE_MB -lt 1000 ]; then
@@ -241,7 +263,6 @@ case "$SUBMIT" in
 			echo '  </tr>'
 			echo '</table>'
 		fi
-		#----------------------------------------------------------------------------------------
 
 		#========================================================================================
 		# Partition information
@@ -280,7 +301,11 @@ case "$SUBMIT" in
 		echo '</table>'
 	;;
 esac
+#----------------------------------------------------------------------------------------
 
+#========================================================================================
+# Debug information
+#----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
 	pcp_table_top "/opt/bootsync.sh"
 	echo '<!-- Start of debug info -->'
@@ -294,11 +319,10 @@ if [ $DEBUG -eq 1 ]; then
 	echo '<!-- End of debug info -->'
 	pcp_table_end
 fi
+#----------------------------------------------------------------------------------------
 
 pcp_footer
 pcp_copyright
-
-#[ $REBOOT_REQUIRED ] && pcp_reboot_required
 
 echo '</body>'
 echo '</html>'
