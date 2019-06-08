@@ -71,4 +71,7 @@ echo "Replacing tce*"
 cp -f $CORE_SCRIPTS/usr/bin/tce* ${INITRD}/usr/bin
 chmod 755 ${INITRD}/usr/bin/tce*
 
+echo "Setting os-release"
+cp -f $CORE_SCRIPTS/etc/os-release ${INITRD}/etc
+
 rm -f ${INITRD}/etc/motd
