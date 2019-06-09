@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 5.0.0 2019-05-21
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -23,14 +23,13 @@ if [ -n $CORE ]; then
 	esac
 fi
 
-function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
-
 # As all the insitu update is done in one file, it may be better to define this here
 UPD_PCP="/tmp/pcp_insitu_update"
 #INSITU_DOWNLOAD=<----- defined in pcp-functions otherwise the beta testing does not work
-INSITU_DOWNLOAD=$(echo "$INSITU_DOWNLOAD" | sed 's/http:\/\/picoreplayer.sourceforge.net/https:\/\/repo.picoreplayer.org/')
 
-# Parse out numerical versions...
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
+# Parse out numerical versions of upgrade version (comes from query string)...
 VERS=$(echo "$VERSION" | awk -F'piCorePlayer' '{ print $2 }' | cut -d '-' -f1)
 MAJOR_VERSION=$(echo "$VERS" | cut -d '.' -f1)
 vtmp=$(echo "$VERS" | cut -d '.' -f2)
@@ -46,16 +45,35 @@ PATCH_VERSION=$(echo "$vtmp" | cut -d '-' -f1)
 # 35977609 bytes
 #----------------------------------------------------------------------------------------
 #SPACE_REQUIRED=$((35977609 * 2 / 1000))
+BUILD=$(getBuild)
 case "${VERSION}" in
-	piCorePlayer4.0.*)
+	piCorePlayer5.0.*)
 		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=26900
+		BOOT_SIZE_REQUIRED=27700
+		#These are used for sed modification of config.txt
+		CNF_INITRD="pcp_10.1"
+		CNF_KERNEL="kernel41940"
+		# Set the below for downloading new kernel modules
+		KUPDATE=1
+		case $CORE in
+			*pcpAudioCore*) NEWKERNELVER="4.19.40-rt19";;
+			*) NEWKERNELVER="4.19.40";;
+		esac
+		PICOREVERSION="10.x"
+		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 	;;
 	*)
 		SPACE_REQUIRED=15000
-		BOOT_SIZE_REQUIRED=27000
+		BOOT_SIZE_REQUIRED=27800
+		KUPDATE=0
 	;;
 esac
+case $BUILD in
+	armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
+	armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
+esac
+
+
 
 #========================================================================================
 # DEBUG info showing variables
@@ -151,63 +169,14 @@ pcp_create_download_directory() {
 }
 
 #========================================================================================
-# Download a list of piCorePlayer versions that are available on pCP repo - insitu.cfg
-#----------------------------------------------------------------------------------------
-pcp_get_insitu_cfg() {
-	echo '[ INFO ] Step 3. - Downloading insitu.cfg...'
-	$WGET_IUS2 ${INSITU_DOWNLOAD}/insitu.cfg -O ${UPD_PCP}/insitu.cfg
-	if [ $? -eq 0 ]; then
-		echo '[  OK  ] Successfully downloaded insitu.cfg'
-	else
-		echo '[ ERROR ] Error downloading insitu.cfg'
-		FAIL_MSG="Error downloading insitu.cfg"
-	fi
-}
-
-#========================================================================================
 # Download kernel modules for new kernel
 #----------------------------------------------------------------------------------------
 
 pcp_get_kernel_modules() {
-	BUILD=$(getBuild)
-	case "${VERSION}" in
-		piCorePlayer4.0.0*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			case $CORE in
-				*pcpAudioCore*)
-					case $BUILD in
-						armv6) NEWKERNELVER=4.14.56-rt34;;
-						armv7) NEWKERNELVER=4.14.56-rt34;;
-					esac
-				;;
-				*) NEWKERNELVER=4.14.56;;
-			esac
-			PICOREVERSION=9.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		piCorePlayer4.1.0*)
-			# Set the below for the new kernel
-			KUPDATE=1
-			case $CORE in
-				*pcpAudioCore*) NEWKERNELVER=4.14.81-rt47;;
-				*) NEWKERNELVER=4.14.81;;
-			esac
-			PICOREVERSION=9.x
-			NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
-		;;
-		*)  KUPDATE=0
-		;;
-	esac
 	if [ $KUPDATE -eq 1 ]; then
 		PCP_REPO="https://repo.picoreplayer.org/repo"
-#		[ -f /opt/tcemirror ] && read -r TCE_REPO < /opt/tcemirror || TCE_REPO="http://repo.tinycorelinux.net/"
 		CURRENTKERNEL=$(uname -r)
 		CURRENTKERNELCORE=$(uname -r | cut -d '-' -f2)
-		case $BUILD in
-			armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
-			armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
-		esac
 		PCP_DL="${PCP_REPO%/}/${PICOREVERSION}/${BUILD}/tcz"
 		echo '[ INFO ] PCP_DL='$PCP_DL
 		# Do a space check based on current kernel modules installed, then doubled for safety
@@ -219,13 +188,17 @@ pcp_get_kernel_modules() {
 		if [ "$FAIL_MSG" = "ok" ]; then
 			# Get list of kernel modules matching current kernel
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $CURRENTKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/current
-			# Get list of kernel modules not matching current kernel
+			# Get list of kernel modules not matching new kernel
 			ls ${PACKAGEDIR}/*${CURRENTKERNELCORE}*.tcz | grep $NEWKERNEL | sed -e 's|[-][0-9].[0-9].*||' | sed 's/.*\///' > /tmp/newk
-			#Remove Backlight from Modules list, it does not exist anymore
-			sed -i '/backlight/d' /tmp/current
+
+			if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
+					#irda changes to media-rc in >4.2.0
+					sed -i 's/irda/media-rc/' /tmp/current
+			fi
+
 			# Show the old modules that do not have a current kernel version.
 			MODULES=$(comm -1 -3 /tmp/newk /tmp/current)
-			echo '[ INFO ] Downloading new kernel modules: '$MODULES
+			echo '[ INFO ] Step 3A. Downloading new kernel modules: '$MODULES
 			if [ -z "${MODULES}" ]; then
 				echo '[ INFO ] All new Kernel modules for '${NEWKERNEL}' already present.'
 			else
@@ -243,7 +216,7 @@ pcp_get_kernel_modules() {
 # Download the boot files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_boot_files() {
-	echo '[ INFO ] Step 4A. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
+	echo '[ INFO ] Step 3C. - Downloading '${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_boot.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
 	$WGET_IUS2 ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_boot.tar.gz -O ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz 2>&1
@@ -266,27 +239,36 @@ pcp_install_boot_files() {
 	echo '[ INFO ] Backing up old OS...'
 	tar -cf /tmp/osbackup.tar *
 	cd
-	pcp_save_custom_boot_config
 
 	if [ "$FAIL_MSG" = "ok" ]; then
-		# Delete all files from the boot partition
-		sudo rm -rf ${BOOTMNT}/*
-		[ $? -eq 0 ] || FAIL_MSG="Error deleting files ${BOOTMNT}/*"
+		# Delete version specific files from the boot partition
+		find ${BOOTMNT} | grep -E "(kernel|pcp_|\.dtb)" | xargs rm -f
+		[ $? -eq 0 ] || FAIL_MSG="Error deleting files from ${BOOTMNT}"
+
 		pcp_save_configuration
 	fi
 	if [ "$FAIL_MSG" = "ok" ]; then
 		# Untar the boot files
 		echo '[ INFO ] Untarring '${VERSION}${AUDIOTAR}'_boot.tar.gz...'
-		sudo tar -xvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1
+		#config.txt and cmdline.txt should not be in insitu archive, but just incase, exlude them.
+		tar --exclude config.txt --exclude cmdline.txt -xvf ${UPD_PCP}/boot/${VERSION}${AUDIOTAR}_boot.tar.gz -C ${BOOTMNT}/ 2>&1
 		TST=$?
 		if [ $TST -eq 0 ]; then
 			echo '[  OK  ] Successfully untarred boot tar.'
-			pcp_restore_custom_boot_config
 		else
 			echo '[ ERROR ] Error untarring boot tar. Result: '$TST
 			FAIL_MSG="Error untarring boot tar."
 		fi
 	fi
+
+	#We are not replacing the current config.txt and cmdline.txt, so make appropriate updates.
+	if [ "$FAIL_MSG" = "ok" ]; then
+		sed -i -r "s/^initramfs pcp_[0-9]{1,2}\.[0-9]/initramfs ${CNF_INITRD}/g" ${BOOTMNT}/config.txt
+		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
+		sed -i -r "s/^kernel kernel[0-9]{4,7}/kernel ${CNF_KERNEL}/g" ${BOOTMNT}/config.txt
+		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
+	fi
+
 	if [ "$FAIL_MSG" != "ok" ]; then
 		echo '[ INFO ] Restoring old OS...'
 		rm -rf ${BOOTMNT}/*
@@ -300,123 +282,23 @@ pcp_install_boot_files() {
 # Save configuration files to the boot partiton
 #-----------------------------------------------------------------------------------------
 pcp_save_configuration() {
-	#(Cleanup for next 4.x release)
 	local V
 	echo '[ INFO ] Saving configuration files.'
-	[ -r /usr/local/sbin/config.cfg ] && sudo cp -f /usr/local/sbin/config.cfg ${BOOTMNT}/newpcp.cfg
 	[ -r /usr/local/etc/pcp/pcp.cfg ] && sudo cp -f /usr/local/etc/pcp/pcp.cfg ${BOOTMNT}/newpcp.cfg
 	sudo dos2unix -u ${BOOTMNT}/newpcp.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	#save the current pcpversion to determine potential bootfix(es) later  
-	[ -r /usr/local/sbin/piversion.cfg ] && . /usr/local/sbin/piversion.cfg
 	[ -r $PCPVERSIONCFG ] && . $PCPVERSIONCFG
-	[ -e ${BOOTMNT}/oldpiversion.cfg ] && rm -f ${BOOTMNT}/oldpiversion.cfg
 	[ -e ${BOOTMNT}/oldpcpversion.cfg ] && rm -f ${BOOTMNT}/oldpcpversion.cfg
-	[ "$PIVERS" != "" ] && V=$PIVERS || V=$PCPVERS
 	echo "OLDPCPVERS=\"$V\"" > ${BOOTMNT}/oldpcpversion.cfg;
 	[ "$FAIL_MSG" = "ok" ] && echo '[  OK  ] Your configuration files have been saved to the boot partition.'
-}
-
-pcp_save_custom_boot_config() {
-	WAITUSB=0
-	for i in `cat $CMDLINETXT`; do
-		case $i in
-			*=*)
-				case $i in
-					waitusb*)   WAITUSB=${i#*=} ;;
-				esac
-			;;
-		esac
-	done
-	cp -f ${BOOTMNT}/config.txt /tmp/orig_config.txt 2>&1
-	echo '[ INFO ] Scanning config.txt for custom boot configuration.'
-/usr/bin/micropython -c '
-import os
-import sys
-infile = open("/tmp/orig_config.txt", "r")
-outfile = open("/tmp/custom_config.txt", "w")
-CUT=0
-FOUND=0
-while True:
-	ln = infile.readline()
-	if ln == "":
-		break
-	if CUT == 0:
-		if "Begin-Custom" in ln:
-			CUT=1
-	else:
-		if "End-Custom" in ln:
-			CUT=0
-		else:
-			outfile.write(ln)
-			FOUND=1
-infile.close
-outfile.close
-if FOUND == 0:
-	os.system("rm -f /tmp/custom_config.txt")
-'
-	[ $? -eq 0 ] || FAIL_MSG="Error saving custom boot configuration."
-	if [ "$FAIL_MSG" = "ok" -a -f "/tmp/custom_config.txt" ]; then
-		echo '[  OK  ] Your custom boot configuration saved.' 
-	else
-		echo '[  OK  ] No custom boot configuration found.'
-	fi
-}
-
-pcp_restore_custom_boot_config() {
-	#remove old waitusb value
-	sudo sed -r -i 's/waitusb[=][0-9]+//g' $CMDLINETXT
-	[ $WAITUSB -gt 0 ] && sudo sed -i '1 s@^@waitusb='$WAITUSB' @' $CMDLINETXT
-	pcp_clean_cmdlinetxt
-	if [ -f "/tmp/custom_config.txt" ]; then
-		cp -f ${BOOTMNT}/config.txt /tmp/upgraded_config.txt
-		echo '[ INFO ] Restoring custom boot configuration to config.txt.'
-		rm -f /tmp/config.txt
-		[ $DEBUG -eq 1 ] && echo '[DEBUG] Current config.txt'; cat ${BOOTMNT}/config.txt
-/usr/bin/micropython -c '
-import os
-import sys
-infile = open("/tmp/upgraded_config.txt", "r")
-infilecustom = open("/tmp/custom_config.txt", "r")
-outfile = open("/tmp/config.txt", "w")
-INS=0
-def writecustom():
-	while True:
-		ln1 = infilecustom.readline()
-		if ln1 == "":
-			break
-		outfile.write(ln1)
-
-while True:
-	ln = infile.readline()
-	if ln == "":
-		break
-	outfile.write(ln)
-	if "Begin-Custom" in ln:
-		INS=1
-		writecustom()
-if INS == 0:
-	#Custom Tags not found in the new config.txt, add section in.
-	outfile.write("#Custom Configuration Area, for config settings that are not managed by pCP.\n")
-	outfile.write("#pCP will retain these settings during insitu-update\n")
-	outfile.write("#---Begin-Custom-(Do not alter Begin or End Tags)-----\n")
-	writecustom()
-	outfile.write("#---End-Custom----------------------------------------\n")
-
-infile.close
-infilecustom.close
-outfile.close
-'
-	cp -f /tmp/config.txt ${BOOTMNT}/config.txt
-	[ $DEBUG -eq 1 ] && echo '[DEBUG] New config.txt'; cat ${BOOTMNT}/config.txt
-	fi
 }
 
 #========================================================================================
 # Download the tce files from Repo
 #----------------------------------------------------------------------------------------
 pcp_get_tce_files() {
-	echo '[ INFO ] Step 4B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
+	echo '[ INFO ] Step 3B. - Downloading '${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] Download Location link: '${INSITU_DOWNLOAD}'/'${VERSION}'/'${VERSION}${AUDIOTAR}'_tce.tar.gz'
 	echo '[ INFO ] This will take a few minutes. Please wait...'
 	$WGET_IUS2 ${INSITU_DOWNLOAD}/${VERSION}/${VERSION}${AUDIOTAR}_tce.tar.gz -O ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz 2>&1
@@ -448,6 +330,7 @@ pcp_install_tce_files() {
 # Finish the install process
 #----------------------------------------------------------------------------------------
 pcp_finish_install() {
+	OLDPCPVERSION=$(pcp_picoreplayer_version)
 	# Unpack the tce.tar and the new mydata.tgz and then copy the content from the new version to the correct locations
 	sudo mkdir -p ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce
 	sudo tar zxvf ${UPD_PCP}/tce/${VERSION}${AUDIOTAR}_tce.tar.gz -C ${UPD_PCP}/mydata
@@ -462,34 +345,19 @@ pcp_finish_install() {
 	# Track and include user made changes to onboot.lst. It is also needed as different versions of piCorePlayer may have different needs.
 	# So check that the final onboot contains all from the new version and add eventual extra from the old
 	sudo chown tc:staff $ONBOOTLST
-	echo "content of mnt onboot.lst before:"; cat $ONBOOTLST
+	echo "[ INFO ] content of mnt onboot.lst before:"; cat $ONBOOTLST
 	sudo cat $ONBOOTLST >> ${UPD_PCP}/mydata/onboot.lst
 	sort -u ${UPD_PCP}/mydata/onboot.lst > $ONBOOTLST
-	echo "content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
+	echo "[INFO] content of tmp onboot.lst:"; cat ${UPD_PCP}/mydata/onboot.lst
 	sudo chown tc:staff $ONBOOTLST
 	sudo chmod u=rwx,g=rwx,o=rx $ONBOOTLST
-	case "${VERSION}" in
-		piCorePlayer4.*)
-			#>pcp4.0.0 wifi is changed.
-			echo "Removing old boot extensions from onboot.lst:"
-			pcp_update_onbootlst "del" "wifi.tcz"
-			rm -f ${PACKAGEDIR}/wifi.tcz
-			rm -f ${TCEMNT}/tce/piCorePlayer.dep
-			# If wifi is on, then add extensions to onboot....the firmware would already be there.
-			if [ "$WIFI" = "on" ]; then
-				pcp_update_onbootlst "add" "wireless_tools.tcz"
-				pcp_update_onbootlst "add" "wpa_supplicant.tcz"
-			fi
-		;;
-		piCorePlayer4.1.*)
-			pcp_update_onbootlst "del" "busybox-httpd.tcz"
-			rm -f ${PACKAGEDIR}/busybox-httpd.*
-			if [ "$WIFI" = "on" ]; then
-				pcp_update_onbootlst "add" "crda.tcz"
-			fi
-		;;
-	esac
-	echo "content of mnt onboot.lst after:"; cat $ONBOOTLST
+
+	if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
+		sed -i 's/firmware-rpi3-wireless/firmware-rpi-wifi/' $ONBOOTLST
+		rm -f ${PACKAGEDIR}/firmware-rpi3-wireless.*
+	fi
+
+	echo "[ INFO ] content of mnt onboot.lst after:"; cat $ONBOOTLST
 
 	# Track and include user made changes to .filetool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -498,22 +366,11 @@ pcp_finish_install() {
 	sort -u ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/opt/.filetool.lst > /opt/.filetool.lst
 	sudo chown root:staff /opt/.filetool.lst
 	sudo chmod u=rw,g=rw,o=r /opt/.filetool.lst
-	case "${VERSION}" in
-		piCorePlayer4.*)
-			echo "Updating .filetool.lst :"
-			sed -i '/etc\/motd/d' /opt/.filetool.lst
-			sed -i '/etc\/sysconfig\/wifi-wpadrv/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/etc\/init.d\/httpd/d' /opt/.filetool.lst
-			sed -i '/etc\/modprobe.conf/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/config.cfg/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/piversion.cfg/d' /opt/.filetool.lst
-			#cleanup from previous versions, make sure these were done.
-			sed -i '/usr\/local\/etc\/pcp\/cards/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/setup/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp/d' /opt/.filetool.lst
-			sed -i '/usr\/local\/sbin\/pcp-load/d' /opt/.filetool.lst
-		;;
-	esac
+	# if [ $MAJOR_VERSION -ge 5 ]; then
+		# if [ $MINOR_VERSION -ge 0 ]; then
+			# echo "[ INFO ] Updating .filetool.lst :"
+		# fi
+	# fi
 
 	# Track and include user made changes to .xfiletool.lst It is important as user might have modified filetool.lst.
 	# So check that the final .filetool.lst contains all from the new version and add eventual extra from the old
@@ -578,17 +435,38 @@ outfile.close
 	sudo chown tc.staff /usr/local/etc/pcp/cards/*
 	sudo chmod u=rw,g=rw,o=r /usr/local/etc/pcp/cards/*
 
-	# Remove files that are obsolete
-	if [ $MAJOR_VERSION -ge 4 ]; then
-		rm -f /usr/local/etc/pcp/cards/raspidac3.conf
-		rm -f /home/tc/www/cgi-bin/do_rebootstuff.sh
-		rm -f /home/tc/www/cgi-bin/reboot.cgi
-		rm -f /home/tc/www/cgi-bin/shutdown.cgi
-		rm -f /home/tc/www/cgi-bin/xtras_graph.cgi
-		rm -f /home/tc/wifi.db
+	[ ! -f /etc/httpd.conf ] && sudo cp -Rf ${UPD_PCP}/mydata/mnt/mmcblk0p2/tce/etc/httpd.conf /etc/httpd.conf
+	
+	# Add pcm.pcpinput section to asound.conf
+	cat $ASOUNDCONF | grep -q "pcm.pcpinput"
+	if [ $? -ne 0 ]; then
+		sed -i '/^#---ALSA EQ/i pcm.pcpinput {\n\ttype plug\n\tslave.pcm \"hw:0.0\"\n}\n' $ASOUNDCONF
 	fi
+
 	# Backup changes to make a new mydata.tgz containing an updated version
 	pcp_backup_nohtml
+
+	if [ $(version $OLDPCPVERSION) -lt $(version "5.0.0") ]; then
+		echo '[ INFO ] Updating installed/required extensions.'
+		echo "https://repo.picoreplayer.org/repo" > /opt/tcemirror
+		echo "10.1pCP" > /usr/share/doc/tc/release.txt
+
+		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz pcp-jivelite.tcz pcp-lirc.tcz"
+		for UPG in $UPGRADE_LIST; do
+			if [ -f ${PACKAGEDIR}/$UPG ]; then
+				echo '[ INFO ] '$UPG' found, updating....'
+				sudo -u tc pcp-update kernel $NEWKERNEL $UPG
+			fi
+		done
+		for METER in $(PACKAGEDIR/VU_Meter*.tcz); do
+			echo '[ INFO ] '$METER' found, updating....'
+			sudo -u tc pcp-update $METER
+		done
+		if [ "$JIVELITE" = "yes" -a "$IR_LIRC" = "yes" ]; then
+			sudo -u tc pcp-load -wi pcp-irtools.tcz
+		fi
+		rm -f /home/tc/.alsaequal.bin
+	fi
 }
 
 #========================================================================================
@@ -608,7 +486,6 @@ pcp_warning_message() {
 	echo '                  <li style="color:white">Assume an insitu update will overwrite ALL the data on your SD card.</li>'
 	echo '                  <li style="color:white">Any user modified or added files may be lost or overwritten.</li>'
 	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
-	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
 	echo '                  <li style="color:white">You may need to manually update your plugins, extensions, static IP etc.</li>'
 	echo '                </ul>'
 	echo '              </td>'
@@ -665,21 +542,17 @@ pcp_html_end() {
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	initial)
-		STEP="Step 3 - Downloading available versions"
-		pcp_warning_message
-		pcp_internet_indicator
-		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_repo_indicator
-		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
-		pcp_create_download_directory
+		FAIL_MSG="Reached initial in error."
 		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 	;;
 	download)
-		STEP="Step 4 - Downloading files"
+		STEP="Step 3 - Downloading files"
 		pcp_warning_message
+		pcp_create_download_directory
+		[ "$FAIL_MSG" = "ok" ] || pcp_html_end
 	;;
 	install)
-		STEP="Step 5 - Installing files"
+		STEP="Step 4 - Installing files"
 		pcp_warning_message
 	;;
 	*)
@@ -704,40 +577,50 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
-if [ "$ACTION" = "initial" ]; then
-	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$REPO_STATUS
-	
-	if [ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.0") ]; then
-		echo ''
-		echo 'Need to run HotFix before upgrading to next version will be possible.'
-		HOTFIX="yes"
-	else
-		HOTFIX="no"
-		[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
-	fi
-fi
-#----------------------------------------------------------------------------------------
 if [ "$ACTION" = "download" ]; then
-	echo '[ INFO ] You are downloading '${VERSION}
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 
+	if [ $(version $(pcp_picoreplayer_version)) -lt $(version "5.0.0") ]; then
+		echo '[ INFO ] Updating extensions with known requirements. This will increase free space required for upgrade.'
+
+		#For 5.0.0, these extensions are upgraded automatically, make sure there is free space.
+		if [ -f ${PACKAGEDIR}/alsaequal.tcz ]; then
+			echo '[ INFO ] alsaequal found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 300`
+		fi
+		if [ -f ${PACKAGEDIR}/nano.tcz ]; then
+			echo '[ INFO ] nano found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 800`
+		fi
+		if [ -f ${PACKAGEDIR}/slimserver.tcz ]; then
+			echo '[ INFO ] slimserver found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 44000`
+		fi
+		if [ -f ${PACKAGEDIR}/pcp-jivelite.tcz ]; then
+			echo '[ INFO ] pcp-jivelite found, will be automatically updated.'
+			VU_SIZE=`expr $(ls -1 ${PACKAGEDIR}/VU_Meter*.tcz | wc -l) \* 475`
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 10200 + $VU_SIZE`
+		fi
+		if [ -f ${PACKAGEDIR}/pcp-lirc.tcz ]; then
+			echo '[ INFO ] pcp-lirc found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 235`
+		fi
+	fi
+
 	case "${VERSION}" in
-		piCorePlayer3.*)  # For a 3.x insitu update to be permitted must be at least pcp 3.00
-			VVV=$(pcp_picoreplayer_version)
-			[ $(echo $VVV | awk -F. '{print $1}') -lt 3 ] && FAIL_MSG="You must be using 3.00 or higher to update"
+		piCorePlayer5.0*)  # Requires 4.1.2 version for update
+			[ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.2") ] || FAIL_MSG="You must be using 4.1.2 or higher to update. Run Hotfix."
 		;;
 	esac
-	# busybox 27 changed fdisk format
-	if [ $(busybox fdisk --help 2>&1 | grep "BusyBox v" | awk -F. '{print $2}') -ge 27 ]; then
-		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
-	else
-		BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f4 | tr -d +)
-	fi
+
+	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
 	if [ "$FAIL_MSG" = "ok" -a $BOOT_SIZE -lt $BOOT_SIZE_REQUIRED ]; then
 		FAIL_MSG="BOOT disk is not large enough, upgrade not possible"
 	fi
+	echo '[ INFO ] Space required for update and extensions: '$SPACE_REQUIRED'k'
+	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
+	echo '[ INFO ] You are downloading '${VERSION}
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_kernel_modules
 	[ "$FAIL_MSG" = "ok" ] && pcp_enough_free_space $SPACE_REQUIRED
 
@@ -770,116 +653,6 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
-#========================================================================================
-# Initial
-#----------------------------------------------------------------------------------------
-case $(uname -r) in
-	*pcpAudioCore*) PCPAUDIOCOREyes="checked";PCPCOREyes="";;
-	*) PCPCOREyes="checked";PCPAUDIOCORE="";;
-esac
-COL1=50
-COL2=300
-if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
-	pcp_incr_id
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	pcp_start_row_shade
-	if [ "$HOTFIX" = "yes" ]; then
-		echo '          <legend>piCorePlayer hotfix needed.</legend>'
-		echo '          <table class="bggrey percent100">'
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td class="column150 center">'
-		echo '                <form name="HotFix" action="fix.cgi" method="get">'
-		echo '                  <input type="submit" value="HotFix">'
-		echo '                </form>'
-		echo '              </td>'
-		echo '              <td>'
-		echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
-		echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                </p>'
-		echo '                <div id="'$ID'" class="less">'
-		echo '                  <p>This will check for a new hotfix and update pCP.</p>'
-		echo '                </div>'
-		echo '              </td>'
-		echo '            </tr>'
-		echo '          </table>'
-	else
-		echo '          <legend>piCorePlayer insitu update: Select Kernel Type and Version</legend>'
-		echo '          <form name="initial" action= "'$0'" method="get">'
-		echo '            <table class="bggrey percent100">'
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column'$COL1' center">'
-		echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
-		echo '                </td>'
-		echo '                <td class="column'$COL2'">'
-		echo '                  <p>Standard version [Recommended]</p>'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>pcpCore Kernel&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>This version is recommended for 99% of users.</p>'
-		echo '                    <p>This version uses the kernel code and config from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
-		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_incr_id
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column'$COL1' center">'
-		echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
-		echo '                </td>'
-		echo '                <td class="column'$COL2'">'
-		echo '                  <p>Audio enthusiast version [Experimental]</p>'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>pcpAudioCore Kernel&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
-		echo '                    <p>This version is recommended for experimenters only.</p>'
-		echo '                    <p>This version starts with the same kernel code from <a href="https://github.com/raspberrypi/linux">Raspberry Pi</a>.</p>'
-		echo '                    <p>The kernel is then patched with extra drivers and modifications to support additional custom DACs and higher sample rates.</p>'
-		echo '                    <p>This version should not be used with WIFI.  Some wifi chips are known to not work with this version.</p>'
-		echo '                    <p>This version should not be used for server applications such as LMS.</p>'
-		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="large18 center">'
-		echo '                  <select name="VERSION">'
-								  awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
-		echo '                  </select>'
-		echo '                </td>'
-		echo '                <td colspan="2">'
-		echo '                  <p>Select the update version of piCorePlayer required.</p>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="large18 center">'
-		echo '                  <input class="large12" type="submit" value="Next >">'
-		echo '                  <input type="hidden" name="ACTION" value="download">'
-		echo '                </td>'
-		echo '                <td colspan="2">'
-		echo '                  <p>Press the [ Next > ] button to download update files.</p>'
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </table>'
-		echo '          </form>'
-	fi
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
 
 #========================================================================================
 # Download

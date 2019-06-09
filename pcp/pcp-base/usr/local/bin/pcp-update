@@ -201,6 +201,12 @@ else
 	UPDATE=1
 fi
 
+if [ "$1" = "kernel" ]; then
+	KERNELVER=$2
+	shift
+	shift
+fi
+
 # Download the latest sizelist
 get_sizelist
 if [ $? -ne 0 ]; then

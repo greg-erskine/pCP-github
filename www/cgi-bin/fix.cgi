@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 4.1.1 2019-04-27
+# Version: 4.1.2 2019-04-27
 
 . pcp-functions
 
@@ -97,6 +97,7 @@ pcp_do_fixes_410() {
 	pcp_download_hotfix
 	pcp_apply_fixes
 	#Do anything special here
+	pcp-update pcp-base.tcz
 }
 
 #========================================================================================
@@ -356,7 +357,7 @@ if [ "$ACTION" = "fix" ]; then
 			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_410
 			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
 			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Operation Complete.'
-			REBOOT_REQUIRED=0
+			REBOOT_REQUIRED=1
 		;;
 		*)
 			# No Fixes for this version
