@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.0.0 2019-03-02
 
 . pcp-functions
 . pcp-lms-functions
@@ -36,7 +36,7 @@ pcp_check_dosfsck() {
 	else
 		if [ ! -f ${PACKAGEDIR}/dosfstools.tcz ]; then
 			echo 'dosfstools.tcz downloading... '
-			sudo -u tc tce-load -w dosfstools.tcz
+			sudo -u tc pcp-load -r ${PCP_REPO} -w dosfstools.tcz
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 		else
 			echo 'dosfstools.tcz downloaded.'

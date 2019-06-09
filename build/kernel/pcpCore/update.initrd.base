@@ -4,7 +4,7 @@ BINPATH="/mnt/nfs/Raspberry_Pi/picoreplayer/initrd/binaries"
 BUSYBOXTAR=${BINPATH}/busybox.tar.gz
 BUSYBOXSUIDTAR=${BINPATH}/busybox.suid.tar.gz
 KMODTAR=${BINPATH}/kmod.tar.gz
-TCCONFIG="/home/paul/git/Core-scripts/etc/init.d/tc-config"
+CORE_SCRIPTS="/home/paul/git/Core-scripts"
 
 INITRD="/tmp/initrd-working"
 
@@ -64,5 +64,14 @@ chmod u+s ${INITRD}/bin/busybox.suid
 chmod u+s ${INITRD}/usr/bin/mount
 
 echo "Replacing tc-config"
-cp -f $TCCONFIG ${INITRD}/etc/init.d/tc-config
+cp -f $CORE_SCRIPTS/etc/init.d/tc-config ${INITRD}/etc/init.d/tc-config
 chmod 755 ${INITRD}/etc/init.d/tc-config
+
+echo "Replacing tce*"
+cp -f $CORE_SCRIPTS/usr/bin/tce* ${INITRD}/usr/bin
+chmod 755 ${INITRD}/usr/bin/tce*
+
+echo "Setting os-release"
+cp -f $CORE_SCRIPTS/etc/os-release ${INITRD}/etc
+
+rm -f ${INITRD}/etc/motd

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 . pcp-rpi-functions
@@ -34,7 +34,7 @@ pcp_install_apmode() {
 		sudo -u tc pcp-load -i firmware-brcmwifi.tcz
 		sudo -u tc pcp-load -i firmware-ralinkwifi.tcz
 		sudo -u tc pcp-load -i firmware-rtlwifi.tcz
-		sudo -u tc pcp-load -i firmware-rpi3-wireless.tcz
+		sudo -u tc pcp-load -i firmware-rpi-wifi.tcz
 		sudo -u tc pcp-load -i pcp-apmode.tcz
 		pcp_wifi_update_wifi_onbootlst
 		pcp_wifi_update_onbootlst "add" "pcp-apmode.tcz"
@@ -50,7 +50,7 @@ pcp_remove_apmode() {
 	sudo -u tc tce-audit delete pcp-apmode.tcz
 	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rpi-wifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/pcp-apmode.tcz/d' $ONBOOTLST

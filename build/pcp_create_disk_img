@@ -39,8 +39,31 @@ DEBUG=0
 
 BUILDROOT="$(pwd)"
 
-LOOP1="/dev/loop100"
-LOOP2="/dev/loop101"
+LOOPNUM=100
+DONE=0
+while [ $DONE -eq 0 ]; do
+	LOOP1="/dev/loop${LOOPNUM}"
+	LOOPNUM=$((LOOPNUM + 1))
+	LOOP2="/dev/loop${LOOPNUM}"
+	losetup -l | grep -q $LOOP1
+	if [ $? -eq 0 ]; then
+		losetup -l | grep $LOOP1 | grep -q "piCore"
+		if [ $? -eq 0 ]; then
+			echo "Exisiting pCP image mounted at $LOOP1"
+			break
+		else
+			echo "Sonething else using $LOOP1, Changing loop numbers"
+		fi
+	else
+		losetup -l | grep -q $LOOP2
+		if [ $? -eq 0 ]; then
+			echo "Something using $LOOP2, Changing loop numbers"
+		else
+			break
+		fi
+	fi
+	LOOPNUM=$((LOOPNUM + 1))
+done
 
 PART1="/tmp/part1"
 PART2="/tmp/part2"
@@ -225,8 +248,9 @@ EOF
 	losetup -o `expr $P2ST \* 512` --sizelimit `expr $P2BLKS \* 512` ${LOOP2} /tmp/${PCP}.img
 
 	echo "${YELLOW}"
-	mkfs.vfat -n PCP -s 4 -f 2 -F 16 ${LOOP1}
+	mkfs.vfat -n PCP_BOOT -s 4 -f 2 -F 16 ${LOOP1}
 	mkfs.ext4 ${LOOP2}
+	tune2fs -L PCP_ROOT ${LOOP2}
 
 	while true; do
 		read -p "${BLUE}Do you wish to continue? ${NORMAL}" yn
@@ -423,7 +447,7 @@ build_mydata(){
 
 	# These files have already been copied, but this is setting ownership,type and dos2unix.
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/asound.conf ${MYDATA}/etc/asound.conf root.staff 664
-#	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/motd ${MYDATA}/etc/motd root.staff 664
+	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/httpd.conf ${MYDATA}/etc/httpd.conf root.root 600
 #	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/etc/modprobe.conf ${MYDATA}/etc/modprobe.conf root.staff 664
 
 	pcp_txt_cp ${BUILDROOT}/../pcp/mydata/home/tc/.local/bin/copywww.sh ${MYDATA}/home/tc/.local/bin/copywww.sh 1001.50 755
@@ -493,7 +517,7 @@ build_mydata(){
 
 mount_loops() {
 	losetup -l | grep -q $LOOP1
-	if [ $? -eq 1 ]; then 
+	if [ $? -eq 1 ]; then
 		pcp_set_image_sizes
 		losetup -o `expr $P1ST \* 512` --sizelimit `expr $P1BLKS \* 512` ${LOOP1} /tmp/${PCP}.img
 		if [ $? -ne 0 ]; then
@@ -829,9 +853,13 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_boot.tar.gz${NORMAL}"
 	cd $PART1
+	# We are keeping old files and updating for insitu_update
+	mv -f $PART1/config.txt $PART1/config.txt.default
+	mv -f $PART1/cmdline.txt $PART1/cmdline.txt.default
 	echo "BOOT Partition used size: $(du -ks 2>/dev/null| awk '{print $1}')"
 	rm -f /tmp/${PCP}_boot.tar.gz
 	tar zcf /tmp/${PCP}_boot.tar.gz .
+
 	echo
 	echo "${GREEN}[ INFO ] Preparing to insitu update files /tmp/${PCP}_tce.tar.gz${NORMAL}"
 	cd $PART2/tce
@@ -842,10 +870,13 @@ if [ ${SKIP_INSITU} -eq 0 ]; then
 	rm -f /tmp/${PCP}_tce.tar.gz
 	echo "TCE Partition used size Minus Kernel Extensions: $(du -ks --exclude=*pcpCore* --exclude=*pcpAudioCore* 2>/dev/null| awk '{print $1}')"
 	tar zcf /tmp/${PCP}_tce.tar.gz --exclude=*pcpCore* --exclude=*pcpAudioCore* .
+	# remove bootfix and put back configs for full image
+	rm -rf $PART2/tce/bootfix
+	mv -f $PART1/config.txt.default $PART1/config.txt
+	mv -f $PART1/cmdline.txt.default $PART1/cmdline.txt
 	echo
 	echo "${GREEN}Done building insitu update packages."
-	# remove bootfix from the image
-	rm -rf $PART2/tce/bootfix
+
 fi
 
 cd $BUILDROOT
@@ -872,7 +903,7 @@ if [ $UPDATE_REPO -eq 1 ]; then
 	SRC_V6="${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}"
 	SRC_V7="${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}"
 
-	REPO="/home/paul/git/repo.picoreplayer.org/repo/9.x"
+	REPO="/home/paul/git/repo.picoreplayer.org/repo/10.x"
 	REPO_V6="${REPO}/armv6/tcz"
 	REPO_V7="${REPO}/armv7/tcz"
 

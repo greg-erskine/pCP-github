@@ -7,6 +7,7 @@ LOG=$PWD/config.log
 OUTPUT=$PWD/${SL}-build
 TCZ=pcp-${SL}.tcz
 TCZINFO=pcp-${SL}.tcz.info
+PCPREPO=10.x/armv6
  
 # Build requires these extra packages in addition to the debian jessie 8.3+ build tools
 # sudo apt-get install squashfs-tools
@@ -39,24 +40,6 @@ if [ -d $SRC/include ]; then
 fi
 mkdir -p $SRC/include
 
-bsdtar -C$SRC/include -xf $STARTDIR/../ffmpeg/ffmpeg-3.1.10-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../flac/flac-1.3.2-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../ogg/libogg-1.3.2-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../vorbis/libvorbis-1.3.5-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../mad/libmad-0.15.1b-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../faad/faad2-2.7-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../soxr/soxr-0.1.2-Source-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../mpg123/mpg123-1.23.8-headers.tar.gz
-bsdtar -C$SRC/include -xf $STARTDIR/../lirc/lirc-0.9.0-headers.tar.gz
-
-if [ -d $STARTDIR/squashfs-root ]; then
-	rm -rf $STARTDIR/squashfs-root
-fi
-
-wget -q -O - http://repo.picoreplayer.org/repo/9.x/armv6/tcz/wiringpi-dev.tcz > $STARTDIR/wiringpi-dev.tcz
-unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/wiringpi-dev.tcz
-cp -p $STARTDIR/squashfs-root/usr/local/include/wiringPi.h $SRC/include
-
 if [ -d $SRC/lib ]; then
 	rm -rf $SRC/lib
 fi
@@ -66,11 +49,103 @@ if [ -d $STARTDIR/squashfs-root ]; then
 	rm -rf $STARTDIR/squashfs-root
 fi
 
-wget -q -O - http://repo.picoreplayer.org/repo/9.x/armv6/tcz/wiringpi.tcz > $STARTDIR/wiringpi.tcz
-unsquashfs -n -d $STARTDIR/squashfs-root wiringpi.tcz
+PKG=pcp-libffmpeg-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
 
-cp -p $STARTDIR/squashfs-root/usr/local/lib/libwiringPi.so $SRC/lib
-cp -p $STARTDIR/../lirc/liblirc_client.a $SRC/lib
+PKG=pcp-libogg-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libflac-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libvorbis-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libmad-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libfaad2-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libsoxr-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libmpg123-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-lirc-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-lirc.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=wiringpi-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/* $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=wiringpi.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=openssl-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/openssl $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=openssl.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
 
 echo "Compiling..."
 
@@ -107,10 +182,9 @@ echo -e "Title:\t\t$TCZ" > $TCZINFO
 echo -e "Description:\tLightweight headless squeezebox player." >> $TCZINFO
 echo -e "Version:\t$($OUTPUT/usr/local/bin/squeezelite -? | grep ^Squeezelite\ v | awk -F'[v,]' '{printf "%s", $2}')" >> $TCZINFO
 echo -e "Commit:\t\t$(cd $SRC; git show | grep commit | awk '{print $2}')" >> $TCZINFO
-echo -e "Authors:\tAdrian Smith, Ralph Irving" >> $TCZINFO
+echo -e "Authors:\tAdrian Smith, Ralph Irving, Others" >> $TCZINFO
 echo -e "Original-site:\t$(grep url $SRC/.git/config | awk '{print $3}')" >> $TCZINFO
 echo -e "Copying-policy:\tGPLv3" >> $TCZINFO
-echo -e "Size:\t\t$(ls -lk $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Size:\t\t$(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
 echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
-echo -e "\t\tCompiled for piCore 9.x" >> $TCZINFO
-
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZINFO

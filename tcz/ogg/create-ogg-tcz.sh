@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OGG=libogg
-OGGVERSION=1.3.2
+OGGVERSION=1.3.3
 SRC=$OGG-$OGGVERSION
 STARTDIR=`pwd`
 LOG=$PWD/config.log
@@ -75,10 +75,10 @@ unsquashfs -ll $TCZLIB
 echo -e "Title:\t\t$TCZLIB" > $TCZLIBINFO
 echo -e "Description:\tOgg bitstream library." >> $TCZLIBINFO
 echo -e "Version:\t$OGGVERSION" >> $TCZLIBINFO
+echo -e "Commit:\t\tbc82844df068429d209e909da47b1f730b53b689" >> $TCZLIBINFO
 echo -e "Author:\t\tXiph.Org Foundation" >> $TCZLIBINFO
 echo -e "Original-site:\thttps://xiph.org/ogg/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tLesser GPL" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
-
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZLIBINFO

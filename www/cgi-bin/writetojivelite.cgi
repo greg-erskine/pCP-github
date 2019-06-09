@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-08
+# Version: 5.0.0 2019-03-01
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -18,7 +18,7 @@ JIVELITE_TCZ="pcp-jivelite.tcz"
 DEFAULT_VUMETER="VU_Meter_Kolossos_Oval.tcz"
 AVAILABLE_VUMETERS=$($WGET_JL $MIRROR -q -O - | grep -ow 'VU_Meter_\w*.tcz' | sort | uniq)
 
-# Reboot is default, some functions turn it off.
+# Reboot required is default, some functions turn it off.
 REBOOT_REQUIRED=TRUE
 
 #========================================================================================
@@ -44,8 +44,22 @@ SPACE_REQUIRED=13000
 #========================================================================================
 # Routines
 #----------------------------------------------------------------------------------------
+pcp_html_end() {
+	pcp_table_middle
+	pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 10
+	pcp_table_end
+	pcp_footer
+	pcp_copyright
+	[ $REBOOT_REQUIRED ] && pcp_lirc_popup
+	echo '</body>'
+	echo '</html>'
+	exit
+}
+
 pcp_jivelite_debug() {
+	echo '<!-- Start of debug info -->'
 	pcp_debug_variables "html" MIRROR OPTION ACTION JIVELITE VISUALISER VUMETER JIVELITE_TCZ JIVELITE_MD5 DEFAULT_VUMETER AVAILABLE_VUMETERS
+	echo '<!-- End of debug info -->'
 }
 
 pcp_download_jivelite() {
@@ -156,24 +170,9 @@ pcp_lirc_popup() {
 	fi
 }
 
-pcp_html_end() {
-	pcp_table_middle
-	pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 10
-	pcp_table_end
-	pcp_footer
-	pcp_copyright
-	[ $REBOOT_REQUIRED ] && pcp_lirc_popup
-	echo '</body>'
-	echo '</html>'
-	exit
-}
-
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-#pcp_table_textarea_top  "Jivelite" "" "200"
-#pcp_table_top  "Jivelite" "" "200"
-
 pcp_jivelite_debug
 
 case "$OPTION" in
@@ -202,10 +201,19 @@ case "$OPTION" in
 				echo '             </textarea>'
 			;;
 			Onboot)
-				[ "$JIVELITE" = "yes" ] && VISUALISER="yes" || VISUALISER="no"
+				MTYPE="text"
+				pcp_table_textarea_top  "Setting Jivelite onboot behaviour" "" "50"
+				if [ "$JIVELITE" = "yes" ]; then
+					VISUALISER="yes"
+					pcp_message "info" 'Setting Jivelite to automatically start during boot...' $MTYPE
+				else
+					VISUALISER="no"
+					pcp_message "info" 'Setting Jivelite to not start during boot...' $MTYPE
+				fi
 				pcp_save_to_config
 				pcp_backup "nohtml"
-				REBOOT_REQUIRED=FALSE
+				echo '             </textarea>'
+				unset REBOOT_REQUIRED
 			;;
 			Remove)
 				MTYPE="text"
@@ -213,19 +221,27 @@ case "$OPTION" in
 				pcp_delete_jivelite
 				pcp_delete_vumeters
 				pcp_backup "nohtml"
-				REBOOT_REQUIRED=TRUE
 				echo '             </textarea>'
+				REBOOT_REQUIRED=TRUE
 			;;
 			Reset)
+				unset REBOOT_REQUIRED
 				MTYPE="text"
 				pcp_table_textarea_top "Resetting Jivelite" "" "100"
 				pcp_message "info" 'Resetting Jivelite Configuration...' $MTYPE
 				rm -f /home/tc/.jivelite/userpath/settings/*.lua
 				pcp_backup "nohtml"
-				pkill -SIGTERM jivelite
+
+				sudo kill -SIGTERM `pidof jivelite`
+
+				if [ $? -ne 0 ]; then
+					pcp_message "error" 'Jivelite not killed...' $MTYPE
+				else
+					pcp_message "ok" 'Jivelite killed...' $MTYPE
+				fi
+
 				pcp_message "info" 'Jivelite has been reset and restarted.' $MTYPE
 				pcp_message "info" 'Reconfigure Jivelite and then backup changes!' $MTYPE
-				REBOOT_REQUIRED=FALSE
 				echo '             </textarea>'
 			;;
 			Update)
@@ -237,10 +253,10 @@ case "$OPTION" in
 					CHK=$?
 					if [ $CHK -eq 2 ]; then
 						pcp_message "info" 'There is no update for Jivelite at this time.' $MTYPE
-						REBOOT_REQUIRED=FALSE
+						unset REBOOT_REQUIRED
 					elif [ $CHK -eq 1 ]; then
 						pcp_message "error" 'There was an error updating Jivelite, please try again later.' $MTYPE
-						REBOOT_REQUIRED=FALSE
+						unset REBOOT_REQUIRED
 					else
 						REBOOT_REQUIRED=TRUE
 					fi
@@ -255,20 +271,23 @@ case "$OPTION" in
 				echo '             </textarea>'
 			;;
 			*)
+				MTYPE="text"
 				[ $DEBUG -eq 1 ] && pcp_message "debug" 'JIVELITE: '$JIVELITE
 				pcp_message "error" 'JIVELITE: '$JIVELITE', Bad ACTION:'$ACTION $MTYPE
-				REBOOT_REQUIRED=FALSE
+				unset REBOOT_REQUIRED
 			;;
 		esac
 	;;
 	VUMETER)
+		MTYPE="text"
 		[ $DEBUG -eq 1 ] && pcp_message "debug" 'Doing OPTION: '$OPTION $MTYPE
 		case "$SUBMIT" in
 			Save)
 				pcp_install_vumeter
 				pcp_message "info" 'A restart of Jivelite is needed in order to finalize!' $MTYPE
 				pcp_message "info" 'Jivelite will now restart!' $MTYPE
-				sudo pkill -SIGTERM jivelite
+				sudo kill -SIGTERM `pidof jivelite`
+				unset REBOOT_REQUIRED
 			;;
 			Download)
 				pcp_download_vumeters

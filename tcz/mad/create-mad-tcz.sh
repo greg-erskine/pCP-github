@@ -79,6 +79,5 @@ echo -e "Author:\t\tRobert Leslie" >> $TCZLIBINFO
 echo -e "Original-site:\thttp://www.underbit.com/products/mad/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tGPL" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
-
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZLIBINFO

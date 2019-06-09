@@ -1,8 +1,8 @@
 #!/bin/bash
 
-TCZ=pcp-base.tcz
-TCZINFO=${TCZ}.info
-VERSION=4.0.0
+#TCZ=pcp-base.tcz
+#TCZINFO=${TCZ}.info
+VERSION=5.0.0
 
 
 BASEWD=$(pwd)
@@ -35,9 +35,9 @@ echo -e "Version:        $VERSION" >> $TCZINFO
 echo -e "Author:         Various, see script files" >> $TCZINFO
 echo -e "Original-site:" >> $TCZINFO
 echo -e "Copying-policy: See scripts for details" >> $TCZINFO
-echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
 echo -e "Extension_by:   piCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
-echo -e "Comments:       Compiled for piCore 9.x" >> $TCZINFO
+echo -e "Comments:       Compiled for piCore 10.x" >> $TCZINFO
 
 echo
 
@@ -51,7 +51,7 @@ while true; do
 done
 
 IMAGEPATH="${BASEWD}/../../build/tcz-for-img"
-REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/9.x"
+REPOPATH="${BASEWD}/../../../repo.picoreplayer.org/repo/10.x"
 ARMV6="$REPOPATH/armv6/tcz"
 ARMV7="$REPOPATH/armv7/tcz"
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-04
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -9,13 +9,10 @@
 ORIG_ALSAeq=$ALSAeq
 ORIG_SHAIRPORT=$SHAIRPORT
 ORIG_SQUEEZELITE=$SQUEEZELITE
-ORIG_ALSAlevelout=$ALSAlevelout
+ORIG_STREAMER=$STREAMER
 ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
 ORIG_FSM=$FSM
-
-WGET="/bin/busybox wget"
-CAPS="caps-0.4.5"
 
 unset VARIABLE_CHANGED
 unset REBOOT_REQUIRED
@@ -63,8 +60,13 @@ fi
 #========================================================================================
 # SHAIRPORT section
 #----------------------------------------------------------------------------------------
+# libcofi.tcz                   8192
+# pcp-shairportsync.tcz       970752
+#
+# Total size (bytes)          978944
+#----------------------------------------------------------------------------------------
 pcp_download_shairport(){
-	pcp_sufficient_free_space 500
+	pcp_sufficient_free_space 1000
 	echo '<p class="info">[ INFO ] Downloading Shairport-sync...</p>'
 	sudo -u tc pcp-load -r ${PCP_REPO} -w pcp-shairportsync.tcz
 	if [ $? -eq 0 ]; then
@@ -129,34 +131,16 @@ else
 fi
 
 #========================================================================================
-# ALSA output level section
-#----------------------------------------------------------------------------------------
-# Only do something if variable has changed.
-#----------------------------------------------------------------------------------------
-if [ "$ORIG_ALSAlevelout" != "$ALSAlevelout" ]; then
-	VARIABLE_CHANGED=TRUE
-
-	echo '<p class="info">[ INFO ] $ALSAlevelout is set to: '$ALSAlevelout'</p>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] $ORIG_ALSAlevelout is: '$ORIG_ALSAlevelout'<br />'
-		echo '                 [ DEBUG ] $ALSAlevelout is: '$ALSAlevelout'</p>'
-	fi
-
-else
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $ALSAlevelout variable unchanged.</p>'
-fi
-
-#========================================================================================
 # ALSA Equalizer section
 #----------------------------------------------------------------------------------------
-#  24576 alsaequal.tcz
-# 733184 caps-0.4.5.tcz
-# ------
-# 757760
+# alsaequal.tcz          24576
+# caps.tcz              258048
+# libasound.tcz         364544
+#
+# Total size (bytes)    647168
 #----------------------------------------------------------------------------------------
 pcp_download_alsaequal() {
-	pcp_sufficient_free_space 800
+	pcp_sufficient_free_space 700
 	echo '<p class="info">[ INFO ] Downloading ALSA Equalizer from repository...</p>'
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${PCP_REPO}'</p>'
 	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
@@ -226,6 +210,80 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	esac
 else
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $ALSAeq variable unchanged.</p>'
+fi
+
+#========================================================================================
+# pCP Streamer section
+#----------------------------------------------------------------------------------------
+# Total size (bytes)       3489792
+# Need to download (bytes) 1466368
+#----------------------------------------------------------------------------------------
+pcp_download_streamer() {
+	pcp_sufficient_free_space 1600
+	echo '<p class="info">[ INFO ] Downloading pCP Streamer from repository...</p>'
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] repo: '${PCP_REPO}'</p>'
+	echo '<p class="info">[ INFO ] Download will take a few minutes. Please wait...</p>'
+
+	sudo -u tc pcp-load -r $PCP_REPO -wi pcp-streamer.tcz
+	if [ $? -eq 0 ]; then
+		echo '<p class="ok">[ OK ] Download successful.</p>'
+	else
+		echo '<p class="error">[ ERROR ] pCP Stremer download unsuccessful, try again!</p>'
+	fi
+
+	SPACE=$(pcp_free_space k)
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Free space: '$SPACE'k</p>'
+}
+
+pcp_remove_streamer() {
+	echo '<p class="info">[ INFO ] Removing pCP Streamer...</p>'
+	sudo -u tc tce-audit builddb
+	sudo -u tc tce-audit delete pcp-streamer.tcz
+}
+
+#----------------------------------------------------------------------------------------
+# Only do something if variable has changed.
+#----------------------------------------------------------------------------------------
+if [ "$ORIG_STREAMER" != "$STREAMER" ]; then
+	VARIABLE_CHANGED=TRUE
+
+	echo '<p class="info">[ INFO ] $ALSAeq is set to: '$ALSAeq'</p>'
+
+	# Determination of the number of the current sound-card
+	# This probably isn't necessary, as we will check at boot time.
+	INCARD=$(pcp_get_input_cardnumber)
+
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] $ORIG_STREAMER is: '$ORIG_STREAMER'<br />'
+		echo '                 [ DEBUG ] $STREAMER is: '$STREAMER'<br />'
+		echo '                 [ DEBUG ] $Card number has input capabilies: '$INCARD'<br />'
+		echo '                 [ DEBUG ] $AUDIO is: '$AUDIO'</p>'
+	fi
+
+	case "$STREAMER" in
+		yes)
+			echo '<p class="info">[ INFO ] pCP Streamer: '$STREAMER'</p>'
+			if grep -Fxq "pcp-streamer.tcz" $ONBOOTLST; then
+				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] pCP Streamer module is already loaded.</p>'
+			else
+				pcp_download_streamer
+			fi
+			[ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/hw:[0-9],[0-9]/hw:'$INCARD',0/' /etc/asound.conf || echo '<p class="error">[ ERROR ] Unable to determine Card Number to setup pCP Streamer</p>'
+			/usr/local/etc/init.d/streamer start
+		;;
+		no)
+			REBOOT_REQUIRED=TRUE
+			/usr/local/etc/init.d/streamer stop
+			echo '<p class="info">[ INFO ] pCP Streamer: '$ALSAeq'</p>'
+			sudo sed -i '/pcp-streamer.tcz/d' $ONBOOTLST
+			pcp_remove_streamer
+		;;
+		*)
+			echo '<p class="error">[ ERROR ] pCP Streamer invalid: '$ALSAeq'</p>'
+		;;
+	esac
+else
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $STREAMER variable unchanged.</p>'
 fi
 
 #========================================================================================

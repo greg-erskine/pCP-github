@@ -1,0 +1,11 @@
+#!/bin/sh
+
+[ -d /var/run/lirc ] || mkdir -p /var/run/lirc
+
+[ -d /usr/local/var/run ] || mkdir -p /usr/local/var/run
+
+[ -d /usr/local/var/run/lirc ] || ln -s /var/run/lirc /usr/local/var/run/lirc
+
+[ -f /usr/local/etc/lirc/lircd.conf ] || cp -p /usr/local/share/lirc/files/lircd-squeezebox /usr/local/etc/lirc/lircd.conf
+
+[ -f /usr/local/etc/lirc/lirc_options.conf ] || cp -p /usr/local/share/lirc/files/lirc_options.conf /usr/local/etc/lirc/lirc_options.conf

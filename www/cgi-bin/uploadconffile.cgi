@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 5.0.0 2019-04-21
 
 . pcp-functions
 
@@ -49,34 +49,36 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 				REBOOT_REQUIRED=1
 				break
 			;;
+			*KEYTABLE*)
+				FROM_PAGE=lirc.cgi
+				echo "jivelite keytables"
+				UPLOADED_FILE="/usr/local/etc/keytables/jivelite"
+				BACKUP_REQUIRED=1
+				RELOAD_KEYTABLE=1
+				break
+			;;
 		esac
 	done
 	#strip the next two lines....still part of the header
 	read line
 	read line
-	cat - >$TMPOUT
-	file $TMPOUT | grep -q "text"
-	if [ $? -eq 0 ]; then
-		# Get the line count
-		LINES=$(wc -l $TMPOUT | cut -d ' ' -f 1)
-		# Remove the last line
-		head -$((LINES - 1)) $TMPOUT >$TMPOUT.1
-		dos2unix $TMPOUT.1
-		chmod 664 $TMPOUT.1
-		chown tc.staff ${UPLOADED_FILE}
-		cp -f $TMPOUT.1 ${UPLOADED_FILE}
-		chown nobody.nogroup ${UPLOADED_FILE}
-		rm -f $TMPOUT*
-		sed -i '/'$(echo ${UPLOADED_FILE##/} | sed 's|\/|\\\/|g')'/d' $FILETOOLLST
-		if [ -f "${UPLOADED_FILE}" ]; then
-			echo "${UPLOADED_FILE##/}" >> $FILETOOLLST
-		fi
-		pcp_backup "nohtml"
-	else
-		echo "[ ERROR ] Invalid file format, must be a text file."
-		RESTART_LMS=0
-		rm -f $TMPOUT
+	#Pass content through strings to remove potential binary content.
+	cat - | strings >$TMPOUT
+	# Get the line count
+	LINES=$(wc -l $TMPOUT | cut -d ' ' -f 1)
+	# Remove the last line
+	head -$((LINES - 1)) $TMPOUT >$TMPOUT.1
+	dos2unix $TMPOUT.1
+	chmod 664 $TMPOUT.1
+	chown tc.staff ${UPLOADED_FILE}
+	cp -f $TMPOUT.1 ${UPLOADED_FILE}
+	chown nobody.nogroup ${UPLOADED_FILE}
+	rm -f $TMPOUT*
+	sed -i '/'$(echo ${UPLOADED_FILE##/} | sed 's|\/|\\\/|g')'/d' $FILETOOLLST
+	if [ -f "${UPLOADED_FILE}" ]; then
+		echo "${UPLOADED_FILE##/}" >> $FILETOOLLST
 	fi
+	pcp_backup "nohtml"
 else
 	echo "[ ERROR ] Script error! This routine only accepts form POST...."
 fi
@@ -85,6 +87,11 @@ if [ $RESTART_LMS -eq 1 ]; then
 	echo "[ INFO ] Restarting LMS"
 	/usr/local/etc/init.d/slimserver stop
 	/usr/local/etc/init.d/slimserver start
+fi
+
+if [ $RELOAD_KEYTABLE -eq 1 ]; then
+	echo "[ INFO ] Loading keytable"
+	pcp_load_keytables
 fi
 
 [ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "nohtml"

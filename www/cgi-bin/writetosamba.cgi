@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 5.0.0 2019-05-26
 
 . pcp-functions
 
@@ -64,11 +64,11 @@ case "$COMMAND" in
 		grep -q "path" $SAMBACONF
 		if [ $? -eq 0 ]; then
 			echo -n '<p class="info">[ INFO ] '
-			/usr/local/etc/init.d/samba restart
+			/usr/local/etc/init.d/samba4 restart
 			echo '</p>'
 		else
 			echo '<p class="error">[ ERROR ] No Shares are set, Samba will be stopped</p>'
-			/usr/local/etc/init.d/samba stop
+			/usr/local/etc/init.d/samba4 stop
 		fi
 	;;
 	autostart)

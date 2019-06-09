@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-14
+# Version: 5.0.0 2019-03-23
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -40,7 +40,8 @@ pcp_re_enable_analog() {
 # Remove Audio dtoverlays
 #----------------------------------------------------------------------------------------
 pcp_disable_i2s() {
-	pcp_re_enable_analog
+	# If using an i2s card, don't change the onboard analog
+	[ $CARD = "ALSA" ] && pcp_re_enable_analog
 	# unset DTOVERLAY both the old one that is removed on chooseoutput.cgi and
 	# the one from pcp.cfg to clear all traces of audio dtoverlays
 	shini_parse ${DACLOCATION}/${ORIG_AUDIO}.conf
@@ -54,7 +55,8 @@ pcp_disable_i2s() {
 # Add Audio dtoverlays
 #----------------------------------------------------------------------------------------
 pcp_enable_i2s() {
-	pcp_re_enable_analog
+	# If using an i2s card, don't change the onboard analog
+	[ $CARD = "ALSA" ] && pcp_re_enable_analog
 	pcp_selected_soundcontrol
 	[ x"$SPARAMS1" != x"" ] && PAR1=','"$SPARAMS1"'' || PAR1="$SPARAMS1"
 	[ x"$SPARAMS2" != x"" ] && PAR2=','"$SPARAMS2"'' || PAR2="$SPARAMS2"
@@ -177,7 +179,12 @@ pcp_generic_card_control() {
 				done
 			fi
 		;;
-		
+		ISABRE)
+			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
+			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
+
+			pcp_DSP_program_selection
+		;;
 #		ES9023)
 #			CARD="ALSA"
 #			SSET="PCM"
@@ -195,10 +202,14 @@ pcp_generic_card_control() {
 #	Description, avoid having to hardcode the filter names, but rather extract from amixer
 #----------------------------------------------------------------------------------------
 pcp_DSP_program_selection() {
-	amixer -c $CARD scontrols | grep -q 'DSP Program' && DSPfound="yes" || DSPfound="no" 
+	# DSP Program is the default DSP name, some cards are using different names, defined in the .conf file.
+	[ "$DSP_CONTROL" = "" ] && DSP_CONTROL="DSP Program,0"
+
+	[ $DEBUG -eq 1 ] && echo '<p class="info">[DSP] Start DSP Function</p>'
+	amixer -c $CARD scontrols | grep -q "${DSP_CONTROL%,0}" && DSPfound="yes" || DSPfound="no" 
 	if [ "$DSPfound" = "yes" ]; then
-		DSP="DSP Program"
-		LIST=$(amixer -c $CARD sget 'DSP Program,0' | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
+		[ $DEBUG -eq 1 ] && echo '<p class="debug">[DSP] DSP Found</p>'
+		LIST=$(amixer -c $CARD sget "$DSP_CONTROL" | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
 		I=1
 		DONE=0
 		while [ $DONE = 0 ]; do
@@ -212,7 +223,7 @@ pcp_DSP_program_selection() {
 		done
 		NUMFILTERS=$I
 
-		ACTUAL_FILTER=$(amixer -c $CARD sget 'DSP Program,0' | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
+		ACTUAL_FILTER=$(amixer -c $CARD sget "$DSP_CONTROL" | grep "Item0:" | awk -F': ' '{ print $NF }' | tr -d "'")
 
 		I=1
 		while [ $I -le $NUMFILTERS ]; do
@@ -257,6 +268,8 @@ pcp_sound_card_dropdown() {
 
 # Load Card Variables from Config file, and Find card number for asound.conf when using alsaequal
 pcp_load_card_conf() {
+	#OUTPUT is declared in card conf file.  Delcare local context, so OUTPUT=equal is not changed.
+	local OUTPUT
 	pcp_blank_audio_conf
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	case $CARD in
@@ -264,6 +277,17 @@ pcp_load_card_conf() {
 		*) CARDNAME=$CARD;;
 	esac
 	CARDNO=$(cat /proc/asound/cards | grep '\[' | grep $CARDNAME | cut -d ' ' -f2)
+}
+
+pcp_get_input_cardnumber() {
+	INPUTCARD=99
+	alsacap -R 2>/dev/null |  while read -r line; do
+		case $line in
+			Card*) INPUTCARD=$(echo $line | cut -d ',' -f1 | cut -d ' ' -f2);;
+			Device*) [ $INPUTCARD -ne 99 ] && echo $INPUTCARD; break;;
+			*) INPUTCARD=99;;
+		esac
+	done
 }
 
 #========================================================================================
@@ -328,6 +352,7 @@ pcp_blank_audio_conf() {
 	CONTROL_PAGE=""
 	LISTNAME=""
 	DTOVERLAY=""
+	DSP_CONTROL=""
 	SSET=""
 	PARAMS1=""
 	PARAMS2=""

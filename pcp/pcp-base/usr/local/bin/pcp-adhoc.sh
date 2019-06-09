@@ -8,7 +8,7 @@ if [ $? -ne 0 ]; then
 	sudo -u tc tce-load -i firmware-brcmwifi.tcz
 	sudo -u tc tce-load -i firmware-ralinkwifi.tcz
 	sudo -u tc tce-load -i firmware-rtlwifi.tcz
-	sudo -u tc tce-load -i firmware-rpi3-wireless.tcz
+	sudo -u tc tce-load -i firmware-rpi-wifi.tcz
 	sudo -u tc tce-load -i wifi.tcz
 	echo ""
 	pkill udhcpd

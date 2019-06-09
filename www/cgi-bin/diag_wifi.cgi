@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 . pcp-rpi-functions
@@ -18,17 +18,24 @@ pcp_banner
 pcp_diagnostics
 pcp_running_script
 
+[ $(pcp_wifi_using_wifi) -eq 0 ] || pcp_wifi_not_using_wifi
+
 #========================================================================================
-# Routine to display USB wifi adapters found during boot process.
-# Some of the standard RPi USB devices are jumped to focus on wifi device.
-# Update: Routine also finds built-in wifi devices.
+# Routine to display:
+#  - USB wifi adapters found during boot process.
+#  - built-in wifi adapters.
+#  - other wifi relevant info.
+#
+# Note:
+#  - Some of the standard RPi USB devices are jumped to focus on wifi device.
+#  - p = print, n = next, a = append
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_dmesg() {
 	echo "dmesg" >>$LOG
 	echo ========================================================================================= >>$LOG
 	dmesg | sed -n '{
-		/New USB device found, idVendor=1d6b/n
-		/New USB device found, idVendor=0424/n
+		/New USB device found, idVendor=1d6b/ n
+		/New USB device found, idVendor=0424/ n
 		/New USB device found, idVendor=/{
 			p
 			n
@@ -43,8 +50,9 @@ pcp_diag_wifi_dmesg() {
 .
 		}
 	}' | tee -a $LOG
+
 	dmesg | sed -n '{
-		/brcmfmac: brcmf_fw_map_chip_to_name:/n
+		/brcmfmac: brcmf_fw_map_chip_to_name:/ n
 		/brcmfmac: brcmf_c_preinit_dcmds:/{
 			p
 			n
@@ -55,6 +63,25 @@ pcp_diag_wifi_dmesg() {
 .
 		}
 	}' | tee -a $LOG
+
+	dmesg | sed -n '{
+		/usbcore: registered new interface driver usbfs/ n
+		/usbcore: registered new interface driver hub/ n
+		/usbcore: registered new device driver usb/ n
+		/usbcore: registered new interface driver lan78xx/ n
+		/usbcore: registered new interface driver smsc95xx/ n
+		/usbcore: registered new interface driver usb-storage/ n
+		/usbcore: registered new interface driver usbhid/ n
+		/usbcore:/{
+			p
+			a\
+.
+		}
+	}' | tee -a $LOG
+
+	dmesg | grep "cfg80211:" | tee -a $LOG
+	echo "." | tee -a $LOG
+
 	echo >>$LOG
 }
 
@@ -76,7 +103,12 @@ pcp_diag_wifi_lsmod() {
 pcp_diag_wifi_lsusb() {
 	echo "wifi usb report (lsusb)" >>$LOG
 	echo ========================================================================================= >>$LOG
-	lsusb | grep -vE "ID 0424|ID 1d6b" | tee -a $LOG
+	USB=$(lsusb | grep -vE "ID 0424|ID 1d6b")
+	if [ "$USB" = "" ]; then
+		echo "None found." | tee -a $LOG
+	else
+		lsusb | grep -vE "ID 0424|ID 1d6b" | tee -a $LOG
+	fi
 	echo >>$LOG
 }
 
@@ -156,7 +188,7 @@ pcp_diag_wifi_available_networks() {
 pcp_diag_wifi_ping_lms() {
 	echo "Ping LMS test" >>$LOG
 	echo ========================================================================================= >>$LOG
-	ping -c20 $(pcp_lmsip) | tee -a $LOG
+	ping -c20 -I wlan0 $(pcp_lmsip) | tee -a $LOG
 	echo >>$LOG
 }
 
@@ -182,6 +214,18 @@ pcp_diag_wifi_hiddenssid() {
 }
 
 #========================================================================================
+# Table row padding.
+#----------------------------------------------------------------------------------------
+pcp_padding() {
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td>'
+	echo '                  <p></p>'
+	echo '                </td>'
+	echo '              </tr>'
+}
+
+#========================================================================================
 # Create the log file. Start with some basic information.
 #----------------------------------------------------------------------------------------
 pcp_wifi_read_wpa_supplicant "none"
@@ -193,6 +237,7 @@ echo "SSID:        "$WPA_SSID >>$LOG
 echo "Password:    "$WPA_PASSWORD >>$LOG
 echo "Passphrase:  "$WPA_PASSPHRASE >>$LOG
 echo "Security:    "$WPA_ENCRYPTION >>$LOG
+echo "Country:     "$WPA_COUNTRY >>$LOG
 echo "Hidden SSID: "$(pcp_diag_wifi_hiddenssid) >>$LOG
 echo "MAC address: "$(pcp_diag_wifi_wlan0_mac_address) >>$LOG
 echo "Uptime:      "$(pcp_uptime_days) >>$LOG
@@ -202,6 +247,7 @@ echo >>$LOG
 #========================================================================================
 # Raspberry Pi
 #----------------------------------------------------------------------------------------
+COL="column120"
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -212,86 +258,98 @@ echo '          <table class="bggrey percent100">'
 #----------------------------------Wifi / Wifi MAC---------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Wifi</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$WIFI'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Wifi MAC:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_mac_address)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------SSID / Wifi IP----------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>SSID:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$WPA_SSID'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Wifi IP:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_ip)'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------Password / Security-----------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Password:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$WPA_PASSWORD'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Security:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$WPA_ENCRYPTION'</p>'
 echo '              </td>'
 echo '            </tr>'
 #----------------------------------Passphrase--------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Passphrase:</p>'
 echo '              </td>'
 echo '              <td colspan="5">'
 echo '                <p>'$WPA_PASSPHRASE'</p>'
 echo '              </td>'
 echo '            </tr>'
-#----------------------------------Hidden SSID-------------------------------------------
+#----------------------------------Country/Hidden SSID-------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
+echo '                <p>Country:</p>'
+echo '              </td>'
+echo '              <td class="'$COL'">'
+echo '                <p>'$WPA_COUNTRY'</p>'
+echo '              </td>'
+echo '              <td class="'$COL'">'
+echo '                <p></p>'
+echo '              </td>'
+echo '              <td class="'$COL'">'
+echo '                <p></p>'
+echo '              </td>'
+echo '              <td class="'$COL'">'
 echo '                <p>Hidden SSID:</p>'
 echo '              </td>'
-echo '              <td colspan="5">'
+echo '              <td class="'$COL'">'
 echo '                <p>'$(pcp_diag_wifi_hiddenssid)'</p>'
 echo '              </td>'
 echo '            </tr>'
@@ -307,16 +365,16 @@ fi
 
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p>Uptime:</p>'
 echo '              </td>'
-echo '              <td class="column300">'
+echo '              <td colspan="2">'
 echo '                <p>'$(pcp_uptime_days)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COL'">'
 echo '                <p></p>'
 echo '              </td>'
-echo '              <td class="column300">'
+echo '              <td colspan="2">'
 echo '                <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
 echo '              </td>'
 echo '            </tr>'
@@ -334,7 +392,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="6">'
+echo '                <textarea class="inform" rows="12">'
                         pcp_diag_wifi_dmesg
 echo '                </textarea>'
 echo '              </td>'
@@ -382,7 +440,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="12">'
+echo '                <textarea class="inform" rows="14">'
                         pcp_diag_wifi_wpa_suplicant
 echo '                </textarea>'
 echo '              </td>'
@@ -398,7 +456,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="9">'
+echo '                <textarea class="inform" rows="10">'
                         pcp_diag_wifi_onbootlst
 echo '                </textarea>'
 echo '              </td>'
@@ -414,7 +472,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="7">'
+echo '                <textarea class="inform" rows="9">'
                         pcp_diag_wifi_extensions_installed
 echo '                </textarea>'
 echo '              </td>'
@@ -430,7 +488,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="10">'
+echo '                <textarea class="inform" rows="11">'
                         pcp_diag_wifi_iwconfig
 echo '                </textarea>'
 echo '              </td>'
@@ -446,7 +504,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <textarea class="inform" rows="8">'
+echo '                <textarea class="inform" rows="9">'
                         pcp_diag_wifi_ifconfig
 echo '                </textarea>'
 echo '              </td>'
@@ -490,7 +548,7 @@ echo '          </fieldset>'
 echo '        </div>'
 #----------------------------------------------------------------------------------------
 
-#------------------------------------Ping tests------------------------------------------
+#------------------------------------Ping test-------------------------------------------
 echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Ping tests</legend>'
@@ -509,6 +567,17 @@ echo '                <td>'
 echo '                  <textarea class="inform" rows="25">'
                           pcp_diag_wifi_ping_lms
 echo '                  </textarea>'
+echo '                </td>'
+echo '              </tr>'
+pcp_padding
+pcp_toggle_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td>'
+echo '                  <ul>'
+echo '                    <li>You need to learn what is normal for your network.</li>'
+echo '                    <li>Check the ping time is consistent and only a few ms.</li>'
+echo '                    <li>Check for 0% packet loss.</li>'
+echo '                  </ul>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------

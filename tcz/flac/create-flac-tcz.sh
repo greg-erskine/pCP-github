@@ -6,7 +6,7 @@ SRC=$FLAC-$FLACVERSION
 STARTDIR=`pwd`
 LOG=$PWD/config.log
 OUTPUT=$PWD/${FLAC}-build
-OGGHEADERS=$STARTDIR/../ogg/libogg-1.3.2-headers.tar.gz	
+OGGHEADERS=$STARTDIR/../ogg/libogg-1.3.3-headers.tar.gz	
 TCZLIB=pcp-lib${FLAC}.tcz
 TCZLIBINFO=pcp-lib${FLAC}.tcz.info
 TCZ=pcp-${FLAC}.tcz
@@ -44,6 +44,7 @@ else
 	if [ -f $SRC.tar.xz ]; then
 		bsdtar -xf $SRC.tar.xz >> $LOG
 		bsdtar -C $SRC/include -xf $OGGHEADERS
+		patch -p0 -i $OUTPUT/../01-flac.patch || exit 2
 	else
 		echo "Source download failed."
 		exit
@@ -105,10 +106,10 @@ unsquashfs -ll $TCZLIB
 echo -e "Title:\t\t$TCZLIB" > $TCZLIBINFO
 echo -e "Description:\tFree Lossless Audio Codec - runtime C library." >> $TCZLIBINFO
 echo -e "Version:\t$FLACVERSION" >> $TCZLIBINFO
+echo -e "Commit:\t\tfaafa4c82c31e5aed7bc7c0e87a379825372c6ac" >> $TCZLIBINFO
 echo -e "Author:\t\tJosh Coalson, Xiph.Org Foundation" >> $TCZLIBINFO
 echo -e "Original-site:\thttps://xiph.org/flac/" >> $TCZLIBINFO
 echo -e "Copying-policy:\tLesser GPL" >> $TCZLIBINFO
 echo -e "Size:\t\t$(ls -lk $TCZLIB | awk '{print $5}')k" >> $TCZLIBINFO
-echo -e "Extension_by:\tpiCorePlayer team: https://sites.google.com/site/picoreplayer" >> $TCZLIBINFO
-echo -e "\t\tCompiled for piCore 8.x" >> $TCZLIBINFO
-
+echo -e "Extension_by:\tpiCorePlayer team: https://www.picoreplayer.org" >> $TCZLIBINFO
+echo -e "\t\tCompiled for piCore 10.x" >> $TCZLIBINFO

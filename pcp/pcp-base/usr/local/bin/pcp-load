@@ -2,18 +2,7 @@
 # (c) Robert Shingledecker 2004-2010
 # tcz concept and code from Jason Williams
 
-# Version 3.5.0 2018-02-17
-#	Cleanup. GE.
-
-# Version 3.10 2016-12-22
-#	Added requirement of .dep.pcp on pcp sourceforge repo. PH.
-#	Updated for sourceforge repo change. PH.
-#	Removed html <p> tags. PH.
-
-# Version 3.00 2016-08-14
-#	pcp-load modified version for piCorePlayer. PH.
-#	Options to specify REPO and Full Path on command line. PH.
-#	Updated to latest code from tce-load. PH.
+# Version 5.0.0 2019-02-19
 
 . /etc/init.d/tc-functions
 useBusybox
@@ -47,9 +36,9 @@ abort() {
 	echo " Download only into tce/optional directory:"
 	echo "   ${PROG_NAME} -w nano.tcz"
 	echo " Use alternative repository, root level"
-	echo "   ${PROG_NAME} -r http://picoreplayer.sourceforge.net/tcz_repo"
+	echo "   ${PROG_NAME} -r https://repo.picoreplayer.org/repo"
 	echo " Use alternative repository, override absolute path."
-	echo "   ${PROG_NAME} -u http://picoreplayer.sourceforge.net/tcz_repo/8.x/armv6/tcz"
+	echo "   ${PROG_NAME} -u https://repo.picoreplayer.org/repo/10.x/armv7/tcz"
 	exit 2
 }
 
@@ -144,6 +133,9 @@ update_system() {
 	else
 		touch "$TCEINSTALLED"/$2
 	fi
+	#Verify proper ownership of tce.installed directory, some extensions can break it.
+	sudo chown root.staff "$TCEINSTALLED"
+	sudo chmod 775 "$TCEINSTALLED"
 }
 
 install(){
@@ -332,7 +324,7 @@ done # Finish the for-loop for multiple extensions.
 cd "$FROMWHERE" || exit 1
 
 RETRY=0
-MAX_RETRIES=5
+MAX_RETRIES=3
 
 while [ $RETRY -lt $MAX_RETRIES ]
 do

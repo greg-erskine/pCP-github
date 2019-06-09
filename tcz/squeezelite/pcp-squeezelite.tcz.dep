@@ -4,5 +4,6 @@ pcp-libsoxr.tcz
 pcp-libmad.tcz
 pcp-libvorbis.tcz
 pcp-libflac.tcz
+openssl.tcz
 libasound.tcz
 wiringpi.tcz

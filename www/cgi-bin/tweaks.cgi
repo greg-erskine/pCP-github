@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-11
+# Version: 5.0.0 2019-05-19
 
 set -f
 
@@ -188,6 +188,7 @@ pcp_tweaks_playertabs() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -228,6 +229,7 @@ pcp_tweaks_lmscontrols() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -313,6 +315,7 @@ pcp_tweaks_lmswebport() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -355,7 +358,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-
+	echo '                <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	if [ $DEBUG -eq 1 ]; then
 		echo '                <td class="column150">'
 		echo '                  <input type="submit" name="SUBMIT" value="Save">'
@@ -418,6 +421,7 @@ pcp_tweaks_rotdash() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -809,6 +813,7 @@ pcp_tweaks_wol() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1315,7 +1320,7 @@ pcp_tweaks_lirc() {
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>LIRC remote control</legend>'
+	echo '          <legend>IR remote control</legend>'
 
 	#----------------------------------------------------------------------------------------
 	# Function to check the IR_LIRC radio button according to config file
@@ -1341,17 +1346,47 @@ pcp_tweaks_lirc() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Go to LIRC page to...</p>'
+	echo '                    <p>LIRC will not automatically start if jivelite is installed.</p>'
+	echo '                    <p>Go to IR page to...</p>'
 	echo '                    <p>Install/remove LIRC.</p>'
 	echo '                    <p>Configure LIRC.</p>'
 	echo '                    <p>Change GPIO number.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	if [ "$JIVELITE" = "yes" ]; then
+		if [ $IR_KEYTABLES = "yes" ]; then
+			pcp_green_tick "loaded"
+		else
+			pcp_red_cross "not loaded"
+		fi
+
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150">'
+		echo '                  <p>IR remote control</p>'
+		echo '                </td>'
+		echo '                <td class="column210">'
+		echo '                 <p class="'$CLASS'">'$INDICATOR'</p>'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>IR remote control for jivelite, using kernel keytables, is '$STATUS' &nbsp;&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Go to IR page to...</p>'
+		echo '                    <p>Install/remove IR Tools.</p>'
+		echo '                    <p>Change GPIO number for ir receiver.</p>'
+		echo '                    <p>Upload keytable map.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="LIRC page">'
+	echo '                  <input type="submit" name="SUBMIT" value="IR page">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
@@ -1540,16 +1575,15 @@ pcp_tweaks_audio_tweaks() {
 		no) SHAIRPORTno="checked" ;;
 	esac
 
-	# Function to check the ALSA radio button according to config file
-	case "$ALSAlevelout" in
-		Default) ALSAdefault="checked" ;;
-		Custom) ALSAcustom="checked" ;;
-	esac
-
 	# Function to check the ALSA-EQ radio button according to config file
 	case "$ALSAeq" in
 		yes) ALSAeqyes="checked" ;;
 		no) ALSAeqno="checked" ;;
+	esac
+	# Function to check the ALSA-EQ radio button according to config file
+	case "$STREAMER" in
+		yes) STREAMERyes="checked" ;;
+		no) STREAMERno="checked" ;;
 	esac
 
 	echo '<table class="bggrey">'
@@ -1632,46 +1666,6 @@ pcp_tweaks_audio_tweaks() {
 		echo '<!-- End of debug info -->'
 	fi
 
-	#-------------------------------------------ALSAlevelout---------------------------------
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>ALSA Mixer controls</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Default" '$ALSAdefault'>Default'
-	echo '                  <input class="small1" type="radio" name="ALSAlevelout" value="Custom" '$ALSAcustom'>Custom'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Custom option allows ALSA mixer level and controls to be restored after reboot&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Note: </b>Only necessary if you have changed the ALSA mixer controls.</p>'
-	echo '                    <p><b>Note: </b>This will be automatically set to Custom, if you use the "Card Control" settings from the squeezelite page.</p>'
-	echo '                    <p><b>Step:</b></p>'
-	echo '                    <ol>'
-	echo '                      <li>Login via ssh.</li>'
-	echo '                      <li>Use "alsamixer" to set the ALSA output level.</li>'
-	echo '                      <li>Save ALSA settings by typing "sudo alsactl store".</li>'
-	echo '                      <li>Backup ALSA settings by typing "pcp bu".</li>'
-	echo '                      <li>Select Custom option on this Tweak page.</li>'
-	echo '                    </ol>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<tr class="'$ROWSHADE'">'
-		echo '  <td colspan="3">'
-		pcp_debug_variables "html" ALSAlevelout ALSAdefault ALSAcustom
-		echo '  </td>'
-		echo '</tr>'
-		echo '<!-- End of debug info -->'
-	fi
-
 	#-------------------------------------ALSA Equalizer-------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -1715,6 +1709,37 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
+
+	#--------------------------------------PCP Streamer--------------------------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <p>Streamer for Line Input</p>'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="STREAMER" value="yes" '$STREAMERyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="STREAMER" value="no" '$STREAMERno'>No'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>'
+	echo '                    Run streaming server for audio line-in.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>To play stream from LMS, play URL as follows.</p>'
+	echo '                    <ul>'
+	echo '                      <li id="stream_usage"></li>'
+	echo '                      <li id="stream_flac"></li>'
+	echo '                      <li>pCP will stream 16bit, 44.1khz, 2 channels, flac output on port 9100.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            <script>'
+	echo '              document.getElementById("stream_usage").innerHTML = "http://" + window.location.hostname + ":9100/&lt;format&gt;/&lt;rate&gt;/&lt;channels&gt;/&lt;F-flac or M-mp3&gt;";'
+	echo '              document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
+	echo '            </script>'
 
 	#----------------------------------------------------------------------------------------
 	pcp_start_row_shade

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-10-24
+# Version: 5.0.0 2019-06-02
 
 #========================================================================================
 # Setup debug logging
@@ -19,7 +19,7 @@ pcp_debug_variables() {
 	local FORMAT=$1
 
 	if [ $DEBUG -eq 1 ]; then
-		i=0
+		local i=0
 
 		for VAR in $@
 		do
@@ -31,22 +31,15 @@ pcp_debug_variables() {
 }
 
 #========================================================================================
-# Debug variables listing - OBSOLETE? GE
+# Table padding
 #----------------------------------------------------------------------------------------
-pcp_debug_variables2() {
-	if [ $DEBUG -eq 1 ]; then
-		n=$#
-		i=1
-		echo '<!-- Start of pcp_debug_variables -->'
-		for VAR in $@
-		do
-			[ $i -eq 1 ] && echo -n '<p class="debug">' || echo -n '                 '
-			echo -n '[ DEBUG ] $'$VAR': '$(eval echo \$${VAR})
-			[ $i -eq $n ] && echo '</p>' || echo '<br />'
-			i=$((i+1))
-		done
-		echo '<!-- End of pcp_debug_variables -->'
-	fi
+pcp_table_padding() {
+	[ x"$1" = x"" ] && COLSPAN="" || COLSPAN=' colspan="'$1'"'
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td'$COLSPAN'>'
+	echo '              </td>'
+	echo '            </tr>'
 }
 
 #========================================================================================
@@ -54,7 +47,7 @@ pcp_debug_variables2() {
 #----------------------------------------------------------------------------------------
 pcp_config_file() {
 	PCPCFG="/usr/local/etc/pcp/pcp.cfg"
-	#Old habbits might die hard.
+	# Old habbits might die hard.
 	CONFIGCFG=$PCPCFG
 }
 
@@ -65,8 +58,9 @@ pcp_variables() {
 	# Note: This section is ONLY for variables as it can be run multiple times.
 	#------------------------------------------------------------------------------------
 	# Name of device that has tce.  Assume boot is partition 1 of that device.
-	TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
-	TCEMNT="/mnt/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	TMPDEV="$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
+	TCEDEV="/dev/$TMPDEV"
+	TCEMNT="/mnt/$TMPDEV"
 	BOOTDEV=${TCEDEV%%?}1
 	BOOTMNT=${TCEMNT%%?}1
 	CONFIGTXT="$BOOTMNT/config.txt"
@@ -75,7 +69,7 @@ pcp_variables() {
 	BOOTSYNC="/opt/bootsync.sh"
 	SHUTDOWN="/opt/shutdown.sh"
 	PB100="/home/tc/.local/bin/.pbtemp"
-	HTTPDCONF="/home/tc/httpd.conf"
+	HTTPD_CONF="/etc/httpd.conf"
 	[ -x /usr/sbin/httpd ] && HTTPD="/usr/sbin/httpd" || HTTPD="/usr/local/sbin/busybox-httpd"
 	ASOUNDCONF="/etc/asound.conf"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
@@ -374,28 +368,7 @@ pcp_log_header() {
 # Reset repository to piCore default value.
 #----------------------------------------------------------------------------------------
 pcp_reset_repository() {
-	echo $PICORE_REPO_1 > /opt/tcemirror
-}
-
-#========================================================================================
-# Test mode level. <- DEPRECIATED
-#----------------------------------------------------------------------------------------
-pcp_mode_lt_beta() {
-	if [ $MODE -lt $MODE_BETA ]; then
-		echo '<p class="error">[ ERROR ] Wrong mode. Min: Beta</p>'
-		echo '</body>'
-		echo '</html>'
-		exit 1
-	fi
-}
-
-pcp_mode_lt_developer() {
-	if [ $MODE -lt $MODE_DEVELOPER ]; then
-		echo '<p class="error">[ ERROR ] Wrong mode. Min: Developer</p>'
-		echo '</body>'
-		echo '</html>'
-		exit 1
-	fi
+	echo "${PCP_REPO%/}/" > /opt/tcemirror
 }
 
 #========================================================================================
@@ -417,6 +390,31 @@ pcp_clean_cmdlinetxt() {
 	sed -i 's/ \{1,\}/ /g' $CMDLINETXT
 }
 
+pcp_bootcode_add() {
+	REBOOT_REQUIRED=TRUE
+	pcp_clean_cmdlinetxt
+	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
+	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
+}
+
+pcp_bootcode_equal_add() {
+	REBOOT_REQUIRED=TRUE
+	pcp_clean_cmdlinetxt
+	STR="$1=$2"
+	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
+	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
+}
+
+pcp_bootcode_equal_add2() {
+	REBOOT_REQUIRED=TRUE
+	pcp_clean_cmdlinetxt
+	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
+	VALUES=$(echo $2 | awk '{ for (i=NF; i>1; i--) printf("%s ",$i); print $1; }')
+	for S in $VALUES; do
+		STR="$1=$S"
+		[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
+	done
+}
 #========================================================================================
 # Update the Timezone routine
 #
@@ -506,7 +504,9 @@ pcp_html_head() {
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
-	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$(date -r ../css/piCorePlayer.css +%H%M%S)'">'
+	local CSS_VER
+	[ $MODE -ge $MODE_DEVELOPER ] && CSS_VER=$(date -r ../css/piCorePlayer.css +%H%M%S) || CSS_VER=$(pcp_picoreplayer_version)
+	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$CSS_VER'">'
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js"></script>'
 	echo '</head>'
@@ -595,34 +595,55 @@ pcp_navigation() {
 }
 
 pcp_footer() {
-	BETAREPOACTIVE='<a class="error" href="debug.cgi?t=0">BETA REPO Active</a> |'
-
-	[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
-	SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
-
-	if [ -f /etc/sysconfig/timezone ]; then
-		. /etc/sysconfig/timezone
-		TIMESTAMP=$(TZ=$TZ date)
+	if [ "$1" = "static" ]; then
+		echo '<!-- Start of pcp_footer -->'
+		echo '<table class="bgblack">'
+		echo '  <tr>'
+		echo '    <td>'
+		echo '      <p class="footer">
+		                '$NAME' |
+		                piCorePlayer v'$(pcp_picoreplayer_version)' |
+		                linux '$(pcp_linux_release)' |
+		                piCore v'$(pcp_picore_version)' |
+		                Squeezelite v'$(pcp_squeezelite_version)'</p>'
+		echo '    </td>'
+		echo '  </tr>'
+		echo '</table>'
+		echo '<!-- End of pcp_footer -->'
 	else
-		TIMESTAMP="No Timezone"
-	fi
+		if [ -f "/tmp/footer.html" ] && [ $MODE -lt $MODE_DEVELOPER ]; then
+			cat /tmp/footer.html
+		else
+			BETAREPOACTIVE='<a class="error" href="debug.cgi?t=0">BETA REPO Active</a> |'
 
-	echo '<!-- Start of pcp_footer -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p class="footer">
-					'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
-					'$NAME' |
-					piCorePlayer v'$(pcp_picoreplayer_version)' |
-					linux '$(pcp_linux_release)' |
-					piCore v'$(pcp_picore_version)' |
-					'`echo $SQUEEZELITEfoot`' |
-					'`echo $TIMESTAMP`'</p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<!-- End of pcp_footer -->'
+			[ $(pcp_squeezelite_status) -eq 0 ] && STYLE="ok" || STYLE="error"
+			SQUEEZELITEfoot='<span class="'$STYLE'"> Squeezelite v'$(pcp_squeezelite_version)'</span>'
+
+			if [ -f /etc/sysconfig/timezone ]; then
+				. /etc/sysconfig/timezone
+				TIMESTAMP=$(TZ=$TZ date)
+			else
+				TIMESTAMP="No Timezone"
+			fi
+
+			echo '<!-- Start of pcp_footer -->'
+			echo '<table class="bgblack">'
+			echo '  <tr>'
+			echo '    <td>'
+			echo '      <p class="footer">
+							'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
+							'$NAME' |
+							piCorePlayer v'$(pcp_picoreplayer_version)' |
+							linux '$(pcp_linux_release)' |
+							piCore v'$(pcp_picore_version)' |
+							'`echo $SQUEEZELITEfoot`' |
+							'`echo $TIMESTAMP`'</p>'
+			echo '    </td>'
+			echo '  </tr>'
+			echo '</table>'
+			echo '<!-- End of pcp_footer -->'
+		fi
+	fi
 }
 
 pcp_copyright() {
@@ -649,12 +670,13 @@ pcp_diagnostics() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="nav6" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav6" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
-	echo '        <a class="nav6" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
-	echo '        <a class="nav6" href="diag_boot.cgi" title="pCP - Boot">Boot</a>'
-	echo '        <a class="nav6" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-	echo '        <a class="nav6" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
+	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="nav7" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
+	echo '        <a class="nav7" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
+	echo '        <a class="nav7" href="diag_net.cgi" title="pCP - Network">Network</a>'
+	echo '        <a class="nav7" href="diag_boot.cgi" title="pCP - Boot Process">Boot Process</a>'
+	echo '        <a class="nav7" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '        <a class="nav7" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -683,14 +705,14 @@ pcp_xtras() {
 }
 
 pcp_picoreplayers_toolbar() {
-	TMP=$(mktemp)
-	pcp_lms_players squeezelite pCP>$TMP
-
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<p style="margin-top: -12px;">'
 	echo '  <a class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
 
 	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
+		TMP=$(mktemp)
+		pcp_lms_players squeezelite pCP>$TMP
+
 		while read line
 		do
 			TITLE=$(echo $line | awk -F, '{ print $1 }')
@@ -841,6 +863,12 @@ pcp_trimval() {
 	echo $1 | cut -d '=' -f2 | xargs
 }
 
+pcp_showmore() {
+	echo '<script>'
+	echo '  more('\'''$1''\'')'
+	echo '</script>'
+}
+
 #========================================================================================
 # Create table routines
 #----------------------------------------------------------------------------------------
@@ -889,10 +917,19 @@ pcp_table_textarea_end() {
 #========================================================================================
 # Busybox httpd
 #----------------------------------------------------------------------------------------
-pcp_httpd_query_string() {
+pcp_httpd_query_string_double_quote() {
 	# Process the $QUERY_STRING from httpd
 	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
 	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+pcp_httpd_query_string_single_quote() {
+	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\047\n",$i} }' | sed "s/=/='/")
+	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+}
+
+pcp_httpd_query_string() {
+	pcp_httpd_query_string_single_quote
 }
 
 # Needed when we want to store an encoded string in pcp.cfg
@@ -1036,6 +1073,15 @@ pcp_shairport_restart() {
 pcp_shairport_status() {
 	sudo /usr/local/etc/init.d/shairport-sync status > /dev/null 2>&1
 	echo $?
+}
+
+#========================================================================================
+# Reload keytables for jivelite
+#----------------------------------------------------------------------------------------
+pcp_load_keytables() {
+	KEY_EXEC="/usr/local/bin/ir-keytable"
+	KEY_CONF="/usr/local/etc/keytables/jivelite"
+	[ -x $KEY_EXEC -a -f $KEY_CONF ] && $KEY_EXEC -c -w $KEY_CONF
 }
 
 #========================================================================================
@@ -1369,6 +1415,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $PCPCFG
+	sudo sed -i "s/\(STREAMER=\).*/\1\"$STREAMER\"/" $PCPCFG
 	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $PCPCFG
 	sudo sed -i "s/\(REBOOT=\).*/\1\"$REBOOT\"/" $PCPCFG
 	sudo sed -i "s/\(RB_H=\).*/\1\"$RB_H\"/" $PCPCFG
@@ -1407,6 +1454,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(POWER_OUTPUT=\).*/\1\"$POWER_OUTPUT\"/" $PCPCFG
 	sudo sed -i "s@\(POWER_SCRIPT=\).*@\1\"$POWER_SCRIPT\"@" $PCPCFG
 	sudo sed -i "s/\(IR_LIRC=\).*/\1\"$IR_LIRC\"/" $PCPCFG
+	sudo sed -i "s/\(IR_KEYTABLES=\).*/\1\"$IR_KEYTABLES\"/" $PCPCFG
 	sudo sed -i "s/\(IR_GPIO_IN=\).*/\1\"$IR_GPIO_IN\"/" $PCPCFG
 	sudo sed -i "s/\(IR_GPIO_OUT=\).*/\1\"$IR_GPIO_OUT\"/" $PCPCFG
 	sudo sed -i "s/\(IR_DEVICE=\).*/\1\"$IR_DEVICE\"/" $PCPCFG
@@ -1434,6 +1482,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SHAIRPORT_OUT=\).*/\1\"$SHAIRPORT_OUT\"/" $PCPCFG
 	sudo sed -i "s/\(SHAIRPORT_CONTROL=\).*/\1\"$SHAIRPORT_CONTROL\"/" $PCPCFG
 	sudo sed -i "s/\(NETWORK_WAIT=\).*/\1\"$NETWORK_WAIT\"/" $PCPCFG
+	sudo sed -i "s/\(NETWORK_WAIT=\).*/\1\"$NETWORK_WAIT\"/" $PCPCFG
+	sudo sed -i "s/\(GUI_DISABLE=\).*/\1\"$GUI_DISABLE\"/" $PCPCFG
+	sudo sed -i "s/\(WWW_PORT=\).*/\1\"$WWW_PORT\"/" $PCPCFG
 }
 
 #========================================================================================
@@ -1483,6 +1534,7 @@ CMD="Default"
 FIQ="0xF"
 ALSAlevelout="Default"
 ALSAeq="no"
+STREAMER="no"
 REBOOT="Disabled"
 RB_H="0"
 RB_WD="*"
@@ -1520,6 +1572,7 @@ POWER_GPIO=""
 POWER_OUTPUT="L"
 POWER_SCRIPT=""
 IR_LIRC="no"
+IR_KEYTABLES="no"
 IR_GPIO_IN="25"
 IR_GPIO_OUT=""
 IR_DEVICE="lirc0"
@@ -1547,6 +1600,8 @@ ROTDASH="no"
 SHAIRPORT_OUT="Please change"
 SHAIRPORT_CONTROL="Please change"
 NETWORK_WAIT="50"
+GUI_DISABLE="0"
+WWW_PORT="80"
 EOF
 }
 
@@ -1578,7 +1633,7 @@ pcp_reset_config_to_defaults() {
 	# Remove wifi stuff
 	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-rpi3-wireless.tcz/d' $ONBOOTLST
+	sudo sed -i '/firmware-rpi-wifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
 	sudo sed -i '/wireless/d' $ONBOOTLST

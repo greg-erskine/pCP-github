@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-05
+# Version: 5.0.0 2019-04-14
 
 #========================================================================================
 # onboot.lst functions
@@ -13,7 +13,7 @@ pcp_wifi_update_onbootlst() {
 	sudo sed -i '/'$EXTENSION'/d' $ONBOOTLST
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	if [ "$1" = "add" ]; then
-		sudo echo $EXTENSION >> $ONBOOTLST
+		[ -f $PACKAGEDIR/$EXTENSION ] && sudo echo $EXTENSION >> $ONBOOTLST
 		[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	fi
 
@@ -25,7 +25,7 @@ pcp_wifi_update_wifi_onbootlst() {
 	pcp_wifi_update_onbootlst "add" "firmware-brcmwifi.tcz"
 	pcp_wifi_update_onbootlst "add" "firmware-ralinkwifi.tcz"
 	pcp_wifi_update_onbootlst "add" "firmware-rtlwifi.tcz"
-	pcp_wifi_update_onbootlst "add" "firmware-rpi3-wireless.tcz"
+	pcp_wifi_update_onbootlst "add" "firmware-rpi-wifi.tcz"
 	pcp_wifi_update_onbootlst "add" "crda.tcz"
 	pcp_wifi_update_onbootlst "add" "wireless_tools.tcz"
 	pcp_wifi_update_onbootlst "add" "wpa_supplicant.tcz"
@@ -91,7 +91,7 @@ pcp_wifi_load_wifi_firmware_extns() {
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 	pcp_wifi_load_extn "firmware-rtlwifi.tcz" "Realtek firmware" "$FORMAT"
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
-	pcp_wifi_load_extn "firmware-rpi3-wireless.tcz" "RPi Broadcom firmware" "$FORMAT"
+	pcp_wifi_load_extn "firmware-rpi-wifi.tcz" "RPi Broadcom firmware" "$FORMAT"
 	[ $? -eq 0 ] || ERROR=$((ERROR+1))
 
 	if [ $ERROR -eq 0 ]; then
@@ -127,7 +127,7 @@ pcp_wifi_unload_wifi_firmware_extns() {
 	pcp_wifi_update_onbootlst "remove" "firmware-brcmwifi.tcz"
 	pcp_wifi_update_onbootlst "remove" "firmware-ralinkwifi.tcz"
 	pcp_wifi_update_onbootlst "remove" "firmware-rtlwifi.tcz"
-	pcp_wifi_update_onbootlst "remove" "firmware-rpi3-wireless.tcz"
+	pcp_wifi_update_onbootlst "remove" "firmware-rpi-wifi.tcz"
 	pcp_message OK "Done." "$FORMAT"
 	REBOOT_REQUIRED=TRUE
 }
@@ -326,8 +326,8 @@ pcp_wifi_all_extensions_installed() {
 	# FORMAT - colour|text|html
 	local FORMAT=$1
 
-	EXTN_LIST="wireless_tools wpa_supplicant
-	firmware-atheros firmware-brcmwifi firmware-ralinkwifi firmware-rtlwifi firmware-rpi3-wireless"
+	EXTN_LIST="wireless_tools wpa_supplicant crda
+	firmware-atheros firmware-brcmwifi firmware-ralinkwifi firmware-rtlwifi firmware-rpi-wifi"
 
 	for i in $EXTN_LIST; do
 		pcp_wifi_extension_installed "$FORMAT" $i
@@ -465,4 +465,43 @@ pcp_wifi_html_end() {
 	echo '</body>'
 	echo '</html>'
 	exit
+}
+
+#========================================================================================
+# Test and error message when wifi is not being used.
+#----------------------------------------------------------------------------------------
+pcp_wifi_using_wifi() {
+	[ "$(pcp_controls_mac_address)" = "$(pcp_wlan0_mac_address)" ] && echo 0 || echo 1
+}
+
+pcp_wifi_not_using_wifi () {
+	if [ $DEBUG -eq 1 ]; then
+		echo '<p class="debug">[ DEBUG ] Physical MAC: '$(pcp_eth0_mac_address)'</p>'
+		echo '<p class="debug">[ DEBUG ] Wireless MAC: '$(pcp_wlan0_mac_address)'</p>'
+		echo '<p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
+		echo '<p class="debug">[ DEBUG ] Not using wifi interface.</p>'
+	fi
+
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="warning">'
+	echo '              <td>'
+	echo '                <p style="color:white"><b>Warning:</b></p>'
+	echo '                <ul>'
+	echo '                  <li style="color:white">piCorePlayer is not currently using the wifi interface.</li>'
+	echo '                  <li style="color:white">Squeezelite/piCorePlayer will default to the wired interface.</li>'
+	echo '                  <li style="color:white">Shutdown, remove the ethernet cable, then reboot to use the wifi interface.</li>'
+	echo '                </ul>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
 }

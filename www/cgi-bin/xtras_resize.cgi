@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-10-22
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 
@@ -21,6 +21,7 @@ pcp_convert_to_mbytes() {
 }
 
 FDISK="/bin/busybox fdisk"
+SDVALID=0
 
 #========================================================================================
 # Logic determining actual size, maximum possible size
@@ -29,13 +30,16 @@ P1_ACTUAL_SIZE_BYTES=$($FDISK -l $BOOTDEV | grep ${BOOTDEV}: | sed 's/*//' | awk
 P2_ACTUAL_SIZE_BYTES=$($FDISK -l $TCEDEV | grep ${TCEDEV}: | sed 's/*//' | awk '{ print $5 }')
 case $BOOTDEV in
 	*sd?*)
-		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%?} | grep ${BOOTDEV%%?}: | sed 's/*//' | awk '{ print $5 }')
+#		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%?} | grep ${BOOTDEV%%?}: | sed 's/*//' | awk '{ print $5 }')
+		DEVICE=${BOOTDEV%%?}
 	;;
 	*mmcblk*)
-		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%??} | grep ${BOOTDEV%%??}: | sed 's/*//' | awk '{ print $5 }')
+#		SD_MAX_SIZE_BYTES=$($FDISK -l ${BOOTDEV%%??} | grep ${BOOTDEV%%??}: | sed 's/*//' | awk '{ print $5 }')
+		DEVICE=${BOOTDEV%%??}
 	;;
 esac
 
+SD_MAX_SIZE_BYTES=$($FDISK -l ${DEVICE} | grep ${DEVICE}: | sed 's/*//' | awk '{ print $5 }')
 SD_MAX_SIZE=$(pcp_convert_to_mbytes $SD_MAX_SIZE_BYTES)
 SD_CARD_SIZE=$(pcp_convert_to_sd_size $SD_MAX_SIZE_BYTES)
 
@@ -44,21 +48,31 @@ P2_ACTUAL_SIZE=$(pcp_convert_to_mbytes $P2_ACTUAL_SIZE_BYTES)
 P2_MAX_SIZE=$(($SD_MAX_SIZE - $P1_ACTUAL_SIZE))
 AVAILABLE_SPACE=$(($SD_MAX_SIZE - ($P1_ACTUAL_SIZE + $P2_ACTUAL_SIZE)))
 
-# Allow the correct values in dropdown list to be selectable
-[ "$AVAILABLE_SPACE" -le 100 ] && DISABLED000=disabled
-[ "$P2_ACTUAL_SIZE" -ge 95 ] || [ "$SD_MAX_SIZE" -le 100 ] && DISABLED100=disabled
-[ "$P2_ACTUAL_SIZE" -ge 190 ] || [ "$SD_MAX_SIZE" -le 200 ] && DISABLED200=disabled
-[ "$P2_ACTUAL_SIZE" -ge 285 ] || [ "$SD_MAX_SIZE" -le 300 ] && DISABLED300=disabled
-[ "$P2_ACTUAL_SIZE" -ge 475 ] || [ "$SD_MAX_SIZE" -le 500 ] && DISABLED500=disabled
-[ "$P2_ACTUAL_SIZE" -ge 950 ] || [ "$SD_MAX_SIZE" -le 1000 ] && DISABLED1000=disabled
-[ "$P2_ACTUAL_SIZE" -ge 1900 ] || [ "$SD_MAX_SIZE" -le 2000 ] && DISABLED2000=disabled
+LAST_PARTITION_NUM=$($FDISK -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
+[ $LAST_PARTITION_NUM -ne 2 ] && SDVALID=$(($SDVALID + 1))
+
+P1_NAME=$(tune2fs -l /dev/mmcblk0p1 2>/dev/null | tail -1 | grep PCP | awk -F"labelled '" '{print $2}' | sed "s/'//" )
+[ "$P1_NAME" != "PCP_BOOT" ] && SDVALID=$(($SDVALID + 1))
+P2_NAME=$(tune2fs -l /dev/mmcblk0p2 | grep "volume name" | awk -F":   " '{print $2}')
+[ "$P2_NAME" != "PCP_ROOT" ] && SDVALID=$(($SDVALID + 1))
+P3_NAME=$(tune2fs -l /dev/mmcblk0p3 | grep "volume name" | awk -F":   " '{print $2}')
+
+# Allow the correct values in drop-down list to be selectable
+[ $AVAILABLE_SPACE -le 100 ] && DISABLED000="disabled"
+[ $P2_ACTUAL_SIZE -ge 95 ] || [ $SD_MAX_SIZE -le 100 ] && DISABLED100="disabled"
+[ $P2_ACTUAL_SIZE -ge 190 ] || [ $SD_MAX_SIZE -le 200 ] && DISABLED200="disabled"
+[ $P2_ACTUAL_SIZE -ge 285 ] || [ $SD_MAX_SIZE -le 300 ] && DISABLED300="disabled"
+[ $P2_ACTUAL_SIZE -ge 475 ] || [ $SD_MAX_SIZE -le 500 ] && DISABLED500="disabled"
+[ $P2_ACTUAL_SIZE -ge 950 ] || [ $SD_MAX_SIZE -le 1000 ] && DISABLED1000="disabled"
+[ $P2_ACTUAL_SIZE -ge 1900 ] || [ $SD_MAX_SIZE -le 2000 ] && DISABLED2000="disabled"
 #----------------------------------------------------------------------------------------
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
 	pcp_debug_variables "html" DISABLED000 DISABLED100 DISABLED200 DISABLED300 DISABLED500 \
 	DISABLED1000 DISABLED2000 P1_ACTUAL_SIZE_BYTES P1_ACTUAL_SIZE P2_ACTUAL_SIZE_BYTES \
-	P2_ACTUAL_SIZE SD_MAX_SIZE_BYTES SD_MAX_SIZE P2_MAX_SIZE AVAILABLE_SPACE SD_CARD_SIZE
+	P2_ACTUAL_SIZE SD_MAX_SIZE_BYTES SD_MAX_SIZE P2_MAX_SIZE AVAILABLE_SPACE SD_CARD_SIZE \
+	LAST_PARTITION_NUM P1_NAME P2_NAME P3_NAME SDVALID
 	echo '<!-- End of debug info -->'
 fi
 
@@ -121,54 +135,65 @@ case "$SUBMIT" in
 			echo '    <td>'
 			echo '      <div class="row">'
 			echo '        <fieldset>'
-			echo '        <legend>Resize partition</legend>'
+			echo '        <legend>Resize second partition ('$P2_NAME')</legend>'
 			echo '          <form name="auto" action="'$0'" method="get">'
 			echo '            <table class="bggrey percent100">'
-			if [ "$AVAILABLE_SPACE" -gt 100 ]; then
-				echo '              <tr class="'$ROWSHADE'">'
-				echo '                <td class="column210">'
-				echo '                  <select class="large16" name="SD_SIZE">'
-				echo '                    <option value="100" '"$DISABLED100"'>100 MB</option>'
-				echo '                    <option value="200" '"$DISABLED200"'>200 MB</option>'
-				echo '                    <option value="300" '"$DISABLED300"'>300 MB</option>'
-				echo '                    <option value="500" '"$DISABLED500"'>500 MB</option>'
-				echo '                    <option value="1000" '"$DISABLED1000"'>1000 MB</option>'
-				echo '                    <option value="2000" '"$DISABLED2000"'>2000 MB</option>'
-				echo '                    <option value="" '"$DISABLED000"'>Whole SD card</option>'
-				echo '                  </select>'
+
+			if [ $SDVALID -eq 0 ]; then
+				if [ $AVAILABLE_SPACE -gt 100 ]; then
+					echo '              <tr class="'$ROWSHADE'">'
+					echo '                <td class="column210">'
+					echo '                  <select class="large16" name="SD_SIZE">'
+					echo '                    <option value="100" '"$DISABLED100"'>100 MB</option>'
+					echo '                    <option value="200" '"$DISABLED200"'>200 MB</option>'
+					echo '                    <option value="300" '"$DISABLED300"'>300 MB</option>'
+					echo '                    <option value="500" '"$DISABLED500"'>500 MB</option>'
+					echo '                    <option value="1000" '"$DISABLED1000"'>1000 MB</option>'
+					echo '                    <option value="2000" '"$DISABLED2000"'>2000 MB</option>'
+					echo '                    <option value="'$(($P2_MAX_SIZE-100))'" '"$DISABLED000"'>Whole SD card</option>'
+					echo '                  </select>'
+					echo '                </td>'
+					echo '                <td>'
+					echo '                  <p>Select new partition size (currently '$P2_ACTUAL_SIZE' MB)&nbsp;&nbsp;'
+					echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+					echo '                  </p>'
+					echo '                  <div id="'$ID'" class="less">'
+					echo '                    <p>You should only need to increase the size of the partition if you are adding'
+					echo '                       extra extensions such as Jivelite or LMS.</p>'
+					echo '                    <p>The resizing a partition process is done in 2 steps:</p>'
+					echo '                    <ol>'
+					echo '                      <li>fdisk and reboot</li>'
+					echo '                      <li>resize2fs and reboot</li>'
+					echo '                    </ol>'
+					echo '                  </div>'
+					echo '                </td>'
+					echo '              </tr>'
+				fi
+				echo '              <tr class="warning">'
+				echo '                <td colspan="2">'
+				if [ $AVAILABLE_SPACE -gt 100 ]; then
+					echo '                  <p style="color:white">'
+					echo '                    <input type="submit" name="SUBMIT" value="Resize">&nbsp;&nbsp;Click [Resize] to start the resize partition process.'
+					echo '                  </p>'
+				else
+					echo '                  <p style="color:white"><b>WARNING:</b> Partition cannot be expanded (only '$AVAILABLE_SPACE' MB left).</p>'
+				fi
+				if [ $MODE -ge $MODE_DEVELOPER ]; then
+					echo '                  <p style="color:white">'
+					echo '                    <input type="submit" name="SUBMIT" value="Reset">&nbsp;&nbsp;!!!BROKEN!!! - Click [Reset] to resize partition to 50MB.'
+					echo '                  </p>'
+				fi
 				echo '                </td>'
-				echo '                <td>'
-				echo '                  <p>Select new partition size (currently '$P2_ACTUAL_SIZE' MB)&nbsp;&nbsp;'
-				echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-				echo '                  </p>'
-				echo '                  <div id="'$ID'" class="less">'
-				echo '                    <p>You should only need to increase the size of the partition if you are adding'
-				echo '                       extra extensions such as Jivelite or LMS.</p>'
-				echo '                    <p>The resizing a partition process is done in 2 steps:</p>'
-				echo '                    <ol>'
-				echo '                      <li>fdisk and reboot</li>'
-				echo '                      <li>resize2fs and reboot</li>'
-				echo '                    </ol>'
-				echo '                  </div>'
+				echo '              </tr>'
+			else
+				echo '              <tr  class="warning">'
+				echo '                <td colspan="2">'
+				echo '                  <p style="color:white"><b>WARNING:</b> You are using a non-standard SD card so this option has been disabled to prevent damage'
+				echo '                                         to your SD card. You may have non-standard partition names or more than 2 partitions.</p>'
 				echo '                </td>'
 				echo '              </tr>'
 			fi
-			echo '              <tr class="warning">'
-			echo '                <td colspan="2">'
-			if [ "$AVAILABLE_SPACE" -gt 100 ]; then
-				echo '                  <p style="color:white">'
-				echo '                    <input type="submit" name="SUBMIT" value="Resize">&nbsp;&nbsp;Click [Resize] to start the resize partition process.'
-				echo '                  </p>'
-			else
-				echo '                  <p style="color:white"><b>WARNING:</b> Partition is fully expanded (only '$AVAILABLE_SPACE' MB left).</p>'
-			fi
-			if [ $MODE -ge $MODE_DEVELOPER ]; then
-				echo '                  <p style="color:white">'
-				echo '                    <input type="submit" name="SUBMIT" value="Reset">&nbsp;&nbsp;!!!BROKEN!!! - Click [Reset] to resize partition to 50MB.'
-				echo '                  </p>'
-			fi
-			echo '                </td>'
-			echo '              </tr>'
+
 			echo '            </table>'
 			echo '          </form>'
 			echo '        </fieldset>'
@@ -176,6 +201,39 @@ case "$SUBMIT" in
 			echo '    </td>'
 			echo '  </tr>'
 			echo '</table>'
+
+			#----------------------------------------------------------------------------------------
+			if [ $MODE -ge $MODE_DEVELOPER ]; then
+				pcp_start_row_shade
+				pcp_incr_id
+				echo '<table class="bggrey">'
+				echo '  <tr>'
+				echo '    <td>'
+				echo '      <div class="row">'
+				echo '        <fieldset>'
+				echo '        <legend>Add third partition</legend>'
+				echo '          <form name="add" action="'$0'" method="get">'
+				echo '            <table class="bggrey percent100">'
+				echo '              <tr class="'$ROWSHADE'">'
+				echo '                <td class="warning">'
+				if [ $AVAILABLE_SPACE -gt 1 ]; then
+					echo '                  <p style="color:white">'
+					echo '                    <input type="submit" name="SUBMIT" value="Add">&nbsp;&nbsp;Click [Add] to add the third partition.'
+					echo '                  </p>'
+				else
+					echo '                  <p style="color:white"><b>WARNING:</b> Partition cannot be expanded (only '$AVAILABLE_SPACE' MB left).</p>'
+				fi
+				echo '                </td>'
+				echo '              </tr>'
+				echo '            </table>'
+				echo '          </form>'
+				echo '        </fieldset>'
+				echo '      </div>'
+				echo '    </td>'
+				echo '  </tr>'
+				echo '</table>'
+			fi
+			#----------------------------------------------------------------------------------------
 
 			#========================================================================================
 			# Partition information
@@ -187,11 +245,11 @@ case "$SUBMIT" in
 			echo '      <form name="sd_information" method="get">'
 			echo '        <div class="row">'
 			echo '          <fieldset>'
-			echo '            <legend>Current partition information</legend>'
+			echo '            <legend>Current mounted partition information</legend>'
 			echo '            <table class="bggrey percent100">'
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td>'
-			                        pcp_textarea_inform "none" "df -h ${TCEMNT} | tee -a $LOG" 40
+			                        pcp_textarea_inform "none" "df -h | grep -E \"Filesystem|mnt\" | tee -a $LOG" 40
 			echo '                </td>'
 			echo '              </tr>'
 			pcp_toggle_row_shade
@@ -202,7 +260,7 @@ case "$SUBMIT" in
 			pcp_toggle_row_shade
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td>'
-			                        pcp_textarea_inform "none" "fdisk -ul | tee -a $LOG" 110
+			                        pcp_textarea_inform "none" "$FDISK -ul | tee -a $LOG" 110
 			echo '                </td>'
 			echo '              </tr>'
 			echo '            </table>'

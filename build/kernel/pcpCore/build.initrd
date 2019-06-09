@@ -133,6 +133,10 @@ DESTMODPATH="$INITRDWRK/lib/modules/$NEWKERNEL/kernel"
 sudo mkdir -p $DESTMODPATH
 cd $DESTMODPATH
 sudo tar xf /tmp/$NEWKERNEL.tar
+
+# Update the initrd from busybox/kmod/Core-Scripts
+sudo $BASEWD/../update.initrd.base
+
 echo "*****************************************************************"
 echo "initrd has been updated with modules. ${GREEN}Please add any modules that are needed.${NORMAL}"
 echo "New kernel is $NEWKERNEL Located in $NEWKERNELDIR"

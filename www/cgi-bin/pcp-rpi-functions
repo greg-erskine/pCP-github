@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer.
 
-# Version: 4.1.0 2018-11-16
+# Version: 5.0.0 2019-03-01
 
 pcp_debug_log "$0 - Running pcp-rpi-functions..."
 
@@ -10,35 +10,7 @@ pcp_debug_log "$0 - Running pcp-rpi-functions..."
 # Determine revisions and features of Raspberry Pi
 #----------------------------------------------------------------------------------------
 # References:
-#   http://elinux.org/RPi_HardwareHistory#Board_Revision_History
-#   http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733&p=301930&hilit=revision+identification&sid=e70960c27964330d9677de2eff077b80#p301930
-#   http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
-#   git://git.drogon.net/wiringPi
-
-# For RPi1:
-#    100000e
-#    |  ---- Revision
-#    Warranty bit
-
-# For RPi2, RPi3 etc:
-#    [USER:8] [NEW:1] [MEMSIZE:3] [MANUFACTURER:4] [PROCESSOR:4] [TYPE:8] [REV:4]
-#    NEW            23: will be 1 for the new scheme, 0 for the old scheme, rpi zero=9
-#    MEMSIZE        20: 0=256M    1=512M      2=1G
-#    MANUFACTURER   16: 0=SONY    1=EGOMAN    2=EMBEST
-#    PROCESSOR      12: 0=2835    1=2836
-#    TYPE           04: 0=MODELA  1=MODELB    2=MODELA+  3=MODELB+  4=MODEL2B  5=ALPHA???
-#                       6=CM      7=???       8=MODEL3B  9=ZERO     a=CM3      b=???
-#                       c=ZERO-W  d=MODEL3B+  e=MODEL3A+
-#    REV            00: 0=REV0    1=REV1      2=REV2
-
-#    *a21041
-#    ||||||1=REV1
-#    |||||4=Pi2 MODEL B
-#    ||||0=2835
-#    |||1=EGOMAN
-#    ||2=1G
-#    |USER
-#    Warranty bit
+#   https://github.com/raspberrypi/documentation/blob/master/hardware/raspberrypi/revision-codes/README.md
 #----------------------------------------------------------------------------------------
 pcp_rpi_revision() {
 	awk -F: '/^Revision/ { print $2 }' /proc/cpuinfo | sed 's/ //g'
@@ -46,34 +18,59 @@ pcp_rpi_revision() {
 
 pcp_rpi_details() {
 	case $(pcp_rpi_revision) in
-		*Beta)  TYPE=1;  MODEL=B;      PCBREV=Beta; MEMORY=256;  RB_DELAY=60;;
-		*0002)  TYPE=1;  MODEL=B;      PCBREV=1;    MEMORY=256;  RB_DELAY=60;;
-		*0003)  TYPE=1;  MODEL=B;      PCBREV=1+;   MEMORY=256;  RB_DELAY=60;;
-		*0004)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
-		*0005)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
-		*0006)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
-		*0007)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
-		*0008)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
-		*0009)  TYPE=1;  MODEL=A;      PCBREV=2;    MEMORY=256;  RB_DELAY=60;;
-		*000d)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;  RB_DELAY=60;;
-		*000e)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;  RB_DELAY=60;;
-		*000f)  TYPE=1;  MODEL=B;      PCBREV=2;    MEMORY=512;  RB_DELAY=60;;
-		*0010)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;  RB_DELAY=60;;
-		*0011)  TYPE=1;  MODEL=CM;     PCBREV=1.0;  MEMORY=512;  RB_DELAY=60;;
-		*0012)  TYPE=1;  MODEL=A+;     PCBREV=1;    MEMORY=256;  RB_DELAY=60;;
-		*0013)  TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;  RB_DELAY=60;;
-		*0014)  TYPE=1;  MODEL=CM;     PCBREV=1.1;  MEMORY=512;  RB_DELAY=60;;		# Check PCBREV
-		*0015)  TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=256;  RB_DELAY=60;;
-		*041)   TYPE=2;  MODEL=2B;     PCBREV=1;    MEMORY=1024; RB_DELAY=40;;
-		*042)   TYPE=2;  MODEL=2B;     PCBREV=1.2;  MEMORY=1024; RB_DELAY=40;;
-		*092)   TYPE=0;  MODEL=ZERO;   PCBREV=1.2;  MEMORY=512;  RB_DELAY=50;;
-		*093)   TYPE=0;  MODEL=ZERO;   PCBREV=1.3;  MEMORY=512;  RB_DELAY=50;;
-		*082)   TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024; RB_DELAY=40;;		# a22082
-		*0a0)   TYPE=3;  MODEL=CM3;    PCBREV=1;    MEMORY=1024; RB_DELAY=40;;
-		*0c1)   TYPE=0;  MODEL=ZERO-W; PCBREV=1;    MEMORY=512;  RB_DELAY=50;;
-		*0d3)   TYPE=3;  MODEL=3B+;    PCBREV=1;    MEMORY=1024; RB_DELAY=35;;		# a020d3
-		*0e0)   TYPE=3;  MODEL=3A+;    PCBREV=1.0;  MEMORY=512;  RB_DELAY=35;;		# 9020e0
-		*)      TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;    RB_DELAY=60;;
+		#=======================================================================
+		# Old-style revision codes
+		#-----------------------------------------------------------------------
+		# Code   Type     Model         Revision     RAM           Reboot
+		#-----------------------------------------------------------------------
+		*Beta)   TYPE=1;  MODEL=B;      PCBREV=Beta; MEMORY=256;   RB_DELAY=60;;
+
+		*0002)   TYPE=1;  MODEL=B;      PCBREV=1.0;  MEMORY=256;   RB_DELAY=60;;
+		*0003)   TYPE=1;  MODEL=B;      PCBREV=1.0;  MEMORY=256;   RB_DELAY=60;;
+		*0004)   TYPE=1;  MODEL=B;      PCBREV=2.0;  MEMORY=256;   RB_DELAY=60;;
+		*0005)   TYPE=1;  MODEL=B;      PCBREV=2.0;  MEMORY=256;   RB_DELAY=60;;
+		*0006)   TYPE=1;  MODEL=B;      PCBREV=2.0;  MEMORY=256;   RB_DELAY=60;;
+		*0007)   TYPE=1;  MODEL=A;      PCBREV=2.0;  MEMORY=256;   RB_DELAY=60;;
+		*0008)   TYPE=1;  MODEL=A;      PCBREV=2.0;  MEMORY=256;   RB_DELAY=60;;
+		*0009)   TYPE=1;  MODEL=A;      PCBREV=2.0;  MEMORY=256;   RB_DELAY=60;;
+		*000d)   TYPE=1;  MODEL=B;      PCBREV=2.0;  MEMORY=512;   RB_DELAY=60;;
+		*000e)   TYPE=1;  MODEL=B;      PCBREV=2.0;  MEMORY=512;   RB_DELAY=60;;
+		*000f)   TYPE=1;  MODEL=B;      PCBREV=2.0;  MEMORY=512;   RB_DELAY=60;;
+		*0010)   TYPE=1;  MODEL=B+;     PCBREV=1.0;  MEMORY=512;   RB_DELAY=60;;
+		*0011)   TYPE=1;  MODEL=CM;     PCBREV=1.0;  MEMORY=512;   RB_DELAY=60;;
+		*0012)   TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=256;   RB_DELAY=60;;
+		*0013)   TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;   RB_DELAY=60;;
+		*0014)   TYPE=1;  MODEL=CM;     PCBREV=1.0;  MEMORY=512;   RB_DELAY=60;;
+		*0015)   TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=256;   RB_DELAY=60;;
+
+		#=======================================================================
+		# New-style revision codes
+		#-----------------------------------------------------------------------
+		# Code   Type     Model         Revision     RAM           Reboot
+		#-----------------------------------------------------------------------
+		*900021) TYPE=1;  MODEL=A+;     PCBREV=1.1;  MEMORY=512;   RB_DELAY=60;;
+		*900032) TYPE=1;  MODEL=B+;     PCBREV=1.2;  MEMORY=512;   RB_DELAY=60;;
+		*900092) TYPE=0;  MODEL=ZERO;   PCBREV=1.2;  MEMORY=512;   RB_DELAY=50;;
+		*900093) TYPE=0;  MODEL=ZERO;   PCBREV=1.3;  MEMORY=512;   RB_DELAY=50;;
+		*9000c1) TYPE=0;  MODEL=ZERO-W; PCBREV=1.1;  MEMORY=512;   RB_DELAY=50;;
+		*9020e0) TYPE=3;  MODEL=3A+;    PCBREV=1.0;  MEMORY=512;   RB_DELAY=35;;
+		*920092) TYPE=0;  MODEL=ZERO;   PCBREV=1.2;  MEMORY=512;   RB_DELAY=50;;
+		*920093) TYPE=0;  MODEL=ZERO;   PCBREV=1.3;  MEMORY=512;   RB_DELAY=50;;
+
+		*a01040) TYPE=2;  MODEL=2B;     PCBREV=1.0;  MEMORY=1024;  RB_DELAY=40;;
+		*a01041) TYPE=2;  MODEL=2B;     PCBREV=1.1;  MEMORY=1024;  RB_DELAY=40;;
+		*a02082) TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;  RB_DELAY=40;;
+		*a020a0) TYPE=3;  MODEL=CM3;    PCBREV=1.0;  MEMORY=1024;  RB_DELAY=40;;
+		*a020d3) TYPE=3;  MODEL=3B+;    PCBREV=1.3;  MEMORY=1024;  RB_DELAY=35;;
+		*a21041) TYPE=2;  MODEL=2B;     PCBREV=1.1;  MEMORY=1024;  RB_DELAY=40;;
+		*a22042) TYPE=2;  MODEL=2B;     PCBREV=1.2;  MEMORY=1024;  RB_DELAY=40;;
+		*a22082) TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;  RB_DELAY=40;;
+		*a220a0) TYPE=3;  MODEL=CM3;    PCBREV=1.0;  MEMORY=1024;  RB_DELAY=40;;
+		*a32082) TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;  RB_DELAY=40;;
+		*a52082) TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;  RB_DELAY=40;;
+		*a02100) TYPE=3;  MODEL=CM3+;   PCBREV=1.0;  MEMORY=1024;  RB_DELAY=35;;
+
+		*)       TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;     RB_DELAY=60;;
 	esac
 
 	case "${MODEL}${PCBREV}" in
@@ -185,6 +182,11 @@ pcp_rpi_is_model_CM() {
 pcp_rpi_is_model_CM3() {
 	pcp_rpi_details
 	[ "$MODEL" = "CM3" ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_model_CM3plus() {
+	pcp_rpi_details
+	[ "$MODEL" = "CM3+" ] && echo 0 || echo 1
 }
 
 pcp_rpi_is_model_Aplus() {

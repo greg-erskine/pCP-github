@@ -3,6 +3,7 @@ home
 etc/asound.conf
 etc/group
 etc/gshadow
+etc/httpd.conf
 etc/passwd
 etc/shadow
 usr/local/etc/pointercal

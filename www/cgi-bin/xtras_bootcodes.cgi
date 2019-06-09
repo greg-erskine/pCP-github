@@ -1,16 +1,17 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-10-24
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 
 USER=""
 TZ=""
 
-# Define red cross
+#========================================================================================
+# Define green tick and red cross
+#----------------------------------------------------------------------------------------
 RED='&nbsp;<span class="indicator_red">&#x2718;</span>'
 RED=""
-# Define green tick
 GREEN='&nbsp;<span class="indicator_green">&#x2714;</span>'
 
 pcp_html_head "xtras_bootcodes" "GE"
@@ -24,35 +25,15 @@ pcp_httpd_query_string
 #========================================================================================
 # Missing bootcodes - add these sometime in the future?
 #----------------------------------------------------------------------------------------
-# local={hda1|sda1}          Specify PPI directory or loopback file
+# local={hda1|sda1}          Specify directory or loopback file
 # vga=7xx                    7xx from table above
 # settime                    Set UTC time at boot, internet required
 # embed                      Stay on initramfs
 # bkg=image.{jpg|png|gif}    Set background from /opt/backgrounds
 # multivt                    Allows for multiple virtual terminals
 # lst=yyy.lst                Load alternate yyy.lst on boot. yyy.lst is expected to reside
-#                            in $DRIVE/tce where $DRIVE is the drive specified by the tce= bootcode.
-# console=ttyAMA0,115200
-# console=tty1
+#                            in $DRIVE/tce where $DRIVE is the drive specified by the tce=bootcode.
 #----------------------------------------------------------------------------------------
-
-#========================================================================================
-# Routines
-#----------------------------------------------------------------------------------------
-pcp_bootcode_add() {
-	REBOOT_REQUIRED=TRUE
-	pcp_clean_cmdlinetxt
-	sed -i 's/'${1}'[ ]*//g' $CMDLINETXT
-	[ $2 -eq 1 ] && sed -i '1 s/^/'${1}' /' $CMDLINETXT
-}
-
-pcp_bootcode_equal_add() {
-	REBOOT_REQUIRED=TRUE
-	pcp_clean_cmdlinetxt
-	STR="$1=$2"
-	sed -i 's/'${VARIABLE}'[=][^ ]* //g' $CMDLINETXT
-	[ x"" != x"$2" ] && sed -i '1 s/^/'${STR}' /' $CMDLINETXT
-}
 
 #========================================================================================
 # Generate warning message
@@ -127,7 +108,6 @@ if [ "$SUBMIT" = "Save" ]; then
 		mydata)      pcp_bootcode_equal_add mydata "$MYDATA" ;;
 		nbd)         pcp_bootcode_equal_add nbd "$NBD" ;;
 		nfsmount)    pcp_bootcode_equal_add nfsmount "$NFSMOUNT" ;;
-#		noicons)     pcp_bootcode_equal_add noicons "$NOICONS" ;;
 		ntpserver)   pcp_bootcode_equal_add ntpserver "$NTPSERVER" ;;
 		opt)         pcp_bootcode_equal_add opt "$MYOPT" ;;
 		pretce)      pcp_bootcode_equal_add pretce "$PRETCE" ;;
@@ -145,14 +125,16 @@ if [ "$SUBMIT" = "Save" ]; then
 		#--------------------------------------------------------------------------------
 		# Kernel bootcodes ( VARIABLE=value )
 		#--------------------------------------------------------------------------------
+		console)              pcp_bootcode_equal_add2 console "$CONSOLE" ;;
 		consoleblank)         pcp_bootcode_equal_add consoleblank "$CONSOLEBLANK" ;;
 		dwc_otg.fiq_fsm_mask) pcp_bootcode_equal_add iq_fsm_mask "$IQ_FSM_MASK" ;;
 		dwc_otg.lpm_enable)   pcp_bootcode_equal_add lpm_enable "$LPM_ENABLE" ;;
 		elevator)             pcp_bootcode_equal_add elevator "$ELEVATOR" ;;
+		fbcon)                pcp_bootcode_equal_add2 fbcon "$FBCON" ;;
+		isolcpus)             pcp_bootcode_equal_add isolcpus "$ISOLCPUS" ;;
 		loglevel)             pcp_bootcode_equal_add loglevel "$LOGLEVEL" ;;
 		root)                 pcp_bootcode_equal_add root "$ROOT" ;;
 		smsc95xx.turbo_mode)  pcp_bootcode_equal_add turbo_mode "$TURBO_MODE" ;;
-		isolcpus)             pcp_bootcode_equal_add isolcpus "$ISOLCPUS" ;;
 		#--------------------------------------------------------------------------------
 		# Standard Tiny Core bootcodes ( VARIABLE )
 		#--------------------------------------------------------------------------------
@@ -182,17 +164,23 @@ if [ "$SUBMIT" = "Save" ]; then
 		#--------------------------------------------------------------------------------
 		# Kernel bootcodes ( VARIABLE )
 		#--------------------------------------------------------------------------------
+		logo.nologo) pcp_bootcode_add logo.nologo $NOLOGO ;;
 		quiet)       pcp_bootcode_add quiet $QUIET ;;
 		rootwait)    pcp_bootcode_add rootwait $ROOTWAIT ;;
 	esac
 fi
+
+BLACKLIST=""
+CONSOLE=""
+FBCON=""
 
 for i in $(cat $CMDLINETXT); do
 	case $i in
 		*=*)
 			case $i in
 				#---------------------------------------------------
-				# Standard Tiny Core bootcodes ( VARIABLE=value )
+				# Standard Tiny Core bootcodes
+				# ( VARIABLE=value ) or ( VARIABLE=value value)
 				#---------------------------------------------------
 				aoe*)       AOE=${i#*=} ;;
 				blacklist*) BLACKLIST="$BLACKLIST ${i#*=}" ;;
@@ -207,7 +195,6 @@ for i in $(cat $CMDLINETXT); do
 				mydata*)    MYDATA=${i#*=} ;;
 				nbd*)       NBD=${i#*=} ;;
 				nfsmount*)  NFSMOUNT=${i#*=} ;;
-#				noicons*)   NOICONS=${i#*=} ;;
 				ntpserver*) NTPSERVER=${i#*=} ;;
 				opt*)       MYOPT=${i#*=} ;;
 				pretce*)    PRETCE=${i#*=} ;;
@@ -223,16 +210,19 @@ for i in $(cat $CMDLINETXT); do
 				waitusb*)   WAITUSB=${i#*=} ;;
 				xvesa*)     XVESA=${i#*=} ;;
 				#---------------------------------------------------
-				# Kernel bootcodes ( VARIABLE=value )
+				# Kernel bootcodes
+				# ( VARIABLE=value ) or ( VARIABLE=value value)
 				#---------------------------------------------------
+				console=*)             CONSOLE="$CONSOLE ${i#*=}" ;;
 				consoleblank*)         CONSOLEBLANK=${i#*=} ;;
 				dwc_otg.fiq_fsm_mask*) FIQ_FSM_MASK=${i#*=} ;;
 				dwc_otg.lpm_enable*)   LPM_ENABLE=${i#*=} ;;
 				elevator*)             ELEVATOR=${i#*=} ;;
+				fbcon*)                FBCON="$FBCON ${i#*=}" ;;
+				isolcpus*)             ISOLCPUS=${i#*=} ;;
 				loglevel*)             LOGLEVEL=${i#*=} ;;
 				root*)                 ROOT=${i#*=} ;;
 				smsc95xx.turbo_mode*)  TURBO_MODE=${i#*=} ;;
-				isolcpus*)             ISOLCPUS=${i#*=} ;;
 			esac
 		;;
 		*)
@@ -266,6 +256,7 @@ for i in $(cat $CMDLINETXT); do
 				#---------------------------------------------------
 				# Kernel bootcodes ( VARIABLE )
 				#---------------------------------------------------
+				logo.nologo) NOLOGO=1 ;;
 				quiet)       QUIET=1 ;;
 				rootwait)    ROOTWAIT=1 ;;
 			esac
@@ -274,7 +265,6 @@ for i in $(cat $CMDLINETXT); do
 done
 
 pcp_warning_message
-[ $MODE -le $MODE_NORMAL ] && pcp_html_end && exit
 [ $MODE -lt $MODE_DEVELOPER ] && [ "$REBOOT_REQUIRED" ] && pcp_reboot_required
 
 #----------------------------------------------------------------------------------------
@@ -384,7 +374,6 @@ pcp_bootcode_aoe() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
-
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_aoe
 #----------------------------------------------------------------------------------------
@@ -820,43 +809,6 @@ pcp_bootcode_nfsmount() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_nfsmount
-#----------------------------------------------------------------------------------------
-
-#--------------------------------------noicons-------------------------------------------
-# Note: both noicons or noicons=ondemand are options. Disable this one.
-#----------------------------------------------------------------------------------------
-pcp_bootcode_noicons() {
-	[ x"" = x"$NOICONS" ] && INDICATOR=$RED || INDICATOR=$GREEN
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COL1' right">'
-	echo '                <p>noicons=</p>'
-	echo '              </td>'
-	echo '              <td class="'$COL2'">'
-	echo '                <form id="noicons" action="'$0'" method="get">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="NOICONS"'
-	echo '                         value="'$NOICONS'"'
-	echo '                  >'$INDICATOR
-	echo '                  <input type="hidden" name="VARIABLE" value="noicons">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td class="'$COL3' center">'
-	echo '                <input form="noicons" type="submit" name="SUBMIT" value="Save">'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Do not use icons&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>Do not use icons.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_XXXXXXX ] && pcp_bootcode_noicons
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------ntpserver-----------------------------------------
@@ -2176,6 +2128,44 @@ echo '              </th>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
+#---------------------------------------console------------------------------------------
+pcp_bootcode_console() {
+	[ x"" = x"$CONSOLE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1' right">'
+	echo '                <p>console=</p>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'">'
+	echo '                <form id="console" action="'$0'" method="get">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="CONSOLE"'
+	echo '                         value="'$CONSOLE'"'
+	echo '                  >'$INDICATOR
+	echo '                  <input type="hidden" name="VARIABLE" value="console">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td class="'$COL3' center">'
+	echo '                <input form="console" type="submit" name="SUBMIT" value="Save">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Set console&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>&lt;console=tty1&gt;</p>'
+	echo '                  <p>&lt;console=tty3&gt;</p>'
+	echo '                  <p>&lt;console=ttyAMA0,115200&gt;</p>'
+	echo '                  <p>To set multiple values, use a space to separate values ie. tty1 ttyAMA0,115200</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_console
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------consoleblank--------------------------------------
 pcp_bootcode_consoleblank() {
 	[ x"" = x"$CONSOLEBLANK" ] && INDICATOR=$RED || INDICATOR=$GREEN
@@ -2321,6 +2311,79 @@ pcp_bootcode_elevator() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_elevator
 #----------------------------------------------------------------------------------------
 
+#----------------------------------------fbcon-------------------------------------------
+pcp_bootcode_fbcon() {
+	[ x"" = x"$FBCON" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1' right">'
+	echo '                <p>fbcon=</p>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'">'
+	echo '                <form id="fbcon" action="'$0'" method="get">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="FBCON"'
+	echo '                         value="'$FBCON'"'
+	echo '                  >'$INDICATOR
+	echo '                  <input type="hidden" name="VARIABLE" value="fbcon">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td class="'$COL3' center">'
+	echo '                <input form="fbcon" type="submit" name="SUBMIT" value="Save">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Set fbcon&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>&lt;fbcon=map:10&gt;</p>'
+	echo '                  <p>&lt;fbcon=font:ProFont6x11&gt;</p>'
+	echo '                  <p>To set multiple values, use a space to separate values ie. map:10 font:ProFont6x11.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_fbcon
+#----------------------------------------------------------------------------------------
+
+#--------------------------------------isolcpus------------------------------------------
+pcp_bootcode_isolcpus() {
+	[ x"" = x"$ISOLCPUS" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1' right">'
+	echo '                <p>isolcpus=</p>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'">'
+	echo '                <form id="isolcpus" action="'$0'" method="get">'
+	echo '                  <input class="large15"'
+	echo '                         type="text"'
+	echo '                         name="ISOLCPUS"'
+	echo '                         value="'$ISOLCPUS'"'
+	echo '                         readonly'
+	echo '                  >'$INDICATOR
+	echo '                  <input type="hidden" name="VARIABLE" value="isolcpus">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td class="'$COL3' center">'
+	echo '                <input form="isolcpus" type="submit" name="SUBMIT" value="Readonly" disabled>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Set CPU isolation&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p><b>Note:</b> Use [Tweaks] page to set.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_isolcpus
+#----------------------------------------------------------------------------------------
+
 #--------------------------------------loglevel------------------------------------------
 pcp_bootcode_loglevel() {
 	[ x"" = x"$LOGLEVEL" ] && INDICATOR=$RED || INDICATOR=$GREEN
@@ -2445,42 +2508,6 @@ pcp_bootcode_turbo_mode() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_turbo_mode
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------isolcpus------------------------------------------
-pcp_bootcode_isolcpus() {
-	[ x"" = x"$ISOLCPUS" ] && INDICATOR=$RED || INDICATOR=$GREEN
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COL1' right">'
-	echo '                <p>isolcpus=</p>'
-	echo '              </td>'
-	echo '              <td class="'$COL2'">'
-	echo '                <form id="isolcpus" action="'$0'" method="get">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="ISOLCPUS"'
-	echo '                         value="'$ISOLCPUS'"'
-	echo '                         readonly'
-	echo '                  >'$INDICATOR
-	echo '                  <input type="hidden" name="VARIABLE" value="isolcpus">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td class="'$COL3' center">'
-	echo '                <input form="isolcpus" type="submit" name="SUBMIT" value="Readonly" disabled>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Set CPU isolation&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p><b>Note:</b> Use [Tweaks] page to set.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_isolcpus
-#----------------------------------------------------------------------------------------
-
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
@@ -2516,6 +2543,37 @@ echo '              <th class="'$COL14'">'
 echo '                <p>Description/Help</p>'
 echo '              </th>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
+
+#-----------------------------------logo.nologo------------------------------------------
+pcp_bootcode_nologo() {
+	if [ $NOLOGO -eq 1 ]; then NOLOGOyes="checked"; INDICATOR=$GREEN; else INDICATOR=$RED; fi
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL11'">'
+	echo '                <form id="nologo" action="'$0'" method="get">'
+	echo '                  <input class="small1" type="checkbox" name="NOLOGO" value="1" '$NOLOGOyes'>'
+	echo '                  <input type="hidden" name="VARIABLE" value="logo.nologo">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td class="'$COL12'">'
+	echo '                <p>logo.nologo&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td class="'$COL13' center">'
+	echo '                <input form="nologo" type="submit" name="SUBMIT" value="Save">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Turn off RPi logo&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This bootcode will disable the Raspberry Pi logo during booting.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nologo
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------quiet---------------------------------------------

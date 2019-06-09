@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-10-22
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -33,6 +33,8 @@ cp ${BOOTMNT}/pcp_*.log $LOGDIR >/dev/null 2>&1
 pcp_umount_bootpart >/dev/null 2>&1
 cp ${TCEMNT}/tce/pcp_*.log $LOGDIR >/dev/null 2>&1
 #----------------------------------------------------------------------------------------
+
+dmesg > ${LOGDIR}/pcp_dmesg.log
 
 PCPLOGS=$(ls "$LOGDIR" | grep pcp_ | grep log)
 [ x"" != x"$PCPLOGS" ] && LOGS=$PCPLOGS

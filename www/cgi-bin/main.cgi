@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-04
+# Version: 5.0.0 2019-03-01
 
 . pcp-functions
 . pcp-lms-functions
@@ -22,8 +22,12 @@ if [ "$ACTION" = "reboot" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
 	pcp_table_top "Rebooting"
-	echo '<p>pCP is rebooting...</p>'
-	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' $RB_DELAY: '$RB_DELAY'</p>'
+	echo '<p>'$NAME' is rebooting...</p>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" MODEL RB_DELAY
+		echo '<!-- End of debug info -->'
+	fi
 	pcp_table_middle
 	pcp_redirect_button "Refresh Main Page" "main.cgi" $RB_DELAY
 	pcp_table_end
@@ -43,9 +47,13 @@ if [ "$ACTION" = "shutdown" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
 	pcp_table_top "Shutdown"
-	echo '<p>pCP is shutting down...</p>'
+	echo '<p>'$NAME' is shutting down...</p>'
 	echo '<p><b>Note:</b> You need to reapply power to restart after a shutdown.</p>'
-	[ $DEBUG -eq 1 ] && echo '<p>RPi'${MODEL}' DELAY: 15</p>'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" MODEL RB_DELAY
+		echo '<!-- End of debug info -->'
+	fi
 	pcp_table_middle
 	pcp_redirect_button "Refresh Main Page" "main.cgi" 15
 	pcp_table_end
@@ -366,6 +374,100 @@ pcp_main_reboot() {
 pcp_main_reboot
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Diagnostics-----------------------------------
+pcp_main_diagnostics() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Diagnostics" action="diagnostics.cgi" method="get">'
+	echo '                  <input type="submit" value="Diagnostics">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Go to Diagnostics page&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will go to the Diagnostics page.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_diagnostics
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Save to USB-----------------------------------
+pcp_main_save_usb() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Saveconfig" action="save2usb.cgi" method="get">'
+	echo '                  <input type="submit" value="Save to USB">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>If you reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
+	echo '                    <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
+	echo '                    <li>This configuration file (newpcp.cfg) will be automatically renamed to usedpcp.cfg after rebooting.</li>'
+	echo '                    <li>This method will only work on basic piCorePlayer setups.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Update fieldset-------------------------------
+if [ $MODE -ge $MODE_NORMAL ]; then
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>pCP update operations</legend>'
+	echo '          <table class="bggrey percent100">'
+fi
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------HotFix----------------------------------------
+pcp_main_hotfix() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="HotFix" action="fix.cgi" method="get">'
+	echo '                  <input type="submit" value="HotFix">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for a new hotfix and update pCP.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_hotfix
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Update pCP------------------------------------
 pcp_main_update_pcp() {
 	pcp_toggle_row_shade
@@ -403,34 +505,27 @@ pcp_main_update_pcp() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_update_pcp
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Save to USB-----------------------------------
-pcp_main_save_usb() {
+#------------------------------------------Update pcp-base-------------------------------
+pcp_main_update_pcpbase() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="Saveconfig" action="save2usb.cgi" method="get">'
-	echo '                  <input type="submit" value="Save to USB">'
+	echo '                <form name="Update" action="updatebase.cgi" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Update">'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
+	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>If you reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
-	echo '                    <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
-	echo '                    <li>This configuration file (newpcp.cfg) will be automatically renamed to usedpcp.cfg after rebooting.</li>'
-	echo '                    <li>This method will only work on basic piCorePlayer setups.</li>'
-	echo '                  </ul>'
+	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_pcpbase
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Advanced mode fieldset------------------------
@@ -583,6 +678,7 @@ pcp_main_extensions() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
+
 #------------------------------------------Beta mode fieldset----------------------------
 if [ $MODE -ge $MODE_BETA ]; then
 	echo '          </table>'
@@ -626,29 +722,6 @@ pcp_main_static_ip() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Diagnostics-----------------------------------
-pcp_main_diagnostics() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Diagnostics" action="diagnostics.cgi" method="get">'
-	echo '                  <input type="submit" value="Diagnostics">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Go to Diagnostics page&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will go to the Diagnostics page.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_diagnostics
-#----------------------------------------------------------------------------------------
-
 #------------------------------------------Extras----------------------------------------
 pcp_main_extras() {
 	pcp_toggle_row_shade
@@ -670,52 +743,6 @@ pcp_main_extras() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_extras
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------HotFix----------------------------------------
-pcp_main_hotfix() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="HotFix" action="fix.cgi" method="get">'
-	echo '                  <input type="submit" value="HotFix">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will check for a new hotfix and update pCP.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_hotfix
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Update pcp-base-------------------------------
-pcp_main_update_pcpbase() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Update" action="updatebase.cgi" method="get">'
-	echo '                  <input type="submit" name="ACTION" value="Update">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_BETA ] && pcp_main_update_pcpbase
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Developer mode fieldset-----------------------

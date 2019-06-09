@@ -1,7 +1,6 @@
 #!/bin/sh
-#!/bin/sh
 
-# Version: 4.1.0 2018-11-05
+# Version: 5.0.0 2019-04-20
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -23,6 +22,8 @@ pcp_running_script
 [ $DEBUG -eq 0 ] && pcp_remove_query_string
 pcp_httpd_query_string
 
+unset REBOOT_REQUIRED
+
 pcp_selected_soundcontrol
 pcp_generic_card_control
 
@@ -33,16 +34,64 @@ ACTUAL_ONBOARD_STATUS=$?
 [ "$ONBOARD_SND" = "On" ] && ONBOARD_SOUND_CHECK="checked" || ONBOARD_SOUND_CHECK=""
 
 #========================================ACTIONS=========================================
+if [ "$ACTION" != "" ]; then
+	pcp_table_top "Setting Alsa"
+	echo '                <textarea class="inform" style="height:60px">'
+fi
 case "$ACTION" in
-	Test)
+	Save)
+		echo '[ INFO ] Setting Alsa mixer.'
+		#----------------------------Allo Piano Plus Dac Controls------------------------
+		# Setting Dual Mode first, as it affects how the driver controls volume.
+		case "$PIANOSUBMODE" in
+			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
+			Dual-Mono) 
+				amixer -q -c $CARD sset 'Dual Mode' "$PIANOSUBMODE"
+				amixer -q -c $CARD sset 'Master' frontright,unmute
+				amixer -q -c $CARD sset 'Master' frontleft,unmute
+				amixer -q -c $CARD sset 'Digital' unmute
+				amixer -q -c $CARD sset 'Digital' frontright,mute
+				amixer -q -c $CARD sset 'Digital' $VolInputName'%'
+				amixer -q -c $CARD sset 'Subwoofer' unmute
+				amixer -q -c $CARD sset 'Subwoofer' frontleft,mute
+				amixer -q -c $CARD sset 'Subwoofer' $VolInputName'%'
+			;;
+			Dual-Stereo) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" >/dev/null 2>&1
+				amixer -q -c $CARD sset 'Master' frontright,unmute
+				amixer -q -c $CARD sset 'Master' frontleft,unmute
+				amixer -q -c $CARD sset 'Digital' unmute
+				amixer -q -c $CARD sset 'Subwoofer' unmute
+			;;
+			"2.1"|"2.2")
+				tce-status -i | grep -q "allo-piano"
+				if [ $? -eq 0 ]; then
+					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1
+				else
+					echo '[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.'
+				fi
+			;;
+			*);;
+		esac
+		# Set some specific mixer control for the Allo PianoPlus
+		if [ $CARD = "PianoDACPlus" ]; then
+			[ "$PIANODEEM" = "on" ] || PIANODEEM="off"
+			amixer -q -c $CARD sset 'Deemphasis' "$PIANODEEM"
+			amixer -q -c $CARD sset 'Volume Ramp Down Rate' '1 sample/update'
+			amixer -q -c $CARD sset 'Volume Ramp Up Rate' '1 sample/update'
+			amixer -q -c $CARD sset 'Volume Ramp Down Step' '1dB/step'
+			amixer -q -c $CARD sset 'Volume Ramp Up Step' '1dB/step'
+			[ "$PIANOLOWPASS" != "" ] && sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
+			[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
+		fi
+
 		#Special case for rpi card to allow for setting 0db
 		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
 			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
 		else
 			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
 		fi
-		
-		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
+
+		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP_CONTROL" "$FILTER" >/dev/null 2>&1
 
 		if [ x"$SMCFILTER1" = x"" ]; then
 			sudo amixer -c $CARD sset 'Analogue' 0 >/dev/null 2>&1
@@ -59,67 +108,48 @@ case "$ACTION" in
 		if [ $CARD = "Katana" ]; then
 			sudo amixer -c $CARD sset Deemphasis "$DEEM" >/dev/null 2>&1
 		fi
-		#----------------------------Allo Piano Plus Dac Controls------------------------
-		case "$PIANOSUBMODE" in
-			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
-			Dual*) sudo amixer -c $CARD sset 'Dual Mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
-			"2.1"|"2.2")
-				df | grep -q "allo-piano"
-				if [ $? -eq 0 ]; then
-					sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1
-				else
-					echo '<p class="error">[ERROR] firmware-allo-piano.tcz not loaded for the selected mode.</p>'
-				fi
-			;;
-			*);;
-		esac
-		[ "$PIANOLOWPASS" != "" ] && sudo amixer -c $CARD sset 'Lowpass' "$PIANOLOWPASS" >/dev/null 2>&1
-		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
 		#--------------------------------------------------------------------------------
 		pcp_generic_card_control
-	;;
-	Save)
-		if [ $CARD = "ALSA" -a $VolInputName -eq 96 ]; then
-			sudo amixer -c $CARD sset $SSET 0db >/dev/null 2>&1
-		else
-			sudo amixer -c $CARD sset $SSET $VolInputName'%' >/dev/null 2>&1
-		fi
-		[ "$VolInputSubName" != "" ] && sudo amixer -c $CARD sset "Subwoofer" $VolInputSubName'%' >/dev/null 2>&1
-		[ x"$FILTER1" != x"" ] && sudo amixer -c $CARD sset "$DSP" "$FILTER" >/dev/null 2>&1
-		pcp_generic_card_control
+
 		AUDIO="$ORIG_AUDIO"
 		OUTPUT="$ORIG_OUTPUT"
 		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		ALSAlevelout="Custom"
 		pcp_save_to_config
+		echo '[ INFO ] Saving Alsa State.'
 		sudo alsactl store
-		pcp_backup
+		pcp_backup "nohtml"
 	;;
 	0dB)
+		echo '[ INFO ] Setting volume to 0dB.'
 		sudo amixer -c $CARD sset $SSET 0dB >/dev/null 2>&1
 		pcp_generic_card_control
 		ALSAlevelout="Custom"
 		pcp_save_to_config
+		echo '[ INFO ] Saving Alsa State.'
 		sudo alsactl store
-		pcp_backup
+		pcp_backup "nohtml"
 	;;
 	4dB)
+		echo '[ INFO ] Setting volume to 4dB.'
 		sudo amixer -c $CARD sset $SSET 4dB >/dev/null 2>&1
 		pcp_generic_card_control
 		ALSAlevelout="Custom"
 		pcp_save_to_config
+		echo '[ INFO ] Saving Alsa State.'
 		sudo alsactl store
-		pcp_backup
+		pcp_backup "nohtml"
 	;;
 	Select)
+		echo '[ INFO ] Setting soundcard driver parameters.'
 		AUDIO="$ORIG_AUDIO"
 		CARD="$ORIG_CARD"
 		OUTPUT="$ORIG_OUTPUT"
 		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		pcp_save_to_config
 		pcp_read_chosen_audio
-		pcp_backup
-		pcp_reboot_required
+		pcp_backup "nohtml"
+		REBOOT_REQUIRED=TRUE
 	;;
 	Onboard)
 		# Check for changes in onboard status as we don't want to mount and umount if not needed
@@ -128,26 +158,41 @@ case "$ACTION" in
 		if [ "$ONBOARD_SND" != "$SELECTED_BOARD" ]; then
 			pcp_mount_bootpart_nohtml >/dev/null 2>&1
 			if [ "$ONBOARD" = "On" ]; then
+				echo '[ INFO ] Enabling RPi Built-in Audio.'
 				pcp_re_enable_analog
 			else
+				echo '[ INFO ] Disabling RPi Built-in Audio.'
 				pcp_disable_analog
 				sudo rmmod snd_bcm2835
 			fi
 			# This page should not be changing ALSA_PARAMS.
 			ALSA_PARAMS="$ORIG_ALSA_PARAMS"
-			pcp_umount_bootpart
+			pcp_umount_bootpart_nohtml
 			pcp_save_to_config
-			pcp_backup
-			pcp_reboot_required
+			pcp_backup "nohtml"
+			REBOOT_REQUIRED=TRUE
 		fi
 	;;
+	Reset)
+		echo '[ INFO ] Removing alsa saved states.'
+		rm -f /var/lib/alsa/asound.state
+		touch /var/lib/alsa/asound.state
+		ALSAlevelout="Default"
+		pcp_save_to_config
+		pcp_backup "nohtml"
+	;;
 esac
+if [ "$ACTION" != "" ]; then
+	echo '                </textarea>'
+	pcp_table_end
+	[ $REBOOT_REQUIRED ] && pcp_reboot_required
+fi
 #----------------------------------------------------------------------------------------
 
 #======================================DEBUG=============================================
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" AUDIO CARD SSET DSP DTOVERLAY GENERIC_CARD \
+	pcp_debug_variables "html" AUDIO CARD SSET DSP_CONTROL DTOVERLAY GENERIC_CARD \
 		PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 \
 		FILTER1 FILTER2 FILTER3 FILTER4 FILTER5 FILTER6 FILTER7 \
 		TEXT1 TEXT2 TEXT3 TEXT4 TEXT5 \
@@ -215,7 +260,7 @@ pcp_soundcard_SMC_Analogue_options() {
 		echo '                <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOGUE_CHECK"'>'
 		echo '              </td>'
 		echo '              <td class="'$COL2'" colspan="2">'
-		echo '                <p>Toggle a 6dB increase on analog output level</p>'
+		echo '                <p>Toggle a 6dB increase on analog output level (Checked = 0dB Setting).</p>'
 		echo '              </td>'
 		echo '            </tr>'
 		if [ x"$SMC_ANALOGUE_BOOST" != x"" ]; then
@@ -224,7 +269,7 @@ pcp_soundcard_SMC_Analogue_options() {
 			echo '                <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOGUE_BOOST_CHECK"'>'
 			echo '              </td>'
 			echo '              <td class="'$COL2'" colspan="2">'
-			echo '                <p>Toggle a 0.80dB increase on analog output level</p>'
+			echo '                <p>Toggle a 0.80dB increase on analog output level (Unchecked = 0dB Setting).</p>'
 			echo '              </td>'
 			echo '            </tr>'
 		fi
@@ -265,17 +310,31 @@ pcp_soundcard_Deemphasis_options() {
 # Allo Piano Plus Custom Controls
 #----------------------------------------------------------------------------------------
 pcp_allo_piano_plus_custom_controls(){
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="colspan 3">'
+	echo '                <p><b>Piano Plus Custom Mixer Controls:</b></p>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	PIANODEEM_CHECK=$(amixer -c $CARD sget 'Deemphasis' | grep 'Mono:' | awk '{ print $3 }' | tr -d "[]")
+	[ "$PIANODEEM_CHECK" = "on" ] && PIANODEEM_CHECK="checked" || PIANODEEM_CHECK=""
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1'">'
+	echo '                <input type="checkbox" name="PIANODEEM" value="on" '"$PIANODEEM_CHECK"'>'
+	echo '              </td>'
+	echo '              <td class="'$COL2'" colspan="2">'
+	echo '                <p>Toggle Deemphasis setting.</p>'
+	echo '              </td>'
+	echo '            </tr>'
+
+	pcp_toggle_row_shade
+
 	SUBMODE=$(amixer -c $CARD sget "Subwoofer mode" | grep "Item0" | awk -F\' '{print $2}')
 	[ $DEBUG -eq 1 ] && echo '<p class="error">[MODE] Submode='$SUBMODE':</p>'
 	[ "$SUBMODE" = "None" ] && SUBMODE=$(amixer -c $CARD sget "Dual Mode" | grep "Item0" | awk -F\' '{print $2}')
 	[ $DEBUG -eq 1 ] && echo '<p class="error">[MODE] Dual Mode='$SUBMODE':</p>'
 	LOWPASS=$(amixer -c $CARD sget "Lowpass" | grep "Item0" | awk -F\' '{print $2}')
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="colspan 3">'
-	echo '                <p><b>Piano Plus Custom Mixer Controls:</b></p>'
-	echo '              </td>'
-	echo '            </tr>'
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL1'">'
 	echo '                <select class="large10" name="PIANOSUBMODE" >'
@@ -396,9 +455,6 @@ pcp_volume_filter_buttons() {
 		pcp_incr_id
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="column120 center">'
-		echo '                <button type="submit" name="ACTION" value="Test">Set Mixer</button>'
-		echo '              </td>'
-		echo '              <td class="column120 center">'
 		echo '                <input type="submit" name="ACTION" value="Save">'
 		echo '              </td>'
 		echo '              <td class="column120 center">'
@@ -416,7 +472,6 @@ pcp_volume_filter_buttons() {
 		echo '                <div id="'$ID'" class="less">'
 		echo '                  <p>Use above control(s) to set the ALSA mixer, then</p>'
 		echo '                  <ul>'
-		echo '                    <li><b>Set Mixer</b> - The above value(s) will be written to ALSA, so you can hear the changes.</li>'
 		echo '                    <li><b>Save</b> - The output setting(s) are saved up to make them available after a reboot.</li>'
 		echo '                    <li><b>0dB</b> - Set output level to 0dB.</li>'
 		if [ $CARD = "ALSA" ]; then
@@ -429,6 +484,28 @@ pcp_volume_filter_buttons() {
 		row_padding
 	fi
 }
+
+pcp_reset_alsactl() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	pcp_table_top "Reset ALSA Configuration" "colspan=\"3\""
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column120 center">'
+	echo '                <input type="submit" name="ACTION" value="Reset">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Reset saved alsa settings&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>After reset, you will need to resave mixer settings.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	row_padding
+	pcp_table_end
+}
+
 
 #========================================================================================
 # Parameter options
@@ -450,7 +527,7 @@ pcp_soundcard_parameter_options() {
 		done
 		#--------------------------------------------------------------------------------
 		pcp_table_middle
-		echo '                <input type="submit" name="ACTION" value="Select">'
+		echo '                <button type="submit" name="ACTION" value="Select">Save</button>'
 	fi
 
 	if [ x"$TEXT1" != x ]; then
@@ -529,6 +606,13 @@ if [ "$GENERIC_CARD" = "Katana" ]; then
 	pcp_soundcard_parameter_options
 fi
 
+if [ "$GENERIC_CARD" = "ISABRE" ]; then
+	pcp_soundcard_DSP_options
+	pcp_soundcard_volume_options
+	pcp_volume_filter_buttons
+	pcp_soundcard_parameter_options
+fi
+
 if [ "$GENERIC_CARD" = "ES9023" ]; then
 	pcp_soundcard_DSP_options
 	pcp_soundcard_volume_options
@@ -544,6 +628,8 @@ if [ "$GENERIC_CARD" = "ONBOARD" ]; then
 	echo '              <td colspan="3">'
 fi
 pcp_table_end
+
+pcp_reset_alsactl
 
 pcp_disable_enable_builtin_sound
 echo '</form>'

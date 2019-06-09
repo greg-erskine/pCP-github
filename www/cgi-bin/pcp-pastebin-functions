@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 4.0.0 2018-06-13
+# Version: 5.0.0 2019-03-03
 
 pcp_debug_log "$0 - Running pcp-pastebin-functions..."
 
@@ -36,7 +36,7 @@ pcp_install_wget() {
 	else
 		if [ ! -f $TCEMNT/tce/optional/wget.tcz ]; then
 			echo 'wget.tcz downloading... '
-			sudo -u tc tce-load -w wget.tcz
+			sudo -u tc pcp-load -r ${PCP_REPO} -w wget.tcz
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 		else
 			echo 'wget.tcz downloaded.'
