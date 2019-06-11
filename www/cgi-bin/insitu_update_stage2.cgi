@@ -580,6 +580,9 @@ echo '                  <textarea class="inform" style="height:130px">'
 if [ "$ACTION" = "download" ]; then
 	echo '[ INFO ] You are currently using piCorePlayer'$(pcp_picoreplayer_version)
 
+	#$(pcp_picoreplayer_version) returns current version
+	#${VERS} returns version selected for upgrade.
+
 	if [ $(version $(pcp_picoreplayer_version)) -lt $(version "5.0.0") ]; then
 		echo '[ INFO ] Updating extensions with known requirements. This will increase free space required for upgrade.'
 
@@ -607,11 +610,10 @@ if [ "$ACTION" = "download" ]; then
 		fi
 	fi
 
-	case "${VERSION}" in
-		piCorePlayer5.0*)  # Requires 4.1.2 version for update
-			[ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.2") ] || FAIL_MSG="You must be using 4.1.2 or higher to update. Run Hotfix."
-		;;
-	esac
+	if [ $(version $(pcp_picoreplayer_version)) -ge $(version "5.0.0") ]; then
+		[ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.2") ] || FAIL_MSG="You must be using 4.1.2 or higher to update. Run Hotfix."
+		[ $(version ${VERS}) -lt $(version "5.0.0") ] && FAIL_MSG="Downgrading version is not permitted."
+	fi
 
 	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
 	echo '[ INFO ] Boot partition size required: '${BOOT_SIZE_REQUIRED}'. Boot partition size is: '${BOOT_SIZE}
