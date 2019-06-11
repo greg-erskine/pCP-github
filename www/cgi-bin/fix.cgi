@@ -22,6 +22,7 @@ pcp_running_script
 pcp_httpd_query_string
 
 WGET="/bin/busybox wget -T 30"
+MD5SUM="/bin/busybox md5sum"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
 [ -d ${FIX_PCP} ] && rm -rf ${FIX_PCP}
@@ -54,7 +55,7 @@ pcp_download_hotfix() {
 	if [ "$FAIL_MSG" = "ok" ]; then
 		echo "[ INFO ] Verifying ${HOTFIX}"
 		cd ${HFDIR}
-		md5sum -sc ${HOTFIXMD5}
+		$MD5SUM -sc ${HOTFIXMD5}
 		if [ $? -eq 0 ]; then
 			echo '[ INFO ] Hotfix Verified.'
 		else
@@ -229,7 +230,7 @@ pcp_get_fix_cgi() {
 #----------------------------------------------------------------------------------------
 pcp_check_fix_md5() {
 	cd ${FIX_CGI}
-	md5sum -sc fix.cgi.md5.txt
+	$MD5SUM -sc fix.cgi.md5.txt
 	if [ $? -eq 0 ]; then
 		echo '[  OK  ] fix.cgi is up-to-date.'
 	else
