@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-05
+# Version: 5.1.0 2019-06-12
 
 . pcp-functions
 
@@ -50,14 +50,15 @@ P2_MAX_SIZE_MB=$(($SD_MAX_SIZE_MB - $P1_ACTUAL_SIZE_MB))
 AVAILABLE_SPACE_MB=$(($SD_MAX_SIZE_MB - ($P1_ACTUAL_SIZE_MB + $P2_ACTUAL_SIZE_MB)))
 
 NUM_OF_PARTITIONS=$($FDISK -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
-[ $NUM_OF_PARTITIONS -ne 2 ] && SDVALID=$(($SDVALID + 1))
+[ $NUM_OF_PARTITIONS -ne 2 ] && SDVALID=$((SDVALID + 1))
 
 P1_NAME=$(tune2fs -l /dev/mmcblk0p1 2>/dev/null | tail -1 | grep PCP | awk -F"labelled '" '{print $2}' | sed "s/'//" )
-[ "$P1_NAME" != "PCP_BOOT" ] && SDVALID=$(($SDVALID + 1))
+[ "$P1_NAME" != "PCP_BOOT" ] && SDVALID=$((SDVALID + 1))
 P2_NAME=$(tune2fs -l /dev/mmcblk0p2 | grep "volume name" | awk -F":   " '{print $2}')
-[ "$P2_NAME" != "PCP_ROOT" ] && SDVALID=$(($SDVALID + 1))
+[ "$P2_NAME" = "" ] && P2_NAME="no label"
+[ "$P2_NAME" != "PCP_ROOT" ] && SDVALID=$((SDVALID + 1))
 P3_NAME=$(tune2fs -l /dev/mmcblk0p3 | grep "volume name" | awk -F":   " '{print $2}')
-[ "$P3_NAME" != "PCP_DATA" } || [ "$P3_NAME" != "" ] && SDVALID=$(($SDVALID + 1))
+[ "$P3_NAME" != "PCP_DATA" } || [ "$P3_NAME" != "" ] && SDVALID=$((SDVALID + 1))
 
 # Allow the correct values in drop-down list to be selectable
 [ $AVAILABLE_SPACE_MB -le 100 ] && DISABLED000="disabled"
@@ -77,7 +78,7 @@ if [ $DEBUG -eq 1 ]; then
 		SD_MAX_SIZE_BYTES SD_MAX_SIZE_MB SD_CARD_SIZE_GB NUM_OF_PARTITIONS \
 		P1_ACTUAL_SIZE_BYTES P1_ACTUAL_SIZE_MB \
 		P2_ACTUAL_SIZE_BYTES P2_ACTUAL_SIZE_MB P2_MAX_SIZE_MB AVAILABLE_SPACE_MB \
-		P1_NAME P2_NAME P3_NAME SDVALID
+		P1_NAME "P2_NAME" P3_NAME SDVALID
 	pcp_table_end
 	echo '<!-- End of debug info -->'
 fi
@@ -139,7 +140,7 @@ case "$SUBMIT" in
 		echo '    <td>'
 		echo '      <div class="row">'
 		echo '        <fieldset>'
-		echo '        <legend>Resize partition 2 (PCP_ROOT)</legend>'
+		echo '        <legend>Resize partition 2 ('$P1_NAME')</legend>'
 		echo '          <form name="auto" action="'$0'" method="get">'
 		echo '            <table class="bggrey percent100">'
 		#========================================================================================
@@ -190,10 +191,14 @@ case "$SUBMIT" in
 			echo '              <tr  class="warning">'
 			echo '                <td colspan="2">'
 			echo '                  <p style="color:white"><b>WARNING:</b> The resize partition 2 option has been disabled to prevent damage to your SD card.</p>'
-			echo '                  <p style="color:white">You may have:</p>'
+			echo '                  <p style="color:white">You have:</p>'
 			echo '                  <ul>'
-			echo '                    <li style="color:white">more than 2 partitions, or</li>'
-			echo '                    <li style="color:white">non-standard partition names.</li>'
+			                          [ $NUM_OF_PARTITIONS -ne 2 ] &&
+			echo '                    <li style="color:white">more than 2 partitions</li>'
+			                          [ "$P1_NAME" != "PCP_BOOT" ] &&
+			echo '                    <li style="color:white">Partition 1 labelled "'$P1_NAME'" - it should be labelled "PCP_ROOT".</li>'
+			                          [ "$P2_NAME" != "PCP_ROOT" ] &&
+			echo '                    <li style="color:white">Partition 2 labelled "'$P2_NAME'" - it should be labelled "PCP_BOOT".</li>'
 			echo '                  </ul>'
 			echo '                </td>'
 			echo '              </tr>'
@@ -318,6 +323,26 @@ if [ $DEBUG -eq 1 ]; then
 	pcp_textarea_inform "none" "cat ${TCEMNT}/tce/pcp_resize.log" "250"
 	echo '<!-- End of debug info -->'
 	pcp_table_end
+
+	pcp_table_top "tune2fs -l /dev/mmcblk0p1"
+	echo '<!-- Start of debug info -->'
+	pcp_textarea_inform "none" "tune2fs -l /dev/mmcblk0p1" "150"
+	echo '<!-- End of debug info -->'
+	pcp_table_end
+
+	pcp_table_top "tune2fs -l /dev/mmcblk0p2"
+	echo '<!-- Start of debug info -->'
+	pcp_textarea_inform "none" "tune2fs -l /dev/mmcblk0p2" "150"
+	echo '<!-- End of debug info -->'
+	pcp_table_end
+
+	if [ $NUM_OF_PARTITIONS -gt 2 ]; then
+		pcp_table_top "tune2fs -l /dev/mmcblk0p3"
+		echo '<!-- Start of debug info -->'
+		pcp_textarea_inform "none" "tune2fs -l /dev/mmcblk0p3" "150"
+		echo '<!-- End of debug info -->'
+		pcp_table_end
+	fi
 fi
 #----------------------------------------------------------------------------------------
 
