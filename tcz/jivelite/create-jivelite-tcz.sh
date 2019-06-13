@@ -81,7 +81,8 @@ find lib -type f -name '*so*' -exec patchelf --set-rpath "/opt/jivelite/lib" {} 
 
 # Include /usr/local/lib in library search patch so SDL/SDLgfx can load libts
 patchelf --set-rpath "/opt/jivelite/lib:/usr/local/lib" lib/libSDL-1.2.so.0.11.4
-patchelf --set-rpath "/opt/jivelite/lib:/usr/local/lib" lib/libSDL_gfx.so.13.9.1
+#patchelf --set-rpath "/opt/jivelite/lib:/usr/local/lib" lib/libSDL_gfx.so.13.9.1
+patchelf --set-rpath "/opt/jivelite/lib:/usr/local/lib" lib/libSDL_gfx.so.0.0.15
 find bin -type f -exec patchelf --set-rpath "/opt/jivelite/lib" {} \;
 
 # Keep the install as small as possible
