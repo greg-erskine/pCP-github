@@ -21,7 +21,7 @@ pcp_lms_status() {
 pcp_controls() {
 	if [ "$LMSCONTROLS" = "yes" ] && [ $MODE -ge $MODE_ADVANCED ] ; then
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-#		LMSIP=$(pcp_lmsip)
+		[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 		echo '<!-- Start of pcp_lms_controls toolbar -->'
 		echo '<table class="bgblack">'
 		echo '  <tr>'
@@ -49,7 +49,7 @@ pcp_controls() {
 pcp_lms_controls() {
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	MAC=$(pcp_controls_mac_address)
-#	LMSIP=$(pcp_lmsip)
+	[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 	echo '<iframe src="http://'${LMSIP}':'${LMSPORT}'/status_header.html?player='${NAME}'" width="956" height="152" frameborder="0" scrolling="no" ></iframe>'
 }
 
@@ -105,14 +105,14 @@ pcp_lms_build_result() {
 }
 
 pcp_lms_json_request() {
-#	LMSIP=$(pcp_lmsip)
+	[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > /tmp/json_req
 	cat /tmp/json_req | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g'
 }
 
 pcp_lms_json_request_list() {
-#	LMSIP=$(pcp_lmsip)
+	[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > /tmp/json_list
 	NUMRESULT=$(pcp_lms_build_result result count)
@@ -121,7 +121,7 @@ pcp_lms_json_request_list() {
 }
 
 pcp_lms_json_request_debug() {
-#	LMSIP=$(pcp_lmsip)
+	[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > /tmp/json_req
 	cat /tmp/json_req
