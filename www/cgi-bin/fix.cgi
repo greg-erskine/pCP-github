@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 4.1.2 2019-04-27
+# Version: 5.0.1 2019-06-15
 
 . pcp-functions
 
@@ -100,6 +100,23 @@ pcp_do_fixes_410() {
 	#Do anything special here
 	pcp-update pcp-base.tcz
 }
+
+pcp_do_fixes_500() {
+	#Leading / is removed
+	#EXE files get set to root.staff mode 755
+	HF_FILES_EXE="home/tc/www/cgi-bin/pcp-functions home/tc/www/cgi-bin/pcp-lms-functions"
+	#CFG files get set to root.staff mode 664
+	HF_FILES_CFG="usr/local/etc/pcp/pcpversion.cfg"
+	HFDIR="/tmp/hf"
+	HOTFIX="hotfix500.tgz"
+	HOTFIXMD5="${HOTFIX}.md5.txt"
+
+	pcp_download_hotfix
+	pcp_apply_fixes
+	pcp_footer static > /tmp/footer.html
+	#Do anything special here
+}
+
 
 #========================================================================================
 # DEBUG info showing variables
@@ -359,6 +376,13 @@ if [ "$ACTION" = "fix" ]; then
 			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
 			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Operation Complete.'
 			REBOOT_REQUIRED=1
+		;;
+		5.0.0)
+			echo '[ INFO ] Hotfix for pCP 5.0.0 - corrects LMS autostart problem.'
+			[ "$FAIL_MSG" = "ok" ] && pcp_do_fixes_500
+			[ "$FAIL_MSG" = "ok" ] && pcp_backup "nohtml"
+			[ "$FAIL_MSG" = "ok" ] && echo '[ INFO ] Operation Complete.'
+			REBOOT_REQUIRED=0
 		;;
 		*)
 			# No Fixes for this version
