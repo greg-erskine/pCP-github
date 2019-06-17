@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-12
+# Version: 5.1.0 2019-06-15
 
 . pcp-functions
 
@@ -15,7 +15,6 @@ pcp_httpd_query_string
 
 FDISK="/bin/busybox fdisk"
 SDVALID=0
-unset REBOOT_REQUIRED
 
 #========================================================================================
 # Local functions
@@ -55,10 +54,10 @@ NUM_OF_PARTITIONS=$($FDISK -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' 
 P1_NAME=$(tune2fs -l /dev/mmcblk0p1 2>/dev/null | tail -1 | grep PCP | awk -F"labelled '" '{print $2}' | sed "s/'//" )
 [ "$P1_NAME" != "PCP_BOOT" ] && SDVALID=$((SDVALID + 1))
 P2_NAME=$(tune2fs -l /dev/mmcblk0p2 | grep "volume name" | awk -F":   " '{print $2}')
-[ "$P2_NAME" = "" ] && P2_NAME="no label"
+[ "$P2_NAME" = "<none>" ] && P2_NAME="&lt;none&gt;"
 [ "$P2_NAME" != "PCP_ROOT" ] && SDVALID=$((SDVALID + 1))
 P3_NAME=$(tune2fs -l /dev/mmcblk0p3 | grep "volume name" | awk -F":   " '{print $2}')
-[ "$P3_NAME" != "PCP_DATA" } || [ "$P3_NAME" != "" ] && SDVALID=$((SDVALID + 1))
+[ $NUM_OF_PARTITIONS -eq 3 ] && [ "$P3_NAME" != "PCP_DATA" ] || [ "$P3_NAME" != "" ] && SDVALID=$((SDVALID + 1))
 
 # Allow the correct values in drop-down list to be selectable
 [ $AVAILABLE_SPACE_MB -le 100 ] && DISABLED000="disabled"
@@ -72,13 +71,12 @@ P3_NAME=$(tune2fs -l /dev/mmcblk0p3 | grep "volume name" | awk -F":   " '{print 
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-#	pcp_table_top "Debug"
 	pcp_debug_variables "html" DISABLED000 DISABLED100 DISABLED200 DISABLED300 \
 		DISABLED500 DISABLED1000 DISABLED2000 \
 		SD_MAX_SIZE_BYTES SD_MAX_SIZE_MB SD_CARD_SIZE_GB NUM_OF_PARTITIONS \
 		P1_ACTUAL_SIZE_BYTES P1_ACTUAL_SIZE_MB \
 		P2_ACTUAL_SIZE_BYTES P2_ACTUAL_SIZE_MB P2_MAX_SIZE_MB AVAILABLE_SPACE_MB \
-		P1_NAME "P2_NAME" P3_NAME SDVALID
+		P1_NAME P2_NAME P3_NAME SDVALID
 	pcp_table_end
 	echo '<!-- End of debug info -->'
 fi
@@ -115,18 +113,45 @@ case "$SUBMIT" in
 		#================================================================================
 		# Add partition 3 - PC_DATA
 		#--------------------------------------------------------------------------------
-		pcp_table_top "Adding partition 3  - PCP_DATA"
+		pcp_table_top "Adding partition 3 - PCP_DATA"
 		echo '                <textarea class="inform" style="height:110px">'
 		echo '[ INFO ] Adding partition 3 is occuring, please wait...'
 		echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 		touch /home/tc/fdisk_part3_required
 		pcp_backup_nohtml
-		echo '[ INFO ] Click [Go to Main Page] or [Refresh] after a few minutes.'
+		echo '[ INFO ] Click [Go to Resize Page] or [Refresh] after a few minutes.'
 		(sleep 1; sudo reboot) &
 		echo '                </textarea>'
 		pcp_table_middle
 		pcp_remove_query_string
-		pcp_redirect_button "Go to Main Page" "main.cgi" 90
+		pcp_redirect_button "Go to Resize Page" "$0" 100
+		pcp_table_end
+	;;
+	Create)
+		#================================================================================
+		# Create default directories on partition 3
+		#--------------------------------------------------------------------------------
+		pcp_table_top "Creating default directories on partition 3"
+		echo '                <textarea class="inform" style="height:110px">'
+		echo '[ INFO ] Creating default directories on partition 3...'
+
+		DIR=$(cat /etc/mtab | grep mmcblk0p3 | awk '{print $2}')
+
+		for i in music image config
+		do
+			if [ -d /$DIR/$i ]; then
+				echo $DIR'/'$i' exists.'
+			else
+				echo 'Creating '$DIR'/'$i'.'
+				sudo mkdir /$DIR/$i
+				sudo chown tc:staff /$DIR/$i
+			fi
+		done
+
+		echo '                </textarea>'
+		pcp_table_middle
+		pcp_remove_query_string
+		pcp_redirect_button "Go to Resize Page" "$0" 10
 		pcp_table_end
 	;;
 	*)
@@ -196,9 +221,9 @@ case "$SUBMIT" in
 			                          [ $NUM_OF_PARTITIONS -ne 2 ] &&
 			echo '                    <li style="color:white">more than 2 partitions</li>'
 			                          [ "$P1_NAME" != "PCP_BOOT" ] &&
-			echo '                    <li style="color:white">Partition 1 labelled "'$P1_NAME'" - it should be labelled "PCP_ROOT".</li>'
+			echo '                    <li style="color:white">partition 1 labelled "'$P1_NAME'" should be labelled "PCP_ROOT".</li>'
 			                          [ "$P2_NAME" != "PCP_ROOT" ] &&
-			echo '                    <li style="color:white">Partition 2 labelled "'$P2_NAME'" - it should be labelled "PCP_BOOT".</li>'
+			echo '                    <li style="color:white">partition 2 labelled "'$P2_NAME'" should be labelled "PCP_BOOT".</li>'
 			echo '                  </ul>'
 			echo '                </td>'
 			echo '              </tr>'
@@ -213,9 +238,9 @@ case "$SUBMIT" in
 		echo '</table>'
 
 		#========================================================================================
-		# Add partition 3 - PCP_DATA - BETA
+		# Add partition 3 - PCP_DATA - DEVELOPER
 		#----------------------------------------------------------------------------------------
-		if [ $MODE -ge $MODE_BETA ]; then
+		if [ $MODE -ge $MODE_DEVELOPER ]; then
 			pcp_start_row_shade
 			pcp_incr_id
 			echo '<table class="bggrey">'
@@ -268,42 +293,32 @@ case "$SUBMIT" in
 			echo '  </tr>'
 			echo '</table>'
 		fi
+		#========================================================================================
+		# Create button if partition 3 mounted
+		#----------------------------------------------------------------------------------------
+		if [ $MODE -ge $MODE_DEVELOPER ]; then
+			pcp_table_top "Create directories on partition 3 ($P3_NAME)"
+			if mount | grep /dev/mmcblk0p3 >/dev/null 2>&1; then
+				echo '                    <form name="create" action="'$0'" method="get">'
+				echo '                      <input type="submit" name="SUBMIT" value="Create">'
+				echo '                      &nbsp;&nbsp;Click [Create] to create default directories on partition 3.'
+				echo '                    </form>'
+			else
+				echo '                    <p>'$MOUNTED'<b>WARNING:</b> Partition 3 not mounted.</p>'
+				echo '                    <p>Use [LMS] > "Pick from the following detected USB disks to mount" to mount partition.</p>'
+			fi
+			pcp_table_end
+		fi
 
 		#========================================================================================
 		# Partition information
 		#----------------------------------------------------------------------------------------
-		pcp_start_row_shade
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <form name="sd_information" method="get">'
-		echo '        <div class="row">'
-		echo '          <fieldset>'
-		echo '            <legend>Current mounted partition information</legend>'
-		echo '            <table class="bggrey percent100">'
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea_inform "none" "df -h | grep -E \"Filesystem|mnt\" | tee -a $LOG" 40
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea_inform "none" "$FDISK -ul | tee -a $LOG" 110
-		echo '                </td>'
-		echo '              </tr>'
-		echo '            </table>'
-		echo '          </fieldset>'
-		echo '        </div>'
-		echo '      </form>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		pcp_table_top "Current mounted partition information"
+		pcp_textarea_inform "none" "df -h | grep -E \"Filesystem|mnt\" | tee -a $LOG" 40
+		pcp_table_middle
+		pcp_table_middle	# needed
+		pcp_textarea_inform "none" "$FDISK -ul | tee -a $LOG" 110
+		pcp_table_end
 	;;
 esac
 #----------------------------------------------------------------------------------------
