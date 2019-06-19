@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-11-17
+# Version: 5.0.1 2019-06-19
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -93,6 +93,7 @@ case "$SUBMIT" in
 		[ $SQUEEZELITE = "no" ] && unset RESTART_REQUIRED
 		echo '<p class="info">[ INFO ] Saving config file.</p>'
 		pcp_save_to_config
+		pcp_footer static >/tmp/footer.html
 	;;
 	Binary)
 		SAVE=0
