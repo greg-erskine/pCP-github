@@ -62,6 +62,21 @@ case "${VERSION}" in
 		PICOREVERSION="10.x"
 		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 	;;
+	piCorePlayer5.1.*)
+		SPACE_REQUIRED=12000
+		BOOT_SIZE_REQUIRED=27700
+		#These are used for sed modification of config.txt
+		CNF_INITRD="pcp_10.1"
+		CNF_KERNEL="kernel41950"
+		# Set the below for downloading new kernel modules
+		KUPDATE=1
+		case $CORE in
+			*pcpAudioCore*) NEWKERNELVER="4.19.50-rt22";;
+			*) NEWKERNELVER="4.19.50";;
+		esac
+		PICOREVERSION="10.x"
+		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
+	;;
 	*)
 		SPACE_REQUIRED=15000
 		BOOT_SIZE_REQUIRED=27800
@@ -285,6 +300,8 @@ pcp_save_configuration() {
 	local V
 	echo '[ INFO ] Saving configuration files.'
 	[ -r /usr/local/etc/pcp/pcp.cfg ] && sudo cp -f /usr/local/etc/pcp/pcp.cfg ${BOOTMNT}/newpcp.cfg
+	#Turn off t3 mode automatically
+	sudo sed -i "s/\(TEST=\).*/\1\"0\"/" ${BOOTMNT}/newpcp.cfg
 	sudo dos2unix -u ${BOOTMNT}/newpcp.cfg
 	[ $? -eq 0 ] || FAIL_MSG="Error saving piCorePlayer configuration file."
 	#save the current pcpversion to determine potential bootfix(es) later  
@@ -451,19 +468,22 @@ outfile.close
 		echo "https://repo.picoreplayer.org/repo" > /opt/tcemirror
 		echo "10.1pCP" > /usr/share/doc/tc/release.txt
 
-		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz pcp-jivelite.tcz pcp-lirc.tcz"
+		UPGRADE_LIST="alsaequal.tcz nano.tcz slimserver.tcz pcp-jivelite.tcz pcp-lirc.tcz samba4.tcz"
 		for UPG in $UPGRADE_LIST; do
 			if [ -f ${PACKAGEDIR}/$UPG ]; then
 				echo '[ INFO ] '$UPG' found, updating....'
 				sudo -u tc pcp-update kernel $NEWKERNEL $UPG
+				[ $? -ne 0 ] && FAIL_MSG="Error Upgrading Package $UPG. You will need to manually upgrade after upgrade. Please Reboot Now"
 			fi
 		done
 		for METER in $(PACKAGEDIR/VU_Meter*.tcz); do
 			echo '[ INFO ] '$METER' found, updating....'
 			sudo -u tc pcp-update $METER
+			[ $? -ne 0 ] && FAIL_MSG="Error Upgrading Package $METER. You will need to manually upgrade after upgrade. Please Reboot Now"
 		done
 		if [ "$JIVELITE" = "yes" -a "$IR_LIRC" = "yes" ]; then
 			sudo -u tc pcp-load -wi pcp-irtools.tcz
+			IR_KEYTABLES="yes"
 		fi
 		rm -f /home/tc/.alsaequal.bin
 	fi
@@ -608,6 +628,11 @@ if [ "$ACTION" = "download" ]; then
 			echo '[ INFO ] pcp-lirc found, will be automatically updated.'
 			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 235`
 		fi
+		if [ -f ${PACKAGEDIR}/samba4.tcz ]; then
+			echo '[ INFO ] samba4 found, will be automatically updated.'
+			SPACE_REQUIRED=`expr $SPACE_REQUIRED + 14000`
+		fi
+
 	fi
 
 	if [ $(version $(pcp_picoreplayer_version)) -ge $(version "5.0.0") ]; then
