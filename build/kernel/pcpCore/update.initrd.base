@@ -4,6 +4,7 @@ BINPATH="/mnt/nfs/Raspberry_Pi/picoreplayer/initrd/binaries"
 BUSYBOXTAR=${BINPATH}/busybox.tar.gz
 BUSYBOXSUIDTAR=${BINPATH}/busybox.suid.tar.gz
 KMODTAR=${BINPATH}/kmod.tar.gz
+UTILLINUXTAR=${BINPATH}/util-linux-initrd.tar.gz
 CORE_SCRIPTS="/home/paul/git/Core-scripts"
 
 INITRD="/tmp/initrd-working"
@@ -28,10 +29,15 @@ else
 	echo
 fi
 
-if [ -r $BUSYBOXTAR -a -r $BUSYBOXSUIDTAR -a -r $KMODTAR ]; then
+if [ -r $BUSYBOXTAR -a -r $BUSYBOXSUIDTAR -a -r $KMODTAR -a -r $UTILLINUXTAR ]; then
 	echo "Removing old Busybox and Kmod"
 else
 	echo "New Binary tar packages missing"
+	exit 1
+fi
+
+if [[ "$INITRD" =~ "/tmp" ]]; then
+	echo "INITRD Directory incorrectly set! Make sure this is in a /tmp directory.
 	exit 1
 fi
 
@@ -50,17 +56,26 @@ rm -f ${INITRD}/bin/busybox.suid
 find -L ${INITRD}/sbin -samefile ${INITRD}/sbin/kmod | grep ${INITRD} | xargs rm -f
 rm -f ${INITRD}/sbin/kmod
 
+find ${INITRD}/lib/* | grep libuuid.so | xargs rm -f
+find ${INITRD}/lib/* | grep libblkid.so | xargs rm -f
+find ${INITRD}/usr/lib/* | grep libmount.so | xargs rm -f
+rm -f ${INITRD}/sbin/blkid
+rm -f ${INITRD}/usr/bin/mount
+
 echo "Extracting Busybox and kmod"
 tar xf $BUSYBOXTAR -C $INITRD --no-same-owner
 tar xf $BUSYBOXSUIDTAR -C $INITRD --no-same-owner
 tar xf $KMODTAR -C $INITRD --no-same-owner
+tar xf $UTILLINUXTAR -C $INITRD --no-same-owner
 
 echo "Setting Symlinks and suid bits"
 #Make sure bin/mount is linked to /usr/bin/mount
 ln -f -r -s ${INITRD}/usr/bin/mount ${INITRD}/bin/mount
 
 #Make sure suid bits are set.
+chown root.root ${INITRD}/bin/busybox.suid
 chmod u+s ${INITRD}/bin/busybox.suid
+chown root.root ${INITRD}/usr/bin/mount
 chmod u+s ${INITRD}/usr/bin/mount
 
 echo "Replacing tc-config"
@@ -73,5 +88,6 @@ chmod 755 ${INITRD}/usr/bin/tce*
 
 echo "Setting os-release"
 cp -f $CORE_SCRIPTS/etc/os-release ${INITRD}/etc
+[ -f ${INITRD}/RELEASE ] && rm -f ${INITRD}/RELEASE
 
 rm -f ${INITRD}/etc/motd
