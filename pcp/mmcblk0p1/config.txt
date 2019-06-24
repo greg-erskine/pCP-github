@@ -1,22 +1,27 @@
 # For more options and information see
-# http://www.raspberrypi.org/documentation/configuration/config-txt.md
+# http://rpf.io/configtxt
 # Some settings may impact device functionality. See link above for details
 
 [PI0]
-initramfs pcp_10.1.gz followkernel
-kernel kernel41950.img
+initramfs pcp_10.2.gz followkernel
+kernel kernel41955.img
 
 [PI1]
-initramfs pcp_10.1.gz followkernel
-kernel kernel41950.img
+initramfs pcp_10.2.gz followkernel
+kernel kernel41955.img
 
 [PI2]
-initramfs pcp_10.1v7.gz followkernel
-kernel kernel41950v7.img
+initramfs pcp_10.2v7.gz followkernel
+kernel kernel41955v7.img
 
 [PI3]
-initramfs pcp_10.1v7.gz followkernel
-kernel kernel41950v7.img
+initramfs pcp_10.2v7.gz followkernel
+kernel kernel41955v7.img
+
+[PI4]
+initramfs pcp_10.2v7l.gz followkernel
+kernel kernel41955v7l.img
+max_framebuffers=2
 
 [ALL]
 cmdline cmdline.txt
