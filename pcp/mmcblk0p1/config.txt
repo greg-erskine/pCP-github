@@ -13,12 +13,10 @@ kernel kernel41950.img
 [PI2]
 initramfs pcp_10.1v7.gz followkernel
 kernel kernel41950v7.img
-total_mem=1024
 
 [PI3]
 initramfs pcp_10.1v7.gz followkernel
 kernel kernel41950v7.img
-total_mem=1024
 
 [ALL]
 cmdline cmdline.txt
