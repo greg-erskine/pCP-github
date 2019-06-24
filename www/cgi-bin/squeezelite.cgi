@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-14
+# Version: 5.1.0 2019-06-24
 
 . pcp-functions
 . pcp-rpi-functions
@@ -46,6 +46,10 @@ STRING="${SQLT_BIN} "
 #  -M <modelname>	Set the squeezelite player model name sent to the server (default: SqueezeLite)
 #  -N <filename>	Store player name in filename to allow server defined name changes to be shared between servers (not supported with -n)
 #  -P <filename>	Store the process id (PID) in filename
+#  -W				Read wave and aiff format from header, ignore server parameters
+#  -X 				Use linear volume adjustments instead of in terms of dB (only for hardware volume control)
+#  -z 				Daemonize
+#  -Z <rate>		Report rate to server in helo as the maximum sample rate we can support
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -63,7 +67,7 @@ pcp_cards_controls() {
 			amixer -c $CARD sget $MCONTROL | grep -q "volume"
 			[ $? -eq 0 ] && echo '                      <li>Card '$CARDNO': '$CARD' - Control: '$(echo $MCONTROL | cut -d"'" -f2)'</li>'
 		done
-		CARDNO=$((CARDNO+1))
+		CARDNO=$((CARDNO + 1))
 	done
 
 	echo '                    </ul>'
@@ -88,13 +92,13 @@ fi
 
 #========================================================================================
 # Populate sound card drop-down options
-#---------------------------------------------------------------------------------------- 
+#----------------------------------------------------------------------------------------
 pcp_sound_card_dropdown
 
 echo '<script>'
 echo '  function load_defaults() {'
 echo '    var sel = document.getElementById("audiocard");'
-echo '    var card= sel.options[sel.selectedIndex].text;'
+echo '    var card = sel.options[sel.selectedIndex].text;'
 echo '    if (confirm("Load default Alsa parameters, when selecting " + card + "?\nNote: <Cancel> = No")) {'
 echo '      document.setaudio.save_out.value="yes";'
 echo '    } else {'
@@ -267,7 +271,7 @@ else
 	for OD in $OUT_DEVICES; do
 		echo '                      <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${OPTION}\'')">'
 		echo '                        <span id="option'${OPTION}'">'$OD'</span></li>'
-		OPTION=$(($OPTION + 1))
+		OPTION=$((OPTION + 1))
 	done
 
 	echo '                    </ul>'
@@ -827,7 +831,7 @@ pcp_squeezelite_close_output() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_close_output
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Unmute ALSA control--------------------------------
+#--------------------------------------Unmute ALSA control-------------------------------
 pcp_squeezelite_unmute() {
 	case "$UNMUTE" in
 		PCM) UNMUTEYES="checked" ;;
@@ -856,9 +860,7 @@ pcp_squeezelite_unmute() {
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Unmute ALSA control and set to full volume.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -V option.</p>'
-
 	pcp_cards_controls
-
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -894,12 +896,9 @@ pcp_squeezelite_volume() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Use ALSA control for volume adjustment otherwise use software volume adjustment.</p>'
-
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
 	echo '                    <p><b>Note:</b> Not supported with -U option.</p>'
-
 	pcp_cards_controls
-
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1086,11 +1085,11 @@ pcp_squeezelite_binary() {
 	echo '          <fieldset>'
 	echo '            <legend>Set Squeezelite Binary</legend>'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
 	COL1="75"
 	COL2="210"
 	COL3="380"
+	pcp_incr_id
+	pcp_start_row_shade
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
@@ -1100,13 +1099,14 @@ pcp_squeezelite_binary() {
 	echo '                  <p><b>Binary</b></p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL3'">'
-	echo '                    <p>Select your Squeezelite Binary&nbsp;&nbsp;'
-	echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                    </p>'
+	echo '                  <p>Select your Squeezelite Binary&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Default and DSD binaries are included with pCP.</p>'
 	echo '                    <p>Almost all users will use the default binary.</p>'
 	echo '                  </div>'
+	echo '                </td>'
 	echo '              </tr>'
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1145,7 +1145,6 @@ pcp_squeezelite_binary() {
 	echo '                </td>'
 	echo '              </tr>'
 	#--------------------------------------Submit button---------------------------------
-	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -1169,10 +1168,10 @@ pcp_squeezelite_binary() {
 #----------------------------------------------------------------------------------------
 echo '</table>'
 
-[ $DEBUG -eq 1 ] && pcp_show_config_cfg
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
 
 echo '</body>'
 echo '</html>'
+exit
