@@ -2,7 +2,7 @@
 # pcp-rpi-functions
 # These are the common Raspberry Pi functions used by piCorePlayer.
 
-# Version: 5.0.1 2019-06-18
+# Version: 5.1.0 2019-06-24
 
 pcp_debug_log "$0 - Running pcp-rpi-functions..."
 
@@ -71,6 +71,9 @@ pcp_rpi_details() {
 		*a52082) TYPE=3;  MODEL=3B;     PCBREV=1.2;  MEMORY=1024;  RB_DELAY=40;;
 		*a22083) TYPE=3;  MODEL=3B;     PCBREV=1.3;  MEMORY=1024;  RB_DELAY=40;;
 		*a02100) TYPE=3;  MODEL=CM3+;   PCBREV=1.0;  MEMORY=1024;  RB_DELAY=35;;
+		*a03111) TYPE=4;  MODEL=4B;     PCBREV=1.1;  MEMORY=1024;  RB_DELAY=40;;
+		*b03111) TYPE=4;  MODEL=4B;     PCBREV=1.1;  MEMORY=2048;  RB_DELAY=40;;
+		*c03111) TYPE=4;  MODEL=4B;     PCBREV=1.1;  MEMORY=4096;  RB_DELAY=40;;
 
 		*)       TYPE=99; MODEL=?;      PCBREV=?;    MEMORY=?;     RB_DELAY=60;;
 	esac
@@ -90,6 +93,7 @@ pcp_rpi_details() {
 		3B+*)  HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		3B*)   HARDWARE=BCM2710; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		3A*)   HARDWARE=BCM2710; ETHER=0; USB=1; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
+		4B)    HARDWARE=BCM2711; ETHER=1; USB=4; LED=2; P2PINS=0; HOLES=4; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 		*)     HARDWARE=X;       ETHER=X; USB=X; LED=X; P2PINS=X; HOLES=X; PIN3=X; PIN5=X; PIN13=X;  I2C=X; P5=X; P6=X;;
 	esac
 }
@@ -119,6 +123,11 @@ pcp_rpi_is_rpi2() {
 pcp_rpi_is_rpi3() {
 	pcp_rpi_details
 	[ $TYPE -eq 3 ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_rpi4() {
+	pcp_rpi_details
+	[ $TYPE -eq 4 ] && echo 0 || echo 1
 }
 
 pcp_rpi_type() {
@@ -226,6 +235,11 @@ pcp_rpi_is_model_3Aplus() {
 	[ "$MODEL" = "3A+" ] && echo 0 || echo 1
 }
 
+pcp_rpi_is_model_4B() {
+	pcp_rpi_details
+	[ "$MODEL" = "4B" ] && echo 0 || echo 1
+}
+
 PB101=$(cat $PB100)
 set -- $PB101
 PB102=$(pcp_pb_get $1)
@@ -247,7 +261,7 @@ pcp_rpi_is_hat() {
 
 pcp_rpi_has_inbuilt_wifi() {
 	pcp_rpi_details
-	if ([ "$MODEL" = "ZERO-W" ] || [ "$MODEL" = "3B" ] || [ "$MODEL" = "3B+" ] || [ "$MODEL" = "3A+" ]); then
+	if ([ "$MODEL" = "ZERO-W" ] || [ "$MODEL" = "3B" ] || [ "$MODEL" = "3B+" ] || [ "$MODEL" = "3A+" ] || [ "$MODEL" = "4B" ]); then
 		echo 0
 	else
 		echo 1
@@ -287,6 +301,17 @@ pcp_rpi_is_memory_1024() {
 	pcp_rpi_details
 	[ "$MEMORY" = "1024" ] && echo 0 || echo 1
 }
+
+pcp_rpi_is_memory_2048() {
+	pcp_rpi_details
+	[ "$MEMORY" = "2048" ] && echo 0 || echo 1
+}
+
+pcp_rpi_is_memory_4096() {
+	pcp_rpi_details
+	[ "$MEMORY" = "4096" ] && echo 0 || echo 1
+}
+
 
 API_DEV_KEY=$PB102
 API_USER_NAME=$PB103
