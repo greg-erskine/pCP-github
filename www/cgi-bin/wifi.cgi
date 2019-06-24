@@ -536,7 +536,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	if [ $(pcp_rpi_is_model_3Bplus) -eq 0 ]; then
+	if [ $(pcp_rpi_is_model_3Bplus) -eq 0 -o $(pcp_rpi_is_rpi4) -eq 0 ]; then
 		echo '                  <input type="hidden" name="RPI3BPLUS" value="true">'
 	else
 		echo '                  <input type="hidden" name="RPI3BPLUS" value="false">'
