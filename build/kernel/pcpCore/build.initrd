@@ -136,6 +136,7 @@ sudo tar xf /tmp/$NEWKERNEL.tar
 
 # Update the initrd from busybox/kmod/Core-Scripts
 sudo $BASEWD/../update.initrd.base
+[ $? != 0 ] && exit 1
 
 echo "*****************************************************************"
 echo "initrd has been updated with modules. ${GREEN}Please add any modules that are needed.${NORMAL}"
@@ -171,9 +172,9 @@ cd $BASEWD
 
 if [ $AUTO -eq 0 ]; then
 echo "*****************************************************************"
+	PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
 	while true
 	do
-		PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
 		echo "Release name is: ${PCPOSVER}"
 		echo
 		echo "Please enter new string, or enter to keep the same"
@@ -191,6 +192,7 @@ echo "*****************************************************************"
 			* ) echo "Please answer yes or no.";;
 		esac
 	done
+	NEWPCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
 fi
 
 echo "*****************************************************************"
@@ -209,7 +211,7 @@ sudo rm -rf $INITRDWRK/lib/modules/$OLDKERNEL
 #	fi
 #done
 
-if [ $AUTO -eq 0 ]; then
+if [ $AUTO -eq 0 -a ${PCPOSVER} != ${NEWPCPOSVER} ]; then
 	echo "*****************************************************************"
 	echo "Name for the initrd for kernel $NEWKERNELDIR"
 	echo 

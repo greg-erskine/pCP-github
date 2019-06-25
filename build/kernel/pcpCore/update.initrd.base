@@ -29,15 +29,15 @@ else
 	echo
 fi
 
+if [[ ! "$INITRD" =~ "/tmp" ]]; then
+	echo "INITRD Directory incorrectly set! Make sure this is in a /tmp directory. $INITRD"
+	exit 1
+fi
+
 if [ -r $BUSYBOXTAR -a -r $BUSYBOXSUIDTAR -a -r $KMODTAR -a -r $UTILLINUXTAR ]; then
 	echo "Removing old Busybox and Kmod"
 else
 	echo "New Binary tar packages missing"
-	exit 1
-fi
-
-if [[ "$INITRD" =~ "/tmp" ]]; then
-	echo "INITRD Directory incorrectly set! Make sure this is in a /tmp directory.
 	exit 1
 fi
 

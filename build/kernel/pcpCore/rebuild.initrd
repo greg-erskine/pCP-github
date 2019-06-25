@@ -89,6 +89,7 @@ OLDKERNEL=$(ls $INITRDWRK/lib/modules)
 
 # Update the initrd from busybox/kmod/Core-Scripts
 sudo $BASEWD/../update.initrd.base
+[ $? != 0 ] && exit 1
 
 echo "*****************************************************************"
 echo "Unpacked initrd is located $INITRDWRK"
@@ -115,31 +116,50 @@ sudo ln -s /usr/local/lib/modules/$OLDKERNEL/kernel kernel.tclocal
 cd $BASEWD
 
 echo "*****************************************************************"
+PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
 while true
-do 
-	PCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
+do
 	echo "Release name is: ${PCPOSVER}"
 	echo
 	echo "Please enter new string, or enter to keep the same"
 	read key
 	if [ "$key" != "" ]; then
-		PCPOSVER=${key//[$'\t\r\n ']}
-		echo "You entered :${PCPOSVER}"
+		NEWPCPOSVER=${key//[$'\t\r\n ']}
+		echo "You entered :${NEWPCPOSVER}"
 	else
 		echo "Keeping the string :${PCPOSVER}"
+		NEWPCPOSVER=${PCPOSVER}
 	fi
 	read -p "Is this correct? (y/n) " yn
 	case $yn in
-		[Yy]* ) sudo sh -c "echo ${PCPOSVER} > $INITRDWRK/usr/share/doc/tc/release.txt";break;;
+		[Yy]* ) sudo sh -c "echo ${NEWPCPOSVER} > $INITRDWRK/usr/share/doc/tc/release.txt";break;;
 		[Nn]* ) ;;
 		* ) echo "Please answer yes or no.";;
 	esac
 done
+NEWPCPOSVER=$(cat $INITRDWRK/usr/share/doc/tc/release.txt)
+
+if [ ${PCPOSVER} != ${NEWPCPOSVER} ]; then
+	echo "*****************************************************************"
+	echo "initrd name is $(basename ${OLDINITRD})"
+#	echo "initrd name is ${OLDINITRD}"
+	echo
+	echo "Enter new name, or press enter to keep old name"
+	read key
+	if [ "${key}" != "" ]; then
+	   NEWINITRD=$(echo ${OLDINITRD} | sed 's/'$(basename ${OLDINITRD})'/'${key//[$'\t\r\n ']}'/')
+	else
+	   NEWINITRD=${OLDINITRD}
+	fi
+else
+   NEWINITRD=${OLDINITRD}
+fi
 
 echo "*****************************************************************"
 echo "Name for the initrd for kernel $OLDKERNEL"
-echo 
-echo "initrd name is $(basename ${OLDINITRD})"
+echo
+echo "initrd name is $(basename ${NEWINITRD})"
+#echo "initrd name is ${NEWINITRD}"
 echo
 echo "Press enter to repack"
 read key
@@ -148,9 +168,9 @@ cd $INITRDWRK/lib/modules/${OLDKERNEL}/kernel
 find * -not -type d > /tmp/module.lst
 sort /tmp/module.lst > ${BASEWD}/initrd/${OLD}/module.lst
 cd $INITRDWRK
-sudo find | sudo cpio -o -H newc | gzip -9 > ${OLDINITRD}
+sudo find | sudo cpio -o -H newc | gzip -9 > ${NEWINITRD}
 echo "Launching recompression in the background"
-advdef -z4 ${OLDINITRD} 2>&1 > /dev/null &
+advdef -z4 ${NEWINITRD} 2>&1 > /dev/null &
 cd $BASEWD
 echo
 echo "Cleanup - Temp Files"
