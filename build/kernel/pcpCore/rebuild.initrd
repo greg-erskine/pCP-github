@@ -74,7 +74,6 @@ if [ -f "${OLDINITRD}" ]; then
 		mkdir $INITRDWRK
 		cd $INITRDWRK
 		zcat "${OLDINITRD}" | sudo cpio -i -H newc -d
-		[ ! -f ${OLDINITRD}.orig ] && mv -f ${OLDINITRD} ${OLDINITRD}.orig
 		cd ${BASEWD}
 	else
 		echo "$INITRDWRK is not empty, please delete and then restart"
@@ -164,6 +163,8 @@ echo
 echo "Press enter to repack"
 read key
 echo
+# Backup the old initrd
+mv --backup=numbered ${OLDINITRD} ${OLDINITRD}.bak
 cd $INITRDWRK/lib/modules/${OLDKERNEL}/kernel
 find * -not -type d > /tmp/module.lst
 sort /tmp/module.lst > ${BASEWD}/initrd/${OLD}/module.lst
