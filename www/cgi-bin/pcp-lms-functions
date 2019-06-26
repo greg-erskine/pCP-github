@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 5.0.0 2019-05-27
+# Version: 5.1.0 2019-06-26
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
@@ -71,7 +71,7 @@ pcp_lms_favorites() {
 
 #========================================================================================
 # Get information from LMS json interface
-#	busybox wget -q -O- --post-data='{"id":1,"method":"slim.request","params": [ "-", [ "players", "0", "999" ] ]}' 
+#	busybox wget -q -O- --post-data='{"id":1,"method":"slim.request","params": [ "-", [ "players", "0", "999" ] ]}'
 #          --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js
 #----------------------------------------------------------------------------------------
 pcp_lms_build_loop() {
@@ -242,7 +242,7 @@ pcp_lms_show() {
 	REQUEST=$(pcp_lms_build_request "$NAME" status - 1 tags:cgABbehldiqtyrSuoKLNJ)
 	RESULT=$(pcp_lms_build_result result remoteMeta artwork_url)
 	URL=$(pcp_lms_json_request)
-	if [ "$URL" == "" ]; then
+	if [ "$URL" = "" ]; then
 		RESULT="\[\"result\",\"playlist_loop\",0,\"artwork_track_id\"\]"
 		A_ID=$(pcp_lms_json_request)
 		URL="/music/${A_ID}/cover.jpg"
@@ -620,7 +620,10 @@ pcp_lms_auto_start_fav() {
 pcp_lms_favorites_list() {
 #	$1 - nav select id
 	local ID
-	
+	local LOG="${LOGDIR}/pcp_favorites_list.log"
+
+	echo "ID       Favorite name" > $LOG
+	echo "====================================" >> $LOG
 	REQUEST=$(pcp_lms_build_request - favorites items 0 100)
 	NO_OF_FAVORITES=$(pcp_lms_json_request_list)
 
@@ -629,7 +632,8 @@ pcp_lms_favorites_list() {
 		FAV_NAME=$(cat /tmp/json_list | egrep "\[\"result\",\"loop_loop\",${i},\"name\"\]" | sed -r 's/\[\"result\",\"loop_loop\",[0-9]{1,3},\"name\"\][[:space:]]{1,9}//' | sed 's/\"//g')
 		ID=$(cat /tmp/json_list | egrep  "\[\"result\",\"loop_loop\",${i},\"id\"\]" | sed -r 's/\[\"result\",\"loop_loop\",[0-9]{1,3},\"id\"\][[:space:]]{1,9}//' | sed 's/\"//g')
 		ISAUDIO=$(cat /tmp/json_list | egrep  "\[\"result\",\"loop_loop\",${i},\"isaudio\"\]" | sed -r 's/\[\"result\",\"loop_loop\",[0-9]{1,3},\"isaudio\"\][[:space:]]{1,9}//' | sed 's/\"//g')
-		if [ "$ISAUDIO" = "1" ]; then
+		echo "$ID   $FAV_NAME" >> $LOG
+		if [ $ISAUDIO -eq 1 ]; then
 			case $1 in
 				nav) echo '        <a class="nav7" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''favorites'\'', '\''playlist'\'', '\''play'\'', '\''item_id:'$ID''\'')">'$FAV_NAME'</a>';;
 				select)
@@ -644,19 +648,19 @@ pcp_lms_favorites_list() {
 }
 
 #========================================================================================
-# Plugins commands and queries 
+# Plugins commands and queries
 #---------------------------------------------------------------------------------------
 # The following command and queries are proposed by server plugins. The plugin must be
 # enabled in the server configuration for the commands and queries to be available to
 # the CLI client. Please use query "can" to determine if the given command or query
 # is available. Query "radios" can alternatively be used to get a list of available
-# radio station plugin CLI queries. 
-#	radios 
-#	apps 
-#	Live Music Archive, Live365, MP3tunes, Pandora, Podcasts, RadioIO, RadioTime, Rhapsody, Shoutcast, SIRIUS, Staff Picks, RSS 
-#	Favorites 
-#	RandomPlay 
-#	MusicIP 
+# radio station plugin CLI queries.
+#	radios
+#	apps
+#	Live Music Archive, Live365, MP3tunes, Pandora, Podcasts, RadioIO, RadioTime, Rhapsody, Shoutcast, SIRIUS, Staff Picks, RSS
+#	Favorites
+#	RandomPlay
+#	MusicIP
 #---------------------------------------------------------------------------------------
 pcp_lms_randomplay() {
 	# MODE=tracks|albums|contributors|year|disable
@@ -669,7 +673,7 @@ pcp_lms_randomplay() {
 #========================================================================================
 # Local LMS server related functions
 #----------------------------------------------------------------------------------------
-pcp_lms_set_slimconfig(){
+pcp_lms_set_slimconfig() {
 	CFG="/home/tc/.slimserver.cfg"
 	# Read the current config file, if present
 	[ -f $CFG ] && . $CFG
@@ -685,7 +689,7 @@ pcp_lms_set_slimconfig(){
 		;;
 		OPTS)
 			unset NEWOPTIONS
-			if [ "$OPTIONS" != "" ]; then  
+			if [ "$OPTIONS" != "" ]; then
 				for i in $OPTIONS; do
 					case $i in
 						$2);;  # Do Nothing, we will add later if we are adding.
