@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.1.0 2019-06-26
 
 . pcp-functions
 
@@ -9,22 +9,25 @@ pcp_html_head "xtras copy2fs" "GE"
 pcp_banner
 pcp_running_script
 pcp_xtras
-
 pcp_httpd_query_string
+
+REBOOT_REQUIRED=false
 
 #----------------------------------------------------------------------------------------
 # copy2fs actions
 #----------------------------------------------------------------------------------------
 case "$COPY2FS" in
 	yes)
-		touch $TCEMNT/tce/copy2fs.flg
+		touch ${TCEMNT}/tce/copy2fs.flg
+		REBOOT_REQUIRED=true
 	;;
 	no)
-		rm -f $TCEMNT/tce/copy2fs.flg
+		rm -f ${TCEMNT}/tce/copy2fs.flg
+		REBOOT_REQUIRED=true
 	;;
 esac
 
-[ -f $TCEMNT/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
+[ -f ${TCEMNT}/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
 
 #========================================================================================
 # copy2fs form
@@ -33,36 +36,39 @@ pcp_incr_id
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
-echo '      <form name="copy2fs" action="xtras_copy2fs.cgi" method="get">'
+echo '      <form name="copy2fs" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>copy2fs</legend>'
 echo '            <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
 pcp_start_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td class="column150">'
-echo '                    <p>copy2fs flag set</p>'
-echo '                  </td>'
-echo '                  <td class="column150">'
-echo '                    <input class="small1" type="radio" name="COPY2FS" value="yes" '$COPY2FSyes'>Yes'
-echo '                    <input class="small1" type="radio" name="COPY2FS" value="no" '$COPY2FSno'>No'
-echo '                  </td>'
-echo '                  <td>'
-echo '                    <p>Set the copy2fs flag&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                    <div id="'$ID'" class="less">'
-echo '                      <p>This sets the copy2fs flag so, on the next reboot, all extensions are loaded into RAM.</p>'
-echo '                      <p>A reboot is required for the copy2fs flag to take effect.</p>'
-echo '                    </div>'
-echo '                  </td>'
-echo '                </tr>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="column150">'
+echo '                  <p>copy2fs flag set</p>'
+echo '                </td>'
+echo '                <td class="column150">'
+echo '                  <input class="small1" type="radio" name="COPY2FS" value="yes" '$COPY2FSyes'>Yes'
+echo '                  <input class="small1" type="radio" name="COPY2FS" value="no" '$COPY2FSno'>No'
+echo '                </td>'
+echo '                <td>'
+echo '                  <p>Set the copy2fs flag&nbsp;&nbsp;'
+echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
+echo '                  <div id="'$ID'" class="less">'
+echo '                    <p>This sets the copy2fs flag so, on the next reboot, all extensions are loaded into RAM.</p>'
+echo '                    <p>A reboot is required for the copy2fs flag to take effect.</p>'
+echo '                  </div>'
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
-echo '                <tr class="'$ROWSHADE'">'
-echo '                  <td colspan="3">'
-echo '                    <input type="submit" name="SUBMIT" value="Save">'
-echo '                    <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')">'
-echo '                  </td>'
-echo '                </tr>'
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td colspan="3">'
+echo '                  <input type="submit" name="SUBMIT" value="Save">'
+#echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')">'
+echo '                </td>'
+echo '              </tr>'
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
@@ -81,12 +87,14 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Current mounted filesystems</legend>'
 echo '          <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
                       pcp_textarea_inform "none" "df" 200
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
@@ -94,6 +102,7 @@ echo '                <p><b>Example: copy2fs not set.</b></p>'
 echo '                <p>Note: There will be lots of loop mounted filesystems, one for each extension.</p>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
@@ -111,6 +120,7 @@ echo                    '     .                      .         .          .   . 
 echo                  '</textarea>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
@@ -119,6 +129,7 @@ echo '                <p>Note: There are no loop mounted filesystems.</p>'
 echo '              </td>'
 echo '            </tr>'
 pcp_toggle_row_shade
+#----------------------------------------------------------------------------------------
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 echo                  '<textarea class="inform" style="height:60px">'
@@ -128,6 +139,7 @@ echo                    '/dev/mmcblk0p2           36561     15244     18379  45%
 echo                  '</textarea>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -141,3 +153,7 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
+
+$REBOOT_REQUIRED
+[ $? -eq 0 ] && pcp_reboot_required
+exit
