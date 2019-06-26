@@ -1,24 +1,29 @@
 #!/bin/bash
 
-# Version: 0.01 2017-03-25 PH
-#	Original.
-#	Adding insitu update stuff.
-
+# Version: 6.0.0 2019-06-24 PH
+#
 #========================================================================================
 # This script builds a image in /tmp, based on git, web repos and local kernel
 #
 #   1. Make sure picoreplayer git is checked out to correct branch
 #   2. Run script as root
 #
-# Image/Partition 1 is 32MB
-# Image/Partition 2 is 48MB
+# Image/Partition 1 is 64MB
+# Image/Partition 2 is 64MB
 # Total image size is Automatically built on the above sizes
 #
 #	Image is built with 4 Heads and 16 Sectors
 #
-#    Device          Boot Start    End   Blocks  Id System
-# /tmp/pCPImage.img1       8192  73727   65536  32M  c W95 FAT32 (LBA)
-# /tmp/pCPImage.img2      73728 172031   98304  48M 83 Linux
+#  Disk /tmp/piCorePlayer5.1.0-b2.img: 132 MiB, 138412032 bytes, 270336 sectors
+#  Units: sectors of 1 * 512 = 512 bytes
+#  Sector size (logical/physical): 512 bytes / 512 bytes
+#  I/O size (minimum/optimal): 512 bytes / 512 bytes
+#  Disklabel type: dos
+#  Disk identifier: 0x49323d83
+#
+#  Device                         Boot  Start    End Sectors Size Id Type
+#  /tmp/piCorePlayer5.1.0-b2.img1        8192 139263  131072  64M  c W95 FAT32 (LBA)
+#  /tmp/piCorePlayer5.1.0-b2.img2      139264 270335  131072  64M 83 Linux
 #========================================================================================
 #
 # - PIVERS is used to set image name
@@ -164,8 +169,8 @@ pcp_check_losetup() {
 }
 
 pcp_set_image_sizes(){
-	P1SIZE=32     #to be Mulitplied by 2048 for partition alignment to SDCard
-	P2SIZE=48
+	P1SIZE=64     #to be Mulitplied by 2048 for partition alignment to SDCard
+	P2SIZE=64
 	DDBS="1M"
 	DDCOUNT=$(expr 4 + $P1SIZE + $P2SIZE )
 
@@ -278,11 +283,17 @@ copy_boot_part1(){
 COPYING.linux
 LICENCE.broadcom
 bootcode.bin
-fixup.dat
+fixup4cd.dat
+fixup4.dat
+fixup4x.dat
 fixup_cd.dat
+fixup.dat
 fixup_x.dat
-start.elf
+start4cd.elf
+start4.elf
+start4x.elf
 start_cd.elf
+start.elf
 start_x.elf
 EOF
 
@@ -290,11 +301,11 @@ EOF
 
 	#Location   ${BUILDROOT}/kernel/pcpCore/armv6/kernel/<selected kernel>
 	cat << EOF > ${FILELIST}
+bcm2708-rpi-b.dtb
+bcm2708-rpi-b-plus.dtb
+bcm2708-rpi-cm.dtb
 bcm2708-rpi-zero.dtb
 bcm2708-rpi-zero-w.dtb
-bcm2708-rpi-b-plus.dtb
-bcm2708-rpi-b.dtb
-bcm2708-rpi-cm.dtb
 EOF
 	rsync --files-from=${FILELIST}  ${BUILDROOT}/kernel/pcpCore/armv6/kernel/${KERNELV6} $PART1
 
@@ -302,22 +313,31 @@ EOF
 	cat << EOF > ${FILELIST}
 bcm2709-rpi-2-b.dtb
 bcm2710-rpi-3-b.dtb
-bcm2710-rpi-cm3.dtb
 bcm2710-rpi-3-b-plus.dtb
+bcm2710-rpi-cm3.dtb
 EOF
 	rsync --files-from=${FILELIST} ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7} $PART1
+
+	#Location   ${BUILDROOT}/kernel/pcpCore/armv7l/kernel/<selected kernel>
+	cat << EOF > ${FILELIST}
+bcm2711-rpi-4-b.dtb
+EOF
+	rsync --files-from=${FILELIST} ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7} $PART1
+
 
 	#Copy overlays, doesn't matter which arch we copy from
 	[ ! -d $PART1/overlays ] && mkdir $PART1/overlays
 	rsync ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7}/overlays/* $PART1/overlays
 
-	#Copy Both Kernels
+	#Copy the 3 Kernels
 	cp ${BUILDROOT}/kernel/pcpCore/armv6/kernel/${KERNELV6}/kernel*.img $PART1
 	cp ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7}/kernel*v7.img $PART1
+	cp ${BUILDROOT}/kernel/pcpCore/armv7l/kernel/${KERNELV7l}/kernel*v7l.img $PART1
 
-	#Copy the initrds
-	cp ${BUILDROOT}/kernel/pcpCore/armv6/initrd/${KERNELV6}/*.gz $PART1
-	cp ${BUILDROOT}/kernel/pcpCore/armv7/initrd/${KERNELV7}/*v7.gz $PART1
+	#Copy the 3 initrds, Make sure to grab the newest one if more than one in directory
+	ls -1 --sort=time ${BUILDROOT}/kernel/pcpCore/armv6/initrd/${KERNELV6}/*.gz | grep --max-count=1 "" | xargs -r -I {} cp {} $PART1
+	ls -1 --sort=time ${BUILDROOT}/kernel/pcpCore/armv7/initrd/${KERNELV7}/*v7.gz | grep --max-count=1 "" | xargs -r -I {} cp {} $PART1
+	ls -1 --sort=time ${BUILDROOT}/kernel/pcpCore/armv7l/initrd/${KERNELV7l}/*v7l.gz | grep --max-count=1 "" | xargs -r -I {} cp {} $PART1
 
 	#copy the files from pcp git
 	#location ${BUILDROOT}/../pcp/mmcblk0p1
@@ -399,6 +419,7 @@ copy_part2(){
 	for I in $MOD_TCZ; do
 		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}/${I}-${KERNELV6NAME} ${PART2}/tce/optional/${I}-${KERNELV6NAME} 1001.50 664
 		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}/${I}-${KERNELV7NAME} ${PART2}/tce/optional/${I}-${KERNELV7NAME} 1001.50 664
+		pcp_tcz_cp ${BUILDROOT}/kernel/pcpCore/armv7l/extensions/${KERNELV7l}/${I}-${KERNELV7lNAME} ${PART2}/tce/optional/${I}-${KERNELV7lNAME} 1001.50 664
 	done
 }
 
@@ -577,12 +598,15 @@ check_config_txt(){
 	#Copy Both Kernels
 	ARMV6KERNEL=$(basename ${BUILDROOT}/kernel/pcpCore/armv6/kernel/${KERNELV6}/kernel*.img)
 	ARMV7KERNEL=$(basename ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7}/kernel*v7.img)
+	ARMV7lKERNEL=$(basename ${BUILDROOT}/kernel/pcpCore/armv7l/kernel/${KERNELV7l}/kernel*v7l.img)
 	ARMV6INITRD=$(basename ${BUILDROOT}/kernel/pcpCore/armv6/initrd/${KERNELV6}/*.gz)
 	ARMV7INITRD=$(basename ${BUILDROOT}/kernel/pcpCore/armv7/initrd/${KERNELV7}/*.gz)
+	ARMV7lINITRD=$(basename ${BUILDROOT}/kernel/pcpCore/armv7l/initrd/${KERNELV7l}/*.gz)
 	RPI0=1
 	RPI1=1
 	RPI2=1
 	RPI3=1
+	RPI4=1
 
 	while read -r line
 	do
@@ -591,9 +615,10 @@ check_config_txt(){
 			\[PI1\]) ARM=6; RPI1=0; read -r INITRD; read -r KERNEL;;
 			\[PI2\]) ARM=7; RPI2=0; read -r INITRD; read -r KERNEL;;
 			\[PI3\]) ARM=7; RPI3=0; read -r INITRD; read -r KERNEL;;
+			\[PI4\]) ARM=7l; RPI3=0; read -r INITRD; read -r KERNEL;;
 			*) ARM=0;;
 		esac
-		if [ $ARM -eq 6 ]; then
+		if [ "$ARM" = "6" ]; then
 			[ $DEBUG -eq 1 ] && echo "${ARMV6INITRD} - $INITRD - ${ARMV6KERNEL} - $KERNEL"
 			if [[ "$INITRD" =~ "${ARMV6INITRD}" ]] && [[ "$KERNEL" =~ "${ARMV6KERNEL}" ]]; then
 				FAIL=0
@@ -602,7 +627,7 @@ check_config_txt(){
 				FAIL=1
 			fi
 		fi
-		if [ $ARM -eq 7 ]; then
+		if [ "$ARM" = "7" ]; then
 			[ $DEBUG -eq 1 ] && echo "${ARMV7INITRD} - $INITRD - ${ARMV7KERNEL} - $KERNEL"
 			if [[ "$INITRD" =~ "${ARMV7INITRD}" ]] && [[ "$KERNEL" =~ "${ARMV7KERNEL}" ]]; then
 				FAIL=0
@@ -611,15 +636,24 @@ check_config_txt(){
 				FAIL=1
 			fi
 		fi
-		if [ $ARM -ne 0 ]; then
+		if [ "$ARM" = "7l" ]; then
+			[ $DEBUG -eq 1 ] && echo "${ARMV7lINITRD} - $INITRD - ${ARMV7lKERNEL} - $KERNEL"
+			if [[ "$INITRD" =~ "${ARMV7lINITRD}" ]] && [[ "$KERNEL" =~ "${ARMV7lKERNEL}" ]]; then
+				FAIL=0
+			else
+				echo "${RED}[ ERROR ] ${ARMV7lINITRD} - $INITRD - ${ARMV7lKERNEL} - $KERNEL"
+				FAIL=1
+			fi
+		fi
+		if [ "$ARM" != "0" ]; then
 			if [ $FAIL -eq 1 ]; then
 				echo "${RED}[ ERROR ] config.txt does not match selected kernel. RPI = ${line}"
 				echo "Fix config.txt in git, then start process again.${NORMAL}"
 				break
 			fi
 		fi
-		[ $DEBUG -eq 1 ] && echo "${RPI0} - ${RPI1} - ${RPI2} - ${RPI3}"
-		if [ ${RPI0} -eq 0 -a ${RPI1} -eq 0 -a ${RPI2} -eq 0 -a ${RPI3} -eq 0 ]; then
+		[ $DEBUG -eq 1 ] && echo "${RPI0} - ${RPI1} - ${RPI2} - ${RPI3} - ${RPI4}"
+		if [ ${RPI0} -eq 0 -a ${RPI1} -eq 0 -a ${RPI2} -eq 0 -a ${RPI3} -eq 0 -a ${RPI4} -eq 0 ]; then
 			break
 		fi
 	done < "${CFG}"
@@ -643,6 +677,7 @@ function readfile(){
 			if [[ $line =~ .*KERNEL.* ]]; then
 				FILEv6=$(echo $line | sed "s/KERNEL/${KERNELV6NAME}/")
 				FILEv7=$(echo $line | sed "s/KERNEL/${KERNELV7NAME}/")
+				FILEv7l=$(echo $line | sed "s/KERNEL/${KERNELV7lNAME}/")
 				echo -n "${BLUE}  $FILEv6 "
 				[ -e "$FILEv6" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
 				# Indents based on nested depth of dep
@@ -653,6 +688,8 @@ function readfile(){
 				done
 				echo -n "${BLUE}  $FILEv7 "
 				[ -e "$FILEv7" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
+				echo -n "${BLUE}  $FILEv7l "
+				[ -e "$FILEv7l" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
          elif [ -e $EXT ]; then
 				echo "${BLUE}  $EXT ${GREEN}OK${NORMAL}"
          else
@@ -703,8 +740,10 @@ check_deps_old(){
 					#Need to Check both Kernels
 					FILEv6=$(echo $LINE | sed "s/KERNEL/${KERNELV6NAME}/")
 					FILEv7=$(echo $LINE | sed "s/KERNEL/${KERNELV7NAME}/")
+					FILEv7l=$(echo $LINE | sed "s/KERNEL/${KERNELV7lNAME}/")
 					[ -e "$FILEv6" ] || ( FAIL=1; echo -n "${RED} ERROR on $LINE." )
 					[ -e "$FILEv7" ] || ( FAIL=1; echo -n "${RED} ERROR on $LINE." )
+					[ -e "$FILEv7l" ] || ( FAIL=1; echo -n "${RED} ERROR on $LINE." )
 				else
 					[ -e "$LINE" ] || ( FAIL=1; echo -n "${RED} ERROR on $LINE." )
 				fi
@@ -807,9 +846,26 @@ do
 		echo "Press Enter to reselect${GREEN}"
 	fi
 done
+echo
+echo "${GREEN}[ INFO ] Please Select the ${YELLOW}armv7l KERNEL${GREEN} version to use for the image."
+select KERNELV7l in $(ls -r --sort=time ${BUILDROOT}/kernel/pcpCore/armv7l/kernel/);
+do
+	if [ "$KERNELV7l" != "" ]; then
+		echo "${YELLOW}You picked ${KERNELV7l}${NORMAL}"
+		read -p "Do you wish to continue? (y)es, (n)o, e(x)it " yn
+		case $yn in
+			[Yy]* ) break;;
+			[Nn]* ) ;;
+			[Xx]* ) abort;;
+			* ) echo "Please answer (y)es, (n)o or e(x)it.";;
+		esac
+		echo "Press Enter to reselect${GREEN}"
+	fi
+done
 
 KERNELV6NAME=$(ls -1 ${BUILDROOT}/kernel/pcpCore/armv6/modules/${KERNELV6}/lib/modules)
 KERNELV7NAME=$(ls -1 ${BUILDROOT}/kernel/pcpCore/armv7/modules/${KERNELV7}/lib/modules)
+KERNELV7lNAME=$(ls -1 ${BUILDROOT}/kernel/pcpCore/armv7l/modules/${KERNELV7l}/lib/modules)
 
 #Check to be sure the config.txt matches the kernel,
 #For now pcpCore and pcpAudioCore use the same file names for initrd and kernels
@@ -903,14 +959,17 @@ done
 if [ $UPDATE_REPO -eq 1 ]; then
 	SRC_V6="${BUILDROOT}/kernel/pcpCore/armv6/extensions/${KERNELV6}"
 	SRC_V7="${BUILDROOT}/kernel/pcpCore/armv7/extensions/${KERNELV7}"
+	SRC_V7l="${BUILDROOT}/kernel/pcpCore/armv7l/extensions/${KERNELV7l}"
 
 	REPO="/home/paul/git/repo.picoreplayer.org/repo/10.x"
 	REPO_V6="${REPO}/armv6/tcz"
 	REPO_V7="${REPO}/armv7/tcz"
+	#Dont see a need to keep a armv7l directory on the repo.
+	REPO_V7l"${REPO}/armv7/tcz"
 
 	EXT="tcz tcz.dep tcz.info tcz.list tcz.md5.txt"
 
-	REPOS="V6 V7"
+	REPOS="V6 V7 V7l"
 	for I in $REPOS; do
 		SRC=$(eval echo  "\${SRC_${I}}")
 		DEST=$(eval echo "\${REPO_${I}}")
