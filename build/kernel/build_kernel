@@ -83,7 +83,7 @@ fi
 
 if [ $UNATTENDED -eq 0 ]; then
 	echo "Select the Base Architecture"
-	select SELECTED_ARCH in armv6 armv7; do
+	select SELECTED_ARCH in armv6 armv7 armv7l; do
 		if [ "$SELECTED_ARCH" != "" ]; then
 			echo "You picked $SELECTED_ARCH"
 			read -p "Do you wish to continue? (y/n) " yn
@@ -97,7 +97,7 @@ if [ $UNATTENDED -eq 0 ]; then
 	echo "*****************************************************************"
 	echo
 else
-	SELECTED_ARCH="armv6 armv7"
+	SELECTED_ARCH="armv6 armv7 armv7l"
 	for RPIARCH in $SELECTED_ARCH; do
 		echo "Select kernel branches to build in ${YELLOW}$RPIARCH${NORMAL}."
 		options=(`git branch --list --no-color | sed "s|*||"`)
@@ -131,6 +131,9 @@ else
 				armv7)
 					armv7_choices[i]="${choices[i]}"
 				;;
+				armv7l)
+					armv7l_choices[i]="${choices[i]}"
+				;;
 			esac
 		done
 		echo
@@ -149,6 +152,9 @@ for i in ${!options[@]}; do
 			;;
 			armv7)
 				choices[i]="${armv7_choices[i]}"
+			;;
+			armv7l)
+				choices[i]="${armv7l_choices[i]}"
 			;;
 		esac
 		if [[ "${choices[i]}" ]]; then
@@ -176,6 +182,9 @@ for i in ${!options[@]}; do
 			armv7)
 				choices[i]="${armv7_choices[i]}"
 			;;
+			armv7l)
+				choices[i]="${armv7l_choices[i]}"
+			;;
 		esac
 		if [[ "${choices[i]}" ]]; then
 			BRANCH="${options[i]}"
@@ -188,10 +197,17 @@ for i in ${!options[@]}; do
 				#These are built into the compiler
 				export CFLAGS="-march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
 				CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv6-linux-gnueabihf_x64/bin/arm-bcm2708hf-linux-gnueabihf-"
-			else
+			elif [ "$RPIARCH" = "armv7" ]; then
 				#These are built into the compiler
 				export CFLAGS="-march=cortex-a8 -mfpu=neon-vfp4"
 				CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv7-linux-gnueabihf_x64/bin/arm-bcm2709hf-linux-gnueabihf-"
+			elif [ "$RPIARCH" = "armv7l" ]; then
+				#These are built into the compiler
+				export CFLAGS="-march=cortex-a72 -mfpu=neon-vfp4"
+				CCPREFIX="${BASEWD}/x-tools/gcc-linaro-armv7-linux-gnueabihf_x64/bin/arm-bcm2709hf-linux-gnueabihf-"
+			else
+				echo "Cross compiler detection error"
+				exit 1
 			fi
 			echo "Setting Cross Compiler to:${CCPREFIX}"
 			echo ""
@@ -234,6 +250,7 @@ for i in ${!options[@]}; do
 				case $RPIARCH in
 					armv6) DEFCONFIG=bcmrpi_defconfig;;
 					armv7) DEFCONFIG=bcm2709_defconfig;;
+					armv7l) DEFCONFIG=bcm2711_defconfig;;
 					*) echo "defconfig selection error"; exit 1;;
 				esac
 
@@ -373,7 +390,7 @@ for i in ${!options[@]}; do
 				echo "*****************************************************************"
 				echo " Copying Binaries to distribution"
 
-			#	RPIARCH is either armv6 or armv7
+			#	RPIARCH is either armv6 or armv7 or armv7l
 				MODPATH="${BASEWD}/pcpCore/${RPIARCH}/modules/${KVERSION}^${SAMEKERNELCOUNT}${DATESTAMP}"
 				KERNELPATH="${BASEWD}/pcpCore/${RPIARCH}/kernel/${KVERSION}^${SAMEKERNELCOUNT}${DATESTAMP}"
 				CFGPATH="${BASEWD}/pcpCore/${RPIARCH}/configs/${KVERSION}^${SAMEKERNELCOUNT}${DATESTAMP}"
@@ -401,6 +418,12 @@ for i in ${!options[@]}; do
 						cp arch/arm/boot/dts/bcm2710-rpi-3-b.dtb $KERNELPATH/
 						cp arch/arm/boot/dts/bcm2710-rpi-3-b-plus.dtb $KERNELPATH/
 						cp arch/arm/boot/dts/bcm2710-rpi-cm3.dtb $KERNELPATH/
+						rsync -q arch/arm/boot/dts/overlays/*.dtbo $KERNELPATH/overlays/
+						rsync -q arch/arm/boot/dts/overlays/README* $KERNELPATH/overlays/
+					;;
+					armv7l)
+						cp arch/arm/boot/zImage $KERNELPATH/kernel${VERSION}${PATCHLEVEL}${SUBLEVEL}v7l.img
+						cp arch/arm/boot/dts/bcm2711*.dtb $KERNELPATH/
 						rsync -q arch/arm/boot/dts/overlays/*.dtbo $KERNELPATH/overlays/
 						rsync -q arch/arm/boot/dts/overlays/README* $KERNELPATH/overlays/
 					;;
