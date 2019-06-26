@@ -1,7 +1,6 @@
 #!/bin/sh
-# Raspberry Pi diagnostics script
 
-# Version: 4.1.0 2018-09-19
+# Version: 5.1.0 2019-06-26
 
 . pcp-functions
 . pcp-rpi-functions
@@ -13,11 +12,9 @@ pcp_banner
 pcp_diagnostics
 pcp_running_script
 
-LOG="${LOGDIR}/pcp_diag_rpi.log"
-
-#=========================================================================================
+#========================================================================================
 # Add information to log file.
-#-----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 pcp_add_to_log() {
 	START="====================> Start <===================="
 	END="=====================> End <====================="
@@ -26,7 +23,6 @@ pcp_add_to_log() {
 
 	echo "Raspberry Pi" >> $LOG
 	echo  ============ >> $LOG
-	echo  >> $LOG
 	echo "Model: $(pcp_rpi_model)" >> $LOG
 	echo "Revision: $(pcp_rpi_revision)" >> $LOG
 	echo "PCB Revision: $(pcp_rpi_pcb_revision)" >> $LOG
@@ -45,7 +41,6 @@ pcp_add_to_log() {
 
 	echo "Squeezelite" >> $LOG
 	echo  =========== >> $LOG
-	echo  >> $LOG
 	echo "Version: $(pcp_squeezelite_version)" >> $LOG
 	echo "Build options: $BUILD" >> $LOG
 	if [ $(pcp_squeezelite_status) -eq 0 ]; then
@@ -57,7 +52,6 @@ pcp_add_to_log() {
 
 	echo "piCorePlayer" >> $LOG
 	echo  ============ >> $LOG
-	echo  >> $LOG
 	echo "Version: $(pcp_picoreplayer_version)" >> $LOG
 	echo "pCP name: $NAME" >> $LOG
 	echo "Hostname: $HOST" >> $LOG
@@ -65,51 +59,61 @@ pcp_add_to_log() {
 
 	echo "piCore" >> $LOG
 	echo  ====== >> $LOG
-	echo  >> $LOG
 	echo "Version: $(pcp_picore_version)" >> $LOG
 	echo "Linux release: $(pcp_linux_release)" >> $LOG
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
-		echo "Internet found." >> $LOG
+		echo "Internet accessible." >> $LOG
 	else
-		echo "Internet not found." >> $LOG
+		echo "Internet not accessible." >> $LOG
 	fi
 	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		echo "pCP repo accessible." >> $LOG
+		echo "piCorePlayer repository accessible." >> $LOG
 	else
-		echo "pCP repo not accessible." >> $LOG
+		echo "piCorePlayer repository not accessible." >> $LOG
 	fi
 }
 
-# Maybe able to simplify the following routines?
+#========================================================================================
+# Functions
+#----------------------------------------------------------------------------------------
 pcp_diag_rpi_eth0_mac_address() {
 	RESULT=$(pcp_eth0_mac_address)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
+	echo ${RESULT:-None}
 }
 
 pcp_diag_rpi_wlan0_mac_address() {
 	RESULT=$(pcp_wlan0_mac_address)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
+	echo ${RESULT:-None}
 }
 
 pcp_diag_rpi_config_mac_address() {
 	RESULT=$(pcp_config_mac_address)
-	[ x"" = x"$RESULT" ] && echo "Not set" || echo $RESULT
+	echo ${RESULT:-Not set}
 }
 
 pcp_diag_rpi_eth0_ip() {
 	RESULT=$(pcp_eth0_ip)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
+	echo ${RESULT:-None}
 }
 
 pcp_diag_rpi_wlan0_ip() {
 	RESULT=$(pcp_wlan0_ip)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
+	echo ${RESULT:-None}
 }
 
 pcp_diag_rpi_lmsip() {
 	RESULT=$(pcp_lmsip)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
+	echo ${RESULT:-None}
 }
+
+# GE - Move to pcp-functions
+BUILD=$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')
+
+COLUMN1="column150"
+COLUMN2="column150"
+COLUMN3="column150"
+COLUMN4="column150"
+COLUMN5="column150"
 
 #========================================================================================
 # Raspberry Pi
@@ -124,19 +128,19 @@ echo '          <table class="bggrey percent100">'
 #-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>Model:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_rpi_model)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>CPU Temperature:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$(pcp_rpi_thermal_temp degrees)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p>Physical MAC:</p>'
 echo '              </td>'
 echo '              <td>'
@@ -146,19 +150,19 @@ echo '            </tr>'
 #-------------------------------------Row 2----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>Revison:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_rpi_revision)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>eth0 IP:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$(pcp_diag_rpi_eth0_ip)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p>Wireless MAC:</p>'
 echo '              </td>'
 echo '              <td>'
@@ -168,19 +172,19 @@ echo '            </tr>'
 #-------------------------------------Row 3----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>PCB Revison:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_rpi_pcb_revision)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>wlan0 IP:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$(pcp_diag_rpi_wlan0_ip)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p>Configuration MAC:</p>'
 echo '              </td>'
 echo '              <td>'
@@ -190,19 +194,19 @@ echo '            </tr>'
 #-------------------------------------Row 4----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>Memory:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_rpi_memory)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>LMS IP:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$(pcp_diag_rpi_lmsip)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p>Controls MAC:</p>'
 echo '              </td>'
 echo '              <td>'
@@ -212,13 +216,13 @@ echo '            </tr>'
 #-------------------------------------Row 5----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>Shortname:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_rpi_shortname)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>Uptime:</p>'
 echo '              </td>'
 echo '              <td colspan="3">'
@@ -236,8 +240,6 @@ echo '</table>'
 #========================================================================================
 # Squeezelite
 #----------------------------------------------------------------------------------------
-BUILD=$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')
-
 if [ $(pcp_squeezelite_status) -eq 0 ]; then
 	pcp_green_tick "Running."
 else
@@ -254,19 +256,19 @@ echo '          <table class="bggrey percent100">'
 #-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
+echo '              <td class="'$COLUMN1' center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>Version:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$(pcp_squeezelite_version)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p></p>'
 echo '              </td>'
 echo '              <td>'
@@ -276,7 +278,7 @@ echo '            </tr>'
 #-------------------------------------Row 2----------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
+echo '              <td class="'$COLUMN1' center">'
 echo '                <p>Build options:</p>'
 echo '              </td>'
 echo '              <td colspan="5">'
@@ -301,27 +303,29 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>piCorePlayer</legend>'
 echo '          <table class="bggrey percent100">'
+#-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>Version:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_picoreplayer_version)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>pCP name:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$NAME'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p>Hostname:</p>'
 echo '              </td>'
 echo '              <td>'
 echo '                <p>'$HOST'</p>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -339,27 +343,29 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>piCore</legend>'
 echo '          <table class="bggrey percent100">'
+#-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN1'">'
 echo '                <p>Version:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$(pcp_picore_version)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN3'">'
 echo '                <p>Linux release:</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN4'">'
 echo '                <p>'$(pcp_linux_release)'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN5'">'
 echo '                <p></p>'
 echo '              </td>'
 echo '              <td>'
 echo '                <p></p>'
 echo '              </td>'
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
@@ -368,7 +374,7 @@ echo '  </tr>'
 echo '</table>'
 
 #========================================================================================
-# internet
+# Internet and piCorePlayer repository accessible
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -377,42 +383,44 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Internet</legend>'
 echo '          <table class="bggrey percent100">'
+#-------------------------------------Row 1----------------------------------------------
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 
                     if [ $(pcp_internet_accessible) -eq 0 ]; then
-                        pcp_green_tick "Internet found."
+                        pcp_green_tick "Internet accessible."
                     else
-                        pcp_red_cross "Internet not found."
+                        pcp_red_cross "Internet not accessible."
                     fi
 
-echo '              <td class="column150 center">'
+echo '              <td class="'$COLUMN1' center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
-echo '              <td class="column150">'
+echo '              <td class="'$COLUMN2'">'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
 
                     if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-                        pcp_green_tick "pCP repo accessible."
+                        pcp_green_tick "piCorePlayer repository accessible."
                     else
-                        pcp_red_cross "pCP repo not accessible."
+                        pcp_red_cross "piCorePlayer repository not accessible."
                     fi
 
-echo '              <td class="column150 center">'
+echo '              <td class="'$COLUMN3' center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '              </td>'
 echo '              <td>'
 echo '                <p>'$STATUS'</p>'
 echo '              </td>'
-
 echo '            </tr>'
+#----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
 
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "Raspberry-Pi"
 
@@ -423,3 +431,4 @@ echo '</body>'
 echo '</html>'
 
 pcp_add_to_log
+exit
