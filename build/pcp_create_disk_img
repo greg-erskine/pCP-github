@@ -322,7 +322,7 @@ EOF
 	cat << EOF > ${FILELIST}
 bcm2711-rpi-4-b.dtb
 EOF
-	rsync --files-from=${FILELIST} ${BUILDROOT}/kernel/pcpCore/armv7/kernel/${KERNELV7} $PART1
+	rsync --files-from=${FILELIST} ${BUILDROOT}/kernel/pcpCore/armv7l/kernel/${KERNELV7l} $PART1
 
 
 	#Copy overlays, doesn't matter which arch we copy from
@@ -688,6 +688,12 @@ function readfile(){
 				done
 				echo -n "${BLUE}  $FILEv7 "
 				[ -e "$FILEv7" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
+				# Indents based on nested depth of dep
+				j=0
+				while [ $j -ne $TABLEVEL ]; do
+					echo -n "  "
+					let j=j+1
+				done
 				echo -n "${BLUE}  $FILEv7l "
 				[ -e "$FILEv7l" ] && echo "${GREEN}OK${NORMAL}" || ( FAIL=1; echo -n "${RED} ERROR." )
          elif [ -e $EXT ]; then
@@ -965,7 +971,7 @@ if [ $UPDATE_REPO -eq 1 ]; then
 	REPO_V6="${REPO}/armv6/tcz"
 	REPO_V7="${REPO}/armv7/tcz"
 	#Dont see a need to keep a armv7l directory on the repo.
-	REPO_V7l"${REPO}/armv7/tcz"
+	REPO_V7l="${REPO}/armv7/tcz"
 
 	EXT="tcz tcz.dep tcz.info tcz.list tcz.md5.txt"
 
