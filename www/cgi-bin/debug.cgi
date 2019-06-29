@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 5.1.0 2019-06-28
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
@@ -22,106 +22,95 @@
 #-----------------------------------------------------------------------------------------
 
 . pcp-functions
-. pcp-lms-functions
-
-pcp_httpd_query_string
 
 #========================================================================================
-# Routines
+# Functions
 #----------------------------------------------------------------------------------------
 pcp_debug_save() {
 	pcp_write_var_to_config DEBUG $d
 	pcp_write_var_to_config TEST $t
 	pcp_write_var_to_config MODE $m
+	. $PCPCFG
 }
 
 pcp_debug_reset() {
 	pcp_write_var_to_config DEBUG 0
 	pcp_write_var_to_config TEST 0
 	pcp_write_var_to_config MODE $MODE_INITIAL
+	. $PCPCFG
 }
 
-#========================================================================================
-# Command line mode
-#----------------------------------------------------------------------------------------
 pcp_debug_cli() {
-	if [ x"" != x"$QUERY_STRING" ]; then
-		case "$QUERY_STRING" in
-			d=[01])
-				pcp_write_var_to_config DEBUG $d
-			;;
-			t=[0-9])
-				pcp_write_var_to_config TEST $t
-			;;
-			m=100|m=[0-9][0-9]|m=[0-9])
-				pcp_write_var_to_config MODE $m
-			;;
-			a=[0])
-				pcp_debug_reset
-			;;
-			*)
-				[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid option: '$QUERY_STRING'</p>'
-			;;
-		esac
-	fi
+	case "$QUERY_STRING" in
+		d=[01])
+			pcp_write_var_to_config DEBUG $d
+		;;
+		t=[0-9])
+			pcp_write_var_to_config TEST $t
+		;;
+		m=100|m=[0-9][0-9]|m=[0-9])
+			pcp_write_var_to_config MODE $m
+		;;
+		a=[0])
+			pcp_debug_reset
+		;;
+		*)
+			[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid option: '$QUERY_STRING'</p>'
+		;;
+	esac
+	. $PCPCFG
 }
 
 #========================================================================================
-# Respond to interactive [Save] and [Reset all] buttons.
+# Main
 #----------------------------------------------------------------------------------------
-case "$SUBMIT" in
+pcp_html_head "Debug" "GE"
+pcp_httpd_query_string
+
+if [ x"" != x"$QUERY_STRING" ] && [ x"" = x"$ACTION" ]; then
+	pcp_debug_cli
+	echo '<body onload="javascript:location.href=document.referrer;">'
+	exit 0
+fi
+
+case "$ACTION" in
 	Save) pcp_debug_save ;;
 	Res*) pcp_debug_reset ;;
 esac
 
-sync
-. pcp-functions
-
-pcp_html_head "Debug" "GE"
-
-# Non-interactive (Command line) mode and exit
-if [ x"" != x"$QUERY_STRING" ] && [ x"" = x"$SUBMIT" ]; then
-	echo '<body onload="javascript:location.href=document.referrer;">'
-	pcp_debug_cli
-	exit 0
-fi
-
-# Interactive (Web page) mode
-pcp_controls
 pcp_banner
 pcp_navigation
-pcp_running_script
 
 #========================================================================================
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	pcp_debug_variables "html" DEBUG d MODE m TEST t SUBMIT
+	pcp_table_top "Debug"
+	pcp_debug_variables "html" QUERY_STRING DEBUG d MODE m TEST t ACTION
+	pcp_table_end
 fi
 
+COLUMN1="column100"
+COLUMN2="column150"
 #========================================================================================
-# Main
+# Debug table
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
-echo '      <form name="debug" action="debug.cgi" method="get">'
+echo '      <form name="debug" action="'$0'" method="get">'
 echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Set debug options</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------DEBUG---------------------------------------------
-case "$DEBUG" in
-	0) D0SELECTED=checked ;;
-	1) D1SELECTED=checked ;;
-esac
-
+eval D${DEBUG}SELECTED=checked
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column100">'
+echo '                <td class="'$COLUMN1'">'
 echo '                  <p>DEBUG</p>'
 echo '                </td>'
-echo '                <td class="column150">'
+echo '                <td class="'$COLUMN2'">'
 echo '                  <input class="small1" type="radio" name="d" value="1" '$D1SELECTED'>On&nbsp;'
 echo '                  <input class="small1" type="radio" name="d" value="0" '$D0SELECTED'>Off'
 echo '                </td>'
@@ -130,28 +119,20 @@ echo '                  <p>Set DEBUG: [on|off].</p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------MODE----------------------------------------------
-case "$MODE" in
-	0) MODEinitial="selected" ;;
-	10) MODEbasic="selected" ;;
-	20) MODEnormal="selected" ;;
-	30) MODEdvanced="selected" ;;
-	40) MODEbeta="selected" ;;
-	100) MODEdeveloper="selected" ;;
-esac
-
+eval MODE${MODE}="selected"
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column100">'
+echo '                <td class="'$COLUMN1'">'
 echo '                  <p>MODE</p>'
 echo '                </td>'
-echo '                <td class="column150">'
+echo '                <td class="'$COLUMN2'">'
 echo '                  <select class="large10" name="m">'
-echo '                    <option value="0" '$MODEinitial'>Initial</option>'
-echo '                    <option value="10" '$MODEbasic'>Basic</option>'
-echo '                    <option value="20" '$MODEnormal'>Normal</option>'
-echo '                    <option value="30" '$MODEdvanced'>Advanced</option>'
-echo '                    <option value="40" '$MODEbeta'>Beta</option>'
-echo '                    <option value="100" '$MODEdeveloper'>Developer</option>'
+echo '                    <option value="0" '$MODE0'>Initial</option>'
+echo '                    <option value="10" '$MODE10'>Basic</option>'
+echo '                    <option value="20" '$MODE20'>Normal</option>'
+echo '                    <option value="30" '$MODE30'>Advanced</option>'
+echo '                    <option value="40" '$MODE40'>Beta</option>'
+echo '                    <option value="100" '$MODE100'>Developer</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
@@ -159,25 +140,13 @@ echo '                  <p>Set MODE level: [Initial|Basic|Normal|Advanced|Beta|D
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------TEST----------------------------------------------
-case "$TEST" in
-	0) TEST0="selected" ;;
-	1) TEST1="selected" ;;
-	2) TEST2="selected" ;;
-	3) TEST3="selected" ;;
-	4) TEST4="selected" ;;
-	5) TEST5="selected" ;;
-	6) TEST6="selected" ;;
-	7) TEST7="selected" ;;
-	8) TEST8="selected" ;;
-	9) TEST9="selected" ;;
-esac
-
+eval TEST${TEST}="selected"
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column100">'
+echo '                <td class="'$COLUMN1'">'
 echo '                  <p>TEST</p>'
 echo '                </td>'
-echo '                <td class="column150">'
+echo '                <td class="'$COLUMN2'">'
 echo '                  <select class="large10" name="t">'
 echo '                    <option value="0" '$TEST0'>0</option>'
 echo '                    <option value="1" '$TEST1'>1</option>'
@@ -199,8 +168,8 @@ echo '              </tr>'
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan=3>'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                  <input type="submit" name="SUBMIT" value="Reset all">'
+echo '                  <input type="submit" name="ACTION" value="Save">'
+echo '                  <input type="submit" name="ACTION" value="Reset all">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -211,9 +180,10 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
-
+#----------------------------------------------------------------------------------------
 pcp_footer
 pcp_copyright
-
+pcp_remove_query_string
 echo '</body>'
 echo '</html>'
+exit
