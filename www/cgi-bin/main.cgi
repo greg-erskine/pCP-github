@@ -346,6 +346,29 @@ pcp_main_ffmpeg() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_ffmpeg
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Bluetooth-------------------------------------
+pcp_main_bluetooth() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Bluetooth" action="bluetooth.cgi" method="get">'
+	echo '                  <input type="submit" value="Bluetooth">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Go to Bluetooth page&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will go to the Bluetooth page.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_bluetooth
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Reboot----------------------------------------
 pcp_main_reboot() {
 	pcp_toggle_row_shade
@@ -425,107 +448,6 @@ pcp_main_save_usb() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Update fieldset-------------------------------
-if [ $MODE -ge $MODE_NORMAL ]; then
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>pCP update operations</legend>'
-	echo '          <table class="bggrey percent100">'
-fi
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------HotFix----------------------------------------
-pcp_main_hotfix() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="HotFix" action="fix.cgi" method="get">'
-	echo '                  <input type="submit" value="HotFix">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will check for a new hotfix and update pCP.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_hotfix
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Update pCP------------------------------------
-pcp_main_update_pcp() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
-	echo '                  <input type="submit" value="Update pCP">'
-	echo '                  <input type="hidden" name="ACTION" value="initial">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This can be used when the SD card slot is not accessible.</p>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>Internet access is required.</li>'
-	echo '                    <li>The current version of piCorePlayer will be completely overwritten.</li>'
-	echo '                    <li>Additional extensions (ie. Jivelite, Shairport) may need to be reloaded.</li>'
-	echo '                    <li>When the update has completed:'
-	echo '                      <ol>'
-	echo '                        <li>Select [Squeezelite Settings].</li>'
-	echo '                        <li>Confirm your "Audio output" settings.</li>'
-	echo '                        <li>Click [Save] and [Reboot].</li>'
-	echo '                      </ol>'
-	echo '                    </li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_pcp
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Update pcp-base-------------------------------
-pcp_main_update_pcpbase() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Update" action="updatebase.cgi" method="get">'
-	echo '                  <input type="submit" name="ACTION" value="Update">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_pcpbase
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Advanced mode fieldset------------------------
@@ -678,6 +600,106 @@ pcp_main_extensions() {
 [ $MODE -ge $MODE_ADVANCED ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Update fieldset-------------------------------
+if [ $MODE -ge $MODE_NORMAL ]; then
+	echo '          </table>'
+	echo '        </fieldset>'
+	echo '      </div>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <div class="row">'
+	echo '        <fieldset>'
+	echo '          <legend>pCP update operations</legend>'
+	echo '          <table class="bggrey percent100">'
+fi
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------HotFix----------------------------------------
+pcp_main_hotfix() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="HotFix" action="fix.cgi" method="get">'
+	echo '                  <input type="submit" value="HotFix">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for a new hotfix and update pCP.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_hotfix
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Update pCP------------------------------------
+pcp_main_update_pcp() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
+	echo '                  <input type="submit" value="Update pCP">'
+	echo '                  <input type="hidden" name="ACTION" value="initial">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This can be used when the SD card slot is not accessible.</p>'
+	echo '                  <p><b>Note:</b></p>'
+	echo '                  <ul>'
+	echo '                    <li>Internet access is required.</li>'
+	echo '                    <li>The current version of piCorePlayer will be completely overwritten.</li>'
+	echo '                    <li>Additional extensions (ie. Jivelite, Shairport) may need to be reloaded.</li>'
+	echo '                    <li>When the update has completed:'
+	echo '                      <ol>'
+	echo '                        <li>Select [Squeezelite Settings].</li>'
+	echo '                        <li>Confirm your "Audio output" settings.</li>'
+	echo '                        <li>Click [Save] and [Reboot].</li>'
+	echo '                      </ol>'
+	echo '                    </li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_pcp
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Update pcp-base-------------------------------
+pcp_main_update_pcpbase() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Update" action="updatebase.cgi" method="get">'
+	echo '                  <input type="submit" name="ACTION" value="Update">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_pcpbase
+#----------------------------------------------------------------------------------------
 
 #------------------------------------------Beta mode fieldset----------------------------
 if [ $MODE -ge $MODE_BETA ]; then

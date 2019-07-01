@@ -3,7 +3,9 @@
 # Version: 5.0.0 2019-03-14
 
 . pcp-functions
-[ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
+. pcp-rpi-functions
+#[ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
+. /home/tc/pcp-bt-functions
 
 pcp_html_head "Bluetooth Settings" "PH"
 
@@ -45,11 +47,26 @@ pcp_bt_status() {
 	echo $?
 }
 
+pcp_bt_save_config() {
+	echo '[ INFO ] Saving Device Config: '$BTNAME
+	[ -f $BTDEVICECONF ] || touch $BTDEVICECONF
+	I=1
+	while [ $I -lt $NUMDEVICES ]; do
+		sed -i '/'$(eval echo "\${BTMAC${I}}")'/d' $BTDEVICECONF
+		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}#\${BTALSABUF${I}}#\${USEMAC${I}}" >> $BTDEVICECONF
+		I=$((I + 1))
+	done
+	
+	
+}
+
 REBOOT_REQUIRED=0
 case "$ACTION" in
-	Forget)
+	Forget*)
 		pcp_table_top "Bluetooth Configuration"
+		I=$(echo ${ACTION#Forget})
 		echo '                <textarea class="inform" style="height:60px">'
+		DEVICE=$(eval echo "\${BTMAC${I}}")
 		echo '[ INFO ] Forgetting Device ...'$DEVICE
 		RET=$(pcp_bt_forget_device $DEVICE)
 		case $RET in
@@ -89,6 +106,7 @@ case "$ACTION" in
 			sudo $DAEMON_INITD restart
 		fi
 		echo '                </textarea>'
+		rm -f /tmp/btscan.out 
 		pcp_table_end
 	;;
 	Remove)
@@ -109,8 +127,8 @@ case "$ACTION" in
 		echo '[ INFO ] Restarting Bluetooth Connect Daemon...'
 		echo -n '[ INFO ] '
 		sudo $DAEMON_INITD stop
-		echo -n '[ INFO ] '
-		sudo $DAEMON_INITD start
+#		echo -n '[ INFO ] '
+#		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
 		sleep 2
@@ -122,15 +140,15 @@ case "$ACTION" in
 		pcp_bt_scan > /tmp/btscan.out
 		echo '                </textarea>'
 		pcp_table_end
+		rm -f /tmp/paired*
 	;;
-	Select)
+	Save)
 		pcp_table_top "Select Previously paired device"
 		echo '                <textarea class="inform" style="height:120px">'
-		pcp_bt_write_config $DEVICE
-		echo '[ INFO ] Selecting Device: '$BTNAME
+		pcp_bt_save_config
 		pcp_backup "nohtml"
 		echo '[ INFO ] Restarting Connect Daemon'
-		sudo $DAEMON_INITD restart
+#		sudo $DAEMON_INITD restart
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -143,7 +161,7 @@ case "$ACTION" in
 		fi
 		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
 		echo -n '[ INFO ] '
-		sudo $DAEMON_INITD start
+#		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
 		sleep 2
@@ -516,62 +534,91 @@ pcp_bt_scan() {
 		echo '              </tr>'
 	fi
 
+	COL1="column150"
+	COL2="column120"
+	COL3="column120"
+	COL4="column100"
+	COL5="column100"
+	COL6="column120"
+	COL7="column150"
+	COL8="column150"
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COL1' center"><p><b>BT Mac Address</b></p></td>'
+	echo '                <td class="'$COL2'"><p><b>BT Name</b></p></td>'
+	echo '                <td class="'$COL3'"><p><b>Player Name</b></p></td>'
+	echo '                <td class="'$COL4'"><p><b>BT Delay</b></p></td>'
+	echo '                <td class="'$COL5'"><p><b>Alsa Buffer</b></p></td>'
+	echo '                <td class="'$COL6'"><p><b>Use BT MAC</b></p></td>'
+	echo '                <td class="'$COL7'"><p><b>Forget Device</b></p></td>'
+#	echo '                <td class="'$COL8'"><p><b>Options</b></p></td>'
+	echo '              </tr>'
+
 	pcp_bt_paired_devices
 	if [ -f $PAIRED_LIST ]; then
-		# Mark the currently paired device as selected.
-		sed '/^'$BTDEVICE'/! s/selected/notselected/' < $PAIRED_LIST > /tmp/paired.dd
-		# Remove unneeded space
-		sed -i 's/ \#/\#/' /tmp/paired.dd
-		SELECT_DISABLED=""
+		I=1
+		echo '            <form name="Select" action="'$0'">'
+		while read line; do
+			BTMAC=$(echo $line | cut -d'#' -f1)
+			BTNAME=$(echo $line | cut -d'#' -f2)
+			BTPLAYERNAME=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f2)
+			BTDELAY=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f3)
+			BTALSABUF=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f4)
+			USEBTMAC=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f5)
+			[ "$BTPLAYERNAME" = "" ] && BTPLAYERNAME=$BTNAME
+			[ "$BTDELAY" == "" ] && BTDELAY=10000
+			[ "$BTALSABUF" == "" ] && BTALSABUF="80:::0"
+			[ "$USEMAC" == "" ] && USEMAC="on"
+			REQUIRED="required"
+			pcp_incr_id
+			pcp_toggle_row_shade
+			echo '              <tr class="'$ROWSHADE'">'
+			echo '                <td class="'$COL1' center">'
+			echo '                  <input type="hidden" id="idBTMAC'${I}'" name="BTMAC'${I}'" value="'$BTMAC'">'
+			echo '                  <input class="large10" type="text" name="MAC" value="'$BTMAC'" title="Bluetooth MAC Address" '$REQUIRED' disabled>'
+			echo '                </td>'
+			echo '                <td class="'$COL2'">'
+			echo '                  <input type="hidden" id="idBTNAME'${I}'" name="BTNAME'${I}'" value="'$BTNAME'">'
+			echo '                  <input class="large8" type="text" name="NAME" value="'$BTNAME'" title="Bluetooth Device Name" '$REQUIRED' disabled>'
+			echo '                </td>'
+			echo '                <td class="'$COL3'">'
+			echo '                  <input class="large8" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="Bluetooth Player Name" '$REQUIRED'">'
+			echo '                </td>'
+			echo '                <td class="'$COL4'">'
+			echo '                  <input class="large6" type="text" id="idBTDELAY'${I}'" name="BTDELAY'${I}'" value="'$BTDELAY'" title="Bluetooth Delay" '$REQUIRED'">'
+			echo '                </td>'
+			echo '                <td class="'$COL5'">'
+			echo '                  <input class="large6" type="text" id="idBTALSABUF'${I}'" name="BTALSABUF'${I}'" value="'$BTALSABUF'" title="Alsa Buffer (See squeezelite page)" '$REQUIRED' pattern="\d*:\d*::[0-1]{1}"">'
+			echo '                </td>'
+			case "$USEMAC" in
+				on) USEMACyes="checked"; USEMACno="";;
+				 *) USEMACno="checked"; USEMACyes="";;
+			esac
+			echo '                <td class="'$COL6'">'
+			echo '                  <input class="small1" type="radio" name="USEMAC'${I}'" value="on" '$USEMACyes'>Yes&nbsp;&nbsp;&nbsp;'
+			echo '                  <input class="small1" type="radio" name="USEMAC'${I}'" value="off" '$USEMACno'>No'
+			echo '                </td>'
+			echo '                <td class="'$COL7'">'
+			echo '                  <button type="submit" name="ACTION" value="Forget'${I}'">Forget</button>'
+			echo '                </td>'
+			echo '              </tr>'
+			I=$((I + 1))
+		done < $PAIRED_LIST
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="'$COL1' center">'
+		echo '                  <input type="hidden" name="NUMDEVICES" value="'$I'">'
+		echo '                  <input type="submit" name="ACTION" value="Save" />'
+		echo '                </td>'
+		echo '              </tr>'
+		echo '            </form>'
 	else
-		echo "0#No Device#selected" >/tmp/paired.dd
-		SELECT_DISABLED="disabled"
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column200">'
+		echo '                  <p>No Paired Device</p>'
+		echo '                </td>'
+		echo '              </tr>'
 	fi
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Select" action="'$0'">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Select" '$SELECT_DISABLED'/>'
-	echo '                </td>'
-	echo '                <td class="column200">'
-	echo '                  <select name="DEVICE">'
-	awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/paired.dd
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	if [ "$BTNAME" != "" ]; then
-		echo '                  <p>Select from previously paired device to change output device.</p>'
-	else
-		echo '                  <p>Run a Scan to Find Devices.</p>'
-	fi
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-
-	if [ -f /tmp/paired.dd ]; then
-		FORGET_DISABLED=""
-	else
-		echo "0#No Device#selected" >/tmp/paired.dd
-		FORGET_DISABLED="disabled"
-	fi
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Forget" action="'$0'">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Forget" onclick="return confirm('\''Forget Device.\n\nContinue?'\'')"'$SELECT_DISABLED'/>'
-	echo '                </td>'
-	echo '                <td class="column200">'
-	echo '                  <select name="DEVICE">'
-	awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/paired.dd
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Select device to forget.</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_scan
 
@@ -582,6 +629,81 @@ echo '      </div>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
+
+if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
+#--------------------------------------Built-in Wifi-------------------------------------
+	echo '<table class="bggrey">'
+	echo '  <tr>'
+	echo '    <td>'
+	echo '      <form id="rpiwifi" name="builtinwifi" action="writetowifi.cgi" method="get">'
+	echo '        <div class="row">'
+	echo '          <fieldset>'
+	echo '            <legend>RPi Built in WiFi/BT</legend>'
+	echo '            <table class="bggrey percent100">'
+	pcp_start_row_shade
+	pcp_incr_id
+	case "$RPI3INTWIFI" in
+		on) RPIWIFIyes="checked" ;;
+		off) RPIWIFIno="checked" ;;
+	esac
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COL1'">'
+	echo '                  <p>RPi built-in Wifi</p>'
+	echo '                </td>'
+	echo '                <td class="'$COL2'">'
+	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>On&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>Off'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Turn off Raspberry Pi built-in wifi&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will load an overlay that disables built-in wifi.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#--------------------------------------Built-in Bluetooth--------------------------------
+	case "$RPIBLUETOOTH" in
+		on) RPIBLUETOOTHyes="checked" ;;
+		off) RPIBLUETOOTHno="checked" ;;
+	esac
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="'$COL1'">'
+	echo '                  <p>RPi built-in Bluetooth</p>'
+	echo '                </td>'
+	echo '                <td class="'$COL2'">'
+	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>On&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>Off'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Turn off Raspberry Pi built-in bluetooth&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will load an overlay that disables built-in bluetooth.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+#--------------------------------------Buttons------------------------------------------
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="$0">'
+	echo '                  <input type="submit" name="ACTION" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </fieldset>'
+	echo '        </div>'
+	echo '      </form>'
+	echo '    </td>'
+	echo '  </tr>'
+	echo '</table>'
+fi
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
