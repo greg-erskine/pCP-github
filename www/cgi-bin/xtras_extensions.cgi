@@ -1,16 +1,12 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-09
+# Version: 5.1.0 2019-07-02
 
 #========================================================================================
-# This script installs extensions, reports on extensions.
+# This script installs, deletes, updates and reports on extensions.
 #
 # Complications:
 #   1. Sufficient space, need to expand file system.
-#
-# Future enhancements:
-#   1. Search all 3.x, 4.x, 5.x, 6.x, 7.x, arm6 and arm7 extension repositories.
-#   2. Check for fastest repository mirror.
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
@@ -21,7 +17,6 @@ pcp_html_head "Add piCore extension" "GE"
 
 pcp_banner
 pcp_navigation
-pcp_running_script
 pcp_httpd_query_string
 pcp_debug_info
 
@@ -35,9 +30,9 @@ LOG="${LOGDIR}/pcp_extensions.log"
 PCP_REPO="${PCP_REPO%/}/"
 TAGS_PCP_DB="/tmp/tags_pcp.db"
 TAGS_PICORE_DB="/tmp/tags_picore.db"
-
 SIZELIST_PCP="/tmp/sizelist_pcp"
 SIZELIST_PICORE="/tmp/sizelist_picore"
+KERNEL="$(uname -r)"
 
 #========================================================================================
 # Display debug information
@@ -45,7 +40,7 @@ SIZELIST_PICORE="/tmp/sizelist_picore"
 pcp_debug_info() {
 	echo '<!-- Start of debug info -->'
 	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG PCP_REPO \
-		PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER
+		PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
 	echo '<!-- End of debug info -->'
 }
 
@@ -53,16 +48,16 @@ pcp_debug_info() {
 # Generate extensions report
 #----------------------------------------------------------------------------------------
 pcp_generate_report() {
-	ORIG_PWD=$PWD
+	ORIG_PWD="$PWD"
 	(echo $0; date) > $LOG
-	cat /etc/motd >>$LOG
-	echo "" >>$LOG
+	cat /etc/motd >> $LOG
+	echo "" >> $LOG
 	pcp_write_to_log "Installed extensions" "tce-status -i | sort -f"
 	pcp_write_to_log "Uninstalled extensions" "tce-status -u | sort -f"
 	pcp_write_to_log "Downloaded extensions" "cd $PACKAGEDIR; ls *.tcz | sort -f"
 	pcp_write_to_log "onboot.lst" "cat $ONBOOTLST"
 	pcp_write_to_log "Extension dependency tree" "pcp_full_dependency_tree text"
-	cd $ORIG_PWD
+	cd "$ORIG_PWD"
 }
 
 #========================================================================================
@@ -140,10 +135,10 @@ pcp_uninstall_extn() {
 pcp_delete_extn() {
 	pcp_table_top "Marking '$EXTN' and dependencies for deletion . . . "
 	echo '                <textarea class="inform" style="height:80px">'
-	                        sudo -u tc tce-audit builddb
-	                        echo
-	                        echo 'After a reboot these extensions will be permanently deleted:'
-	                        sudo -u tc tce-audit delete $EXTN
+	sudo -u tc tce-audit builddb
+	echo
+	echo 'After a reboot these extensions will be permanently deleted:'
+	sudo -u tc tce-audit delete $EXTN
 	echo '                </textarea>'
 	pcp_table_end
 }
@@ -451,8 +446,8 @@ pcp_internet_check() {
 	echo '          <legend>Checking Internet and repository accessiblity. . . </legend>'
 	echo '          <table class="bggrey percent100">'
 	#--------------------------------Internet accessible---------------------------------
-	pcp_start_row_shade
 	pcp_incr_id
+	pcp_start_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -464,8 +459,8 @@ pcp_internet_check() {
 	pcp_internet
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository accessible-------------------------
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -477,8 +472,8 @@ pcp_internet_check() {
 	pcp_pcp_repo
 	pcp_indicator_js
 	#------------------------Official piCore repository accessible-----------------------
-	pcp_toggle_row_shade
 	pcp_incr_id
+	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -491,8 +486,8 @@ pcp_internet_check() {
 	pcp_indicator_js
 	#--------------------Official piCore mirror repository accessible--------------------
 	if [ $MODE -ge $MODE_DEVELOPER ]; then
-		pcp_toggle_row_shade
 		pcp_incr_id
+		pcp_toggle_row_shade
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="column50 center">'
 		echo '                <p id="indicator'$ID'">?</p>'
@@ -671,6 +666,7 @@ pcp_show_available_extns() {
 	echo '          <fieldset>'
 	echo '            <legend>Available extensions in the '$STATUS'</legend>'
 	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -706,6 +702,7 @@ pcp_show_available_extns() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -715,6 +712,7 @@ pcp_show_available_extns() {
 	echo '                  <input type="hidden" name="DB" value="'$DB'">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -736,6 +734,7 @@ pcp_show_installed_extns() {
 	echo '          <fieldset>'
 	echo '            <legend>Installed extensions</legend>'
 	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -765,22 +764,24 @@ pcp_show_installed_extns() {
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
 #	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-#	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
+	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
 	echo '                      <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 #	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-#	echo '                  <input type="submit" name="SUBMIT" value="Update">'
+	echo '                  <input type="submit" name="SUBMIT" value="Update">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 	echo '                  <input type="hidden" name="CALLED_BY" value="Installed">'
 	echo '                  <input type="hidden" name="DB" value="'$DB'">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -802,6 +803,7 @@ pcp_show_uninstalled_extns() {
 	echo '          <fieldset>'
 	echo '            <legend>Uninstalled extensions</legend>'
 	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -830,21 +832,25 @@ pcp_show_uninstalled_extns() {
 	echo '                    <ul>'
 #	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
 #	echo '                      <li><b>[Install]</b> will install the extension.</li>'
+	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
 	echo '                      <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 #	echo '                  <input type="submit" name="SUBMIT" value="Info">'
 #	echo '                  <input type="submit" name="SUBMIT" value="Install">'
+	echo '                  <input type="submit" name="SUBMIT" value="Update">'
 	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
 	echo '                  <input type="hidden" name="CALLED_BY" value="Uninstalled">'
 	echo '                  <input type="hidden" name="DB" value="'$DB'">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -856,6 +862,7 @@ pcp_show_uninstalled_extns() {
 
 #========================================================================================
 # Downloaded extensions in /mnt/mmcblk0p2/tce/optional/ on SD card
+# GE - NOT USED.
 #----------------------------------------------------------------------------------------
 pcp_show_downloaded_extns() {
 	pcp_set_repo_status
@@ -867,6 +874,7 @@ pcp_show_downloaded_extns() {
 	echo '          <fieldset>'
 	echo '            <legend>Downloaded extensions</legend>'
 	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -900,6 +908,7 @@ pcp_show_downloaded_extns() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 #	pcp_toggle_row_shade
 #	echo '              <tr class="'$ROWSHADE'">'
 #	echo '                <td colspan="3">'
@@ -908,6 +917,7 @@ pcp_show_downloaded_extns() {
 #	echo '                  <input type="hidden" name="DB" value="'$DB'">'
 #	echo '                </td>'
 #	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
@@ -931,31 +941,29 @@ pcp_show_onboot_lst() {
 #----------------------------------------------------------------------------------------
 pcp_dependency_tree() {
 	if [ -n "$1" ]; then
-		app=${1%.tcz}
-		app="$app.tcz"
-		localtce="/mnt/mmcblk0p2/tce/optional"
-		kernel=$(uname -r)
-		indent=""
-		pcp_get_dependencies $app
+		APP="${1%.tcz}.tcz"
+		INDENT=""
+		pcp_get_dependencies $APP
 	fi
 }
 
 pcp_get_dependencies() {
-	app=${1//KERNEL/$kernel}
-	echo -n "$indent"
+	APP="${1//KERNEL/$KERNEL}"
+	echo -n "$INDENT"
 	echo -n "-----"
-	echo "$app"
-	deplist=$(cat /mnt/mmcblk0p2/tce/optional/"$app.dep" 2>/dev/null)
-	for depapp in $deplist; do
-		indent="${indent}     |"
-		pcp_get_dependencies $depapp
+	echo "$APP"
+	for DEPAPP in $(cat ${PACKAGEDIR}/${APP}.dep)
+	do
+		INDENT="${INDENT}     |"
+		pcp_get_dependencies $DEPAPP
 	done
-	indent=${indent%     |}
+	INDENT="${INDENT%     |}"
 }
 
 pcp_full_dependency_tree() {
 	[ "$1" != "text" ] && pcp_table_textarea_top "Extension dependency tree" "" "300"
-	for E in $(cat $ONBOOTLST); do
+	for E in $(cat $ONBOOTLST)
+	do
 		pcp_dependency_tree $E
 		echo ""
 	done
@@ -1009,7 +1017,7 @@ case "$CALLED_BY" in
 		pcp_show_installed_extns
 		case "$SUBMIT" in
 #			Info) pcp_find_extn; pcp_display_information;;
-#			Update) pcp_update_extn;;
+			Update) pcp_update_extn;;
 			Delete) pcp_delete_extn;;
 		esac
 	;;
@@ -1018,6 +1026,7 @@ case "$CALLED_BY" in
 		case "$SUBMIT" in
 #			Info) pcp_find_extn; pcp_display_information;;
 			Install) pcp_install_extn;;
+			Update) pcp_update_extn;;
 			Delete) pcp_delete_extn;;
 		esac
 	;;
@@ -1040,3 +1049,4 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
+exit
