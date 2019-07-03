@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-07-02
+# Version: 5.1.0 2019-07-03
 
 #========================================================================================
 # This script installs, deletes, updates and reports on extensions.
@@ -39,8 +39,10 @@ KERNEL="$(uname -r)"
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
 	echo '<!-- Start of debug info -->'
+	pcp_table_top "Debug"
 	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG PCP_REPO \
 		PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
+	pcp_table_end
 	echo '<!-- End of debug info -->'
 }
 
@@ -101,7 +103,7 @@ pcp_set_repository() {
 #----------------------------------------------------------------------------------------
 pcp_load_extn() {
 	pcp_table_top "Loading '$EXTN' . . . "
-	                      pcp_textarea_inform "none" "sudo -u tc $TCELOAD -iw $EXTN" 50
+	pcp_textarea_inform "none" "sudo -u tc $TCELOAD -iw $EXTN" 50
 	pcp_table_end
 }
 
@@ -112,7 +114,7 @@ pcp_load_extn() {
 #----------------------------------------------------------------------------------------
 pcp_install_extn() {
 	pcp_table_top "Installing '$EXTN' . . . "
-	                      pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
+	pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
 	pcp_table_end
 }
 
@@ -123,7 +125,7 @@ pcp_install_extn() {
 #----------------------------------------------------------------------------------------
 pcp_uninstall_extn() {
 	pcp_table_top "Uninstalling '$EXTN' . . . "
-#	                      pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
+#	pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
 	pcp_table_end
 }
 
@@ -148,7 +150,7 @@ pcp_delete_extn() {
 #----------------------------------------------------------------------------------------
 pcp_update_extn() {
 	pcp_table_top "Updating '$EXTN' . . . "
-	                      pcp_textarea_inform "none" "sudo -u tc pcp-update $EXTN" 50
+	pcp_textarea_inform "none" "sudo -u tc pcp-update $EXTN" 50
 	pcp_table_end
 }
 
@@ -166,10 +168,8 @@ pcp_init_search() {
 		echo $PICORE_REPO_1 > /opt/tcemirror
 		search.sh picoreplayer
 		sudo mv /tmp/tags.db $TAGS_PICORE_DB
-
 #		tce-size picoreplayer
 #		sudo mv /tmp/sizelist $SIZELIST_PICORE
-
 	fi
 
 	ANSWER=$(find $TAGS_PCP_DB -mmin $MINUTES)
@@ -177,15 +177,11 @@ pcp_init_search() {
 		echo $PCP_REPO > /opt/tcemirror
 		search.sh picoreplayer
 		sudo mv /tmp/tags.db $TAGS_PCP_DB
-
 #		tce-size picoreplayer
 #		sudo mv /tmp/sizelist $SIZELIST_PCP
-
 	fi
-
 #	cat $SIZELIST_PICORE > /tmp/sizelist
 #	cat $SIZELIST_PCP >> /tmp/sizelist
-
 	echo $ORIG_MYMIRROR > /opt/tcemirror
 }
 
@@ -211,15 +207,7 @@ pcp_create_localmirrors() {
 # Repository/extension information message
 #----------------------------------------------------------------------------------------
 pcp_information_message() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Information</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
+	pcp_table_top "Information"
 	echo '                <p><b>piCorePlayer</b> uses two repositories for downloading extensions:</p>'
 	echo '                <ul>'
 	echo '                  <li><b>piCorePlayer repository</b> - maintained by the piCorePlayer team (default repository).</li>'
@@ -232,14 +220,7 @@ pcp_information_message() {
 	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
 #	echo '                  <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
 	echo '                </ul>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	pcp_table_end
 }
 
 #========================================================================================
@@ -268,7 +249,9 @@ pcp_display_depends() {
 pcp_display_tree() {
 	sudo -u tc tce-fetch.sh "${EXTN}.tree"
 	if [ $? -eq 0 ]; then
+		sudo sed -i "s/KERNEL/${KERNEL}/" ${EXTN}.tree
 		cat "${EXTN}.tree"
+#		sudo chmod 444 "${EXTN}.tree"
 #		rm -f "${EXTN}.tree"
 	else
 		echo "${EXTN}.tree not found!"
@@ -304,6 +287,7 @@ pcp_display_information() {
 		echo '          <fieldset>'
 		echo "            <legend>Information for '$EXTN'. . . </legend>"
 		echo '            <table class="bggrey percent100">'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
@@ -316,6 +300,7 @@ pcp_display_information() {
 		                        pcp_textarea_inform "none" "pcp_display_info" 200
 		echo '                </td>'
 		echo '              </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
@@ -328,6 +313,7 @@ pcp_display_information() {
 		                        pcp_textarea_inform "none" "pcp_display_depends" 100
 		echo '                </td>'
 		echo '              </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
@@ -340,6 +326,7 @@ pcp_display_information() {
 		                        pcp_textarea_inform "none" "pcp_display_tree" 100
 		echo '                </td>'
 		echo '              </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
@@ -352,6 +339,7 @@ pcp_display_information() {
 		                        pcp_textarea_inform "none" "pcp_display_size" 100
 		echo '                </td>'
 		echo '              </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
@@ -364,6 +352,7 @@ pcp_display_information() {
 		                        pcp_textarea_inform "none" "pcp_display_files" 100
 		echo '                </td>'
 		echo '              </tr>'
+		#--------------------------------------------------------------------------------
 		echo '            </table>'
 		echo '          </fieldset>'
 		echo '        </div>'
@@ -932,7 +921,7 @@ pcp_show_downloaded_extns() {
 #----------------------------------------------------------------------------------------
 pcp_show_onboot_lst() {
 	pcp_table_top "Current $ONBOOTLST"
-	                      pcp_textarea_inform "none" "cat $ONBOOTLST" 50
+	pcp_textarea_inform "none" "cat $ONBOOTLST" 50
 	pcp_table_end
 }
 
