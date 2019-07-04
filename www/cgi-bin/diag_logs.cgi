@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 5.1.0 2019-07-04
 
 . pcp-functions
+. pcp-lms-functions
 . pcp-pastebin-functions
 
 pcp_html_head "Show pCP log files" "GE"
 
 pcp_banner
 pcp_diagnostics
-pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
@@ -26,7 +26,7 @@ pcp_httpd_query_string
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Copy log files from persistent locations to /var/log
+# Copy log files from persistent locations to /var/log/
 #----------------------------------------------------------------------------------------
 pcp_mount_bootpart >/dev/null 2>&1
 cp ${BOOTMNT}/pcp_*.log $LOGDIR >/dev/null 2>&1
@@ -35,17 +35,22 @@ cp ${TCEMNT}/tce/pcp_*.log $LOGDIR >/dev/null 2>&1
 #----------------------------------------------------------------------------------------
 
 dmesg > ${LOGDIR}/pcp_dmesg.log
+pcp_lms_players squeezelite pCP | sed 's/,/ - /g' | sort > ${LOGDIR}/pcp_squeezelite_ip.log
 
 PCPLOGS=$(ls "$LOGDIR" | grep pcp_ | grep log)
 [ x"" != x"$PCPLOGS" ] && LOGS=$PCPLOGS
 
+CWD=$(pwd)
 LMSLOGS=$(cd "${LOGDIR}"; ls slimserver/*.log)
+cd $CWD
 [ x"" != x"$LMSLOGS" ] && LOGS=${LOGS}" "$LMSLOGS
 [ x"" = x"$LOGS" ] && FIRST="No log files found." || FIRST="All"
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	pcp_debug_variables "html" LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
+	pcp_table_top "debug"
+	pcp_debug_variables "html" SELECTION ACTION LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
+	pcp_table_end
 	echo '<!-- End of debug info -->'
 fi
 
@@ -70,9 +75,9 @@ echo '                    <option value="'$FIRST'">'$FIRST'</option>'
 
 	                      for LOG in $LOGS
 	                      do
-#	                          LOGNAME=$(echo ${LOG:4,${#LOG}} | sed 's/[._]/ /g') <== GE. ,${#LOG} broke in pCP4.0.1
+	                          [ "$LOG" = "$SELECTION" ] && SEL=" selected" || SEL=""
 	                          LOGNAME=$(echo ${LOG:4} | sed -e 's/.log//' -e 's/[._]/ /g')
-	                          echo '                    <option value="'$LOG'">'$LOGNAME'</option>'
+	                          echo '                    <option value="'$LOG'"'$SEL'>'$LOGNAME'</option>'
 	                      done
 
 echo '                  </select>'
@@ -136,3 +141,4 @@ pcp_copyright
 
 echo '</body>'
 echo '</html>'
+exit
