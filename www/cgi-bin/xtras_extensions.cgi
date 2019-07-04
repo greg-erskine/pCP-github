@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-07-03
+# Version: 5.1.0 2019-07-05
 
 #========================================================================================
 # This script installs, deletes, updates and reports on extensions.
@@ -38,12 +38,14 @@ KERNEL="$(uname -r)"
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	echo '<!-- Start of debug info -->'
-	pcp_table_top "Debug"
-	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG PCP_REPO \
-		PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
-	pcp_table_end
-	echo '<!-- End of debug info -->'
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_table_top "Debug"
+		pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG PCP_REPO \
+			PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
+		pcp_table_end
+		echo '<!-- End of debug info -->'
+	fi
 }
 
 #========================================================================================
@@ -508,7 +510,7 @@ pcp_free_space_check() {
 	echo '      <form name="diskspace" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
-	echo '            <legend>Checking free space. . . </legend>'
+	echo '            <legend>Check free space. . . </legend>'
 	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210 center">'
@@ -516,6 +518,7 @@ pcp_free_space_check() {
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p><b>WARNING:</b> Check there is sufficient free space before downloading extensions.</p>'
+	echo '                  <p>Use [ Main Page ] > <a href="xtras_resize.cgi">[ Resize FS ]</a> to increase the size of partition 2 (if required).</p>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
@@ -680,13 +683,13 @@ pcp_show_available_extns() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
 	echo '                      <li>Lists all extensions that are currently available for download from '$STATUS'</li>'
-	echo '                      <li>If the <b>Official piCore repository</b> is selected, only piCore extensions are listed.</li>'
 	echo '                      <li>If the <b>piCorePlayer repository</b> is selected, only piCorePlayer extensions are listed.</li>'
+	echo '                      <li>If the <b>Official piCore repository</b> is selected, only piCore extensions are listed.</li>'
 	echo '                    </ul>'
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
-	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-	echo '                      <li><b>[Load]</b> will load and install the extension.</li>'
+	echo '                      <li><b>[Info]</b> will display information about the selected extension.</li>'
+	echo '                      <li><b>[Load]</b> will load and install the selected extension.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -753,8 +756,8 @@ pcp_show_installed_extns() {
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
 #	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
-	echo '                      <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
+	echo '                      <li><b>[Update]</b> will check for a new version and update the selected extension if needed.</li>'
+	echo '                      <li><b>[Delete]</b> will delete the selected extension and dependencies on reboot.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
@@ -815,7 +818,7 @@ pcp_show_uninstalled_extns() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
-	echo '                      <li>Lists all extensions that are currently downloaded but not (yet) installed.</li>'
+	echo '                      <li>Lists all extensions that are currently downloaded but not installed.</li>'
 	echo '                    </ul>'
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
@@ -985,7 +988,6 @@ case "$CALLED_BY" in
 	Information)
 		pcp_information_message
 		pcp_internet_check
-		pcp_free_space_check
 		pcp_init_search
 		[ $DEBUG -eq 1 ] && pcp_tce_mirror
 	;;
@@ -1001,6 +1003,7 @@ case "$CALLED_BY" in
 			Info) pcp_display_information;;
 			Load) pcp_load_extn;;
 		esac
+		pcp_free_space_check
 	;;
 	Installed)
 		pcp_show_installed_extns
