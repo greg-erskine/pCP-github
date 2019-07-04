@@ -21,7 +21,9 @@ kernel kernel41955v7.img
 [PI4]
 initramfs pcp_10.2v7l.gz followkernel
 kernel kernel41955v7l.img
+dtoverlay=vc4-fkms-v3d
 max_framebuffers=2
+disable_overscan=1
 
 [ALL]
 cmdline cmdline.txt
