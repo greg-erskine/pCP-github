@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-21
+# Version: 5.1.0 2019-07-05
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -64,31 +64,30 @@ case "${VERSION}" in
 	;;
 	piCorePlayer5.1.*)
 		SPACE_REQUIRED=12000
-		BOOT_SIZE_REQUIRED=27700
+		BOOT_SIZE_REQUIRED=48000
 		#These are used for sed modification of config.txt
-		CNF_INITRD="pcp_10.1"
-		CNF_KERNEL="kernel41950"
+		CNF_INITRD="pcp_10.2"
+		CNF_KERNEL="kernel41957"
 		# Set the below for downloading new kernel modules
 		KUPDATE=1
 		case $CORE in
-			*pcpAudioCore*) NEWKERNELVER="4.19.50-rt22";;
-			*) NEWKERNELVER="4.19.50";;
+			*pcpAudioCore*) NEWKERNELVER="4.19.57-rt22";;
+			*) NEWKERNELVER="4.19.57";;
 		esac
 		PICOREVERSION="10.x"
 		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 	;;
 	*)
 		SPACE_REQUIRED=15000
-		BOOT_SIZE_REQUIRED=27800
+		BOOT_SIZE_REQUIRED=48000
 		KUPDATE=0
 	;;
 esac
-case $BUILD in
-	armv7) NEWKERNEL="${NEWKERNELVERCORE}_v7";;
-	armv6) NEWKERNEL="${NEWKERNELVERCORE}";;
+case $(uname -r | cut -d '_' -f2) in
+	v7l) NEWKERNEL="${NEWKERNELVERCORE}_v7l";;
+	v7)  NEWKERNEL="${NEWKERNELVERCORE}_v7";;
+	*)   NEWKERNEL="${NEWKERNELVERCORE}";;
 esac
-
-
 
 #========================================================================================
 # DEBUG info showing variables
@@ -636,8 +635,8 @@ if [ "$ACTION" = "download" ]; then
 	fi
 
 	if [ $(version $(pcp_picoreplayer_version)) -ge $(version "5.0.0") ]; then
-		[ $(version $(pcp_picoreplayer_version)) -ge $(version "4.1.2") ] || FAIL_MSG="You must be using 4.1.2 or higher to update. Run Hotfix."
-		[ $(version ${VERS}) -lt $(version "5.0.0") ] && FAIL_MSG="Downgrading version is not permitted."
+		[ $(version $(pcp_picoreplayer_version)) -lt $(version "5.1.0") ] && FAIL_MSG="Insitu upgrade not available for version 5.1.0"
+		[ $(version ${VERS}) -lt $(version "5.1.0") ] && FAIL_MSG="Downgrading version is not permitted."
 	fi
 
 	BOOT_SIZE=$(/bin/busybox fdisk -l | grep ${BOOTDEV} | sed "s/*//" | tr -s " " | cut -d " " -f6 | tr -d +)
