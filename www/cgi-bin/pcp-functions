@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-27
+# Version: 6.0.0 2019-07-06
 
 #========================================================================================
 # Setup debug logging
@@ -514,6 +514,14 @@ pcp_html_head() {
 	[ "$5" != "nobody" ] &&
 	echo '<body>'
 	echo '<!-- End of pcp_html_head -->'
+}
+
+pcp_html_end() {
+	pcp_footer
+	pcp_copyright
+	echo '</body>'
+	echo '</html>'
+	exit
 }
 
 pcp_banner() {
