@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-30
+# Version: 6.0.0 2019-06-30
 
 #========================================================================================
 # This script copies www and it's sub directories from the local piCorePlayer to a
