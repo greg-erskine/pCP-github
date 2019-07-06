@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-15
+# Version: 6.0.0 2019-06-15
 
 . pcp-functions
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-07-04
+# Version: 6.0.0 2019-07-04
 
 . pcp-functions
 . pcp-lms-functions

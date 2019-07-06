@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-28
+# Version: 6.0.0 2019-06-28
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from

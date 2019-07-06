@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-17
+# Version: 6.0.0 2019-06-17
 
 # Title: SD Backup and Restore
 # Description: Copies first 2 partitions to image file

@@ -1,6 +1,6 @@
 #!/usr/bin/micropython
 
-# Version: 5.1.0 2019-07-03
+# Version: 6.0.0 2019-07-03
 
 # Title: microPython
 # Description: Testing microPython.
