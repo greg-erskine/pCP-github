@@ -1,15 +1,14 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-06-29
 
 . pcp-functions
 . pcp-lms-functions
 
-pcp_html_head "Controls Adv" "GE"
+pcp_html_head "LMS CLI test" "GE"
 
 pcp_banner
 pcp_xtras
-pcp_running_script
 pcp_httpd_query_string
 
 if [ $DEBUG -eq 1 ]; then
@@ -18,7 +17,7 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 #========================================================================================
-#
+# Main
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -28,10 +27,10 @@ echo '        <fieldset>'
 echo '          <legend>Select LMS</legend>'
 echo '          <form name="new-lms-ip" action="'$0'" method="get">'
 echo '            <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-
 echo '                <td class="column150 center">'
 echo '                  <input type="submit" name="SUBMIT" value="Connect">'
 echo '                </td>'
@@ -55,6 +54,7 @@ echo '                    <p>This will connect piCorePlayer to selected LMS.</p>
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
+#----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </form>'
 echo '        </fieldset>'
@@ -67,13 +67,14 @@ echo '</table>'
 
 #========================================================================================
 pcp_table_top "Testing the functions in pcp-lms-functions"
+#----------------------------------------------------------------------------------------
 
 #--------------------------------------pcp_lms_players-----------------------------------
 echo '<h2>Squeezelite players: (pcp_lms_players squeezelite)</h2>'
-echo '<p>'$(pcp_lms_players squeezelite)'</p>'
-
 PLAYERDATA=$(pcp_lms_players squeezelite)
-PLAYERS=$(echo $PLAYERDATA | awk -F",1 " '{ for(i=1;i<=NF;i++) { printf "<p>%s</p>", $i} }')
+echo '<p>'$PLAYERDATA'</p>'
+
+PLAYERS=$(echo "$PLAYERDATA" | awk -F",1 " '{ for(i=1;i<=NF;i++) { printf "<p>%s</p>%s", $i, "\n"} }')
 echo $PLAYERS
 
 #--------------------------------------pcp_lms_player_status-----------------------------
@@ -207,64 +208,6 @@ pcp_table_end
 
 pcp_footer
 pcp_copyright
-pcp_refresh_button
-
 echo '</body>'
 echo '</html>'
-
-exit
-
-#========================================================================================
-# Other experiments
-#----------------------------------------------------------------------------------------
-echo '<h1>Playlist experiment</h1>'
-
-PLAYLISTS=`( echo "$(pcp_controls_mac_address) playlists 0 5"; echo "exit" ) | nc $(pcp_lmsip) 9090 | sed 's/ /\+/g'`
-
-echo '#1<br />'
-echo $PLAYLISTS
-echo '<br /><br />'
-
-PLAYLISTS=`sudo $HTTPD -d $PLAYLISTS`
-
-echo '#2<br />'
-echo $PLAYLISTS
-echo '<br /><br />'
-
-echo '#3<br />'
-echo '<br />'
-echo '<select name="PLAYLISTS">'
-
-SEARCH="Affirmation"
-
-PLAYLISTS=`echo $PLAYLISTS | awk -v search=$SEARCH '
-BEGIN {
-	RS="id:"
-	FS=":"
-	i = 0
-}
-#main
-{
-	split($1,c," ")
-	id[i]=c[1]
-	playlist[i]=$2
-	i++
-}
-END {
-	for (j=1; j<NR; j++) {
-		printf "<option value=\"%s\" id=\"%10s\">%s - %s</option>",id[j],id[j],id[j],playlist[j]
-	}
-	printf "</select><p>Search: %s</p>", search
-} ' `
-
-echo $PLAYLISTS
-echo '</select>'
-
-echo '<br /><br />'
-
-#------------------------------------------------------------------------------
-
-echo '<br />'
-echo '<br />'
-
 exit

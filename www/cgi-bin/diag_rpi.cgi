@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-26
+# Version: 6.0.0 2019-06-26
 
 . pcp-functions
 . pcp-rpi-functions

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 6.0.0 2019-07-02
 
 #========================================================================================
 # References:
@@ -66,18 +66,22 @@ pcp_warning_message() {
 	MESSAGEPI1='<li style="color:white">Raspberry Pi Model 1: Overclocking and underclocking.</li>'
 	MESSAGEPI2='<li style="color:white">Raspberry Pi Model 2: Overclocking and underclocking.</li>'
 	MESSAGEPI3='<li style="color:white">Raspberry Pi Model 3: Underclocking only.</li>'
+	MESSAGEPI4='<li style="color:white">Raspberry Pi Model 4: Underclocking only.</li>'
+
 
 	case $RPITYPE in
 		0) MESSAGEPI0='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 0: Underclocking only. &gt;&gt;</b></li>' ;;
 		1) MESSAGEPI1='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 1: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
 		2) MESSAGEPI2='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 2: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
 		3) MESSAGEPI3='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 3: Underclocking only. &gt;&gt;</b></li>' ;;
+		4) MESSAGEPI4='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 4: Underclocking only. &gt;&gt;</b></li>' ;;
 	esac
 
 	echo "                  $MESSAGEPI0"
 	echo "                  $MESSAGEPI1"
 	echo "                  $MESSAGEPI2"
 	echo "                  $MESSAGEPI3"
+	echo "                  $MESSAGEPI4"
 
 	echo '                </ul>'
 	echo '              </td>'
@@ -232,7 +236,7 @@ pcp_start_save() {
 				*)     pcp_set_overclock_default ;;
 			esac
 		;;
-		3)
+		3|4)
 			case "$ADVOVERCLOCK" in
 				Lowest)pcp_set_overclock Lowest 600 250 250 400 0 ;;
 				Under) pcp_set_overclock Under 800 200 200 400 0 ;;
@@ -393,7 +397,7 @@ case $RPITYPE in
 		echo '                    <option value="None" '$OCnone'>None</option>'
 		echo '                    <option value="High" '$OChigh'>High</option>'
 	;;
-	3)
+	3|4)
 		echo '                    <option value="Lowest" '$OClowest'>Lowest</option>'
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'

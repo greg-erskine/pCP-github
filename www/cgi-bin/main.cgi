@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-06-27
 
 . pcp-functions
 . pcp-lms-functions
@@ -67,7 +67,7 @@ if [ "$ACTION" = "shutdown" ]; then
 fi
 
 #========================================================================================
-# Padding
+# Padding <=== GE Remove this function
 #----------------------------------------------------------------------------------------
 pcp_main_padding() {
 	pcp_toggle_row_shade
@@ -765,6 +765,29 @@ pcp_main_extras() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_extras
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Security--------------------------------------
+pcp_main_security() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Security" action="security.cgi" method="get">'
+	echo '                  <input type="submit" value="Security">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Go to Security page&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will go to the Security page.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_security
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Developer mode fieldset-----------------------

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-19
+# Version: 6.0.0 2019-06-08
 
 set -f
 
@@ -111,50 +111,6 @@ pcp_tweaks_timezone() {
 	echo '          </form>'
 }
 [ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_timezone
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------Password----------------------------------
-# Note: changing passwords through a script over http is not very secure.
-#----------------------------------------------------------------------------------------
-pcp_tweaks_password() {
-	echo '          <form name="password" action="changepassword.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">Password for "'$(pcp_tc_user)'"</td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="password" name="NEWPASSWORD" maxlength="26">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Enter new password&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Default:</b> piCore</p>'
-	echo '                    <p class="error"><b>Warning: </b>Changing passwords through a script over http is not very secure.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150"></td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="large16" type="password" name="CONFIRMPASSWORD" maxlength="26">'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Confirm new password.</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'" >'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Save">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </form>'
-}
-[ $MODE -ge $MODE_BASIC ] && pcp_tweaks_password
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Player Tabs-------------------------------

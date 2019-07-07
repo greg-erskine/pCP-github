@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.1 2019-06-19
+# Version: 6.0.0 2019-06-19
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.

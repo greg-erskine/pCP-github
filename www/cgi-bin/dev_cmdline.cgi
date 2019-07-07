@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-24
+# Version: 6.0.0 2019-07-06
 
 # Title: Linux command line
 # Description: Method for running Linux commands vi GUI.
@@ -11,9 +11,8 @@
 pcp_html_head "Command Line" "GE"
 
 pcp_banner
-pcp_running_script
-
 pcp_httpd_query_string_no_decode
+
 LINUXCMD=$(sudo $HTTPD -d $LINUXCMD)
 
 #========================================================================================
@@ -39,9 +38,10 @@ echo '                <td>'
 echo '                  <input class="large60" type="text" name="LINUXCMD" value="'$LINUXCMD'">'
 echo '                </td>'
 echo '              </tr>'
+#----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
+echo '                <td colspan="2">'
 echo '                  <p>Enter a valid linux command and press [Execute]&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
@@ -124,8 +124,4 @@ echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end

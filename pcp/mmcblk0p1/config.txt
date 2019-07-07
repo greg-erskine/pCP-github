@@ -4,23 +4,24 @@
 
 [PI0]
 initramfs pcp_10.2.gz followkernel
-kernel kernel41955.img
+kernel kernel41957.img
 
 [PI1]
 initramfs pcp_10.2.gz followkernel
-kernel kernel41955.img
+kernel kernel41957.img
 
 [PI2]
 initramfs pcp_10.2v7.gz followkernel
-kernel kernel41955v7.img
+kernel kernel41957v7.img
 
 [PI3]
 initramfs pcp_10.2v7.gz followkernel
-kernel kernel41955v7.img
+kernel kernel41957v7.img
 
 [PI4]
 initramfs pcp_10.2v7l.gz followkernel
-kernel kernel41955v7l.img
+kernel kernel41957v7l.img
+dtoverlay=vc4-fkms-v3d
 max_framebuffers=2
 
 [ALL]

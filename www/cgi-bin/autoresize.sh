@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-05
+# Version: 6.0.0 2019-06-05
 
 SCRATCH="/home/tc"
 #DEBUG=TRUE
