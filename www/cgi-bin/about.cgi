@@ -1,13 +1,8 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-23
+# Version: 6.0.0 2019-07-07
 
 . pcp-functions
-. pcp-rpi-functions
-. pcp-lms-functions
-. pcp-pastebin-functions
-
-LOG=$PCPCFG
 
 pcp_html_head "About" "SBP"
 
@@ -60,60 +55,6 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_BASIC ]; then
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Versions</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" "cat ${PCPVERSIONCFG}" 30
-	echo '              </td>'
-	echo '            </tr>'
-	echo '            <tr class="padding">'
-	echo '              <td></td>'
-	echo '            </tr>'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" "${SQLT_BIN} -t" 240
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
-#----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_ADVANCED ]; then
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Current configuration</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "$PCPCFG" 'cat $PCPCFG \
-	                      | sed -e "s/\(PASSWORD=\).*/\1\"********\"/"\
-	                      | sed -e "s/\(NETMOUNT1PASS=\).*/\1\"*******\"/" ' 560
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-fi
-#----------------------------------------------------------------------------------------
-
-[ $MODE -ge $MODE_BETA ] && pcp_pastebin_button pcp.cfg
 
 pcp_footer
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mode

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-24
+# Version: 6.0.0 2019-07-06
 
 . pcp-functions
 . pcp-rpi-functions
@@ -72,6 +72,34 @@ pcp_cards_controls() {
 
 	echo '                    </ul>'
 }
+
+pcp_submit_button() {
+
+	HELP_URL="diag_logs.cgi?SELECTION=pcp_squeezelite_help.log&ACTION=Show"
+
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td  class="column150">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
+	echo '                </td>'
+
+	if [ $MODE -ge $MODE_ADVANCED ]; then
+		echo '                <td colspan="2">'
+		echo '                  <p>Squeezelite command string&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p><b>Warning: </b>For advanced users only!</p>'
+		echo '                    <p>'$STRING'</p>'
+		echo '                    <p>For more information&#8212;see <a href="'$HELP_URL'">Squeezelite help</a>.</p>'
+		echo '                  </div>'
+		echo '                </td>'
+	fi
+	echo '              </tr>'
+}
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Determine which sound cards are available for the various RPi boards
@@ -188,10 +216,11 @@ echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Change Squeezelite settings</legend>'
 echo '            <table class="bggrey percent100">'
-
+#----------------------------------------------------------------------------------------
+pcp_submit_button
 #--------------------------------------Name of your player-------------------------------
 pcp_incr_id
-pcp_start_row_shade
+pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>Name of your player</p>'
@@ -764,7 +793,7 @@ pcp_squeezelite_log_level() {
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_log_level
 #----------------------------------------------------------------------------------------
 
-#--------------------------------------Device supports DSD/DoP-------------------------------
+#------------------------------------Device supports DSD/DoP-----------------------------
 pcp_squeezelite_dop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -1010,12 +1039,21 @@ pcp_squeezelite_various_input() {
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Use this field to add options that are supported by Squeezelite but unavailable in the piCorePlayer web interface.</p>'
 	echo '                    <p><b>Note: </b>Ensure to include the correct switch first, i.e. -n or -o etc</p>'
-	echo '                    <p><b>Example: </b>-e dsd, -z</p>'
+	echo '                    <p><b>Example: </b>-W -X -Z</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_squeezelite_various_input
+#----------------------------------------------------------------------------------------
+pcp_submit_button
+#----------------------------------------------------------------------------------------
+echo '            </table>'
+echo '          </fieldset>'
+echo '        </div>'
+echo '      </form>'
+echo '    </td>'
+echo '  </tr>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -1030,38 +1068,6 @@ echo '    }'
 echo '    return ( true );'
 echo '}'
 echo '</script>'
-#--------------------------------------Submit button-------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td  class="column150">'
-echo '                  <input type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
-echo '                  <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
-echo '                </td>'
-
-if [ $MODE -ge $MODE_ADVANCED ]; then
-	echo '                <td colspan="2">'
-	echo '                  <p>Squeezelite command string&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p><b>Warning: </b>For advanced users only!</p>'
-	echo '                    <p>'$STRING'</p>'
-	echo '                    <p><b>Hint: </b>Triple click on command then press [Ctrl]+[c] to copy.</p>'
-	echo '                    <p><b>Note: </b>Maximum length is 512 characters.</p>'
-	echo '                    <p><b>Note: </b>"User commands" only accepts name without an empty space. So please change first floor to first_floor.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-fi
-
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
 
 #========================================================================================
 # Select Squeezelite binary.  Support custom versions of squeezelite.
@@ -1070,7 +1076,7 @@ pcp_squeezelite_binary() {
 	DEFyes=""
 	DSDyes=""
 	CUSTOMyes=""
-	# check to make sure this is really a symlink before we allow setting via web
+	# Check to make sure this is really a symlink before we allow setting via web
 	[ -f $TCEMNT/tce/squeezelite -a "$(readlink $TCEMNT/tce/squeezelite)" = "" ] && DISABLE="disabled" || DISABLE=""
 	case $SQBINARY in
 		default) DEFyes="checked";;

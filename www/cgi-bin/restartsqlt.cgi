@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 6.0.0 2019-07-07
 
 . pcp-functions
 
@@ -9,7 +9,6 @@ pcp_httpd_query_string
 
 pcp_html_head "Restart Squeezelite" "SBP"
 pcp_banner
-pcp_running_script
 pcp_remove_query_string
 
 pcp_table_top "Restarting Squeezelite"
@@ -26,11 +25,7 @@ if [ "$SHAIRPORT" = "yes" ]; then
 fi
 
 pcp_table_middle
-pcp_redirect_button "Go to Main Page" "$FROM_PAGE" 5
+pcp_redirect_button "Go Back" "$FROM_PAGE" 5
 pcp_table_end
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end

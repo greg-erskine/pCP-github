@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-04
+# Version: 6.0.0 2019-07-07
 
 . pcp-functions
 . pcp-lms-functions
@@ -34,8 +34,14 @@ pcp_umount_bootpart >/dev/null 2>&1
 cp ${TCEMNT}/tce/pcp_*.log $LOGDIR >/dev/null 2>&1
 #----------------------------------------------------------------------------------------
 
+#========================================================================================
+# Create log files
+#----------------------------------------------------------------------------------------
 dmesg > ${LOGDIR}/pcp_dmesg.log
 pcp_lms_players squeezelite pCP | sed 's/,/ - /g' | sort > ${LOGDIR}/pcp_squeezelite_ip.log
+${SQLT_BIN} -h > ${LOGDIR}/pcp_squeezelite_help.log
+cat /usr/local/etc/pcp/pcp.cfg > ${LOGDIR}/pcp_pcp_configuration.log
+#----------------------------------------------------------------------------------------
 
 PCPLOGS=$(ls "$LOGDIR" | grep pcp_ | grep log)
 [ x"" != x"$PCPLOGS" ] && LOGS=$PCPLOGS

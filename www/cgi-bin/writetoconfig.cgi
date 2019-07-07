@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-19
+# Version: 6.0.0 2019-07-07
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -21,7 +21,6 @@ unset REBOOT_REQUIRED
 pcp_html_head "Write to pcp.cfg" "SBP" "15" "squeezelite.cgi"
 
 pcp_banner
-pcp_running_script
 pcp_remove_query_string
 pcp_httpd_query_string
 
