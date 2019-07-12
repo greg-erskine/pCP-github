@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-07
+# Version: 6.0.0 2019-07-13
 
 . pcp-functions
+. pcp-lms-functions
 
 pcp_html_head "About" "SBP"
 
