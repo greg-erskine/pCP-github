@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-05
+# Version: 6.0.0 2019-07-14
 
 SCRATCH="/home/tc"
 #DEBUG=TRUE
@@ -9,9 +9,14 @@ TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
 BOOTDEV=${TCEDEV%%?}1
 
 case $BOOTDEV in
-	*/sd?*) DEVICE=${BOOTDEV%%?} ;;
-	*mmcblk*) DEVICE=${BOOTDEV%%??} ;;
-	*) [ $DEBUG ] echo "ERROR in device" ;;
+	*mmcblk*)
+		DEVICE=${BOOTDEV%%??}
+		DATADEV="${DEVICE}p3"
+	;;
+	*sd?*)
+		DEVICE="${BOOTDEV%%?}"
+		DATADEV="${DEVICE}3"
+	;;
 esac
 
 #========================================================================================
@@ -168,7 +173,7 @@ if [ -f ${SCRATCH}/mkfs_part3_required ]; then
 	echo "Formatting partition 3 using mkfs.ext4..."
 	echo "-------------------------------------------------------------------------------"
 	echo "Please wait. System will reboot when ready."
-	mkfs.ext4 -L "PCP_DATA" /dev/mmcblk0p3
+	mkfs.ext4 -L "PCP_DATA" $DATADEV
 	rm -f ${SCRATCH}/mkfs_part3_required
 	sleep 1
 	if [ ! -f ${SCRATCH}/mkfs_part3_required ]; then
