@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-15
+# Version: 6.0.0 2019-07-16
 
 . pcp-functions
 . pcp-lms-functions
@@ -23,7 +23,7 @@ unset REBOOT_REQUIRED
 echo '<!-- Start of pcp_security_tabs toolbar -->'
 echo '<p style="margin-top:8px;">'
 
-for TAB in "tc password" "httpd settings" # "Disable SSH" # "Disable GUI"
+for TAB in "tc password" "httpd settings" "Disable SSH" # "Disable GUI"
 do
 	[ "$TAB" = "${CALLED_BY/+/ /}" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
 	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='${TAB/ /+}'" title="'$TAB'">'$TAB'</a>'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-15
+# Version: 6.0.0 2019-07-16
 
 #========================================================================================
 # Disable SSH
@@ -13,49 +13,50 @@ pcp_ssh_status() {
 #------------------------------------------------------------------------------------
 # Look for ssh file on boot partition. Only start sshd if ssh file is found.
 #------------------------------------------------------------------------------------
-BOOTDEVLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
-
 pcp_security_ssh() {
+	SSH_FOUND=0
+	BOOTDEVLIST="mmcblk0p1 sda1"
+
 	[ $DEBUG -eq 1 ] && pcp_table_top "Debug Information"
 	pcp_debug_variables "html" BOOTDEVLIST
-	SSH_FOUND=0
 
-	for DISK in $BOOTDEVLIST; do
-
-		DIR=$(cat /etc/mtab | grep "$DISK" | awk '{print $2}')
-
-		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Checking for ssh file on $DIR ($DISK)..." "html"
-
-		# Check if $DISK is mounted, otherwise mount it.
-		if mount | grep ${DISK} >/dev/null 2>&1; then
-			eval ${DISK}WASMNT=1
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "/dev/${DISK} mounted." "html"
-		else
-			eval ${DISK}WASMNT=0
-			[ -d /mnt/$DISK ] || mkdir -p /mnt/$DISK
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "Mounting /dev/${DISK}." "html"
-			mount /dev/$DISK >/dev/null 2>&1
-		fi
-
-		[ "$1" = "enable" ] && touch /mnt/${DISK}/ssh
-		[ "$1" = "disable" ] && rm -f /mnt/${DISK}/ssh
-
-		if [ -f /mnt/${DISK}/ssh ]; then
-			SSH_FOUND=$((SSH_FOUND + 1))
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH found on ${DISK}." "html"
-		else
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH NOT found on ${DISK}." "html"
-		fi
-
-		if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
-			umount /mnt/$DISK
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "/mnt/${DISK} unmounted." "html"
-		fi
+	for DISK in $BOOTDEVLIST
+	do
+		if fdisk -l /dev/${DISK} | grep /dev/${DISK} >/dev/null 2>&1; then break; fi
 	done
 
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Checking for ssh file on ($DISK)..." "html"
+	# Check if $DISK is mounted, otherwise mount it.
+	if mount | grep ${DISK} >/dev/null 2>&1; then
+		eval ${DISK}WASMNT=1
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "/dev/${DISK} already mounted." "html"
+	else
+		eval ${DISK}WASMNT=0
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Mounting /dev/${DISK}." "html"
+		mount /dev/$DISK >/dev/null 2>&1
+	fi
+
+	[ "$1" = "enable" ] && touch /mnt/${DISK}/ssh
+	[ "$1" = "disable" ] && rm -f /mnt/${DISK}/ssh
+
+	if [ -f /mnt/${DISK}/ssh ]; then
+		SSH_FOUND=$((SSH_FOUND + 1))
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH found on ${DISK}." "html"
+	else
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH NOT found on ${DISK}." "html"
+	fi
+
+	if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
+		umount /mnt/$DISK
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "/mnt/${DISK} unmounted." "html"
+	fi
+
 	[ $DEBUG -eq 1 ] && pcp_table_end
+
+	[ $SSH_FOUND -eq 0 ] && ACTION_MESSAGE="Ensable SSH" || ACTION_MESSAGE="Disable SSH"
 }
 
+#----------------------------------------------------------------------------------------
 case $ACTION in
 	"Enable SSH")
 		pcp_security_ssh enable
@@ -92,7 +93,7 @@ echo '                <td class="'$COLUMN2'">'
 echo '                  <p>Number of SSH files found: '$SSH_FOUND'</p>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Disable SSH on boot&nbsp;&nbsp;'
+echo '                  <p>'$ACTION_MESSAGE' on boot&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
