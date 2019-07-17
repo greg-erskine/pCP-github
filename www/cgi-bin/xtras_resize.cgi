@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-15
+# Version: 6.0.0 2019-07-14
 
 . pcp-functions
 
@@ -35,8 +35,18 @@ P1_ACTUAL_SIZE_BYTES=$($FDISK -l $BOOTDEV | grep ${BOOTDEV}: | sed 's/*//' | awk
 P2_ACTUAL_SIZE_BYTES=$($FDISK -l $TCEDEV | grep ${TCEDEV}: | sed 's/*//' | awk '{ print $5 }')
 
 case $BOOTDEV in
-	*sd?*) DEVICE=${BOOTDEV%%?} ;;
-	*mmcblk*) DEVICE=${BOOTDEV%%??} ;;
+	*mmcblk*)
+		DEVICE=${BOOTDEV%%??}
+		ROOTDEV="${DEVICE}p2"
+		DATADEV="${DEVICE}p3"
+		PHYSDEV="SD Card"
+	;;
+	*sd?*)
+		DEVICE="${BOOTDEV%%?}"
+		ROOTDEV="${DEVICE}2"
+		DATADEV="${DEVICE}3"
+		PHYSDEV="USB Device"
+	;;
 esac
 
 SD_MAX_SIZE_BYTES=$($FDISK -l ${DEVICE} | grep ${DEVICE}: | sed 's/*//' | awk '{ print $5 }')
@@ -51,12 +61,12 @@ AVAILABLE_SPACE_MB=$(($SD_MAX_SIZE_MB - ($P1_ACTUAL_SIZE_MB + $P2_ACTUAL_SIZE_MB
 NUM_OF_PARTITIONS=$($FDISK -l $DEVICE | tail -n 1 | sed 's/  */ /g' | cut -d' ' -f 1 | awk '$0=$NF' FS=)
 [ $NUM_OF_PARTITIONS -ne 2 ] && SDVALID=$((SDVALID + 1))
 
-P1_NAME=$(tune2fs -l /dev/mmcblk0p1 2>/dev/null | tail -1 | grep PCP | awk -F"labelled '" '{print $2}' | sed "s/'//" )
+P1_NAME=$(tune2fs -l $BOOTDEV 2>/dev/null | tail -1 | grep PCP | awk -F"labelled '" '{print $2}' | sed "s/'//" )
 [ "$P1_NAME" != "PCP_BOOT" ] && SDVALID=$((SDVALID + 1))
-P2_NAME=$(tune2fs -l /dev/mmcblk0p2 | grep "volume name" | awk -F":   " '{print $2}')
+P2_NAME=$(tune2fs -l $ROOTDEV | grep "volume name" | awk -F":   " '{print $2}')
 [ "$P2_NAME" = "<none>" ] && P2_NAME="&lt;none&gt;"
 [ "$P2_NAME" != "PCP_ROOT" ] && SDVALID=$((SDVALID + 1))
-P3_NAME=$(tune2fs -l /dev/mmcblk0p3 | grep "volume name" | awk -F":   " '{print $2}')
+P3_NAME=$(tune2fs -l $DATADEV | grep "volume name" | awk -F":   " '{print $2}')
 [ $NUM_OF_PARTITIONS -eq 3 ] && [ "$P3_NAME" != "PCP_DATA" ] || [ "$P3_NAME" != "" ] && SDVALID=$((SDVALID + 1))
 
 # Allow the correct values in drop-down list to be selectable
@@ -76,7 +86,8 @@ if [ $DEBUG -eq 1 ]; then
 		SD_MAX_SIZE_BYTES SD_MAX_SIZE_MB SD_CARD_SIZE_GB NUM_OF_PARTITIONS \
 		P1_ACTUAL_SIZE_BYTES P1_ACTUAL_SIZE_MB \
 		P2_ACTUAL_SIZE_BYTES P2_ACTUAL_SIZE_MB P2_MAX_SIZE_MB AVAILABLE_SPACE_MB \
-		P1_NAME P2_NAME P3_NAME SDVALID
+		P1_NAME P2_NAME P3_NAME SDVALID \
+		DEVICE BOOTDEV ROOTDEV DATADEV PHYSDEV
 	pcp_table_end
 	echo '<!-- End of debug info -->'
 fi
@@ -115,7 +126,7 @@ case "$SUBMIT" in
 		#--------------------------------------------------------------------------------
 		pcp_table_top "Adding partition 3 - PCP_DATA"
 		echo '                <textarea class="inform" style="height:110px">'
-		echo '[ INFO ] Adding partition 3 is occuring, please wait...'
+		echo '[ INFO ] Adding '$DATADEV' partition 3 is occuring, please wait...'
 		echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 		touch /home/tc/fdisk_part3_required
 		pcp_backup_nohtml
@@ -135,7 +146,7 @@ case "$SUBMIT" in
 		echo '                <textarea class="inform" style="height:110px">'
 		echo '[ INFO ] Creating default directories on partition 3...'
 
-		DIR=$(cat /etc/mtab | grep mmcblk0p3 | awk '{print $2}')
+		DIR=$(cat /etc/mtab | grep "$DATADEV" | awk '{print $2}')
 
 		for i in music image config
 		do
@@ -182,7 +193,7 @@ case "$SUBMIT" in
 				echo '                    <option value="500" '"$DISABLED500"'>500 MB</option>'
 				echo '                    <option value="1000" '"$DISABLED1000"'>1000 MB</option>'
 				echo '                    <option value="2000" '"$DISABLED2000"'>2000 MB</option>'
-				echo '                    <option value="'$(($P2_MAX_SIZE_MB-100))'" '"$DISABLED000"'>Whole SD card</option>'
+				echo '                    <option value="'$(($P2_MAX_SIZE_MB-100))'" '"$DISABLED000"'>Whole '$PHYSDEV'</option>'
 				echo '                  </select>'
 				echo '                </td>'
 				echo '                <td>'
@@ -215,7 +226,7 @@ case "$SUBMIT" in
 		else
 			echo '              <tr  class="warning">'
 			echo '                <td colspan="2">'
-			echo '                  <p style="color:white"><b>WARNING:</b> The resize partition 2 option has been disabled to prevent damage to your SD card.</p>'
+			echo '                  <p style="color:white"><b>WARNING:</b> The resize partition 2 option has been disabled to prevent damage to your '$PHYSDEV'.</p>'
 			echo '                  <p style="color:white">You have:</p>'
 			echo '                  <ul>'
 			                          [ $NUM_OF_PARTITIONS -ne 2 ] &&
@@ -253,13 +264,13 @@ case "$SUBMIT" in
 			echo '            <table class="bggrey percent100">'
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td>'
-			echo '                  <p>It is NOT recommended adding partition 3 to your SD card&nbsp;&nbsp;'
+			echo '                  <p>It is NOT recommended adding partition 3 to your '$PHYSDEV'&nbsp;&nbsp;'
 			echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 			echo '                  </p>'
 			echo '                  <div id="'$ID'" class="less">'
 			echo '                    <ul>'
-			echo '                      <li>This operation will add an ext4 formatted partition 3, starting at the end of partition 2 and filling up the rest of the SD card.</li>'
-			echo '                      <li>It is more reliable to store your data on a USB stick or HDD.</li>'
+			echo '                      <li>This operation will add an ext4 formatted partition 3, starting at the end of partition 2 and filling up the rest of the '$PHYSDEV'.</li>'
+			echo '                      <li>It is more reliable to store your data on a separate USB stick or HDD.</li>'
 			echo '                      <li>Once partition 3 is added, it will be very difficult to increase the size of partition 2.</li>'
 			echo '                      <li>Use [LMS] > "Pick from the following detected USB disks to mount" to mount partition.</li>'
 			echo '                    </ul>'
@@ -298,7 +309,7 @@ case "$SUBMIT" in
 		#----------------------------------------------------------------------------------------
 		if [ $MODE -ge $MODE_DEVELOPER ]; then
 			pcp_table_top "Create directories on partition 3 ($P3_NAME)"
-			if mount | grep /dev/mmcblk0p3 >/dev/null 2>&1; then
+			if mount | grep "$DATADEV" >/dev/null 2>&1; then
 				echo '                    <form name="create" action="'$0'" method="get">'
 				echo '                      <input type="submit" name="SUBMIT" value="Create">'
 				echo '                      &nbsp;&nbsp;Click [Create] to create default directories on partition 3.'
@@ -339,30 +350,26 @@ if [ $DEBUG -eq 1 ]; then
 	echo '<!-- End of debug info -->'
 	pcp_table_end
 
-	pcp_table_top "tune2fs -l /dev/mmcblk0p1"
+	pcp_table_top "tune2fs -l $BOOTDEV"
 	echo '<!-- Start of debug info -->'
-	pcp_textarea_inform "none" "tune2fs -l /dev/mmcblk0p1" "150"
+	pcp_textarea_inform "none" "tune2fs -l $BOOTDEV" "150"
 	echo '<!-- End of debug info -->'
 	pcp_table_end
 
-	pcp_table_top "tune2fs -l /dev/mmcblk0p2"
+	pcp_table_top "tune2fs -l $ROOTDEV"
 	echo '<!-- Start of debug info -->'
-	pcp_textarea_inform "none" "tune2fs -l /dev/mmcblk0p2" "150"
+	pcp_textarea_inform "none" "tune2fs -l $ROOTDEV" "150"
 	echo '<!-- End of debug info -->'
 	pcp_table_end
 
 	if [ $NUM_OF_PARTITIONS -gt 2 ]; then
-		pcp_table_top "tune2fs -l /dev/mmcblk0p3"
+		pcp_table_top "tune2fs -l $DATADEV"
 		echo '<!-- Start of debug info -->'
-		pcp_textarea_inform "none" "tune2fs -l /dev/mmcblk0p3" "150"
+		pcp_textarea_inform "none" "tune2fs -l $DATADEV" "150"
 		echo '<!-- End of debug info -->'
 		pcp_table_end
 	fi
 fi
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end

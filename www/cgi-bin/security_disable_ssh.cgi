@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-08
+# Version: 6.0.0 2019-07-16
 
 #========================================================================================
 # Disable SSH
@@ -11,52 +11,58 @@ pcp_ssh_status() {
 }
 
 #------------------------------------------------------------------------------------
-# Look for ssh file on boot partition. Only start sshd if file found.
+# Look for ssh file on boot partition. Only start sshd if ssh file is found.
 #------------------------------------------------------------------------------------
-BOOTDEVLIST=$(blkid -o device | grep -E 'sd[a-z]1|mmcblk0p1' | awk -F '/dev/' '{print $2}')
-
 pcp_security_ssh() {
-	[ $DEBUG -eq 1 ] && pcp_table_top "Debug Information"
 	SSH_FOUND=0
+	BOOTDEVLIST="mmcblk0p1 sda1"
 
-	for DISK in $BOOTDEVLIST; do
-		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Checking for ssh file on $DISK..." "html"
-		# Check if $DISK is mounted, otherwise mount it.
-		if mount | grep ${DISK} >/dev/null 2>&1; then
-			eval ${DISK}WASMNT=1
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "/dev/${DISK} mounted." "html"
-		else
-			eval ${DISK}WASMNT=0
-			[ -d /mnt/$DISK ] || mkdir -p /mnt/$DISK
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "Mounting /dev/${DISK}." "html"
-			mount /dev/$DISK >/dev/null 2>&1
-		fi
+	[ $DEBUG -eq 1 ] && pcp_table_top "Debug Information"
+	pcp_debug_variables "html" BOOTDEVLIST
 
-		[ $1 = "enable" ] && touch /mnt/${DISK}/ssh
-		[ $1 = "disable" ] && rm -f /mnt/${DISK}/ssh
-
-		if [ -f /mnt/${DISK}/ssh ]; then
-			SSH_FOUND=$(($SSH_FOUND + 1))
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH found on ${DISK}." "html"
-		else
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH NOT found on ${DISK}." "html"
-		fi
-
-		if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
-			umount /mnt/$DISK
-			[ $DEBUG -eq 1 ] && pcp_message DEBUG "/mnt/${DISK} unmounted." "html"
-		fi
+	for DISK in $BOOTDEVLIST
+	do
+		if fdisk -l /dev/${DISK} | grep /dev/${DISK} >/dev/null 2>&1; then break; fi
 	done
 
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Checking for ssh file on ($DISK)..." "html"
+	# Check if $DISK is mounted, otherwise mount it.
+	if mount | grep ${DISK} >/dev/null 2>&1; then
+		eval ${DISK}WASMNT=1
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "/dev/${DISK} already mounted." "html"
+	else
+		eval ${DISK}WASMNT=0
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Mounting /dev/${DISK}." "html"
+		mount /dev/$DISK >/dev/null 2>&1
+	fi
+
+	[ "$1" = "enable" ] && touch /mnt/${DISK}/ssh
+	[ "$1" = "disable" ] && rm -f /mnt/${DISK}/ssh
+
+	if [ -f /mnt/${DISK}/ssh ]; then
+		SSH_FOUND=$((SSH_FOUND + 1))
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH found on ${DISK}." "html"
+	else
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "SSH NOT found on ${DISK}." "html"
+	fi
+
+	if [ $(eval echo \${${DISK}WASMNT}) -eq 0 ]; then
+		umount /mnt/$DISK
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "/mnt/${DISK} unmounted." "html"
+	fi
+
 	[ $DEBUG -eq 1 ] && pcp_table_end
+
+	[ $SSH_FOUND -eq 0 ] && ACTION_MESSAGE="Ensable SSH" || ACTION_MESSAGE="Disable SSH"
 }
 
+#----------------------------------------------------------------------------------------
 case $ACTION in
-	Enable\ SSH)
+	"Enable SSH")
 		pcp_security_ssh enable
 		REBOOT_REQUIRED=TRUE
 	;;
-	Disable\ SSH)
+	"Disable SSH")
 		pcp_security_ssh disable
 		REBOOT_REQUIRED=TRUE
 	;;
@@ -87,25 +93,26 @@ echo '                <td class="'$COLUMN2'">'
 echo '                  <p>Number of SSH files found: '$SSH_FOUND'</p>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Disable SSH on boot&nbsp;&nbsp;'
+echo '                  <p>'$ACTION_MESSAGE' on boot&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p><b>Default:</b> Secure Shell daemon (sshd) is started.</p>'
-echo '                    <p>To decrease access to pCP and increase security you can disable SSH.</p>'
-echo '                    <p>SSH will start automatically if an ssh file is found in the pCP boot partition.</p>'
-echo '                    <p>A reboot required to activate new setting.</p>'
+echo '                    <p>SSH will start on boot if an ssh file is found in the pCP boot partition.</p>'
+echo '                    <p>By default Secure Shell daemon (sshd) is started on boot.</p>'
+echo '                    <p>To increase the level of security you can disable SSH.</p>'
+echo '                    <p>A reboot is required to activate the new setting.</p>'
 echo '                  </div>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
-					  if [ $SSH_FOUND -eq 0 ]; then
+	                  if [ $SSH_FOUND -eq 0 ]; then
 echo '                  <input type="submit" name="ACTION" value="Enable SSH">'
-					  else
+	                  else
 echo '                  <input type="submit" name="ACTION" value="Disable SSH">'
-					  fi
+	                  fi
+echo '                  <input type="hidden" name="CALLED_BY" value="Disable SSH">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
