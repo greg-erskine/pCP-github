@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-17
+# Version: 6.0.0 2019-07-18
 
 BACKUP=0
 
@@ -448,11 +448,9 @@ fi
 if [ "$IR_LIRC" = "yes" ]; then
 	if [ "$JIVELITE" = "no" ]; then
 		LIRCD=/usr/local/sbin/lircd
-
 		if [ -x $LIRCD ]; then
 			echo -n "${BLUE}Starting lirc...${NORMAL}"
 			LIRCVER="$($LIRCD --version | awk '{printf "%s", $2}')"
-
 			if [ "$LIRCVER" = "0.9.0" ]; then
 				$LIRCD --device=/dev/${IR_DEVICE} --log=/var/log/pcp_lirc.log
 			else
@@ -512,7 +510,7 @@ if [ -f  ${USBMOUNTCONF} ]; then
 					vfat|fat32)
 						# If Filesystem support installed, use utf-8 charset for fat.
 						df | grep -qs ntfs
-						[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
+						[ $? -eq 0 ] && CHARSET=",iocharset=utf8" || CHARSET=""
 						# need to unmount vfat incase 1st mount is not utf8
 						umount $USBDEVICE >/dev/null 2>&1
 						OPTIONS="-v -t vfat -o noauto,users,noatime,exec,umask=000,flush${CHARSET}"
@@ -619,14 +617,23 @@ if [ -f  ${NETMOUNTCONF} ]; then
 fi
 
 #----------------------------------------------------------------------------------------
-# If running an LMS locally, start squeezelite later.
+# Start squeezelite. If running LMS locally, start squeezelite later.
 #----------------------------------------------------------------------------------------
 if [ "$LMSERVER" != "yes" ]; then
 	if [ "$SQUEEZELITE" = "yes" ]; then
 		echo "${BLUE}Starting Squeezelite and/or Shairport-sync...${YELLOW}"
-		pcp_squeezelite_start nohtml
+		pcp_squeezelite_start "nohtml"
 		echo " ${GREEN}Done.${NORMAL}"
 	fi
+fi
+
+#----------------------------------------------------------------------------------------
+# Start Shairport-sync if not started with squeezelite (above).
+#----------------------------------------------------------------------------------------
+if [ "$SHAIRPORT" = "yes" ] && [ $(pcp_shairport_status) -ne 0 ]; then
+	echo "${BLUE}Starting Shairport-sync...${YELLOW}"
+	pcp_shairport_start "nohtml"
+	echo " ${GREEN}Done.${NORMAL}"
 fi
 
 #----------------------------------------------------------------------------------------
@@ -679,8 +686,8 @@ if [ "$LMSERVER" = "yes" ]; then
 				fi
 			done
 			echo " ${GREEN}Done ($CNT).${NORMAL}"
-		echo "${BLUE}Starting Squeezelite and/or Shairport-sync...${YELLOW}"
-			pcp_squeezelite_start nohtml
+			echo "${BLUE}Starting Squeezelite and/or Shairport-sync...${YELLOW}"
+			pcp_squeezelite_start "nohtml"
 			echo " ${GREEN}Done.${NORMAL}"
 		fi
 	else
