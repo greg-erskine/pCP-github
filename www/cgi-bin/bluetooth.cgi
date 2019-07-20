@@ -53,7 +53,7 @@ pcp_bt_save_config() {
 	I=1
 	while [ $I -lt $NUMDEVICES ]; do
 		sed -i '/'$(eval echo "\${BTMAC${I}}")'/d' $BTDEVICECONF
-		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}#\${BTALSABUF${I}}#\${USEMAC${I}}" >> $BTDEVICECONF
+		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}#\${BTALSABUF${I}}#\${USEBTMAC${I}}" >> $BTDEVICECONF
 		I=$((I + 1))
 	done
 	
@@ -568,7 +568,7 @@ pcp_bt_scan() {
 			[ "$BTPLAYERNAME" = "" ] && BTPLAYERNAME=$BTNAME
 			[ "$BTDELAY" == "" ] && BTDELAY=10000
 			[ "$BTALSABUF" == "" ] && BTALSABUF="80:::0"
-			[ "$USEMAC" == "" ] && USEMAC="on"
+			[ "$USEBTMAC" == "" ] && USEBTMAC="on"
 			REQUIRED="required"
 			pcp_incr_id
 			pcp_toggle_row_shade
@@ -590,13 +590,13 @@ pcp_bt_scan() {
 			echo '                <td class="'$COL5'">'
 			echo '                  <input class="large6" type="text" id="idBTALSABUF'${I}'" name="BTALSABUF'${I}'" value="'$BTALSABUF'" title="Alsa Buffer (See squeezelite page)" '$REQUIRED' pattern="\d*:\d*::[0-1]{1}"">'
 			echo '                </td>'
-			case "$USEMAC" in
-				on) USEMACyes="checked"; USEMACno="";;
-				 *) USEMACno="checked"; USEMACyes="";;
+			case "$USEBTMAC" in
+				on) USEBTMACyes="checked"; USEBTMACno="";;
+				 *) USEBTMACno="checked"; USEBTMACyes="";;
 			esac
 			echo '                <td class="'$COL6'">'
-			echo '                  <input class="small1" type="radio" name="USEMAC'${I}'" value="on" '$USEMACyes'>Yes&nbsp;&nbsp;&nbsp;'
-			echo '                  <input class="small1" type="radio" name="USEMAC'${I}'" value="off" '$USEMACno'>No'
+			echo '                  <input class="small1" type="radio" name="USEBTMAC'${I}'" value="on" '$USEBTMACyes'>Yes&nbsp;&nbsp;&nbsp;'
+			echo '                  <input class="small1" type="radio" name="USEBTMAC'${I}'" value="off" '$USEBTMACno'>No'
 			echo '                </td>'
 			echo '                <td class="'$COL7'">'
 			echo '                  <button type="submit" name="ACTION" value="Forget'${I}'">Forget</button>'
