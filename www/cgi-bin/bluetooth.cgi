@@ -47,6 +47,16 @@ pcp_bt_status() {
 	echo $?
 }
 
+pcp_bt_pairable_status() {
+	sudo $PAIR_DAEMON_INITD status >/dev/null 2>&1
+	echo $?
+}
+
+pcp_bt_discover(){
+	bluetoothctl discoverable on
+	/usr/local/bin/pcp-pairing-agent.py --pair_mode --timeout 60
+}
+
 pcp_bt_save_config() {
 	echo '[ INFO ] Saving Device Config: '$BTNAME
 	[ -f $BTDEVICECONF ] || touch $BTDEVICECONF
@@ -89,18 +99,6 @@ case "$ACTION" in
 			pcp_table_end
 		fi
 	;;
-	Pair)
-		pcp_table_top "Pair Device"
-		echo '                <textarea class="inform" style="height:120px">'
-		pcp_bt_pair $DEVICE
-		if [ $? -eq 0 ]; then
-			echo '[ INFO ] Pairing Successful'
-			pcp_backup "nohtml"
-		fi
-		echo '                </textarea>'
-		rm -f /tmp/btscan.out 
-		pcp_table_end
-	;;
 	Remove)
 		pcp_table_top "Removing Bluetooth Extensions from pCP"
 		echo '                <textarea class="inform" style="height:120px">'
@@ -113,6 +111,26 @@ case "$ACTION" in
 		pcp_table_end
 		REBOOT_REQUIRED=1
 	;;
+	Pair)
+		pcp_table_top "Pair Device"
+		echo '                <textarea class="inform" style="height:120px">'
+		pcp_bt_pair $DEVICE
+		if [ $? -eq 0 ]; then
+			echo '[ INFO ] Pairing Successful'
+			pcp_backup "nohtml"
+		fi
+		echo '                </textarea>'
+		rm -f /tmp/btscan.out 
+		pcp_table_end
+	;;
+	Discover)
+		pcp_table_top "Enabling Device Discovery"
+		echo '                <textarea class="inform" style="height:120px">'
+		echo '[ INFO ] Device will be discoverable for 60 seconds'
+		pcp_bt_discover
+		echo '                </textarea>'
+		pcp_table_end
+	;;
 	Restart)
 		pcp_table_top "Bluetooth"
 		echo '                <textarea class="inform" style="height:60px">'
@@ -121,6 +139,17 @@ case "$ACTION" in
 		sudo $DAEMON_INITD stop
 		echo -n '[ INFO ] '
 		sudo $DAEMON_INITD start
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	Restart_pair)
+		pcp_table_top "Bluetooth"
+		echo '                <textarea class="inform" style="height:60px">'
+		echo '[ INFO ] Restarting Bluetooth Pairing Daemon...'
+		echo -n '[ INFO ] '
+		sudo $PAIR_DAEMON_INITD stop
+		echo -n '[ INFO ] '
+		sudo $PAIR_DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -142,29 +171,6 @@ case "$ACTION" in
 		pcp_bt_save_config
 		pcp_backup "nohtml"
 		echo '[ INFO ] Restarting Connect Daemon'
-		echo '                </textarea>'
-		pcp_table_end
-	;;
-	Start)
-		pcp_table_top "Bluetooth"
-		echo '                <textarea class="inform" style="height:40px">'
-		if [ ! -x $DAEMON_INITD ]; then
-			echo '[ INFO ] Loading pCP Bluetooth extensions...'
-			sudo -u tc tce-load -i pcp-bt6.tcz
-		fi
-		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
-		echo -n '[ INFO ] '
-		sudo $DAEMON_INITD start
-		echo '                </textarea>'
-		pcp_table_end
-		sleep 2
-	;;
-	Stop)
-		pcp_table_top "Bluetooth"
-		echo '                <textarea class="inform" style="height:40px">'
-		echo '[ INFO ] Stopping Bluetooth Connect Daemon...'
-		echo -n '[ INFO ] '
-		sudo $DAEMON_INITD stop
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -226,6 +232,15 @@ else
 	DEV_CLASS="indicator_red"
 	DEV_STATUS="Not Connected"
 fi
+if [ $(pcp_bt_pairable_status) -eq 0 ]; then
+	PAIR_INDICATOR=$HEAVY_CHECK_MARK
+	PAIR_CLASS="indicator_green"
+	PAIR_STATUS="running"
+else
+	PAIR_INDICATOR=$HEAVY_BALLOT_X
+	PAIR_CLASS="indicator_red"
+	PAIR_STATUS="not running"
+fi
 
 #----------------------------------------------------------------------------------------
 # Determine state of check boxes.
@@ -281,6 +296,25 @@ pcp_bt_status_indicators() {
 	echo '                  <ul>'
 	echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Speaker Daemon is running.</li>'
 	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Speaker Daemon is not running.</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <p class="'$PAIR_CLASS'">'$PAIR_INDICATOR'</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>BT Pairing Daemon for incoming connections is '$PAIR_STATUS'&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li>This is critical to be running to pair a phone.'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Pairing Daemon is running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Pairing Daemon is not running.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -365,53 +399,35 @@ pcp_bt_install() {
 pcp_bt_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Start" action="'$0'">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Start" '$DISABLE_BT'/>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Start Bluetooth Connect Daemon on pCP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will start the Bluetooth Connect Daemon on pCP.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <form name="Stop" action="'$0'">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Stop" '$DISABLE_BT'/>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Stop Bluetooth Connect Daemon on pCP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will stop the Bluetooth Connect Daemon on pCP.</p>'
-	echo '                    <p>If the speaker is already connected, this will not affect connection status/playback.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </form>'
-	pcp_incr_id
-	pcp_toggle_row_shade
 	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_BT'/>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Restart Bluetooth Connect Daemon on pCP&nbsp;&nbsp;'
+	echo '                  <p>Restart Bluetooth Speaker Daemon on pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will restart the Bluetooth Connect Daemon on pCP.</p>'
-	echo '                    <p>If the speaker is already connected, this will not affect connection status/playback.</p>'
+	echo '                    <p>This will restart the Bluetooth Speaker Daemon on pCP.</p>'
+	echo '                    <p>If the speaker is already connected, this may disconnect speaker/squeezelite.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <form name="Restart2" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Restart_pair" '$DISABLE_BT'/>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Restart Bluetooth Pairing Daemon on pCP&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will restart the Bluetooth Pairing Daemon on pCP.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -464,6 +480,21 @@ echo '          <legend>Device Pairing/Selection</legend>'
 echo '          <table class="bggrey percent100">'
 #------------------------------------------Scan/Pair BT ---------------------
 pcp_bt_scan() {
+	echo '            <form name="Discover" action="'$0'">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <input type="submit" name="ACTION" value="Discover" '$DISABLE_BT'/>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set pCP to be discoverable.&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will Scan for Bluetooth devices, make sure the device is in pair mode.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </form>'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <form name="Scan" action="'$0'">'

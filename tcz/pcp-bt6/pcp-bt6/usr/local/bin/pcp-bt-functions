@@ -6,6 +6,7 @@ ASOUND_TMP="/tmp/btasound.conf"
 BT_ALSA_DEVICE="BTSpeaker"
 ASOUND_PCM="pcm.${BT_ALSA_DEVICE}"
 DAEMON_INITD="/usr/local/etc/init.d/pcp-bt6"
+PAIR_DAEMON_INITD="/usr/local/etc/init.d/pcp-pair-agent"
 BTDEVICECONF="/usr/local/etc/pcp/pcp-bt.conf"
 PAIRED_LIST="/tmp/paired.out"
 
@@ -186,7 +187,7 @@ pcp_bt_power_status() {
 }
 
 pcp_bt_newscan(){
-	if [ "$1" == "" ] && SCAN_TIME=10 || SCAN_TIME=$1
+	[ "$1" == "" ] && SCAN_TIME=10 || SCAN_TIME=$1
 	(echo -e "scan on\n"; sleep $SCAN_TIME; echo -e "quit\n") | bluetoothctl > /tmp/btscan
 
 	bluetoothctl devices > /tmp/btscan

@@ -8,7 +8,7 @@
 #  Then enable pairing with repeated call using --pair_mode --timeout 30
 #
 
-PNAME="pcp-pair-agent.py"
+PNAME="pcp-pairing-agent.py"
 DAEMON="/usr/local/bin/$PNAME"
 DAEMON_PID="/var/run/${PNAME}.pid"
 

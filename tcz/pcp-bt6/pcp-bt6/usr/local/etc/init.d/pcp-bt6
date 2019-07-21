@@ -36,7 +36,7 @@ init() {
 	fi
 
 	#Set the name of the bluetooth controller
-	sudo echo "name = $(hostname)" >> /usr/local/etc/bluetooth/main.conf
+	sudo sed -i '/\[General\]/a Name = '$(hostname) /usr/local/etc/bluetooth/main.conf
 
 	sudo /usr/local/etc/init.d/bluez start > /dev/null 2>&1
 

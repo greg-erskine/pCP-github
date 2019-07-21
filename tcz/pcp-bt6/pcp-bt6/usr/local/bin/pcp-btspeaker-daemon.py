@@ -36,7 +36,7 @@ def A2DP_Monitor(dev):
 		time.sleep(wait_time)
 		# Read from the bluealsa interface, check for an A2DP PCM
 		try:
-			res = dev_iface.GetPCMs(name='PCMs', direction='out')
+			res = dev_iface.GetPCMs()
 		except dbus.exceptions.DBusException as error:
 			bt_log.debug(str(error) + "\n")
 			dbus_errors += 1
@@ -98,7 +98,7 @@ def start_squeezelite(hci, dev, name, delay, alsa_buffer, usemac):
 	else:
 		sqlt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s, Using Machine MAC" % (dev, delay, alsa_buffer))
 		players[key] = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (dev, delay), '-n', name, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
-	time.sleep(1)
+	time.sleep(5)
 	i = 0
 	while i < 5:
 		LMS_IP = find_lms ( players[key].pid )
@@ -130,28 +130,44 @@ def getName(dev):
 			parts=line.strip().split('#')
 			if 5==len(parts) and dev==parts[0]:
 				return parts[1], parts[2], parts[3], parts[4]
-	return None
+	return None, None, None, None
 
 def connect_handler ( * args, **kwargs):
 	bt_log.info('---- Caught Connect signal ----')
 
+	#This signal only contains the node: /org/bluealsa/hci0/dev_xx_xx_xx_xx_xx_xx/a2dp
 	parts=args[0].split('/')
 	if len(parts)>=4:
 		hci=parts[3]
 		dev=":".join(parts[4].split('_')[1:])
 		profile=parts[5]
+
+	# Check node for a2dp Mode, we only want source
+	try:
+		node_obj = bus.get_object('org.bluealsa', args[0])
+		node_iface = dbus.Interface(node_obj, dbus_interface='org.freedesktop.DBus.Properties')
+		res = node_iface.Get('org.bluealsa.PCM1', 'Modes')
+		modes = ', '.join(res)
+	except dbus.exceptions.DBusException as error:
+		bt_log.info('Error getting PCM mode: %s' % str(error))
+		return
+
 	bt_log.debug("   HCI:%s" % hci)
 	bt_log.info("   DEV:%s" % dev)
 	bt_log.info("   PROFILE:%s" % profile)
+	bt_log.info("   Modes:%s" % modes)
 
 	if profile == 'a2dp':
-		name = None
-		if None!=dev and None!=hci:
-			name, delay, alsabuf, usemac = getName(dev)
-		if None==name:
-			bt_log.info("Unknown device %s" % dev)
+		if 'source' in modes:
+			name = None
+			if None!=dev and None!=hci:
+				name, delay, alsabuf, usemac = getName(dev)
+			if None==name:
+				bt_log.info("Unknown device %s" % dev)
+			else:
+				start_squeezelite(hci, dev, name, delay, alsabuf, usemac)
 		else:
-			start_squeezelite(hci, dev, name, delay, alsabuf, usemac)
+			bt_log.info("Device is not an a2dp source")
 	else:
 		watch_for_a2dp(('dev_%s' % dev.replace(':', '_')))
 
@@ -169,7 +185,7 @@ def disconnect_handler ( * args, **kwargs):
 	if profile == 'a2dp':
 		name = None
 		if None!=dev and None!=hci:
-			name, delay,buf,usemac = getName(dev)
+			name, delay, buf, usemac = getName(dev)
 		if None==name:
 			bt_log.info("Unknown device %s" % dev) 
 		else:

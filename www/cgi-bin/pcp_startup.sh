@@ -256,6 +256,14 @@ echo "${BLUE}Generating sound card drop-down list...${NORMAL}"
 pcp_sound_card_dropdown &
 
 #----------------------------------------------------------------------------------------
+# Start bluetooth.
+#----------------------------------------------------------------------------------------
+if [ -x /usr/local/etc/init.d/pcp-bt6 ]; then
+	echo "${BLUE}Starting bluetooth...${NORMAL}"
+	/usr/local/etc/init.d/pcp-bt6 start&
+fi
+
+#----------------------------------------------------------------------------------------
 # Startup AP mode if enabled.
 #----------------------------------------------------------------------------------------
 if [ "$APMODE" = "yes" ]; then
@@ -289,14 +297,6 @@ if [ "$WIFI" = "on" ]; then
 	echo "${BLUE}Starting wifi...${NORMAL}"
 	/usr/local/etc/init.d/wifi wlan0 start
 	echo " ${GREEN}Done.${NORMAL}"
-fi
-
-#----------------------------------------------------------------------------------------
-# Start bluetooth.
-#----------------------------------------------------------------------------------------
-if [ -x /usr/local/etc/init.d/pcp-bt6 ]; then
-	echo "${BLUE}Starting bluetooth...${NORMAL}"
-	/usr/local/etc/init.d/pcp-bt6 &
 fi
 
 #----------------------------------------------------------------------------------------

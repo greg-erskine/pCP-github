@@ -28,7 +28,7 @@ echo -e "Version:        $VERSION" >> $TCZINFO
 echo -e "Author:         paul-123" >> $TCZINFO
 echo -e "Original-site:" >> $TCZINFO
 echo -e "Copying-policy: See scripts for details" >> $TCZINFO
-echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')k" >> $TCZINFO
+echo -e "Size:           $(ls -lh $TCZ | awk '{print $5}')" >> $TCZINFO
 echo -e "Extension_by:   piCorePlayer team: https://www.picoreplayer.org" >> $TCZINFO
 echo -e "Comments:       Compiled for pCP 6.0.0" >> $TCZINFO
 
