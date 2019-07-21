@@ -48,6 +48,8 @@ init() {
 	esac
 	sed -i "s/\(\BTCONTROLLER=\).*/\1\"$RET\"/" $BTDEVICECONF
 
+	/usr/local/etc/init.d/pcp-pair-agent start
+
 	/usr/local/bin/bluealsa --profile=a2dp-source --profile=a2dp-sink --profile=hsp-ag --profile=hfp-ag > /dev/null 2>&1 &
 
 	# Enable Controller
