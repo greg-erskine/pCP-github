@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-14
+# Version: 6.0.0 2019-07-20
 
 . pcp-functions
 . pcp-rpi-functions
-#[ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
-. /home/tc/pcp-bt-functions
+[ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
+#. /home/tc/pcp-bt-functions
 
 pcp_html_head "Bluetooth Settings" "PH"
 
@@ -19,15 +19,15 @@ pcp_httpd_query_string
 #---------------------------Routines-----------------------------------------------------
 pcp_install_bt() {
 	echo '[ INFO ] Downloading Bluetooth extensions...'
-	sudo -u tc pcp-load -r $PCP_REPO -w pcp-bt.tcz
-	if [ -f $TCEMNT/tce/optional/pcp-bt.tcz ]; then
+	sudo -u tc pcp-load -r $PCP_REPO -w pcp-bt6.tcz
+	if [ -f $TCEMNT/tce/optional/pcp-bt6.tcz ]; then
 		echo '[ INFO ] Installing Bluetooth...'
-		sudo -u tc pcp-load -i pcp-bt.tcz
-		sudo sed -i '/pcp-bt.tcz/d' $ONBOOTLST
-		echo 'pcp-bt.tcz' >> $ONBOOTLST
+		sudo -u tc pcp-load -i pcp-bt6.tcz
+		sudo sed -i '/pcp-bt6.tcz/d' $ONBOOTLST
+		echo 'pcp-bt6.tcz' >> $ONBOOTLST
 		mkdir -p /var/lib/bluetooth
 		echo "var/lib/bluetooth" >> /opt/.filetool.lst
-		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] pcp-bt is added to onboot.lst'
+		[ $DEBUG -eq 1 ] && echo '[ DEBUG ] pcp-bt6 is added to onboot.lst'
 		[ $DEBUG -eq 1 ] && cat $ONBOOTLST
 	fi
 }
@@ -35,8 +35,8 @@ pcp_install_bt() {
 pcp_remove_bt() {
 	sudo $DAEMON_INITD stop >/dev/null 2>&1
 	sudo -u tc tce-audit builddb
-	sudo -u tc tce-audit delete pcp-bt.tcz
-	sudo sed -i '/pcp-bt.tcz/d' $ONBOOTLST
+	sudo -u tc tce-audit delete pcp-bt6.tcz
+	sudo sed -i '/pcp-bt6.tcz/d' $ONBOOTLST
 	echo "[ INFO ] Removeing configuration files"
 	rm -f $BTDEVICECONF
 	sed -i '/var\/lib\/bluetooth/d' /opt/.filetool.lst
@@ -56,8 +56,6 @@ pcp_bt_save_config() {
 		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}#\${BTALSABUF${I}}#\${USEBTMAC${I}}" >> $BTDEVICECONF
 		I=$((I + 1))
 	done
-	
-	
 }
 
 REBOOT_REQUIRED=0
@@ -80,16 +78,12 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_table_top "Downloading Bluetooth"
-		pcp_sufficient_free_space 17000
+		pcp_sufficient_free_space 36000
 		if [ $? -eq 0 ] ; then
 			echo '                <textarea class="inform" style="height:160px">'
 			pcp_install_bt
-			if [ -f $TCEMNT/tce/optional/pcp-bt.tcz ]; then
-				APMODE="yes"
-				pcp_save_to_config
-				pcp_backup "nohtml"
-			else
-				echo '[ ERROR ] Error Downloading AP Mode, please try again later.'
+			if [ ! -f $TCEMNT/tce/optional/pcp-bt6.tcz ]; then
+				echo '[ ERROR ] Error Downloading Bluetooth, please try again later.'
 			fi
 			echo '                </textarea>'
 			pcp_table_end
@@ -102,8 +96,6 @@ case "$ACTION" in
 		if [ $? -eq 0 ]; then
 			echo '[ INFO ] Pairing Successful'
 			pcp_backup "nohtml"
-			echo '[ INFO ] Restarting Connect Daemon'
-			sudo $DAEMON_INITD restart
 		fi
 		echo '                </textarea>'
 		rm -f /tmp/btscan.out 
@@ -127,17 +119,19 @@ case "$ACTION" in
 		echo '[ INFO ] Restarting Bluetooth Connect Daemon...'
 		echo -n '[ INFO ] '
 		sudo $DAEMON_INITD stop
-#		echo -n '[ INFO ] '
-#		sudo $DAEMON_INITD start
+		echo -n '[ INFO ] '
+		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
-		sleep 2
 	;;
 	Scan)
 		pcp_table_top "Bluetooth Scanning"
-		echo '                <textarea class="inform" style="height:60px">'
-		echo '[ INFO ] Scanning for Bluetooth Devices, make sure device is in pair mode...'
-		pcp_bt_scan > /tmp/btscan.out
+		echo '                <textarea class="inform" style="height:180px">'
+		echo '[ INFO ] Scanning 10 seconds for Bluetooth Devices, make sure device is in pair mode...'
+		echo '[ INFO ] If device is not found at end of scan, scan can be re-ran...'
+		pcp_bt_newscan 10 > /tmp/btscan.out
+		echo '[ INFO ] Found Devices'
+		bluetoothctl devices
 		echo '                </textarea>'
 		pcp_table_end
 		rm -f /tmp/paired*
@@ -148,7 +142,6 @@ case "$ACTION" in
 		pcp_bt_save_config
 		pcp_backup "nohtml"
 		echo '[ INFO ] Restarting Connect Daemon'
-#		sudo $DAEMON_INITD restart
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -157,11 +150,11 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:40px">'
 		if [ ! -x $DAEMON_INITD ]; then
 			echo '[ INFO ] Loading pCP Bluetooth extensions...'
-			sudo -u tc tce-load -i pcp-bt.tcz
+			sudo -u tc tce-load -i pcp-bt6.tcz
 		fi
 		echo '[ INFO ] Starting Bluetooth Connect Daemon...'
 		echo -n '[ INFO ] '
-#		sudo $DAEMON_INITD start
+		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
 		sleep 2
@@ -180,7 +173,7 @@ case "$ACTION" in
 		pcp_sufficient_free_space 4500
 		echo '                <textarea class="inform" style="height:100px">'
 		echo '[ INFO ] Updating pCP Bluetooth Extensions...'
-		sudo -u tc pcp-update pcp-bt.tcz
+		sudo -u tc pcp-update pcp-bt6.tcz
 		case $? in
 			0) echo '[ INFO ] Reboot Required to finish update'; REBOOT_REQUIRED=1;;
 			2) echo '[ INFO ] No Update Available';;
@@ -248,7 +241,7 @@ case "$LOGSHOW" in
 	*) LOGSHOWno="checked" ;;
 esac
 
-[ -f $TCEMNT/tce/optional/pcp-bt.tcz ] && DISABLE_BT="" || DISABLE_BT="disabled"
+[ -f $TCEMNT/tce/optional/pcp-bt6.tcz ] && DISABLE_BT="" || DISABLE_BT="disabled"
 
 pcp_bt_status_indicators() {
 	pcp_incr_id
@@ -267,7 +260,7 @@ pcp_bt_status_indicators() {
 	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Controller Power is off.</li>'
 	echo '                    <li>Controller address '$BTCONTROLLER
 	echo '                    <li>If the controller power remains off.</li>'
-	echo '                    <li>If using RPi built-in bluetooth, make sure controller is enabled on the <a href="wifi.cgi">Wifi Settings page</a>.</li>'
+	echo '                    <li>If using RPi built-in bluetooth, make sure controller is enabled at the bottom of this page.</li>'
 	echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a>.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
@@ -281,13 +274,13 @@ pcp_bt_status_indicators() {
 	echo '                <p class="'$CD_CLASS'">'$CD_INDICATOR'</p>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Connect Daemon is '$CD_STATUS'&nbsp;&nbsp;'
+	echo '                <p>BT Speaker Daemon is '$CD_STATUS'&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
 	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = Connect Daemon is running.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = Connect Daemon is not running.</li>'
+	echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Speaker Daemon is running.</li>'
+	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Speaker Daemon is not running.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
@@ -337,7 +330,7 @@ pcp_bt_install() {
 	echo '            <form name="Install" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	if [ ! -f $TCEMNT/tce/optional/pcp-bt.tcz ]; then
+	if [ ! -f $TCEMNT/tce/optional/pcp-bt6.tcz ]; then
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
 		echo '                </td>'
 		echo '                <td>'
@@ -490,19 +483,27 @@ pcp_bt_scan() {
 	echo '            </form>'
 
 	if [ -f /tmp/btscan.out ]; then
-		# Mark the currently paired device as selected.
-		sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
-		# Remove unneeded space
-		sed -i 's/ \#/\#/' /tmp/btscan.dd
 		PAIR_DISABLED=""
+		sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
+		sed -i 's/ \#/\#/' /tmp/btscan.dd
 	else
-		if [ "$BTNAME" != "" ]; then
-			echo "$BTDEVICE#$BTNAME#selected" >/tmp/btscan.dd
-		else
-			echo "0#No Device#selected" >/tmp/btscan.dd
-		fi
+		echo "0#No Device#selected" >/tmp/btscan.dd
 		PAIR_DISABLED="disabled"
 	fi
+	# if [ -f /tmp/btscan.out ]; then
+		# # Mark the currently paired device as selected.
+		# sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
+		# # Remove unneeded space
+		# sed -i 's/ \#/\#/' /tmp/btscan.dd
+		# PAIR_DISABLED=""
+	# else
+		# if [ "$BTNAME" != "" ]; then
+			# echo "$BTDEVICE#$BTNAME#selected" >/tmp/btscan.dd
+		# else
+			# echo "0#No Device#selected" >/tmp/btscan.dd
+		# fi
+		# PAIR_DISABLED="disabled"
+	# fi
 	pcp_incr_id
 	pcp_toggle_row_shade
 	if [ "$PAIR_DISABLED" = "" ]; then

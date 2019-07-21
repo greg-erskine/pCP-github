@@ -292,6 +292,14 @@ if [ "$WIFI" = "on" ]; then
 fi
 
 #----------------------------------------------------------------------------------------
+# Start bluetooth.
+#----------------------------------------------------------------------------------------
+if [ -x /usr/local/etc/init.d/pcp-bt6 ]; then
+	echo "${BLUE}Starting bluetooth...${NORMAL}"
+	/usr/local/etc/init.d/pcp-bt6 &
+fi
+
+#----------------------------------------------------------------------------------------
 # Load configuration file pcp.cfg
 #----------------------------------------------------------------------------------------
 echo -n "${BLUE}Loading configuration file...${NORMAL}"
@@ -299,7 +307,7 @@ echo -n "${BLUE}Loading configuration file...${NORMAL}"
 echo " ${GREEN}Done.${NORMAL}"
 
 #----------------------------------------------------------------------------------------
-# Load pcp-lms-functions <== GE why load here?
+# Load pcp-lms-functions. Done here because it sets LMSIP, which has to be after network start.
 #----------------------------------------------------------------------------------------
 echo -n "${BLUE}Loading pcp-lms-functions...${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions

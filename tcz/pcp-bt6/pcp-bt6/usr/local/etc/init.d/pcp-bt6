@@ -13,7 +13,7 @@ init() {
 
 	if [ "$RPIBLUETOOTH" = "on" ]; then
 		HCIATTACH=/usr/local/bin/hciattach
-		SERIAL=`grep Serial /proc/cpuinfo | cut -c19-`
+		SERIAL=`cat /proc/device-tree/serial-number | cut -c9-`
 		B1=`echo $SERIAL | cut -c3-4`
 		B2=`echo $SERIAL | cut -c5-6`
 		B3=`echo $SERIAL | cut -c7-8`
@@ -32,7 +32,11 @@ init() {
 		else
 			$HCIATTACH /dev/serial1 bcm43xx 460800 noflow - $BDADDR
 		fi
+		rpi_bthelper
 	fi
+
+	#Set the name of the bluetooth controller
+	sudo echo "name = $(hostname)" >> /usr/local/etc/bluetooth/main.conf
 
 	sudo /usr/local/etc/init.d/bluez start > /dev/null 2>&1
 
@@ -44,7 +48,7 @@ init() {
 	esac
 	sed -i "s/\(\BTCONTROLLER=\).*/\1\"$RET\"/" $BTDEVICECONF
 
-	/usr/local/bin/bluealsa > /dev/null 2>&1 &
+	/usr/local/bin/bluealsa --profile=a2dp-source --profile=a2dp-sink --profile=hsp-ag --profile=hfp-ag > /dev/null 2>&1 &
 
 	# Enable Controller
 	RET=$(pcp_bt_power_status)
@@ -74,20 +78,32 @@ init() {
 	fi
 }
 
-PNAME="pcp-bt-connect-daemon"
-DAEMON_PID="/var/run/pcp-bt-connect-daemon.pid"
+rpi_bthelper() {
+	# For on-board BT, route SCO packets to the HCI interface (enables HFP/HSP)
+	# Sound quality is horrible.....just puting this here for info
+	#echo "Usage: $0 <bluetooth hci device>"
+	dev="hci0"
+	# Need to bring hci up before looking at MAC as it can be all zeros during init
+	/usr/local/bin/hciconfig "$dev" up
+	/usr/local/bin/hciconfig "$dev" |grep -q "BD Address: B8:27:EB:" || exit 0
+	/usr/local/bin/hcitool -i "$dev" cmd 0x3f 0x1c 0x01 0x02 0x00 0x01 0x01 > /dev/null
+}
+
+PNAME="pcp-btspeaker-daemon.py"
+DAEMON="/usr/local/bin/${PNAME}"
+DAEMON_PID="/var/run/${PNAME}.pid"
 
 start() {
-	OPTIONS="$1"
+#	OPTIONS="$1"
 	if [ ! -f /var/run/bt_init ]; then 
 		echo "Starting BT Controller"
 		init >>$BT_LOG
 	fi
-	echo "Starting BT Connect Daemon"
+	echo "Starting pCP BT Speaker Daemon"
 	if [ -f /var/run/bt_init ]; then
 		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
-		echo "Allowing Speaker to Connect..."
-		sleep 5
+		echo "Make sure all speakers are turned off...then turn back on. (Speaker might need to be off for up to 1 min)"
+		sleep 1
 		exit 0
 	else
 		exit 1
@@ -95,7 +111,7 @@ start() {
 }
 
 stop() {
-	echo "Stoping BT Connect Daemon"
+	echo "Stoping pCP BT Speaker Daemon"
 	start-stop-daemon --stop --quiet -p ${DAEMON_PID}
 	rm ${DAEMON_PID}
 }
@@ -106,16 +122,15 @@ status() {
 		PID=`cat $DAEMON_PID`
 		ps ax | grep -v grep | grep -q $PID
 		if [ $? -eq 0 ]; then
-			echo "Connect Daemon is running. PID=$PID"
+			echo "pCP BT Speaker Daemon is running. PID=$PID"
 			exit 0
 		fi
 	fi
-	echo "Connect Daemon not running."
+	echo "pCP BT Speaker Daemon not running."
 	exit 1
 }
 
 case $1 in
-	boot) start boot;;
 	start) start;;
 	stop) stop;;
 	status) status;;
