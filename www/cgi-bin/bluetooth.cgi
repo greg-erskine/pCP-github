@@ -63,7 +63,7 @@ pcp_bt_save_config() {
 	I=1
 	while [ $I -lt $NUMDEVICES ]; do
 		sed -i '/'$(eval echo "\${BTMAC${I}}")'/d' $BTDEVICECONF
-		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}#\${BTALSABUF${I}}#\${USEBTMAC${I}}" >> $BTDEVICECONF
+		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}" >> $BTDEVICECONF
 		I=$((I + 1))
 	done
 }
@@ -402,7 +402,7 @@ pcp_bt_startstop() {
 	echo '            <form name="Restart" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Restart" '$DISABLE_BT'/>'
+	echo '                  <button type="submit" name="ACTION" value="Restart" '$DISABLE_BT'>Restart</button>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart Bluetooth Speaker Daemon on pCP&nbsp;&nbsp;'
@@ -420,7 +420,7 @@ pcp_bt_startstop() {
 	echo '            <form name="Restart2" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" name="ACTION" value="Restart_pair" '$DISABLE_BT'/>'
+	echo '                  <button type="submit" name="ACTION" value="Restart_pair" '$DISABLE_BT'>Restart</button>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Restart Bluetooth Pairing Daemon on pCP&nbsp;&nbsp;'
@@ -486,11 +486,11 @@ pcp_bt_scan() {
 	echo '                  <input type="submit" name="ACTION" value="Discover" '$DISABLE_BT'/>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set pCP to be discoverable.&nbsp;&nbsp;'
+	echo '                  <p>Set this device to be discoverable.  Look for '$(hostname)' on your device.&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>This will Scan for Bluetooth devices, make sure the device is in pair mode.</p>'
+	echo '                    <p>This will allow pCP to be discoverable and pairable by your phone or other device.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -567,23 +567,19 @@ pcp_bt_scan() {
 	fi
 
 	COL1="column150"
-	COL2="column120"
-	COL3="column120"
-	COL4="column100"
-	COL5="column100"
-	COL6="column120"
-	COL7="column150"
-	COL8="column150"
+	COL2="column150"
+	COL3="column150"
+	COL4="column120"
+	COL5="column150"
+	COL6="column150"
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1' center"><p><b>BT Mac Address</b></p></td>'
 	echo '                <td class="'$COL2'"><p><b>BT Name</b></p></td>'
 	echo '                <td class="'$COL3'"><p><b>Player Name</b></p></td>'
 	echo '                <td class="'$COL4'"><p><b>BT Delay</b></p></td>'
-	echo '                <td class="'$COL5'"><p><b>Alsa Buffer</b></p></td>'
-	echo '                <td class="'$COL6'"><p><b>Use BT MAC</b></p></td>'
-	echo '                <td class="'$COL7'"><p><b>Forget Device</b></p></td>'
-#	echo '                <td class="'$COL8'"><p><b>Options</b></p></td>'
+	echo '                <td class="'$COL5'"><p><b>Forget Device</b></p></td>'
+#	echo '                <td class="'$COL6'"><p><b>Options</b></p></td>'
 	echo '              </tr>'
 
 	pcp_bt_paired_devices
@@ -595,12 +591,8 @@ pcp_bt_scan() {
 			BTNAME=$(echo $line | cut -d'#' -f2)
 			BTPLAYERNAME=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f2)
 			BTDELAY=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f3)
-			BTALSABUF=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f4)
-			USEBTMAC=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f5)
 			[ "$BTPLAYERNAME" = "" ] && BTPLAYERNAME=$BTNAME
 			[ "$BTDELAY" == "" ] && BTDELAY=10000
-			[ "$BTALSABUF" == "" ] && BTALSABUF="80:::0"
-			[ "$USEBTMAC" == "" ] && USEBTMAC="on"
 			REQUIRED="required"
 			pcp_incr_id
 			pcp_toggle_row_shade
@@ -611,26 +603,15 @@ pcp_bt_scan() {
 			echo '                </td>'
 			echo '                <td class="'$COL2'">'
 			echo '                  <input type="hidden" id="idBTNAME'${I}'" name="BTNAME'${I}'" value="'$BTNAME'">'
-			echo '                  <input class="large8" type="text" name="NAME" value="'$BTNAME'" title="Bluetooth Device Name" '$REQUIRED' disabled>'
+			echo '                  <input class="large10" type="text" name="NAME" value="'$BTNAME'" title="Bluetooth Device Name" '$REQUIRED' disabled>'
 			echo '                </td>'
 			echo '                <td class="'$COL3'">'
-			echo '                  <input class="large8" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="Bluetooth Player Name" '$REQUIRED'">'
+			echo '                  <input class="large10" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="Bluetooth Player Name" '$REQUIRED'">'
 			echo '                </td>'
 			echo '                <td class="'$COL4'">'
 			echo '                  <input class="large6" type="text" id="idBTDELAY'${I}'" name="BTDELAY'${I}'" value="'$BTDELAY'" title="Bluetooth Delay" '$REQUIRED'">'
 			echo '                </td>'
 			echo '                <td class="'$COL5'">'
-			echo '                  <input class="large6" type="text" id="idBTALSABUF'${I}'" name="BTALSABUF'${I}'" value="'$BTALSABUF'" title="Alsa Buffer (See squeezelite page)" '$REQUIRED' pattern="\d*:\d*::[0-1]{1}"">'
-			echo '                </td>'
-			case "$USEBTMAC" in
-				on) USEBTMACyes="checked"; USEBTMACno="";;
-				 *) USEBTMACno="checked"; USEBTMACyes="";;
-			esac
-			echo '                <td class="'$COL6'">'
-			echo '                  <input class="small1" type="radio" name="USEBTMAC'${I}'" value="on" '$USEBTMACyes'>Yes&nbsp;&nbsp;&nbsp;'
-			echo '                  <input class="small1" type="radio" name="USEBTMAC'${I}'" value="off" '$USEBTMACno'>No'
-			echo '                </td>'
-			echo '                <td class="'$COL7'">'
 			echo '                  <button type="submit" name="ACTION" value="Forget'${I}'">Forget</button>'
 			echo '                </td>'
 			echo '              </tr>'

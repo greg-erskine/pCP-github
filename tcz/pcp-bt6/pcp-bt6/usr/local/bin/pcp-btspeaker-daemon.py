@@ -88,18 +88,14 @@ def send_play_command( lmsip, player):
 	t.wait(timeout=10)
 	bt_log.debug ('   Play command returned %d' % t.returncode)
 
-def start_squeezelite(hci, dev, name, delay, alsa_buffer, usemac):
+def start_squeezelite(hci, dev, name, delay):
 	key=dev.replace(':', '_')
 	if key in players:
 		return
-
+	alsa_buffer='80:::1'
 	sqlt_log.info("Connected %s" % name)
-	if usemac=='on':
-		sqlt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s, Using BT Mac" % (dev, delay, alsa_buffer))
-		players[key] = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (dev, delay), '-n', name, '-m', dev, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
-	else:
-		sqlt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s, Using Machine MAC" % (dev, delay, alsa_buffer))
-		players[key] = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (dev, delay), '-n', name, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
+	sqlt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s" % (dev, delay, alsa_buffer))
+	players[key] = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (dev, delay), '-n', name, '-m', dev, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
 	time.sleep(5)
 	i = 0
 	while i < 5:
@@ -132,7 +128,7 @@ def set_sink(dev):
 
 	key=dev.replace(':', '_')
 	a2dp_sinks[key] = 'set'
-	bt_log.info("   Writting device string for pcp-streamer")
+	bt_log.info("   Writing device string for pcp-streamer")
 	f = open(STREAMER_CFG, "w")
 	f.write("OUTPUT_DEVICE=bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp\n" % dev)
 	f.close()
@@ -150,9 +146,9 @@ def getName(dev):
 	with open(CONFIG_FILE) as f:
 		for line in f:
 			parts=line.strip().split('#')
-			if 5==len(parts) and dev==parts[0]:
-				return parts[1], parts[2], parts[3], parts[4]
-	return None, None, None, None
+			if 3==len(parts) and dev==parts[0]:
+				return parts[1], parts[2]
+	return None, None
 
 def connect_handler ( * args, **kwargs):
 	bt_log.info('---- Caught Connect signal ----')
@@ -183,11 +179,11 @@ def connect_handler ( * args, **kwargs):
 		if 'source' in modes:
 			name = None
 			if None!=dev and None!=hci:
-				name, delay, alsabuf, usemac = getName(dev)
+				name, delay = getName(dev)
 			if None==name:
 				bt_log.info("Unknown device %s" % dev)
 			else:
-				start_squeezelite(hci, dev, name, delay, alsabuf, usemac)
+				start_squeezelite(hci, dev, name, delay)
 		elif 'sink' in modes:
 			set_sink(dev)
 		else:
@@ -209,7 +205,7 @@ def disconnect_handler ( * args, **kwargs):
 	if profile == 'a2dp':
 		name = None
 		if None!=dev and None!=hci:
-			name, delay, buf, usemac = getName(dev)
+			name, delay = getName(dev)
 		if None!=name:
 			stop_squeezelite(dev, name)
 		unset_sink(dev)
