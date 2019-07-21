@@ -19,10 +19,12 @@ import threading, time
 
 CONFIG_FILE = '/usr/local/etc/pcp/pcp-bt.conf'
 SQUEEZE_LITE = '/usr/local/bin/squeezelite'
+STREAMER_CFG = '/tmp/bt_stream_device'
 LOG_FILE = '/var/log/pcp_bt.log'
 DEVNULL = open(os.devnull, 'w')
 
 players={}
+a2dp_sinks={}
 
 # Some speakers only like to make sco connection, this checks for a2dp connection
 def A2DP_Monitor(dev):
@@ -123,6 +125,26 @@ def stop_squeezelite(dev, name):
 	os.waitpid(players[key].pid, 0)
 	players.pop(key)
 
+def set_sink(dev):
+	if a2dp_sinks:
+		bt_log.info("   a2dp sink already connected: Can only handle one device.")
+		return
+
+	key=dev.replace(':', '_')
+	a2dp_sinks[key] = 'set'
+	bt_log.info("   Writting device string for pcp-streamer")
+	f = open(STREAMER_CFG, "w")
+	f.write("OUTPUT_DEVICE=bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp\n" % dev)
+	f.close()
+
+def unset_sink(dev):
+	key=dev.replace(':', '_')
+	if key not in a2dp_sinks:
+		return
+	bt_log.info("   Removing device string for pcp-streamer")
+	if os.path.exists(STREAMER_CFG):
+		os.remove(STREAMER_CFG)
+
 # Reads config file and returns device options for squeezelite.
 def getName(dev):
 	with open(CONFIG_FILE) as f:
@@ -166,8 +188,10 @@ def connect_handler ( * args, **kwargs):
 				bt_log.info("Unknown device %s" % dev)
 			else:
 				start_squeezelite(hci, dev, name, delay, alsabuf, usemac)
+		elif 'sink' in modes:
+			set_sink(dev)
 		else:
-			bt_log.info("Device is not an a2dp source")
+			bt_log.info("Device is unknown a2dp device")
 	else:
 		watch_for_a2dp(('dev_%s' % dev.replace(':', '_')))
 
@@ -186,10 +210,9 @@ def disconnect_handler ( * args, **kwargs):
 		name = None
 		if None!=dev and None!=hci:
 			name, delay, buf, usemac = getName(dev)
-		if None==name:
-			bt_log.info("Unknown device %s" % dev) 
-		else:
+		if None!=name:
 			stop_squeezelite(dev, name)
+		unset_sink(dev)
 
 if __name__ == '__main__':
 
