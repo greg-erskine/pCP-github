@@ -14,6 +14,7 @@ from pgi.repository import GObject as gobject
 import dbus
 import dbus.mainloop.glib
 import os, sys, io, signal, logging, logging.handlers
+import socket
 from subprocess import Popen,PIPE
 import threading, time
 
@@ -67,6 +68,31 @@ def watch_for_a2dp( dev ):
 	Monitor = threading.Thread(target=A2DP_Monitor, args=(device,))
 	Monitor.start()
 
+def LMS_JSON_discover( ip = '<broadcast>'):
+	port = 3483
+	query = b'eJSON\0'
+	response = b'EJSON'
+	try:
+		with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+			sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+			sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			sock.settimeout(5)
+			sock.bind(('', 0))
+			sock.sendto(query, (ip, port))
+			while True:
+				try:
+					data, (ip, _) = sock.recvfrom(1024)
+					if not data.startswith(response):
+						continue
+					length = data[5:6][0]
+					port = int(data[0 - length:]) 
+					return ip, port
+				except socket.timeout:
+					break
+	except OSError as err:
+		sqlt_log.info('   Discovery failed: %s', err)
+	return None, None
+
 # Find the LMS IP address that squeezelite is connected to.
 #   ToDo: probe LMS to find the Web interface port.
 def find_lms( pid ):
@@ -76,13 +102,21 @@ def find_lms( pid ):
 		if str(pid) in line and '3483' in line:
 			parts=' '.join(line.split()).strip().split(' ')
 			lmsip = parts[4].split(':')[0]
-	return lmsip
+	if not lmsip:
+		return None, None
+	# Discover JSON interface port for connected LMS server
+	host, port = LMS_JSON_discover( lmsip ) 
+	if not host:
+		return None, None
+	if not port:
+		port = 9000  # Assume default port.
+	return host, port
 
 # Sends a Play command to LMS via the jsonrpc interface.
-def send_play_command( lmsip, player):
+def send_play_command( lmsip, port, player):
 	bt_log.info("   Sending Play command for %s to LMS at %s" % (player, lmsip))
 	json_req = '{"id":1,"method":"slim.request","params":[ "%s", [ "play" ]]}' % player
-	cmdline = '/usr/bin/wget -T 5 -q -O- --post-data=\'%s\' --header \'Content-Type: application/json\' http://%s:9000/jsonrpc.js' % ( json_req, lmsip)
+	cmdline = '/usr/bin/wget -T 5 -q -O- --post-data=\'%s\' --header \'Content-Type: application/json\' http://%s:%s/jsonrpc.js' % ( json_req, lmsip, port)
 	bt_log.debug("   %s" % cmdline)
 	t = Popen( cmdline, shell=True, stdout=DEVNULL, stderr=DEVNULL)
 	t.wait(timeout=10)
@@ -99,10 +133,10 @@ def start_squeezelite(hci, dev, name, delay):
 	time.sleep(5)
 	i = 0
 	while i < 5:
-		LMS_IP = find_lms ( players[key].pid )
-		if LMS_IP != '':
-			sqlt_log.info ("   Player Connected to LMS at: %s" % LMS_IP)
-			send_play_command( LMS_IP, name)
+		lmsip, port = find_lms ( players[key].pid )
+		if lmsip != '':
+			sqlt_log.info ("   Player Connected to LMS at: %s:%s" % (lmsip, port) )
+			send_play_command( lmsip, port, name)
 			break
 		else:
 			sqlt_log.info ("   Squeezelite not yet connected to LMS")
@@ -235,4 +269,3 @@ if __name__ == '__main__':
 	mainloop = gobject.MainLoop()
 
 	mainloop.run()
-

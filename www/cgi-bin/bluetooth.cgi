@@ -170,7 +170,6 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:120px">'
 		pcp_bt_save_config
 		pcp_backup "nohtml"
-		echo '[ INFO ] Restarting Connect Daemon'
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -705,7 +704,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	echo '                  <input type="hidden" name="FROM_PAGE" value="$0">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="bluetooth.cgi">'
 	echo '                  <input type="submit" name="ACTION" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
