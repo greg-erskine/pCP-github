@@ -170,6 +170,7 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:120px">'
 		pcp_bt_save_config
 		pcp_backup "nohtml"
+		echo '[ INFO ] You might need to turn the speaker off, then back on to load updated config.'
 		echo '                </textarea>'
 		pcp_table_end
 	;;

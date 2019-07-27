@@ -40,17 +40,17 @@ class Rejected(dbus.DBusException):
 class Cancelled(dbus.DBusException):
     _dbus_error_name = "org.bluez.Error.Canceled"
 
-def set_trusted(path):
-	props = dbus.Interface(bus.get_object("org.bluez", path),
-					"org.freedesktop.DBus.Properties")
-	props.Set("org.bluez.Device1", "Trusted", True)
-	print("Setting Device Trust (%s)" % device)
-
 class Agent(dbus.service.Object):
 
     def __init__(self, conn, object_path, bus_name):
         super(Agent, self).__init__(conn, object_path, bus_name)
         self.pair_mode_active_until = -float('inf')
+
+    def set_trusted(self, path):
+        props = dbus.Interface(bus.get_object("org.bluez", path),"org.freedesktop.DBus.Properties")
+        props.Set("org.bluez.Device1", "Trusted", True)
+        print("Setting Device Trust (%s)" % device)
+
 
     @property
     def pair_mode_active(self):
@@ -77,7 +77,7 @@ class Agent(dbus.service.Object):
     def AuthorizeService(self, device, uuid):
         if self.pair_mode_active:
             print("Authorizing service (%s, %s)" % (device, uuid))
-            set_trusted(device)
+            self.set_trusted(device)
             return
         else:
             raise Rejected("Pair mode not activated.")
@@ -107,7 +107,7 @@ class Agent(dbus.service.Object):
     def RequestAuthorization(self, device):
         if self.pair_mode_active:
             print("Authorizing device %s" % (device))
-            set_trusted(device)
+            self.set_trusted(device)
             return
         else:
             raise Rejected("Pair mode not activated.")
@@ -115,7 +115,6 @@ class Agent(dbus.service.Object):
     @dbus.service.method(AGENT_INTERFACE, in_signature="", out_signature="")
     def Cancel(self):
         print("Cancel")
-
 
 
 if __name__ == '__main__':
