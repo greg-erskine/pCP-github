@@ -536,16 +536,8 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
-	if [ $(pcp_rpi_is_model_3Bplus) -eq 0 -o $(pcp_rpi_is_rpi4) -eq 0 ]; then
-		echo '                  <input type="hidden" name="RPI3BPLUS" value="true">'
-	else
-		echo '                  <input type="hidden" name="RPI3BPLUS" value="false">'
-	fi
-	if [ "$WIFI" = "on" ]; then
-		echo '                  <input type="submit" name="ACTION" value="Save">'
-	else
-		echo '                  <button type="submit" name="ACTION" value="Config">Save</button>'
-	fi
+	echo '                  <input type="hidden" name="FROM_PAGE" value="wifi.cgi">'
+	echo '                  <input type="submit" name="ACTION" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'

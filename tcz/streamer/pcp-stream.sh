@@ -31,6 +31,15 @@ HOSTNAME=$(hostname -s)
 
 print -u2 "Connect: $(date +%Y%m%d%H%M%S)"
 
+if [ -r /tmp/bt_stream_device ]; then
+	. /tmp/bt_stream_device
+else
+	OUTPUT_DEVICE='pcpinput'
+fi
+
+#Record Buffer in microseconds
+BUFFER=100000
+
 # ##############################################################
 ## read http request
 ##
@@ -80,11 +89,11 @@ esac
 ##
 
 case "$proto" in
-   
+
    "HTTP/1.0"* )
       proto="HTTP/1.0"
       ;;
-      
+
    "HTTP/1.1"* )
       proto="HTTP/1.1"
       ;;
@@ -95,7 +104,7 @@ case "$proto" in
       output
       exit 404
       ;;
-esac 
+esac
 
 ## ##############################################################
 ## setup for encoding
@@ -153,7 +162,7 @@ name="pCP ${HOSTNAME} line-in ${outdesc}"
 
 post="sox --type raw --bits ${BITS} --channels ${CHLS} --rate ${RATE} --encoding ${ENCODING} --endian ${ORDERING} - ${outformat} -"
 
-record="arecord --file-type=raw --duration=0 --channels=${CHLS} --format=${FORMAT} --rate=${RATE} --buffer-time=20000000 --device=pcpinput"
+record="arecord --file-type=raw --duration=0 --channels=${CHLS} --format=${FORMAT} --rate=${RATE} --buffer-time=${BUFFER} --device=${OUTPUT_DEVICE}"
 
 ## ##############################################################
 ## generate audio data on stdout

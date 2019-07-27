@@ -10,6 +10,10 @@ LMSIP=$(pcp_lmsip)
 [ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 WGET="busybox wget"
 
+# This will send a discovery packet to the LMS server and return the JSON (WEB) port.
+# Not quite sure how to integrate yet.
+# echo "eJSON\0" | nc -w 1 -u 192.168.0.141 3483 | awk -F'EJSON' '{ print $2 }'
+
 pcp_lms_status() {
 	sudo /usr/local/etc/init.d/slimserver status > /dev/null 2>&1
 	echo $?

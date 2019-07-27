@@ -1,0 +1,47 @@
+#!/bin/sh
+
+#========================================================================================
+# Bluetooth Pairing Agent for incomming connections.  init.d script
+#----------------------------------------------------------------------------------------
+#  
+#  Start Agent with --agent --wait_for_bluez
+#  Then enable pairing with repeated call using --pair_mode --timeout 30
+#
+
+PNAME="pcp-pairing-agent.py"
+DAEMON="/usr/local/bin/$PNAME"
+DAEMON_PID="/var/run/${PNAME}.pid"
+
+start() {
+	OPTIONS="--agent --wait_for_bluez"
+	echo "Starting pCP BT Pairing Agent"
+	start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
+}
+
+stop() {
+	echo "Stoping pCP BT Pairing Agent"
+	start-stop-daemon --stop --quiet -p ${DAEMON_PID}
+	rm ${DAEMON_PID}
+}
+
+status() {
+	# Check if our daemon is running.
+	if [ -f $DAEMON_PID ]; then
+		PID=`cat $DAEMON_PID`
+		ps ax | grep -v grep | grep -q $PID
+		if [ $? -eq 0 ]; then
+			echo "pCP BT Pairing Agent is running. PID=$PID"
+			exit 0
+		fi
+	fi
+	echo "pCP BT Pairing Agent not running."
+	exit 1
+}
+
+case $1 in
+	start) start;;
+	stop) stop;;
+	status) status;;
+	restart) stop; sleep 5; start;;
+	*) echo -e "\n$0 [start|stop|restart|status]\n";;
+esac

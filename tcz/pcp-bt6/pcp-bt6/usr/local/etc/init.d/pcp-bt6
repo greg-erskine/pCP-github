@@ -1,0 +1,143 @@
+#!/bin/sh
+
+#========================================================================================
+# Bluetooth Speaker Init Script
+#----------------------------------------------------------------------------------------
+#
+
+. /usr/local/etc/pcp/pcp.cfg
+. /usr/local/bin/pcp-bt-functions
+
+init() {
+	sudo modprobe hci_uart
+
+	if [ "$RPIBLUETOOTH" = "on" ]; then
+		HCIATTACH=/usr/local/bin/hciattach
+		SERIAL=`cat /proc/device-tree/serial-number | cut -c9-`
+		B1=`echo $SERIAL | cut -c3-4`
+		B2=`echo $SERIAL | cut -c5-6`
+		B3=`echo $SERIAL | cut -c7-8`
+		BDADDR=`printf b8:27:eb:%02x:%02x:%02x $((0x$B1 ^ 0xaa)) $((0x$B2 ^ 0xaa)) $((0x$B3 ^ 0xaa))`
+
+		uart0="`cat /proc/device-tree/aliases/uart0`"
+		serial1="`cat /proc/device-tree/aliases/serial1`"
+
+		if [ "$uart0" = "$serial1" ] ; then
+			uart0_pins="`wc -c /proc/device-tree/soc/gpio@7e200000/uart0_pins/brcm\,pins | cut -f 1 -d ' '`"
+			if [ "$uart0_pins" = "16" ] ; then
+				$HCIATTACH /dev/serial1 bcm43xx 3000000 flow - $BDADDR
+			else
+				$HCIATTACH /dev/serial1 bcm43xx 921600 noflow - $BDADDR
+			fi
+		else
+			$HCIATTACH /dev/serial1 bcm43xx 460800 noflow - $BDADDR
+		fi
+		rpi_bthelper
+	fi
+
+	#Set the name of the bluetooth controller
+	sudo sed -i '/\[General\]/a Name = '$(hostname) /usr/local/etc/bluetooth/main.conf
+
+	sudo /usr/local/etc/init.d/bluez start > /dev/null 2>&1
+
+	RET=$(pcp_bt_controller_address)
+	case $RET in
+		#RPi bluetooth or USB
+		B8:27:EB*) echo "RPi Bluetooth Hardware Address: $RET";;
+		*) echo "USB Bluetooth Hardware Address: $RET";;
+	esac
+	sed -i "s/\(\BTCONTROLLER=\).*/\1\"$RET\"/" $BTDEVICECONF
+
+	/usr/local/etc/init.d/pcp-pair-agent start
+
+	/usr/local/bin/bluealsa --profile=a2dp-source --profile=a2dp-sink --profile=hsp-ag --profile=hfp-ag > /dev/null 2>&1 &
+
+	# Enable Controller
+	RET=$(pcp_bt_power_status)
+	if [ $RET -ne 0 ]; then
+		echo "Powering on the BT controller"
+		POWER=0
+		CNT=0
+		until [ $POWER -eq 1 ]; do
+			if [ $((CNT++)) -gt 3 ]; then
+				echo "Error powering on Bluetooth Adapter"
+				break
+			else
+				RET=$(pcp_bt_power_enable)
+				RET=$(pcp_bt_power_status)
+				if [ $RET -eq 0 ]; then
+					echo "Success."
+					POWER=1
+					touch /var/run/bt_init
+				else
+					sleep 0.5
+				fi
+			fi
+		done
+	else
+		echo "BT Controller Ready"
+		touch /var/run/bt_init
+	fi
+}
+
+rpi_bthelper() {
+	# For on-board BT, route SCO packets to the HCI interface (enables HFP/HSP)
+	# Sound quality is horrible.....just puting this here for info
+	#echo "Usage: $0 <bluetooth hci device>"
+	dev="hci0"
+	# Need to bring hci up before looking at MAC as it can be all zeros during init
+	/usr/local/bin/hciconfig "$dev" up
+	/usr/local/bin/hciconfig "$dev" |grep -q "BD Address: B8:27:EB:" || exit 0
+	/usr/local/bin/hcitool -i "$dev" cmd 0x3f 0x1c 0x01 0x02 0x00 0x01 0x01 > /dev/null
+}
+
+PNAME="pcp-btspeaker-daemon.py"
+DAEMON="/usr/local/bin/${PNAME}"
+DAEMON_PID="/var/run/${PNAME}.pid"
+
+start() {
+#	OPTIONS="$1"
+	if [ ! -f /var/run/bt_init ]; then 
+		echo "Starting BT Controller"
+		init >>$BT_LOG
+	fi
+	echo "Starting pCP BT Speaker Daemon"
+	if [ -f /var/run/bt_init ]; then
+		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
+		echo "Make sure all speakers are turned off...then turn back on. (Speaker might need to be off for up to 1 min)"
+		sleep 1
+		exit 0
+	else
+		exit 1
+	fi
+}
+
+stop() {
+	echo "Stoping pCP BT Speaker Daemon"
+	start-stop-daemon --stop --quiet -p ${DAEMON_PID}
+	rm ${DAEMON_PID}
+}
+
+status() {
+	# Check if our squeezelite daemon is running.
+	if [ -f $DAEMON_PID ]; then
+		PID=`cat $DAEMON_PID`
+		ps ax | grep -v grep | grep -q $PID
+		if [ $? -eq 0 ]; then
+			echo "pCP BT Speaker Daemon is running. PID=$PID"
+			exit 0
+		fi
+	fi
+	echo "pCP BT Speaker Daemon not running."
+	exit 1
+}
+
+case $1 in
+	start) start;;
+	stop) stop;;
+	status) status;;
+	restart) stop; sleep 5; start;;
+	*) echo -e "\n$0 [start|stop|restart|status]\n";;
+esac
+
+

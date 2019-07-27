@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 5.1.0 2019-06-30
 
 . pcp-functions
 
@@ -58,7 +58,8 @@ fi
 
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
-[ $DEBUG -eq 1 ] && pcp_go_back_button || pcp_redirect_button "Wifi Page" "wifi.cgi" 10
+[ "$FROM_PAGE" = "" ] && FROM_PAGE="wifi.cgi"
+[ $DEBUG -eq 1 ] && pcp_go_back_button || pcp_redirect_button "Go to Page" "$FROM_PAGE" 10
 
 echo '</body>'
 echo '</html>'

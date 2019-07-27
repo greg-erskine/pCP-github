@@ -256,6 +256,14 @@ echo "${BLUE}Generating sound card drop-down list...${NORMAL}"
 pcp_sound_card_dropdown &
 
 #----------------------------------------------------------------------------------------
+# Start bluetooth.
+#----------------------------------------------------------------------------------------
+if [ -x /usr/local/etc/init.d/pcp-bt6 ]; then
+	echo "${BLUE}Starting bluetooth...${NORMAL}"
+	/usr/local/etc/init.d/pcp-bt6 start&
+fi
+
+#----------------------------------------------------------------------------------------
 # Startup AP mode if enabled.
 #----------------------------------------------------------------------------------------
 if [ "$APMODE" = "yes" ]; then
@@ -299,7 +307,7 @@ echo -n "${BLUE}Loading configuration file...${NORMAL}"
 echo " ${GREEN}Done.${NORMAL}"
 
 #----------------------------------------------------------------------------------------
-# Load pcp-lms-functions <== GE why load here?
+# Load pcp-lms-functions. Done here because it sets LMSIP, which has to be after network start.
 #----------------------------------------------------------------------------------------
 echo -n "${BLUE}Loading pcp-lms-functions...${NORMAL}"
 . /home/tc/www/cgi-bin/pcp-lms-functions
