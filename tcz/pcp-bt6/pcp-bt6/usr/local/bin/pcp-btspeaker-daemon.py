@@ -246,6 +246,7 @@ def unset_sink(mac):
 	if key not in a2dp_sinks:
 		return
 	bt_log.info("   Removing device string for pcp-streamer")
+	a2dp_sinks.pop(key)
 	if os.path.exists(STREAMER_CFG):
 		os.remove(STREAMER_CFG)
 
