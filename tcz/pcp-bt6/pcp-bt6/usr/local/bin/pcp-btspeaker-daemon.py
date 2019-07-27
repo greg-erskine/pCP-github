@@ -4,7 +4,7 @@
 #   Connect multiple bluetooth speakers and start squeezelite instance for connected device
 
 # Original concept from https://github.com/oweitman/squeezelite-bluetooth
-# 
+#
 
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -24,27 +24,48 @@ STREAMER_CFG = '/tmp/bt_stream_device'
 LOG_FILE = '/var/log/pcp_bt.log'
 DEVNULL = open(os.devnull, 'w')
 
-players={}
+squeezelite={}
+bt_speakers={}
 a2dp_sinks={}
+
+def dbus_get_pcm_devices():
+	# Read from the bluealsa interface, check for an A2DP PCM
+	dev_object = bus.get_object('org.bluealsa', '/org/bluealsa')
+	dev_iface = dbus.Interface(dev_object, dbus_interface='org.bluealsa.Manager1')
+	try:
+		devices = dev_iface.GetPCMs()
+	except dbus.exceptions.DBusException as error:
+		bt_log.debug(str(error) + "\n")
+		return None
+	return devices
+
+def dbus_get_a2dp_modes( node ):
+	# Check node for a2dp Mode, or modes (sink,source)
+	# node arg is full dbus node: /org/bluealsa/hci0/dev_xx_xx_xx_xx_xx_xx/a2dp
+	try:
+		node_obj = bus.get_object('org.bluealsa', node)
+		node_iface = dbus.Interface(node_obj, dbus_interface='org.freedesktop.DBus.Properties')
+		res = node_iface.Get('org.bluealsa.PCM1', 'Modes')
+		modes = ', '.join(res)
+	except dbus.exceptions.DBusException as error:
+		bt_log.info('Error getting PCM mode: %s' % str(error))
+		return None
+	return modes
 
 # Some speakers only like to make sco connection, this checks for a2dp connection
 def A2DP_Monitor(dev):
 	wait_time = 15
 	dbus_errors = 0
 	a2dp_found = 0
-	dev_object = bus.get_object('org.bluealsa', '/org/bluealsa')
-	dev_iface = dbus.Interface(dev_object, dbus_interface='org.bluealsa.Manager1')
 
 	while a2dp_found == 0 and dbus_errors < 5:
 		time.sleep(wait_time)
-		# Read from the bluealsa interface, check for an A2DP PCM
-		try:
-			res = dev_iface.GetPCMs()
-		except dbus.exceptions.DBusException as error:
-			bt_log.debug(str(error) + "\n")
+
+		device = dbus_get_pcm_devices()
+		if device == None:
 			dbus_errors += 1
 
-		for obj in res:
+		for obj in device:
 			if dev in obj:
 				if 'a2dp' in obj:
 					bt_log.info('   Device: %s, connected with a2dp' % dev )
@@ -90,15 +111,67 @@ def LMS_JSON_discover( ip = '<broadcast>'):
 				except socket.timeout:
 					break
 	except OSError as err:
-		sqlt_log.info('   Discovery failed: %s', err)
+		bt_log.info('   Discovery failed: %s', err)
 	return None, None
 
+# Find currently running blueasla/squeezelite sessions and build list of PID's/MACs
+# Runs at startup to detect any open sessions from a dae
+def get_running_squeezelite():
+	pid = None
+	cmd = ['/bin/ps']
+	ip = Popen( cmd , stdout=PIPE, stderr=DEVNULL)
+	for line in io.TextIOWrapper(ip.stdout, encoding="utf-8"):
+		if 'squeezelite' in line and 'bluealsa' in line:
+			parts=' '.join(line.split()).strip().split(' ')
+			pid = parts[0]
+			mac = parts[5].split(',')[1].split('=')[1]
+			key = mac.replace(':', '_')
+			squeezelite[key] = int(pid)
+			bt_log.info('Found squeezelite running (%s) with device %s.' % (pid, mac))
+
+def get_connected_devices():
+	device = dbus_get_pcm_devices()
+	for obj in device:
+		if 'a2dp' in obj:
+			modes = dbus_get_a2dp_modes( obj )
+			if 'source' in modes:
+				parts=obj.split('/')
+				if len(parts)>=4:
+					mac =":".join(parts[4].split('_')[1:])
+					key = mac.replace(':', '_')
+					bt_speakers[key] = mac
+					bt_log.info('Found a2dp source %s connected.' % mac)
+
+def startup_sync_devices():
+	#Check for connected speakers matching squeezelite processes, start new squeezelite processes if needed.
+	for key in bt_speakers:
+		mac = key.replace('_', ':')
+		if key in squeezelite:
+			bt_log.info('Synced device %s to squeezelite(%d).' % (mac, squeezelite[key]))
+		else:
+			bt_log.info('No squeezelite process for device %s.  Starting squeezelite......' % mac)
+			
+			name, delay = getName(mac)
+			if None==name:
+				bt_log.info("Unknown device %s" % mac)
+			else:
+				start_squeezelite(mac, name, delay)
+
+	#Check squeezelite processes for no speaker connected, and kill process.
+	for key in squeezelite:
+		if key not in bt_speakers:
+			bt_log.info('Squeezelite process(%d) for device not currently connected. Killing...' % squeezelite[key])
+			os.kill(squeezelite[key], 3)
+			os.waitpid(squeezelite[key], 0)
+			squeezelite.pop(key)
+
+
 # Find the LMS IP address that squeezelite is connected to.
-#   ToDo: probe LMS to find the Web interface port.
 def find_lms( pid ):
+	lmsip = None
 	cmd = ['/bin/netstat', '-tuapn']
 	ip = Popen( cmd , stdout=PIPE, stderr=DEVNULL)
-	for line in io.TextIOWrapper(ip.stdout, encoding="utf-8"): 
+	for line in io.TextIOWrapper(ip.stdout, encoding="utf-8"):
 		if str(pid) in line and '3483' in line:
 			parts=' '.join(line.split()).strip().split(' ')
 			lmsip = parts[4].split(':')[0]
@@ -122,53 +195,54 @@ def send_play_command( lmsip, port, player):
 	t.wait(timeout=10)
 	bt_log.debug ('   Play command returned %d' % t.returncode)
 
-def start_squeezelite(hci, dev, name, delay):
-	key=dev.replace(':', '_')
-	if key in players:
+def start_squeezelite(mac, name, delay):
+	key=mac.replace(':', '_')
+	if key in squeezelite:
 		return
 	alsa_buffer='80:::1'
-	sqlt_log.info("Connected %s" % name)
-	sqlt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s" % (dev, delay, alsa_buffer))
-	players[key] = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (dev, delay), '-n', name, '-m', dev, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
+	bt_log.info("Connected %s" % name)
+	bt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s" % (mac, delay, alsa_buffer))
+	proc = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (mac, delay), '-n', name, '-m', mac, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
+	squeezelite[key] = proc.pid
 	time.sleep(5)
 	i = 0
 	while i < 5:
-		lmsip, port = find_lms ( players[key].pid )
+		lmsip, port = find_lms ( squeezelite[key] )
 		if lmsip != '':
-			sqlt_log.info ("   Player Connected to LMS at: %s:%s" % (lmsip, port) )
+			bt_log.info ("   Player Connected to LMS at: %s:%s" % (lmsip, port) )
 			send_play_command( lmsip, port, name)
 			break
 		else:
-			sqlt_log.info ("   Squeezelite not yet connected to LMS")
+			bt_log.info ("   Squeezelite not yet connected to LMS")
 			i += 1
 			time.sleep(1)
 	if i == 5:
-		sqlt_log.info ("   No connection to LMS detected")
+		bt_log.info ("   No connection to LMS detected")
 
-def stop_squeezelite(dev, name):
-	key=dev.replace(':', '_')
-	if key not in players:
+def stop_squeezelite(mac, name):
+	key=mac.replace(':', '_')
+	if key not in squeezelite:
 		return
 
 	bt_log.info("Disconnected %s" % name)
-	players[key].kill()
-	os.waitpid(players[key].pid, 0)
-	players.pop(key)
+	os.kill(squeezelite[key], 3)
+	os.waitpid(squeezelite[key], 0)
+	squeezelite.pop(key)
 
-def set_sink(dev):
+def set_sink(mac):
 	if a2dp_sinks:
 		bt_log.info("   a2dp sink already connected: Can only handle one device.")
 		return
 
-	key=dev.replace(':', '_')
+	key=mac.replace(':', '_')
 	a2dp_sinks[key] = 'set'
 	bt_log.info("   Writing device string for pcp-streamer")
 	f = open(STREAMER_CFG, "w")
-	f.write("OUTPUT_DEVICE=bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp\n" % dev)
+	f.write("OUTPUT_DEVICE=bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp\n" % mac)
 	f.close()
 
-def unset_sink(dev):
-	key=dev.replace(':', '_')
+def unset_sink(mac):
+	key=mac.replace(':', '_')
 	if key not in a2dp_sinks:
 		return
 	bt_log.info("   Removing device string for pcp-streamer")
@@ -176,85 +250,77 @@ def unset_sink(dev):
 		os.remove(STREAMER_CFG)
 
 # Reads config file and returns device options for squeezelite.
-def getName(dev):
+def getName(mac):
 	with open(CONFIG_FILE) as f:
 		for line in f:
 			parts=line.strip().split('#')
-			if 3==len(parts) and dev==parts[0]:
+			if 3==len(parts) and mac==parts[0]:
 				return parts[1], parts[2]
 	return None, None
 
 def connect_handler ( * args, **kwargs):
 	bt_log.info('---- Caught Connect signal ----')
-
 	#This signal only contains the node: /org/bluealsa/hci0/dev_xx_xx_xx_xx_xx_xx/a2dp
+
 	parts=args[0].split('/')
 	if len(parts)>=4:
 		hci=parts[3]
-		dev=":".join(parts[4].split('_')[1:])
+		mac=":".join(parts[4].split('_')[1:])
 		profile=parts[5]
 
 	# Check node for a2dp Mode, we only want source
-	try:
-		node_obj = bus.get_object('org.bluealsa', args[0])
-		node_iface = dbus.Interface(node_obj, dbus_interface='org.freedesktop.DBus.Properties')
-		res = node_iface.Get('org.bluealsa.PCM1', 'Modes')
-		modes = ', '.join(res)
-	except dbus.exceptions.DBusException as error:
-		bt_log.info('Error getting PCM mode: %s' % str(error))
+	modes = dbus_get_a2dp_modes( args[0] )
+	if modes == None:
 		return
 
 	bt_log.debug("   HCI:%s" % hci)
-	bt_log.info("   DEV:%s" % dev)
+	bt_log.info("   MAC:%s" % mac)
 	bt_log.info("   PROFILE:%s" % profile)
 	bt_log.info("   Modes:%s" % modes)
 
 	if profile == 'a2dp':
 		if 'source' in modes:
 			name = None
-			if None!=dev and None!=hci:
-				name, delay = getName(dev)
+			if None!=mac and None!=hci:
+				name, delay = getName(mac)
 			if None==name:
-				bt_log.info("Unknown device %s" % dev)
+				bt_log.info("Unknown device %s" % mac)
 			else:
-				start_squeezelite(hci, dev, name, delay)
+				start_squeezelite(mac, name, delay)
 		elif 'sink' in modes:
-			set_sink(dev)
+			set_sink(mac)
 		else:
 			bt_log.info("Device is unknown a2dp device")
 	else:
-		watch_for_a2dp(('dev_%s' % dev.replace(':', '_')))
+		watch_for_a2dp(('dev_%s' % mac.replace(':', '_')))
 
 def disconnect_handler ( * args, **kwargs):
 	bt_log.info('---- Caught Disconnect signal ----')
 	parts=args[0].split('/')
 	if len(parts)>=4:
 		hci=parts[3]
-		dev=":".join(parts[4].split('_')[1:])
+		mac=":".join(parts[4].split('_')[1:])
 		profile=parts[5]
-	bt_log.debug("   HCI:%s" %hci)
-	bt_log.info("   DEV:%s" %dev)
+	bt_log.debug("   HCI:%s" % hci)
+	bt_log.info("   MAC:%s" % mac)
 	bt_log.info("   PROFILE:%s" % profile)
 
 	if profile == 'a2dp':
 		name = None
-		if None!=dev and None!=hci:
-			name, delay = getName(dev)
+		if None!=mac and None!=hci:
+			name, delay = getName(mac)
 		if None!=name:
-			stop_squeezelite(dev, name)
-		unset_sink(dev)
+			stop_squeezelite(mac, name)
+		unset_sink(mac)
 
 if __name__ == '__main__':
 
 	bt_log = logging.getLogger('BTINFO')
-	sqlt_log = logging.getLogger('SLINFO')
-	formatter = logging.Formatter(fmt='%(asctime)s %(name)-6s: %(levelname)-8s %(message)s',datefmt='%m-%d %H:%M')
+	formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',datefmt='%m-%d %H:%M')
 	handler = logging.handlers.RotatingFileHandler(LOG_FILE, mode='a', maxBytes=800000, backupCount=0)
 	handler.setFormatter(formatter)
 	bt_log.addHandler(handler)
-	sqlt_log.addHandler(handler)
 	bt_log.setLevel(logging.INFO)
-	sqlt_log.setLevel(logging.INFO)
 
 	bt_log.info("Starting pCP BT Speaker Daemon...")
 
@@ -263,6 +329,11 @@ if __name__ == '__main__':
 
 	bus = dbus.SystemBus()
 
+	get_running_squeezelite()
+	get_connected_devices()
+	startup_sync_devices()
+	
+	bt_log.info('Staring connection signal handlers.')
 	bus.add_signal_receiver(connect_handler, dbus_interface='org.bluealsa.Manager1', signal_name='PCMAdded')
 	bus.add_signal_receiver(disconnect_handler, dbus_interface='org.bluealsa.Manager1', signal_name='PCMRemoved')
 
