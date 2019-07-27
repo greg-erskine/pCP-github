@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3.6 -u
+#!/usr/local/bin/python3
 
 # pCP - Bluetooth speaker monitor
 #   Connect multiple bluetooth speakers and start squeezelite instance for connected device
@@ -13,7 +13,7 @@ from pgi.repository import GObject as gobject
 
 import dbus
 import dbus.mainloop.glib
-import os, sys, io, signal, logging, logging.handlers
+import os, sys, signal, io, logging, logging.handlers
 import socket
 from subprocess import Popen,PIPE
 import threading, time
@@ -150,7 +150,7 @@ def startup_sync_devices():
 			bt_log.info('Synced device %s to squeezelite(%d).' % (mac, squeezelite[key]))
 		else:
 			bt_log.info('No squeezelite process for device %s.  Starting squeezelite......' % mac)
-			
+
 			name, delay = getName(mac)
 			if None==name:
 				bt_log.info("Unknown device %s" % mac)
@@ -158,13 +158,19 @@ def startup_sync_devices():
 				start_squeezelite(mac, name, delay)
 
 	#Check squeezelite processes for no speaker connected, and kill process.
-	for key in squeezelite:
+	#Copy the current list first, since we may change the dictionary.
+	for key in list(squeezelite):
 		if key not in bt_speakers:
 			bt_log.info('Squeezelite process(%d) for device not currently connected. Killing...' % squeezelite[key])
-			os.kill(squeezelite[key], 3)
-			os.waitpid(squeezelite[key], 0)
+			kill_process(squeezelite[key])
 			squeezelite.pop(key)
 
+def kill_process(pid):
+	os.kill( pid, signal.SIGKILL)
+	try:
+		os.waitpid( pid, 0)
+	except:
+		pass
 
 # Find the LMS IP address that squeezelite is connected to.
 def find_lms( pid ):
@@ -225,8 +231,7 @@ def stop_squeezelite(mac, name):
 		return
 
 	bt_log.info("Disconnected %s" % name)
-	os.kill(squeezelite[key], 3)
-	os.waitpid(squeezelite[key], 0)
+	kill_process(squeezelite[key])
 	squeezelite.pop(key)
 
 def set_sink(mac):
@@ -334,7 +339,7 @@ if __name__ == '__main__':
 	get_connected_devices()
 	startup_sync_devices()
 	
-	bt_log.info('Staring connection signal handlers.')
+	bt_log.info('Starting connection signal handlers.')
 	bus.add_signal_receiver(connect_handler, dbus_interface='org.bluealsa.Manager1', signal_name='PCMAdded')
 	bus.add_signal_receiver(disconnect_handler, dbus_interface='org.bluealsa.Manager1', signal_name='PCMRemoved')
 
