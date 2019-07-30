@@ -479,8 +479,9 @@ echo '        <fieldset>'
 echo '          <legend>Device Pairing/Selection</legend>'
 echo '          <table class="bggrey percent100">'
 #------------------------------------------Scan/Pair BT ---------------------
-	pcp_incr_id
 pcp_bt_scan() {
+	pcp_incr_id
+	pcp_start_row_shade
 	echo '            <form name="Discover" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -492,6 +493,8 @@ pcp_bt_scan() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>This will allow pCP to be discoverable and pairable by your phone or other device.</p>'
+	echo '                    <p>Integrates with Streamer to play from you phone over bluetooth to your LMS system.</p>'
+	echo '                    <p>&nbsp;&nbsp;Install Streamer from the <a href="tweaks.cgi#Audio">Tweaks Page</a>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'

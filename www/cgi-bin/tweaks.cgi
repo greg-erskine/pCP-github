@@ -1542,7 +1542,7 @@ pcp_tweaks_audio_tweaks() {
 		no) STREAMERno="checked" ;;
 	esac
 
-	echo '<table class="bggrey">'
+	echo '<table id="Audio" class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
@@ -1671,7 +1671,7 @@ pcp_tweaks_audio_tweaks() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <p>Streamer for Line Input</p>'
+	echo '                  <p>Streamer for Audio Input</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <input class="small1" type="radio" name="STREAMER" value="yes" '$STREAMERyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -1679,7 +1679,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>'
-	echo '                    Run streaming server for audio line-in.&nbsp;&nbsp;'
+	echo '                    Run streaming server for audio line-in or bluetooth input.&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
