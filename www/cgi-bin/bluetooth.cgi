@@ -479,6 +479,7 @@ echo '        <fieldset>'
 echo '          <legend>Device Pairing/Selection</legend>'
 echo '          <table class="bggrey percent100">'
 #------------------------------------------Scan/Pair BT ---------------------
+	pcp_incr_id
 pcp_bt_scan() {
 	echo '            <form name="Discover" action="'$0'">'
 	echo '              <tr class="'$ROWSHADE'">'
