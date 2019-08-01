@@ -1,12 +1,13 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 
 # pCP - Bluetooth speaker monitor
 #   Connect multiple bluetooth speakers and start squeezelite instance for connected device
 
 # Original concept from https://github.com/oweitman/squeezelite-bluetooth
 #
-
 from __future__ import absolute_import, print_function, unicode_literals
+
+version = '1.0.0'
 
 # Using Pure GObject from https://pypi.org/project/pgi/, its alot leaner than full GObject
 from pgi.repository import GObject as gobject
@@ -191,22 +192,30 @@ def find_lms( pid ):
 		port = 9000  # Assume default port.
 	return host, port
 
-# Sends a Play command to LMS via the jsonrpc interface.
+# Sends a command to LMS via the jsonrpc interface.
+def send_lms_command (json, lmsip, port):
+	cmdline = '/usr/bin/wget -T 5 -q -O- --post-data=\'%s\' --header \'Content-Type: application/json\' http://%s:%s/jsonrpc.js' % ( json, lmsip, port)
+	bt_log.debug("   %s" % cmdline)
+	t = Popen( cmdline, shell=True, stdout=DEVNULL, stderr=DEVNULL)
+	t.wait(timeout=6)
+	bt_log.debug ('   Command returned %d' % t.returncode)
+
 def send_play_command( lmsip, port, player):
 	bt_log.info("   Sending Play command for %s to LMS at %s" % (player, lmsip))
 	json_req = '{"id":1,"method":"slim.request","params":[ "%s", [ "play" ]]}' % player
-	cmdline = '/usr/bin/wget -T 5 -q -O- --post-data=\'%s\' --header \'Content-Type: application/json\' http://%s:%s/jsonrpc.js' % ( json_req, lmsip, port)
-	bt_log.debug("   %s" % cmdline)
-	t = Popen( cmdline, shell=True, stdout=DEVNULL, stderr=DEVNULL)
-	t.wait(timeout=10)
-	bt_log.debug ('   Play command returned %d' % t.returncode)
+	send_lms_command (json_req, lmsip, port)
+
+def send_poweroff_command( lmsip, port, player):
+	bt_log.info("   Sending Poweroff command for %s to LMS at %s" % (player, lmsip))
+	json_req = '{"id":1,"method":"slim.request","params":[ "%s", [ "power" , "0" ]]}' % player
+	send_lms_command (json_req, lmsip, port)
 
 def start_squeezelite(mac, name, delay):
 	key=mac.replace(':', '_')
 	if key in squeezelite:
 		return
 	alsa_buffer='80:::1'
-	bt_log.info("Connected %s" % name)
+	bt_log.info("   Connected %s" % name)
 	bt_log.debug("   bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s,ALSA=%s" % (mac, delay, alsa_buffer))
 	proc = Popen([SQUEEZE_LITE, '-o', 'bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s' % (mac, delay), '-n', name, '-m', mac, '-a', alsa_buffer, '-f', '/dev/null'], stdout=DEVNULL, stderr=DEVNULL, shell=False)
 	squeezelite[key] = proc.pid
@@ -230,11 +239,16 @@ def stop_squeezelite(mac, name):
 	if key not in squeezelite:
 		return
 
-	bt_log.info("Disconnected %s" % name)
+	lmsip, port = find_lms ( squeezelite[key] )
+	if lmsip != '':
+		send_poweroff_command( lmsip, port, name)
+		time.sleep(1)
+
+	bt_log.info("   Disconnected %s" % name)
 	kill_process(squeezelite[key])
 	squeezelite.pop(key)
 
-def set_sink(mac):
+def set_sink(mac, delay):
 	if a2dp_sinks:
 		bt_log.info("   a2dp sink already connected: Can only handle one device.")
 		return
@@ -243,7 +257,7 @@ def set_sink(mac):
 	a2dp_sinks[key] = 'set'
 	bt_log.info("   Writing device string for pcp-streamer")
 	f = open(STREAMER_CFG, "w")
-	f.write("OUTPUT_DEVICE=bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp\n" % mac)
+	f.write("OUTPUT_DEVICE=bluealsa:SRV=org.bluealsa,DEV=%s,PROFILE=a2dp,DELAY=%s\n" % (mac, delay))
 	f.close()
 
 def unset_sink(mac):
@@ -290,13 +304,13 @@ def connect_handler ( * args, **kwargs):
 			if None!=mac and None!=hci:
 				name, delay = getName(mac)
 			if None==name:
-				bt_log.info("Unknown device %s" % mac)
+				bt_log.info("   Unknown device %s" % mac)
 			else:
 				start_squeezelite(mac, name, delay)
 		elif 'sink' in modes:
-			set_sink(mac)
+			set_sink(mac, delay)
 		else:
-			bt_log.info("Device is unknown a2dp device")
+			bt_log.info("   Device is unknown a2dp device")
 	else:
 		watch_for_a2dp(('dev_%s' % mac.replace(':', '_')))
 
@@ -328,7 +342,7 @@ if __name__ == '__main__':
 	bt_log.addHandler(handler)
 	bt_log.setLevel(logging.INFO)
 
-	bt_log.info("Starting pCP BT Speaker Daemon...")
+	bt_log.info("Starting pCP BT Speaker Daemon v%s..." % version)
 
 	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 	dbus.mainloop.glib.threads_init()

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License version 2 as
@@ -25,6 +25,8 @@ try:
   from pgi.repository import GObject
 except ImportError:
   import gobject as GObject
+
+version = '1.0.0'
 
 BUS_NAME = 'org.bluez'
 AGENT_INTERFACE = 'org.bluez.Agent1'

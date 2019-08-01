@@ -4,6 +4,7 @@
 # Bluetooth Speaker Init Script
 #----------------------------------------------------------------------------------------
 #
+# Version 1.0.0
 
 . /usr/local/etc/pcp/pcp.cfg
 . /usr/local/bin/pcp-bt-functions
@@ -97,6 +98,7 @@ DAEMON_PID="/var/run/${PNAME}.pid"
 
 start() {
 #	OPTIONS="$1"
+	OPTIONS=""
 	if [ ! -f /var/run/bt_init ]; then 
 		echo "Starting BT Controller"
 		init >>$BT_LOG
@@ -104,8 +106,7 @@ start() {
 	echo "Starting pCP BT Speaker Daemon"
 	if [ -f /var/run/bt_init ]; then
 		start-stop-daemon --start --quiet -m -p ${DAEMON_PID} -b --exec $DAEMON -- $OPTIONS
-		echo "Make sure all speakers are turned off...then turn back on. (Speaker might need to be off for up to 1 min)"
-		sleep 1
+		sleep 0.25
 		exit 0
 	else
 		exit 1
