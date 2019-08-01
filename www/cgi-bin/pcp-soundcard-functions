@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-23
+# Version: 6.0.0 2019-07-31
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -279,13 +279,12 @@ pcp_load_card_conf() {
 	CARDNO=$(cat /proc/asound/cards | grep '\[' | grep $CARDNAME | cut -d ' ' -f2)
 }
 
+# $1 is the name of the input device
 pcp_get_input_cardnumber() {
-	INPUTCARD=99
-	alsacap -R 2>/dev/null |  while read -r line; do
+	INPUTCARD="$1"
+	alsacap -R 2>/dev/null | grep "$INPUTCARD" | while read -r line; do
 		case $line in
-			Card*) INPUTCARD=$(echo $line | cut -d ',' -f1 | cut -d ' ' -f2);;
-			Device*) [ $INPUTCARD -ne 99 ] && echo $INPUTCARD; break;;
-			*) INPUTCARD=99;;
+			Card*) echo $line | cut -d ',' -f1 | cut -d ' ' -f2;;
 		esac
 	done
 }

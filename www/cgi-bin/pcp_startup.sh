@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-18
+# Version: 6.0.0 2019-07-31
 
 BACKUP=0
 
@@ -431,7 +431,7 @@ fi
 # Check the pcm input card.....Only finds the first recording card.
 #----------------------------------------------------------------------------------------
 echo -n "${BLUE}Checking for PCM input card...${NORMAL}"
-INCARD=$(pcp_get_input_cardnumber)
+INCARD=$(pcp_get_input_cardnumber "$STREAMER_IN_DEVICE")
 [ "$INCARD" != "" ] && sed -i '\|pcm.pcpinput|,/}/ s/hw:[0-9],[0-9]/hw:'$INCARD',0/' /etc/asound.conf
 echo " ${GREEN}Done.${NORMAL}"
 

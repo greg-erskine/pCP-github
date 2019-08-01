@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-07-31
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -10,6 +10,7 @@ ORIG_ALSAeq=$ALSAeq
 ORIG_SHAIRPORT=$SHAIRPORT
 ORIG_SQUEEZELITE=$SQUEEZELITE
 ORIG_STREAMER=$STREAMER
+ORIG_STREAMER_IN_DEVICE="$STREAMER_IN_DEVICE"
 ORIG_FIQ=$FIQ
 ORIG_CMD=$CMD
 ORIG_FSM=$FSM
@@ -192,7 +193,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 				pcp_download_alsaequal
 				OUTPUT="equal"
 			fi
-			[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo '<p class="error">[ ERROR ] Unable to determine Card Number to setup ALSAEqual</p>'
+			[ "$CARDNO" != "" ] && sed -i "s/plughw:.*,0/plughw:"$CARDNO",0/g" /etc/asound.conf || echo '<p class="error">[ ERROR ] Input device not selected. Select and re-save.</p>'
 		;;
 		no)
 			echo '<p class="info">[ INFO ] ALSA equalizer: '$ALSAeq'</p>'
@@ -244,18 +245,18 @@ pcp_remove_streamer() {
 #----------------------------------------------------------------------------------------
 # Only do something if variable has changed.
 #----------------------------------------------------------------------------------------
-if [ "$ORIG_STREAMER" != "$STREAMER" ]; then
+if [ "$ORIG_STREAMER" != "$STREAMER" ] || [ "$STREAMER" == "yes" -a "$ORIG_STREAMER_IN_DEVICE" != "$STREAMER_IN_DEVICE" ]; then
 	VARIABLE_CHANGED=TRUE
-
-	echo '<p class="info">[ INFO ] $ALSAeq is set to: '$ALSAeq'</p>'
 
 	# Determination of the number of the current sound-card
 	# This probably isn't necessary, as we will check at boot time.
-	INCARD=$(pcp_get_input_cardnumber)
+	INCARD=$(pcp_get_input_cardnumber "$STREAMER_IN_DEVICE")
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<p class="debug">[ DEBUG ] $ORIG_STREAMER is: '$ORIG_STREAMER'<br />'
 		echo '                 [ DEBUG ] $STREAMER is: '$STREAMER'<br />'
+		echo '<p class="debug">[ DEBUG ] $ORIG_STREAMER_IN_DEVICE is: '$ORIG_STREAMER_IN_DEVICE'<br />'
+		echo '                 [ DEBUG ] $STREAMER_IN_DEVICE is: '$STREAMER_IN_DEVICE'<br />'
 		echo '                 [ DEBUG ] $Card number has input capabilies: '$INCARD'<br />'
 		echo '                 [ DEBUG ] $AUDIO is: '$AUDIO'</p>'
 	fi
@@ -273,13 +274,14 @@ if [ "$ORIG_STREAMER" != "$STREAMER" ]; then
 		;;
 		no)
 			REBOOT_REQUIRED=TRUE
-			/usr/local/etc/init.d/streamer stop
-			echo '<p class="info">[ INFO ] pCP Streamer: '$ALSAeq'</p>'
+			[ -x /usr/local/etc/init.d/streamer ] && /usr/local/etc/init.d/streamer stop
+			echo '<p class="info">[ INFO ] pCP Streamer: '$STREAMER'</p>'
 			sudo sed -i '/pcp-streamer.tcz/d' $ONBOOTLST
+			STREAMER_IN_DEVICE=""
 			pcp_remove_streamer
 		;;
 		*)
-			echo '<p class="error">[ ERROR ] pCP Streamer invalid: '$ALSAeq'</p>'
+			echo '<p class="error">[ ERROR ] pCP Streamer invalid: '$STREAMER'</p>'
 		;;
 	esac
 else

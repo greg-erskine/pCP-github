@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-08
+# Version: 6.0.0 2019-07-31
 
 set -f
 
@@ -1679,7 +1679,11 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>'
-	echo '                    Run streaming server for audio line-in or bluetooth input.&nbsp;&nbsp;'
+	if [ "$STREAMER" == "no" ]; then
+		echo '                    Run streaming server for audio line-in or bluetooth input.&nbsp;&nbsp;'
+	else
+		echo '                     <a id="stream_url"></a>'
+	fi
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -1692,10 +1696,49 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            <script>'
-	echo '              document.getElementById("stream_usage").innerHTML = "http://" + window.location.hostname + ":9100/&lt;format&gt;/&lt;rate&gt;/&lt;channels&gt;/&lt;F-flac or M-mp3&gt;";'
-	echo '              document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
-	echo '            </script>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 right">'
+	echo '                  <p>Input Device</p>'
+	echo '                </td>'
+	pcp_incr_id
+	echo '                <td class="column210">'
+	echo '                  <input id="input'$ID'"'
+	echo '                         class="large15"'
+	echo '                         type="text"'
+	echo '                         name="STREAMER_IN_DEVICE"'
+	echo '                         value="'$STREAMER_IN_DEVICE'"'
+	echo '                         title="Select from list of input devices"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Specify the input device (-o)&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Available input devices (click to use):</p>'
+	echo '                    <ul>'
+
+	OPTION=1
+	alsacap -R 2>/dev/null | grep Card | awk -F'name ' '{print  $2}' | sed 's/`//' | sed 's/'\''//' | while read -r IN
+	do
+		echo '                      <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${OPTION}\'')">'
+		echo '                        <span id="option'${OPTION}'">'$IN'</span></li>'
+		OPTION=$((OPTION + 1))
+	done 
+
+	echo '                    </ul>'
+	echo '                  </div>'
+
+	echo '                </td>'
+	echo '              </tr>'
+
+	echo '              <script>'
+	if [ "$STREAMER" == "yes" ]; then
+		echo '                document.getElementById("stream_url").innerHTML = "Streamer installed. Basic url: <a href=http://" + window.location.hostname + ":9100/S16_LE/44100/2/F>http://" + window.location.hostname + ":9100/S16_LE/44100/2/F</a>\u00A0\u00A0";'
+	fi
+	echo '                document.getElementById("stream_usage").innerHTML = "http://" + window.location.hostname + ":9100/&lt;format&gt;/&lt;rate&gt;/&lt;channels&gt;/&lt;F-flac or M-mp3&gt;";'
+	echo '                document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
+	echo '              </script>'
 
 	#----------------------------------------------------------------------------------------
 	pcp_start_row_shade
