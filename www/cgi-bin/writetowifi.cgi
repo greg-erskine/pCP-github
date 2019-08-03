@@ -29,19 +29,19 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" -o "$ORIG_RPIBLUETOOTH" != "$RPIBLUET
 	if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
 		if [ "$RPI3INTWIFI" = "off" ]; then
 			echo '[ INFO  ] Disabling rpi internal wifi.'
-			echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT 
+			echo "dtoverlay=disable-wifi" >> $CONFIGTXT 
 		else
 			echo '[ INFO  ] Enabling rpi internal wifi.'
-			sed -i '/dtoverlay=pi3-disable-wifi/d' $CONFIGTXT
+			sed -i '/dtoverlay=disable-wifi/d' $CONFIGTXT
 		fi
 	fi
 	if [ "$ORIG_RPIBLUETOOTH" != "$RPIBLUETOOTH" ]; then
 		if [ "$RPIBLUETOOTH" = "off" ]; then
 			echo '[ INFO  ] Disabling rpi internal bluetooth.'
-			echo "dtoverlay=pi3-disable-bt" >> $CONFIGTXT 
+			echo "dtoverlay=disable-bt" >> $CONFIGTXT 
 		else
 			echo '[ INFO  ] Enabling rpi internal bluetooth.'
-			sed -i '/dtoverlay=pi3-disable-bt/d' $CONFIGTXT
+			sed -i '/dtoverlay=disable-bt/d' $CONFIGTXT
 		fi
 	fi
 

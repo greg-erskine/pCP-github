@@ -128,13 +128,13 @@ if [ $NEWCONFIGFOUND -eq 1 ]; then
 		# Disable RPi3 or ZeroW built-in wifi on by default from upgrade
 		if [ "$RPI3INTWIFI" = "off" ]; then
 			echo -n "${BLUE}Disabling RPi built-in wifi...${NORMAL}"
-			echo "dtoverlay=pi3-disable-wifi" >> $CONFIGTXT
+			echo "dtoverlay=disable-wifi" >> $CONFIGTXT
 			echo " ${GREEN}Done.${NORMAL}"
 		fi
 		# Enable RPi3 or ZeroW built-in bluetooth off by default from upgrade
 		if [ "$RPIBLUETOOTH" = "on" ]; then
 			echo -n "${BLUE}Enabling RPi built-in bluetooth...${NORMAL}"
-			sed -i '/dtoverlay=pi3-disable-bt/d' $CONFIGTXT
+			sed -i '/dtoverlay=disable-bt/d' $CONFIGTXT
 			echo " ${GREEN}Done.${NORMAL}"
 		fi
 		# Set Screen Rotate
