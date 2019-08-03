@@ -615,7 +615,7 @@ check_config_txt(){
 			\[PI1\]) ARM=6; RPI1=0; read -r INITRD; read -r KERNEL;;
 			\[PI2\]) ARM=7; RPI2=0; read -r INITRD; read -r KERNEL;;
 			\[PI3\]) ARM=7; RPI3=0; read -r INITRD; read -r KERNEL;;
-			\[PI4\]) ARM=7l; RPI3=0; read -r INITRD; read -r KERNEL;;
+			\[PI4\]) ARM=7l; RPI4=0; read -r INITRD; read -r KERNEL;;
 			*) ARM=0;;
 		esac
 		if [ "$ARM" = "6" ]; then
