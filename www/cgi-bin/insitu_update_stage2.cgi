@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-07-05
+# Version: 6.0.0 2019-08-03
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -62,17 +62,17 @@ case "${VERSION}" in
 		PICOREVERSION="10.x"
 		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
 	;;
-	piCorePlayer5.1.*)
+	piCorePlayer6.0.*)
 		SPACE_REQUIRED=12000
 		BOOT_SIZE_REQUIRED=48000
 		#These are used for sed modification of config.txt
 		CNF_INITRD="pcp_10.2"
-		CNF_KERNEL="kernel41957"
+		CNF_KERNEL="kernel41963"
 		# Set the below for downloading new kernel modules
 		KUPDATE=1
 		case $CORE in
-			*pcpAudioCore*) NEWKERNELVER="4.19.57-rt22";;
-			*) NEWKERNELVER="4.19.57";;
+			*pcpAudioCore*) NEWKERNELVER="4.19.63-rt24";;
+			*) NEWKERNELVER="4.19.63";;
 		esac
 		PICOREVERSION="10.x"
 		NEWKERNELVERCORE="${NEWKERNELVER}-${CORE%+}"
@@ -280,6 +280,10 @@ pcp_install_boot_files() {
 		sed -i -r "s/^initramfs pcp_[0-9]{1,2}\.[0-9]/initramfs ${CNF_INITRD}/g" ${BOOTMNT}/config.txt
 		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
 		sed -i -r "s/^kernel kernel[0-9]{4,7}/kernel ${CNF_KERNEL}/g" ${BOOTMNT}/config.txt
+		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
+		sed -i "s/pi3-disable-bt/disable-bt/" ${BOOTMNT}/config.txt
+		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
+		sed -i "s/pi3-disable-wifi/disable-wifi/" ${BOOTMNT}/config.txt
 		[ $? -eq 0 ] || FAIL_MSG="Error updating config.txt"
 	fi
 
