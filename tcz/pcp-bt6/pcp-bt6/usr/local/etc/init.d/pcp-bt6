@@ -41,7 +41,11 @@ init() {
 
 	sudo /usr/local/etc/init.d/bluez start > /dev/null 2>&1
 
-	RET=$(pcp_bt_controller_address)
+	RET=$(pcp_bt_controller_address 2>/dev/null)
+	if [ "$RET" == "" ]; then
+		echo "Bluetooth loaded, but no controller detected."
+		exit 1
+	fi
 	case $RET in
 		#RPi bluetooth or USB
 		B8:27:EB*) echo "RPi Bluetooth Hardware Address: $RET";;
@@ -100,7 +104,7 @@ start() {
 #	OPTIONS="$1"
 	OPTIONS=""
 	if [ ! -f /var/run/bt_init ]; then 
-		echo "Starting BT Controller"
+		echo "Starting BT Controller" >> $BT_LOG
 		init >>$BT_LOG
 	fi
 	echo "Starting pCP BT Speaker Daemon"
