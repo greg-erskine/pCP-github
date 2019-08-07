@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-28
+# Version: 6.0.0 2019-08-07
 
 . pcp-functions
 . pcp-rpi-functions
@@ -12,7 +12,6 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_running_script
 pcp_remove_query_string
 pcp_httpd_query_string
 
@@ -337,7 +336,7 @@ case "$ACTION" in
 		pcp_table_end
 	;;
 	Mysb)
-		pcp_table_top "Setting LMS commandline options"
+		pcp_table_top "Setting LMS command line options"
 		echo '                <textarea class="inform" style="height:40px">'
 		echo '[ INFO ] Setting --nomysqueezebox commandline option...'
 		case $NOMYSB in
@@ -424,9 +423,9 @@ else
 	STATUS="not running"
 fi
 
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Determine state of check boxes.
-#------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 # Function to check the LMS radio button according to config file
 case "$LMSERVER" in
 	yes) LMSERVERyes="checked" ;;
@@ -714,7 +713,7 @@ pcp_lms_no_mysb() {
 	echo '                  <input class="small1" type="radio" name="NOMYSB" value="no" '$NOMYSBno' >No'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Set --nomysqueezebox commandline option for LMS.&nbsp;'
+	echo '                  <p>Set --nomysqueezebox command line option for LMS&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -788,7 +787,6 @@ pcp_lms_show_cconvert() {
 	echo '                  </div>'
 	echo '                 </td>'
 	echo '               </tr>'
-
 }
 [ $MODE -ge $MODE_BETA -a -f $LMS_CC_FILE ] && pcp_lms_show_cconvert
 #----------------------------------------------------------------------------------------
@@ -824,7 +822,7 @@ pcp_lms_customconvert() {
 [ $MODE -ge $MODE_BETA -a "$DISABLE_LMS" = "" ] && pcp_lms_customconvert
 #----------------------------------------------------------------------------------------
 
-#---------------------------------Update LMS--------------------------------------------
+#---------------------------------Update LMS---------------------------------------------
 pcp_update_lms() {
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -854,8 +852,8 @@ pcp_update_lms() {
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>These packages are specific to piCorePlayer. A reboot will be required,</p>'
-	echo '                    <p>If there are updated packages.</p>'
+	echo '                    <p>These packages are specific to piCorePlayer.</p>'
+	echo '                    <p>A reboot will be required if there are updated packages.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -997,7 +995,7 @@ pcp_slimserver_persistence() {
 		;;
 		*);;
 	esac
-	
+
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
@@ -1170,7 +1168,7 @@ pcp_extra_filesys() {
 # USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
 pcp_mount_usbdrives() {
-	#Used to identify which fdisk, fdisk -V fails under busybox, but not util-linux.
+	# Used to identify which fdisk, fdisk -V fails under busybox, but not util-linux.
 	fdisk -V 2>&1 | grep -q -i busybox
 	[ $? -eq 0 ] && BBFDISK=1 || BBFDISK=0
 	# Read config file
@@ -1193,7 +1191,7 @@ pcp_mount_usbdrives() {
 			esac
 		done < $USBMOUNTCONF
 	fi
-	echo '<table class="bggrey">'
+	echo '<table id="partmount" class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
@@ -1216,7 +1214,6 @@ pcp_mount_usbdrives() {
 	echo '                    <br />'
 	echo '                    <p>GPT Partitioned disks require the additional util-linux.tcz extension.</p>'
 	echo '                    <p>UTF-8 Support for fat32 requires the additional filesystem extensions.</p>'
-	
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1265,7 +1262,7 @@ pcp_mount_usbdrives() {
 				case "$MNT" in
 					"$UUID")
 						TST=$(eval echo "\${USBDISK${J}}")
-						if [ "$TST" != "" ]; then 
+						if [ "$TST" != "" ]; then
 							USBDISKyes="checked"
 							REQUIRED="required"
 						fi
@@ -1300,12 +1297,12 @@ pcp_mount_usbdrives() {
 				;;
 			esac
 
-			#Keepenabled is due to sumitting a disabled checkbox does not submit current value
+			# Keepenabled is due to submitting a disabled checkbox does not submit current value
 			if [ "${LMSDATA:4}" = "$UUID" ]; then
 				DISABLE="disabled"
 				KEEPENABLED="USBDISK${NUM_USB_ATTACHED}"
 			fi
-			#We must have a UUID defined.
+			# We must have a UUID defined.
 			if [ "$UUID" = "" ]; then
 				DISABLE="disabled"
 				UUID="Invalid UUID, Please check/reformat disk"
@@ -1359,7 +1356,7 @@ pcp_mount_usbdrives() {
 			TST=$(eval echo "\${DISKFOUND${J}}")
 			PNT=$(eval echo "\${MOUNTPOINT${J}}")
 			if [ "$TST" = "no" ]; then
-				#Drive is actually not attached, but we needed it to be.
+				# Drive is actually not attached, but we needed it to be.
 				NUM_USB_ATTACHED=$((NUM_USB_ATTACHED+1))
 				pcp_toggle_row_shade
 				echo '              <tr class="'$ROWSHADE'">'
@@ -1390,7 +1387,7 @@ pcp_mount_usbdrives() {
 	echo '                  </td>'
 	case $LMSDATA in
 		usb*)
-			# Checkbox is disabled due to lms using for cache storage, Keep the specific box enabled
+			# Checkbox is disabled due to LMS using for cache storage, Keep the specific box enabled
 			echo '                  <input type="hidden" name="'$KEEPENABLED'" value="enabled">'
 			echo '                  <td colspan=5>'
 			echo '                    <p> LMS is currently using disk '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
@@ -1408,7 +1405,6 @@ pcp_mount_usbdrives() {
 				echo '                    <p> For UTF-8 support on FAT formatted drives, please install extra filesystems above.</p>'
 			fi
 			echo '                  </td>'
-
 		;;
 	esac
 	echo '                </tr>'
@@ -1698,7 +1694,7 @@ pcp_mount_netdrives() {
 	echo '                  <p> Check this box to clear configuration data for unused shares.</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	#--------------------------------------Submit button-------------------------------------
+	#--------------------------------------Submit button---------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1747,11 +1743,12 @@ pcp_mount_netdrives() {
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
+
 #========================================================================================
 # Samba Share Drive Support
 #----------------------------------------------------------------------------------------
 pcp_samba() {
-#------------------------------------Samba Indication--------------------------------------
+#------------------------------------Samba Indication------------------------------------
 	if [ $(pcp_samba_status) -eq 0 ]; then
 		SMBINDICATOR=$HEAVY_CHECK_MARK
 		CLASS="indicator_green"
@@ -1825,7 +1822,7 @@ pcp_samba() {
 
 	if [ "$SAMBA" != "disabled" ]; then
 		if [ -f $SAMBACONF ]; then
-#			This will read the config file.
+			# This will read the config file.
 			GLOBAL=0
 			SC=0
 
@@ -1838,7 +1835,7 @@ pcp_samba() {
 					*global*) GLOBAL=1;;
 					netbios*) NETBIOS=$(pcp_trimval "${LINE}");;
 					workgroup*) WGROUP=$(pcp_trimval "${LINE}");;
-					[*)	SC=$((SC+1)); eval SHARE${SC}=$(trimshare "${LINE}");;
+					[*) SC=$((SC+1)); eval SHARE${SC}=$(trimshare "${LINE}");;
 					path*) eval SHAREPATH${SC}=$(pcp_trimval "${LINE}");;
 					create\ mask*) eval SHAREMASK${SC}=$(pcp_trimval "${LINE}");;
 					writeable*) eval SHARERO${SC}="no";;
@@ -2142,7 +2139,7 @@ pcp_lms_logview() {
 [ "$LOGSHOW" = "yes" ] && pcp_lms_logview
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------LMS custom convert text area-----------------
+#------------------------------------------LMS custom convert text area------------------
 pcp_lms_ccview() {
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -2165,7 +2162,6 @@ pcp_lms_ccview() {
 }
 [ "$CCSHOW" = "yes" -a -f $LMS_CC_FILE ] && pcp_lms_ccview
 #----------------------------------------------------------------------------------------
-
 
 pcp_footer
 [ $MODE -ge $MODE_NORMAL ] && pcp_mode

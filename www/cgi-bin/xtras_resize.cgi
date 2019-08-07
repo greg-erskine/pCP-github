@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-14
+# Version: 6.0.0 2019-08-07
 
 . pcp-functions
 
@@ -179,9 +179,9 @@ case "$SUBMIT" in
 		echo '        <legend>Resize partition 2 ('$P1_NAME')</legend>'
 		echo '          <form name="auto" action="'$0'" method="get">'
 		echo '            <table class="bggrey percent100">'
-		#========================================================================================
+		#================================================================================
 		# Resize partition 2 - PCP_ROOT
-		#----------------------------------------------------------------------------------------
+		#--------------------------------------------------------------------------------
 		if [ $SDVALID -eq 0 ]; then
 			if [ $AVAILABLE_SPACE_MB -gt 100 ]; then
 				echo '              <tr class="'$ROWSHADE'">'
@@ -239,7 +239,7 @@ case "$SUBMIT" in
 			echo '                </td>'
 			echo '              </tr>'
 		fi
-		#----------------------------------------------------------------------------------------
+		#--------------------------------------------------------------------------------
 		echo '            </table>'
 		echo '          </form>'
 		echo '        </fieldset>'
@@ -248,10 +248,10 @@ case "$SUBMIT" in
 		echo '  </tr>'
 		echo '</table>'
 
-		#========================================================================================
-		# Add partition 3 - PCP_DATA - DEVELOPER
-		#----------------------------------------------------------------------------------------
-		if [ $MODE -ge $MODE_DEVELOPER ]; then
+		#================================================================================
+		# Add partition 3 - PCP_DATA - BETA
+		#--------------------------------------------------------------------------------
+		if [ $MODE -ge $MODE_BETA ]; then
 			pcp_start_row_shade
 			pcp_incr_id
 			echo '<table class="bggrey">'
@@ -272,7 +272,7 @@ case "$SUBMIT" in
 			echo '                      <li>This operation will add an ext4 formatted partition 3, starting at the end of partition 2 and filling up the rest of the '$PHYSDEV'.</li>'
 			echo '                      <li>It is more reliable to store your data on a separate USB stick or HDD.</li>'
 			echo '                      <li>Once partition 3 is added, it will be very difficult to increase the size of partition 2.</li>'
-			echo '                      <li>Use [LMS] > "Pick from the following detected USB disks to mount" to mount partition.</li>'
+			echo '                      <li>Use [LMS] > <a href="lms.cgi#partmount">"Pick from the following detected USB disks to mount"</a> to mount partition.</li>'
 			echo '                    </ul>'
 			echo '                  </div>'
 			echo '                </td>'
@@ -304,26 +304,29 @@ case "$SUBMIT" in
 			echo '  </tr>'
 			echo '</table>'
 		fi
-		#========================================================================================
-		# Create button if partition 3 mounted
-		#----------------------------------------------------------------------------------------
-		if [ $MODE -ge $MODE_DEVELOPER ]; then
-			pcp_table_top "Create directories on partition 3 ($P3_NAME)"
-			if mount | grep "$DATADEV" >/dev/null 2>&1; then
-				echo '                    <form name="create" action="'$0'" method="get">'
-				echo '                      <input type="submit" name="SUBMIT" value="Create">'
-				echo '                      &nbsp;&nbsp;Click [Create] to create default directories on partition 3.'
-				echo '                    </form>'
-			else
-				echo '                    <p>'$MOUNTED'<b>WARNING:</b> Partition 3 not mounted.</p>'
-				echo '                    <p>Use [LMS] > "Pick from the following detected USB disks to mount" to mount partition.</p>'
+
+		#================================================================================
+		# Create default directories button if partition 3 mounted
+		#--------------------------------------------------------------------------------
+		if [ $MODE -ge $MODE_BETA ]; then
+			if [ "$P3_NAME" = "PCP_DATA" ]; then
+				pcp_table_top "Create directories on partition 3 ($P3_NAME)"
+				if mount | grep "$DATADEV" >/dev/null 2>&1; then
+					echo '                    <form name="create" action="'$0'" method="get">'
+					echo '                      <input type="submit" name="SUBMIT" value="Create">'
+					echo '                      &nbsp;&nbsp;Click [Create] to create default directories on partition 3.'
+					echo '                    </form>'
+				else
+					echo '                    <p>'$MOUNTED'<b>WARNING:</b> Partition 3 not mounted.</p>'
+					echo '                    <p>Use [LMS] > <a href="lms.cgi#partmount">"Pick from the following detected USB disks to mount"</a> to mount partition.</p>'
+				fi
+				pcp_table_end
 			fi
-			pcp_table_end
 		fi
 
-		#========================================================================================
+		#================================================================================
 		# Partition information
-		#----------------------------------------------------------------------------------------
+		#--------------------------------------------------------------------------------
 		pcp_table_top "Current mounted partition information"
 		pcp_textarea_inform "none" "df -h | grep -E \"Filesystem|mnt\" | tee -a $LOG" 40
 		pcp_table_middle
@@ -338,37 +341,29 @@ esac
 # Debug information
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	pcp_table_top "/opt/bootsync.sh"
 	echo '<!-- Start of debug info -->'
+	pcp_table_top "/opt/bootsync.sh"
 	pcp_textarea_inform "none" "cat /opt/bootsync.sh" "150"
-	echo '<!-- End of debug info -->'
 	pcp_table_end
 
 	pcp_table_top "${TCEMNT}/tce/pcp_resize.log"
-	echo '<!-- Start of debug info -->'
 	pcp_textarea_inform "none" "cat ${TCEMNT}/tce/pcp_resize.log" "250"
-	echo '<!-- End of debug info -->'
 	pcp_table_end
 
 	pcp_table_top "tune2fs -l $BOOTDEV"
-	echo '<!-- Start of debug info -->'
 	pcp_textarea_inform "none" "tune2fs -l $BOOTDEV" "150"
-	echo '<!-- End of debug info -->'
 	pcp_table_end
 
 	pcp_table_top "tune2fs -l $ROOTDEV"
-	echo '<!-- Start of debug info -->'
 	pcp_textarea_inform "none" "tune2fs -l $ROOTDEV" "150"
-	echo '<!-- End of debug info -->'
 	pcp_table_end
 
 	if [ $NUM_OF_PARTITIONS -gt 2 ]; then
 		pcp_table_top "tune2fs -l $DATADEV"
-		echo '<!-- Start of debug info -->'
 		pcp_textarea_inform "none" "tune2fs -l $DATADEV" "150"
-		echo '<!-- End of debug info -->'
 		pcp_table_end
 	fi
+	echo '<!-- End of debug info -->'
 fi
 #----------------------------------------------------------------------------------------
 
