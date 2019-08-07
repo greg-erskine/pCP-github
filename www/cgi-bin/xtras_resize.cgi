@@ -176,7 +176,7 @@ case "$SUBMIT" in
 		echo '    <td>'
 		echo '      <div class="row">'
 		echo '        <fieldset>'
-		echo '        <legend>Resize partition 2 ('$P1_NAME')</legend>'
+		echo '        <legend>Resize partition 2 ('$P2_NAME')</legend>'
 		echo '          <form name="auto" action="'$0'" method="get">'
 		echo '            <table class="bggrey percent100">'
 		#================================================================================
