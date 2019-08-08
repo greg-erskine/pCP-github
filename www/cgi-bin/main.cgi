@@ -1,13 +1,12 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-27
+# Version: 6.0.0 2019-08-08
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "Main Page" "SBP"
 
-pcp_running_script
 pcp_httpd_query_string
 
 pcp_picoreplayers_toolbar
@@ -67,7 +66,7 @@ if [ "$ACTION" = "shutdown" ]; then
 fi
 
 #========================================================================================
-# Padding <=== GE Remove this function
+# Padding
 #----------------------------------------------------------------------------------------
 pcp_main_padding() {
 	pcp_toggle_row_shade
@@ -87,6 +86,7 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Main piCorePlayer operations</legend>'
 echo '          <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
 
 #------------------------------------Squeezelite/Shairport Indication--------------------
 pcp_main_squeezelite_indication() {
@@ -126,6 +126,7 @@ pcp_main_squeezelite_indication() {
 	echo '            </tr>'
 }
 pcp_main_squeezelite_indication && pcp_main_padding
+#----------------------------------------------------------------------------------------
 
 #------------------------------------LMS Indication--------------------------------------
 pcp_main_lms_indication() {
@@ -167,8 +168,8 @@ pcp_main_shairport_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	pcp_incr_id
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
