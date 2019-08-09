@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-31
+# Version: 6.0.0 2019-08-09
 
 set -f
 
@@ -24,13 +24,13 @@ echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>pCP System Tweaks</legend>'
-
-#----------------------------------------------Hostname---------------------------------
+#----------------------------------------------Hostname----------------------------------
 pcp_tweaks_hostname() {
 	echo '          <form name="squeeze" action="writetohost.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Host name</td>'
 	echo '                <td class="column210">'
@@ -56,12 +56,14 @@ pcp_tweaks_hostname() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'" >'
-	echo '                <td colspan=3>'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -72,8 +74,9 @@ pcp_tweaks_hostname() {
 pcp_tweaks_timezone() {
 	echo '          <form name="tzone" action="writetotimezone.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Timezone</td>'
 	echo '                <td class="column210">'
@@ -101,12 +104,14 @@ pcp_tweaks_timezone() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -115,15 +120,16 @@ pcp_tweaks_timezone() {
 
 #----------------------------------------------Player Tabs-------------------------------
 pcp_tweaks_playertabs() {
+	echo '          <form name="playertabs" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	case "$PLAYERTABS" in
 		yes) PLAYERTABSyes="checked" ;;
 		no)  PLAYERTABSno="checked" ;;
 	esac
 
-	echo '          <form name="playertabs" action="writetoconfig.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>piCorePlayer Tabs</p>'
@@ -141,6 +147,7 @@ pcp_tweaks_playertabs() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -148,6 +155,7 @@ pcp_tweaks_playertabs() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -156,15 +164,16 @@ pcp_tweaks_playertabs() {
 
 #----------------------------------------------LMS Control Toolbar-----------------------
 pcp_tweaks_lmscontrols() {
+	echo '          <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	case "$LMSCONTROLS" in
 		yes) LMSCONTROLSyes="checked" ;;
 		no) LMSCONTROLSno="checked" ;;
 	esac
 
-	echo '          <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>LMS Controls Toolbar</p>'
@@ -182,6 +191,7 @@ pcp_tweaks_lmscontrols() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -189,6 +199,7 @@ pcp_tweaks_lmscontrols() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -197,15 +208,16 @@ pcp_tweaks_lmscontrols() {
 
 #----------------------------------------------HDMI Power--------------------------------
 pcp_tweaks_hdmipower() {
+	echo '          <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	case "$HDMIPOWER" in
 		on) HDMIPOWERon="checked" ;;
 		off) HDMIPOWERoff="checked" ;;
 	esac
 
-	echo '          <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>HDMI power</p>'
@@ -225,12 +237,14 @@ pcp_tweaks_hdmipower() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -241,8 +255,9 @@ pcp_tweaks_hdmipower() {
 pcp_tweaks_lmswebport() {
 	echo '          <form name="lmswebport" action="writetoconfig.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>LMS Web Port</p>'
@@ -268,6 +283,7 @@ pcp_tweaks_lmswebport() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -275,6 +291,7 @@ pcp_tweaks_lmswebport() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -285,8 +302,9 @@ pcp_tweaks_lmswebport() {
 pcp_tweaks_internet_check_ip() {
 	echo '          <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Internet check IP</p>'
@@ -312,11 +330,12 @@ pcp_tweaks_internet_check_ip() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	if [ $DEBUG -eq 1 ]; then
 		echo '                <td class="column150">'
+		echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 		echo '                  <input type="submit" name="SUBMIT" value="Save">'
 		echo '                </td>'
 
@@ -334,11 +353,12 @@ pcp_tweaks_internet_check_ip() {
 		echo '                </td>'
 	else
 		echo '                <td colspan="3">'
+		echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 		echo '                  <input type="submit" name="SUBMIT" value="Save">'
 		echo '                </td>'
 	fi
-
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -347,15 +367,16 @@ pcp_tweaks_internet_check_ip() {
 
 #--------------------------------------rotdash-------------------------------------------
 pcp_tweaks_rotdash() {
+	echo '          <form name="rotdash" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	case "$ROTDASH" in
 		yes) ROTDASHyes="checked" ;;
 		no) ROTDASHno="checked" ;;
 	esac
 
-	echo '          <form name="rotdash" action="writetoconfig.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Replace rotating dash</p>'
@@ -374,6 +395,8 @@ pcp_tweaks_rotdash() {
 	echo '                    <p><b>Note:</b> Requires a reboot to activate.</p>'
 	echo '                  </div>'
 	echo '                </td>'
+	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -381,6 +404,7 @@ pcp_tweaks_rotdash() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -409,19 +433,23 @@ fi
 pcp_tweaks_governor() {
 	echo '          <form name="governor" action= "writetooverclock.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>CPU Governor</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="CPUGOVERNOR">'
-							  for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors); do
-								  SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
-								  [ "$GOV" = "$SCALINGGOVERNOR" ] && SEL="selected" || SEL=""
-								  echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
-							  done
+
+	                          for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)
+	                          do
+	                            SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+	                            [ "$GOV" = "$SCALINGGOVERNOR" ] && SEL="selected" || SEL=""
+	                            echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
+	                          done
+
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
@@ -441,6 +469,7 @@ pcp_tweaks_governor() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -448,29 +477,32 @@ pcp_tweaks_governor() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_governor
+#----------------------------------------------------------------------------------------
 
 #---------------------------------------Overclock----------------------------------------
 pcp_tweaks_overclock() {
+	# Only works for Raspberry Pi Model 1, disable for the others.
+	case "$(pcp_rpi_type)" in
+		1) DISABLED="" ;;
+		*) DISABLED="disabled" ;;
+	esac
+
+	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	case "$OVERCLOCK" in
 		NONE) OCnone="selected" ;;
 		MILD) OCmild="selected" ;;
 		MODERATE) OCmoderate="selected" ;;
 	esac
 
-	# Only works for Raspberry Pi Model 1, disable for the others.
-	case "$(pcp_rpi_type)" in
-		1)     DISABLED="" ;;
-		0|2|3) DISABLED="disabled" ;;
-	esac
-
-	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Overclock</p>'
@@ -483,7 +515,7 @@ pcp_tweaks_overclock() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Change Raspberry Pi overclocking&nbsp;&nbsp;'
+	echo '                  <p>Change Raspberry Pi Model 1 overclocking&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
@@ -498,6 +530,7 @@ pcp_tweaks_overclock() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -508,12 +541,13 @@ pcp_tweaks_overclock() {
 	echo '                  <input class="large16" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Use Advanced Overclocking page for RPi Zero/2/3</p>'
+	echo '                  <p>Advanced Overclocking page.</p>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" OVERCLOCK OCnone OCmild OCmoderate
@@ -527,8 +561,9 @@ pcp_tweaks_overclock() {
 pcp_tweaks_cpuisol() {
 	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>CPU Isolation</p>'
@@ -554,6 +589,7 @@ pcp_tweaks_cpuisol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -561,9 +597,10 @@ pcp_tweaks_cpuisol() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" CPUISOL
@@ -577,8 +614,9 @@ pcp_tweaks_cpuisol() {
 pcp_tweaks_sqlite_affinity(){
 	echo '          <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Squeezelite CPU</p>'
@@ -602,6 +640,7 @@ pcp_tweaks_sqlite_affinity(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
@@ -625,6 +664,7 @@ pcp_tweaks_sqlite_affinity(){
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -632,9 +672,10 @@ pcp_tweaks_sqlite_affinity(){
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" SQLAFFINITY SQLOUTAFFINITY
@@ -673,7 +714,7 @@ pcp_tweaks_wol() {
 		[ "$WOL_LMSMACADDRESS" = "" ] && WOL_LMSMACADDRESS=$4
 	fi
 
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '<form name="wol" action="writetoconfig.cgi" method="get">'
 	echo '  <table class="bggrey">'
 	echo '    <tr>'
@@ -682,9 +723,9 @@ pcp_tweaks_wol() {
 	echo '          <fieldset>'
 	echo '            <legend>Wake-on-LAN (WOL)</legend>'
 	echo '            <table class="bggrey percent100">'
-	#----------------------------------WOL---------------------------------------------------
-	pcp_incr_id
+	#----------------------------------WOL-----------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>WOL</p>'
@@ -702,9 +743,9 @@ pcp_tweaks_wol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------LMS NIC-----------------------------------------------
-	pcp_incr_id
+	#----------------------------------LMS NIC-------------------------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>LMS NIC</p>'
@@ -736,9 +777,9 @@ pcp_tweaks_wol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------LMS MAC address---------------------------------------
-	pcp_incr_id
+	#----------------------------------LMS MAC address-----------------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>LMS MAC address</p>'
@@ -765,7 +806,7 @@ pcp_tweaks_wol() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#----------------------------------Submit button-----------------------------------------
+	#----------------------------------Submit button-------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -773,8 +814,8 @@ pcp_tweaks_wol() {
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
-	#----------------------------------------------------------------------------------------
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </td>'
@@ -789,36 +830,27 @@ pcp_tweaks_wol() {
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_auto_start() {
-	# Function to check the A_S_LMS radio button according to config file
-	case "$A_S_LMS" in
-		Enabled) A_S_LMS_Y="checked" ;;
-		Disabled) A_S_LMS_N="checked" ;;
-	esac
-
-	# Function to check the A_S_FAV radio button according to config file
-	case "$A_S_FAV" in
-		Enabled) A_S_FAV_Y="checked" ;;
-		Disabled) A_S_FAV_N="checked" ;;
-	esac
-
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Auto start tweaks</legend>'
-
 	echo '          <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#---------------------------------Auto start favorite--------------------------------
+	case "$A_S_FAV" in
+		Enabled) A_S_FAV_Y="checked" ;;
+		Disabled) A_S_FAV_N="checked" ;;
+	esac
+
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Auto start favorite</td>'
 	echo '                <td class="column420">'
 	echo '                  <select class="large30" name="AUTOSTARTFAV">'
-
-	pcp_lms_favorites_list select
-
+	                          pcp_lms_favorites_list select
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
@@ -826,6 +858,7 @@ pcp_tweaks_auto_start() {
 	echo '                  <input class="small1" type="radio" name="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                </td>'
@@ -850,7 +883,7 @@ pcp_tweaks_auto_start() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -858,12 +891,12 @@ pcp_tweaks_auto_start() {
 		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
 		echo '    <p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'</p>'
 		          pcp_debug_variables "html" AUTOSTARTFAV
-				  pcp_textarea_inform FAVLIST "cat /tmp/json_list" 50
+		          pcp_textarea_inform FAVLIST "cat /tmp/json_list" 50
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -874,17 +907,21 @@ pcp_tweaks_auto_start() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
-	#----------------------------------------------Autostart LMS-----------------------------
-	# Decode variables using httpd, no quotes
-	AUTOSTARTLMS=`sudo $HTTPD -d $AUTOSTARTLMS`
-
+	#---------------------------------Autostart LMS--------------------------------------
 	echo '          <form name="autostartlms" action="writetoautostart.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
+	AUTOSTARTLMS=`sudo $HTTPD -d $AUTOSTARTLMS`
+	case "$A_S_LMS" in
+		Enabled) A_S_LMS_Y="checked" ;;
+		Disabled) A_S_LMS_N="checked" ;;
+	esac
+
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Auto start LMS</td>'
 	echo '                <td class="column420">'
@@ -922,6 +959,7 @@ pcp_tweaks_auto_start() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -932,16 +970,16 @@ pcp_tweaks_auto_start() {
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" AUTOSTARTLMS A_S_LMS_Y A_S_LMS_N
 		echo '<!-- End of debug info -->'
 	fi
-
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -953,19 +991,6 @@ pcp_tweaks_auto_start() {
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
-# Logic to activate/deactivate buttons depending upon whether LMS is installed or not
-if [ -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-	JLDISABLED=""
-else
-	JLDISABLED="disabled"
-fi
-
-# Function to check the Jivelite radio button according to config file
-case "$JIVELITE" in
-	yes) JIVEyes="checked" ;;
-	no) JIVEno="checked" ;;
-esac
-
 if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
@@ -975,13 +1000,14 @@ if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '          <legend>Jivelite Setup</legend>'
 fi
 
-#---------------------------------------Jivelite-----------------------------------------
+#----------------------------------------------------------------------------------------
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
 	echo '          <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
@@ -1031,8 +1057,9 @@ pcp_tweaks_install_jivelite() {
 		echo '              </td>'
 	fi
 	echo '            </tr>'
+	#------------------------------------------------------------------------------------
 	echo '          </table>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
@@ -1041,12 +1068,24 @@ pcp_tweaks_install_jivelite() {
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
 
-#-----------------------------------Enable/disable autostart of Jivelite----------------------
+#-----------------------------Enable/disable autostart of Jivelite-----------------------
 pcp_tweaks_enable_jivelite() {
-	pcp_incr_id
-	pcp_toggle_row_shade
 	echo '          <form name="jivelite2" action="writetojivelite.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
+	if [ -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
+		JLDISABLED=""
+	else
+		JLDISABLED="disabled"
+	fi
+
+	case "$JIVELITE" in
+		yes) JIVEyes="checked" ;;
+		no) JIVEno="checked" ;;
+	esac
+
+	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <input type="hidden" name="OPTION" value="JIVELITE">'
@@ -1067,6 +1106,7 @@ pcp_tweaks_enable_jivelite() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 }
@@ -1077,13 +1117,11 @@ pcp_tweaks_enable_jivelite() {
 # Function to download/install/delete Jivelite VU Meters
 #----------------------------------------------------------------------------------------
 pcp_tweaks_vumeter() {
-
-	LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
-
 	echo '          <form name="vumeter" action= "writetojivelite.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Jivelite VU Meter</p>'
@@ -1091,6 +1129,7 @@ pcp_tweaks_vumeter() {
 	echo '                <td class="column210">'
 	echo '                  <select class="large16" name="VUMETER">'
 
+	                          LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
 	                          VUMETERS=$( ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
 	                          for i in $VUMETERS
 	                          do
@@ -1112,6 +1151,7 @@ pcp_tweaks_vumeter() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
@@ -1120,34 +1160,39 @@ pcp_tweaks_vumeter() {
 	echo '                  <input type="submit" name="SUBMIT" value="Download">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 
 	if [ $DEBUG -eq 1 ]; then
-		#========================================================================================
+		#================================================================================
 		# Display debug information
-		#----------------------------------------------------------------------------------------
+		#--------------------------------------------------------------------------------
 		echo '<!-- Start of debug info -->'
+		echo '           <table class="bggrey percent100">'
+		#--------------------------------------------------------------------------------
 		pcp_start_row_shade
 		pcp_toggle_row_shade
-		echo '           <table class="bggrey percent100">'
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
 		echo '                 <p class="debug">[ DEBUG ] Loop mounted extensions</p>'
 		echo '               </td>'
 		echo '             </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
 		                       pcp_textarea_inform "none" "df | grep /dev/loop " 200
 		echo '               </td>'
 		echo '             </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
 		echo '                 <p class="debug">[ DEBUG ] Installed extensions</p>'
 		echo '               </td>'
 		echo '             </tr>'
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
 		echo '             <tr class="'$ROWSHADE'">'
 		echo '               <td>'
@@ -1155,6 +1200,7 @@ pcp_tweaks_vumeter() {
 		                       pcp_textarea_inform "none" "cat /tmp/installed.lst" 100
 		echo '               </td>'
 		echo '             </tr>'
+		#--------------------------------------------------------------------------------
 		echo '           </table>'
 		pcp_debug_variables "html" LOADED_VU_METER DISPLAY PACKAGEDIR VUMETERS
 		echo '<!-- End of debug info -->'
@@ -1165,15 +1211,16 @@ pcp_tweaks_vumeter() {
 
 #---------------------------------------Screen rotation----------------------------------
 pcp_tweaks_screenrotate() {
+	echo '          <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
 	case "$SCREENROTATE" in
 		0|no) SCREEN0="checked" ;;
 		180|yes) SCREEN180="checked" ;;
 	esac
 
-	echo '          <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
-	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <input type="submit" name="SUBMIT" value="Set Rotation">'
@@ -1197,9 +1244,10 @@ pcp_tweaks_screenrotate() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" SCREENROTATE SCREEN0 SCREEN180
@@ -1215,8 +1263,9 @@ pcp_tweaks_screenrotate() {
 pcp_tweaks_screensize() {
 	echo '          <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column120">'
 	echo '                  <input type="submit" name="SUBMIT" value="Set Size">'
@@ -1237,9 +1286,10 @@ pcp_tweaks_screensize() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" JL_SCREEN_WIDTH JL_SCREEN_HEIGHT
@@ -1262,34 +1312,24 @@ fi
 # IR Remote table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_lirc() {
-	pgrep lircd > /dev/null && IR_RUN=0
-
-	if [ $IR_RUN -eq 0 ]; then
-		pcp_green_tick "running"
-	else
-		pcp_red_cross "not running"
-	fi
-
-	#----------------------------------------------------------------------------------------
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>IR remote control</legend>'
-
-	#----------------------------------------------------------------------------------------
-	# Function to check the IR_LIRC radio button according to config file
-	#----------------------------------------------------------------------------------------
-	case "$IR_LIRC" in
-		yes) IR_LIRC_Y="checked" ;;
-		no) IR_LIRC_N="checked" ;;
-	esac
-
 	echo '          <form name="LIRC" action="lirc.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
+	pgrep lircd > /dev/null && IR_RUN=0
+	if [ $IR_RUN -eq 0 ]; then
+		pcp_green_tick "running"
+	else
+		pcp_red_cross "not running"
+	fi
+
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>IR remote control</p>'
@@ -1303,13 +1343,16 @@ pcp_tweaks_lirc() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>LIRC will not automatically start if jivelite is installed.</p>'
-	echo '                    <p>Go to IR page to...</p>'
-	echo '                    <p>Install/remove LIRC.</p>'
-	echo '                    <p>Configure LIRC.</p>'
-	echo '                    <p>Change GPIO number.</p>'
+	echo '                    <p>Go to IR page to:</p>'
+	echo '                    <ul>'
+	echo '                      <li>Install/remove LIRC.</li>'
+	echo '                      <li>Configure LIRC.</li>'
+	echo '                      <li>Change GPIO number.</li>'
+	echo '                    </ul>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	if [ "$JIVELITE" = "yes" ]; then
 		if [ $IR_KEYTABLES = "yes" ]; then
 			pcp_green_tick "loaded"
@@ -1317,8 +1360,8 @@ pcp_tweaks_lirc() {
 			pcp_red_cross "not loaded"
 		fi
 
-		pcp_incr_id
 		pcp_toggle_row_shade
+		pcp_incr_id
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column150">'
 		echo '                  <p>IR remote control</p>'
@@ -1339,15 +1382,16 @@ pcp_tweaks_lirc() {
 		echo '                </td>'
 		echo '              </tr>'
 	fi
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="IR page">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
-	#----------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -1361,28 +1405,6 @@ pcp_tweaks_lirc() {
 # Poweroff/Shutdown Table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_poweroff() {
-	case $GPIOPOWEROFF in
-		yes) GPIOPOWEROFF_yes="checked";;
-		no)  GPIOPOWEROFF_no="checked";;
-	esac
-	case $GPIOPOWEROFF_HI in
-		yes) GPIOPOWEROFF_HI_yes="checked";;
-		no)  GPIOPOWEROFF_HI_no="checked";;
-	esac
-	case $GPIOSHUTDOWN in
-		yes) GPIOSHUTDOWN_yes="checked";;
-		no)  GPIOSHUTDOWN_no="checked";;
-	esac
-	case $GPIOSHUTDOWN_HI in
-		yes) GPIOSHUTDOWN_HI_yes="checked";;
-		no)  GPIOSHUTDOWN_HI_no="checked";;
-	esac
-	case $GPIOSHUTDOWN_PU in
-		up)   GPIOSHUTDOWN_PU_up="checked";;
-		down) GPIOSHUTDOWN_PU_down="checked";;
-		off)  GPIOSHUTDOWN_PU_off="checked";;
-	esac
-
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1390,8 +1412,9 @@ pcp_tweaks_poweroff() {
 	echo '        <fieldset>'
 	echo '          <legend>Poweroff/Shutdown Overlays</legend>'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	echo '                  <p>Poweroff GPIO&nbsp;&nbsp;'
@@ -1403,8 +1426,9 @@ pcp_tweaks_poweroff() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td >'
 	echo '                  <p>Shutdown GPIO&nbsp;&nbsp;'
@@ -1417,11 +1441,23 @@ pcp_tweaks_poweroff() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
-	pcp_incr_id
-	pcp_toggle_row_shade
+	#------------------------------------------------------------------------------------
 	echo '            <form name="poweroff" action="writetoconfig.cgi" method="get">'
 	echo '              <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
+	case $GPIOPOWEROFF in
+		yes) GPIOPOWEROFF_yes="checked";;
+		no)  GPIOPOWEROFF_no="checked";;
+	esac
+	case $GPIOPOWEROFF_HI in
+		yes) GPIOPOWEROFF_HI_yes="checked";;
+		no)  GPIOPOWEROFF_HI_no="checked";;
+	esac
+
+	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td class="column150">'
 	echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -1446,12 +1482,29 @@ pcp_tweaks_poweroff() {
 	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>Active Low'
 	echo '                  </td>'
 	echo '                </tr>'
+	#------------------------------------------------------------------------------------
 	echo '              </table>'
 	echo '            </form>'
-	pcp_incr_id
-	pcp_toggle_row_shade
+	#------------------------------------------------------------------------------------
 	echo '            <form name="shutdown" action="writetoconfig.cgi" method="get">'
 	echo '              <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
+	case $GPIOSHUTDOWN in
+		yes) GPIOSHUTDOWN_yes="checked";;
+		no)  GPIOSHUTDOWN_no="checked";;
+	esac
+	case $GPIOSHUTDOWN_HI in
+		yes) GPIOSHUTDOWN_HI_yes="checked";;
+		no)  GPIOSHUTDOWN_HI_no="checked";;
+	esac
+	case $GPIOSHUTDOWN_PU in
+		up)   GPIOSHUTDOWN_PU_up="checked";;
+		down) GPIOSHUTDOWN_PU_down="checked";;
+		off)  GPIOSHUTDOWN_PU_off="checked";;
+	esac
+
+	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td class="column150">'
 	echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -1481,13 +1534,16 @@ pcp_tweaks_poweroff() {
 	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="off" '$GPIOSHUTDOWN_PU_off'>Off'
 	echo '                  </td>'
 	echo '                </tr>'
+	#------------------------------------------------------------------------------------
 	echo '              </table>'
 	echo '            </form>'
-	if [ "$GPIOSHUTDOWN" == "yes" -a ! -f /usr/local/bin/shutdown-monitor ]; then
+	#------------------------------------------------------------------------------------
+	if [ "$GPIOSHUTDOWN" = "yes" -a ! -f /usr/local/bin/shutdown-monitor ]; then
 		echo '            <form name="shutdown-monitor" action="writetoconfig.cgi" method="get">'
 		echo '              <table class="bggrey percent100">'
-		pcp_incr_id
+		#--------------------------------------------------------------------------------
 		pcp_toggle_row_shade
+		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150">'
 		echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -1503,10 +1559,11 @@ pcp_tweaks_poweroff() {
 		echo '                    </div>'
 		echo '                  </td>'
 		echo '                </tr>'
+		#--------------------------------------------------------------------------------
 		echo '              </table>'
 		echo '            </form>'
 	fi
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -1519,29 +1576,6 @@ pcp_tweaks_poweroff() {
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
-	# Function to check the SQUEEZELITE radio button according to config file
-	case "$SQUEEZELITE" in
-		yes) SQUEEZELITEyes="checked" ;;
-		no) SQUEEZELITEno="checked" ;;
-	esac
-
-	# Function to check the SHAIRPORT radio button according to config file
-	case "$SHAIRPORT" in
-		yes) SHAIRPORTyes="checked" ;;
-		no) SHAIRPORTno="checked" ;;
-	esac
-
-	# Function to check the ALSA-EQ radio button according to config file
-	case "$ALSAeq" in
-		yes) ALSAeqyes="checked" ;;
-		no) ALSAeqno="checked" ;;
-	esac
-	# Function to check the ALSA-EQ radio button according to config file
-	case "$STREAMER" in
-		yes) STREAMERyes="checked" ;;
-		no) STREAMERno="checked" ;;
-	esac
-
 	echo '<table id="Audio" class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1550,10 +1584,14 @@ pcp_tweaks_audio_tweaks() {
 	echo '        <legend>Audio tweaks</legend>'
 	echo '          <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
+	#-------------------------------------------Squeezelite------------------------------
+	case "$SQUEEZELITE" in
+		yes) SQUEEZELITEyes="checked" ;;
+		no) SQUEEZELITEno="checked" ;;
+	esac
 
-	#-------------------------------------------Squeezelite--------------------------------
-	pcp_incr_id
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Squeezelite</p>'
@@ -1572,20 +1610,24 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
+		          pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
 	#-------------------------------------------Shairport--------------------------------
-	pcp_incr_id
+	case "$SHAIRPORT" in
+		yes) SHAIRPORTyes="checked" ;;
+		no) SHAIRPORTno="checked" ;;
+	esac
+
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Shairport-sync</p>'
@@ -1602,7 +1644,6 @@ pcp_tweaks_audio_tweaks() {
 		echo '                  <p>'
 	fi
 
-
 	echo '                  <p>Use Shairport-sync to stream from iDevices&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -1611,7 +1652,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -1621,10 +1662,14 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
+	#-------------------------------------ALSA Equalizer---------------------------------
+	case "$ALSAeq" in
+		yes) ALSAeqyes="checked" ;;
+		no) ALSAeqno="checked" ;;
+	esac
 
-	#-------------------------------------ALSA Equalizer-------------------------------------
-	pcp_incr_id
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>ALSA 10 band Equalizer</p>'
@@ -1655,7 +1700,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -1665,10 +1710,14 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
+	#--------------------------------------PCP Streamer----------------------------------
+	case "$STREAMER" in
+		yes) STREAMERyes="checked" ;;
+		no) STREAMERno="checked" ;;
+	esac
 
-	#--------------------------------------PCP Streamer--------------------------------------
-	pcp_incr_id
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Streamer for Audio Input</p>'
@@ -1679,8 +1728,8 @@ pcp_tweaks_audio_tweaks() {
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>'
-	if [ "$STREAMER" == "no" ]; then
-		echo '                    Run streaming server for audio line-in or bluetooth input.&nbsp;&nbsp;'
+	if [ "$STREAMER" = "no" ]; then
+		echo '                    Run streaming server for audio line-in or bluetooth input&nbsp;&nbsp;'
 	else
 		echo '                     <a id="stream_url"></a>'
 	fi
@@ -1696,11 +1745,12 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 right">'
 	echo '                  <p>Input Device</p>'
 	echo '                </td>'
-	pcp_incr_id
 	echo '                <td class="column210">'
 	echo '                  <input id="input'$ID'"'
 	echo '                         class="large15"'
@@ -1728,26 +1778,24 @@ pcp_tweaks_audio_tweaks() {
 
 	echo '                    </ul>'
 	echo '                  </div>'
-
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	echo '              <script>'
-	if [ "$STREAMER" == "yes" ]; then
+	if [ "$STREAMER" = "yes" ]; then
 		echo '                document.getElementById("stream_url").innerHTML = "Streamer installed. Basic url: <a href=http://" + window.location.hostname + ":9100/S16_LE/44100/2/F>http://" + window.location.hostname + ":9100/S16_LE/44100/2/F</a>\u00A0\u00A0";'
 	fi
 	echo '                document.getElementById("stream_usage").innerHTML = "http://" + window.location.hostname + ":9100/&lt;format&gt;/&lt;rate&gt;/&lt;channels&gt;/&lt;F-flac or M-mp3&gt;";'
 	echo '                document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
 	echo '              </script>'
-
-	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
@@ -1763,30 +1811,6 @@ pcp_tweaks_audio_tweaks() {
 # USB audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_usb_audio_tweaks() {
-
-	# Function to check the CMD radio button according to config file
-	case "$CMD" in
-		Default) CMDdefault="checked" ;;
-		Slow) CMDslow="checked" ;;
-	esac
-
-	# Function to check the FSM radio button according to config file
-	case "$FSM" in
-		Default) FSMdefault="checked" ;;
-		Disabled) FSMdisabled="checked" ;;
-	esac
-
-	# Function to select the FIQ-split radio button according to config file
-	case "$FIQ" in
-		0x1) selected1="selected" ;;
-		0x2) selected2="selected" ;;
-		0x3) selected3="selected" ;;
-		0x4) selected4="selected" ;;
-		0x7) selected5="selected" ;;
-		0x8) selected6="selected" ;;
-		0xF) selected7="selected" ;;
-	esac
-
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1795,9 +1819,14 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '          <legend>USB Audio tweaks</legend>'
 	echo '          <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	#-------------------------------------------dwc_otg.speed--------------------------------
-	pcp_incr_id
+	#-----------------------------------------dwc_otg.speed------------------------------
+	case "$CMD" in
+		Default) CMDdefault="checked" ;;
+		Slow) CMDslow="checked" ;;
+	esac
+
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>OTG-Speed</p>'
@@ -1817,7 +1846,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -1827,10 +1856,14 @@ pcp_tweaks_usb_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
 	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 ----------------
-	pcp_incr_id
+	case "$FSM" in
+		Default) FSMdefault="checked" ;;
+		Disabled) FSMdisabled="checked" ;;
+	esac
+
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>USB-FSM driver</p>'
@@ -1850,20 +1883,29 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		pcp_debug_variables "html" FSM FSMdefault FSMdisabled
+		          pcp_debug_variables "html" FSM FSMdefault FSMdisabled
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
+	#-----------------------------------FIQ-Split acceleration---------------------------
+	case "$FIQ" in
+		0x1) selected1="selected" ;;
+		0x2) selected2="selected" ;;
+		0x3) selected3="selected" ;;
+		0x4) selected4="selected" ;;
+		0x7) selected5="selected" ;;
+		0x8) selected6="selected" ;;
+		0xF) selected7="selected" ;;
+	esac
 
-	#-------------------------------------FIQ-Split acceleration-----------------------------
-	pcp_incr_id
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>FIQ-Split acceleration</p>'
@@ -1880,6 +1922,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>&nbsp;</p>'
@@ -1897,24 +1940,25 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 selected5 selected6 selected7
+		pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 \
+		                           selected5 selected6 selected7
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
@@ -1939,23 +1983,6 @@ pcp_tweaks_usb_audio_tweaks() {
 #
 #----------------------------------------------------------------------------------------
 pcp_tweaks_cron() {
-	case "$REBOOT" in
-		Enabled) REBOOT_Y="checked" ;;
-		Disabled) REBOOT_N="checked" ;;
-	esac
-
-	case "$RESTART" in
-		Enabled) RESTART_Y="checked" ;;
-		Disabled) RESTART_N="checked" ;;
-	esac
-
-	/etc/init.d/services/crond status >/dev/null 2>&1
-	if [ $? -eq 0 ]; then
-		pcp_green_tick " is running"
-	else
-		pcp_red_cross " is not running"
-	fi
-
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1965,25 +1992,37 @@ pcp_tweaks_cron() {
 	echo '          <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	#-------------------------------------crond indicator--------------------------------
-	pcp_incr_id
+	/etc/init.d/services/crond status >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		pcp_green_tick " is running"
+	else
+		pcp_red_cross " is not running"
+	fi
+
 	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column210 center">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '              </td>'
-	echo '              <td colspan="2">'
-	echo '                <p>crond is '$STATUS'&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = crond running.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = crond not running.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column210 center">'
+	echo '                  <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '                </td>'
+	echo '                <td colspan="2">'
+	echo '                  <p>crond is '$STATUS'&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <ul>'
+	echo '                      <li><span class="indicator_green">&#x2714;</span> = crond running.</li>'
+	echo '                      <li><span class="indicator_red">&#x2718;</span> = crond not running.</li>'
+	echo '                    </ul>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 	#-------------------------------------piCorePlayer reboot----------------------------
+	case "$REBOOT" in
+		Enabled) REBOOT_Y="checked" ;;
+		Disabled) REBOOT_N="checked" ;;
+	esac
+
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
@@ -2023,7 +2062,6 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '              </tr>'
 	#-------------------------------------Squeezelite restart----------------------------
-	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
@@ -2063,6 +2101,8 @@ pcp_tweaks_cron() {
 	echo '                  <input class="small1" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
 	echo '                  <p></p>'
@@ -2085,8 +2125,13 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '              </tr>'
 	#-------------------------------------Custom Cron command----------------------------
-	pcp_incr_id
+	case "$RESTART" in
+		Enabled) RESTART_Y="checked" ;;
+		Disabled) RESTART_N="checked" ;;
+	esac
+
 	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">Custom Cron command</td>'
 	echo '                <td colspan="2">'
@@ -2114,21 +2159,23 @@ pcp_tweaks_cron() {
 	#-------------------------------------Buttons----------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan=3>'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
 	[ $MODE -ge $MODE_BETA ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH CRON_COMMAND
+		pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N \
+		                           RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH CRON_COMMAND
 		echo '<!-- End of debug info -->'
 	fi
-
+	#------------------------------------------------------------------------------------
 	echo '          </form>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -2141,9 +2188,6 @@ pcp_tweaks_cron() {
 
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
-# Now done in javascript below,
-# Quotes and & are not allowed, until writetoautostart.cgi is modified or we split out usercommands to only deal with encoded strings
-
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -2152,7 +2196,7 @@ pcp_tweaks_user_commands() {
 	echo '          <fieldset>'
 	echo '            <legend>User commands</legend>'
 	echo '            <table class="bggrey percent100">'
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #1</td>'
@@ -2168,6 +2212,7 @@ pcp_tweaks_user_commands() {
 	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #2</td>'
@@ -2183,6 +2228,7 @@ pcp_tweaks_user_commands() {
 	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">User command #3</td>'
@@ -2198,6 +2244,7 @@ pcp_tweaks_user_commands() {
 	echo '                  >'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '              <script>'
 	echo '                 var cmd1 = "'$USER_COMMAND_1'";'
 	echo '                 var cmd2 = "'$USER_COMMAND_2'";'
@@ -2206,6 +2253,8 @@ pcp_tweaks_user_commands() {
 	echo '                 document.getElementById("USER_COMMAND_2").value = decodeURIComponent(cmd2.replace(/\+/g, "%20"));'
 	echo '                 document.getElementById("USER_COMMAND_3").value = decodeURIComponent(cmd3.replace(/\+/g, "%20"));'
 	echo '              </script>'
+	#------------------------------------------------------------------------------------
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150"></td>'
 	echo '                <td>'
@@ -2227,22 +2276,24 @@ pcp_tweaks_user_commands() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan=2>'
+	echo '                <td colspan="2">'
 	echo '                  <input type="hidden" name="AUTOSTART" value="CMD">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
-
+	#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
 		echo '<!-- End of debug info -->'
 	fi
-
+	#------------------------------------------------------------------------------------
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
