@@ -1,13 +1,12 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-26
+# Version: 6.0.0 2019-08-10
 
 . pcp-functions
 
 pcp_html_head "xtras copy2fs" "GE"
 
 pcp_banner
-pcp_running_script
 pcp_xtras
 pcp_httpd_query_string
 
@@ -27,12 +26,9 @@ case "$COPY2FS" in
 	;;
 esac
 
-[ -f ${TCEMNT}/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
-
 #========================================================================================
-# copy2fs form
+# copy2fs table
 #----------------------------------------------------------------------------------------
-pcp_incr_id
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
@@ -42,7 +38,10 @@ echo '          <fieldset>'
 echo '            <legend>copy2fs</legend>'
 echo '            <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
+[ -f ${TCEMNT}/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
+
 pcp_start_row_shade
+pcp_incr_id
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p>copy2fs flag set</p>'
@@ -65,7 +64,6 @@ pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td colspan="3">'
 echo '                  <input type="submit" name="SUBMIT" value="Save">'
-#echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
@@ -76,9 +74,10 @@ echo '      </form>'
 echo '    </td>'
 echo '  </tr>'
 echo '</table>'
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Mounted filesystems form
+# Mounted filesystems table
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -98,7 +97,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>Example: copy2fs not set.</b></p>'
+echo '                <p><b>Example: copy2fs not set</b></p>'
 echo '                <p>Note: There will be lots of loop mounted filesystems, one for each extension.</p>'
 echo '              </td>'
 echo '            </tr>'
@@ -124,7 +123,7 @@ echo '            </tr>'
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
-echo '                <p><b>Example: copy2fs set.</b></p>'
+echo '                <p><b>Example: copy2fs set</b></p>'
 echo '                <p>Note: There are no loop mounted filesystems.</p>'
 echo '              </td>'
 echo '            </tr>'
