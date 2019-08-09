@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-20
+# Version: 6.0.0 2019-08-09
 
 . pcp-functions
 
@@ -16,7 +16,7 @@ BAND=1
 PRESETS=0
 i=1
 
-#----------------------------------------------------------------------------------------
+#========================================================================================
 # Labels for equalizer bands
 #----------------------------------------------------------------------------------------
 LB1="31 Hz"
@@ -30,18 +30,6 @@ LB8="4 kHz"
 LB9="8 kHz"
 LB10="16 kHz"
 
-#========================================================================================
-# Routines
-#----------------------------------------------------------------------------------------
-pcp_load_equaliser() {
-	for VALUE in $RANGE
-	do
-		${SET_EQUAL}$BAND $VALUE >/dev/null 2>&1
-		BAND=$((BAND+1))
-	done
-}
-
-#----------------------------------------------------------------------------------------
 if [ -f /home/tc/.alsaequal.presets ]; then
 	PRESETS=1
 	. /home/tc/.alsaequal.presets
@@ -61,7 +49,11 @@ case "$ACTION" in
 	;;
 esac
 
-pcp_load_equaliser
+for VALUE in $RANGE
+do
+	${SET_EQUAL}$BAND $VALUE >/dev/null 2>&1
+	BAND=$((BAND+1))
+done
 
 # Determine if ALSA equalizer is loaded
 CURRENT_EQ_SETTINGS=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
@@ -85,7 +77,6 @@ echo '          <table class="bggrey percent100">'
 echo '            <form name="manual_adjust" action="'$0'" method="get">'
 #----------------------------------------------------------------------------------------
 pcp_start_row_shade
-
 for VALUE in $CURRENT_EQ_SETTINGS
 do
 	echo '              <tr class="'$ROWSHADE'">'
@@ -111,12 +102,12 @@ done
 #----------------------------------------------------------------------------------------
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
-echo '                  <p style="height:10px"></p>'
+echo '                  <p style="height:0px"></p>'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
-pcp_incr_id
-pcp_toggle_row_shade
+pcp_table_padding
+#----------------------------------------------------------------------------------------
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <input type="submit" name="ACTION" value="Save">'
@@ -125,6 +116,7 @@ echo '                  <input type="submit" name="ACTION" value="Test">'
 echo '                </td>'
 echo '              </tr>'
 #----------------------------------------------------------------------------------------
+pcp_incr_id
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
 echo '                  <p><b>10-band equalizer&nbsp;&nbsp;</b>'
@@ -161,8 +153,8 @@ if [ $PRESETS -eq 1 ]; then
 	echo '          <table class="bggrey percent100">'
 	echo '            <form name="presets" action="'$0'" method="get">'
 	#------------------------------------------------------------------------------------
-	pcp_incr_id
 	pcp_start_row_shade
+	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Preset</p>'
@@ -182,7 +174,7 @@ if [ $PRESETS -eq 1 ]; then
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Use [Test] and [Backup] after selecting preset to make it permanent.</p>'
+	echo '                    <p>Use [Save] and [Test] after selecting preset to make it permanent.</p>'
 	echo '                    <p>Presets are:</p>'
 	echo '                    <ul>'
 	echo '                      <li>An advanced feature that requires some Linux skills to maintain.</li>'
@@ -201,7 +193,7 @@ if [ $PRESETS -eq 1 ]; then
 	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan=3>'
+	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="ACTION" value="Use Preset">'
 	echo '                </td>'
 	echo '              </tr>'
