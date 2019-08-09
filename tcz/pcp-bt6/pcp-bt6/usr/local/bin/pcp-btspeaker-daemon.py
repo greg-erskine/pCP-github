@@ -7,7 +7,7 @@
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-version = '1.0.0'
+version = '6.0.0'
 
 # Using Pure GObject from https://pypi.org/project/pgi/, its alot leaner than full GObject
 from pgi.repository import GObject as gobject

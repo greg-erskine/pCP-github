@@ -251,7 +251,7 @@ pcp_bt_add_config() {
 
 		[ -f $BTDEVICECONF ] || touch $BTDEVICECONF
 		grep -q $BTDEVICE $BTDEVICECONF
-		[ $? -ne 0 ] && echo "${BTDEVICE}#${BTNAME}#1000#80:::1#on" >> $BTDEVICECONF
+		[ $? -ne 0 ] && echo "${BTDEVICE}#${BTNAME}#1000" >> $BTDEVICECONF
 
 		grep -q "$ASOUND_PCM" $ASOUND
 		[ $? -ne 0 ] && pcp_bt_add_asound

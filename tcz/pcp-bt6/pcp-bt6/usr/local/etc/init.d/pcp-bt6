@@ -4,7 +4,7 @@
 # Bluetooth Speaker Init Script
 #----------------------------------------------------------------------------------------
 #
-# Version 1.0.0
+# Version 6.0.0
 
 . /usr/local/etc/pcp/pcp.cfg
 . /usr/local/bin/pcp-bt-functions

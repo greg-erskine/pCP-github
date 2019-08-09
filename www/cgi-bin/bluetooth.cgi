@@ -1,11 +1,10 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-20
+# Version: 6.0.0 2019-08-07
 
 . pcp-functions
 . pcp-rpi-functions
 [ -x /usr/local/bin/pcp-bt-functions ] && . /usr/local/bin/pcp-bt-functions
-#. /home/tc/pcp-bt-functions
 
 pcp_html_head "Bluetooth Settings" "PH"
 
@@ -52,9 +51,18 @@ pcp_bt_pairable_status() {
 	echo $?
 }
 
-pcp_bt_discover(){
+pcp_bt_discover() {
 	bluetoothctl discoverable on
 	/usr/local/bin/pcp-pairing-agent.py --pair_mode --timeout 60
+}
+
+pcp_bt_disconnect_device() {
+	bluetoothctl disconnect $1 >/dev/null
+	if [ $? -eq 0 ]; then
+		echo 0
+	else
+		echo 1
+	fi
 }
 
 pcp_bt_save_config() {
@@ -75,7 +83,7 @@ case "$ACTION" in
 		I=$(echo ${ACTION#Forget})
 		echo '                <textarea class="inform" style="height:60px">'
 		DEVICE=$(eval echo "\${BTMAC${I}}")
-		echo '[ INFO ] Forgetting Device ...'$DEVICE
+		echo '[ INFO ] Forgetting Device...'$DEVICE
 		RET=$(pcp_bt_forget_device $DEVICE)
 		case $RET in
 			0)echo '[ INFO ] Device has been removed.';pcp_backup "nohtml";;
@@ -83,6 +91,20 @@ case "$ACTION" in
 		esac
 		rm -f /tmp/*.out
 		rm -f /tmp/*.dd
+		echo '                </textarea>'
+		pcp_table_end
+	;;
+	Disconnect*)
+		pcp_table_top "Disconnecting Device"
+		I=$(echo ${ACTION#Disconnect})
+		echo '                <textarea class="inform" style="height:120px">'
+		DEVICE=$(eval echo "\${BTMAC${I}}")
+		echo '[ INFO ] Disconnecting...'$DEVICE
+		RET=$(pcp_bt_disconnect_device $DEVICE)
+		case $RET in
+			0)echo '[ INFO ] Device has been disconnected';;
+			1)echo '[ ERROR ] Error disconnecting device.';;
+		esac
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -223,15 +245,6 @@ else
 	CD_CLASS="indicator_red"
 	CD_STATUS="not running"
 fi
-if [ $(pcp_bt_device_connected) -eq 0 ]; then
-	DEV_INDICATOR=$HEAVY_CHECK_MARK
-	DEV_CLASS="indicator_green"
-	DEV_STATUS="Connected"
-else
-	DEV_INDICATOR=$HEAVY_BALLOT_X
-	DEV_CLASS="indicator_red"
-	DEV_STATUS="Not Connected"
-fi
 if [ $(pcp_bt_pairable_status) -eq 0 ]; then
 	PAIR_INDICATOR=$HEAVY_CHECK_MARK
 	PAIR_CLASS="indicator_green"
@@ -245,11 +258,6 @@ fi
 #----------------------------------------------------------------------------------------
 # Determine state of check boxes.
 #----------------------------------------------------------------------------------------
-# Function to check the radio button according to config file
-case "$APMODE" in
-	yes) APMODEyes="checked" ;;
-	no) APMODEno="checked" ;;
-esac
 # Function to check the show log radio button according to selection
 case "$LOGSHOW" in
 	yes) LOGSHOWyes="checked" ;;
@@ -319,33 +327,15 @@ pcp_bt_status_indicators() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <p class="'$DEV_CLASS'">'$DEV_INDICATOR'</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>BT Device is '$DEV_STATUS'&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = Device is connected.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = Device is not connected.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_status_indicators
+
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
 echo '            <tr class="padding '$ROWSHADE'">'
 echo '              <td></td>'
 echo '              <td></td>'
 echo '            </tr>'
-
+echo '          </table>'
 
 pcp_bt_beta_mode_required() {
 	echo '          <table class="bggrey percent100">'
@@ -361,7 +351,8 @@ pcp_bt_beta_mode_required() {
 pcp_bt_install() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Install" action="'$0'">'
+	echo '          <form name="Install" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ ! -f $TCEMNT/tce/optional/pcp-bt6.tcz ]; then
@@ -390,7 +381,8 @@ pcp_bt_install() {
 	fi
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_install || pcp_bt_beta_mode_required
 #----------------------------------------------------------------------------------------
@@ -399,7 +391,8 @@ pcp_bt_install() {
 pcp_bt_startstop() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Restart" action="'$0'">'
+	echo '          <form name="Restart" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" name="ACTION" value="Restart" '$DISABLE_BT'>Restart</button>'
@@ -414,10 +407,12 @@ pcp_bt_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <form name="Restart2" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" name="ACTION" value="Restart_pair" '$DISABLE_BT'>Restart</button>'
@@ -431,14 +426,16 @@ pcp_bt_startstop() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_startstop
 #-------------------_------------Show BT logs--------------------------------------------
 pcp_bt_show_logs() {
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Show" action="'$0'" method="get">'
+	echo '          <form name="Show" action="'$0'" method="get">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Show Logs" '$DISABLE_BT'/>'
@@ -456,11 +453,11 @@ pcp_bt_show_logs() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 }
 [ $MODE -ge $MODE_NORMAL ] && pcp_bt_show_logs
 #----------------------------------------------------------------------------------------
-echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -477,12 +474,12 @@ echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Device Pairing/Selection</legend>'
-echo '          <table class="bggrey percent100">'
 #------------------------------------------Scan/Pair BT ---------------------
 pcp_bt_scan() {
 	pcp_incr_id
 	pcp_start_row_shade
-	echo '            <form name="Discover" action="'$0'">'
+	echo '          <form name="Discover" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Discover" '$DISABLE_BT'/>'
@@ -498,10 +495,12 @@ pcp_bt_scan() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 	pcp_incr_id
 	pcp_toggle_row_shade
-	echo '            <form name="Scan" action="'$0'">'
+	echo '          <form name="Scan" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" name="ACTION" value="Scan" '$DISABLE_BT'/>'
@@ -515,7 +514,8 @@ pcp_bt_scan() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 
 	if [ -f /tmp/btscan.out ]; then
 		PAIR_DISABLED=""
@@ -525,24 +525,12 @@ pcp_bt_scan() {
 		echo "0#No Device#selected" >/tmp/btscan.dd
 		PAIR_DISABLED="disabled"
 	fi
-	# if [ -f /tmp/btscan.out ]; then
-		# # Mark the currently paired device as selected.
-		# sed '/^'$BTDEVICE'/! s/selected/notselected/' < /tmp/btscan.out >/tmp/btscan.dd
-		# # Remove unneeded space
-		# sed -i 's/ \#/\#/' /tmp/btscan.dd
-		# PAIR_DISABLED=""
-	# else
-		# if [ "$BTNAME" != "" ]; then
-			# echo "$BTDEVICE#$BTNAME#selected" >/tmp/btscan.dd
-		# else
-			# echo "0#No Device#selected" >/tmp/btscan.dd
-		# fi
-		# PAIR_DISABLED="disabled"
-	# fi
+
 	pcp_incr_id
 	pcp_toggle_row_shade
 	if [ "$PAIR_DISABLED" = "" ]; then
-		echo '            <form name="Pair" action="'$0'">'
+		echo '          <form name="Pair" action="'$0'">'
+		echo '            <table class="bggrey percent100">'
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column150 center">'
 		echo '                  <input type="submit" name="ACTION" value="Pair" onclick="return confirm('\''Make sure device is in pairing mode.\n\nContinue?'\'')" '$PAIR_DISABLED'/>'
@@ -560,36 +548,44 @@ pcp_bt_scan() {
 		fi
 		echo '                </td>'
 		echo '              </tr>'
-		echo '            </form>'
+		echo '            </table>'
+		echo '          </form>'
 	else
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150 center"></td>'
-		echo '                <td class="colspan=2">'
-		echo '                   <p>Run scan to discover/pair to a new device.</p>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '          <table class="bggrey percent100">'
+		echo '            <tr class="'$ROWSHADE'">'
+		echo '              <td class="column150 center"></td>'
+		echo '              <td class="colspan=2">'
+		echo '                 <p>Run scan to discover/pair to a new device.</p>'
+		echo '              </td>'
+		echo '            </tr>'
+		echo '         </table>'
 	fi
-
-	COL1="column150"
+	COL1="column100"
 	COL2="column150"
 	COL3="column150"
-	COL4="column120"
-	COL5="column150"
+	COL4="column150"
+	COL5="column120"
 	COL6="column150"
+	COL7="column150"
+
 	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COL1' center"><p><b>BT Mac Address</b></p></td>'
-	echo '                <td class="'$COL2'"><p><b>BT Name</b></p></td>'
-	echo '                <td class="'$COL3'"><p><b>Player Name</b></p></td>'
-	echo '                <td class="'$COL4'"><p><b>BT Delay</b></p></td>'
-	echo '                <td class="'$COL5'"><p><b>Forget Device</b></p></td>'
-#	echo '                <td class="'$COL6'"><p><b>Options</b></p></td>'
-	echo '              </tr>'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="'$COL1'"><p><b>Connected</b></p></td>'
+	echo '              <td class="'$COL2'"><p><b>BT Mac Address</b></p></td>'
+	echo '              <td class="'$COL3'"><p><b>BT Name</b></p></td>'
+	echo '              <td class="'$COL4'"><p><b>Player Name</b></p></td>'
+	echo '              <td class="'$COL5'"><p><b>BT Delay</b></p></td>'
+	echo '              <td class="'$COL6'"><p><b>Disconnect Device</b></p></td>'
+	echo '              <td class="'$COL7'"><p><b>Forget Device</b></p></td>'
+	echo '            </tr>'
+	echo '          </table>'
 
 	pcp_bt_paired_devices
 	if [ -f $PAIRED_LIST ]; then
 		I=1
-		echo '            <form name="Select" action="'$0'">'
+		echo '          <form name="Select" action="'$0'">'
+		echo '            <table class="bggrey percent100">'
 		while read line; do
 			BTMAC=$(echo $line | cut -d'#' -f1)
 			BTNAME=$(echo $line | cut -d'#' -f2)
@@ -598,24 +594,39 @@ pcp_bt_scan() {
 			[ "$BTPLAYERNAME" = "" ] && BTPLAYERNAME=$BTNAME
 			[ "$BTDELAY" == "" ] && BTDELAY=10000
 			REQUIRED="required"
+
+			if [ $(bluetoothctl info $BTMAC | grep "Connected" | cut -d':' -f2) = "yes" ]; then
+				DEV_INDICATOR=$HEAVY_CHECK_MARK
+				DEV_CLASS="indicator_green"
+			else
+				DEV_INDICATOR=$HEAVY_BALLOT_X
+				DEV_CLASS="indicator_red"
+			fi
+
 			pcp_incr_id
 			pcp_toggle_row_shade
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td class="'$COL1' center">'
+			echo '                  <p class="'$DEV_CLASS'">'$DEV_INDICATOR'</p>'
+			echo '                </td>'
+			echo '                <td class="'$COL2'">'
 			echo '                  <input type="hidden" id="idBTMAC'${I}'" name="BTMAC'${I}'" value="'$BTMAC'">'
 			echo '                  <input class="large10" type="text" name="MAC" value="'$BTMAC'" title="Bluetooth MAC Address" '$REQUIRED' disabled>'
 			echo '                </td>'
-			echo '                <td class="'$COL2'">'
+			echo '                <td class="'$COL3'">'
 			echo '                  <input type="hidden" id="idBTNAME'${I}'" name="BTNAME'${I}'" value="'$BTNAME'">'
 			echo '                  <input class="large10" type="text" name="NAME" value="'$BTNAME'" title="Bluetooth Device Name" '$REQUIRED' disabled>'
 			echo '                </td>'
-			echo '                <td class="'$COL3'">'
-			echo '                  <input class="large10" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="Bluetooth Player Name" '$REQUIRED'">'
-			echo '                </td>'
 			echo '                <td class="'$COL4'">'
-			echo '                  <input class="large6" type="text" id="idBTDELAY'${I}'" name="BTDELAY'${I}'" value="'$BTDELAY'" title="Bluetooth Delay" '$REQUIRED'">'
+			echo '                  <input class="large10" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="Bluetooth Player Name" '$REQUIRED'>'
 			echo '                </td>'
 			echo '                <td class="'$COL5'">'
+			echo '                  <input class="large6" type="text" id="idBTDELAY'${I}'" name="BTDELAY'${I}'" value="'$BTDELAY'" title="Bluetooth Delay" '$REQUIRED'>'
+			echo '                </td>'
+			echo '                <td class="'$COL6'">'
+			echo '                  <button type="submit" name="ACTION" value="Disconnect'${I}'">Disconnect</button>'
+			echo '                </td>'
+			echo '                <td class="'$COL7'">'
 			echo '                  <button type="submit" name="ACTION" value="Forget'${I}'">Forget</button>'
 			echo '                </td>'
 			echo '              </tr>'
@@ -626,21 +637,24 @@ pcp_bt_scan() {
 		echo '                  <input type="hidden" name="NUMDEVICES" value="'$I'">'
 		echo '                  <input type="submit" name="ACTION" value="Save" />'
 		echo '                </td>'
+		echo '                <td colspan="6"></td>'
 		echo '              </tr>'
-		echo '            </form>'
+		echo '            </table>'
+		echo '          </form>'
 	else
 		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column200">'
-		echo '                  <p>No Paired Device</p>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '          <table class="bggrey percent100">'
+		echo '            <tr class="'$ROWSHADE'">'
+		echo '              <td class="column200">'
+		echo '                <p>No Paired Device</p>'
+		echo '              </td>'
+		echo '            </tr>'
+		echo '          </table>'
 	fi
 }
 [ $MODE -ge $MODE_BETA ] && pcp_bt_scan
 
 #----------------------------------------------------------------------------------------
-echo '          </table>'
 echo '        </fieldset>'
 echo '      </div>'
 echo '    </td>'
@@ -664,6 +678,8 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
 	esac
+	COL1="column150"
+	COL2="column150"
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
 	echo '                  <p>RPi built-in Wifi</p>'
