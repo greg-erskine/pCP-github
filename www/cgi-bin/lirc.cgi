@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-06-02
+# Version: 6.0.0 2019-08-09
 
 . pcp-functions
 . pcp-lms-functions
@@ -14,7 +14,6 @@ pcp_html_head "LIRC" "GE"
 
 pcp_banner
 pcp_navigation
-pcp_running_script
 pcp_httpd_query_string
 
 FAIL_MSG="ok"
@@ -359,7 +358,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '                  <button type="submit" name="ACTION" value="Install-lirc">Install</button>'
 		echo '                </td>'
 		echo '                <td>'
-		echo '                  <p>Install LIRC for Squeezelite.&nbsp;&nbsp;'
+		echo '                  <p>Install LIRC for Squeezelite&nbsp;&nbsp;'
 		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
 		echo '                  <div id="'$ID'" class="less">'
