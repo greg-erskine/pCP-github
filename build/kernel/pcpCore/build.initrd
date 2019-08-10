@@ -116,18 +116,20 @@ if [ "${OLDKERNEL}" = "${NEWKERNEL}" ]; then
 	echo 
 fi
 
-TMPOLDMOD="/tmp/oldmodules.list"
+#TMPOLDMOD="/tmp/oldmodules.list"
+MODULE_LIST="$BASEWD/$(echo ${NEWKERNELDIR} | cut -d'-' -f2 | cut -d'^' -f1).modules"
 
 echo
 echo "*****************************************************************"
-echo "Building Module List"
-cd $INITRDWRK/lib/modules/$OLDKERNEL/kernel
-find * -not -type d | awk -F '.gz' '{print $1}' > $TMPOLDMOD
+echo "Adding Modules to initrd"
+#cd $INITRDWRK/lib/modules/$OLDKERNEL/kernel
+#find * -not -type d | awk -F '.gz' '{print $1}' > $TMPOLDMOD
 cd $BASEWD
-echo "Copying new Modules (And new or change paths have to be moved manually)"
+#echo "Copying new Modules (And new or change paths have to be moved manually)"
+echo "Using module list $MODULE_LIST"
 SRCMODPATH="modules/${NEWKERNELDIR}/lib/modules/${NEWKERNEL}/kernel"
 cd $SRCMODPATH
-tar --ignore-failed-read -T $TMPOLDMOD -cf /tmp/$NEWKERNEL.tar
+tar --ignore-failed-read -T $MODULE_LIST -cf /tmp/$NEWKERNEL.tar
 cd $BASEWD
 DESTMODPATH="$INITRDWRK/lib/modules/$NEWKERNEL/kernel"
 sudo mkdir -p $DESTMODPATH

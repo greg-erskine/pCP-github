@@ -90,6 +90,26 @@ OLDKERNEL=$(ls $INITRDWRK/lib/modules)
 sudo $BASEWD/../update.initrd.base
 [ $? != 0 ] && exit 1
 
+MODULE_LIST="$BASEWD/$(echo ${OLD} | cut -d'-' -f2 | cut -d'^' -f1).modules"
+
+echo
+echo "*****************************************************************"
+echo "Rebuilding modules for initrd, kernel=$OLDKERNEL"
+cd $BASEWD
+echo "Using module list $MODULE_LIST"
+SRCMODPATH="modules/${OLD}/lib/modules/${OLDKERNEL}/kernel"
+cd $SRCMODPATH
+sudo rm -f /tmp/$OLDKERNEL.tar
+tar --ignore-failed-read -T $MODULE_LIST -cf /tmp/$OLDKERNEL.tar
+cd $BASEWD
+DESTMODPATH="$INITRDWRK/lib/modules/$OLDKERNEL/kernel"
+sudo rm -rf $DESTMODPATH
+sudo mkdir -p $DESTMODPATH
+cd $DESTMODPATH
+sudo tar xf /tmp/$OLDKERNEL.tar
+sudo rm -f /tmp/$OLDKERNEL.tar
+
+echo
 echo "*****************************************************************"
 echo "Unpacked initrd is located $INITRDWRK"
 echo "Kernel in the base initrd is $OLDKERNEL"
