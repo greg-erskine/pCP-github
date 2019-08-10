@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-31
+# Version: 6.0.0 2019-08-10
 
 #========================================================================================
 # Setup debug logging
@@ -260,34 +260,32 @@ pcp_free_space() {
 }
 
 pcp_sufficient_free_space() {
-	if [ "$1" = "nohtml" ]; then
-		REQUIRED=$2
-		NEWLINE="-n"
-		PCLASSDEBUG=""
-		PCLASSINFO=""
-		PCLASSERROR=""
-		PCLASSOK=""
-		SLASHP=""
-	else
-		REQUIRED=$1
-		NEWLINE=""
-		PCLASSDEBUG='<p class="debug">'
-		PCLASSINFO='<p class="info">'
-		PCLASSERROR='<p class="error">'
-		PCLASSOK='<p class="ok">'
-		SLASHP='</p>'
+	local SPACE=$(pcp_free_space k)
+	local REQUIRED=$1
+
+	if [ $# -gt 1 ]; then
+		# FORMAT: html|text|colour
+		local FORMAT=$1
+		local REQUIRED=$2
+		[ "$FORMAT" = "nohtml" ] && local FORMAT="text" # <== GE nohtml depreciated
 	fi
-	SPACE=$(pcp_free_space k)
-	[ $DEBUG -eq 1 ] && echo $PCLASSDEBUG'[ DEBUG ] Free space: '$SPACE'k Required space: '$REQUIRED'k'$SLASHP
+	[ x"$FORMAT" = x"" ] && local FORMAT="html"
+
+
+	if [ $DEBUG -eq 1 ]; then
+		pcp_message DEBUG "Free space: ${SPACE}k" "$FORMAT"
+		pcp_message DEBUG "Required space: ${REQUIRED}k" "$FORMAT"
+	fi
+
 	if [ $REQUIRED -lt $SPACE ]; then
-		[ $DEBUG -eq 1 ] && echo $PCLASSDEBUG'[ DEBUG ] Enough space.'$SLASHP
+		[ $DEBUG -eq 1 ] && pcp_message OK "Enough space." "$FORMAT"
 		return 0
 	else
-		echo $PCLASSERROR'[ ERROR ] Not enough space.'$SLASHP
-		echo $PCLASSINFO'[ INFO ] Try expanding your partition.'$SLASHP
-		if [ "$1" != "nohtml" ]; then
-			STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort'
-			SCRIPT1=xtras_resize.cgi
+		pcp_message ERROR "Not enough space." "$FORMAT"
+		pcp_message INFO "Try expanding your partition." "$FORMAT"
+		if [ "$FORMAT" = "html" ]; then
+			STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort.'
+			SCRIPT1="xtras_resize.cgi"
 			pcp_confirmation_required
 			pcp_go_back_button
 		fi
