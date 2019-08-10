@@ -129,7 +129,11 @@ rm $STARTDIR/$PKG
 PKG=wiringpi.tcz
 wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
 unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
-cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
+if [ -f /usr/local/lib/libwiringPi.so ]; then
+	cp -pr /usr/local/lib/libwiringPi\.so* $SRC/lib
+else
+	cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
+fi
 rm -rf $STARTDIR/squashfs-root
 rm $STARTDIR/$PKG
 
@@ -141,6 +145,20 @@ rm -rf $STARTDIR/squashfs-root
 rm $STARTDIR/$PKG
 
 PKG=openssl.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libopus-dev.tcz
+wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
+unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
+cp -pr $STARTDIR/squashfs-root/usr/local/include/opus $SRC/include
+rm -rf $STARTDIR/squashfs-root
+rm $STARTDIR/$PKG
+
+PKG=pcp-libopus.tcz
 wget -q -O $STARTDIR/$PKG http://repo.picoreplayer.org/repo/$PCPREPO/tcz/$PKG
 unsquashfs -n -d $STARTDIR/squashfs-root $STARTDIR/$PKG
 cp -pr $STARTDIR/squashfs-root/usr/local/lib/* $SRC/lib

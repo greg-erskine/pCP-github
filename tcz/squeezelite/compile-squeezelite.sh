@@ -6,15 +6,15 @@ fi
 
 cd squeezelite
 
-BUILDOPTIONS="-DRESAMPLE -DFFMPEG -DVISEXPORT -DGPIO -DRPI -DIR -DUSE_SSL -DNO_SSLSYM -DCUSTOM_VERSION=-pCP"
+BUILDOPTIONS="-DRESAMPLE -DFFMPEG -DOPUS -DVISEXPORT -DGPIO -DRPI -DIR -DUSE_SSL -DNO_SSLSYM -DCUSTOM_VERSION=-pCP"
 
 make OPTS="$BUILDOPTIONS -DDSD" clean || exit 2
-make CFLAGS="-I./include" LDFLAGS="-s -L./lib -lssl -lcrypto -lz" OPTS="$BUILDOPTIONS -DDSD" || exit 3
+make CFLAGS="-I./include -I./include/opus" LDFLAGS="-s -L./lib -lssl -lcrypto -lz" OPTS="$BUILDOPTIONS -DDSD" || exit 3
 
 mv squeezelite squeezelite-dsd
 
 make OPTS="$BUILDOPTIONS -DDSD" clean || exit 4
-make CFLAGS="-I./include" LDFLAGS="-s -L./lib -lssl -lcrypto -lz" OPTS="$BUILDOPTIONS" || exit 5
+make CFLAGS="-I./include -I./include/opus" LDFLAGS="-s -L./lib -lssl -lcrypto -lz" OPTS="$BUILDOPTIONS" || exit 5
 
 if [ -f find_servers ]; then
 	rm find_servers
