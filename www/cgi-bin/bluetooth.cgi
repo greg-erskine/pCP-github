@@ -133,6 +133,16 @@ case "$ACTION" in
 		pcp_table_end
 		REBOOT_REQUIRED=1
 	;;
+	Power*)
+		POWER=$(echo ${ACTION#Power_})
+		pcp_table_top "BT Controller Power"
+		echo '                <textarea class="inform" style="height:40px">'
+		echo 'Turning the BT Controller power '$POWER'...'
+		bluetoothctl power $POWER
+		sleep 0.5
+		echo '                </textarea>'
+		pcp_table_end
+	;;
 	Pair)
 		pcp_table_top "Pair Device"
 		echo '                <textarea class="inform" style="height:120px">'
@@ -281,8 +291,8 @@ pcp_bt_status_indicators() {
 	echo '                  <ul>'
 	echo '                    <li><span class="indicator_green">&#x2714;</span> = BT Controller Power is on.</li>'
 	echo '                    <li><span class="indicator_red">&#x2718;</span> = BT Controller Power is off.</li>'
-	echo '                    <li>Controller address '$BTCONTROLLER
-	echo '                    <li>If the controller power remains off.</li>'
+	echo '                    <li>Controller address '$(pcp_bt_controller_address)
+	echo '                    <li>If the controller address is listed, try turning the power on below.</li>'
 	echo '                    <li>If using RPi built-in bluetooth, make sure controller is enabled at the bottom of this page.</li>'
 	echo '                    <li>Check kernel messages in diagnostics <a href="diagnostics.cgi#dmesg">dmesg</a>.</li>'
 	echo '                  </ul>'
@@ -389,6 +399,32 @@ pcp_bt_install() {
 
 #------------------------------------------Start and Stop BT Daemon----------------------
 pcp_bt_startstop() {
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '          <form name="Power" action="'$0'">'
+	echo '            <table class="bggrey percent100">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	if [ "$PWR_STATUS" = "On" ]; then
+		echo '                  <button type="submit" name="ACTION" value="Power_off" '$DISABLE_BT'>Power Off</button>'
+		P="off"
+	else
+		echo '                  <button type="submit" name="ACTION" value="Power_on" '$DISABLE_BT'>Power On</button>'
+		P="on"
+	fi
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Turn the BT Controller '$P'&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>This will turn '$P' the Bluetooth Controller.</p>'
+	echo '                    <p>If turned off, nothing will be able to connect to this pCP device via bluetooth.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '          <form name="Restart" action="'$0'">'
