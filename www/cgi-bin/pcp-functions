@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-10
+# Version: 6.0.0 2019-08-13
 
 #========================================================================================
 # Setup debug logging
@@ -15,17 +15,15 @@ pcp_debug_log() {
 # Debug variables listing
 #----------------------------------------------------------------------------------------
 pcp_debug_variables() {
-	# FORMAT - colour|text|html
-	local FORMAT=$1
-
 	if [ $DEBUG -eq 1 ]; then
-		local i=0
+		# FORMAT - colour|text|html
+		local FORMAT=$1
+		shift
 
 		for VAR in $@
 		do
 			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
-			[ $i -ne 0 ] && pcp_message DEBUG "$MESSAGE" "$FORMAT"
-			i=$((i+1))
+			pcp_message DEBUG "$MESSAGE" "$FORMAT"
 		done
 	fi
 }
@@ -154,7 +152,7 @@ pcp_unset_coloured_text() {
 }
 
 #========================================================================================
-# Routine to read config file.
+# Function to read config file.
 #----------------------------------------------------------------------------------------
 pcp_read_config() {
 	pcp_debug_log "$0 - Reading pCP pcp.cfg..."
@@ -203,7 +201,7 @@ pcp_message() {
 }
 
 #========================================================================================
-# Routine to read title, description and version (if defined).
+# Function to read title, description and version (if defined).
 #----------------------------------------------------------------------------------------
 pcp_get_page_info() {
 	BASENAME=$(basename $1)
@@ -370,7 +368,7 @@ pcp_reset_repository() {
 }
 
 #========================================================================================
-# cmdline.txt routines
+# cmdline.txt functions
 #----------------------------------------------------------------------------------------
 pcp_backup_cmdlinetxt() {
 	cp ${CMDLINETXT} ${CMDLINETXT}.bak
@@ -414,7 +412,7 @@ pcp_bootcode_equal_add2() {
 	done
 }
 #========================================================================================
-# Update the Timezone routine
+# Update the Timezone function
 #
 # Called from:
 #			timezone.cgi
@@ -449,14 +447,21 @@ pcp_config_mac_address() {
 	echo $MAC_ADDRESS
 }
 
-pcp_wlan0_mac_address() {
-	# The wireless MAC address (if installed)
-	ifconfig wlan0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
+pcp_mac_address() {
+	local INTERFACE="$1"
+	cat /sys/class/net/${INTERFACE}/address
 }
 
-pcp_eth0_mac_address() {
+pcp_wlan0_mac_address() {	# <== GE depreciated
+	# The wireless MAC address (if installed)
+#	ifconfig wlan0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
+	pcp_mac_address "wlan0"
+}
+
+pcp_eth0_mac_address() {	# <== GE depreciated
 	# The physical MAC address of Raspberry Pi
-	ifconfig eth0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
+#	ifconfig eth0 2>&1 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | tr '[A-Z]' '[a-z]'
+	pcp_mac_address "eth0"
 }
 
 pcp_controls_mac_address() {
@@ -545,21 +550,21 @@ pcp_banner() {
 pcp_navigation() {
 	local NAV="nav6"
 
-	TAB_STYLE_MODE_MAIN="$NAV"
-	TAB_STYLE_MODE_SQUEEZELITE="$NAV"
-	TAB_STYLE_MODE_WIFI="$NAV"
-	TAB_STYLE_MODE_TWEAKS="$NAV"
-	TAB_STYLE_MODE_SECURITY="$NAV"
-	TAB_STYLE_MODE_LMS="$NAV"
-	TAB_STYLE_MODE_ABOUT="$NAV"
+	local TAB_STYLE_MAIN="$NAV"
+	local TAB_STYLE_SQUEEZELITE="$NAV"
+	local TAB_STYLE_WIFI="$NAV"
+	local TAB_STYLE_TWEAKS="$NAV"
+	local TAB_STYLE_SECURITY="$NAV"
+	local TAB_STYLE_LMS="$NAV"
+	local TAB_STYLE_ABOUT="$NAV"
 
 	case "$0" in
-		main.cgi)        TAB_STYLE_MODE_MAIN="${NAV}a" ;;
-		squeezelite.cgi) TAB_STYLE_MODE_SQUEEZELITE="${NAV}a" ;;
-		wifi.cgi)        TAB_STYLE_MODE_WIFI="${NAV}a" ;;
-		tweaks.cgi)      TAB_STYLE_MODE_TWEAKS="${NAV}a" ;;
-		lms.cgi)         TAB_STYLE_MODE_LMS="${NAV}a" ;;
-		about.cgi)       TAB_STYLE_MODE_ABOUT="${NAV}a" ;;
+		main.cgi)        local TAB_STYLE_MAIN="${NAV}a" ;;
+		squeezelite.cgi) local TAB_STYLE_SQUEEZELITE="${NAV}a" ;;
+		wifi.cgi)        local TAB_STYLE_WIFI="${NAV}a" ;;
+		tweaks.cgi)      local TAB_STYLE_TWEAKS="${NAV}a" ;;
+		lms.cgi)         local TAB_STYLE_LMS="${NAV}a" ;;
+		about.cgi)       local TAB_STYLE_ABOUT="${NAV}a" ;;
 	esac
 
 	echo '<!-- Start of pcp_navigation toolbar -->'
@@ -567,12 +572,12 @@ pcp_navigation() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <p>'
-	echo '        <a class="'$TAB_STYLE_MODE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
-	echo '        <a class="'$TAB_STYLE_MODE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
+	echo '        <a class="'$TAB_STYLE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '        <a class="'$TAB_STYLE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+	echo '        <a class="'$TAB_STYLE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
+	echo '        <a class="'$TAB_STYLE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+	echo '        <a class="'$TAB_STYLE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
+	echo '        <a class="'$TAB_STYLE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
 	echo '      </p>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -748,20 +753,20 @@ pcp_picoreplayers_toolbar() {
 pcp_mode() {
 	local TAB="tab14"
 
-	TAB_STYLE_MODE_INITIAL="$TAB"
-	TAB_STYLE_MODE_BASIC="$TAB"
-	TAB_STYLE_MODE_NORMAL="$TAB"
-	TAB_STYLE_MODE_ADVANCED="$TAB"
-	TAB_STYLE_MODE_BETA="$TAB"
-	TAB_STYLE_MODE_DEVELOPER="$TAB"
+	local TAB_STYLE_MODE_INITIAL="$TAB"
+	local TAB_STYLE_MODE_BASIC="$TAB"
+	local TAB_STYLE_MODE_NORMAL="$TAB"
+	local TAB_STYLE_MODE_ADVANCED="$TAB"
+	local TAB_STYLE_MODE_BETA="$TAB"
+	local TAB_STYLE_MODE_DEVELOPER="$TAB"
 
 	case $MODE in
-		$MODE_INITIAL)   TAB_STYLE_MODE_INITIAL="${TAB}a" ;;
-		$MODE_BASIC)     TAB_STYLE_MODE_BASIC="${TAB}a" ;;
-		$MODE_NORMAL)    TAB_STYLE_MODE_NORMAL="${TAB}a" ;;
-		$MODE_ADVANCED)  TAB_STYLE_MODE_ADVANCED="${TAB}a" ;;
-		$MODE_BETA)      TAB_STYLE_MODE_BETA="${TAB}a" ;;
-		$MODE_DEVELOPER) TAB_STYLE_MODE_DEVELOPER="${TAB}a" ;;
+		$MODE_INITIAL)   local TAB_STYLE_MODE_INITIAL="${TAB}a" ;;
+		$MODE_BASIC)     local TAB_STYLE_MODE_BASIC="${TAB}a" ;;
+		$MODE_NORMAL)    local TAB_STYLE_MODE_NORMAL="${TAB}a" ;;
+		$MODE_ADVANCED)  local TAB_STYLE_MODE_ADVANCED="${TAB}a" ;;
+		$MODE_BETA)      local TAB_STYLE_MODE_BETA="${TAB}a" ;;
+		$MODE_DEVELOPER) local TAB_STYLE_MODE_DEVELOPER="${TAB}a" ;;
 	esac
 
 	echo '<!-- Start of mode toolbar -->'
@@ -772,7 +777,7 @@ pcp_mode() {
 	echo '  <a class="'$TAB_STYLE_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_BETA'"'
-	echo '     onclick="javascript:pcp_confirm('\'WARNING:\\nBeta mode can be dangerous.\\nCorruption of SD card is possible.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
+	echo '     onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
 	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
@@ -881,7 +886,7 @@ pcp_showmore() {
 }
 
 #========================================================================================
-# Create table routines
+# Create table functions
 #----------------------------------------------------------------------------------------
 pcp_table_top() {
 	pcp_start_row_shade
@@ -1211,7 +1216,7 @@ pcp_redirect_button() {
 #========================================================================================
 # Backup files in /opt/.filetool.lst to mydata.tgz
 #  - $1 can be set to "nohtml"
-#  - routine can generate text or html output.
+#  - function can generate text or html output.
 #----------------------------------------------------------------------------------------
 pcp_backup() {
 	WARNSIZE=350000
@@ -1502,7 +1507,7 @@ pcp_save_to_config() {
 #========================================================================================
 # Create a new pcp.cfg with defaults values.
 #
-# This routine will add new variables if missing in current pcp.cfg. The new variables
+# This function will add new variables if missing in current pcp.cfg. The new variables
 # will have the default values loaded.
 #
 # Note: Please maintain both pcp_save_to_config AND pcp_reset_config_to_defaults.
@@ -1619,7 +1624,7 @@ EOF
 }
 
 #========================================================================================
-# This is a developer routine only, do not use in normal scripts.
+# This is a developer function only, do not use in normal scripts.
 # Note: This must be obsolete? <==== GE
 #----------------------------------------------------------------------------------------
 pcp_reset_config_to_defaults() {
