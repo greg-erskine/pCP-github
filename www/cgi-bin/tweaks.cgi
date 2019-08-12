@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-09
+# Version: 6.0.0 2019-08-11
 
 set -f
 
@@ -144,6 +144,7 @@ pcp_tweaks_playertabs() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Sometimes it might be useful to turn off the piCorePlayer Tabs.</p>'
+	echo '                    <p>piCorePlayer checks LMS for available players. This can be slow on older RPis.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -188,6 +189,7 @@ pcp_tweaks_lmscontrols() {
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <p>Sometimes it might be useful to turn off the LMS Controls Toolbar.</p>'
+	echo '                    <p>These controls are not intended for normal use, but they are handy when testing.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -326,7 +328,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '                    <p>&lt;IP address&gt;</p>'
 	echo '                    <p><b>Default:</b> blank or 8.8.8.8</p>'
 	echo '                    <p>piCorePlayer uses this IP address to confirm that it has Internet access.</p>'
-	echo '                    <p>You only have to set this if 8.8.8.8 is not usuable.</p>'
+	echo '                    <p>You only have to set this if 8.8.8.8 is not usable.</p>'
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
@@ -1411,12 +1413,14 @@ pcp_tweaks_poweroff() {
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Poweroff/Shutdown Overlays</legend>'
+	#------------------------------------------------------------------------------------
+	echo '          <form name="poweroff" action="writetoconfig.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
+	echo '                <td colspan="4">'
 	echo '                  <p>Poweroff GPIO&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -1426,26 +1430,6 @@ pcp_tweaks_poweroff() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td >'
-	echo '                  <p>Shutdown GPIO&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Defines a GPIO pin as a linux KEY_POWER event</p>'
-	echo '                    <p>Works in conjunction with shutdown-monitor.tcz -or- a custom shell script.</p>'
-	echo '                    <p>Refer to '$BOOTMNT'/overlays/README<p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	echo '            </table>'
-	#------------------------------------------------------------------------------------
-	echo '            <form name="poweroff" action="writetoconfig.cgi" method="get">'
-	echo '              <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	case $GPIOPOWEROFF in
 		yes) GPIOPOWEROFF_yes="checked";;
@@ -1458,36 +1442,51 @@ pcp_tweaks_poweroff() {
 
 	pcp_toggle_row_shade
 	pcp_incr_id
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150">'
-	echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
-	echo '                    <button type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
-	echo '                  </td>'
-	echo '                  <td class="column100">'
-	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF" value="yes" '$GPIOPOWEROFF_yes'>yes'
-	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF" value="no" '$GPIOPOWEROFF_no'>no'
-	echo '                  </td>'
-	echo '                  <td class="column80">'
-	echo '                    <input class="small4"'
-	echo '                         type="number"'
-	echo '                         name="GPIOPOWEROFF_GPIO"'
-	echo '                         value="'$GPIOPOWEROFF_GPIO'"'
-	echo '                         title="( 0 - 31 )"'
-	echo '                         min="0"'
-	echo '                         max="31"'
-	echo '                    >'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>Active High'
-	echo '                    <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>Active Low'
-	echo '                  </td>'
-	echo '                </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
+	echo '                  <button type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
+	echo '                </td>'
+	echo '                <td class="column120">'
+	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF" value="yes" '$GPIOPOWEROFF_yes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF" value="no" '$GPIOPOWEROFF_no'>No'
+	echo '                </td>'
+	echo '                <td class="column110">'
+	echo '                  GPIO: <input class="small4"'
+	echo '                       type="number"'
+	echo '                       name="GPIOPOWEROFF_GPIO"'
+	echo '                       value="'$GPIOPOWEROFF_GPIO'"'
+	echo '                       title="( 0 - 31 )"'
+	echo '                       min="0"'
+	echo '                       max="31"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>Active High'
+	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>Active Low'
+	echo '                </td>'
+	echo '              </tr>'
 	#------------------------------------------------------------------------------------
-	echo '              </table>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 	#------------------------------------------------------------------------------------
-	echo '            <form name="shutdown" action="writetoconfig.cgi" method="get">'
-	echo '              <table class="bggrey percent100">'
+	echo '          <form name="shutdown" action="writetoconfig.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="5">'
+	echo '                  <p>Shutdown GPIO&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Defines a GPIO pin as a linux KEY_POWER event</p>'
+	echo '                    <p>Works in conjunction with shutdown-monitor.tcz -or- a custom shell script.</p>'
+	echo '                    <p>Refer to '$BOOTMNT'/overlays/README<p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
 	#------------------------------------------------------------------------------------
 	case $GPIOSHUTDOWN in
 		yes) GPIOSHUTDOWN_yes="checked";;
@@ -1505,38 +1504,38 @@ pcp_tweaks_poweroff() {
 
 	pcp_toggle_row_shade
 	pcp_incr_id
-	echo '                <tr class="'$ROWSHADE'">'
-	echo '                  <td class="column150">'
-	echo '                    <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
-	echo '                    <button type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
-	echo '                  </td>'
-	echo '                  <td class="column100">'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN" value="yes" '$GPIOSHUTDOWN_yes'>yes'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN" value="no" '$GPIOSHUTDOWN_no'>no'
-	echo '                  </td>'
-	echo '                  <td class="column80">'
-	echo '                    <input class="small4"'
-	echo '                         type="number"'
-	echo '                         name="GPIOSHUTDOWN_GPIO"'
-	echo '                         value="'$GPIOSHUTDOWN_GPIO'"'
-	echo '                         title="( 0 - 31 )"'
-	echo '                         min="0"'
-	echo '                         max="31"'
-	echo '                    >'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="yes" '$GPIOSHUTDOWN_HI_yes'>Active High'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="no" '$GPIOSHUTDOWN_HI_no'>Active Low'
-	echo '                  </td>'
-	echo '                  <td class="column210">'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="up" '$GPIOSHUTDOWN_PU_up'>Pull Up'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="down" '$GPIOSHUTDOWN_PU_down'>Pull Down'
-	echo '                    <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="off" '$GPIOSHUTDOWN_PU_off'>Off'
-	echo '                  </td>'
-	echo '                </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150">'
+	echo '                  <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
+	echo '                  <button type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
+	echo '                </td>'
+	echo '                <td class="column120">'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN" value="yes" '$GPIOSHUTDOWN_yes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN" value="no" '$GPIOSHUTDOWN_no'>No'
+	echo '                </td>'
+	echo '                <td class="column110">'
+	echo '                  GPIO: <input class="small4"'
+	echo '                       type="number"'
+	echo '                       name="GPIOSHUTDOWN_GPIO"'
+	echo '                       value="'$GPIOSHUTDOWN_GPIO'"'
+	echo '                       title="( 0 - 31 )"'
+	echo '                       min="0"'
+	echo '                       max="31"'
+	echo '                  >'
+	echo '                </td>'
+	echo '                <td class="column210">'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="yes" '$GPIOSHUTDOWN_HI_yes'>Active High'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="no" '$GPIOSHUTDOWN_HI_no'>Active Low'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="up" '$GPIOSHUTDOWN_PU_up'>Pull Up&nbsp;&nbsp;'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="down" '$GPIOSHUTDOWN_PU_down'>Pull Down&nbsp;'
+	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="off" '$GPIOSHUTDOWN_PU_off'>Off'
+	echo '                </td>'
+	echo '              </tr>'
 	#------------------------------------------------------------------------------------
-	echo '              </table>'
-	echo '            </form>'
+	echo '            </table>'
+	echo '          </form>'
 	#------------------------------------------------------------------------------------
 	if [ "$GPIOSHUTDOWN" = "yes" -a ! -f /usr/local/bin/shutdown-monitor ]; then
 		echo '            <form name="shutdown-monitor" action="writetoconfig.cgi" method="get">'
@@ -1571,6 +1570,7 @@ pcp_tweaks_poweroff() {
 	echo '</table>'
 }
 [ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_poweroff
+#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Audio tweaks
@@ -2062,6 +2062,11 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '              </tr>'
 	#-------------------------------------Squeezelite restart----------------------------
+		case "$RESTART" in
+		Enabled) RESTART_Y="checked" ;;
+		Disabled) RESTART_N="checked" ;;
+	esac
+
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column210">'
@@ -2125,11 +2130,6 @@ pcp_tweaks_cron() {
 	echo '                </td>'
 	echo '              </tr>'
 	#-------------------------------------Custom Cron command----------------------------
-	case "$RESTART" in
-		Enabled) RESTART_Y="checked" ;;
-		Disabled) RESTART_N="checked" ;;
-	esac
-
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
