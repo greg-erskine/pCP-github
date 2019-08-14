@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-08
+# Version: 6.0.0 2019-08-14
 
 . pcp-functions
 . pcp-lms-functions
@@ -791,6 +791,29 @@ pcp_main_security() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_security
 #----------------------------------------------------------------------------------------
 
+#------------------------------------------Dosfsck---------------------------------------
+pcp_main_dosfsck() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
+	echo '                  <input type="submit" value="DOS fsck">'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>DOS file system check&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This option allows you to run dosfsck on the SD card.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
+#----------------------------------------------------------------------------------------
+
 #------------------------------------------Developer mode fieldset-----------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '          </table>'
@@ -878,29 +901,6 @@ pcp_main_update_config() {
 	echo '            </tr>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_config
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Dosfsck---------------------------------------
-pcp_main_dosfsck() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
-	echo '                  <input type="submit" value="DOS fsck">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>DOS file system check&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This option allows you to run dosfsck on the SD card.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_dosfsck
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Debug-----------------------------------------
