@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-07
+# Version: 6.0.0 2019-08-14
 
 . pcp-functions
 . pcp-lms-functions
@@ -26,7 +26,7 @@ pcp_httpd_query_string
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Copy log files from persistent locations to /var/log/
+# Copy log files from persistent locations to $LOGDIR directory
 #----------------------------------------------------------------------------------------
 pcp_mount_bootpart >/dev/null 2>&1
 cp ${BOOTMNT}/pcp_*.log $LOGDIR >/dev/null 2>&1
@@ -35,11 +35,12 @@ cp ${TCEMNT}/tce/pcp_*.log $LOGDIR >/dev/null 2>&1
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Create log files
+# Create additional log files
 #----------------------------------------------------------------------------------------
 dmesg > ${LOGDIR}/pcp_dmesg.log
-pcp_lms_players squeezelite pCP | sed 's/,/ - /g' | sort > ${LOGDIR}/pcp_squeezelite_ip.log
+pcp_lms_players "squeezelite" "pCP" | sed 's/,/ - /g' | sort > ${LOGDIR}/pcp_squeezelite_ip.log
 ${SQLT_BIN} -h > ${LOGDIR}/pcp_squeezelite_help.log
+${SQLT_BIN} -t > ${LOGDIR}/pcp_squeezelite_license.log
 cat /usr/local/etc/pcp/pcp.cfg > ${LOGDIR}/pcp_pcp_configuration.log
 #----------------------------------------------------------------------------------------
 
@@ -72,8 +73,8 @@ echo '          <legend>Log file operations</legend>'
 echo '          <form name="log" action="'$0'" method="get">'
 echo '            <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
-pcp_incr_id
 pcp_start_row_shade
+pcp_incr_id
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column300">'
 echo '                  <select class="large22" name="SELECTION">'
@@ -99,7 +100,7 @@ echo '                    <p><b>Note:</b> Log files are temporary, they are not 
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'
-
+#----------------------------------------------------------------------------------------
 if [ "$FIRST" = "All" ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
@@ -108,7 +109,6 @@ if [ "$FIRST" = "All" ]; then
 	echo '                </td>'
 	echo '              </tr>'
 fi
-
 #----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </form>'
@@ -142,9 +142,4 @@ pcp_log_show() {
 [ "$ACTION" = "Show" ] && pcp_log_show
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
-exit
+pcp_html_end
