@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-08
+# Version: 6.0.0 2019-08-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -39,14 +39,20 @@ WGET="/bin/busybox wget"
 # Local functions
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
+	pcp_incr_id
 	echo '<table class="bgred">'
 	echo '  <tr class="warning">'
 	echo '    <td>'
-	echo '      <p style="color:white"><b>Warning:</b> LMS is a server database application and needs to be shutdown properly.</p>'
+	echo '      <p style="color:white"><b>Warning:</b> Logitech Media Server (LMS)'
+	echo '        is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
+	echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '      </p>'
+	echo '      <div id="'$ID'" class="less">'
 	echo '      <ul>'
 	echo '        <li style="color:white">Do NOT just pull the power plug.</li>'
 	echo '        <li style="color:white">Use [Main Page] > [Shutdown].</li>'
 	echo '      </ul>'
+	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
 	echo '</table>'
@@ -74,7 +80,8 @@ pcp_remove_lms() {
 
 pcp_remove_lms_cache() {
 	sudo rm -rf $TCEMNT/tce/slimserver/
-	for I in $(find /mnt -maxdepth 1 | grep -Ev 'mmcblk0p[1-9]'); do
+	for I in $(find /mnt -maxdepth 1 | grep -Ev 'mmcblk0p[1-9]')
+	do
 		[ -d $I/slimserver ] && rm -rf $I/slimserver/
 	done
 	sync
@@ -143,11 +150,9 @@ pcp_install_samba4() {
 	echo '[ INFO ] Downloading Samba4...'
 	sudo -u tc pcp-load -r $PCP_REPO -w samba4.tcz
 	[ $? -eq 0 ] || (echo $?; RESULT=1)
-#	echo '<p>'
 	if [ $RESULT -eq 0 ]; then
 		sudo -u tc pcp-load -i samba4.tcz
 		[ $? -eq 0 ] || (echo $?; RESULT=1)
-#		echo '<p>'
 	fi
 	if [ $RESULT -eq 0 ]; then
 		echo "samba4.tcz" >> $ONBOOTLST
@@ -441,8 +446,8 @@ else
 	pcp_red_cross "not running"
 fi
 
-pcp_incr_id
 pcp_start_row_shade
+pcp_incr_id
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td class="column150 center">'
 echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
@@ -1003,7 +1008,7 @@ pcp_slimserver_persistence() {
 		;;
 		*);;
 	esac
-
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
@@ -1023,7 +1028,6 @@ pcp_slimserver_persistence() {
 		echo '                <td></td>'
 	fi
 	echo '              </tr>'
-
 #--------------------------------------Submit button-------------------------------------
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -1068,14 +1072,15 @@ pcp_extra_filesys() {
 
 	DISABLE_REMOVEFS=0
 	DISABLE_REMOVEEXFAT=0
-	for I in `mount | awk '{print $5}'`; do
+	for I in `mount | awk '{print $5}'`
+	do
 		case "$I" in
 			fat*|vfat|*squash*|proc|tmpfs|sysfs|devpts|ext*);;
 			exfat|fuseblk) DISABLE_REMOVEEXFAT=1;;
 			*) DISABLE_REMOVEFS=1;;
 		esac
 	done
-
+	#------------------------------------------------------------------------------------
 	pcp_start_row_shade
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1117,6 +1122,7 @@ pcp_extra_filesys() {
 	fi
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
@@ -1163,6 +1169,7 @@ pcp_extra_filesys() {
 	fi
 	echo '                </td>'
 	echo '              </tr>'
+	#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
@@ -1202,7 +1209,6 @@ pcp_mount_usbdrives() {
 			esac
 		done < $USBMOUNTCONF
 	fi
-
 	#------------------------------------------------------------------------------------
 	echo '<table id="partmount" class="bggrey">'
 	echo '  <tr>'
