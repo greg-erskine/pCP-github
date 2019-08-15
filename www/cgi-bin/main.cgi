@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-14
+# Version: 6.0.0 2019-08-15
 
 . pcp-functions
 . pcp-lms-functions
@@ -66,17 +66,6 @@ if [ "$ACTION" = "shutdown" ]; then
 fi
 
 #========================================================================================
-# Padding
-#----------------------------------------------------------------------------------------
-pcp_main_padding() {
-	pcp_toggle_row_shade
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td></td>'
-	echo '              <td></td>'
-	echo '            </tr>'
-}
-
-#========================================================================================
 # Main piCorePlayer operations
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
@@ -125,7 +114,7 @@ pcp_main_squeezelite_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-pcp_main_squeezelite_indication && pcp_main_padding
+pcp_main_squeezelite_indication && pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
 
 #------------------------------------LMS Indication--------------------------------------
@@ -156,7 +145,7 @@ pcp_main_lms_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ "$LMSERVER" = "yes" ] && pcp_main_lms_indication && pcp_main_padding
+[ "$LMSERVER" = "yes" ] && pcp_main_lms_indication && pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Shairport Indication--------------------------------
@@ -191,7 +180,7 @@ pcp_main_shairport_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication && pcp_main_padding
+[ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication && pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
@@ -250,7 +239,7 @@ pcp_main_restart_shairport() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Padding---------------------------------------
-[ $MODE -le $MODE_BASIC ] && pcp_main_padding
+[ $MODE -le $MODE_BASIC ] && pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite----------------------------
