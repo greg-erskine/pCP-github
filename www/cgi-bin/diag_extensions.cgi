@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-06-04
+# Version: 6.0.0 2019-08-16
 
 #========================================================================================
 # This script checks for required extensions in repositories.
@@ -349,11 +349,11 @@ echo '          <legend>Warning</legend>'
 echo '          <table class="bggrey percent100">'
 echo '            <tr class="warning">'
 echo '              <td>'
-echo '                <p style="color:white">The checks below only refer to extensions for:</p>'
+echo '                <p>The checks below only refer to extensions for:</p>'
 echo '                <ul>'
-echo '                  <li style="color:white">Kernel: '${KERNELVER}'</li>'
-echo '                  <li style="color:white">Major version: '$(getMajorVer)'.x</li>'
-echo '                  <li style="color:white">Build version: '$(getBuild)'</li>'
+echo '                  <li>Kernel: '${KERNELVER}'</li>'
+echo '                  <li>Major version: '$(getMajorVer)'.x</li>'
+echo '                  <li>Build version: '$(getBuild)'</li>'
 echo '                </ul>'
 echo '              </td>'
 echo '            </tr>'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-06
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 . pcp-rpi-functions
@@ -62,7 +62,7 @@ pcp_wifi_error_messages() {
 		echo '<table class="bgred">'
 		echo '  <tr class="warning">'
 		echo '    <td>'
-		echo '      <div style="color:white">'
+		echo '      <div>'
 		echo '        <p><b>WARNINGS:</b>'
 		echo '          <ul>'
 		for i in 1 2 3 4 5; do

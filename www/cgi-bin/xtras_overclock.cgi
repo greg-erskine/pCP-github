@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-02
+# Version: 6.0.0 2019-08-16
 
 #========================================================================================
 # References:
@@ -49,32 +49,31 @@ pcp_warning_message() {
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Warning</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
+	echo '          <table class="bgred percent100">'
+	echo '            <tr>'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b></p>'
+	echo '                <p><b>Warning:</b></p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">It can be dangerous to play with overclocking.</li>'
-	echo '                  <li style="color:white">Excessive overclocking can cause your Raspberry Pi to become unstable.</li>'
-	echo '                  <li style="color:white">Setting "force turbo" may set warranty bit.</li>'
-	echo '                  <li style="color:white">Do not transfer SD card bewteen different model Raspberry Pi.</li>'
+	echo '                  <li>It can be dangerous to play with overclocking.</li>'
+	echo '                  <li>Excessive overclocking can cause your Raspberry Pi to become unstable.</li>'
+	echo '                  <li>Setting "force turbo" may set warranty bit.</li>'
+	echo '                  <li>Do not transfer SD card bewteen different model Raspberry Pi.</li>'
 	echo '                </ul>'
-	echo '                <p style="color:white"><b>Note:</b></p>'
+	echo '                <p><b>Note:</b></p>'
 	echo '                <ul>'
 
-	MESSAGEPI0='<li style="color:white">Raspberry Pi Model 0: Underclocking only.</li>'
-	MESSAGEPI1='<li style="color:white">Raspberry Pi Model 1: Overclocking and underclocking.</li>'
-	MESSAGEPI2='<li style="color:white">Raspberry Pi Model 2: Overclocking and underclocking.</li>'
-	MESSAGEPI3='<li style="color:white">Raspberry Pi Model 3: Underclocking only.</li>'
-	MESSAGEPI4='<li style="color:white">Raspberry Pi Model 4: Underclocking only.</li>'
-
+	MESSAGEPI0='<li>Raspberry Pi Model 0: Underclocking only.</li>'
+	MESSAGEPI1='<li>Raspberry Pi Model 1: Overclocking and underclocking.</li>'
+	MESSAGEPI2='<li>Raspberry Pi Model 2: Overclocking and underclocking.</li>'
+	MESSAGEPI3='<li>Raspberry Pi Model 3: Underclocking only.</li>'
+	MESSAGEPI4='<li>Raspberry Pi Model 4: Underclocking only.</li>'
 
 	case $RPITYPE in
-		0) MESSAGEPI0='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 0: Underclocking only. &gt;&gt;</b></li>' ;;
-		1) MESSAGEPI1='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 1: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
-		2) MESSAGEPI2='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 2: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
-		3) MESSAGEPI3='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 3: Underclocking only. &gt;&gt;</b></li>' ;;
-		4) MESSAGEPI4='<li style="color:white"><b>&lt;&lt; Raspberry Pi Model 4: Underclocking only. &gt;&gt;</b></li>' ;;
+		0) MESSAGEPI0='<li><b>&lt;&lt; Raspberry Pi Model 0: Underclocking only. &gt;&gt;</b></li>' ;;
+		1) MESSAGEPI1='<li><b>&lt;&lt; Raspberry Pi Model 1: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
+		2) MESSAGEPI2='<li><b>&lt;&lt; Raspberry Pi Model 2: Overclocking and underclocking. &gt;&gt;</b></li>' ;;
+		3) MESSAGEPI3='<li><b>&lt;&lt; Raspberry Pi Model 3: Underclocking only. &gt;&gt;</b></li>' ;;
+		4) MESSAGEPI4='<li><b>&lt;&lt; Raspberry Pi Model 4: Underclocking only. &gt;&gt;</b></li>' ;;
 	esac
 
 	echo "                  $MESSAGEPI0"
@@ -172,7 +171,7 @@ pcp_start_save() {
 	. $PCPCFG
 
 	#========================================================================================
-	# Official overclocking data from raspi-config - Rasbian
+	# Official overclocking data from raspi-config - Raspbian
 	#----------------------------------------------------------------------------------------
 	#  RPi0
 	#     "None"
@@ -274,7 +273,6 @@ pcp_start_save() {
 	fi
 
 	pcp_umount_bootpart >/dev/null 2>&1
-	
 	REBOOT_REQUIRED=1
 }
 
@@ -450,9 +448,9 @@ echo '              </tr>'
 #--------------------------------------Force turbo---------------------------------------
 pcp_incr_id
 pcp_toggle_row_shade
-echo '              <tr class="warning">'
+echo '              <tr class="'$ROWSHADE' warning">'
 echo '                <td class="column150">'
-echo '                  <p style="color:white">Force turbo</p>'
+echo '                  <p>Force turbo</p>'
 echo '                </td>'
 echo '                <td class="column210">'
 echo '                  <select class="large16" name="FORCETURBO">'
@@ -462,13 +460,13 @@ echo '                    <option value="0" '$FT0'>No</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p style="color:white">Change Raspberry Pi force turbo setting&nbsp;&nbsp;'
+echo '                  <p>Change Raspberry Pi force turbo setting&nbsp;&nbsp;'
 echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 echo '                  </p>'
 echo '                  <div id="'$ID'" class="less">'
-echo '                    <p style="color:white">&lt;Default|Yes|No&gt;</p>'
-echo '                    <p style="color:white"><b>Warning: </b>Setting force turbo may set warranty bit.<p>'
-echo '                    <p style="color:white">Reboot is required.<p>'
+echo '                    <p>&lt;Default|Yes|No&gt;</p>'
+echo '                    <p><b>Warning: </b>Setting force turbo may set warranty bit.<p>'
+echo '                    <p>Reboot is required.<p>'
 echo '                  </div>'
 echo '                </td>'
 echo '              </tr>'

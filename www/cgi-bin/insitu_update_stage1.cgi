@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.1 2010-05-04
+# Version: 6.0.0 2010-08-16
 
 . pcp-functions
 
@@ -110,13 +110,13 @@ pcp_warning_message() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b></p>'
+	echo '                <p><b>Warning:</b></p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Assume an insitu update will overwrite ALL the data on your SD card.</li>'
-	echo '                  <li style="color:white">Any user modified or added files may be lost or overwritten.</li>'
-	echo '                  <li style="color:white">An insitu update requires about 50% free space.</li>'
-	echo '                  <li style="color:white">Boot files config.txt and cmdline.txt will be overwritten.</li>'
-	echo '                  <li style="color:white">You may need to manually update your plugins, extensions, static IP etc.</li>'
+	echo '                  <li>Assume an insitu update will overwrite ALL the data on your SD card.</li>'
+	echo '                  <li>Any user modified or added files may be lost or overwritten.</li>'
+	echo '                  <li>An insitu update requires about 50% free space.</li>'
+	echo '                  <li>Boot files config.txt and cmdline.txt will be overwritten.</li>'
+	echo '                  <li>You may need to manually update your plugins, extensions, static IP etc.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'

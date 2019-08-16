@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 
@@ -47,14 +47,14 @@ pcp_warning_message() {
 	echo '          <table class="bgred percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> It can be dangerous to play with bootcodes.</p>'
+	echo '                <p><b>Warning:</b> It can be dangerous to play with bootcodes.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Only suitable for advanced users who want to experiment with bootcodes.</li>'
-	echo '                  <li style="color:white">Use at your own risk.</li>'
-	echo '                  <li style="color:white">Some of the Tiny Core Linux bootcodes may not work with piCorePlayer.</li>'
-	echo '                  <li style="color:white">Only a small subset of bootcodes are available on this page.</li>'
-	echo '                  <li style="color:white">Requests for activating additional bootcodes welcome.</li>'
-	echo '                  <li style="color:white">A reboot is required to make changed bootcodes active.</li>'
+	echo '                  <li>Only suitable for advanced users who want to experiment with bootcodes.</li>'
+	echo '                  <li>Use at your own risk.</li>'
+	echo '                  <li>Some of the Tiny Core Linux bootcodes may not work with piCorePlayer.</li>'
+	echo '                  <li>Only a small subset of bootcodes are available on this page.</li>'
+	echo '                  <li>Requests for activating additional bootcodes welcome.</li>'
+	echo '                  <li>A reboot is required to make changed bootcodes active.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'

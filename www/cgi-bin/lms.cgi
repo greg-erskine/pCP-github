@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-14
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 . pcp-rpi-functions
@@ -41,16 +41,16 @@ WGET="/bin/busybox wget"
 pcp_lms_warning() {
 	pcp_incr_id
 	echo '<table class="bgred">'
-	echo '  <tr class="warning">'
+	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p style="color:white"><b>Warning:</b> Logitech Media Server (LMS)'
+	echo '      <p><b>Warning:</b> Logitech Media Server (LMS)'
 	echo '        is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
 	echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '      </p>'
 	echo '      <div id="'$ID'" class="less">'
 	echo '      <ul>'
-	echo '        <li style="color:white">Do NOT just pull the power plug.</li>'
-	echo '        <li style="color:white">Use [Main Page] > [Shutdown].</li>'
+	echo '        <li>Do NOT just pull the power plug.</li>'
+	echo '        <li>Use [Main Page] > [Shutdown].</li>'
 	echo '      </ul>'
 	echo '      </div>'
 	echo '    </td>'
@@ -412,10 +412,10 @@ pcp_lms_audiocore_warning() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> Running LMS on the Realtime AudioCore is not recommended.</p>'
+	echo '                <p><b>Warning:</b> Running LMS on the Realtime AudioCore is not recommended.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Realtime kernels do not work well in a server environment.</li>'
-	echo '                  <li style="color:white">If it does not work properly, you have been warned.</li>'
+	echo '                  <li>Realtime kernels do not work well in a server environment.</li>'
+	echo '                  <li>If it does not work properly, you have been warned.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'

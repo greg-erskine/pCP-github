@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-08-16
 
 # Title: Screen setup
 # Description: Load modules for Waveshare screens
@@ -31,9 +31,9 @@ pcp_warning_message() {
 	echo '          <table class="bgred percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> Copyright Notice.</p>'
+	echo '                <p><b>Warning:</b> Copyright Notice.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Wavewshare screens.</li>'
+	echo '                  <li>Wavewshare screens.</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'

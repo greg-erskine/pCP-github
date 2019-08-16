@@ -1,6 +1,6 @@
 /* piCorePlayer style sheet
 
-Version: 4.0.1 2018-09-21
+Version: 6.0.0 2019-08-16
 
 */
 
@@ -26,11 +26,11 @@ h2 {
 	color:black;
 }
 
-.debug {
+.debug, .warning {
 	color:orange;
 }
 
-.error, .warning {
+.error {
 	color:red;
 }
 
@@ -53,7 +53,7 @@ h2 {
 	text-align:center;
 }
 
-/* Copyrigth test needs to be smaller, light and centred */
+/* Copyright text needs to be smaller, light and centered */
 .copyright {
 	color:#888888;
 	font-size:11px;
@@ -73,11 +73,7 @@ h2 {
 	background:#eaeaea;
 }
 
-.warning {
-	background:red;
-}
-
-.even td p, .odd td p, .warning td p {
+.even td p, .odd td p, .bgred tr td p {
 	margin-bottom:5px;
 	margin-top:5px;
 }
@@ -100,6 +96,16 @@ h2 {
 	color:#cc3300;
 	cursor:help;
 	font-size:10px;
+}
+
+/* White text for red background warning table */
+.bgred p, .bgred li, .bgred a.moreless,
+.warning p, .warning li, .warning a.moreless {
+	color:white;
+}
+
+tr.warning, td.warning {
+	background:red;
 }
 
 /* Red crosses and green tick indicators */
@@ -155,7 +161,7 @@ input, button {
 }
 
 button:focus {
-	outline: none;
+	outline:none;
 	!important;
 }
 
@@ -371,7 +377,7 @@ textarea.white {
 
 /* LMS Control Buttons */
 .ctrlbutton {
-	position: relative;
+	position:relative;
 	background-color:black;
 	border:none;
 	border-radius:8px 8px 8px 8px;
@@ -381,31 +387,33 @@ textarea.white {
 	line-height:20px;
 	margin-top:-12px;
 	overflow:hidden;
-	white-space: nowrap;
+	white-space:nowrap;
 	text-align:center;
 	width:132px;
-	-webkit-transition-duration: 0.4s; /* Safari */
-	transition-duration: 0.4s;
-	text-decoration: none;
-	cursor: pointer;
+	-webkit-transition-duration:0.4s; /* Safari */
+	transition-duration:0.4s;
+	text-decoration:none;
+	cursor:pointer;
 }
+
 .ctrlbutton:after{
-	content: "";
-	background: #e02929;
-	display: block;
-	position: absolute;
-	padding-top: 300%;
-	padding-left: 350%;
-	margin-left: -20px!important;
-	margin-top: -120%;
-	opacity: 0;
-	transition: all .8s
+	content:"";
+	background:#e02929;
+	display:block;
+	position:absolute;
+	padding-top:300%;
+	padding-left:350%;
+	margin-left:-20px!important;
+	margin-top:-120%;
+	opacity:0;
+	transition:all .8s
 }
+
 .ctrlbutton:active:after {
-	padding: 0;
-	margin: 0;
-	opacity: 1;
-	transition: 0s
+	padding:0;
+	margin:0;
+	opacity:1;
+	transition:0s
 }
 
 .ctrlbutton:hover, .ctrlmoreless:hover {

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-22
+# Version: 6.0.0 2019-08-16
 
 #========================================================================================
 # Change tc password
@@ -118,21 +118,22 @@ echo '        <fieldset>'
 echo '          <legend>Change '$USERNAME' password</legend>'
 echo '          <form name="password" action="./security.cgi" method="get">'
 echo '            <table class="bggrey percent100">'
+pcp_start_row_shade
 #------------------------------------Warning---------------------------------------------
 if [ "$CURRENTPASSWDHASH" = "$(pcp_security_passwd_hash "$DEFAULTPASSWD")" ]; then
-	echo '              <tr class="warning">'
-	echo '                <td>'
-	echo '                  <div style="color:white">'
-	echo '                    <p><b>WARNING: </b>Using default '$USERNAME' password.</p>'
-	echo '                  </div>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="warning" colspan="3">'
+	echo '                  <p><b>WARNING: </b>Using default '$USERNAME' password.</p>'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_table_padding
+	pcp_table_padding "3"
+	pcp_toggle_row_shade
 fi
 #--------------------------------Current password----------------------------------------
-pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">Change password for "'$USERNAME'"</td>'
+echo '                <td class="'$COLUMN1'">'
+echo '                  <p>Change password for "'$USERNAME'"</p>'
+echo '                </td>'
 echo '                <td class="'$COLUMN2'">'
 echo '                  <input class="large16"'
 echo '                         type="password"'

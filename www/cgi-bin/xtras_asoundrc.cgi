@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 #. $CONFIGCFG
@@ -167,10 +167,10 @@ esac
 #========================================================================================
 # WARNING message
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr class="warning">'
+echo '<table class="bgred">'
+echo '  <tr>'
 echo '    <td>'
-echo '      <p style="color:white"><b>WARNING:</b> Beta software!! Does not work 100%,'
+echo '      <p><b>WARNING:</b> Beta software!! Does not work 100%,'
 echo '      but it may be useful. Use at your own risk.</p>'
 echo '    </td>'
 echo '  </tr>'
@@ -187,13 +187,14 @@ echo '          <fieldset>'
 echo '            <legend>Generate asound.conf</legend>'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Warning-------------------------------------------
-echo '              <tr class="warning">'
-echo '                <td colspan="3">'
-echo '                  <p style="color:white"><b>Note:</b> Using an incompatible asound.conf may stop squeezelite from starting.</b></p>'
+pcp_start_row_shade
+echo '              <tr class="'$ROWSHADE'">'
+echo '                <td class="warning" colspan="3">'
+echo '                  <p><b>Note:</b> Using an incompatible asound.conf may stop squeezelite from starting.</b></p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------Default/Stereo/Mono/Swap/Left/Right---------------
-pcp_start_row_shade
+pcp_toggle_row_shade
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column150">'
 echo '                  <p class="row">Stereo/Mono/Swap/L/R</p>'
@@ -297,13 +298,13 @@ echo '  </tr>'
 #--------------------------------------Output settings-----------------------------------
 echo '  <tr class="warning">'
 echo '    <td class="column150">'
-echo '      <p style="color:white">Output settings</p>'
+echo '      <p>Output settings</p>'
 echo '    </td>'
 echo '    <td class="column210">'
 echo '      <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" readonly>'
 echo '    </td>'
 echo '    <td>'
-echo '      <p style="color:white">This field should be empty - use Squeezelite Settings page.</p>'
+echo '      <p>This field should be empty - use Squeezelite Settings page.</p>'
 echo '    </td>'
 echo '  </tr>'
 #------------------------------------Squeezelite restart button--------------------------

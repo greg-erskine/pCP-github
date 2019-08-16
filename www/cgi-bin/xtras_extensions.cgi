@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-05
+# Version: 6.0.0 2019-06-16
 
 #========================================================================================
 # This script installs, deletes, updates and reports on extensions.
@@ -626,13 +626,13 @@ pcp_select_repository() {
 		echo '                </td>'
 		echo '              </tr>'
 	else
-		echo '              <tr class="warning">'
+		echo '              <tr class="'$ROWSHADE' warning">'
 		echo '                <td class="column150">'
 		echo '                  <input type="submit" name="SUBMIT" value="Reset">'
 		echo '                  <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
 		echo '                </td>'
 		echo '                <td colspan="2">'
-		echo '                  <p style="color:white"><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
+		echo '                  <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
 		echo '                </td>'
 		echo '              </tr>'
 	fi

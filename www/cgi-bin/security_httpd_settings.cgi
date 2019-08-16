@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-22
+# Version: 6.0.0 2019-08-16
 
 #========================================================================================
 # Functions
@@ -52,11 +52,11 @@ pcp_httpd_warning_message() {
 	echo '<table class="bgred">'
 	echo '  <tr class="warning">'
 	echo '    <td>'
-	echo '      <p style="color:white"><b>Warning:</b></p>'
+	echo '      <p><b>Warning:</b></p>'
 	echo '      <ul>'
-	echo '        <li style="color:white">'$HTTPD_CONF' is marked as \"Maintained by user\".</li>'
-	echo '        <li style="color:white">Configuration file will be not be editted by piCorePlayer.</li>'
-	echo '        <li style="color:white">Use manual methods to maintain.</li>'
+	echo '        <li>'$HTTPD_CONF' is marked as \"Maintained by user\".</li>'
+	echo '        <li>Configuration file will be not be editted by piCorePlayer.</li>'
+	echo '        <li>Use manual methods to maintain.</li>'
 	echo '      </ul>'
 	echo '    </td>'
 	echo '  </tr>'

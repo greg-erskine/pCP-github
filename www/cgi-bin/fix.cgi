@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 5.0.1 2019-06-15
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 
@@ -270,9 +270,9 @@ pcp_warning_message() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> You are about to apply a HotFix to pCP '$(pcp_picoreplayer_version)'.</p>'
+	echo '                <p><b>Warning:</b> You are about to apply a HotFix to pCP '$(pcp_picoreplayer_version)'.</p>'
 	echo '                <ul>'
-	echo '                  <li style="color:white">Yes really!!</li>'
+	echo '                  <li>Yes really!!</li>'
 	echo '                </ul>'
 	echo '              </td>'
 	echo '            </tr>'
@@ -308,7 +308,6 @@ pcp_html_end() {
 	echo '  </tr>'
 	echo '</table>'
 
-	pcp_go_main_button
 	pcp_footer
 	pcp_copyright
 	

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-07
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 
@@ -212,29 +212,30 @@ case "$SUBMIT" in
 				echo '                </td>'
 				echo '              </tr>'
 			fi
-			echo '              <tr class="warning">'
-			echo '                <td colspan="2">'
+		#--------------------------------------------------------------------------------
+			echo '              <tr class="'$ROWSHADE'">'
+			echo '                <td class="warning" colspan="2">'
 			if [ $AVAILABLE_SPACE_MB -gt 100 ]; then
-				echo '                  <p style="color:white">'
+				echo '                  <p>'
 				echo '                    <input type="submit" name="SUBMIT" value="Resize">&nbsp;&nbsp;Click [Resize] to start the resize partition process.'
 				echo '                  </p>'
 			else
-				echo '                  <p style="color:white"><b>WARNING:</b> Partition can not be expanded (only '$AVAILABLE_SPACE_MB' MB left).</p>'
+				echo '                  <p><b>WARNING:</b> Partition can not be expanded (only '$AVAILABLE_SPACE_MB' MB left).</p>'
 			fi
 			echo '                </td>'
 			echo '              </tr>'
 		else
-			echo '              <tr  class="warning">'
-			echo '                <td colspan="2">'
-			echo '                  <p style="color:white"><b>WARNING:</b> The resize partition 2 option has been disabled to prevent damage to your '$PHYSDEV'.</p>'
-			echo '                  <p style="color:white">You have:</p>'
+			echo '              <tr class="'$ROWSHADE'">'
+			echo '                <td class="warning" colspan="2">'
+			echo '                  <p><b>WARNING:</b> The resize partition 2 option has been disabled to prevent damage to your '$PHYSDEV'.</p>'
+			echo '                  <p>You have:</p>'
 			echo '                  <ul>'
 			                          [ $NUM_OF_PARTITIONS -ne 2 ] &&
-			echo '                    <li style="color:white">more than 2 partitions</li>'
+			echo '                    <li>more than 2 partitions</li>'
 			                          [ "$P1_NAME" != "PCP_BOOT" ] &&
-			echo '                    <li style="color:white">partition 1 labelled "'$P1_NAME'" should be labelled "PCP_ROOT".</li>'
+			echo '                    <li>partition 1 labelled "'$P1_NAME'" should be labelled "PCP_ROOT".</li>'
 			                          [ "$P2_NAME" != "PCP_ROOT" ] &&
-			echo '                    <li style="color:white">partition 2 labelled "'$P2_NAME'" should be labelled "PCP_BOOT".</li>'
+			echo '                    <li>partition 2 labelled "'$P2_NAME'" should be labelled "PCP_BOOT".</li>'
 			echo '                  </ul>'
 			echo '                </td>'
 			echo '              </tr>'
@@ -288,11 +289,11 @@ case "$SUBMIT" in
 				ADD_ERROR_MSG="Partition 3 ($P3_NAME) already exists."
 			fi
 			if ! [ $ADD_ERROR ]; then
-				echo '                  <p style="color:white">'
+				echo '                  <p>'
 				echo '                    <input type="submit" name="SUBMIT" value="Add">&nbsp;&nbsp;Click [Add] to add partition 3.'
 				echo '                  </p>'
 			else
-				echo '                  <p style="color:white"><b>WARNING:</b> '$ADD_ERROR_MSG'</p>'
+				echo '                  <p><b>WARNING:</b> '$ADD_ERROR_MSG'</p>'
 			fi
 			echo '                </td>'
 			echo '              </tr>'

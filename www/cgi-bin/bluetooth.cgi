@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-07
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 . pcp-rpi-functions
@@ -351,7 +351,7 @@ pcp_bt_beta_mode_required() {
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="warning">'
 	echo '              <td>'
-	echo '                <p style="color:white"><b>Warning:</b> Beta Mode is required for Bluetooth functions to be enabled.</p>'
+	echo '                <p><b>Warning:</b> Beta Mode is required for Bluetooth functions to be enabled.</p>'
 	echo '              </td>'
 	echo '            </tr>'
 	echo '          </table>'
