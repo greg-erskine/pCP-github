@@ -1223,64 +1223,9 @@ pcp_redirect_button() {
 #  - $1 can be set to "nohtml"
 #  - function can generate text or html output.
 #----------------------------------------------------------------------------------------
-xxxpcp_backup() {
-	WARNSIZE=350000
-	if [ "$1" = "nohtml" ]; then
-		NEWLINE="-n"
-		PCLASSINFO=""
-		PCLASSERROR=""
-		PCLASSOK=""
-		PCLASSWARN=""
-		PRE=""
-		SLASHPRE=""
-		SLASHP=""
-	else
-		NEWLINE=""
-		PCLASSINFO='<p class="info">'
-		PCLASSERROR='<p class="error">'
-		PCLASSOK='<p class="ok">'
-		PCLASSWARN='<p class="warn">'
-		PRE='<pre>'
-		SLASHPRE='</pre>'
-		SLASHP='</p>'
-	fi
-
-	# Delete any previous backup_done file
-	[ -e /tmp/backup_done ] && sudo rm -f /tmp/backup_done
-
-	# Do a backup - filetool.sh backs up files in .filetool.lst
-	echo $NEWLINE $PCLASSINFO'[ INFO ] '
-	sudo filetool.sh -b | tee -a $LOG
-	[ "$1" = "nohtml" ] || echo $SLASHP
-	sync > /dev/null 2>&1
-
-	# If backup_status file exists and is non-zero in size, then an error has occurred
-	if [ -s /tmp/backup_status ]; then
-		echo $PCLASSERROR'[ ERROR ] Show backup_status...'$SLASHP | tee -a $LOG
-		echo $NEWLINE $PRE
-		cat /tmp/backup_status | tee -a $LOG
-		echo $NEWLINE $SLASHPRE
-	fi
-
-	# If backup_done exists, then the backup was successful
-	if [ -f /tmp/backup_done ]; then
-		echo $PCLASSOK'[ OK ] Backup successful.'$SLASHP | tee -a $LOG
-	else
-		echo $PCLASSERROR'[ ERROR ] Backup failed.'$SLASHP | tee -a $LOG
-	fi
-
-	# Encourage users to keep files backed up to mydata.tgz small
-	if [ $(pcp_check_mydata) -gt $WARNSIZE ]; then
-		echo $PCLASSWARN'[ WARN ] Your backup is a little large - '$(pcp_check_mydata)' bytes.'$SLASHP | tee -a $LOG
-		echo $PCLASSINFO'[ INFO ] Be careful adding large files to /home/tc.'$SLASHP | tee -a $LOG
-		echo $PCLASSINFO'[ INFO ] If your backup takes a long time, piCorePlayer may fail to start properly.'$SLASHP | tee -a $LOG
-	fi
-}
-
 pcp_backup() {
 	local FORMAT=$1
-	local WARNSIZE=35 #0000
-	[ "$FORMAT" = "nohtml" ] && local FORMAT="text" # <== GE nohtml depreciated
+	local WARNSIZE=350000
 	[ "$FORMAT" = "" ] && local FORMAT="html"
 
 	# Delete any previous backup_done file
@@ -1321,11 +1266,6 @@ pcp_backup() {
 		pcp_message INFO "Be careful adding large files to /home/tc." "text" >> $LOG
 		pcp_message INFO "If your backup takes a long time, piCorePlayer may fail to start properly." "text" >> $LOG
 	fi
-}
-
-# For backward compatibility - recommended to use pcp_backup "nohtml"
-pcp_backup_nohtml() {
-	pcp_backup "nohtml"
 }
 
 pcp_check_mydata() {
