@@ -1,7 +1,7 @@
 #!/bin/sh
 # Raspberry Pi network throughput diagnostics script
 
-# Version: 5.0.0 2019-04-20
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 . pcp-rpi-functions
@@ -10,7 +10,6 @@ pcp_html_head "Raspberry Pi Network Diagnostics" "PH"
 
 pcp_banner
 pcp_diagnostics
-pcp_running_script
 pcp_httpd_query_string
 
 Set defaults.
@@ -100,7 +99,7 @@ case "$ACTION" in
 		echo
 		echo 'After a reboot these extensions will be permanently deleted:'
 		pcp_remove_iperf3
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		pcp_table_end
 		REBOOT_REQUIRED=1
@@ -123,7 +122,7 @@ case "$ACTION" in
 		echo '              </tr>'
 		pcp_table_end
 		echo '</form>'
-		
+
 		pcp_table_top "Iperf3 Output"
 		echo '                <textarea class="inform" style="height:240px">'
 		if [ $(pcp_squeezelite_status) -eq 0 ]; then
@@ -132,7 +131,7 @@ case "$ACTION" in
 		fi
 
 		REV=""
-		if [ "$IPERF3_SERVER_MODE" = "no" ]; then 
+		if [ "$IPERF3_SERVER_MODE" = "no" ]; then
 			if [ "$IPERF3_UDP" = "no" ]; then
 				UDP=""
 				echo "[ INFO ] Iperf running in TCP Mode."
@@ -167,7 +166,7 @@ case "$ACTION" in
 			IPERF_COMMAND="iperf3 -s -V"
 		fi
 		[ $DEBUG -eq 1 ] && echo "[ DEBUG ] Iperf command: $IPERF_COMMAND"
-		
+
 		$IPERF_COMMAND
 		if [ $? -ne 0 ]; then
 			echo "[ ERROR ] Iperf3 connection error, check to be sure server is running on selected <host>:<port>"
@@ -180,7 +179,6 @@ case "$ACTION" in
 		echo '</script>'
 	;;
 esac
-
 
 #========================================================================================
 # Raspberry Pi Network Performance Diagnostics
@@ -314,20 +312,22 @@ echo '      <div class="row">'
 echo '        <fieldset>'
 echo '          <legend>Network Performance (iperf3)</legend>'
 echo '          <table class="bggrey percent100">'
+#----------------------------------------------------------------------------------------
 pcp_incr_id
 pcp_start_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 echo '                <p>&nbsp;&nbsp;&nbsp;&nbsp;For help setting up an iperf server on another machine. Please goto <a href="https://software.es.net/iperf/" target="_blank">ESNet</a> or <a href="https://iperf.fr/" target="_blank">iperf.fr</a></p>'
 echo '              </td>'
-echo '             </tr>'
+echo '            </tr>'
+#----------------------------------------------------------------------------------------
 pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '                <td class="column150 center">'
 if [ ! -f $TCEMNT/tce/optional/iperf3.tcz ]; then
 	echo '                  <input type="submit" name="ACTION" value="Install" />'
 	echo '                </td>'
-	echo '                <td colspan=2>'
+	echo '                <td colspan="2">'
 	echo '                  <p>Install iperf3 on pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -338,7 +338,7 @@ if [ ! -f $TCEMNT/tce/optional/iperf3.tcz ]; then
 else
 	echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')"/>'
 	echo '                </td>'
-	echo '                <td colspan=2>'
+	echo '                <td colspan="2">'
 	echo '                  <p>Remove iperf3 from pCP&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
@@ -348,7 +348,7 @@ else
 fi
 echo '                </td>'
 echo '              </tr>'
-
+#----------------------------------------------------------------------------------------
 if [ -x /usr/local/bin/iperf3 ]; then
 	[ "$IPERF3_SERVER_MODE" = "no" ] && IPERF3_SERVER_MODEno="checked" || IPERF3_SERVER_MODEyes="checked"
 	pcp_incr_id
@@ -371,7 +371,7 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-
+#----------------------------------------------------------------------------------------
 	if [ "$IPERF3_SERVER_MODE" = "no" ]; then
 		pcp_incr_id
 		pcp_toggle_row_shade
@@ -406,6 +406,7 @@ if [ -x /usr/local/bin/iperf3 ]; then
 		echo '                </td>'
 		echo '              </tr>'
 	fi
+	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -423,7 +424,7 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '                <p>Start iperf testing</p>'
 	echo '              </td>'
 	echo '            </tr>'
-
+	#------------------------------------------------------------------------------------
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '              </td>'
@@ -437,13 +438,11 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '              <td>'
 	echo '              </td>'
 	echo '            </tr>'
-
-
-
-
+	#------------------------------------------------------------------------------------
 	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td colspan=3></td>'
+	echo '              <td colspan="3"></td>'
 	echo '            </tr>'
+	#------------------------------------------------------------------------------------
 else
 	pcp_incr_id
 	pcp_toggle_row_shade
@@ -456,10 +455,10 @@ else
 	echo '              </td>'
 	echo '            </tr>'
 	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td colspan=2></td>'
+	echo '              <td colspan="2"></td>'
 	echo '            </tr>'
 fi
-
+	#------------------------------------------------------------------------------------
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'

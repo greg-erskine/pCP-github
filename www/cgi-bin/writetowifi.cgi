@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.1.0 2019-06-30
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 
@@ -11,7 +11,6 @@ REBOOT_REQUIRED=0
 pcp_html_head "Write WIFI Settings" "SBP"
 
 pcp_banner
-pcp_running_script
 pcp_httpd_query_string
 
 if [ $DEBUG -eq 1 ]; then
@@ -29,7 +28,7 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" -o "$ORIG_RPIBLUETOOTH" != "$RPIBLUET
 	if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" ]; then
 		if [ "$RPI3INTWIFI" = "off" ]; then
 			echo '[ INFO  ] Disabling rpi internal wifi.'
-			echo "dtoverlay=disable-wifi" >> $CONFIGTXT 
+			echo "dtoverlay=disable-wifi" >> $CONFIGTXT
 		else
 			echo '[ INFO  ] Enabling rpi internal wifi.'
 			sed -i '/dtoverlay=disable-wifi/d' $CONFIGTXT
@@ -38,7 +37,7 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" -o "$ORIG_RPIBLUETOOTH" != "$RPIBLUET
 	if [ "$ORIG_RPIBLUETOOTH" != "$RPIBLUETOOTH" ]; then
 		if [ "$RPIBLUETOOTH" = "off" ]; then
 			echo '[ INFO  ] Disabling rpi internal bluetooth.'
-			echo "dtoverlay=disable-bt" >> $CONFIGTXT 
+			echo "dtoverlay=disable-bt" >> $CONFIGTXT
 		else
 			echo '[ INFO  ] Enabling rpi internal bluetooth.'
 			sed -i '/dtoverlay=disable-bt/d' $CONFIGTXT
@@ -51,7 +50,7 @@ if [ "$ORIG_RPI3INTWIFI" != "$RPI3INTWIFI" -o "$ORIG_RPIBLUETOOTH" != "$RPIBLUET
 	fi
 	pcp_umount_bootpart_nohtml
 	pcp_save_to_config
-	pcp_backup "nohtml"
+	pcp_backup "text"
 	pcp_table_textarea_end
 	REBOOT_REQUIRED=1
 fi

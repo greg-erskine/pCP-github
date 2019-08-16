@@ -94,7 +94,7 @@ case "$ACTION" in
 		pcp_table_textarea_top "Config option" "" "50"
 		pcp_save_to_config
 		pcp_wifi_read_wpa_supplicant "text"
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		if [ "$WIFI" = "on" ]; then
 			pcp_wifi_load_wifi_firmware_extns "text"
 			pcp_wifi_load_wifi_extns "text"
@@ -118,7 +118,7 @@ case "$ACTION" in
 			pcp_wifi_unload_wifi_firmware_extns "text"
 		fi
 		pcp_save_to_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		pcp_table_textarea_end
 	;;
 	Network_wait)
@@ -126,7 +126,7 @@ case "$ACTION" in
 		pcp_table_textarea_top "Network wait" "" "50"
 		pcp_wifi_read_wpa_supplicant "text"
 		pcp_save_to_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		pcp_table_textarea_end
 	;;
 	#----------------------------------DEBUG - Developer options-----------------------------
@@ -141,14 +141,14 @@ case "$ACTION" in
 		rm -f $WPASUPPLICANTCONF
 		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "text"
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		pcp_table_textarea_end
 	;;
 	Remove)
 		pcp_table_textarea_top "Remove option" "" "30"
 		pcp_wifi_unload_wifi_extns "text"
 		pcp_wifi_unload_wifi_firmware_extns "text"
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		pcp_table_textarea_end
 	;;
 	Start)

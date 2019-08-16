@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-08-16
 
 . /etc/init.d/tc-functions
 . pcp-functions
@@ -8,7 +8,6 @@
 pcp_html_head "Write to Jivelite Tweak" "SBP"
 
 pcp_banner
-pcp_running_script
 pcp_httpd_query_string
 
 BUILD=$(getBuild)
@@ -193,7 +192,7 @@ case "$OPTION" in
 						pcp_download_vumeters
 						pcp_install_default_vumeter
 						pcp_save_to_config
-						pcp_backup "nohtml"
+						pcp_backup "text"
 					else
 						pcp_message "error" 'Error Downloading Jivelite, try again later.' $MTYPE
 					fi
@@ -211,7 +210,7 @@ case "$OPTION" in
 					pcp_message "info" 'Setting Jivelite to not start during boot...' $MTYPE
 				fi
 				pcp_save_to_config
-				pcp_backup "nohtml"
+				pcp_backup "text"
 				echo '             </textarea>'
 				unset REBOOT_REQUIRED
 			;;
@@ -220,7 +219,7 @@ case "$OPTION" in
 				pcp_table_textarea_top "Removing Jivelite" "" "300"
 				pcp_delete_jivelite
 				pcp_delete_vumeters
-				pcp_backup "nohtml"
+				pcp_backup "text"
 				echo '             </textarea>'
 				REBOOT_REQUIRED=TRUE
 			;;
@@ -230,7 +229,7 @@ case "$OPTION" in
 				pcp_table_textarea_top "Resetting Jivelite" "" "100"
 				pcp_message "info" 'Resetting Jivelite Configuration...' $MTYPE
 				rm -f /home/tc/.jivelite/userpath/settings/*.lua
-				pcp_backup "nohtml"
+				pcp_backup "text"
 
 				sudo kill -SIGTERM `pidof jivelite`
 

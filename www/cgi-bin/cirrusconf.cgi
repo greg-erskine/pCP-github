@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 6.0.0 2019-08-16
 
 # Thanks to M-H for his help in debugging and testing.
 
@@ -13,7 +13,6 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_running_script
 pcp_remove_query_string
 pcp_httpd_query_string
 
@@ -112,7 +111,7 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:120px">'
 		echo '[ INFO ] Setting Cirrus Card Configuration...'
 		set_cirrus_conf
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		pcp_table_end
 	;;

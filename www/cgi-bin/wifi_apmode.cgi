@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 . pcp-rpi-functions
@@ -102,7 +102,7 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:60px">'
 		[ "$APMODE" = "yes" ] && echo '[ INFO ] Enabling pCP AP Mode at boot...' || echo '[ INFO ] Disabling pCP AP Mode at boot...'
 		pcp_save_to_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -140,7 +140,7 @@ case "$ACTION" in
 				APMODE="yes"
 				AP_IP="10.10.10.1"
 				pcp_save_to_config
-				pcp_backup "nohtml"
+				pcp_backup "text"
 			else
 				echo '[ ERROR ] Error Downloading AP Mode, please try again later.'
 			fi
@@ -157,7 +157,7 @@ case "$ACTION" in
 		APMODE="no"
 		pcp_save_to_config
 		pcp_remove_apmode
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		pcp_table_end
 		REBOOT_REQUIRED=1
@@ -191,7 +191,7 @@ case "$ACTION" in
 		echo -n '[ INFO ] Restarting AP.....'
 		sudo /usr/local/etc/init.d/pcp-apmode restart
 		[ $? -eq 0 ] && echo 'Done' || echo 'Error'
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		pcp_table_end
 	;;

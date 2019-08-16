@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-20
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -18,7 +18,6 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_running_script
 [ $DEBUG -eq 0 ] && pcp_remove_query_string
 pcp_httpd_query_string
 
@@ -45,7 +44,7 @@ case "$ACTION" in
 		# Setting Dual Mode first, as it affects how the driver controls volume.
 		case "$PIANOSUBMODE" in
 			"2.0") sudo amixer -c $CARD sset 'Subwoofer mode' "$PIANOSUBMODE" >/dev/null 2>&1;;
-			Dual-Mono) 
+			Dual-Mono)
 				amixer -q -c $CARD sset 'Dual Mode' "$PIANOSUBMODE"
 				amixer -q -c $CARD sset 'Master' frontright,unmute
 				amixer -q -c $CARD sset 'Master' frontleft,unmute
@@ -118,7 +117,7 @@ case "$ACTION" in
 		pcp_save_to_config
 		echo '[ INFO ] Saving Alsa State.'
 		sudo alsactl store
-		pcp_backup "nohtml"
+		pcp_backup "text"
 	;;
 	0dB)
 		echo '[ INFO ] Setting volume to 0dB.'
@@ -128,7 +127,7 @@ case "$ACTION" in
 		pcp_save_to_config
 		echo '[ INFO ] Saving Alsa State.'
 		sudo alsactl store
-		pcp_backup "nohtml"
+		pcp_backup "text"
 	;;
 	4dB)
 		echo '[ INFO ] Setting volume to 4dB.'
@@ -138,7 +137,7 @@ case "$ACTION" in
 		pcp_save_to_config
 		echo '[ INFO ] Saving Alsa State.'
 		sudo alsactl store
-		pcp_backup "nohtml"
+		pcp_backup "text"
 	;;
 	Select)
 		echo '[ INFO ] Setting soundcard driver parameters.'
@@ -148,7 +147,7 @@ case "$ACTION" in
 		ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 		pcp_save_to_config
 		pcp_read_chosen_audio
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		REBOOT_REQUIRED=TRUE
 	;;
 	Onboard)
@@ -169,7 +168,7 @@ case "$ACTION" in
 			ALSA_PARAMS="$ORIG_ALSA_PARAMS"
 			pcp_umount_bootpart_nohtml
 			pcp_save_to_config
-			pcp_backup "nohtml"
+			pcp_backup "text"
 			REBOOT_REQUIRED=TRUE
 		fi
 	;;
@@ -179,7 +178,7 @@ case "$ACTION" in
 		touch /var/lib/alsa/asound.state
 		ALSAlevelout="Default"
 		pcp_save_to_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 	;;
 esac
 if [ "$ACTION" != "" ]; then
@@ -505,7 +504,6 @@ pcp_reset_alsactl() {
 	row_padding
 	pcp_table_end
 }
-
 
 #========================================================================================
 # Parameter options

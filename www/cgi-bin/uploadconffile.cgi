@@ -1,17 +1,16 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-21
+# Version: 6.0.0 2019-08-16
 
 . pcp-functions
 
-pcp_html_head "Upload Configuration File" "PH" 
+pcp_html_head "Upload Configuration File" "PH"
 
 # This is not to upload executable files, the user rights and file mod should be set to be secure.
 # For other files, add the file variable to the case statement.  The lines below the case statement
 # should be common.
 
 pcp_banner
-pcp_running_script
 
 RESTART_LMS=0
 
@@ -78,7 +77,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 	if [ -f "${UPLOADED_FILE}" ]; then
 		echo "${UPLOADED_FILE##/}" >> $FILETOOLLST
 	fi
-	pcp_backup "nohtml"
+	pcp_backup "text"
 else
 	echo "[ ERROR ] Script error! This routine only accepts form POST...."
 fi
@@ -94,7 +93,7 @@ if [ $RELOAD_KEYTABLE -eq 1 ]; then
 	pcp_load_keytables
 fi
 
-[ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "nohtml"
+[ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "text"
 echo '</textarea>'
 
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required

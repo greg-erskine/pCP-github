@@ -86,7 +86,7 @@ case "$ACTION" in
 		echo '[ INFO ] Forgetting Device...'$DEVICE
 		RET=$(pcp_bt_forget_device $DEVICE)
 		case $RET in
-			0)echo '[ INFO ] Device has been removed.';pcp_backup "nohtml";;
+			0)echo '[ INFO ] Device has been removed.';pcp_backup "text";;
 			1)echo '[ ERROR ] Error removing device.';;
 		esac
 		rm -f /tmp/*.out
@@ -128,7 +128,7 @@ case "$ACTION" in
 		echo
 		echo 'After a reboot these extensions will be permanently deleted:'
 		pcp_remove_bt
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		pcp_table_end
 		REBOOT_REQUIRED=1
@@ -149,7 +149,7 @@ case "$ACTION" in
 		pcp_bt_pair $DEVICE
 		if [ $? -eq 0 ]; then
 			echo '[ INFO ] Pairing Successful'
-			pcp_backup "nohtml"
+			pcp_backup "text"
 		fi
 		echo '                </textarea>'
 		rm -f /tmp/btscan.out 
@@ -201,7 +201,7 @@ case "$ACTION" in
 		pcp_table_top "Select Previously paired device"
 		echo '                <textarea class="inform" style="height:120px">'
 		pcp_bt_save_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '[ INFO ] You might need to turn the speaker off, then back on to load updated config.'
 		echo '                </textarea>'
 		pcp_table_end

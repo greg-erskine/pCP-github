@@ -90,7 +90,7 @@ pcp_remove_lms_cache() {
 pcp_remove_custom_convert() {
 	sudo rm -rf $LMS_CC_FILE
 	sed -i '/'$(echo ${LMS_CC_FILE##/} | sed 's|\/|\\\/|g')'/d' $FILETOOLLST
-	pcp_backup "nohtml"
+	pcp_backup "text"
 }
 
 pcp_install_fs() {
@@ -164,7 +164,7 @@ pcp_install_samba4() {
 		echo "usr/local/etc/samba/smb.conf" >> /opt/.filetool.lst
 		SAMBA="yes"
 		pcp_save_to_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 	else
 		echo '[ ERROR ] Samba4.tcz not loaded, try again later!'
 	fi
@@ -249,7 +249,7 @@ case "$ACTION" in
 			if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 				LMSERVER="yes"
 				pcp_save_to_config
-				pcp_backup "nohtml"
+				pcp_backup "text"
 			else
 				echo '[ ERROR ] Error Downloading LMS, please try again later.'
 			fi
@@ -266,7 +266,7 @@ case "$ACTION" in
 		LMSERVER="no"
 		pcp_save_to_config
 		pcp_remove_lms
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		echo '                </textarea>'
 		if [ x"$DISABLECACHE" = x"" ]; then
 			STRING1='Press [OK] to remove LMS cache.....To keep the cache - Press [Cancel]'
@@ -340,7 +340,7 @@ case "$ACTION" in
 		echo '                </textarea>'
 		SAMBA="disabled"
 		pcp_save_to_config
-		pcp_backup "nohtml"
+		pcp_backup "text"
 		pcp_table_end
 		REBOOT_REQUIRED=1
 	;;
