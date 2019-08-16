@@ -74,3 +74,19 @@ function lms_controls_send() {
 	return;
 }
 
+function setplayertabs() {
+	var url="http://" + window.location.hostname + "/cgi-bin/playerstabs.cgi";
+
+	let request = new XMLHttpRequest();
+	request.onreadystatechange = function () {
+		if (this.readyState === 4) {
+			if (this.status === 200) {
+				document.getElementById("PlayerTabsAfter").insertAdjacentHTML('afterend', this.responseText);
+			} else if (this.response == null && this.status === 0) {
+				console.log("Error getting playertab data.");
+			}
+		}
+	};
+	request.open("GET", url, true);
+	request.send(null);
+}

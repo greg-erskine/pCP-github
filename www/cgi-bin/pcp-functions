@@ -513,14 +513,25 @@ pcp_html_head() {
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
 	local CSS_VER
-	[ $MODE -ge $MODE_DEVELOPER ] && CSS_VER=$(date -r ../css/piCorePlayer.css +%H%M%S) || CSS_VER=$(pcp_picoreplayer_version)
+	local JS_VER
+	[ "$THEME" = "Dark" ] && cssExt="_Dark" || cssExt=""
+	if [ $MODE -ge $MODE_DEVELOPER ]; then
+		CSS_VER=$(date -r ../css/piCorePlayer${cssEXT}.css +%H%M%S) 
+		JS_VER=$(date -r ../js/piCorePlayer.js +%H%M%S) 
+	else
+		CSS_VER=$(pcp_picoreplayer_version)
+		JS_VER=$CSS_VER
+	fi
 	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$CSS_VER'">'
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
-	echo '  <script src="../js/piCorePlayer.js"></script>'
+	echo '  <script src="../js/piCorePlayer.js?'$JS_VER'"></script>'
 	echo '</head>'
 	echo ''
 	[ "$5" != "nobody" ] &&
 	echo '<body>'
+	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
+		echo '  <script>setplayertabs();</script>'
+	fi
 	echo '<!-- End of pcp_html_head -->'
 }
 
@@ -726,20 +737,9 @@ pcp_xtras() {
 pcp_picoreplayers_toolbar() {
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<p style="margin-top: -12px;">'
-	echo '  <a class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
+	echo '  <a id="PlayerTabsAfter" class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
 
 	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
-		TMP=$(mktemp)
-		pcp_lms_players squeezelite pCP>$TMP
-
-		while read line
-		do
-			TITLE=$(echo $line | awk -F, '{ print $1 }')
-			URL=$(echo $line | awk -F, '{ print $2 }')
-			[ "$NAME" = "$TITLE" ] && TAB_STYLE=tab7a || TAB_STYLE=tab7
-			echo '  <a class="'$TAB_STYLE'" href="http://'$URL'/" title="'$URL'">'${TITLE:0:20}'</a>'
-		done <$TMP
-		rm -r $TMP
 		if [ $MODE -ge $MODE_BETA ]; then
 			if [ "$LMSERVER" = "yes" ]; then
 				[ x"" = x"$(pcp_eth0_ip)" ] && LMSIP=$(pcp_wlan0_ip) || LMSIP=$(pcp_eth0_ip)

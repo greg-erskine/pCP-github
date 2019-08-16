@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 6.0.0 2019-06-26
+# Version: 6.0.0 2019-08-16
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
@@ -109,19 +109,23 @@ pcp_lms_build_result() {
 }
 
 pcp_lms_json_request() {
+	local TMP=$(mktemp)
 	[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > /tmp/json_req
-	cat /tmp/json_req | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g'
+	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > $TMP
+	cat $TMP | egrep "$RESULT" | sed -r "s/${RESULT}[[:space:]]{1,9}//" | sed 's/\"//g'
+	rm -f $TMP
 }
 
 pcp_lms_json_request_list() {
+	local TMP=$(mktemp)
 	[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > /tmp/json_list
+	$WGET -T 5 -q -O- --post-data="$REQUEST" --header 'Content-Type: application/json' http://$LMSIP:$LMSPORT/jsonrpc.js | JSON.awk - > $TMP
 	NUMRESULT=$(pcp_lms_build_result result count)
-	NO_OF_RESULTS=$(cat /tmp/json_list | egrep "$NUMRESULT" | sed -r "s/${NUMRESULT}[[:space:]]{1,9}//")
+	NO_OF_RESULTS=$(cat $TMP | egrep "$NUMRESULT" | sed -r "s/${NUMRESULT}[[:space:]]{1,9}//")
 	echo $NO_OF_RESULTS
+	rm -f $TMP
 }
 
 pcp_lms_json_request_debug() {
