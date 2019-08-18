@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-08-18
 
 #========================================================================================
 # Setup debug logging
@@ -1233,27 +1233,20 @@ pcp_backup() {
 
 	# Do a backup - filetool.sh backs up files in .filetool.lst
 	pcp_message INFO "" $FORMAT "-n"
-	pcp_message INFO "" "text" "-n" >> $LOG
-	sudo filetool.sh -b | tee -a $LOG
-#	[ "$1" = "nohtml" ] || echo $SLASHP
+	sudo filetool.sh -b
 	sync > /dev/null 2>&1
 
 	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
 		pcp_message ERROR "Show backup_status..." $FORMAT
-		pcp_message ERROR "Show backup_status..." "text" >> $LOG
-		echo $NEWLINE $PRE
-		cat /tmp/backup_status | tee -a $LOG
-		echo $NEWLINE $SLASHPRE
+		cat /tmp/backup_status
 	fi
 
 	# If backup_done exists, then the backup was successful
 	if [ -f /tmp/backup_done ]; then
 		pcp_message OK "Backup successful." $FORMAT
-		pcp_message OK "Backup successful." "text" >> $LOG
 	else
 		pcp_message ERROR "Backup failed." $FORMAT
-		pcp_message ERROR "Backup failed." "text" >> $LOG
 	fi
 
 	# Encourage users to keep files backed up to mydata.tgz small
@@ -1261,10 +1254,6 @@ pcp_backup() {
 		pcp_message WARN "Your backup is a little large - $(pcp_check_mydata) bytes." $FORMAT
 		pcp_message INFO "Be careful adding large files to /home/tc." $FORMAT
 		pcp_message INFO "If your backup takes a long time, piCorePlayer may fail to start properly." $FORMAT
-
-		pcp_message WARN "Your backup is a little large - $(pcp_check_mydata) bytes." "text" >> $LOG
-		pcp_message INFO "Be careful adding large files to /home/tc." "text" >> $LOG
-		pcp_message INFO "If your backup takes a long time, piCorePlayer may fail to start properly." "text" >> $LOG
 	fi
 }
 

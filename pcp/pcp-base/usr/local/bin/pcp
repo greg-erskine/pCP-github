@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-27
+# Version: 6.0.0 2019-08-18
 
 # Note: Need to use $WWWROOT someday.
 . /home/tc/www/cgi-bin/pcp-functions
@@ -94,20 +94,20 @@ case "$1" in
 		pcp_lms_mode
 	;;
 	bu|backup)
-		pcp_backup_nohtml
+		pcp_backup "text"
 	;;
 	sd|shutdown)
 		exitcheck.sh
 	;;
 	bs|backdown)
-		pcp_backup_nohtml
+		pcp_backup "text"
 		exitcheck.sh
 	;;
 	rb|reboot)
 		sudo reboot
 	;;
 	br|backreboot)
-		pcp_backup_nohtml
+		pcp_backup "text"
 		sudo reboot
 	;;
 	d0)

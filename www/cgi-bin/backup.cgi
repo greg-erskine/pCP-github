@@ -1,14 +1,12 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-06
+# Version: 6.0.0 2019-07-18
 
 . pcp-functions
 
 pcp_html_head "Backup mydata" "SBP"
 
 pcp_banner
-
-pcp_log_header $0
 
 pcp_table_top "Backup"
 pcp_backup
