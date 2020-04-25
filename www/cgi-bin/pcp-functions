@@ -531,17 +531,18 @@ pcp_html_head() {
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
 
-#	local CSS_VER
-#	local JS_VER
-#	if [ $MODE -ge $MODE_DEVELOPER ]; then
+	local CSS_VER
+	local JS_VER
+	if [ $MODE -ge $MODE_DEVELOPER ]; then
 #		CSS_VER=$(date -r ../css/piCorePlayer.css +%H%M%S)
 #		DARK_VER=$(date -r ../css/Dark.css +%H%M%S) 
-#		JS_VER=$(date -r ../js/piCorePlayer.js +%H%M%S) 
-#	else
+		JS_VER=$(date -r ../js/piCorePlayer.js +%H%M%S) 
+	else
 #		CSS_VER=$(pcp_picoreplayer_version)
 #		DARK_VER=$CSS_VER
-#		JS_VER=$CSS_VER
-#	fi
+		JS_VER=$CSS_VER
+	fi
+
 #	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer'$cssExt'.css?'$CSS_VER'">'
 #	echo '  <link rel="stylesheet" type="text/css" href="../css/pCP_widths.css?'$CSS_VER'">'
 #	[ "$THEME" = "Dark" ] && echo '  <link rel="stylesheet" type="text/css" href="../css/Dark.css?'$DARK_VER'">'
@@ -573,28 +574,20 @@ pcp_html_end() {
 }
 
 pcp_banner() {
-	echo '<!-- Start of pcp_banner -->'
-	echo '<div>'
-	echo '  <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
-	echo '  <map name="hotspot">'
-	echo '    <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
-	echo '    <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
-	echo '    <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
-	echo '    <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
-	echo '  </map>'
-	echo '</div>'
-	echo '<!-- End of pcp_banner -->'
+	echo '  <!-- Start of pcp_banner -->'
+	echo '  <div>'
+	echo '    <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
+	echo '    <map name="hotspot">'
+	echo '      <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
+	echo '      <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
+	echo '      <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
+	echo '      <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
+	echo '    </map>'
+	echo '  </div>'
+	echo '  <!-- End of pcp_banner -->'
 }
 
 pcp_navigation() {
-
-#	local STYLE_MAIN=""
-#	local STYLE_SQUEEZELITE=""
-#	local STYLE_WIFI=""
-#	local STYLE_TWEAKS=""
-#	local STYLE_SECURITY=""
-#	local STYLE_LMS=""
-#	local STYLE_ABOUT=""
 
 	case "$0" in
 		main.cgi)        local STYLE_MAIN="active" ;;
@@ -605,52 +598,37 @@ pcp_navigation() {
 		about.cgi)       local STYLE_ABOUT="active" ;;
 	esac
 
-	echo '<!-- Start of pcp_navigation toolbar -->'
-	echo '<nav class="navbar navbar-expand-lg navbar-dark bg-dark">'
-	echo '  <a class="navbar-brand" href="#">pCP</a>'
-	echo '  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
-	echo '    <span class="navbar-toggler-icon"></span>'
-	echo '  </button>'
-	echo ''
-	echo '  <div class="collapse navbar-collapse" id="navbarSupportedContent">'
-	echo '    <ul class="navbar-nav mr-auto">'
-	echo '      <li class="nav-item '$STYLE_MAIN'">'
-	echo '        <a class="nav-link" href="main.cgi">Main</a>'
-	echo '      </li>'
-	echo '      <li class="nav-item '$STYLE_SQUEEZELITE'">'
-	echo '        <a class="nav-link" href="squeezelite.cgi">Squeezelite</a>'
-	echo '      </li>'
-	echo '      <li class="nav-item '$STYLE_WIFI'">'
-	echo '        <a class="nav-link" href="wifi.cgi">Wifi</a>'
-	echo '      </li>'
-	echo '      <li class="nav-item '$STYLE_TWEAKS'">'
-	echo '        <a class="nav-link" href="tweaks.cgi">Tweaks</a>'
-	echo '      </li>'
-	echo '      <li class="nav-item '$STYLE_LMS'">'
-	echo '        <a class="nav-link" href="lms.cgi">LMS</a>'
-	echo '      </li>'
-	echo '      <li class="nav-item '$STYLE_ABOUT'">'
-	echo '        <a class="nav-link" href="about.cgi">About</a>'
-	echo '      </li>'
-	echo '    </ul>'
-	echo '  </div>'
-	echo '</nav>'
+	echo ' <!-- Start of pcp_navigation toolbar -->'
+	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-dark">'
+	echo '    <a class="navbar-brand" href="#">pCP</a>'
+	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
+	echo '      <span class="navbar-toggler-icon"></span>'
+	echo '    </button>'
+	echo '  '
+	echo '    <div class="collapse navbar-collapse" id="navbarSupportedContent">'
+	echo '      <ul class="navbar-nav">'
+	echo '        <li class="nav-item '$STYLE_MAIN'">'
+	echo '          <a class="nav-link" href="main.cgi">Main</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_SQUEEZELITE'">'
+	echo '          <a class="nav-link" href="squeezelite.cgi">Squeezelite</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_WIFI'">'
+	echo '          <a class="nav-link" href="wifi.cgi">Wifi</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_TWEAKS'">'
+	echo '          <a class="nav-link" href="tweaks.cgi">Tweaks</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_LMS'">'
+	echo '          <a class="nav-link" href="lms.cgi">LMS</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_ABOUT'">'
+	echo '          <a class="nav-link" href="about.cgi">About</a>'
+	echo '        </li>'
+	echo '      </ul>'
+	echo '    </div>'
+	echo '  </nav>'
 	echo '<!-- End of pcp_navigation toolbar -->'
-
-#	echo '<table class="navigation">'
-#	echo '  <tr>'
-#	echo '    <td>'
-#	echo '      <p>'
-#	echo '        <a class="'$TAB_STYLE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-#	echo '        <a class="'$TAB_STYLE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-#	echo '        <a class="'$TAB_STYLE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
-#	echo '        <a class="'$TAB_STYLE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-#	echo '        <a class="'$TAB_STYLE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
-#	echo '        <a class="'$TAB_STYLE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
-#	echo '      </p>'
-#	echo '    </td>'
-#	echo '  </tr>'
-#	echo '</table>'
 
 	if [ -f $REBOOT_PENDING ] && [ "$ACTION" != "reboot" ]; then
 		echo '<!-- Start of reboot notification toolbar -->'
@@ -680,7 +658,8 @@ pcp_navigation() {
 pcp_footer() {
 	if [ "$1" = "static" ]; then
 		echo '<!-- Start of pcp_footer -->'
-		echo '<div>'
+		echo '<div class="row">'
+		echo '  <div class="col-12 text-center">'
 		echo '  <p>
 		            '$NAME' |
 		            piCorePlayer v'$(pcp_picoreplayer_version)' |
@@ -688,6 +667,7 @@ pcp_footer() {
 		            linux '$(pcp_linux_release)' |
 		            piCore v'$(pcp_picore_version)' |
 		            Squeezelite v'$(pcp_squeezelite_version)'</p>'
+		echo '  </div>'
 		echo '</div>'
 		echo '<!-- End of pcp_footer -->'
 	else
@@ -707,17 +687,19 @@ pcp_footer() {
 			fi
 
 			echo '<!-- Start of pcp_footer -->'
-			echo '<div>'
-			echo '      <p class="footer">
-							'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
-							'$NAME' |
-							piCorePlayer v'$(pcp_picoreplayer_version)' |
-							www v'$WWW_BUILD' |
-							linux '$(pcp_linux_release)' |
-							piCore v'$(pcp_picore_version)' |
-							'`echo $SQUEEZELITEfoot`' |
-							'`echo $TIMESTAMP`'</p>'
-			echo '</div>'
+#			echo '  <div class="row">'
+			echo '    <div class="col-12 text-center bg-dark text-light">'
+			echo '      <small>
+				        '$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
+				        '$NAME' |
+				        piCorePlayer v'$(pcp_picoreplayer_version)' |
+				        www v'$WWW_BUILD' |
+				        linux '$(pcp_linux_release)' |
+				        piCore v'$(pcp_picore_version)' |
+				        '`echo $SQUEEZELITEfoot`' |
+				        '`echo $TIMESTAMP`'</small>'
+			echo '    </div>'
+#			echo '  </div>'
 			echo '<!-- End of pcp_footer -->'
 		fi
 	fi
@@ -725,15 +707,15 @@ pcp_footer() {
 
 pcp_copyright() {
 	echo '<!-- Start of pcp_copyright -->'
-	echo '<div class="row">'
-	echo '  <div class="col-2"></div>'
-	echo '    <div class="col-8">'
-	echo '      <p>The Software is provided "as is" without warranty of any kind, either express or implied,'
+	echo '  <div class="row">'
+	echo '    <div class="col-1"></div>'
+	echo '    <div class="col-10 text-center">'
+	echo '      <small><small class="text-muted">The Software is provided "as is" without warranty of any kind, either express or implied,'
 	echo '         including without limitation any implied warranties of condition, uninterrupted use,'
-	echo '         merchantability, fitness for a particular purpose, or non-infringement.</p>'
+	echo '         merchantability, fitness for a particular purpose, or non-infringement.</small></small>'
 	echo '    </div>'
-	echo '  <div class="col-2"></div>'
-	echo '</div>'
+	echo '    <div class="col-1"></div>'
+	echo '  </div>'
 	echo '<!-- End of pcp_copyright -->'
 }
 

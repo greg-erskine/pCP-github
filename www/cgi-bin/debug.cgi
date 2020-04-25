@@ -85,110 +85,92 @@ pcp_navigation
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	pcp_table_top "Debug"
+	echo '<div>'
+#	pcp_table_top "Debug"
 	pcp_debug_variables "html" QUERY_STRING DEBUG d MODE m TEST t ACTION
-	pcp_table_end
+#	pcp_table_end
+	echo '</div>'
 fi
 
-COLUMN1="column100"
-COLUMN2="column150"
 #========================================================================================
 # Debug table
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="debug" action="'$0'" method="get">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Set debug options</legend>'
-echo '            <table class="bggrey percent100">'
+echo '<div>'
+echo '  <h4 class="mt-12">Set debug options</h4>'
+echo '  <form name="debug" action="'$0'" method="get">'
+echo '    <fieldset>'
 #--------------------------------------DEBUG---------------------------------------------
 eval D${DEBUG}SELECTED=checked
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p>DEBUG</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
-echo '                  <label for="rad1">On&nbsp;</label>'
-echo '                  <input id="rad2" type="radio" name="d" value="0" '$D0SELECTED'>'
-echo '                  <label for="rad2">Off</label>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set DEBUG: [on|off].</p>'
-echo '                </td>'
-echo '              </tr>'
+
+echo '    <div class="form-group row mt-12">'
+
+echo '        <div class="col-2">DEBUG</div>'
+echo '        <div class="col-3">'
+echo '          <input id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
+echo '          <label for="rad1">On&nbsp;</label>'
+echo '          <input id="rad2" type="radio" name="d" value="0" '$D0SELECTED'>'
+echo '          <label for="rad2">Off</label>'
+echo '        </div>'
+echo '        <div class="col-7">Set DEBUG: [on|off].</div>'
+
+echo '    </div>'
 #--------------------------------------MODE----------------------------------------------
 eval MODE${MODE}="selected"
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p>MODE</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <select class="large10" name="m">'
-#echo '                    <option value="0" '$MODE0'>Initial</option>'
-#echo '                    <option value="10" '$MODE10'>Basic</option>'
-#echo '                    <option value="20" '$MODE20'>Normal</option>'
-#echo '                    <option value="30" '$MODE30'>Advanced</option>'
-echo '                    <option value="10" '$MODE10'>Player</option>'
-echo '                    <option value="30" '$MODE30'>Player/Server</option>'
-echo '                    <option value="40" '$MODE40'>Beta</option>'
-echo '                    <option value="100" '$MODE100'>Developer</option>'
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-#echo '                  <p>Set MODE level: [Initial|Basic|Normal|Advanced|Beta|Developer].</p>'
-echo '                  <p>Set MODE level: [Player|Server|Beta|Developer].</p>'
-echo '                </td>'
-echo '              </tr>'
+
+echo '    <div class="form-group row">'
+
+echo '        <div class="col-sm-2">MODE</div>'
+echo '        <div class="col-sm-3">'
+echo '          <select class="btn btn-primary" name="m">'
+echo '            <option value="10" '$MODE10'>Player</option>'
+echo '            <option value="30" '$MODE30'>Player/Server</option>'
+echo '            <option value="40" '$MODE40'>Beta</option>'
+echo '            <option value="100" '$MODE100'>Developer</option>'
+echo '          </select>'
+echo '        </div>'
+echo '        <div class="col-sm-7">Set MODE level: [Player|Server|Beta|Developer].</div>'
+
+echo '    </div>'
 #--------------------------------------TEST----------------------------------------------
 eval TEST${TEST}="selected"
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p>TEST</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <select class="large10" name="t">'
-echo '                    <option value="0" '$TEST0'>0</option>'
-echo '                    <option value="1" '$TEST1'>1</option>'
-echo '                    <option value="2" '$TEST2'>2</option>'
-echo '                    <option value="3" '$TEST3'>3</option>'
-echo '                    <option value="4" '$TEST4'>4</option>'
-echo '                    <option value="5" '$TEST5'>5</option>'
-echo '                    <option value="6" '$TEST6'>6</option>'
-echo '                    <option value="7" '$TEST7'>7</option>'
-echo '                    <option value="8" '$TEST8'>8</option>'
-echo '                    <option value="9" '$TEST9'>9</option>'
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set TEST level: [0-9].</p>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------BUTTONS-------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan=3>'
-echo '                  <input type="submit" name="ACTION" value="Save">'
-echo '                  <input type="submit" name="ACTION" value="Reset all">'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
+
+echo '    <div class="form-group row">'
+
+echo '        <div class="col-2">TEST</div>'
+echo '        <div class="col-3">'
+echo '          <select class="btn btn-primary" name="t">'
+echo '            <option value="0" '$TEST0'>0</option>'
+echo '            <option value="1" '$TEST1'>1</option>'
+echo '            <option value="2" '$TEST2'>2</option>'
+echo '            <option value="3" '$TEST3'>3</option>'
+echo '            <option value="4" '$TEST4'>4</option>'
+echo '            <option value="5" '$TEST5'>5</option>'
+echo '            <option value="6" '$TEST6'>6</option>'
+echo '            <option value="7" '$TEST7'>7</option>'
+echo '            <option value="8" '$TEST8'>8</option>'
+echo '            <option value="9" '$TEST9'>9</option>'
+echo '          </select>'
 echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '        <div class="col-7">Set TEST level: [0-9].</div>'
+
+echo '    </div>'
+#--------------------------------------BUTTONS-------------------------------------------
+echo '    <div class="form-group row">'
+echo '      <div class="col-sm-12 offset-sm-2">'
+echo '        <button type="submit" class="btn btn-primary" name="ACTION" value="Save">Save</button>'
+echo '        <button type="submit" class="btn btn-primary" name="ACTION" value="Reset">Reset all</button>'
+echo '      </div>'
+echo '    </div>'
+
+#----------------------------------------------------------------------------------------
+echo '    </fieldset>'
+echo '  </form>'
 #----------------------------------------------------------------------------------------
 pcp_footer
 pcp_copyright
 pcp_remove_query_string
+
+echo '</div>'
 echo '</body>'
 echo '</html>'
 exit
