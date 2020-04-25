@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-07-11
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-rpi-functions
@@ -118,7 +118,7 @@ case $ACTION in
 			echo '              </td>'
 			echo '            </tr>'
 		}
-		[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_update_url
+		[ $MODE -ge $MODE_SERVER ] && pcp_lms_update_url
 
 		#-----------------------------------Configure LMS---------------------------------------
 		pcp_lms_configure_lms() {
@@ -161,7 +161,7 @@ case $ACTION in
 			echo '              </td>'
 			echo '            </tr>'
 		}
-		[ $MODE -ge $MODE_ADVANCED -a -z $UPDATEURL ] && pcp_lms_configure_lms
+		[ $MODE -ge $MODE_SERVER -a -z $UPDATEURL ] && pcp_lms_configure_lms
 	#----------------------------------------------------------------------------------------
 	;;
 	Binary)

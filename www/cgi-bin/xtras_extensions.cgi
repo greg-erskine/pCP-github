@@ -1,12 +1,17 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-16
+# Version: 6.0.0 2020-04-23
 
 #========================================================================================
-# This script installs, deletes, updates and reports on extensions.
+# This script downloads, installs, deletes, updates and reports on extensions.
 #
 # Complications:
-#   1. Sufficient space, need to expand file system.
+#   1. Juggling multiple repositories that aren't mirrors.
+#   2. Uses tce-load and /opt/tcemirror to store current repository.
+#   3. Trying to incorporate BOTH $PCP_CUR_REPO and /opt/tcemirror.
+#   4. tags_*.db are an attempt to work out which repository the extension was
+#      downloaded from. Half implemented.
+#   5. Sufficient space, need to expand file system.
 #----------------------------------------------------------------------------------------
 
 . /etc/init.d/tc-functions
@@ -27,12 +32,18 @@ cd /tmp
 TCELOAD="tce-load"
 EXTNFOUND=0
 LOG="${LOGDIR}/pcp_extensions.log"
-PCP_REPO="${PCP_REPO%/}/"
+PCP_REPO_1="${PCP_REPO_1%/}/"
+PCP_REPO_2="${PCP_REPO_2%/}/"
+[ $PCP_CUR_REPO -eq 1 ] && PCP_REPO="$PCP_REPO_1" || PCP_REPO="$PCP_REPO_2"
 TAGS_PCP_DB="/tmp/tags_pcp.db"
 TAGS_PICORE_DB="/tmp/tags_picore.db"
 SIZELIST_PCP="/tmp/sizelist_pcp"
 SIZELIST_PICORE="/tmp/sizelist_picore"
 KERNEL="$(uname -r)"
+
+ACCCESSIBLETXT="/tmp/accessible.txt"
+sudo chmod 777 $ACCCESSIBLETXT
+[ -f /tmp/accessible.txt ] && . /tmp/accessible.txt
 
 #========================================================================================
 # Display debug information
@@ -41,8 +52,9 @@ pcp_debug_info() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_table_top "Debug"
-		pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG PCP_REPO \
-			PICORE_REPO_1 PICORE_REPO_2 CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
+		pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG \
+			PCP_CUR_REPO PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1 PICORE_REPO_2 \
+			CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
 		pcp_table_end
 		echo '<!-- End of debug info -->'
 	fi
@@ -86,7 +98,7 @@ pcp_find_extn() {
 	fi
 	if grep -q ${EXTN} $TAGS_PCP_DB; then
 		DB="$TAGS_PCP_DB"
-		MYMIRROR=$PCP_REPO
+		[ $PCP_CUR_REPO -eq 1 ] && MYMIRROR="$PICORE_REPO_1" || MYMIRROR="$PICORE_REPO_2"
 		EXTNFOUND=1
 	fi
 	pcp_set_repository
@@ -97,6 +109,11 @@ pcp_find_extn() {
 #----------------------------------------------------------------------------------------
 pcp_set_repository() {
 	echo $MYMIRROR > /opt/tcemirror
+
+	case ${MYMIRROR%/} in
+		"${PICORE_REPO_1%/}") PCP_CUR_REPO=1; pcp_save_to_config;;
+		"${PICORE_REPO_2%/}") PCP_CUR_REPO=2; pcp_save_to_config;;
+	esac
 }
 
 #========================================================================================
@@ -210,9 +227,10 @@ pcp_create_localmirrors() {
 #----------------------------------------------------------------------------------------
 pcp_information_message() {
 	pcp_table_top "Information"
-	echo '                <p><b>piCorePlayer</b> uses two repositories for downloading extensions:</p>'
+	echo '                <p><b>piCorePlayer</b> uses 3 repositories for downloading extensions:</p>'
 	echo '                <ul>'
-	echo '                  <li><b>piCorePlayer repository</b> - maintained by the piCorePlayer team (default repository).</li>'
+	echo '                  <li><b>piCorePlayer main repository</b> - maintained by the piCorePlayer team (default).</li>'
+	echo '                  <li><b>piCorePlayer mirror repository</b> - maintained by the piCorePlayer team.</li>'
 	echo '                  <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
 	echo '                </ul>'
 	echo '                <p><b>Extensions</b> can be:</p>'
@@ -366,29 +384,53 @@ pcp_display_information() {
 }
 
 #========================================================================================
-# Check for access to the internet, piCorePlayer and piCore repositories
+# Check for access to the Internet, piCorePlayer and piCore repositories
 #----------------------------------------------------------------------------------------
 pcp_internet() {
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
 		pcp_green_tick "Internet accessible."
 		echo "[  OK  ] Internet accessible." >> $LOG
-		INTERNET_ACCESSIBLE=TRUE
+		echo "INTERNET_ACCESSIBLE=true" > $ACCCESSIBLETXT
 	else
 		pcp_red_cross "Internet not accessible."
 		echo "[ ERROR ] Internet not accessible." >> $LOG
-		unset INTERNET_ACCESSIBLE
+		echo "unset INTERNET_ACCESSIBLE" > $ACCCESSIBLETXT
 	fi
 }
 
-pcp_pcp_repo() {
-	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		pcp_green_tick "piCorePlayer repository accessible ($PCP_REPO)."
-		echo "[  OK  ] piCorePlayer repository accessible. ($PCP_REPO)" >> $LOG
-		PCP_REPO_ACCESSIBLE=TRUE
+pcp_dns() {
+	if [ $(pcp_dns_accessible) -eq 0 ]; then
+		pcp_green_tick "DNS accessible."
+		echo "[  OK  ] DNS accessible." >> $LOG
+		echo "DNS_ACCESSIBLE=true" >> $ACCCESSIBLETXT
 	else
-		pcp_red_cross "piCorePlayer repository not accessible ($PCP_REPO)."
-		echo "[ ERROR ] piCorePlayer repository not accessible. ($PCP_REPO)" >> $LOG
-		unset PCP_REPO_ACCESSIBLE
+		pcp_red_cross "DNS not accessible."
+		echo "[ ERROR ] DNS not accessible." >> $LOG
+		echo "unset DNS_ACCESSIBLE" >> $ACCCESSIBLETXT
+	fi
+}
+
+pcp_pcp_repo_1() {
+	if [ $(pcp_pcp_repo_1_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer main repository accessible ($PCP_REPO_1)."
+		echo "[  OK  ] piCorePlayer main repository accessible. ($PCP_REPO_1)" >> $LOG
+		echo "PCP_REPO_1_ACCESSIBLE=true" >> $ACCCESSIBLETXT
+	else
+		pcp_red_cross "piCorePlayer main repository not accessible ($PCP_REPO_1)."
+		echo "[ ERROR ] piCorePlayer main repository not accessible. ($PCP_REPO_1)" >> $LOG
+		echo "unset PCP_REPO_1_ACCESSIBLE" >> $ACCCESSIBLETXT
+	fi
+}
+
+pcp_pcp_repo_2() {
+	if [ $(pcp_pcp_repo_2_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer mirror repository accessible ($PCP_REPO_2)."
+		echo "[  OK  ] piCorePlayer mirror repository accessible. ($PCP_REPO_2)" >> $LOG
+		echo "PCP_REPO_2_ACCESSIBLE=true" >> $ACCCESSIBLETXT
+	else
+		pcp_red_cross "piCorePlayer mirror repository not accessible ($PCP_REPO_2)."
+		echo "[ ERROR ] piCorePlayer mirror repository not accessible. ($PCP_REPO_2)" >> $LOG
+		echo "unset PCP_REPO_2_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
 }
 
@@ -396,11 +438,11 @@ pcp_picore_repo_1() {
 	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
 		pcp_green_tick "Official piCore repository accessible ($PICORE_REPO_1)."
 		echo "[  OK  ] Official piCore repository accessible. ($PICORE_REPO_1)" >> $LOG
-		PICORE_REPO_1_ACCESSIBLE=TRUE
+		echo "PICORE_REPO_1_ACCESSIBLE=true" >> $ACCCESSIBLETXT
 	else
 		pcp_red_cross "Official piCore repository not accessible ($PICORE_REPO_1)."
 		echo "[ ERROR ] Official piCore repository not accessible. ($PICORE_REPO_1)" >> $LOG
-		unset PICORE_REPO_1_ACCESSIBLE
+		echo "unset PICORE_REPO_1_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
 }
 
@@ -408,11 +450,11 @@ pcp_picore_repo_2() {
 	if [ $(pcp_picore_repo_2_accessible) -eq 0 ]; then
 		pcp_green_tick "Official piCore mirror repository accessible ($PICORE_REPO_2)."
 		echo "[  OK  ] Official piCore mirror repository accessible. ($PICORE_REPO_2)" >> $LOG
-		PICORE_REPO_2_ACCESSIBLE=TRUE
+		echo "PICORE_REPO_2_ACCESSIBLE=true" >> $ACCCESSIBLETXT
 	else
 		pcp_red_cross "Official piCore mirror repository not accessible ($PICORE_REPO_2)."
 		echo "[ ERROR ] Official piCore mirror repository not accessible. ($PICORE_REPO_2)" >> $LOG
-		unset PICORE_REPO_2_ACCESSIBLE
+		echo "unset PICORE_REPO_2_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
 }
 
@@ -426,7 +468,7 @@ pcp_indicator_js() {
 }
 
 #----------------------------------------------------------------------------------------
-# Internet and repository accessibility indicators.
+# Internet, DNS and repository accessibility indicators.
 #----------------------------------------------------------------------------------------
 pcp_internet_check() {
 	echo '<table class="bggrey">'
@@ -449,7 +491,20 @@ pcp_internet_check() {
 	echo '            </tr>'
 	pcp_internet
 	pcp_indicator_js
-	#-------------------------piCorePlayer repository accessible-------------------------
+	#-----------------------------------DNS accessible-----------------------------------
+	pcp_incr_id
+	pcp_start_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column50 center">'
+	echo '                <p id="indicator'$ID'">?</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p id="status'$ID'">Checking DNS...</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_dns
+	pcp_indicator_js
+	#-------------------------piCorePlayer repository 1 accessible-----------------------
 	pcp_incr_id
 	pcp_toggle_row_shade
 	echo '            <tr class="'$ROWSHADE'">'
@@ -460,7 +515,20 @@ pcp_internet_check() {
 	echo '                <p id="status'$ID'">Checking piCorePlayer repository...</p>'
 	echo '              </td>'
 	echo '            </tr>'
-	pcp_pcp_repo
+	pcp_pcp_repo_1
+	pcp_indicator_js
+	#-------------------------piCorePlayer repository 2 accessible-----------------------
+	pcp_incr_id
+	pcp_toggle_row_shade
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column50 center">'
+	echo '                <p id="indicator'$ID'">?</p>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p id="status'$ID'">Checking piCorePlayer miror repository...</p>'
+	echo '              </td>'
+	echo '            </tr>'
+	pcp_pcp_repo_2
 	pcp_indicator_js
 	#------------------------Official piCore repository accessible-----------------------
 	pcp_incr_id
@@ -564,15 +632,24 @@ pcp_tce_mirror() {
 # Select repository
 #----------------------------------------------------------------------------------------
 pcp_set_repo_status() {
-	MYMIRROR=$(cat /opt/tcemirror)
+	read MYMIRROR < /opt/tcemirror
 
-	case "$MYMIRROR" in
-		"$PCP_REPO")
-			SELECTED_PCP="selected"
-			STATUS="piCorePlayer repository"
+	case "${MYMIRROR%/}" in
+		"${PCP_REPO_1%/}")
+			SELECTED_PCP_1="selected"
+			STATUS="piCorePlayer main repository"
 			DB="$TAGS_PCP_DB"
+			PCP_CUR_REPO=1
+			pcp_save_to_config
 		;;
-		"$PICORE_REPO_1")
+		"${PCP_REPO_2%/}")
+			SELECTED_PCP_2="selected"
+			STATUS="piCorePlayer mirror repository"
+			DB="$TAGS_PCP_DB"
+			PCP_CUR_REPO=2
+			pcp_save_to_config
+		;;
+		"${PICORE_REPO_1%/}")
 			SELECTED_PICORE="selected"
 			STATUS="Official piCore repository"
 			DB="$TAGS_PICORE_DB"
@@ -589,28 +666,60 @@ pcp_select_repository() {
 	echo '        <div class="row">'
 	echo '          <fieldset>'
 	echo '            <legend>Set extension repository</legend>'
+	pcp_debug_variables "html" INTERNET_ACCESSIBLE DNS_ACCESSIBLE CALLED_BY PCP_CUR_REPO MYMIRROR PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1
 	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	pcp_start_row_shade
+
+	if [ $INTERNET_ACCESSIBLE -a $DNS_ACCESSIBLE ]; then
+		if [ $PCP_REPO_1_ACCESSIBLE ]; then
+			PCP_REPO_1_ACCESS="(Accessible)"
+		else
+			PCP_REPO_1_ACCESS="(Not Accessible)"
+			PCP_REPO_1_DISABLED="disabled"
+		fi
+		if [ $PCP_REPO_2_ACCESSIBLE ]; then
+			PCP_REPO_2_ACCESS="(Accessible)"
+		else
+			PCP_REPO_2_ACCESS="(Not Accessible)"
+			PCP_REPO_2_DISABLED="disabled"
+		fi
+		if [ $PICORE_REPO_1_ACCESSIBLE ]; then
+			PICORE_REPO_1_ACCESS="(Accessible)"
+		else
+			PICORE_REPO_1_ACCESS="(Not Accessible)"
+			PICORE_REPO_1_DISABLED="disabled"
+		fi
+	else
+		PCP_REPO_1_ACCESS="(Not Accessible)"
+		PCP_REPO_1_DISABLED="disabled"
+		PCP_REPO_2_ACCESS="(Not Accessible)"
+		PCP_REPO_2_DISABLED="disabled"
+		PICORE_REPO_1_ACCESS="(Not Accessible)"
+		PICORE_REPO_1_DISABLED="disabled"
+	fi
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Current repository</p>'
 	echo '                </td>'
 	echo '                <td class="column300">'
 	echo '                  <select class="large22" name="MYMIRROR">'
-	echo '                    <option value="'$PCP_REPO'" '$SELECTED_PCP'>piCorePlayer repository</option>'
-	echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_PICORE'>Official piCore repository</option>'
+	echo '                    <option value="'$PCP_REPO_1'" '$SELECTED_PCP_1' '$PCP_REPO_1_DISABLED'>piCorePlayer main repository '$PCP_REPO_1_ACCESS'</option>'
+	echo '                    <option value="'$PCP_REPO_2'" '$SELECTED_PCP_2' '$PCP_REPO_2_DISABLED' >piCorePlayer mirror repository '$PCP_REPO_2_ACCESS'</option>'
+	echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_PICORE' '$PICORE_REPO_1_DISABLED'>Official piCore repository '$PICORE_REPO_1_ACCESS'</option>'
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>Select repository&nbsp;&nbsp;'
+	echo '                  <p>Select extension repository&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Select either:</p>'
+	echo '                    <p>Select the required extension repository:</p>'
 	echo '                    <ul>'
-	echo '                      <li>piCorePlayer repository (default repository), or</li>'
+	echo '                      <li>piCorePlayer main repository (default)</li>'
+	echo '                      <li>piCorePlayer mirror repository</li>'
 	echo '                      <li>Official piCore repository.</li>'
 	echo '                    </ul>'
 	echo '                  </div>'
@@ -618,18 +727,16 @@ pcp_select_repository() {
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
-	if [ "$SELECTED_PCP" = "selected" ]; then
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Set">'
+	echo '                  <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
+	echo '                </td>'
+	echo '              </tr>'
+	if [ "$SELECTED_PCP_1" != "selected" ]; then
 		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td colspan="3">'
-		echo '                  <input type="submit" name="SUBMIT" value="Set">'
-		echo '                  <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
-		echo '                </td>'
-		echo '              </tr>'
-	else
-		echo '              <tr class="'$ROWSHADE' warning">'
 		echo '                <td class="column150">'
 		echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-		echo '                  <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
 		echo '                </td>'
 		echo '                <td colspan="2">'
 		echo '                  <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
@@ -677,14 +784,12 @@ pcp_show_available_extns() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>List of extensions available in the '$STATUS'&nbsp;&nbsp;'
+	echo '                  <p>List of '$(cat $DB | wc -l)' extensions available in the '$STATUS'&nbsp;&nbsp;'
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
 	echo '                  <div id="'$ID'" class="less">'
 	echo '                    <ul>'
-	echo '                      <li>Lists all extensions that are currently available for download from '$STATUS'</li>'
-	echo '                      <li>If the <b>piCorePlayer repository</b> is selected, only piCorePlayer extensions are listed.</li>'
-	echo '                      <li>If the <b>Official piCore repository</b> is selected, only piCore extensions are listed.</li>'
+	echo '                      <li>Lists all '$(cat $DB | wc -l)' extensions that are currently available for download from '$STATUS'</li>'
 	echo '                    </ul>'
 	echo '                    <p>Buttons:</p>'
 	echo '                    <ul>'
@@ -963,9 +1068,9 @@ pcp_full_dependency_tree() {
 }
 
 #========================================================================================
-# Tabs.
+# Main.
 #----------------------------------------------------------------------------------------
-pcp_generate_report
+#pcp_generate_report
 pcp_debug_info
 
 echo '<!-- Start of pcp_extension_tabs toolbar -->'
@@ -981,19 +1086,17 @@ echo '</p>'
 echo '<div class="tab7end" style="margin-bottom:10px;">pCP</div>'
 echo '<!-- End of pcp_extension_tabs toolbar -->'
 
-#========================================================================================
-# Main
-#----------------------------------------------------------------------------------------
 case "$CALLED_BY" in
 	Information)
 		pcp_information_message
+		pcp_generate_report
 		pcp_internet_check
 		pcp_init_search
 		[ $DEBUG -eq 1 ] && pcp_tce_mirror
 	;;
 	Available)
 		case "$SUBMIT" in
-			Set) pcp_set_repository; pcp_cleanup;;
+			Set)   pcp_set_repository;   pcp_cleanup;;
 			Reset) pcp_reset_repository; pcp_cleanup;;
 		esac
 		pcp_select_repository
@@ -1008,7 +1111,7 @@ case "$CALLED_BY" in
 	Installed)
 		pcp_show_installed_extns
 		case "$SUBMIT" in
-#			Info) pcp_find_extn; pcp_display_information;;
+#			Info)   pcp_find_extn; pcp_display_information;;
 			Update) pcp_update_extn;;
 			Delete) pcp_delete_extn;;
 		esac
@@ -1016,16 +1119,16 @@ case "$CALLED_BY" in
 	Uninstalled)
 		pcp_show_uninstalled_extns
 		case "$SUBMIT" in
-#			Info) pcp_find_extn; pcp_display_information;;
+#			Info)    pcp_find_extn; pcp_display_information;;
 			Install) pcp_install_extn;;
-			Update) pcp_update_extn;;
-			Delete) pcp_delete_extn;;
+			Update)  pcp_update_extn;;
+			Delete)  pcp_delete_extn;;
 		esac
 	;;
 	Downloaded)
 		pcp_show_downloaded_extns
 		case "$SUBMIT" in
-#			Info) pcp_find_extn; pcp_display_information;;
+#			Info)   pcp_find_extn; pcp_display_information;;
 			Delete) pcp_delete_extn;;
 		esac
 	;;
@@ -1037,6 +1140,7 @@ esac
 #----------------------------------------------------------------------------------------
 
 pcp_footer
+[ $DEBUG -eq 1 ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

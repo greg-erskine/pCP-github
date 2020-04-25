@@ -1,0 +1,334 @@
+/* piCorePlayer style sheet
+
+Version: 6.0.0 2019-11-03
+
+Dark Color Overrides
+
+*/
+
+:root {
+	background: black;
+}
+
+/* Set the colour of messages */
+.info {
+	color:#f2f2f2;
+}
+
+.debug, .warning {
+	color:orange;
+}
+
+.error {
+	color:red;
+}
+
+.ok {
+	color:green;
+}
+
+/* Footer text needs to be smaller and white */
+.footer {
+	color:#f2f2f2;
+}
+
+/* Copyright text needs to be smaller, light and centered */
+.copyright {
+	color:#f2f2f2;
+	background: black;
+}
+
+/* This is for odd and even striped tables */
+.odd, .even, .warning, .even_tight, .odd_tight {
+	border: 0 solid #4d4d4d;
+	border-top: 0px solid #4d4d4d;
+	border-bottom:1px solid rgba(77, 77, 77, 0.25);
+	background:#1a1a1a;
+}
+
+.moreless {
+	color: #fc0000!important;
+	text-shadow:0px 2px 3px #4d4d4d!important;
+}
+
+/* White text for red background warning table */
+.bgred p, .bgred li, .bgred a.moreless,
+.warning p, .warning li, .warning a.moreless {
+	color:#f2f2f2;
+}
+
+tr.warning, td.warning, fieldset.warning {
+	border:2px solid #fc0000!important;
+}
+
+/* fieldset formatting */
+div.row fieldset {
+	border:1px solid #333333;
+	color: #f2f2f2;
+}
+
+
+/* Define size of button fields */
+input, button {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #666666), color-stop(1, #bfbfbf));
+	background:-moz-linear-gradient(top, #666666 5%, #bfbfbf 100%);
+	background:-webkit-linear-gradient(top, #666666 5%, #bfbfbf 100%);
+	background:linear-gradient(to bottom, #666666 5%, #4d4d4d 100%);
+	background-color:#4d4d4d;
+	border:1px solid #fc0000;
+	color:#f2f2f2;
+	text-shadow:0px 2px 3px #666666;
+}
+
+input:hover,button:hover{
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #4d4d4d), color-stop(1, #666666));
+	background:-moz-linear-gradient(top, #4d4d4d 5%, #666666 100%);
+	background:-webkit-linear-gradient(top, #4d4d4d 5%, #666666 100%);
+	background:linear-gradient(to bottom, #4d4d4d 5%, #666666 100%);
+	background-color:#666666;
+}
+
+input:disabled, input[disabled],
+button:disabled, button[disabled]
+{
+	background: #333333;
+	color: gray;
+	border-color: darkgray;
+}
+
+/* Define size of data input fields */
+select, option, input[type="text"], input[type="password"],
+input[type="number"], input[type="file"] {
+	-moz-box-shadow: 0px 0px 0px 1px #b3b3b3;
+	-webkit-box-shadow: 0px 0px 0px 1px #b3b3b3;
+	box-shadow: 0px 0px 0px 1px #b3b3b3;
+	background:-moz-linear-gradient(top, #666666 5%, #828282 100%);
+	background:-webkit-linear-gradient(top, #666666 5%, #828282 100%);
+	background:linear-gradient(to bottom, #666666 5%, #828282 100%);
+	background-color:#828282;
+	border:1px solid #666666;
+	color:#f2f2f2;
+	text-shadow:0px 1px 0px #a6a6a6;
+}
+
+select:hover, option:hover, input[type="text"]:hover, input[type="password"]:hover,
+input[type="number"]:hover, input[type="file"]:hover {
+	background:-moz-linear-gradient(top, #737373 5%, #999999 100%);
+	background:-webkit-linear-gradient(top, #737373 5%, #999999 100%);
+	background:linear-gradient(to bottom, #737373 5%, #999999 100%);
+	background-color:#737373;
+}
+
+select:disabled, select[disabled],
+option:disabled, option[disabled],
+input[type="text"]:disabled, input[type="text"][disabled],
+input[type="password"]:disabled, input[type="password"][disabled],
+input[type="number"]:disabled, input[type="number"][disabled],
+input[type="file"]:disabled , input[type="file"][disabled] {
+	background: #333333;
+	color: gray;
+	border-color: darkgray;
+}
+
+select, select:hover {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-image: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20version%3D%221.1%22%20x%3D%2212px%22%20y%3D%220px%22%20width%3D%2224px%22%20height%3D%225px%22%20viewBox%3D%220%200%206%203%22%20enable-background%3D%22new%200%200%206%203%22%20xml%3Aspace%3D%22preserve%22%20fill%3D%22%23fff%22%3E%3Cpolygon%20points%3D%225.992%2C0%202.992%2C3%20-0.008%2C0%20%22/%3E%3C/svg%3E);
+	background-position: 100% center;
+	background-repeat: no-repeat;
+	background-color: #828282;
+}
+
+input[type="radio"]:checked + label,
+input[type="radio"]:not(:checked) + label {
+	color: #f2f2f2;
+}
+
+input[type="radio"]:checked + label:before,
+input[type="radio"]:not(:checked) + label:before {
+	border: 1px solid #4d4d4d;
+	background: #666666;
+}
+
+input[type="radio"]:checked:hover + label:before,
+input[type="radio"]:not(:checked):hover + label:before {
+	background: #8c8c8c;
+}
+
+input[type="radio"]:checked + label:after,
+input[type="radio"]:not(:checked) + label:after {
+	background: #1a1a1a;
+}
+
+input[type="checkbox"] + label:before {
+	background: #4c4c4c;
+	border: 1px solid #666666;
+}
+
+input[type="checkbox"]:hover + label:before {
+	background: #8c8c8c;
+}
+
+input[type="checkbox"]:focus + label:before {
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+input[type="checkbox"]:checked + label:before {
+	background: #666666;
+	border: 1px solid #666666;
+}
+
+input[type="checkbox"]:disabled + label {
+	color: #1a1a1a;
+}
+
+input[type="checkbox"]:disabled + label:before {
+	box-shadow: none;
+	background: #666666;
+}
+
+input[type="checkbox"]:checked + label:after {
+	background: #1a1a1a;
+	box-shadow:
+	  2px 0 0 #1a1a1a,
+	  4px 0 0 #1a1a1a,
+	  4px -2px 0 #1a1a1a,
+	  4px -4px 0 #1a1a1a,
+	  4px -6px 0 #1a1a1a,
+	  4px -8px 0 #1a1a1a;
+	transform: rotate(45deg);
+}
+
+/* Define the tables */
+table, table.bgwhite, table.bggrey, table.bgblack, table.bgred,
+table.banner, table.lmscontrols, table.navigation {
+	background:#1a1a1a;
+}
+
+table.banner {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #333333), color-stop(1, #1a1a1a));
+	background:-moz-linear-gradient(top, #333333 5%, #1a1a1a 100%);
+	background:-webkit-linear-gradient(top, #333333 5%, #1a1a1a 100%);
+	background:linear-gradient(to bottom, #333333 5%, #1a1a1a 100%);
+}
+
+table.lmscontrols {
+	background: #333333;
+}
+
+table.navigation {
+	background: #1a1a1a;
+}
+
+table.bggrey {
+	background:#1a1a1a;
+}
+
+table.bgblack {
+	background:#1a1a1a;
+}
+
+table.bgred {
+	-moz-box-shadow: 0px 0px 0px 1px #730000;
+	-webkit-box-shadow: 0px 0px 0px 1px #730000;
+	box-shadow: 0px 0px 0px 1px #730000;
+	background: #1a1a1a;
+	border:2px solid #fc0000;
+	/* background:red; */
+}
+
+/* Define textareas */
+textarea, textarea.styled, textarea.inform {
+	background:#666666;
+	border:1px solid grey;
+}
+
+textarea.inform {
+	background:#666666;
+	border:0px solid grey;
+}
+
+textarea.width600 {
+	background:#666666;
+	border:0px solid grey;
+}
+
+textarea.white {
+	background:white;
+	border:0px solid white;
+}
+
+/* LMS Control Buttons */
+.ctrlbutton {
+	background:#333333;
+	color:#f2f2f2;
+	text-shadow:0px 2px 3px #999999;
+}
+
+.ctrlbutton:hover {
+	background:#666666;
+	color:#f2f2f2;
+}
+
+/* Horizontal navigation and controls bar */
+a.nav5, a.nav5a,
+a.nav6, a.nav6a,
+a.nav7, a.nav7a,
+a.nav8, a.nav8a,
+a.nav9, a.nav9a {
+	background: #1a1a1a;
+	border:0px solid black;
+	color:#f2f2f2;
+	text-shadow:0px 2px 3px #b3b3b3;
+}
+
+a.nav5:hover, a.nav5a:hover,
+a.nav6:hover, a.nav6a:hover,
+a.nav7:hover, a.nav7a:hover,
+a.nav8:hover, a.nav8a:hover,
+a.nav9:hover, a.nav9a:hover {
+	background: #666666;
+	color:#f2f2f2;
+}
+
+a.nav5a, a.nav6a, a.nav7a, a.nav8a, a.nav9a {
+	background:#808080;
+	color:#f2f2f2;
+}
+
+a.tab7, a.tab7a,
+a.tab14, a.tab14a, a.tab14b, a.tab14c,
+a.tab20, a.tab20a {
+	background:#808080;
+	color:#ffffff;
+}
+
+a.tab7a, a.tab14a, a.tab20a {
+	background:#4d4d4d;
+	color:#f2f2f2;
+}
+
+a.tab7:visited, a.tab14:visited, a.tab20:visited {
+	background:#808080;
+	color:#ffffff;
+}
+
+a.tab7:hover, a.tab14:hover, a.tab14b:hover, a.tab14c:hover, a.tab20:hover {
+	background:#b3b3b3;
+}
+
+.tab7end {
+	color:black;
+}
+
+.cputemp {
+	width:100%;
+	height:100%;
+	fill:#333333;
+}
+
+.cputemp_text {
+	fill:#f2f2f2;
+}
+

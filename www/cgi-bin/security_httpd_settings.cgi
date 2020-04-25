@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-08-31
 
 #========================================================================================
 # Functions
@@ -211,7 +211,7 @@ fi
 # Start of table
 #----------------------------------------------------------------------------------------
 COL1="column150"
-COL2="column210"
+COL2="column220"
 #----------------------------------------------------------------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
@@ -234,8 +234,10 @@ echo '                <td class="'$COL1'">'
 echo '                  <p>User/password</p>'
 echo '                </td>'
 echo '                <td class="'$COL2'">'
-echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="yes" '$HUEyes'>Enabled&nbsp;&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" name="HTTPD_USER_ENABLED" value="no" '$HUEno'>Disabled'
+echo '                  <input id="rad1" type="radio" name="HTTPD_USER_ENABLED" value="yes" '$HUEyes'>'
+echo '                  <label for="rad1">Enabled&nbsp;&nbsp;</label>'
+echo '                  <input id="rad2" type="radio" name="HTTPD_USER_ENABLED" value="no" '$HUEno'>'
+echo '                  <label for="rad2">Disabled</label>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Enable user/password for httpd&nbsp;&nbsp;'

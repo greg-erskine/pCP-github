@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-11
+# Version: 6.0.0 2019-12-22
 
 set -f
 
@@ -67,7 +67,7 @@ pcp_tweaks_hostname() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_hostname
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_hostname
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Timezone----------------------------------
@@ -115,7 +115,7 @@ pcp_tweaks_timezone() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_INITIAL ] && pcp_tweaks_timezone
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_timezone
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------Player Tabs-------------------------------
@@ -135,8 +135,10 @@ pcp_tweaks_playertabs() {
 	echo '                  <p>piCorePlayer Tabs</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="PLAYERTABS" value="yes" '$PLAYERTABSyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="PLAYERTABS" value="no" '$PLAYERTABSno'>No'
+	echo '                  <input id="pt1" type="radio" name="PLAYERTABS" value="yes" '$PLAYERTABSyes'>'
+	echo '                  <label for="pt1">Yes&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="pt2" type="radio" name="PLAYERTABS" value="no" '$PLAYERTABSno'>'
+	echo '                  <label for="pt2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Display piCorePlayer Tabs&nbsp;&nbsp;'
@@ -160,7 +162,7 @@ pcp_tweaks_playertabs() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_playertabs
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_playertabs
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------LMS Control Toolbar-----------------------
@@ -180,8 +182,10 @@ pcp_tweaks_lmscontrols() {
 	echo '                  <p>LMS Controls Toolbar</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="LMSCONTROLS" value="yes" '$LMSCONTROLSyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="LMSCONTROLS" value="no" '$LMSCONTROLSno'>No'
+	echo '                  <input id="lc1" type="radio" name="LMSCONTROLS" value="yes" '$LMSCONTROLSyes'>'
+	echo '                  <label for="lc1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="lc2" type="radio" name="LMSCONTROLS" value="no" '$LMSCONTROLSno'>'
+	echo '                  <label for="lc2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Display LMS Controls Toolbar&nbsp;&nbsp;'
@@ -205,7 +209,7 @@ pcp_tweaks_lmscontrols() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_lmscontrols
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lmscontrols
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------HDMI Power--------------------------------
@@ -225,8 +229,10 @@ pcp_tweaks_hdmipower() {
 	echo '                  <p>HDMI power</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERon'>On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERoff'>Off'
+	echo '                  <input id="hdmi1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERon'>'
+	echo '                  <label for="hdmi1">On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="hdmi2" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERoff'>'
+	echo '                  <label for="hdmi2">Off</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>HDMI power&nbsp;&nbsp;'
@@ -250,7 +256,7 @@ pcp_tweaks_hdmipower() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_hdmipower
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_hdmipower
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------LMS Web Port------------------------------
@@ -297,7 +303,7 @@ pcp_tweaks_lmswebport() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_lmswebport
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Internet Check IP---------------------------------
@@ -364,7 +370,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_internet_check_ip
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_internet_check_ip
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------rotdash-------------------------------------------
@@ -384,8 +390,10 @@ pcp_tweaks_rotdash() {
 	echo '                  <p>Replace rotating dash</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ROTDASH" value="yes" '$ROTDASHyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="ROTDASH" value="no" '$ROTDASHno'>No'
+	echo '                  <input id="rot1" type="radio" name="ROTDASH" value="yes" '$ROTDASHyes'>'
+	echo '                  <label for="rot1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="rot2" type="radio" name="ROTDASH" value="no" '$ROTDASHno'>'
+	echo '                  <label for="rot2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Replace the default rotating dash with a new one&nbsp;&nbsp;'
@@ -419,11 +427,12 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 #----------------------------------------------------------------------------------------
-
+echo '<br/>'
+echo '<br/>'
 #========================================================================================
 # pCP OS/Kernel Tweaks
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_NORMAL ]; then
+if [ $MODE -ge $MODE_PLAYER ]; then
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -483,7 +492,7 @@ pcp_tweaks_governor() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_governor
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_governor
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Overclock----------------------------------------
@@ -556,7 +565,7 @@ pcp_tweaks_overclock() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_overclock
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_overclock
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------CPU Isolation--------------------------------------
@@ -609,7 +618,7 @@ pcp_tweaks_cpuisol() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_ADVANCED -a $(pcp_rpi_type) -ge 2 ] && pcp_tweaks_cpuisol
+[ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 ] && pcp_tweaks_cpuisol
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------Squeezelite cpu affinity---------------------------
@@ -684,9 +693,9 @@ pcp_tweaks_sqlite_affinity(){
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_ADVANCED -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
+[ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_NORMAL ]; then
+if [ $MODE -ge $MODE_PLAYER ]; then
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -694,6 +703,9 @@ if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '</table>'
 fi
 #----------------------------------------------------------------------------------------
+
+echo '<br/>'
+echo '<br/>'
 
 #========================================================================================
 # Wake-on-LAN table
@@ -733,8 +745,10 @@ pcp_tweaks_wol() {
 	echo '                  <p>WOL</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="WOL" value="yes" '$WOLyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="WOL" value="no" '$WOLno'>No'
+	echo '                  <input id="wol1" type="radio" name="WOL" value="yes" '$WOLyes'>'
+	echo '                  <label for="wol1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="wol2" type="radio" name="WOL" value="no" '$WOLno'>'
+	echo '                  <label for="wol2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>LMS Wake-on-LAN&nbsp;&nbsp;'
@@ -825,8 +839,10 @@ pcp_tweaks_wol() {
 	echo '  </table>'
 	echo '</form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_wol
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_wol
 #----------------------------------------------------------------------------------------
+echo '<br/>'
+echo '<br/>'
 
 #========================================================================================
 # Auto start tweaks
@@ -856,8 +872,10 @@ pcp_tweaks_auto_start() {
 	echo '                  </select>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>Enabled'
-	echo '                  <input class="small1" type="radio" name="A_S_FAV" value="Disabled" '$A_S_FAV_N'>Disabled'
+	echo '                  <input id="as1" type="radio" name="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>'
+	echo '                  <label for="as1">Enabled</label>'
+	echo '                  <input id="as2" type="radio" name="A_S_FAV" value="Disabled" '$A_S_FAV_N'>'
+	echo '                  <label for="as2">Disabled</label>'
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
@@ -905,7 +923,7 @@ pcp_tweaks_auto_start() {
 	echo '                  <input type="hidden" name="AUTOSTART" value="FAV">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
-	[ $MODE -ge $MODE_BETA ] &&
+	[ $MODE -ge $MODE_PLAYER ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -930,8 +948,10 @@ pcp_tweaks_auto_start() {
 	echo '                  <input class="large30" type="text" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>Enabled'
-	echo '                  <input class="small1" type="radio" name="A_S_LMS" value="Disabled" '$A_S_LMS_N'>Disabled'
+	echo '                  <input id="as3" type="radio" name="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>'
+	echo '                  <label for="as3">Enabled</label>'
+	echo '                  <input id="as4" type="radio" name="A_S_LMS" value="Disabled" '$A_S_LMS_N'>'
+	echo '                  <label for="as4">Disabled</label>'
 	echo '                </td>'
 	echo '              </tr>'
 	echo '              <tr class="'$ROWSHADE'">'
@@ -968,7 +988,7 @@ pcp_tweaks_auto_start() {
 	echo '                  <input type="hidden" name="AUTOSTART" value="LMS">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Test">'
-	[ $MODE -ge $MODE_BETA ] &&
+	[ $MODE -ge $MODE_PLAYER ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -988,12 +1008,14 @@ pcp_tweaks_auto_start() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_auto_start
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_auto_start
 
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_NORMAL ]; then
+if [ $MODE -ge $MODE_PLAYER ]; then
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1068,7 +1090,7 @@ pcp_tweaks_install_jivelite() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_install_jivelite
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_install_jivelite
 
 #-----------------------------Enable/disable autostart of Jivelite-----------------------
 pcp_tweaks_enable_jivelite() {
@@ -1095,8 +1117,10 @@ pcp_tweaks_enable_jivelite() {
 	echo '                  <input type="submit" value="Set Autostart" '$JLDISABLED'>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="JIVELITE" value="no" '$JIVEno'>No'
+	echo '                  <input id="jive1" type="radio" name="JIVELITE" value="yes" '$JIVEyes'>'
+	echo '                  <label for="jive1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="jive2" type="radio" name="JIVELITE" value="no" '$JIVEno'>'
+	echo '                  <label for="jive2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Automatic start of Jivelite when pCP boots&nbsp;&nbsp;'
@@ -1112,7 +1136,7 @@ pcp_tweaks_enable_jivelite() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_enable_jivelite
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_enable_jivelite
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------VU Meters----------------------------------------
@@ -1208,7 +1232,7 @@ pcp_tweaks_vumeter() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
+[ $MODE -ge $MODE_PLAYER ] && [ "$JIVELITE" = "yes" ] && pcp_tweaks_vumeter
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen rotation----------------------------------
@@ -1225,11 +1249,13 @@ pcp_tweaks_screenrotate() {
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
-	echo '                  <input type="submit" name="SUBMIT" value="Set Rotation">'
+	echo '                  <button name="ACTION" value="Rotation">Set Rotation</button>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="0" '$SCREEN0'>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SCREENROTATE" value="180" '$SCREEN180'>180'
+	echo '                  <input id="scrrot1" type="radio" name="SCREENROTATE" value="0" '$SCREEN0'>'
+	echo '                  <label for="scrrot1">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="scrrot2" type="radio" name="SCREENROTATE" value="180" '$SCREEN180'>'
+	echo '                  <label for="scrrot2">180</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Screen rotation (0|180)&nbsp;&nbsp;'
@@ -1256,12 +1282,10 @@ pcp_tweaks_screenrotate() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_screenrotate
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_screenrotate
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Screen Size--------------------------------------
-# Can't remember if this works or not. Did I do it? GE.
-#----------------------------------------------------------------------------------------
 pcp_tweaks_screensize() {
 	echo '          <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
@@ -1270,10 +1294,13 @@ pcp_tweaks_screensize() {
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column120">'
-	echo '                  <input type="submit" name="SUBMIT" value="Set Size">'
+	echo '                  <button name="ACTION" value="Size">Set Size</button>'
 	echo '                </td>'
-	echo '                <td class="column150">'
-	echo '                  <p>Width: <input class="large6" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
+	echo '                <td class="column120 right">'
+	echo '                  <p>Width:&nbsp;</p>'
+	echo '                </td>'
+	echo '                <td class="column120">'
+	echo '                  <p><input class="large6" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
 	echo '                </td>'
 	echo '                <td class="column150">'
 	echo '                  <p>Height: <input class="large6" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
@@ -1298,10 +1325,71 @@ pcp_tweaks_screensize() {
 		echo '<!-- End of debug info -->'
 	fi
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_tweaks_screensize
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_screensize
 #----------------------------------------------------------------------------------------
 
-if [ $MODE -ge $MODE_NORMAL ]; then
+pcp_tweaks_framebuffer() {
+	echo '          <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
+	echo '            <table class="bggrey percent100">'
+	#------------------------------------------------------------------------------------
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column120">'
+	echo '                  <button name="ACTION" value="FrameBuffer">Set FB</button>'
+	echo '                </td>'
+	echo '                <td class="column120 right">'
+	echo '                  <p>Frame Buffer:&nbsp;</p>'
+	echo '                </td>'
+	echo '                <td class="column120">'
+	echo '                  <p><input class="large6" type="text" name="JL_FRAME_BUFFER" value="'$JL_FRAME_BUFFER'"></p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set the Frame Buffer Device. (default: /dev/fb0)</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column120">'
+	echo '                  <p>&nbsp;</p>'
+	echo '                </td>'
+	echo '                <td class="column120 right">'
+	echo '                  <p>Frame Rate:&nbsp;</p>'
+	echo '                </td>'
+	echo '                <td class="column120">'
+	echo '                  <p><input class="large6" type="number" min="4" max="60" name="JL_FRAME_RATE" value="'$JL_FRAME_RATE'" ></p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set the Frame Buffer refresh rate.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column120">'
+	echo '                  <p>&nbsp;</p>'
+	echo '                </td>'
+	echo '                <td class="column120 right">'
+	echo '                  <p>Frame Depth:&nbsp;</p>'
+	echo '                </td>'
+	echo '                <td class="column120">'
+	echo '                  <p><input class="large6" type="text" name="JL_FRAME_DEPTH" value="'$JL_FRAME_DEPTH'" pattern="(8|16|24|32)" ></p>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>Set the Frame Buffer color depth.</p>'
+	echo '                </td>'
+	echo '              </tr>'
+	#------------------------------------------------------------------------------------
+	echo '            </table>'
+	echo '          </form>'
+	#------------------------------------------------------------------------------------
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_debug_variables "html" JL_FRAME_BUFFER JL_FRAME_RATE JL_FRAME_DEPTH
+		echo '<!-- End of debug info -->'
+	fi
+}
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_framebuffer
+#----------------------------------------------------------------------------------------
+
+if [ $MODE -ge $MODE_PLAYER ]; then
 	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
@@ -1314,6 +1402,8 @@ fi
 # IR Remote table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_lirc() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1400,13 +1490,15 @@ pcp_tweaks_lirc() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_tweaks_lirc
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lirc
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Poweroff/Shutdown Table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_poweroff() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1448,8 +1540,10 @@ pcp_tweaks_poweroff() {
 	echo '                  <button type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
 	echo '                </td>'
 	echo '                <td class="column120">'
-	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF" value="yes" '$GPIOPOWEROFF_yes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF" value="no" '$GPIOPOWEROFF_no'>No'
+	echo '                  <input id="gpio1" type="radio" name="GPIOPOWEROFF" value="yes" '$GPIOPOWEROFF_yes'>'
+	echo '                  <label for="gpio1">Yes&nbsp;&nbsp;</label>'
+	echo '                  <input id="gpio2" type="radio" name="GPIOPOWEROFF" value="no" '$GPIOPOWEROFF_no'>'
+	echo '                  <label for="gpio2">No</label>'
 	echo '                </td>'
 	echo '                <td class="column110">'
 	echo '                  GPIO: <input class="small4"'
@@ -1462,8 +1556,10 @@ pcp_tweaks_poweroff() {
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>Active High'
-	echo '                  <input class="small1" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>Active Low'
+	echo '                  <input id="gpio3" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>'
+	echo '                  <label for="gpio3">Active High</label>'
+	echo '                  <input id="gpio4" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>'
+	echo '                  <label for="gpio4">Active Low</label>'
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
@@ -1510,8 +1606,10 @@ pcp_tweaks_poweroff() {
 	echo '                  <button type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
 	echo '                </td>'
 	echo '                <td class="column120">'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN" value="yes" '$GPIOSHUTDOWN_yes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN" value="no" '$GPIOSHUTDOWN_no'>No'
+	echo '                  <input id="gpiosd1" type="radio" name="GPIOSHUTDOWN" value="yes" '$GPIOSHUTDOWN_yes'>'
+	echo '                  <label for="gpiosd1">Yes&nbsp;&nbsp;</label>'
+	echo '                  <input id="gpiosd2" type="radio" name="GPIOSHUTDOWN" value="no" '$GPIOSHUTDOWN_no'>'
+	echo '                  <label for="gpiosd2">No</label>'
 	echo '                </td>'
 	echo '                <td class="column110">'
 	echo '                  GPIO: <input class="small4"'
@@ -1524,13 +1622,18 @@ pcp_tweaks_poweroff() {
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="yes" '$GPIOSHUTDOWN_HI_yes'>Active High'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_HI" value="no" '$GPIOSHUTDOWN_HI_no'>Active Low'
+	echo '                  <input id="gpiosd3" type="radio" name="GPIOSHUTDOWN_HI" value="yes" '$GPIOSHUTDOWN_HI_yes'>'
+	echo '                  <label for="gpiosd3">Active High</label>'
+	echo '                  <input id="gpiosd4" type="radio" name="GPIOSHUTDOWN_HI" value="no" '$GPIOSHUTDOWN_HI_no'>'
+	echo '                  <label for="gpiosd4">Active Low</label>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="up" '$GPIOSHUTDOWN_PU_up'>Pull Up&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="down" '$GPIOSHUTDOWN_PU_down'>Pull Down&nbsp;'
-	echo '                  <input class="small1" type="radio" name="GPIOSHUTDOWN_PU" value="off" '$GPIOSHUTDOWN_PU_off'>Off'
+	echo '                  <input id="gpiosd5" type="radio" name="GPIOSHUTDOWN_PU" value="up" '$GPIOSHUTDOWN_PU_up'>'
+	echo '                  <label for="gpiosd5">Pull Up&nbsp;&nbsp;</label>'
+	echo '                  <input id="gpiosd6" type="radio" name="GPIOSHUTDOWN_PU" value="down" '$GPIOSHUTDOWN_PU_down'>'
+	echo '                  <label for="gpiosd6">Pull Down&nbsp;</label>'
+	echo '                  <input id="gpiosd7" type="radio" name="GPIOSHUTDOWN_PU" value="off" '$GPIOSHUTDOWN_PU_off'>'
+	echo '                  <label for="gpiosd7">Off</label>'
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
@@ -1569,13 +1672,15 @@ pcp_tweaks_poweroff() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_poweroff
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_poweroff
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table id="Audio" class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1584,7 +1689,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '        <legend>Audio tweaks</legend>'
 	echo '          <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
-	#-------------------------------------------Squeezelite------------------------------
+#-------------------------------------------Squeezelite------------------------------
 	case "$SQUEEZELITE" in
 		yes) SQUEEZELITEyes="checked" ;;
 		no) SQUEEZELITEno="checked" ;;
@@ -1597,8 +1702,10 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>Squeezelite</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SQUEEZELITE" value="yes" '$SQUEEZELITEyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SQUEEZELITE" value="no" '$SQUEEZELITEno'>No'
+	echo '                  <input id="squeez1" type="radio" name="SQUEEZELITE" value="yes" '$SQUEEZELITEyes'>'
+	echo '                  <label for="squeez1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="squeez2" type="radio" name="SQUEEZELITE" value="no" '$SQUEEZELITEno'>'
+	echo '                  <label for="squeez2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Automatically start Squeezelite when pCP starts&nbsp;&nbsp;'
@@ -1610,7 +1717,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -1620,7 +1727,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-	#-------------------------------------------Shairport--------------------------------
+#-------------------------------------------Shairport--------------------------------
 	case "$SHAIRPORT" in
 		yes) SHAIRPORTyes="checked" ;;
 		no) SHAIRPORTno="checked" ;;
@@ -1633,8 +1740,10 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>Shairport-sync</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="yes" '$SHAIRPORTyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="SHAIRPORT" value="no" '$SHAIRPORTno'>No'
+	echo '                  <input id="shair1" type="radio" name="SHAIRPORT" value="yes" '$SHAIRPORTyes'>'
+	echo '                  <label for="shair1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="shair2" type="radio" name="SHAIRPORT" value="no" '$SHAIRPORTno'>'
+	echo '                  <label for="shair2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 
@@ -1652,7 +1761,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
@@ -1662,7 +1771,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-	#-------------------------------------ALSA Equalizer---------------------------------
+#-------------------------------------ALSA Equalizer---------------------------------
 	case "$ALSAeq" in
 		yes) ALSAeqyes="checked" ;;
 		no) ALSAeqno="checked" ;;
@@ -1675,8 +1784,10 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>ALSA 10 band Equalizer</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>No'
+	echo '                  <input id="alsaeq1" type="radio" name="ALSAeq" value="yes" '$ALSAeqyes'>'
+	echo '                  <label for="alsaeq1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="alsaeq2" type="radio" name="ALSAeq" value="no" '$ALSAeqno'>'
+	echo '                  <label for="alsaeq2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 
@@ -1700,17 +1811,64 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
+	if [ "$ALSAeq" = "yes" ]; then
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 right">'
+		echo '                  <p>Equalizer Device</p>'
+		echo '                </td>'
+		echo '                <td class="column210">'
+		echo '                  <input id="input'$ID'"'
+		echo '                         class="large15"'
+		echo '                         type="text"'
+		echo '                         name="EQUAL_OUT_DEVICE"'
+		echo '                         value="'$EQUAL_OUT_DEVICE'"'
+		echo '                         title="Select from list of input devices"'
+		echo '                         READONLY'
+		echo '                  >'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Specify the input device from list&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Available input devices (click to use):</p>'
+		echo '                    <ul>'
+
+		OPTION=1
+		aplay -L 2>/dev/null | grep -E "^hw:" | while read -r IN
+		do
+			echo '                      <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'EQoption${OPTION}\'')">'
+			echo '                        <span id="EQoption'${OPTION}'">'$IN'</span></li>'
+			OPTION=$((OPTION + 1))
+		done 
+
+		echo '                    </ul>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
+#------------------------------------------------------------------------------------
+	pcp_toggle_row_shade
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td colspan="3">'
+	echo '                  <input type="submit" name="SUBMIT" value="Save">'
+	echo '                </td>'
+	echo '              </tr>'
+#------------------------------------------------------------------------------------
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '<tr class="'$ROWSHADE'">'
 		echo '  <td colspan="3">'
-		pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes
+		pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes EQUAL_OUT_DEVICE
 		echo '  </td>'
 		echo '</tr>'
 		echo '<!-- End of debug info -->'
 	fi
-	#--------------------------------------PCP Streamer----------------------------------
+
+#--------------------------------------PCP Streamer----------------------------------
 	case "$STREAMER" in
 		yes) STREAMERyes="checked" ;;
 		no) STREAMERno="checked" ;;
@@ -1723,79 +1881,87 @@ pcp_tweaks_audio_tweaks() {
 	echo '                  <p>Streamer for Audio Input</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="STREAMER" value="yes" '$STREAMERyes'>Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="STREAMER" value="no" '$STREAMERno'>No'
+	echo '                  <input id="streamer1" type="radio" name="STREAMER" value="yes" '$STREAMERyes'>'
+	echo '                  <label for="streamer1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="streamer2" type="radio" name="STREAMER" value="no" '$STREAMERno'>'
+	echo '                  <label for="streamer2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <p>'
 	if [ "$STREAMER" = "no" ]; then
+		echo '                  <p>'
 		echo '                    Run streaming server for audio line-in or bluetooth input&nbsp;&nbsp;'
 	else
-		echo '                     <a id="stream_url"></a>'
+		echo '                  <p >Streamer installed. Basic url:'
+		echo '                    <a id="stream_url" href=""></a>&nbsp;&nbsp;'
 	fi
 	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    <div id="'$ID'" class="less">'
+	echo '                      <p>To play stream from LMS, play URL as follows.</p>'
+	echo '                      <ul>'
+	echo '                        <li id="stream_usage"></li>'
+	echo '                        <li id="stream_flac"></li>'
+	echo '                        <li>pCP will stream 16bit, 44.1khz, 2 channels, flac output on port 9100.</li>'
+	echo '                      </ul>'
+	echo '                    </div>'
 	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>To play stream from LMS, play URL as follows.</p>'
-	echo '                    <ul>'
-	echo '                      <li id="stream_usage"></li>'
-	echo '                      <li id="stream_flac"></li>'
-	echo '                      <li>pCP will stream 16bit, 44.1khz, 2 channels, flac output on port 9100.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	pcp_incr_id
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 right">'
-	echo '                  <p>Input Device</p>'
-	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input id="input'$ID'"'
-	echo '                         class="large15"'
-	echo '                         type="text"'
-	echo '                         name="STREAMER_IN_DEVICE"'
-	echo '                         value="'$STREAMER_IN_DEVICE'"'
-	echo '                         title="Select from list of input devices"'
-	echo '                  >'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Specify the input device (-o)&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Available input devices (click to use):</p>'
-	echo '                    <ul>'
+#------------------------------------------------------------------------------------
+	if [ "$STREAMER" = "yes" ]; then
+		pcp_incr_id
+		pcp_toggle_row_shade
+		echo '              <tr class="'$ROWSHADE'">'
+		echo '                <td class="column150 right">'
+		echo '                  <p>Input Device</p>'
+		echo '                </td>'
+		echo '                <td class="column210">'
+		echo '                  <input id="input'$ID'"'
+		echo '                         class="large15"'
+		echo '                         type="text"'
+		echo '                         name="STREAMER_IN_DEVICE"'
+		echo '                         value="'$STREAMER_IN_DEVICE'"'
+		echo '                         title="Select from list of input devices"'
+		echo '                         READONLY'
+		echo '                  >'
+		echo '                </td>'
+		echo '                <td>'
+		echo '                  <p>Specify the input device from list&nbsp;&nbsp;'
+		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                  </p>'
+		echo '                  <div id="'$ID'" class="less">'
+		echo '                    <p>Available input devices (click to use):</p>'
+		echo '                    <ul>'
 
-	OPTION=1
-	alsacap -R 2>/dev/null | grep Card | awk -F'name ' '{print  $2}' | sed 's/`//' | sed 's/'\''//' | while read -r IN
-	do
-		echo '                      <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${OPTION}\'')">'
-		echo '                        <span id="option'${OPTION}'">'$IN'</span></li>'
-		OPTION=$((OPTION + 1))
-	done 
+		OPTION=1
+			arecord -L 2>/dev/null | grep -E "^hw:" | while read -r IN
+		do
+			echo '                      <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'STRoption${OPTION}\'')">'
+			echo '                        <span id="STRoption'${OPTION}'">'$IN'</span></li>'
+			OPTION=$((OPTION + 1))
+		done 
 
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
+		echo '                    </ul>'
+		echo '                  </div>'
+		echo '                </td>'
+		echo '              </tr>'
+	fi
+#------------------------------------------------------------------------------------
 	echo '              <script>'
 	if [ "$STREAMER" = "yes" ]; then
-		echo '                document.getElementById("stream_url").innerHTML = "Streamer installed. Basic url: <a href=http://" + window.location.hostname + ":9100/S16_LE/44100/2/F>http://" + window.location.hostname + ":9100/S16_LE/44100/2/F</a>\u00A0\u00A0";'
+		echo '                document.getElementById("stream_url").setAttribute( "href",  "http://" + window.location.hostname + ":9100/S16_LE/44100/2/F" );'
+		echo '                document.getElementById("stream_url").innerHTML = "http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
 	fi
 	echo '                document.getElementById("stream_usage").innerHTML = "http://" + window.location.hostname + ":9100/&lt;format&gt;/&lt;rate&gt;/&lt;channels&gt;/&lt;F-flac or M-mp3&gt;";'
 	echo '                document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
 	echo '              </script>'
-	#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                </td>'
 	echo '              </tr>'
-	#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------
 	echo '            </table>'
 	echo '          </form>'
 	echo '        </fieldset>'
@@ -1804,13 +1970,15 @@ pcp_tweaks_audio_tweaks() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_audio_tweaks
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_audio_tweaks
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # USB audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_usb_audio_tweaks() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1831,9 +1999,11 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                <td class="column150">'
 	echo '                  <p>OTG-Speed</p>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="CMD" value="Default" '$CMDdefault'>Default'
-	echo '                  <input class="small1" type="radio" name="CMD" value="Slow" '$CMDslow'>dwc_otg.speed=1'
+	echo '                <td class="column240">'
+	echo '                  <input id="dwc1" type="radio" name="CMD" value="Default" '$CMDdefault'>'
+	echo '                  <label for="dwc1">Default</label>'
+	echo '                  <input id="dwc2" type="radio" name="CMD" value="Slow" '$CMDslow'>'
+	echo '                  <label for="dwc2">dwc_otg.speed=1</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Fix C-Media based DACs by "dwc_otg.speed=1"&nbsp;&nbsp;'
@@ -1868,9 +2038,11 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '                <td class="column150">'
 	echo '                  <p>USB-FSM driver</p>'
 	echo '                </td>'
-	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="FSM" value="Default" '$FSMdefault'>Default'
-	echo '                  <input class="small1" type="radio" name="FSM" value="Disabled" '$FSMdisabled'>Disable USB-FSM'
+	echo '                <td class="column240">'
+	echo '                  <input id="fsm1" type="radio" name="FSM" value="Default" '$FSMdefault'>'
+	echo '                  <label for="fsm1">Default</label>'
+	echo '                  <input id="fsm2" type="radio" name="FSM" value="Disabled" '$FSMdisabled'>'
+	echo '                  <label for="fsm2">Disable USB-FSM</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Fix Emotiva XMC-1 DAC by "dwc_otg.fiq_fsm_enable=0"&nbsp;&nbsp;'
@@ -1967,7 +2139,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_tweaks_usb_audio_tweaks
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_usb_audio_tweaks
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------------Schedule CRON jobs---------------------------
@@ -1983,6 +2155,8 @@ pcp_tweaks_usb_audio_tweaks() {
 #
 #----------------------------------------------------------------------------------------
 pcp_tweaks_cron() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -2057,8 +2231,10 @@ pcp_tweaks_cron() {
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="REBOOT" value="Enabled" '$REBOOT_Y'>Enabled'
-	echo '                  <input class="small1" type="radio" name="REBOOT" value="Disabled" '$REBOOT_N'>Disabled'
+	echo '                  <input id="reboot1" type="radio" name="REBOOT" value="Enabled" '$REBOOT_Y'>'
+	echo '                  <label for="reboot1">Enabled</label>'
+	echo '                  <input id="reboot2" type="radio" name="REBOOT" value="Disabled" '$REBOOT_N'>'
+	echo '                  <label for="reboot2">Disabled</label>'
 	echo '                </td>'
 	echo '              </tr>'
 	#-------------------------------------Squeezelite restart----------------------------
@@ -2102,8 +2278,10 @@ pcp_tweaks_cron() {
 	echo '                  >'
 	echo '                </td>'
 	echo '                <td>'
-	echo '                  <input class="small1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>Enabled'
-	echo '                  <input class="small1" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>Disabled'
+	echo '                  <input id="restart1" type="radio" name="RESTART" value="Enabled" '$RESTART_Y'>'
+	echo '                  <label for="restart1">Enabled</label>'
+	echo '                  <input id="restart2" type="radio" name="RESTART" value="Disabled" '$RESTART_N'>'
+	echo '                  <label for="restart2">Disabled</label>'
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
@@ -2162,7 +2340,7 @@ pcp_tweaks_cron() {
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Save">'
 	echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-	[ $MODE -ge $MODE_BETA ] &&
+	[ $MODE -ge $MODE_PLAYER ] &&
 	echo '                  <input type="submit" name="SUBMIT" value="Clear">'
 	echo '                </td>'
 	echo '              </tr>'
@@ -2183,11 +2361,13 @@ pcp_tweaks_cron() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_cron
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_cron
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -2301,12 +2481,12 @@ pcp_tweaks_user_commands() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_tweaks_user_commands
+[ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_user_commands
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 pcp_footer
-[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+pcp_mode
 pcp_copyright
 set +f
 echo '</body>'

@@ -52,7 +52,7 @@ pcp_install_wget() {
 # Pastebin button.
 #----------------------------------------------------------------------------------------
 pcp_pastebin_button() {
-	if [ $MODE -ge $MODE_BETA ]; then
+	if [ $MODE -ge $MODE_PLAYER ]; then
 		echo '<table class="bggrey">'
 		echo '  <tr>'
 		echo '    <td>'

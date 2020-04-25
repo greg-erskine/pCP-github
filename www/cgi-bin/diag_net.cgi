@@ -358,8 +358,10 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '                  <button type="submit" name="ACTION" value="Server_Mode" >Change Mode</button>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="IPERF3_SERVER_MODE" value="yes" '$IPERF3_SERVER_MODEyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="IPERF3_SERVER_MODE" value="no" '$IPERF3_SERVER_MODEno'>No'
+	echo '                  <input id="rad1" type="radio" name="IPERF3_SERVER_MODE" value="yes" '$IPERF3_SERVER_MODEyes'>'
+	echo '                  <label for="rad1">Yes</label>'
+	echo '                  <input id="rad2" type="radio" name="IPERF3_SERVER_MODE" value="no" '$IPERF3_SERVER_MODEno'>'
+	echo '                  <label for="rad2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set iperf to server mode&nbsp;&nbsp;'
@@ -416,8 +418,10 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '              <td class="column210">'
 	if [ "$IPERF3_SERVER_MODE" = "no" ]; then
 		[ "$IPERF3_SEND" = "no" ] && IPERF3_SENDno="checked" || IPERF3_SENDyes="checked"
-		echo '                <input class="small1" type="radio" name="IPERF3_SEND" value="yes" '$IPERF3_SENDyes'>Upload'
-		echo '                <input class="small1" type="radio" name="IPERF3_SEND" value="no" '$IPERF3_SENDno'>Download'
+		echo '                <input id="rad3" type="radio" name="IPERF3_SEND" value="yes" '$IPERF3_SENDyes'>'
+		echo '                <label for="rad3">Upload</label>'
+		echo '                <input id="rad4" type="radio" name="IPERF3_SEND" value="no" '$IPERF3_SENDno'>'
+		echo '                <label for="rad4">Download</label>'
 	fi
 	echo '              </td>'
 	echo '              <td>'
@@ -431,8 +435,10 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '              <td class="column210">'
 	if [ "$IPERF3_SERVER_MODE" = "no" ]; then
 		[ "$IPERF3_UDP" = "yes" ] && IPERF3_UDPyes="checked" || IPERF3_UDPno="checked"
-		echo '                <input class="small1" type="radio" name="IPERF3_UDP" value="yes" '$IPERF3_UDPyes'>UDP&nbsp;&nbsp;&nbsp;&nbsp;'
-		echo '                <input class="small1" type="radio" name="IPERF3_UDP" value="no" '$IPERF3_UDPno'>TCP'
+		echo '                <input id="rad5" type="radio" name="IPERF3_UDP" value="yes" '$IPERF3_UDPyes'>'
+		echo '                <label for="rad5">UDP&nbsp;&nbsp;&nbsp;</label>'
+		echo '                <input id="rad6" type="radio" name="IPERF3_UDP" value="no" '$IPERF3_UDPno'>'
+		echo '                <label for="rad6">TCP</label>'
 	fi
 	echo '              </td>'
 	echo '              <td>'

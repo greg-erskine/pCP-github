@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-15
+# Version: 6.0.0 2020-01-12
 
 . pcp-functions
 . pcp-lms-functions
@@ -73,7 +73,7 @@ echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Main piCorePlayer operations</legend>'
+echo '          <legend>Main piCorePlayer functions</legend>'
 echo '          <table class="bggrey percent100">'
 #----------------------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ pcp_main_squeezelite_indication() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-pcp_main_squeezelite_indication && pcp_table_padding "2"
+pcp_main_squeezelite_indication
 #----------------------------------------------------------------------------------------
 
 #------------------------------------LMS Indication--------------------------------------
@@ -239,7 +239,7 @@ pcp_main_restart_shairport() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Padding---------------------------------------
-[ $MODE -le $MODE_BASIC ] && pcp_table_padding "2"
+#[ $MODE -le $MODE_PLAYER ] && pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite----------------------------
@@ -281,7 +281,7 @@ pcp_main_update_sqlt() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_sqlt
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_update_sqlt
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Install/Remove FFMPEG-------------------------
@@ -333,7 +333,7 @@ pcp_main_ffmpeg() {
 	fi
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_ffmpeg
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_ffmpeg
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Bluetooth-------------------------------------
@@ -356,7 +356,7 @@ pcp_main_bluetooth() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_bluetooth
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_bluetooth
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------
@@ -407,7 +407,7 @@ pcp_main_diagnostics() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_diagnostics
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_diagnostics
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Save to USB-----------------------------------
@@ -437,11 +437,11 @@ pcp_main_save_usb() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_save_usb
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Advanced mode fieldset------------------------
-if [ $MODE -ge $MODE_ADVANCED ]; then
+if [ $MODE -ge $MODE_PLAYER ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -453,7 +453,7 @@ if [ $MODE -ge $MODE_ADVANCED ]; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Advanced mode operations</legend>'
+	echo '          <legend>Additional functions</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
@@ -478,13 +478,13 @@ pcp_main_stop() {
 	echo '                  <p><b>Note:</b></p>'
 	echo '                  <ul>'
 	echo '                    <li>Squeezelite running indicator will turn to a red cross.</li>'
-	echo '                    <li>Squeezelite in the footer will turn red.</li>'
+	echo '                    <li>Squeezelite start at boot can be changed in <a href="tweaks.cgi#Audio">Tweaks.</li>'
 	echo '                  </ul>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_stop
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_stop
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Backup----------------------------------------
@@ -515,7 +515,7 @@ pcp_main_backup() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_backup
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_backup
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Shutdown--------------------------------------
@@ -540,7 +540,7 @@ pcp_main_shutdown() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_shutdown
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_shutdown
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Resize FS-------------------------------------
@@ -564,7 +564,7 @@ pcp_main_resize_fs() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_resize_fs
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_resize_fs
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Extensions------------------------------------
@@ -587,11 +587,11 @@ pcp_main_extensions() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_extensions
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update fieldset-------------------------------
-if [ $MODE -ge $MODE_NORMAL ]; then
+if [ $MODE -ge $MODE_PLAYER ]; then
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
@@ -603,32 +603,57 @@ if [ $MODE -ge $MODE_NORMAL ]; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>pCP update operations</legend>'
+	echo '          <legend>pCP updates</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------HotFix----------------------------------------
-pcp_main_hotfix() {
+#------------------------------------------Update pcp web and base-------------------------------
+pcp_main_update_pcpbase() {
 	pcp_toggle_row_shade
 	pcp_incr_id
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
-	echo '                <form name="HotFix" action="fix.cgi" method="get">'
-	echo '                  <input type="submit" value="HotFix">'
+	echo '                <form name="Update" action="updatebase.cgi" method="get">'
+	echo '                  <button type="submit" name="ACTION" value="Update">Patch Update</button>'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Run Hotfix Update&nbsp;&nbsp;'
+	echo '                <p>Patch pCP current version extensions&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will check for a new hotfix and update pCP.</p>'
+	echo '                  <p>This will check for updated pcp extensions and update if needed.</p>'
+	echo '                  <p>pCP Version will remain unchanged.</p>'
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_hotfix
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcpbase
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------HotFix----------------------------------------
+pcp_main_minor_update() {
+	pcp_toggle_row_shade
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column150 center">'
+	echo '                <form name="Minor" action="minor_update.cgi" method="get">'
+	echo '                  <button type="submit" name="ACTION value="initial">Minor Update</button>'
+	echo '                </form>'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Check for minor pCP update.&nbsp;&nbsp;'
+	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <p>This will check for a pCP minor upgrade.</p>'
+	echo '                  <p>This will change the pCP verion.</p>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_minor_update
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update pCP------------------------------------
@@ -638,12 +663,12 @@ pcp_main_update_pcp() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column150 center">'
 	echo '                <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
-	echo '                  <input type="submit" value="Update pCP">'
+	echo '                  <input type="submit" value="Full Update">'
 	echo '                  <input type="hidden" name="ACTION" value="initial">'
 	echo '                </form>'
 	echo '              </td>'
 	echo '              <td>'
-	echo '                <p>Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
+	echo '                <p>Insitu Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
 	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                </p>'
 	echo '                <div id="'$ID'" class="less">'
@@ -665,30 +690,7 @@ pcp_main_update_pcp() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_main_update_pcp
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Update pcp-base-------------------------------
-pcp_main_update_pcpbase() {
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <form name="Update" action="updatebase.cgi" method="get">'
-	echo '                  <input type="submit" name="ACTION" value="Update">'
-	echo '                </form>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Update pcp-base extension&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <p>This will check for updated pcp-base extension and update if needed.</p>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
-}
-[ $MODE -ge $MODE_ADVANCED ] && pcp_main_update_pcpbase
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcp
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Beta mode fieldset----------------------------
@@ -704,7 +706,7 @@ if [ $MODE -ge $MODE_BETA ]; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Beta mode operations</legend>'
+	echo '          <legend>Beta functions</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
@@ -816,7 +818,7 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '    <td>'
 	echo '      <div class="row">'
 	echo '        <fieldset>'
-	echo '          <legend>Developer mode operations</legend>'
+	echo '          <legend>Developer functions</legend>'
 	echo '          <table class="bggrey percent100">'
 fi
 #----------------------------------------------------------------------------------------
@@ -951,5 +953,7 @@ pcp_footer
 pcp_mode
 pcp_copyright
 
+
+echo '</div>'
 echo '</body>'
 echo '</html>'

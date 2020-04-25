@@ -73,7 +73,7 @@ case "$HDMIPOWER" in
 	;;
 esac
 
-pcp_backup_nohtml
+pcp_backup text
 echo '                </textarea>'
 pcp_table_middle
 pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 100

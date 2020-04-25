@@ -1,12 +1,8 @@
 #!/usr/bin/micropython
 
-# Version: 6.0.0 2019-07-03
-
-# Title: microPython
-# Description: Testing microPython.
 
 import uos as os
-import usubprocess as subprocess
+#import usubprocess as subprocess
 
 def pcp_html_head(TITLE, AUTHOR, DESCRIPTION):
 	print('''
@@ -46,8 +42,8 @@ def pcp_banner():
 </table>
 <!-- End of pcp_banner -->''')
 
-def pcp_footer():
-	GREG = str(subprocess.check_output('version'))
+def pcp_footer1():
+#	GREG = str(subprocess.check_output('version'))
 	print('''
 <!-- Start of pcp_footer -->
 <table class="bgblack">
@@ -64,6 +60,25 @@ def pcp_footer():
 </table>
 <!-- End of pcp_footer -->''')
 
+def pcp_footer():
+	GREG = str(os.system('version'))
+
+	print('''
+<!-- Start of pcp_footer -->
+<table class="bgblack">
+  <tr>
+    <td>
+      <p class="footer">
+          NAME |
+          piCorePlayer v |
+          piCore v''' + GREG + ''' |
+          Squeezelite v</p>
+    </td>
+  </tr>
+</table>
+<!-- End of pcp_footer -->''')
+
+
 def pcp_picore_version():
 	print('yeaH')
 
@@ -74,12 +89,14 @@ TITLE =  "uPython"
 AUTHOR = "GE"
 DESCRIPTION = "microPython Test"
 
-pcp_html_head(TITLE, AUTHOR, DESCRIPTION)
+#pcp_html_head(TITLE, AUTHOR, DESCRIPTION)
+
+pcp_html_head("xxx", "AUTxxHOR", "DESCRIxxxPTION")
+
+
 pcp_banner()
 
 print('<p>Hello world</p>')
 print('<p>' + AUTHOR + ' wrote this ' + DESCRIPTION + '</p>')
-
-os.system('version')
 
 pcp_footer()

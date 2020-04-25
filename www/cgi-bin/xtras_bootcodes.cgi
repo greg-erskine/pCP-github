@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 
@@ -309,7 +309,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 COL1="column150"
-COL2="column210"
+COL2="column240"
 COL3="column150"
 COL4="column210"
 
@@ -521,7 +521,7 @@ pcp_bootcode_host() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_host
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_host
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------httplist------------------------------------------
@@ -664,7 +664,7 @@ pcp_bootcode_kmap() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_kmap
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_kmap
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------lang----------------------------------------------
@@ -701,7 +701,7 @@ pcp_bootcode_lang() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_lang
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_lang
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------mydata--------------------------------------------
@@ -738,7 +738,7 @@ pcp_bootcode_mydata() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_mydata
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_mydata
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nbd-----------------------------------------------
@@ -845,7 +845,7 @@ pcp_bootcode_ntpserver() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bootcode_ntpserver
+[ $MODE -ge $MODE_SERVER ] && pcp_bootcode_ntpserver
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------opt-----------------------------------------------
@@ -1212,7 +1212,7 @@ pcp_bootcode_tz() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_tz
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_tz
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------user----------------------------------------------
@@ -1287,7 +1287,7 @@ pcp_bootcode_waitusb() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_waitusb
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_waitusb
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------xvesa---------------------------------------------
@@ -1375,7 +1375,8 @@ pcp_bootcode_base() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="base" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="ONLYBASE" value="1" '$ONLYBASEyes'>'
+	echo '                  <input id="cb1" type="checkbox" name="ONLYBASE" value="1" '$ONLYBASEyes'>'
+	echo '                  <label for="cb1">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="base">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1396,7 +1397,7 @@ pcp_bootcode_base() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bootcode_base
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_bootcode_base
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------cron----------------------------------------------
@@ -1407,7 +1408,8 @@ pcp_bootcode_cron() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="cron" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="CRON" value="1" '$CRONyes'>'
+	echo '                  <input id="cb2" type="checkbox" name="CRON" value="1" '$CRONyes'>'
+	echo '                  <label for="cb2">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="cron">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1427,7 +1429,7 @@ pcp_bootcode_cron() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_cron
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_cron
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------laptop--------------------------------------------
@@ -1438,7 +1440,8 @@ pcp_bootcode_laptop() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="laptop" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="LAPTOP" value="1" '$LAPTOPyes'>'
+	echo '                  <input id="cb3" type="checkbox" name="LAPTOP" value="1" '$LAPTOPyes'>'
+	echo '                  <label for="cb3">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="laptop">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1469,7 +1472,8 @@ pcp_bootcode_noautologin() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="noautologin" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOAUTOLOGIN" value="1" '$NOAUTOLOGINyes'>'
+	echo '                  <input id="cb4" type="checkbox" name="NOAUTOLOGIN" value="1" '$NOAUTOLOGINyes'>'
+	echo '                  <label for="cb4">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="noautologin">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1500,7 +1504,8 @@ pcp_bootcode_nodhcp() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="nodhcp" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NODHCP" value="1" '$NODHCPyes'>'
+	echo '                  <input id="cb5" type="checkbox" name="NODHCP" value="1" '$NODHCPyes'>'
+	echo '                  <label for="cb5">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="nodhcp">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1521,7 +1526,7 @@ pcp_bootcode_nodhcp() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nodhcp
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_nodhcp
 #-----------------------------------------------------------------------------------------
 
 #--------------------------------------noembed--------------------------------------------
@@ -1532,7 +1537,8 @@ pcp_bootcode_noembed() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="noembed" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOEMBED" value="1" '$NOEMBEDyes'>'
+	echo '                  <input id="cb6" type="checkbox" name="NOEMBED" value="1" '$NOEMBEDyes'>'
+	echo '                  <label for="cb6">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="noembed">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1553,7 +1559,7 @@ pcp_bootcode_noembed() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noembed
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_noembed
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------nofstab-------------------------------------------
@@ -1564,7 +1570,8 @@ pcp_bootcode_nofstab() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="nofstab" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOFSTAB" value="1" '$NOFSTAByes'>'
+	echo '                  <input id="cb7" type="checkbox" name="NOFSTAB" value="1" '$NOFSTAByes'>'
+	echo '                  <label for="cb7">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="nofstab">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1595,7 +1602,8 @@ pcp_bootcode_noicons() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="noicons" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOICONS" value="1" '$NOICONSyes'>'
+	echo '                  <input id="cb8" type="checkbox" name="NOICONS" value="1" '$NOICONSyes'>'
+	echo '                  <label for="cb8">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="noicons">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1626,7 +1634,8 @@ pcp_bootcode_norestore() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="norestore" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NORESTORE" value="1" '$NORESTOREyes'>'
+	echo '                  <input id="cb9" type="checkbox" name="NORESTORE" value="1" '$NORESTOREyes'>'
+	echo '                  <label for="cb9">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="norestore">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1657,7 +1666,8 @@ pcp_bootcode_nortc() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="nortc" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NORTC" value="1" '$NORTCyes'>'
+	echo '                  <input id="cb10" type="checkbox" name="NORTC" value="1" '$NORTCyes'>'
+	echo '                  <label for="cb10">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="nortc">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1678,7 +1688,7 @@ pcp_bootcode_nortc() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nortc
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_nortc
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------noswap--------------------------------------------
@@ -1689,7 +1699,8 @@ pcp_bootcode_noswap() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="noswap" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOSWAP" value="1" '$NOSWAPyes'>'
+	echo '                  <input id="cb11" type="checkbox" name="NOSWAP" value="1" '$NOSWAPyes'>'
+	echo '                  <label for="cb11">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="noswap">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1709,7 +1720,7 @@ pcp_bootcode_noswap() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_noswap
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_noswap
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------noutc---------------------------------------------
@@ -1720,7 +1731,8 @@ pcp_bootcode_noutc() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="noutc" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOUTC" value="1" '$NOUTCyes'>'
+	echo '                  <input id="cb12" type="checkbox" name="NOUTC" value="1" '$NOUTCyes'>'
+	echo '                  <label for="cb12">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="noutc">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1751,7 +1763,8 @@ pcp_bootcode_nozswap() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="nozswap" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOZSWAP" value="1" '$NOZSWAPyes'>'
+	echo '                  <input id="cb13" type="checkbox" name="NOZSWAP" value="1" '$NOZSWAPyes'>'
+	echo '                  <label for="cb13">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="nozswap">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1771,7 +1784,7 @@ pcp_bootcode_nozswap() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nozswap
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_nozswap
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------pause---------------------------------------------
@@ -1782,7 +1795,8 @@ pcp_bootcode_pause() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="pause" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="PAUSE" value="1" '$PAUSEyes'>'
+	echo '                  <input id="cb14" type="checkbox" name="PAUSE" value="1" '$PAUSEyes'>'
+	echo '                  <label for="cb14">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="pause">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1802,7 +1816,7 @@ pcp_bootcode_pause() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_pause
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_pause
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------protect-------------------------------------------
@@ -1813,7 +1827,8 @@ pcp_bootcode_protect() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="protect" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="PROTECT" value="1" '$PROTECTyes'>'
+	echo '                  <input id="cb15" type="checkbox" name="PROTECT" value="1" '$PROTECTyes'>'
+	echo '                  <label for="cb15">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="protect">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1844,7 +1859,8 @@ pcp_bootcode_safebackup() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="safebackup" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="SAFEBACKUP" value="1" '$SAFEBACKUPyes'>'
+	echo '                  <input id="cb16" type="checkbox" name="SAFEBACKUP" value="1" '$SAFEBACKUPyes'>'
+	echo '                  <label for="cb16">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="safebackup">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1875,7 +1891,8 @@ pcp_bootcode_secure() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="secure" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="SECURE" value="1" '$SECUREyes'>'
+	echo '                  <input id="cb17" type="checkbox" name="SECURE" value="1" '$SECUREyes'>'
+	echo '                  <label for="cb17">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="secure">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1906,7 +1923,8 @@ pcp_bootcode_showapps() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="showapps" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="SHOWAPPS" value="1" '$SHOWAPPSyes'>'
+	echo '                  <input id="cb18" type="checkbox" name="SHOWAPPS" value="1" '$SHOWAPPSyes'>'
+	echo '                  <label for="cb18">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="showapps">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1927,7 +1945,7 @@ pcp_bootcode_showapps() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_showapps
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_showapps
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------superuser-----------------------------------------
@@ -1938,7 +1956,8 @@ pcp_bootcode_superuser() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="superuser" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="SUPERUSER" value="1" '$SUPERUSERyes'>'
+	echo '                  <input id="cb19" type="checkbox" name="SUPERUSER" value="1" '$SUPERUSERyes'>'
+	echo '                  <label for="cb19">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="superuser">'
 	echo '                </form>'
 	echo '              </td>'
@@ -1969,7 +1988,8 @@ pcp_bootcode_syslog() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="syslog" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="SYSLOG" value="1" '$SYSLOGyes'>'
+	echo '                  <input id="cb20" type="checkbox" name="SYSLOG" value="1" '$SYSLOGyes'>'
+	echo '                  <label for="cb20">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="syslog">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2000,7 +2020,8 @@ pcp_bootcode_text() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="text" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="TEXT" value="1" '$TEXTyes'>'
+	echo '                  <input id="cb21" type="checkbox" name="TEXT" value="1" '$TEXTyes'>'
+	echo '                  <label for="cb21">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="text">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2032,7 +2053,8 @@ pcp_bootcode_xonly() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="xonly" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="XONLY" value="1" '$XONLYyes'>'
+	echo '                  <input id="cb22" type="checkbox" name="XONLY" value="1" '$XONLYyes'>'
+	echo '                  <label for="cb22">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="xonly">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2063,7 +2085,8 @@ pcp_bootcode_xsetup() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="xsetup" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="XSETUP" value="1" '$XSETUPyes'>'
+	echo '                  <input id="cb23" type="checkbox" name="XSETUP" value="1" '$XSETUPyes'>'
+	echo '                  <label for="cb23">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="xsetup">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2163,7 +2186,7 @@ pcp_bootcode_console() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_console
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_console
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------consoleblank--------------------------------------
@@ -2199,7 +2222,7 @@ pcp_bootcode_consoleblank() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_consoleblank
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_consoleblank
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------dwc_otg.fiq_fsm_mask------------------------------
@@ -2235,7 +2258,7 @@ pcp_bootcode_fiq_fsm_mask() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_fiq_fsm_mask
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_fiq_fsm_mask
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------dwc_otg.lpm_enable--------------------------------
@@ -2271,7 +2294,7 @@ pcp_bootcode_lpm_enable() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_lpm_enable
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_lpm_enable
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------elevator------------------------------------------
@@ -2308,7 +2331,7 @@ pcp_bootcode_elevator() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_elevator
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_elevator
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------fbcon-------------------------------------------
@@ -2345,7 +2368,7 @@ pcp_bootcode_fbcon() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_fbcon
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_fbcon
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------isolcpus------------------------------------------
@@ -2381,7 +2404,7 @@ pcp_bootcode_isolcpus() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_isolcpus
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_isolcpus
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------loglevel------------------------------------------
@@ -2432,7 +2455,7 @@ pcp_bootcode_loglevel() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_loglevel
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_loglevel
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------root----------------------------------------------
@@ -2469,7 +2492,7 @@ pcp_bootcode_root() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_root
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_root
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------smsc95xx.turbo_mode-------------------------------
@@ -2505,7 +2528,7 @@ pcp_bootcode_turbo_mode() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_turbo_mode
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_turbo_mode
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
@@ -2553,7 +2576,8 @@ pcp_bootcode_nologo() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="nologo" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="NOLOGO" value="1" '$NOLOGOyes'>'
+	echo '                  <input id="cb" type="checkbox" name="NOLOGO" value="1" '$NOLOGOyes'>'
+	echo '                  <label for="cb">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="logo.nologo">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2573,7 +2597,7 @@ pcp_bootcode_nologo() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_nologo
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_nologo
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------quiet---------------------------------------------
@@ -2584,7 +2608,8 @@ pcp_bootcode_quiet() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="quiet" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="QUIET" value="1" '$QUIETyes'>'
+	echo '                  <input id="cb" type="checkbox" name="QUIET" value="1" '$QUIETyes'>'
+	echo '                  <label for="cb">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="quiet">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2605,7 +2630,7 @@ pcp_bootcode_quiet() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_quiet
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_quiet
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------rootwait------------------------------------------
@@ -2616,7 +2641,8 @@ pcp_bootcode_rootwait() {
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL11'">'
 	echo '                <form id="rootwait" action="'$0'" method="get">'
-	echo '                  <input class="small1" type="checkbox" name="ROOTWAIT" value="1" '$ROOTWAITyes'>'
+	echo '                  <input id="cb" type="checkbox" name="ROOTWAIT" value="1" '$ROOTWAITyes'>'
+	echo '                  <label for="cb">&#8239;</label>'
 	echo '                  <input type="hidden" name="VARIABLE" value="rootwait">'
 	echo '                </form>'
 	echo '              </td>'
@@ -2637,7 +2663,7 @@ pcp_bootcode_rootwait() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_bootcode_rootwait
+[ $MODE -ge $MODE_PLAYER ] && pcp_bootcode_rootwait
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------

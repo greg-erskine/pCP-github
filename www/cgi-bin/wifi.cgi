@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-rpi-functions
@@ -243,8 +243,10 @@ echo '                <td class="'$COLUMN1'">'
 echo '                  <p>Wifi</p>'
 echo '                </td>'
 echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="small1" type="radio" name="WIFI" value="on" '$WIFIon'>On&nbsp;&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" name="WIFI" value="off" '$WIFIoff'>Off'
+echo '                  <input id="wifi1" type="radio" name="WIFI" value="on" '$WIFIon'>'
+echo '                  <label for="wifi1">On&nbsp;&nbsp;&nbsp;</label>'
+echo '                  <input id="wifi2" type="radio" name="WIFI" value="off" '$WIFIoff'>'
+echo '                  <label for="wifi2">Off</label>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set wifi on or off&nbsp;&nbsp;'
@@ -393,9 +395,12 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  <p>Security Mode</p>'
 	echo '                </td>'
 	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="small1" type="radio" name="WPA_ENCRYPTION" value="WPA-PSK" '$WPA_ENCRYPTIONwpa'>WPA-PSK&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONwep'>WEP'
-	echo '                  <input class="small1" type="radio" name="WPA_ENCRYPTION" value="OPEN" '$WPA_ENCRYPTIONopen'>OPEN'
+	echo '                  <input id="1wifi1" type="radio" name="WPA_ENCRYPTION" value="WPA-PSK" '$WPA_ENCRYPTIONwpa'>'
+	echo '                  <label for="1wifi1">WPA-PSK&nbsp;&nbsp;</label>'
+	echo '                  <input id="1wifi2" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONwep'>'
+	echo '                  <label for="1wifi2">WEP</label>'
+	echo '                  <input id="1wifi3" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONopen'>'
+	echo '                  <label for="1wifi3">OPEN</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set wifi network security level&nbsp;&nbsp;'
@@ -420,8 +425,10 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '                  <p>Hidden SSID</p>'
 	echo '                </td>'
 	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="small1" type="radio" name="WPA_HIDDENSSID" value="1" '$WPA_HIDDENSSIDyes'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="WPA_HIDDENSSID" value="0" '$WPA_HIDDENSSIDno'>No'
+	echo '                  <input id="2wifi1" type="radio" name="WPA_HIDDENSSID" value="1" '$WPA_HIDDENSSIDyes'>'
+	echo '                  <label for="2wifi1">Yes&nbsp;&nbsp;</label>'
+	echo '                  <input id="2wifi2" type="radio" name="WPA_HIDDENSSID" value="0" '$WPA_HIDDENSSIDno'>'
+	echo '                  <label for="2wifi2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set hiddden SSID&nbsp;&nbsp;'
@@ -496,8 +503,10 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '                  <p>RPi built-in Wifi</p>'
 	echo '                </td>'
 	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>On&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>Off'
+	echo '                  <input id="intwifi1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>'
+	echo '                  <label for="intwifi1">On&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="intwifi2" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>'
+	echo '                  <label for="intwifi2">Off</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Turn off Raspberry Pi built-in wifi&nbsp;&nbsp;'
@@ -520,8 +529,10 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '                  <p>RPi built-in Bluetooth</p>'
 	echo '                </td>'
 	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>On&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>Off'
+	echo '                  <input id="blue1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>'
+	echo '                  <label for="blue1">On&nbsp;&nbsp;&nbsp;</label>'
+	echo '                  <input id="blue2" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>'
+	echo '                  <label for="blue2">Off</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Turn off Raspberry Pi built-in bluetooth&nbsp;&nbsp;'
@@ -725,7 +736,7 @@ wifi_apmode_page() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_BETA ] && wifi_apmode_page
+[ $MODE -ge $MODE_SERVER ] && wifi_apmode_page
 #----------------------------------------------------------------------------------------
 
 #-----------------------------------Network wait-----------------------------------------

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2010-08-16
+# Version: 6.0.0 2019-11-07
 
 . pcp-functions
 
@@ -106,9 +106,9 @@ pcp_warning_message() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
-	echo '        <fieldset>'
+	echo '        <fieldset class="warning">'
 	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
+	echo '            <tr>'
 	echo '              <td>'
 	echo '                <p><b>Warning:</b></p>'
 	echo '                <ul>'
@@ -198,7 +198,7 @@ echo '                  <textarea class="inform" style="height:130px">'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "initial" ]; then
 	echo '[ INFO ] '$INTERNET_STATUS
-	echo '[ INFO ] '$REPO_STATUS
+	echo '[ INFO ] Checking '$INSITU_DOWNLOAD':  '$REPO_STATUS
 	echo '[ INFO ] You are currently using piCorePlayer v'$(pcp_picoreplayer_version)
 	[ "$FAIL_MSG" = "ok" ] && pcp_get_insitu_cfg
 fi
@@ -253,7 +253,8 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_start_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
+	echo '                  <input id="rad1" type="radio" name="CORE" value="pcpCore" '$PCPCOREyes'>'
+	echo '                  <label for="rad1">&nbsp;</label>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
 	echo '                  <p>Standard version [Recommended]</p>'
@@ -272,7 +273,8 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
+	echo '                  <input id="rad2" type="radio" name="CORE" value="pcpAudioCore" '$PCPAUDIOCOREyes'>'
+	echo '                  <label for="rad2">&nbsp;</label>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
 	echo '                  <p>Audio enthusiast version [Experimental]</p>'
@@ -293,7 +295,7 @@ if [ "$ACTION" = "initial" ] && [ "$FAIL_MSG" = "ok" ] ; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="large18 center">'
-	echo '                  <select name="VERSION">'
+	echo '                  <select class="large12" name="VERSION">'
 	                          awk '{ print "<option value=\""$1"\">" $1"</option>" }' ${UPD_PCP}/insitu.cfg
 	echo '                  </select>'
 	echo '                </td>'

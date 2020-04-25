@@ -1,3 +1,6 @@
+var theme;
+var repo;
+
 function pcp_confirm(prompt,goto) {
 	var answer = confirm(prompt)
 	if (answer) window.location = goto;
@@ -75,18 +78,89 @@ function lms_controls_send() {
 }
 
 function setplayertabs() {
-	var url="http://" + window.location.hostname + "/cgi-bin/playerstabs.cgi";
+	if ( document.getElementById("PlayerTabsAfter") === null ) {
+		if ( document.readyState == "complete" ) return;
+		setTimeout(setplayertabs, 100);
+	} else {
+		var url="http://" + window.location.hostname + "/cgi-bin/playerstabs.cgi";
 
-	let request = new XMLHttpRequest();
-	request.onreadystatechange = function () {
-		if (this.readyState === 4) {
-			if (this.status === 200) {
-				document.getElementById("PlayerTabsAfter").insertAdjacentHTML('afterend', this.responseText);
-			} else if (this.response == null && this.status === 0) {
-				console.log("Error getting playertab data.");
+		let request = new XMLHttpRequest();
+		request.onreadystatechange = function () {
+			if (this.readyState === 4) {
+				if (this.status === 200) {
+					document.getElementById("PlayerTabsAfter").insertAdjacentHTML('afterend', this.responseText);
+				} else if (this.response == null && this.status === 0) {
+					console.log("Error getting playertab data.");
+				}
 			}
-		}
-	};
-	request.open("GET", url, true);
-	request.send(null);
+		};
+		request.open("GET", url, true);
+		request.send(null);
+	}
+}
+function loadcssfile(filename){
+	var date = new Date();
+	var timestamp = date.getTime();
+	var fileref=document.createElement("link");
+	fileref.setAttribute("rel", "stylesheet");
+	fileref.setAttribute("type", "text/css");
+	fileref.setAttribute("href", filename + '?' + timestamp);
+	if (typeof fileref!="undefined")
+		document.getElementsByTagName("head")[0].appendChild(fileref);
+}
+
+function removecssfile(filename){
+	var targetelement="link";
+	var targetattr="href";
+	var allsuspects=document.getElementsByTagName(targetelement);
+	for (var i=allsuspects.length; i>=0; i--){ 
+		if (allsuspects[i] && allsuspects[i].getAttribute(targetattr)!=null && allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1)
+			allsuspects[i].parentNode.removeChild(allsuspects[i]);
+	}
+}
+
+function switchtheme(){
+	if ( theme == 0 ) {
+		loadcssfile("../css/Dark.css");
+		theme = 1;
+	} else {
+		removecssfile("../css/Dark.css");
+		theme = 0;
+	}
+	document.getElementById("Theme").innerHTML = ( theme == 0 )? "Light Theme" : "Dark Theme";
+	document.getElementById("Theme").title = ( theme == 0 )? "Click to use Dark Theme" : "Click to use Light Theme";
+
+	var xhttp = new XMLHttpRequest();
+	var link="http://" + window.location.hostname + "/cgi-bin/writetopcpconfig.cgi?THEME=" + ((theme == 0)? "Light" : "Dark")
+	xhttp.open("GET", link, true);
+	try {
+		xhttp.send(null);
+	} catch(err) {
+		console.log (err);
+	}
+}
+
+function setcurrenttheme( th ){
+	theme = (th == "Light")? 0 : 1;
+}
+function setcurrentrepo( r ){
+	repo = r;
+}
+
+function switchrepo(){
+	if ( repo == 1 ){
+		repo = 2;
+	} else {
+		repo = 1;
+	}
+	document.getElementById("Repo").innerHTML = ( repo == 1)? "pCP Main Repo" : "pCP Mirror Repo";
+	document.getElementById("Repo").title = ( repo == 1)? "Click to use pCP Mirror Repo" : "Click to use pCP Main Repo";
+	var xhttp = new XMLHttpRequest();
+	var link="http://" + window.location.hostname + "/cgi-bin/writetopcpconfig.cgi?PCP_CUR_REPO=" + repo;
+	xhttp.open("GET", link, true);
+	try {
+		xhttp.send(null);
+	} catch(err) {
+		console.log (err);
+	}
 }

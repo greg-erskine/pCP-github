@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-12-07
 
 . pcp-functions
 . pcp-rpi-functions
@@ -56,6 +56,16 @@ pcp_bt_discover() {
 	/usr/local/bin/pcp-pairing-agent.py --pair_mode --timeout 60
 }
 
+pcp_bt_connect_device() {
+	bluetoothctl connect $1 >/dev/null
+	if [ $? -eq 0 ]; then
+		echo 0
+	else
+		echo 5
+	fi
+	sleep 2
+}
+
 pcp_bt_disconnect_device() {
 	bluetoothctl disconnect $1 >/dev/null
 	if [ $? -eq 0 ]; then
@@ -63,17 +73,28 @@ pcp_bt_disconnect_device() {
 	else
 		echo 1
 	fi
+	sleep 3
 }
 
 pcp_bt_save_config() {
+	PLAYERMODE=0
 	echo '[ INFO ] Saving Device Config: '$BTNAME
 	[ -f $BTDEVICECONF ] || touch $BTDEVICECONF
 	I=1
 	while [ $I -lt $NUMDEVICES ]; do
 		sed -i '/'$(eval echo "\${BTMAC${I}}")'/d' $BTDEVICECONF
-		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}" >> $BTDEVICECONF
+		eval echo "\${BTMAC${I}}#\${BTPLAYERNAME${I}}#\${BTDELAY${I}}#\${DEVTYPE${I}}" >> $BTDEVICECONF
 		I=$((I + 1))
+		TST=$(eval echo "\$DEVTYPE${I}}")
+		[ "$TST" = "2" ] && PLAYERMODE=1
 	done
+
+	if [ $PLAYERMODE ] && [ "$CLOSEOUT" = "" ]; then
+		echo '[ INFO ] Setting squeezelite to closeoutput when not in use.'
+		CLOSEOUT=5
+		pcp_save_to_config
+		pcp_squeezelite_restart nohtml
+	fi
 }
 
 REBOOT_REQUIRED=0
@@ -94,10 +115,24 @@ case "$ACTION" in
 		echo '                </textarea>'
 		pcp_table_end
 	;;
+	Connect*)
+		pcp_table_top "Connecting Device"
+		I=$(echo ${ACTION#Connect})
+		echo '                <textarea class="inform" style="height:60px">'
+		DEVICE=$(eval echo "\${BTMAC${I}}")
+		echo '[ INFO ] Connecting...'$DEVICE
+		RET=$(pcp_bt_connect_device $DEVICE)
+		case $RET in
+			0)echo '[ INFO ] Device has been connected';;
+			1)echo '[ ERROR ] Error connecting device.';;
+		esac
+		echo '                </textarea>'
+		pcp_table_end
+	;;
 	Disconnect*)
 		pcp_table_top "Disconnecting Device"
 		I=$(echo ${ACTION#Disconnect})
-		echo '                <textarea class="inform" style="height:120px">'
+		echo '                <textarea class="inform" style="height:60px">'
 		DEVICE=$(eval echo "\${BTMAC${I}}")
 		echo '[ INFO ] Disconnecting...'$DEVICE
 		RET=$(pcp_bt_disconnect_device $DEVICE)
@@ -116,6 +151,8 @@ case "$ACTION" in
 			pcp_install_bt
 			if [ ! -f $TCEMNT/tce/optional/pcp-bt6.tcz ]; then
 				echo '[ ERROR ] Error Downloading Bluetooth, please try again later.'
+			else
+				pcp_backup "text"
 			fi
 			echo '                </textarea>'
 			pcp_table_end
@@ -202,7 +239,10 @@ case "$ACTION" in
 		echo '                <textarea class="inform" style="height:120px">'
 		pcp_bt_save_config
 		pcp_backup "text"
-		echo '[ INFO ] You might need to turn the speaker off, then back on to load updated config.'
+		echo '[ INFO ] Restarting connect daemon.'
+		sudo $DAEMON_INITD stop
+		echo -n '[ INFO ] '
+		sudo $DAEMON_INITD start
 		echo '                </textarea>'
 		pcp_table_end
 	;;
@@ -338,7 +378,7 @@ pcp_bt_status_indicators() {
 	echo '              </td>'
 	echo '            </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bt_status_indicators
+[ $MODE -ge $MODE_PLAYER ] && pcp_bt_status_indicators
 
 #----------------------------------------------------------------------------------------
 echo '            <tr class="padding '$ROWSHADE'">'
@@ -394,7 +434,7 @@ pcp_bt_install() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bt_install || pcp_bt_beta_mode_required
+[ $MODE -ge $MODE_PLAYER ] && pcp_bt_install || pcp_bt_beta_mode_required
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Start and Stop BT Daemon----------------------
@@ -465,7 +505,7 @@ pcp_bt_startstop() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bt_startstop
+[ $MODE -ge $MODE_PLAYER ] && pcp_bt_startstop
 #-------------------_------------Show BT logs--------------------------------------------
 pcp_bt_show_logs() {
 	pcp_incr_id
@@ -476,9 +516,11 @@ pcp_bt_show_logs() {
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Show Logs" '$DISABLE_BT'/>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >Yes'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >No'
+	echo '                <td class="column110">'
+	echo '                  <input id="log1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes' >'
+	echo '                  <label for="log1">Yes</label>'
+	echo '                  <input id="log2" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno' >'
+	echo '                  <label for="log2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Show Bluetooth logs&nbsp;&nbsp;'
@@ -492,7 +534,7 @@ pcp_bt_show_logs() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_bt_show_logs
+[ $MODE -ge $MODE_PLAYER ] && pcp_bt_show_logs
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
 echo '      </div>'
@@ -571,7 +613,7 @@ pcp_bt_scan() {
 		echo '                <td class="column150 center">'
 		echo '                  <input type="submit" name="ACTION" value="Pair" onclick="return confirm('\''Make sure device is in pairing mode.\n\nContinue?'\'')" '$PAIR_DISABLED'/>'
 		echo '                </td>'
-		echo '                <td class="column200">'
+		echo '                <td class="column250">'
 		echo '                  <select name="DEVICE">'
 		awk -F'#' '{ print "<option value=\""$1"\" "$3">"$2"</option>" }' /tmp/btscan.dd
 		echo '                  </select>'
@@ -596,24 +638,26 @@ pcp_bt_scan() {
 		echo '            </tr>'
 		echo '         </table>'
 	fi
-	COL1="column100"
+	COL1="column75"
 	COL2="column150"
-	COL3="column150"
-	COL4="column150"
-	COL5="column120"
-	COL6="column150"
-	COL7="column150"
+	COL3="column120"
+	COL4="column120"
+	COL5="column100"
+	COL6="column120"
+	COL7="column120"
+	COL8="column120"
 
 	pcp_toggle_row_shade
 	echo '          <table class="bggrey percent100">'
 	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COL1'"><p><b>Connected</b></p></td>'
+	echo '              <td class="'$COL1' center"><p><b>Link</b></p></td>'
 	echo '              <td class="'$COL2'"><p><b>BT Mac Address</b></p></td>'
 	echo '              <td class="'$COL3'"><p><b>BT Name</b></p></td>'
 	echo '              <td class="'$COL4'"><p><b>Player Name</b></p></td>'
 	echo '              <td class="'$COL5'"><p><b>BT Delay</b></p></td>'
-	echo '              <td class="'$COL6'"><p><b>Disconnect Device</b></p></td>'
-	echo '              <td class="'$COL7'"><p><b>Forget Device</b></p></td>'
+	echo '              <td class="'$COL6'"><p><b>Type</b></p></td>'
+	echo '              <td class="'$COL7'"><p><b>(Dis)Connect</b></p></td>'
+	echo '              <td class="'$COL8'"><p><b>Forget</b></p></td>'
 	echo '            </tr>'
 	echo '          </table>'
 
@@ -627,8 +671,14 @@ pcp_bt_scan() {
 			BTNAME=$(echo $line | cut -d'#' -f2)
 			BTPLAYERNAME=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f2)
 			BTDELAY=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f3)
-			[ "$BTPLAYERNAME" = "" ] && BTPLAYERNAME=$BTNAME
+			BTDEVICETYPE=$(cat $BTDEVICECONF | grep $BTMAC | cut -d'#' -f4)
 			[ "$BTDELAY" == "" ] && BTDELAY=10000
+			[ "$BTDEVICETYPE" == "" ] && BTDEVICETYPE=1
+			if [ "$BTPLAYERNAME" = "" ]; then 
+				BTPLAYERNAME="$BTNAME"
+				#Add the device to the player table, for the daemon
+				echo "${BTMAC}#${BTPLAYERNAME}#${BTDELAY}#${BTDEVICETYPE}" >> $BTDEVICECONF
+			fi
 			REQUIRED="required"
 
 			if [ $(bluetoothctl info $BTMAC | grep "Connected" | cut -d':' -f2) = "yes" ]; then
@@ -638,6 +688,15 @@ pcp_bt_scan() {
 				DEV_INDICATOR=$HEAVY_BALLOT_X
 				DEV_CLASS="indicator_red"
 			fi
+
+			BTDT1_SEL="notselected"
+			BTDT2_SEL="notselected"
+			BTDT3_SEL="notselected"
+			case $BTDEVICETYPE in
+				1) BTDT1_SEL='selected';;
+				2) BTDT2_SEL="selected";;
+				3) BTDT3_SEL="selected";;
+			esac
 
 			pcp_incr_id
 			pcp_toggle_row_shade
@@ -650,19 +709,30 @@ pcp_bt_scan() {
 			echo '                  <input class="large10" type="text" name="MAC" value="'$BTMAC'" title="Bluetooth MAC Address" '$REQUIRED' disabled>'
 			echo '                </td>'
 			echo '                <td class="'$COL3'">'
-			echo '                  <input type="hidden" id="idBTNAME'${I}'" name="BTNAME'${I}'" value="'$BTNAME'">'
-			echo '                  <input class="large10" type="text" name="NAME" value="'$BTNAME'" title="Bluetooth Device Name" '$REQUIRED' disabled>'
+#			echo '                  <input type="hidden" id="idBTNAME'${I}'" name="BTNAME'${I}'" value="'$BTNAME'">'
+			echo '                  <input class="large8" type="text" value="'$BTNAME'" title="Bluetooth Device Name" '$REQUIRED' disabled>'
 			echo '                </td>'
 			echo '                <td class="'$COL4'">'
-			echo '                  <input class="large10" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="Bluetooth Player Name" '$REQUIRED'>'
+			echo '                  <input class="large8" type="text" id="idBTPLAYERNAME'${I}'" name="BTPLAYERNAME'${I}'" value="'$BTPLAYERNAME'" title="BT Player Name (Only alphanumeric allowed)" '$REQUIRED' pattern="[0-9a-zA-Z_ \\-]+">'
 			echo '                </td>'
 			echo '                <td class="'$COL5'">'
-			echo '                  <input class="large6" type="text" id="idBTDELAY'${I}'" name="BTDELAY'${I}'" value="'$BTDELAY'" title="Bluetooth Delay" '$REQUIRED'>'
+			echo '                  <input class="small4" type="text" id="idBTDELAY'${I}'" name="BTDELAY'${I}'" value="'$BTDELAY'" title="Bluetooth Delay" '$REQUIRED'>'
 			echo '                </td>'
 			echo '                <td class="'$COL6'">'
-			echo '                  <button type="submit" name="ACTION" value="Disconnect'${I}'">Disconnect</button>'
+			echo '                  <select class="large6" name="DEVTYPE'${I}'">'
+			echo '                    <option value="1" '$BTDT1_SEL'>Speaker</option>'
+			echo '                    <option value="2" '$BTDT2_SEL'>Player</option>'
+			echo '                    <option value="3" '$BTDT3_SEL'>Streamer</option>'
+			echo '                  </select>'
 			echo '                </td>'
 			echo '                <td class="'$COL7'">'
+			if [ "$DEV_CLASS" = "indicator_green" ]; then
+				echo '                  <button type="submit" name="ACTION" value="Disconnect'${I}'">Disconnect</button>'
+			else
+				echo '                  <button type="submit" name="ACTION" value="Connect'${I}'">Connect</button>'
+			fi
+			echo '                </td>'
+			echo '                <td class="'$COL8'">'
 			echo '                  <button type="submit" name="ACTION" value="Forget'${I}'">Forget</button>'
 			echo '                </td>'
 			echo '              </tr>'
@@ -688,7 +758,7 @@ pcp_bt_scan() {
 		echo '          </table>'
 	fi
 }
-[ $MODE -ge $MODE_BETA ] && pcp_bt_scan
+[ $MODE -ge $MODE_PLAYER ] && pcp_bt_scan
 
 #----------------------------------------------------------------------------------------
 echo '        </fieldset>'
@@ -721,8 +791,10 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '                  <p>RPi built-in Wifi</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>On&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>Off'
+	echo '                  <input id="wifi-y" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>'
+	echo '                  <label for="wifi-y">On&nbsp;&nbsp;</label>'
+	echo '                  <input id="wifi-n"type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>'
+	echo '                  <label for="wifi-n">Off</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Turn off Raspberry Pi built-in wifi&nbsp;&nbsp;'
@@ -745,8 +817,10 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '                  <p>RPi built-in Bluetooth</p>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
-	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>On&nbsp;&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>Off'
+	echo '                  <input id="blue1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>'
+	echo '                  <label for="blue1">On&nbsp;&nbsp</label>'
+	echo '                  <input id="blue2" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>'
+	echo '                  <label for="blue2">Off</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Turn off Raspberry Pi built-in bluetooth&nbsp;&nbsp;'
@@ -800,7 +874,7 @@ pcp_bt_logview() {
 #----------------------------------------------------------------------------------------
 
 pcp_footer
-[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+[ $MODE -ge $MODE_PLAYER ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

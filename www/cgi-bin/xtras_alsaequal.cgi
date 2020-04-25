@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-09
+# Version: 6.0.0 2019-12-14
 
 . pcp-functions
 
@@ -10,8 +10,23 @@ pcp_controls
 pcp_banner
 pcp_navigation
 pcp_httpd_query_string
+pcp_remove_query_string
 
-SET_EQUAL="sudo amixer -D equal cset numid="
+ASOUNDCONF=/etc/asound.conf
+
+#========================================================================================
+# Find list of current equalizer controls in asound, and set device
+#----------------------------------------------------------------------------------------
+
+EQUALDEVICES=$(cat $ASOUNDCONF | grep pcm.equal | cut -d'{' -f1 | awk -F'pcm.' '{print $2}')
+
+for j in $EQUALDEVICES; do
+	[ "$j" = "$CUR_EQUAL_DEVICE" ] && break
+done
+
+[ "$CUR_EQUAL_DEVICE" = "" ] && CUR_EQUAL_DEVICE="equal"
+
+SET_EQUAL="sudo amixer -D $CUR_EQUAL_DEVICE cset numid="
 BAND=1
 PRESETS=0
 i=1
@@ -29,6 +44,20 @@ LB7="2 kHz"
 LB8="4 kHz"
 LB9="8 kHz"
 LB10="16 kHz"
+
+pcp_equal_devices_tabs() {
+	echo '<!-- Start of pcp_equalizer devices_tabs toolbar -->'
+	echo '<p style="margin-top:8px;">'
+
+	for j in $EQUALDEVICES; do
+		[ "$j" = "$CUR_EQUAL_DEVICE" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
+		echo '  <a class="'$TAB_STYLE'" href="'$0'?CUR_EQUAL_DEVICE='$j'" title="'$j'">'$j'</a>'
+	done
+
+	echo '</p>'
+	echo '<div class="tab7end" style="margin-bottom:10px;">pCP</div>'
+	echo '<!-- End of pcp_equalizer devices toolbar -->'
+}
 
 if [ -f /home/tc/.alsaequal.presets ]; then
 	PRESETS=1
@@ -56,7 +85,9 @@ do
 done
 
 # Determine if ALSA equalizer is loaded
-CURRENT_EQ_SETTINGS=$(sudo amixer -D equal contents | grep ": values" | awk -F"," '{print $2}')
+CURRENT_EQ_SETTINGS=$(sudo amixer -D $CUR_EQUAL_DEVICE contents | grep ": values" | awk -F"," '{print $2}')
+
+pcp_debug_variables "html" ACTION CUR_EQUAL_DEVICE CURRENT_EQ_SETTINGS RANGE SET_EQUAL
 
 if [ x"" = x"$CURRENT_EQ_SETTINGS" ]; then
 	pcp_table_top "Error"
@@ -66,13 +97,15 @@ if [ x"" = x"$CURRENT_EQ_SETTINGS" ]; then
 	pcp_html_end
 fi
 
+pcp_equal_devices_tabs
+
 #-----------------------------Manual Equalizer Adjustment--------------------------------
 echo '<table class="bggrey">'
 echo '  <tr>'
 echo '    <td>'
 echo '      <div class="row">'
 echo '        <fieldset>'
-echo '          <legend>Manual Equalizer Adjustment</legend>'
+echo '          <legend>Manual Equalizer Adjustment for '$CUR_EQUAL_DEVICE'</legend>'
 echo '          <table class="bggrey percent100">'
 echo '            <form name="manual_adjust" action="'$0'" method="get">'
 #----------------------------------------------------------------------------------------
@@ -110,6 +143,7 @@ pcp_table_padding
 #----------------------------------------------------------------------------------------
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td>'
+echo '                  <input type="hidden" name="CUR_EQUAL_DEVICE" value="'$CUR_EQUAL_DEVICE'">'
 echo '                  <input type="submit" name="ACTION" value="Save">'
 echo '                  <input type="submit" name="ACTION" value="Reset">'
 echo '                  <input type="submit" name="ACTION" value="Test">'
@@ -194,6 +228,7 @@ if [ $PRESETS -eq 1 ]; then
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
+	echo '                  <input type="hidden" name="CUR_EQUAL_DEVICE" value="'$CUR_EQUAL_DEVICE'">'
 	echo '                  <input type="submit" name="ACTION" value="Use Preset">'
 	echo '                </td>'
 	echo '              </tr>'

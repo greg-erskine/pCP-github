@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-07
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -83,7 +83,7 @@ pcp_table_top "Write to config"
 
 case "$SUBMIT" in
 	Save)
-		if [ $MODE -ge $MODE_BASIC ]; then
+		if [ $MODE -ge $MODE_PLAYER ]; then
 			ALSA_PARAMS=${ALSA_PARAMS1}:${ALSA_PARAMS2}:${ALSA_PARAMS3}:${ALSA_PARAMS4}:${ALSA_PARAMS5}
 			[ $CLOSEOUT -eq 0 ] && CLOSEOUT=""
 			[ $PRIORITY -eq 0 ] && PRIORITY=""
@@ -99,12 +99,6 @@ case "$SUBMIT" in
 		case $SQBINARY in
 			default)
 				rm -f $TCEMNT/tce/squeezelite
-				DSDOUT=""
-				SAVE=1
-			;;
-			dsd)
-				rm -f $TCEMNT/tce/squeezelite
-				ln -s /usr/local/bin/squeezelite-dsd $TCEMNT/tce/squeezelite
 				SAVE=1
 			;;
 			custom)

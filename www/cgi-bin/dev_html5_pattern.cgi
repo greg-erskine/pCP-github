@@ -87,8 +87,5 @@ echo '  setout();'
 echo '</script>'
 
 pcp_footer
-[ $MODE -ge $MODE_NORMAL ] && pcp_mode
-pcp_copyright
-
 echo '</body>'
 echo '</html>'

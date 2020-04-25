@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-13
+# Version: 6.0.0 2020-01-01
 
 # Title: Quiet boot
 # Description: Disables boot messages and startup script output
@@ -22,8 +22,8 @@ pcp_httpd_query_string
 #/opt/bootlocal.sh
 
 #pCPstart------
-#/home/tc/www/cgi-bin/pcp_startup.sh 2>&1 | tee -a /var/log/pcp_boot.log
-#/home/tc/www/cgi-bin/pcp_startup.sh > /var/log/pcp_boot.log 2>&1
+#/usr/local/etc/init.d/pcp_startup.sh 2>&1 | tee -a /var/log/pcp_boot.log
+#/usr/local/etc/init.d/pcp_startup.sh > /var/log/pcp_boot.log 2>&1
 #pCPstop------
 
 #----------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ echo '                <p>logo.nologo in cmdline.txt <==== Raspberry Pi logo</p>'
 echo '                <p>console=tty3  in cmdline.txt <==== Redirect to nowhere</p>'
 echo '                <p>disable_splash=1 in config.txt <==== splash screen</p>'
 echo '                <p>/opt/bootlocal.sh</p>'
-echo '                <p>/home/tc/www/cgi-bin/pcp_startup.sh > /var/log/pcp_boot.log 2>&1</p>'
+echo '                <p>/usr/local/etc/init.d/pcp_startup.sh > /var/log/pcp_boot.log 2>&1</p>'
 echo '                <p></p>'
 echo '              </td>'
 echo '            </tr>'

@@ -1,0 +1,164 @@
+/* piCorePlayer style sheet
+
+Version: 6.0.0 2019-08-16
+
+Width definisions
+
+*/
+
+.small1 {
+	width:1em;
+}
+
+.small2 {
+	width:2em;
+}
+
+.small3 {
+	width:2.8em;
+}
+
+.small4 {
+	width:3.6em;
+}
+
+.large6 {
+	width:6em;
+}
+
+.large8 {
+	width:8em;
+}
+
+.large10 {
+	width:10em;
+}
+
+.large12 {
+	width:12em;
+}
+
+.large15 {
+	width:15em;
+}
+
+.large16 {
+	width:16em;
+}
+
+.large18 {
+	width:18em;
+}
+
+.large22 {
+	width:22em;
+}
+
+.large30 {
+	width:30em;
+}
+
+.large36 {
+	width:36em;
+}
+
+.large60 {
+	width:60em;
+}
+
+.large64 {
+	width:64em;
+}
+
+/* Define some columns widths */
+.column20 {
+	width:20px;
+}
+
+.column25 {
+	width:25px;
+}
+
+.column50 {
+	width:50px;
+}
+
+.column75 {
+	width:75px;
+}
+
+.column100 {
+	width:100px;
+}
+
+.column110 {
+	width:110px;
+}
+
+.column120 {
+	width:120px;
+}
+
+.column150 {
+	width:150px;
+}
+
+.column200 {
+	width:200px;
+}
+
+.column210 {
+	width:210px;
+}
+
+.column220 {
+	width:220px;
+}
+
+.column240 {
+	width:240px;
+}
+
+.column250 {
+	width:250px;
+}
+
+.column280 {
+	width:280px;
+}
+
+.column300 {
+	width:300px;
+}
+
+.column350 {
+	width:350px;
+}
+
+.column360 {
+	width:360px;
+}
+
+.column380 {
+	width:380px;
+}
+
+.column400 {
+	width:400px;
+}
+
+.column420 {
+	width:420px;
+}
+
+.column500 {
+	width:500px;
+}
+
+.column520 {
+	width:520px;
+}
+
+.column550 {
+	width:550px;
+}

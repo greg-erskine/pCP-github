@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-rpi-functions
@@ -590,7 +590,7 @@ echo '    </td>'
 echo '  </tr>'
 echo '</table>'
 
-[ $MODE -ge $MODE_BETA ] && pcp_pastebin_button "wifi"
+pcp_pastebin_button "wifi"
 
 pcp_footer
 pcp_copyright

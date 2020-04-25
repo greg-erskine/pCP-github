@@ -32,8 +32,8 @@ pcp_toggle_row_shade
 echo '            <tr class="'$ROWSHADE'">'
 echo '              <td>'
 
+pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat ${PCPVERSIONCFG}; echo \"WWW_BUILD: $WWW_BUILD\"" 60 log
 pcp_textarea_inform "piCore version: $(pcp_picore_version)" "version" 60 log
-pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat ${PCPVERSIONCFG}" 60 log
 pcp_textarea_inform "Squeezelite version and license: $(pcp_squeezelite_version)" "${SQLT_BIN} -t" 300 log
 pcp_textarea_inform "Squeezelite help" "${SQLT_BIN} -h" 300 log
 pcp_textarea_inform "Squeezelite Output devices" "${SQLT_BIN} -l" 150 log

@@ -279,7 +279,7 @@ pcp_add_repo
 #	echo '  </tr>'
 #	echo '</table>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_third_party_add_ons
+[ $MODE -ge $MODE_PLAYER ] && pcp_third_party_add_ons
 
 
 

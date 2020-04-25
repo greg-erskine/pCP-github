@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-18
+# Version: 6.0.0 2020-04-21
+
+WWW_BUILD=0008
 
 #========================================================================================
 # Setup debug logging
@@ -68,13 +70,13 @@ pcp_variables() {
 	SHUTDOWN="/opt/shutdown.sh"
 	PB100="/home/tc/.local/bin/.pbtemp"
 	HTTPD_CONF="/etc/httpd.conf"
-	[ -x /usr/sbin/httpd ] && HTTPD="/usr/sbin/httpd" || HTTPD="/usr/local/sbin/busybox-httpd"
+	HTTPD="/usr/sbin/httpd"
 	ASOUNDCONF="/etc/asound.conf"
 	ONBOOTLST="/etc/sysconfig/tcedir/onboot.lst"
 	VOLUME="$BOOTMNT"
 	DEVICE="$BOOTDEV"
 	UPD_PCP="/tmp/upd_picoreplayer"
-	PCPHOME="/home/tc/www/cgi-bin"
+	PCPHOME="$WWWROOT/cgi-bin"
 	LOGDIR="/var/log"
 	PACKAGEDIR="/etc/sysconfig/tcedir/optional"
 	PCPVERSIONCFG="/usr/local/etc/pcp/pcpversion.cfg"
@@ -86,30 +88,30 @@ pcp_variables() {
 	WPASUPPLICANTCONF="/usr/local/etc/pcp/wpa_supplicant.conf"
 	FILETOOLLST="/opt/.filetool.lst"
 	URL_DECODE="$HTTPD -i -d"
-	WWWROOT="/home/tc/www/"
 
 	#------------------------------------------------------------------------------------
 	# Define modes
 	#------------------------------------------------------------------------------------
-	MODE_INITIAL=0				# Just display enough options to get piCorePlayer going
-	MODE_BASIC=10				# Display minimal settings for basic users
-	MODE_NORMAL=20				# Display typical settings for normal users
-	MODE_ADVANCED=30			# Add more options for advanced users
+	MODE_PLAYER=10
+	MODE_SERVER=30
 	MODE_BETA=40				# Beta options that can be shared with beta testers
 	MODE_DEVELOPER=100			# Experiential options for developers only
 
 	#------------------------------------------------------------------------------------
 	# Define repositories
 	#------------------------------------------------------------------------------------
-	INSITU_DOWNLOAD="https://repo.picoreplayer.org/insitu"
-	PCP_REPO="https://repo.picoreplayer.org/repo"
+	PCP_REPO_1="https://repo.picoreplayer.org/repo"
+	PCP_REPO_2="http://picoreplayer.sourceforge.net/tcz_repo"
+	[ $PCP_CUR_REPO -eq 1 ] && PCP_REPO="$PCP_REPO_1" || PCP_REPO="$PCP_REPO_2"
 	PICORE_REPO_1="http://repo.tinycorelinux.net/"
 	PICORE_REPO_2="http://distro.ibiblio.org/tinycore/"
 
+	[ $PCP_CUR_REPO -eq 1 ] && INSITU_DOWNLOAD="https://repo.picoreplayer.org/insitu" || INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
+
 	# Use beta/test download area
 	if [ $TEST -eq 3 ]; then
-		INSITU_DOWNLOAD="https://repo.picoreplayer.org/beta"
-		PCP_REPO="https://repo.picoreplayer.org/beta"
+		[ $PCP_CUR_REPO -eq 1 ] && INSITU_DOWNLOAD="https://repo.picoreplayer.org/beta" || INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/beta"
+		[ $PCP_CUR_REPO -eq 1 ] && PCP_REPO="https://repo.picoreplayer.org/beta" || PCP_REPO="http://picoreplayer.sourceforge.net/beta"
 	fi
 
 	#------------------------------------------------------------------------------------
@@ -331,7 +333,7 @@ pcp_extn_is_installed() {
 }
 
 #========================================================================================
-# Test if the internet or repositories are accessible.
+# Test if the Internet, DNS or repositories are accessible.
 #----------------------------------------------------------------------------------------
 pcp_internet_accessible() {
 	[ x"" = x"$INTERNET_CHECK_IP" ] && INTERNET_CHECK_IP="8.8.8.8"
@@ -339,13 +341,28 @@ pcp_internet_accessible() {
 	echo $?
 }
 
+pcp_dns_accessible() (
+	ping -w5 -c3 google.com >/dev/null 2>&1
+	echo $?
+)
+
 pcp_picore_accessible() {
 	/bin/busybox wget --spider $MIRROR >/dev/null 2>&1
 	echo $?
 }
 
-pcp_pcp_repo_accessible() {
-	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
+pcp_pcp_repo_accessible() {	# GE depreciated ???
+	/bin/busybox wget --spider ${REPO}/repo.htm >/dev/null 2>&1
+	echo $?
+}
+
+pcp_pcp_repo_1_accessible() {
+	/bin/busybox wget --spider ${PCP_REPO_1}/repo.htm >/dev/null 2>&1
+	echo $?
+}
+
+pcp_pcp_repo_2_accessible() {
+	/bin/busybox wget --spider ${PCP_REPO_2}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
@@ -373,7 +390,8 @@ pcp_log_header() {
 # Reset repository to piCore default value.
 #----------------------------------------------------------------------------------------
 pcp_reset_repository() {
-	echo "${PCP_REPO%/}/" > /opt/tcemirror
+	echo "${PCP_REPO_1%/}/" > /opt/tcemirror
+	PCP_CUR_REPO=1
 }
 
 #========================================================================================
@@ -512,24 +530,35 @@ pcp_html_head() {
 	echo '  <title>pCP - '$1'</title>'
 	echo '  <meta name="author" content="'$2'">'
 	echo '  <meta name="description" content="'$1'">'
-	local CSS_VER
-	local JS_VER
-	[ "$THEME" = "Dark" ] && cssExt="_Dark" || cssExt=""
-	if [ $MODE -ge $MODE_DEVELOPER ]; then
-		CSS_VER=$(date -r ../css/piCorePlayer${cssEXT}.css +%H%M%S) 
-		JS_VER=$(date -r ../js/piCorePlayer.js +%H%M%S) 
-	else
-		CSS_VER=$(pcp_picoreplayer_version)
-		JS_VER=$CSS_VER
-	fi
-	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer.css?'$CSS_VER'">'
+
+#	local CSS_VER
+#	local JS_VER
+#	if [ $MODE -ge $MODE_DEVELOPER ]; then
+#		CSS_VER=$(date -r ../css/piCorePlayer.css +%H%M%S)
+#		DARK_VER=$(date -r ../css/Dark.css +%H%M%S) 
+#		JS_VER=$(date -r ../js/piCorePlayer.js +%H%M%S) 
+#	else
+#		CSS_VER=$(pcp_picoreplayer_version)
+#		DARK_VER=$CSS_VER
+#		JS_VER=$CSS_VER
+#	fi
+#	echo '  <link rel="stylesheet" type="text/css" href="../css/piCorePlayer'$cssExt'.css?'$CSS_VER'">'
+#	echo '  <link rel="stylesheet" type="text/css" href="../css/pCP_widths.css?'$CSS_VER'">'
+#	[ "$THEME" = "Dark" ] && echo '  <link rel="stylesheet" type="text/css" href="../css/Dark.css?'$DARK_VER'">'
+
+	echo '  <!-- Required meta tags -->'
+	echo '  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">'
+	echo '  <!-- Bootstrap CSS -->'
+	echo '  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">'
+
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js?'$JS_VER'"></script>'
 	echo '</head>'
 	echo ''
-	[ "$5" != "nobody" ] &&
-	echo '<body>'
-	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
+	[ "$5" != "nobody" ] && echo '<body>'
+	echo '<div class="container">'
+
+	if [ "$PLAYERTABS" = "yes" ]; then
 		echo '  <script>setplayertabs();</script>'
 	fi
 	echo '<!-- End of pcp_html_head -->'
@@ -545,69 +574,93 @@ pcp_html_end() {
 
 pcp_banner() {
 	echo '<!-- Start of pcp_banner -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td style="height:148px">'
-	echo '      <p class="banner">'
-	echo '        <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
-	echo '        <map name="hotspot">'
-	echo '          <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
-	echo '          <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
-	echo '          <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
-	echo '          <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
-	echo '        </map>'
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '<div>'
+	echo '  <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
+	echo '  <map name="hotspot">'
+	echo '    <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
+	echo '    <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
+	echo '    <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
+	echo '    <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
+	echo '  </map>'
+	echo '</div>'
 	echo '<!-- End of pcp_banner -->'
 }
 
 pcp_navigation() {
-	local NAV="nav6"
 
-	local TAB_STYLE_MAIN="$NAV"
-	local TAB_STYLE_SQUEEZELITE="$NAV"
-	local TAB_STYLE_WIFI="$NAV"
-	local TAB_STYLE_TWEAKS="$NAV"
-	local TAB_STYLE_SECURITY="$NAV"
-	local TAB_STYLE_LMS="$NAV"
-	local TAB_STYLE_ABOUT="$NAV"
+#	local STYLE_MAIN=""
+#	local STYLE_SQUEEZELITE=""
+#	local STYLE_WIFI=""
+#	local STYLE_TWEAKS=""
+#	local STYLE_SECURITY=""
+#	local STYLE_LMS=""
+#	local STYLE_ABOUT=""
 
 	case "$0" in
-		main.cgi)        local TAB_STYLE_MAIN="${NAV}a" ;;
-		squeezelite.cgi) local TAB_STYLE_SQUEEZELITE="${NAV}a" ;;
-		wifi.cgi)        local TAB_STYLE_WIFI="${NAV}a" ;;
-		tweaks.cgi)      local TAB_STYLE_TWEAKS="${NAV}a" ;;
-		lms.cgi)         local TAB_STYLE_LMS="${NAV}a" ;;
-		about.cgi)       local TAB_STYLE_ABOUT="${NAV}a" ;;
+		main.cgi)        local STYLE_MAIN="active" ;;
+		squeezelite.cgi) local STYLE_SQUEEZELITE="active" ;;
+		wifi.cgi)        local STYLE_WIFI="active" ;;
+		tweaks.cgi)      local STYLE_TWEAKS="active" ;;
+		lms.cgi)         local STYLE_LMS="active" ;;
+		about.cgi)       local STYLE_ABOUT="active" ;;
 	esac
 
 	echo '<!-- Start of pcp_navigation toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-	echo '        <a class="'$TAB_STYLE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="'$TAB_STYLE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
-	echo '        <a class="'$TAB_STYLE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
-	echo '        <a class="'$TAB_STYLE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
-	echo '        <a class="'$TAB_STYLE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
-	echo '        <a class="'$TAB_STYLE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '<nav class="navbar navbar-expand-lg navbar-dark bg-dark">'
+	echo '  <a class="navbar-brand" href="#">pCP</a>'
+	echo '  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
+	echo '    <span class="navbar-toggler-icon"></span>'
+	echo '  </button>'
+	echo ''
+	echo '  <div class="collapse navbar-collapse" id="navbarSupportedContent">'
+	echo '    <ul class="navbar-nav mr-auto">'
+	echo '      <li class="nav-item '$STYLE_MAIN'">'
+	echo '        <a class="nav-link" href="main.cgi">Main</a>'
+	echo '      </li>'
+	echo '      <li class="nav-item '$STYLE_SQUEEZELITE'">'
+	echo '        <a class="nav-link" href="squeezelite.cgi">Squeezelite</a>'
+	echo '      </li>'
+	echo '      <li class="nav-item '$STYLE_WIFI'">'
+	echo '        <a class="nav-link" href="wifi.cgi">Wifi</a>'
+	echo '      </li>'
+	echo '      <li class="nav-item '$STYLE_TWEAKS'">'
+	echo '        <a class="nav-link" href="tweaks.cgi">Tweaks</a>'
+	echo '      </li>'
+	echo '      <li class="nav-item '$STYLE_LMS'">'
+	echo '        <a class="nav-link" href="lms.cgi">LMS</a>'
+	echo '      </li>'
+	echo '      <li class="nav-item '$STYLE_ABOUT'">'
+	echo '        <a class="nav-link" href="about.cgi">About</a>'
+	echo '      </li>'
+	echo '    </ul>'
+	echo '  </div>'
+	echo '</nav>'
 	echo '<!-- End of pcp_navigation toolbar -->'
+
+#	echo '<table class="navigation">'
+#	echo '  <tr>'
+#	echo '    <td>'
+#	echo '      <p>'
+#	echo '        <a class="'$TAB_STYLE_MAIN'" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+#	echo '        <a class="'$TAB_STYLE_SQUEEZELITE'" href="squeezelite.cgi" title="pCP - Squeezelite Settings">Squeezelite Settings</a>'
+#	echo '        <a class="'$TAB_STYLE_WIFI'" href="wifi.cgi" title="pCP - Wifi Settings">Wifi Settings</a>'
+#	echo '        <a class="'$TAB_STYLE_TWEAKS'" href="tweaks.cgi" title="pCP - Tweaks">Tweaks</a>'
+#	echo '        <a class="'$TAB_STYLE_LMS'" href="lms.cgi" title="pCP - LMS">LMS</a>'
+#	echo '        <a class="'$TAB_STYLE_ABOUT'" href="about.cgi" title="pCP - About">About</a>'
+#	echo '      </p>'
+#	echo '    </td>'
+#	echo '  </tr>'
+#	echo '</table>'
+
 	if [ -f $REBOOT_PENDING ] && [ "$ACTION" != "reboot" ]; then
 		echo '<!-- Start of reboot notification toolbar -->'
 		echo '<table class="bggrey">'
 		echo '  <tr>'
 		echo '    <td>'
 		echo '      <div class="row">'
-		echo '        <fieldset>'
+		echo '        <fieldset class="warning">'
 		echo '          <table class="bggrey percent100">'
-		echo '            <tr class="warning">'
+		echo '            <tr>'
 		echo '              <td>'
 		echo '                <p><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
 		echo '                  <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />'
@@ -627,18 +680,15 @@ pcp_navigation() {
 pcp_footer() {
 	if [ "$1" = "static" ]; then
 		echo '<!-- Start of pcp_footer -->'
-		echo '<table class="bgblack">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p class="footer">
-		                '$NAME' |
-		                piCorePlayer v'$(pcp_picoreplayer_version)' |
-		                linux '$(pcp_linux_release)' |
-		                piCore v'$(pcp_picore_version)' |
-		                Squeezelite v'$(pcp_squeezelite_version)'</p>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		echo '<div>'
+		echo '  <p>
+		            '$NAME' |
+		            piCorePlayer v'$(pcp_picoreplayer_version)' |
+		            www v'$WWW_BUILD' |
+		            linux '$(pcp_linux_release)' |
+		            piCore v'$(pcp_picore_version)' |
+		            Squeezelite v'$(pcp_squeezelite_version)'</p>'
+		echo '</div>'
 		echo '<!-- End of pcp_footer -->'
 	else
 		if [ -f "/tmp/footer.html" ] && [ $MODE -lt $MODE_DEVELOPER ]; then
@@ -657,20 +707,17 @@ pcp_footer() {
 			fi
 
 			echo '<!-- Start of pcp_footer -->'
-			echo '<table class="bgblack">'
-			echo '  <tr>'
-			echo '    <td>'
+			echo '<div>'
 			echo '      <p class="footer">
 							'$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
 							'$NAME' |
 							piCorePlayer v'$(pcp_picoreplayer_version)' |
+							www v'$WWW_BUILD' |
 							linux '$(pcp_linux_release)' |
 							piCore v'$(pcp_picore_version)' |
 							'`echo $SQUEEZELITEfoot`' |
 							'`echo $TIMESTAMP`'</p>'
-			echo '    </td>'
-			echo '  </tr>'
-			echo '</table>'
+			echo '</div>'
 			echo '<!-- End of pcp_footer -->'
 		fi
 	fi
@@ -678,114 +725,103 @@ pcp_footer() {
 
 pcp_copyright() {
 	echo '<!-- Start of pcp_copyright -->'
-	echo '<table class="bgwhite">'
-	echo '  <tr>'
-	echo '    <td class="column150">'
-	echo '    </td>'
-	echo '    <td>'
-	echo '      <p class="copyright">The Software is provided "as is" without warranty of any kind, either express or implied,'
+	echo '<div class="row">'
+	echo '  <div class="col-2"></div>'
+	echo '    <div class="col-8">'
+	echo '      <p>The Software is provided "as is" without warranty of any kind, either express or implied,'
 	echo '         including without limitation any implied warranties of condition, uninterrupted use,'
 	echo '         merchantability, fitness for a particular purpose, or non-infringement.</p>'
-	echo '    </td>'
-	echo '    <td class="column150">'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '    </div>'
+	echo '  <div class="col-2"></div>'
+	echo '</div>'
 	echo '<!-- End of pcp_copyright -->'
 }
 
 pcp_diagnostics() {
 	echo '<!-- Start of diagnostics toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav7" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
-	echo '        <a class="nav7" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
-	echo '        <a class="nav7" href="diag_net.cgi" title="pCP - Network">Network</a>'
-	echo '        <a class="nav7" href="diag_boot.cgi" title="pCP - Boot Process">Boot Process</a>'
-	echo '        <a class="nav7" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-	echo '        <a class="nav7" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '<div>'
+	echo '  <p>'
+	echo '    <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '    <a class="nav7" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
+	echo '    <a class="nav7" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
+	echo '    <a class="nav7" href="diag_net.cgi" title="pCP - Network">Network</a>'
+	echo '    <a class="nav7" href="diag_boot.cgi" title="pCP - Boot Process">Boot Process</a>'
+	echo '    <a class="nav7" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
+	echo '    <a class="nav7" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
+	echo '  </p>'
+	echo '</div>'
 	echo '<!-- End of diagnostics toolbar -->'
 }
 
 pcp_xtras() {
 	echo '<!-- Start of xtras toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-	echo '        <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '        <a class="nav7" href="xtras_test.cgi" title="pCP - Xtras Test">Test</a>'
-	echo '        <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Xtras Asound">Asound</a>'
-	echo '        <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Xtras Bootcodes">Bootcodes</a>'
-	echo '        <a class="nav7" href="xtras_controls.cgi" title="pCP - Xtras Controls">Controls</a>'
-	echo '        <a class="nav7" href="xtras_cpu_temp.cgi" title="pCP - Xtras CPU Temp">CPU Temp</a>'
-	echo '        <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Xtras LMS CLI">LMS CLI</a>'
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '<div>'
+	echo '  <p>'
+	echo '    <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
+	echo '    <a class="nav7" href="xtras_test.cgi" title="pCP - Xtras Test">Test</a>'
+	echo '    <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Xtras Asound">Asound</a>'
+	echo '    <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Xtras Bootcodes">Bootcodes</a>'
+	echo '    <a class="nav7" href="xtras_controls.cgi" title="pCP - Xtras Controls">Controls</a>'
+	echo '    <a class="nav7" href="xtras_cpu_temp.cgi" title="pCP - Xtras CPU Temp">CPU Temp</a>'
+	echo '    <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Xtras LMS CLI">LMS CLI</a>'
+	echo '  </p>'
+	echo '</div>'
 	echo '<!-- End of xtras toolbar -->'
 }
 
 pcp_picoreplayers_toolbar() {
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
-	echo '<p style="margin-top: -12px;">'
-	echo '  <a id="PlayerTabsAfter" class="tab20" href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help '$EXTERNALLINK'</a>'
+	echo '<div>'
+	echo '<p>'
+	echo '  <a id="PlayerTabsAfter" class=" " href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help</a>'
 
-	if [ $MODE -ge $MODE_NORMAL ] && [ "$PLAYERTABS" = "yes" ]; then
-		if [ $MODE -ge $MODE_BETA ]; then
-			if [ "$LMSERVER" = "yes" ]; then
-				[ x"" = x"$(pcp_eth0_ip)" ] && LMSIP=$(pcp_wlan0_ip) || LMSIP=$(pcp_eth0_ip)
-			else
-				LMSIP=$(pcp_lmsip)
-			fi
-			[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-			echo '  <a class="tab20" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS '$EXTERNALLINK'</a>'
+	if [ $MODE -ge $MODE_PLAYER ] && [ "$PLAYERTABS" = "yes" ]; then
+		if [ "$LMSERVER" = "yes" ]; then
+			[ x"" = x"$(pcp_eth0_ip)" ] && LMSIP=$(pcp_wlan0_ip) || LMSIP=$(pcp_eth0_ip)
+		else
+			LMSIP=$(pcp_lmsip)
 		fi
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		echo '  <a class=" " href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
 	fi
 	echo '</p>'
-	echo '<div class="tab7end">pCP</div>'
+	echo '</div>'
 	echo '<!-- End of pcp_picoreplayers toolbar -->'
 }
 
 pcp_mode() {
 	local TAB="tab14"
 
-	local TAB_STYLE_MODE_INITIAL="$TAB"
-	local TAB_STYLE_MODE_BASIC="$TAB"
-	local TAB_STYLE_MODE_NORMAL="$TAB"
-	local TAB_STYLE_MODE_ADVANCED="$TAB"
+	local TAB_STYLE_MODE_PLAYER="$TAB"
+	local TAB_STYLE_MODE_SERVER="$TAB"
 	local TAB_STYLE_MODE_BETA="$TAB"
 	local TAB_STYLE_MODE_DEVELOPER="$TAB"
+	local TAB_STYLE_THEME="${TAB}b"
+	local TAB_STYLE_REPO="${TAB}c"
 
 	case $MODE in
-		$MODE_INITIAL)   local TAB_STYLE_MODE_INITIAL="${TAB}a" ;;
-		$MODE_BASIC)     local TAB_STYLE_MODE_BASIC="${TAB}a" ;;
-		$MODE_NORMAL)    local TAB_STYLE_MODE_NORMAL="${TAB}a" ;;
-		$MODE_ADVANCED)  local TAB_STYLE_MODE_ADVANCED="${TAB}a" ;;
+		$MODE_PLAYER)    local TAB_STYLE_MODE_PLAYER="${TAB}a" ;;
+		$MODE_SERVER)    local TAB_STYLE_MODE_SERVER="${TAB}a" ;;
 		$MODE_BETA)      local TAB_STYLE_MODE_BETA="${TAB}a" ;;
 		$MODE_DEVELOPER) local TAB_STYLE_MODE_DEVELOPER="${TAB}a" ;;
 	esac
 
 	echo '<!-- Start of mode toolbar -->'
 	echo '<p>'
-	[ $MODE -ge $MODE_DEVELOPER ] &&
-	echo '  <a class="'$TAB_STYLE_MODE_INITIAL'" href="debug.cgi?m='$MODE_INITIAL'" title="Initial mode">Initial</a>'
-	echo '  <a class="'$TAB_STYLE_MODE_BASIC'" href="debug.cgi?m='$MODE_BASIC'" title="Basic mode">Basic</a>'
-	echo '  <a class="'$TAB_STYLE_MODE_NORMAL'" href="debug.cgi?m='$MODE_NORMAL'" title="Normal mode">Normal</a>'
-	echo '  <a class="'$TAB_STYLE_MODE_ADVANCED'" href="debug.cgi?m='$MODE_ADVANCED'" title="Advanced mode">Advanced</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
+	echo '  <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_BETA'"'
 	echo '     onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
 	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
 	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
+	echo '<script>setcurrenttheme('\'$THEME\'');setcurrentrepo('\'$PCP_CUR_REPO\'');</script>'
+	[ "$THEME" = "Light" ] && T_THEME="Light" || T_THEME="Dark"
+	[ "$THEME" = "Light" ] && NEXT_THEME="Dark" || NEXT_THEME="Light"
+	[ $PCP_CUR_REPO -eq 1 ] && T_REPO="pCP Main Repo" || T_REPO="pCP Mirror Repo"
+	[ $PCP_CUR_REPO -eq 1 ] && NEXT_REPO="pCP Mirror Repo" || NEXT_REPO="pCP Main Repo"
+	echo '  <a id="Theme" class="'$TAB_STYLE_THEME'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()" >'$T_THEME' Theme</a>'
+	echo '  <a id="Repo" class="'$TAB_STYLE_REPO'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()" >'$T_REPO'</a>'
 	echo '</p>'
 	echo '<div class="tab7end">pCP</div>'
 	echo '<!-- End of mode toolbar -->'
@@ -974,7 +1010,9 @@ pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
 		echo '<script language="javascript">'
-		echo '  pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
+		echo '  window.addEventListener("load", function () {'
+		echo '    pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
+		echo '  })'
 		echo '</script>'
 	fi
 }
@@ -1380,6 +1418,8 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(DEBUG=\).*/\1\"$DEBUG\"/" $PCPCFG
 	sudo sed -i "s/\(MODE=\).*/\1\"$MODE\"/" $PCPCFG
 	sudo sed -i "s/\(TEST=\).*/\1\"$TEST\"/" $PCPCFG
+	sudo sed -i "s/\(PCP_CUR_REPO=\).*/\1\"$PCP_CUR_REPO\"/" $PCPCFG
+	sudo sed -i "s/\(THEME=\).*/\1\"$THEME\"/" $PCPCFG
 	sudo sed -i "s/\(NAME=\).*/\1\"$NAME\"/" $PCPCFG
 	sudo sed -i "s/\(OUTPUT=\).*/\1\"$OUTPUT\"/" $PCPCFG
 	sudo sed -i "s/\(ALSA_PARAMS=\).*/\1\"$ALSA_PARAMS\"/" $PCPCFG
@@ -1412,6 +1452,7 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(FIQ=\).*/\1\"$FIQ\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAlevelout=\).*/\1\"$ALSAlevelout\"/" $PCPCFG
 	sudo sed -i "s/\(ALSAeq=\).*/\1\"$ALSAeq\"/" $PCPCFG
+	sudo sed -i "s/\(EQUAL_OUT_DEVICE=\).*/\1\"$EQUAL_OUT_DEVICE\"/" $PCPCFG
 	sudo sed -i "s/\(STREAMER=\).*/\1\"$STREAMER\"/" $PCPCFG
 	sudo sed -i "s/\(STREAMER_IN_DEVICE=\).*/\1\"$STREAMER_IN_DEVICE\"/" $PCPCFG
 	sudo sed -i "s@\(TIMEZONE=\).*@\1\"$TIMEZONE\"@" $PCPCFG
@@ -1435,6 +1476,9 @@ pcp_save_to_config() {
 	sudo sed -i "s/\(SCREENROTATE=\).*/\1\"$SCREENROTATE\"/" $PCPCFG
 	sudo sed -i "s/\(JL_SCREEN_WIDTH=\).*/\1\"$JL_SCREEN_WIDTH\"/" $PCPCFG
 	sudo sed -i "s/\(JL_SCREEN_HEIGHT=\).*/\1\"$JL_SCREEN_HEIGHT\"/" $PCPCFG
+	sudo sed -i "s@\(JL_FRAME_BUFFER=\).*@\1\"$JL_FRAME_BUFFER\"@" $PCPCFG
+	sudo sed -i "s/\(JL_FRAME_RATE=\).*/\1\"$JL_FRAME_RATE\"/" $PCPCFG
+	sudo sed -i "s/\(JL_FRAME_DEPTH=\).*/\1\"$JL_FRAME_DEPTH\"/" $PCPCFG
 	sudo sed -i "s/\(SHAIRPORT=\).*/\1\"$SHAIRPORT\"/" $PCPCFG
 	sudo sed -i "s/\(LMSERVER=\).*/\1\"$LMSERVER\"/" $PCPCFG
 	sudo sed -i "s@\(LMSDATA=\).*@\1\"$LMSDATA\"@" $PCPCFG
@@ -1496,8 +1540,10 @@ pcp_update_config_to_defaults() {
 	sudo cat <<EOF > $PCPCFG
 WIFI="off"
 DEBUG="0"
-MODE="0"
+MODE="10"
 TEST="0"
+PCP_CUR_REPO="1"
+THEME="Light"
 NAME="piCorePlayer"
 OUTPUT="hw:CARD=ALSA"
 ALSA_PARAMS="80:::1"
@@ -1531,6 +1577,7 @@ CMD="Default"
 FIQ="0xF"
 ALSAlevelout="Default"
 ALSAeq="no"
+EQUAL_OUT_DEVICE=""
 STREAMER="no"
 STREAMER_IN_DEVICE=""
 REBOOT="Disabled"
@@ -1553,6 +1600,9 @@ JIVELITE="no"
 SCREENROTATE="180"
 JL_SCREEN_WIDTH="0"
 JL_SCREEN_HEIGHT="0"
+JL_FRAME_BUFFER="/dev/fb0"
+JL_FRAME_RATE=""
+JL_FRAME_DEPTH=""
 SHAIRPORT="no"
 LMSERVER="no"
 LMSDATA="default"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2020-01-22
 
 # Thanks to M-H for his help in debugging and testing.
 
@@ -13,8 +13,8 @@ pcp_picoreplayers_toolbar
 pcp_controls
 pcp_banner
 pcp_navigation
-pcp_remove_query_string
 pcp_httpd_query_string
+pcp_remove_query_string
 
 CIRRUSCONF=/usr/local/etc/pcp/cirrus.conf
 
@@ -37,7 +37,7 @@ pcp_remove_cirrus() {
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete rpi-cirrus-config.tcz
 	sudo sed -i '/rpi-cirrus-config.tcz/d' $ONBOOTLST
-	echo "Removeing configuration files"
+	echo "Removing configuration files"
 	rm -f $CIRRUSCONF
 }
 
@@ -183,7 +183,7 @@ pcp_cirrus_install() {
 	echo '              </tr>'
 	echo '            </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_cirrus_install
+[ $MODE -ge $MODE_PLAYER ] && pcp_cirrus_install
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Configure ------------------------------------
@@ -221,7 +221,8 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="SPEAKERS" value="1" '$SPEAKERSyes $DISABLE'>'
+	echo '                  <input id="cb1" type="checkbox" name="SPEAKERS" value="1" '$SPEAKERSyes $DISABLE'>'
+	echo '                  <label for="cb1">&#8239;</label>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Speakers</p>'
@@ -236,7 +237,8 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="HEADSET" value="1" '$HEADSETyes $DISABLE'>'
+	echo '                  <input id="cb2" type="checkbox" name="HEADSET" value="1" '$HEADSETyes $DISABLE'>'
+	echo '                  <label for="cb2">&#8239;</label>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Headset</p>'
@@ -251,7 +253,8 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="LINEOUT" value="1" '$LINEOUTyes $DISABLE'>'
+	echo '                  <input id="cb3" type="checkbox" name="LINEOUT" value="1" '$LINEOUTyes $DISABLE'>'
+	echo '                  <label for="cb3">&#8239;</label>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Line Out</p>'
@@ -266,7 +269,8 @@ pcp_cirrus_configure() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COL1'">'
-	echo '                  <input class="small1" type="checkbox" name="SPDIF" value="1" '$SPDIFyes $DISABLE'>'
+	echo '                  <input id="cb4" type="checkbox" name="SPDIF" value="1" '$SPDIFyes $DISABLE'>'
+	echo '                  <label for="cb4">&#8239;</label>'
 	echo '                </td>'
 	echo '                <td class="'$COL2'">'
 	echo '                  <p>Spdif</p>'
@@ -288,7 +292,7 @@ pcp_cirrus_configure() {
 	echo '                </tr>'
 	echo '              </form>'
 }
-[ $MODE -ge $MODE_NORMAL ] && pcp_cirrus_configure
+[ $MODE -ge $MODE_PLAYER ] && pcp_cirrus_configure
 #----------------------------------------------------------------------------------------
 echo '          </table>'
 echo '        </fieldset>'
@@ -299,7 +303,7 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_footer
-[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+pcp_mode
 pcp_copyright
 
 echo '</body>'

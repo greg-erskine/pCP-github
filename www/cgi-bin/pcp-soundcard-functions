@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-31
+# Version: 6.0.0 2020-02-29
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
-DACLOCATION="/usr/local/etc/pcp/cards"     # <=== Should be declared in pcp-functions? GE.
+DACLOCATION="/usr/local/share/pcp/cards"
 
 ############
 # The below line is for development only.
@@ -17,10 +17,14 @@ DACLOCATION="/usr/local/etc/pcp/cards"     # <=== Should be declared in pcp-func
 # Check if we use the special Audio kernel or not as we load special overlays
 # if using Audio kernel
 #----------------------------------------------------------------------------------------
-pcp_AudioKernel_status() {
-	sudo  uname -a | grep pcpAudioCore > /dev/null 2>&1 && KERNELVERSION=Audiokernel || KERNELVERSION=Officialkernel
+pcp_Kernel_status() {
+	uname -a | grep pcpAudioCore > /dev/null 2>&1 && KERNELVERSION=Audiokernel || KERNELVERSION=Officialkernel
+	case $(uname -m) in
+		arm*) BIT64=0;;
+		aarch64*) BIT64=1;;
+	esac
 }
-pcp_AudioKernel_status
+pcp_Kernel_status
 
 #========================================================================================
 # Disable/re_enable analog audio
@@ -294,11 +298,6 @@ pcp_get_input_cardnumber() {
 # This will get us available options from the DAC
 #----------------------------------------------------------------------------------------
 
-#old_pcp_soundcontrol() {
-#	pcp_blank_audio_conf
-#	echo "$AUDIO_OPTIONS_EXTRA" | grep -q "$AUDIO" && . "$DACLOCATION"/"$AUDIO".conf
-#}
-
 # Declare a handler for parsed variables.  This is required.
 __shini_parsed() {
 #	printf "  %s_%s='%s'\n" "$1" "$2" "$3"
@@ -328,6 +327,10 @@ pcp_soundcontrol() {
 	# Parse
 	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal" 
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	if [ "$CARD" = "ALSA" -a $BIT64 -eq 1 ]; then
+		# Disable mmap on Alsa card on 64 bit kernels.
+		ALSA_PARAMS="$(echo $ALSA_PARAMS | sed -e 's/:/*/3' -e 's/*1/*0/' -e 's/*/:/')"
+	fi
 	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
 
@@ -340,6 +343,10 @@ pcp_selected_soundcontrol() {
 
 	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal"
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
+	if [ "$CARD" = "ALSA" -a $BIT64 -eq 1 ]; then
+		# Disable mmap on Alsa card on 64 bit kernels.
+		ALSA_PARAMS="$(echo $ALSA_PARAMS | sed -e 's/:/*/3' -e 's/*1/*0/' -e 's/*/:/')"
+	fi
 	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 
 }
 

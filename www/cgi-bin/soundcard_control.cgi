@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-11-17
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -227,9 +227,10 @@ pcp_soundcard_DSP_options() {
 		I=1
 		while [ $I -le $NUMFILTERS ]; do
 			if [ "$(eval echo "\${FILTER${I}}")" != "" ]; then
-				echo '            <tr class="'$ROWSHADE'_tight">'
+				echo '            <tr class="'$ROWSHADE'">'
 				echo '              <td class="'$COL1'">'
-				echo '                <input type="radio" name="DSPFILTER" value="FILTER'$I'" '$(eval echo \${FILTER${I}_CHECK})'>'
+				echo '                <input id="rad'$I'" type="radio" name="DSPFILTER" value="FILTER'$I'" '$(eval echo \${FILTER${I}_CHECK})'>'
+				echo '                <label for="rad'$I'">&nbsp;</label>'
 				echo '              </td>'
 				echo '              <td class="'$COL2'">'
 				echo '                <p>'$(eval echo \${FILTER${I}})'</p>'
@@ -238,7 +239,7 @@ pcp_soundcard_DSP_options() {
 			fi
 			I=$((I+1))
 		done
-	row_padding
+	# row_padding
 	pcp_toggle_row_shade
 	fi
 }
@@ -249,30 +250,32 @@ pcp_soundcard_DSP_options() {
 #----------------------------------------------------------------------------------------
 pcp_soundcard_SMC_Analogue_options() {
 	if [ x"$SMC_ANALOGUE" != x"" ]; then
-		echo '            <tr class="'$ROWSHADE'_tight">'
+		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="colspan 3">'
 		echo '                <p><b>Simple Mixer Controls:&nbsp;&nbsp;</b></p>'
 		echo '              </td>'
 		echo '            </tr>'
-		echo '            <tr class="'$ROWSHADE'_tight">'
+		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="'$COL1'">'
-		echo '                <input type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOGUE_CHECK"'>'
+		echo '                <input id="cb1" type="checkbox" name="SMCFILTER1" value="1" '"$SMC_ANALOGUE_CHECK"'>'
+		echo '                <label for="cb1">&#8239;</label>'
 		echo '              </td>'
 		echo '              <td class="'$COL2'" colspan="2">'
 		echo '                <p>Toggle a 6dB increase on analog output level (Checked = 0dB Setting).</p>'
 		echo '              </td>'
 		echo '            </tr>'
 		if [ x"$SMC_ANALOGUE_BOOST" != x"" ]; then
-			echo '            <tr class="'$ROWSHADE'_tight">'
+			echo '            <tr class="'$ROWSHADE'">'
 			echo '              <td class="'$COL1'">'
-			echo '                <input type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOGUE_BOOST_CHECK"'>'
+			echo '                <input id="cb2" type="checkbox" name="SMCFILTER2" value="1" '"$SMC_ANALOGUE_BOOST_CHECK"'>'
+			echo '                <label for="cb2">&#8239;</label>'
 			echo '              </td>'
 			echo '              <td class="'$COL2'" colspan="2">'
 			echo '                <p>Toggle a 0.80dB increase on analog output level (Unchecked = 0dB Setting).</p>'
 			echo '              </td>'
 			echo '            </tr>'
 		fi
-		row_padding
+		# row_padding
 		pcp_toggle_row_shade
 	fi
 }
@@ -282,7 +285,7 @@ pcp_soundcard_SMC_Analogue_options() {
 #----------------------------------------------------------------------------------------
 pcp_soundcard_Deemphasis_options() {
 	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'_tight">'
+	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="colspan 3">'
 	echo '                <p><b>Deemphasis options:</b></p>'
 	echo '              </td>'
@@ -290,9 +293,10 @@ pcp_soundcard_Deemphasis_options() {
 	I=1
 	while [ $I -le $NUMDEEM ]; do
 		if [ "$(eval echo "\${DEEM${I}}")" != "" ]; then
-			echo '            <tr class="'$ROWSHADE'_tight">'
+			echo '            <tr class="'$ROWSHADE'">'
 			echo '              <td class="'$COL1'">'
-			echo '                <input type="radio" name="DEEMPHASIS" value="DEEM'$I'" '$(eval echo \${DEEM${I}_CHECK})'>'
+			echo '                <input id="2rad'$I'" type="radio" name="DEEMPHASIS" value="DEEM'$I'" '$(eval echo \${DEEM${I}_CHECK})'>'
+			echo '                <label for="2rad'$I'">&nbsp;</label>'
 			echo '              </td>'
 			echo '              <td class="'$COL2'">'
 			echo '                <p>'$(eval echo \${DEEM${I}})'</p>'
@@ -301,7 +305,7 @@ pcp_soundcard_Deemphasis_options() {
 		fi
 		I=$((I+1))
 	done
-	row_padding
+	# row_padding
 	pcp_toggle_row_shade
 }
 
@@ -319,7 +323,8 @@ pcp_allo_piano_plus_custom_controls(){
 	[ "$PIANODEEM_CHECK" = "on" ] && PIANODEEM_CHECK="checked" || PIANODEEM_CHECK=""
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="'$COL1'">'
-	echo '                <input type="checkbox" name="PIANODEEM" value="on" '"$PIANODEEM_CHECK"'>'
+	echo '                <input id="cb3" type="checkbox" name="PIANODEEM" value="on" '"$PIANODEEM_CHECK"'>'
+	echo '                <label for="cb3">&#8239;</label>'
 	echo '              </td>'
 	echo '              <td class="'$COL2'" colspan="2">'
 	echo '                <p>Toggle Deemphasis setting.</p>'
@@ -393,7 +398,7 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '                <p><b>'$SUBVOLTEXT'</b></p>'
 			echo '              </td>'
 			echo '              <td>'
-			echo '                <p style="height:12px">'
+			echo '                <p style="height:30px">'
 			echo '                  <input class="large36"'
 			echo '                         id="VolInputSubId"'
 			echo '                         type="range"'
@@ -410,7 +415,7 @@ pcp_allo_piano_plus_custom_controls(){
 			echo '            </tr>'
 		;;
 	esac
-	row_padding
+#	row_padding
 	pcp_toggle_row_shade
 }
 
@@ -425,7 +430,7 @@ pcp_soundcard_volume_options() {
 		echo '                <p><b>'${VOLTEXT}'Output Level</b></p>'
 		echo '              </td>'
 		echo '              <td>'
-		echo '                <p style="height:12px">'
+		echo '                <p style="height:30px">'
 		echo '                  <input class="large36"'
 		echo '                         id="VolInputId"'
 		echo '                         type="range"'
@@ -440,7 +445,7 @@ pcp_soundcard_volume_options() {
 		echo '                <output name="VolOutputName" id="VolOutputId">'"$ACTUAL_VOL"'</output>&nbsp;pct of max. <b>Current:</b> '"$ACTUAL_DB"''
 		echo '              </td>'
 		echo '            </tr>'
-		row_padding
+#		row_padding
 		pcp_toggle_row_shade
 	fi
 }
@@ -480,7 +485,7 @@ pcp_volume_filter_buttons() {
 		echo '                </div>'
 		echo '              </td>'
 		echo '            </tr>'
-		row_padding
+		# row_padding
 	fi
 }
 
@@ -501,7 +506,7 @@ pcp_reset_alsactl() {
 	echo '                </div>'
 	echo '              </td>'
 	echo '            </tr>'
-	row_padding
+	# row_padding
 	pcp_table_end
 }
 
@@ -520,7 +525,7 @@ pcp_soundcard_parameter_options() {
 		I=1
 		while [ $I -le 5 ]; do
 			[ "$(eval echo "\${SPARAMS${I}}")" != "" ] && eval PARAMS${I}_CHECK="checked"
-			[ "$(eval echo "\${PARAMS${I}}")" != "" ] && echo '                <input type="checkbox" name="PARAM'$I'" value='$(eval echo \${PARAMS${I}})' '$(eval echo \${PARAMS${I}_CHECK})'><label for="PARAMS'$I'"> '$(eval echo \${PARAMS${I}})'</label><br>'
+			[ "$(eval echo "\${PARAMS${I}}")" != "" ] && echo '                <input id="PARAMS'$I'" type="checkbox" name="PARAM'$I'" value='$(eval echo \${PARAMS${I}})' '$(eval echo \${PARAMS${I}_CHECK})'><label for="PARAMS'$I'"> '$(eval echo \${PARAMS${I}})'</label><br style="line-height:30px;">'
 			I=$((I+1))
 		done
 		#--------------------------------------------------------------------------------
@@ -554,6 +559,36 @@ pcp_soundcard_parameter_options() {
 	fi
 }
 
+pcp_show_text() {
+	echo '                  <p>Notes for your DAC.</p>'
+	echo '                  <ul>'
+	I=1
+	while true; do
+		eval CHK="\${TEXT${I}}"
+		if [ x"$CHK" != x ]; then
+			echo -n '                    <li>'
+			eval echo -n "\${TEXT${I}}"
+			echo '</li>'
+			I=$((I+1))
+		else
+			break
+		fi
+	done
+	echo '                  </ul>'
+}
+
+pcp_save_button() {
+	pcp_incr_id
+	echo '            <tr class="'$ROWSHADE'">'
+	echo '              <td class="column120 center">'
+	echo '                <input type="submit" name="ACTION" value="Save">'
+	echo '              </td>'
+	echo '              <td>'
+	echo '                <p>Save ALSA mixer settings to make them available after a reboot.</p>'
+	echo '              </td>'
+	echo '            </tr>'
+}
+
 #========================================================================================
 # Enable/disable built-in analoq sound
 #----------------------------------------------------------------------------------------
@@ -564,7 +599,8 @@ pcp_disable_enable_builtin_sound() {
 		pcp_table_top "Raspberry Pi Built-in Audio"
 		echo '                <p><b>Enable/disable built-in audio (after a reboot)</b></p>'
 		pcp_table_middle "class=\"column120 center\""
-		echo '                <p><input type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'>'
+		echo '                <p><input id="cb4" type="checkbox" name="ONBOARD" value="On" '"$ONBOARD_SOUND_CHECK"'>'
+		echo '                  <label for="cb4">&#8239;</label>'
 		echo '              </td>'
 		echo '              <td colspan="2">'
 		echo '                <p>When checked - built-in audio is enabled&nbsp;&nbsp;'
@@ -618,13 +654,13 @@ if [ "$GENERIC_CARD" = "ES9023" ]; then
 	pcp_soundcard_parameter_options
 fi
 
-[ x"$GENERIC_CARD" = x"" ] && echo "$TEXT"
+[ x"$GENERIC_CARD" = x"" ] && pcp_show_text; pcp_save_button
 
 # HTML formatting Cleanup for built-in audio setting only
-if [ "$GENERIC_CARD" = "ONBOARD" ]; then
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td colspan="3">'
-fi
+# if [ "$GENERIC_CARD" = "ONBOARD" ]; then
+	# echo '            <tr class="'$ROWSHADE'">'
+	# echo '              <td colspan="3">'
+# fi
 pcp_table_end
 
 pcp_reset_alsactl

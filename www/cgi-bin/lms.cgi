@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2020-01-19
 
 . pcp-functions
 . pcp-rpi-functions
@@ -40,18 +40,28 @@ WGET="/bin/busybox wget"
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
 	pcp_incr_id
-	echo '<table class="bgred">'
+	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
-	echo '      <p><b>Warning:</b> Logitech Media Server (LMS)'
-	echo '        is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
-	echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '      </p>'
-	echo '      <div id="'$ID'" class="less">'
-	echo '      <ul>'
-	echo '        <li>Do NOT just pull the power plug.</li>'
-	echo '        <li>Use [Main Page] > [Shutdown].</li>'
-	echo '      </ul>'
+	echo '      <div class="row">'
+	echo '        <fieldset class="warning">'
+	echo '          <table class="bggrey percent100">'
+	echo '            <tr>'
+	echo '              <td>'
+	echo '                <p><b>Warning:</b> Logitech Media Server (LMS)'
+	echo '                            is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
+	echo '                   <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                </p>'
+	echo '                <div id="'$ID'" class="less">'
+	echo '                  <ul>'
+	echo '                    <li>Do NOT just pull the power plug.</li>'
+	echo '                    <li>Use [Main Page] > [Shutdown].</li>'
+	echo '                  </ul>'
+	echo '                </div>'
+	echo '              </td>'
+	echo '            </tr>'
+	echo '          </table>'
+	echo '        </fieldset>'
 	echo '      </div>'
 	echo '    </td>'
 	echo '  </tr>'
@@ -397,7 +407,7 @@ fi
 df | grep -qs ntfs
 [ $? -eq 0 ] && EXTRAFSYS="yes" || EXTRAFSYS="no"
 
-[ x"$ACTION" = x"" ] && pcp_lms_warning
+[ x"$ACTION" = x"" -a $MODE -ge $MODE_SERVER ] && pcp_lms_warning
 
 #========================================================================================
 # Warning message if using AudioCore
@@ -407,10 +417,9 @@ pcp_lms_audiocore_warning() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Warning</legend>'
+	echo '        <fieldset class="warning">'
 	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
+	echo '            <tr>'
 	echo '              <td>'
 	echo '                <p><b>Warning:</b> Running LMS on the Realtime AudioCore is not recommended.</p>'
 	echo '                <ul>'
@@ -426,7 +435,7 @@ pcp_lms_audiocore_warning() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $(pcp_audio_core) -eq 1 ] && pcp_lms_audiocore_warning
+[ $(pcp_audio_core) -eq 1 -a $MODE -ge $MODE_SERVER ] && pcp_lms_audiocore_warning
 
 #========================================================================================
 # Main table
@@ -470,10 +479,6 @@ echo '              </td>'
 echo '            </tr>'
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------Padding-----------------------------------------
-pcp_table_padding "2"
-#----------------------------------------------------------------------------------------
-
 #----------------------------Enable/disable autostart of LMS-----------------------------
 pcp_lms_enable_lms() {
 
@@ -490,10 +495,14 @@ pcp_lms_enable_lms() {
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input type="hidden" name="ACTION" value="Startup">'
-	echo '                  <input class="small1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>No'
+	echo '                <td class="column150">'
+	echo '                  <p>'
+	echo '                    <input type="hidden" name="ACTION" value="Startup">'
+	echo '                    <input id="rad1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>'
+	echo '                    <label for="rad1">Yes</label>'
+	echo '                    <input id="rad2" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>'
+	echo '                    <label for="rad2">No</label>'
+	echo '                  </p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Automatic start of LMS when pCP boots&nbsp;&nbsp;'
@@ -508,11 +517,11 @@ pcp_lms_enable_lms() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_enable_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_enable_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Configure LMS---------------------------------------
-pcp_lms_configure_lms() {
+pcp_lms_server_interface() {
 
 	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
@@ -520,11 +529,41 @@ pcp_lms_configure_lms() {
 
 	pcp_toggle_row_shade
 	pcp_incr_id
+	echo '          <form name="LMS_Interface" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
+	echo '            <table class="bggrey percent100">'
+	echo '              <tr class="'$ROWSHADE'">'
+	echo '                <td class="column150 center">'
+	echo '                  <button value="LMS_Web_Page" '$DISABLE_LMS'>LMS Web Page</button>'
+	echo '                </td>'
+	echo '                <td>'
+	echo '                  <p>LMS Web Pages&nbsp;&nbsp;'
+	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                  </p>'
+	echo '                  <div id="'$ID'" class="less">'
+	echo '                    <p>Use the standard LMS web interface to play music.</p>'
+	echo '                  </div>'
+	echo '                </td>'
+	echo '              </tr>'
+	echo '            </table>'
+	echo '          </form>'
+}
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_server_interface
+#----------------------------------------------------------------------------------------
+
+#------------------------------------Configure LMS---------------------------------------
+pcp_lms_configure_lms() {
+
+	[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
+	LMS_SERVER_WEB_URL="http://${LMS_SERVER_WEB}:${LMSPORT}/settings/index.html"
+
+	pcp_toggle_row_shade
+	pcp_incr_id
 	echo '          <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '            <table class="bggrey percent100">'
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
-	echo '                  <input type="submit" value="Configure LMS" '$DISABLE_LMS'>'
+	echo '                  <button value="Configure LMS" '$DISABLE_LMS'>Configure LMS</button>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Configure LMS&nbsp;&nbsp;'
@@ -538,7 +577,7 @@ pcp_lms_configure_lms() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_configure_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_configure_lms
 #----------------------------------------------------------------------------------------
 
 #-----------------------------------LMS Function Form------------------------------------
@@ -602,7 +641,7 @@ pcp_lms_install_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_install_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_install_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Remove LMS cache-------------------------
@@ -624,7 +663,7 @@ pcp_lms_remove_cache() {
 	echo '                 </td>'
 	echo '               </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_remove_cache
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_remove_cache
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Start LMS-------------------------------------
@@ -645,7 +684,7 @@ pcp_lms_start_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_start_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_start_lms
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Stop LMS--------------------------------------
@@ -666,7 +705,7 @@ pcp_lms_stop_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_stop_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_stop_lms
 #----------------------------------------------------------------------------------------
 
 #---------------------------------Restart LMS--------------------------------------------
@@ -692,7 +731,7 @@ pcp_lms_restart_lms() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_restart_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
 #-------------------------------nomysqueezebox-------------------------------------------
@@ -709,9 +748,13 @@ pcp_lms_no_mysb() {
 	echo '                <td class="column150 center">'
 	echo '                  <button type="submit" name="ACTION" value="Mysb" '$DISABLE_LMS'>No MySB</button>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes'>Yes'
-	echo '                  <input class="small1" type="radio" name="NOMYSB" value="no" '$NOMYSBno'>No'
+	echo '                <td class="column150">'
+	echo '                  <p>'
+	echo '                  <input id="1rad1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes'>'
+	echo '                  <label for="1rad1">Yes</label>'
+	echo '                  <input id="1rad2" type="radio" name="NOMYSB" value="no" '$NOMYSBno'>'
+	echo '                  <label for="1rad2">No</label>'
+	echo '                  </p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Set --nomysqueezebox command line option for LMS&nbsp;&nbsp;'
@@ -723,7 +766,7 @@ pcp_lms_no_mysb() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_no_mysb
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_no_mysb
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Show LMS logs--------------------------------------------
@@ -740,9 +783,13 @@ pcp_lms_show_logs() {
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Show Logs" '$DISABLE_LMS'>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno'>No'
+	echo '                <td class="column150">'
+	echo '                  <p>'
+	echo '                    <input id="2rad1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes'>'
+	echo '                    <label for="2rad1">Yes</label>'
+	echo '                    <input id="2rad2" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno'>'
+	echo '                    <label for="2rad2">No</label>'
+	echo '                  </p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Show LMS logs&nbsp;&nbsp;'
@@ -754,7 +801,7 @@ pcp_lms_show_logs() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_lms_show_logs
+[ $MODE -ge $MODE_SERVER ] && pcp_lms_show_logs
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Show custom_convert.conf---------------------------------
@@ -771,9 +818,13 @@ pcp_lms_show_cconvert() {
 	echo '                <td class="column150 center">'
 	echo '                  <input type="submit" value="Show CConv" '$DISABLE_LMS'>'
 	echo '                </td>'
-	echo '                <td class="column100">'
-	echo '                  <input class="small1" type="radio" name="CCSHOW" value="yes" '$CCSHOWyes'>Yes'
-	echo '                  <input class="small1" type="radio" name="CCSHOW" value="no" '$CCSHOWno'>No'
+	echo '                <td class="column150">'
+	echo '                  <p>'
+	echo '                    <input id="3rad1" type="radio" name="CCSHOW" value="yes" '$CCSHOWyes'>'
+	echo '                    <label for="3rad1">Yes</label>'
+	echo '                    <input id="3rad2" type="radio" name="CCSHOW" value="no" '$CCSHOWno'>'
+	echo '                    <label for="3rad2">No</label>'
+	echo '                  </p>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Show LMS Custom Convert&nbsp;&nbsp;'
@@ -801,7 +852,7 @@ pcp_lms_show_cconvert() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA -a -f $LMS_CC_FILE ] && pcp_lms_show_cconvert
+[ $MODE -ge $MODE_SERVER -a -f $LMS_CC_FILE ] && pcp_lms_show_cconvert
 #----------------------------------------------------------------------------------------
 
 echo '            </table>'
@@ -832,7 +883,7 @@ pcp_lms_customconvert() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_BETA -a "$DISABLE_LMS" = "" ] && pcp_lms_customconvert
+[ $MODE -ge $MODE_SERVER -a "$DISABLE_LMS" = "" ] && pcp_lms_customconvert
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Update LMS----------------------------------------
@@ -873,7 +924,7 @@ pcp_update_lms() {
 	echo '            </table>'
 	echo '          </form>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_update_lms
+[ $MODE -ge $MODE_SERVER ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
 
 echo '        </fieldset>'
@@ -887,6 +938,8 @@ echo '</table>'
 # Slimserver Cache and Prefs to Mounted Drive
 #----------------------------------------------------------------------------------------
 pcp_slimserver_persistence() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -936,7 +989,10 @@ pcp_slimserver_persistence() {
 			pcp_toggle_row_shade
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td class="column'$COL1' center">'
-			echo '                  <input class="small1" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
+			echo '                  <p>'
+			echo '                    <input id="'$I'" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
+			echo '                    <label for="'$I'">&nbsp;</label>'
+			echo '                  </p>'
 			echo '                </td>'
 			echo '                <td class="column'$COL2'">'
 			case $I in
@@ -969,7 +1025,10 @@ pcp_slimserver_persistence() {
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column'$COL1' center">'
-		echo '                  <input class="small1" type="radio" name="LMSDATA" value="'$NETmnt'" '$NETyes'>'
+		echo '                  <p>'
+		echo '                    <input id="'$NETMOUNT'" type="radio" name="LMSDATA" value="'$NETmnt'" '$NETyes'>'
+		echo '                    <label for="'$NETMOUNT'">&nbsp;</label>'
+		echo '                  </p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL2'">'
 		echo '                  <p>Network Disk</p>'
@@ -994,7 +1053,10 @@ pcp_slimserver_persistence() {
 				pcp_toggle_row_shade
 				echo '              <tr class="'$ROWSHADE'">'
 				echo '                <td class="column'$COL1' center">'
-				echo '                  <input class="small1" type="radio" name="LMSDATA" value="'${LMSDATA}'" checked disabled>'
+				echo '                  <p>'
+				echo '                    <input id="radxx" type="radio" name="LMSDATA" value="'${LMSDATA}'" checked disabled>'
+				echo '                    <label for="radxx">&nbsp;</label>'
+				echo '                  </p>'
 				echo '                </td>'
 				echo '                <td class="column'$COL2'">'
 				echo '                  <p>'$(echo ${LMSDATA:0:3} | tr [a-z] [A-Z])' Disk</p>'
@@ -1012,7 +1074,10 @@ pcp_slimserver_persistence() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
+	echo '                  <p>'
+	echo '                    <input id="radboot" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
+	echo '                    <label for="radboot">&nbsp;</label>'
+	echo '                  </p>'
 	echo '                </td>'
 	echo '                <td class="column'$COL2'">'
 	echo '                  <p>pCP Boot Disk</p>'
@@ -1055,12 +1120,14 @@ pcp_slimserver_persistence() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_slimserver_persistence
+[ $MODE -ge $MODE_SERVER ] && pcp_slimserver_persistence
 
 #========================================================================================
 # Extra File System Support
 #----------------------------------------------------------------------------------------
 pcp_extra_filesys() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1178,7 +1245,7 @@ pcp_extra_filesys() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_extra_filesys
+[ $MODE -ge $MODE_PLAYER ] && pcp_extra_filesys
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -1210,6 +1277,8 @@ pcp_mount_usbdrives() {
 		done < $USBMOUNTCONF
 	fi
 	#------------------------------------------------------------------------------------
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table id="partmount" class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1334,11 +1403,14 @@ pcp_mount_usbdrives() {
 			fi
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
-			echo '                    <input class="small1" type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
+			echo '                    <p>'
+			echo '                      <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
+			echo '                      <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
+			echo '                    </p>'
 			echo '                    <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL2'">'
-			echo '                    <p>/mnt/ <input class="large6" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
+			echo '                    <p>/mnt/&#8239;<input class="large6" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL3'">'
 			echo '                    <p>'$PART'</p>'
@@ -1387,7 +1459,10 @@ pcp_mount_usbdrives() {
 				pcp_toggle_row_shade
 				echo '              <tr class="'$ROWSHADE'">'
 				echo '                <td class="column'$COL1' center">'
-				echo '                  <input class="small1" type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" checked>'
+				echo '                  <p>'
+				echo '                    <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" checked>'
+				echo '                    <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
+				echo '                  </p>'
 				echo '                  <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 				echo '                  <input type="hidden" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'">'
 				echo '                </td>'
@@ -1459,7 +1534,7 @@ pcp_mount_usbdrives() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_mount_usbdrives
+[ $MODE -ge $MODE_PLAYER ] && pcp_mount_usbdrives
 
 #========================================================================================
 # Network Disk Mounting Operations
@@ -1482,6 +1557,8 @@ pcp_mount_netdrives() {
 			esac
 		done < $NETMOUNTCONF
 	fi
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1606,7 +1683,7 @@ pcp_mount_netdrives() {
 	echo '                var Box = "NETFS" + id;'
 	echo '                var Box1 = "NETPASS" + id;'
 	echo '                if ( (document.getElementById(Box).value == "cifs") && (document.getElementById(Box1).value == "" ))'
-	echo '                  document.getElementById(Box1).style.borderColor = "red";'
+	echo '                  document.getElementById(Box1).style.borderColor = "#ff9933";'
 	echo '                else'
 	echo '                  document.getElementById(Box1).removeAttribute("style");'
 	echo '              }'
@@ -1674,10 +1751,13 @@ pcp_mount_netdrives() {
 		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column'$COL1' center">'
-		echo '                  <input class="small1" type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
+		echo '                  <p>'
+		echo '                    <input type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
+		echo '                    <label for="NET'${I}'">&#8239;</label>'
+		echo '                  </p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL2'">'
-		echo '                  <p>/mnt/<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
+		echo '                  <p>/mnt/&#8239;<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
 		echo '                </td>'
 		echo '                <td class="column'$COL3'">'
 		echo '                  <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
@@ -1722,7 +1802,10 @@ pcp_mount_netdrives() {
 	pcp_toggle_row_shade
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
-	echo '                  <input class="small1" type="checkbox" name="CLEARUNUSED" value="yes">'
+	echo '                  <p>'
+	echo '                    <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
+	echo '                    <label for="netclear">&nbsp;</label>'
+	echo '                  </p>'
 	echo '                </td>'
 	echo '                <td colspan="7">'
 	echo '                  <p> Check this box to clear configuration data for unused shares.</p>'
@@ -1775,13 +1858,15 @@ pcp_mount_netdrives() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_mount_netdrives
+[ $MODE -ge $MODE_PLAYER ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Samba Share Drive Support
 #----------------------------------------------------------------------------------------
 pcp_samba() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -1821,7 +1906,7 @@ pcp_samba() {
 	echo '                </td>'
 	echo '              </tr>'
 #----------------------------------------------------------------------------------------
-	pcp_table_padding "2"
+#	pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
 	pcp_toggle_row_shade
 	pcp_incr_id
@@ -1894,8 +1979,13 @@ pcp_samba() {
 		echo '                    <button type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
 		echo '                  </td>'
 		echo '                  <td class="column100">'
-		echo '                    <input class="small1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>Yes'
-		echo '                    <input class="small1" type="radio" name="SAMBA" value="no" '$SAMBAno'>No'
+		echo '                  <p>'
+		echo '                    <input type="hidden" name="ACTION" value="Startup">'
+		echo '                    <input id="radsmb1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>'
+		echo '                    <label for="radsmb1">Yes</label>'
+		echo '                    <input id="radsmb2" type="radio" name="SAMBA" value="no" '$SAMBAno'>'
+		echo '                    <label for="radsmb2">No</label>'
+		echo '                  </p>'
 		echo '                  </td>'
 		echo '                  <td>'
 		echo '                    <p>Automatic start of Samba when pCP boots&nbsp;&nbsp;'
@@ -2096,7 +2186,8 @@ pcp_samba() {
 				*) SHAREROyes="";;
 			esac
 			echo '                  <td class="column'$COL4' center">'
-			echo '                    <input class="small1" type="checkbox" name="SHARERO'$I'" value="yes" '$SHAREROyes'>'
+			echo '                    <input type="checkbox" id="RO'${I}'" name="SHARERO'$I'" value="yes" '$SHAREROyes'>'
+			echo '                    <label for="RO'${I}'">&#8239;</label>'
 			echo '                  </td>'
 			echo '                  <td class="column'$COL5' center">'
 			echo '                    <input type="button" value="Remove" onclick="eraseshare('$I')">'
@@ -2155,11 +2246,13 @@ pcp_samba() {
 	echo '  </tr>'
 	echo '</table>'
 }
-[ $MODE -ge $MODE_ADVANCED ] && pcp_samba
+[ $MODE -ge $MODE_SERVER ] && pcp_samba
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------LMS log text area-----------------------------
 pcp_lms_logview() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -2200,6 +2293,8 @@ pcp_lms_logview() {
 
 #------------------------------LMS custom convert text area------------------------------
 pcp_lms_ccview() {
+	echo '<br/>'
+	echo '<br/>'
 	echo '<table class="bggrey">'
 	echo '  <tr>'
 	echo '    <td>'
@@ -2225,7 +2320,7 @@ pcp_lms_ccview() {
 #----------------------------------------------------------------------------------------
 
 pcp_footer
-[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+pcp_mode
 pcp_copyright
 
 echo '</body>'

@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-14
+# Version: 6.0.0 2020-01-11
 
 SCRATCH="/home/tc"
+unset DEBUG
 #DEBUG=TRUE
 
 TCEDEV="/dev/$(readlink /etc/sysconfig/tcedir | cut -d '/' -f3)"
@@ -139,7 +140,7 @@ if [ -f ${SCRATCH}/resize2fs_part2_required ]; then
 		sleep 1
 		[ $DEBUG ] && pcp_pause
 		echo "-------------------------------------------------------------------------------"
-		sudo reboot
+		echo "Done"
 	fi
 	exit
 fi
@@ -182,11 +183,11 @@ if [ -f ${SCRATCH}/mkfs_part3_required ]; then
 		sleep 1
 		[ $DEBUG ] && pcp_pause
 		echo "-------------------------------------------------------------------------------"
-		sudo reboot
+		echo "Done"
 	fi
 	exit
 fi
 
 echo ""
-echo "Autoresize.sh skipped..."
+[ $DEBUG ] && echo "Autoresize.sh skipped..."
 exit

@@ -111,7 +111,7 @@ case "$SUBMIT" in
 		echo '[ INFO ] Resizing the partition is occuring, please wait...'
 		echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 		echo '[ INFO ] The bigger the partition, the longer the process will take.'
-		pcp_backup_nohtml
+		pcp_backup text
 		echo '[ INFO ] Click [Go to Main Page] or [Refresh] after a few minutes.'
 		(sleep 1; sudo reboot) &
 		echo '                </textarea>'
@@ -129,7 +129,7 @@ case "$SUBMIT" in
 		echo '[ INFO ] Adding '$DATADEV' partition 3 is occuring, please wait...'
 		echo '[ INFO ] This will take a couple of minutes and piCorePlayer will reboot a number of times.'
 		touch /home/tc/fdisk_part3_required
-		pcp_backup_nohtml
+		pcp_backup text
 		echo '[ INFO ] Click [Go to Resize Page] or [Refresh] after a few minutes.'
 		(sleep 1; sudo reboot) &
 		echo '                </textarea>'

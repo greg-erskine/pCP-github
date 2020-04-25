@@ -37,6 +37,7 @@ pcp_downloaded_extensions() {
 	VERSION=$(echo ${KERNELVER} | awk -F"-" '{print $1}')
 	echo alsa-modules-${VERSION}-pcpCore.tcz     > $EXTENLIST
 	echo alsa-modules-${VERSION}-pcpCore_v7.tcz >> $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore_v7l.tcz >> $EXTENLIST
 	echo alsa-utils.tcz                         >> $EXTENLIST
 	echo alsa.tcz                               >> $EXTENLIST
 	echo ca-certificates.tcz                    >> $EXTENLIST
@@ -56,6 +57,7 @@ pcp_downloaded_extensions() {
 	echo ncurses.tcz                            >> $EXTENLIST
 	echo net-usb-${VERSION}-pcpCore.tcz         >> $EXTENLIST
 	echo net-usb-${VERSION}-pcpCore_v7.tcz      >> $EXTENLIST
+	echo net-usb-${VERSION}-pcpCore_v7l.tcz      >> $EXTENLIST
 	echo never_remove.tcz                       >> $EXTENLIST
 	echo openssh.tcz                            >> $EXTENLIST
 	echo openssl.tcz                            >> $EXTENLIST
@@ -72,8 +74,8 @@ pcp_downloaded_extensions() {
 	echo readline.tcz                           >> $EXTENLIST
 	echo wireless-${VERSION}-pcpCore.tcz        >> $EXTENLIST
 	echo wireless-${VERSION}-pcpCore_v7.tcz     >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore_v7l.tcz     >> $EXTENLIST
 	echo wireless_tools.tcz                     >> $EXTENLIST
-	echo wiringpi.tcz                           >> $EXTENLIST
 	echo wpa_supplicant.tcz                     >> $EXTENLIST
 	unset VERSION
 }

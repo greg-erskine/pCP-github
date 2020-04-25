@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 6.0.0 2020-01-10
 
 . pcp-functions
 
@@ -31,21 +31,31 @@ case "${ACTION}" in
 		SPACE_REQUIRED=15
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="inform" style="height:150px">'
+		echo '                <textarea class="inform" style="height:350px">'
 		echo '[ INFO ] Updating pcp-base and any needed dependencies.'
-#		pcp-update pcp-base >/dev/null 2>&1
-		pcp-update pcp-base
+		sudo -u tc pcp-update pcp-base.tcz
 		CHK=$?
 		if [ $CHK -eq 2 ]; then
 			echo '[ INFO ] There is no update for pcp-base at this time.'
-			unset REBOOT_REQUIRED
 		elif [ $CHK -eq 1 ]; then
 			echo '[ ERROR ] There was an error updating pcp-base, please try again later!'
-			unset REBOOT_REQUIRED
 		else
-			echo '[ INFO ] A [Reboot] is required to complete the update.'
 			REBOOT_REQUIRED=TRUE
 		fi
+
+		WWWVER=$(pcp_picoreplayer_version | awk -F'-' '{ print $1}')
+		echo ''
+		echo '[ INFO ] Updating pcp-www and any needed dependencies.'
+		sudo -u tc pcp-update pcp-$WWWVER-www.tcz
+		CHK=$?
+		if [ $CHK -eq 2 ]; then
+			echo '[ INFO ] There is no update for pcp-base at this time.'
+		elif [ $CHK -eq 1 ]; then
+			echo '[ ERROR ] There was an error updating pcp-base, please try again later!'
+		else
+			REBOOT_REQUIRED=TRUE
+		fi
+
 		echo '                </textarea>'
 	;;
 	*)
@@ -58,5 +68,8 @@ pcp_redirect_button "Go to Main Page" "main.cgi" 10
 pcp_table_end
 pcp_footer
 pcp_copyright
-[ $REBOOT_REQUIRED ] && pcp_reboot_required
+if [ $REBOOT_REQUIRED ]; then
+	echo '[ INFO ] A [Reboot] is required to complete the update.'
+	pcp_reboot_required
+fi
 pcp_end

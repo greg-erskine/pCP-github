@@ -10,7 +10,7 @@
 # - $ md5sum fix.cgi > fix.cgi.md5.txt
 #----------------------------------------------------------------------------------------
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2020-01-01
 
 . pcp-functions
 
@@ -21,13 +21,16 @@ pcp_navigation
 pcp_running_script
 pcp_httpd_query_string
 
+## Temporary.....just shows a no fix screen.....will update in the www extension later if needed
+ACTION="fix"
+
 WGET="/bin/busybox wget -T 30"
 MD5SUM="/bin/busybox md5sum"
 FAIL_MSG="ok"
 FIX_PCP="/tmp/pcp_fix"
 [ -d ${FIX_PCP} ] && rm -rf ${FIX_PCP}
 FIX_DOWNLOAD="https://repo.picoreplayer.org/insitu"
-FIX_CGI="/home/tc/www/cgi-bin"
+FIX_CGI="$WWWROOT/cgi-bin"
 REBOOT_REQUIRED=0
 
 #========================================================================================
@@ -265,10 +268,10 @@ pcp_warning_message() {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
-	echo '        <fieldset>'
+	echo '        <fieldset class="warning">'
 	echo '          <legend>Warning</legend>'
 	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
+	echo '            <tr>'
 	echo '              <td>'
 	echo '                <p><b>Warning:</b> You are about to apply a HotFix to pCP '$(pcp_picoreplayer_version)'.</p>'
 	echo '                <ul>'

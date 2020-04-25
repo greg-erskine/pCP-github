@@ -30,8 +30,8 @@ pcp_write_cputemp_sh() {
 cat <<EOF > $CPU_TEMP_SH
 #!/bin/sh
 
-. /home/tc/www/cgi-bin/pcp-functions
-. /home/tc/www/cgi-bin/pcp-rpi-functions
+. $WWWROOT/cgi-bin/pcp-functions
+. $WWWROOT/cgi-bin/pcp-rpi-functions
 
 while true
 do
@@ -153,7 +153,7 @@ echo '  baseProfile="full"'
 echo '  width="'$(($X * $XGAP + (2 * $MARGIN) + $LMARGIN))'" height="'$(($Y * $YGAP + $MARGIN + $MARGIN + $BMARGIN))'">'
 #echo '  xmlns="http://www.w3.org/2000/svg">'
 echo ''
-echo '  <rect width="100%" height="100%" fill="#eaeaea" />'
+echo '  <rect class="cputemp" />'
 echo ''
 
 #========================================================================================
@@ -179,7 +179,7 @@ fi
 #========================================================================================
 # Vertical lines - X axis
 #----------------------------------------------------------------------------------------
-echo '<g class="grid x-grid" id="xGrid">'
+echo '<g class="grid x-grid cputemp" id="xGrid">'
 
 for i in `seq 0 1 $X`
 do
@@ -192,7 +192,7 @@ echo '</g>'
 #========================================================================================
 # Vertical tics - X axis
 #----------------------------------------------------------------------------------------
-echo '<g class="tics" id="xTic">'
+echo '<g class="tics cputemp" id="xTic">'
 
 for i in `seq 0 1 $X`
 do
@@ -205,13 +205,13 @@ echo '</g>'
 #========================================================================================
 # Vertical labels - X axis
 #----------------------------------------------------------------------------------------
-echo '<g class="labels xlabels" id="xLabels">'
+echo '<g class="labels xlabels cputemp" id="xLabels">'
 
 k=0
 for i in $DATA1
 do
 	GAP=$(($k * $XGAP))
-	echo '  <text x="'$(($GAP + $MARGIN + $LMARGIN))'" y="'$(($Y * $YGAP + $MARGIN + $YTIC + 15))'" >'$i'</text>'
+	echo '  <text class="cputemp_text" x="'$(($GAP + $MARGIN + $LMARGIN))'" y="'$(($Y * $YGAP + $MARGIN + $YTIC + 15))'" >'$i'</text>'
 	k=$(($k + 1))
 done
 
@@ -252,7 +252,7 @@ for i in `seq 0 1 $Y`
 do
 	LABEL=$(($YMAX - ($YMAJOR * $i)))
 	GAP=$(($i * $YGAP))
-	echo '  <text x="'$(($MARGIN - $XTIC + $LMARGIN - 5))'" y="'$(($GAP + $MARGIN + 5))'">'$LABEL'</text>'
+	echo '  <text class="cputemp_text" x="'$(($MARGIN - $XTIC + $LMARGIN - 5))'" y="'$(($GAP + $MARGIN + 5))'">'$LABEL'</text>'
 done
 
 echo '</g>'
@@ -287,7 +287,7 @@ echo '</g>'
 #----------------------------------------------------------------------------------------
 #echo '<text x="'$(((($X * $XGAP) + (2 * $MARGIN)) / 2 ))'" y="'$((($Y * $YGAP) + $MARGIN + $MARGIN - 5))'" font-size="12" text-anchor="middle" fill="black">'$TITLE'</text>'
 
-echo '<text class="title" x="'$((((($X * $XGAP) + (2 * $MARGIN)) / 2) + $LMARGIN))'" y="'$((($Y * $YGAP) + (2 * $MARGIN) + ($BMARGIN - 6)))'" >'$TITLE'</text>'
+echo '<text class="title cputemp_text" x="'$((((($X * $XGAP) + (2 * $MARGIN)) / 2) + $LMARGIN))'" y="'$((($Y * $YGAP) + (2 * $MARGIN) + ($BMARGIN - 6)))'" >'$TITLE'</text>'
 
 echo ''
 echo '</svg>'

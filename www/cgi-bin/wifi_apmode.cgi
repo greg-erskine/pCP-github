@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-rpi-functions
@@ -273,8 +273,10 @@ pcp_ap_enable() {
 	echo '                  <button type="submit" name="ACTION" value="Autostart" '$DISABLE_AP'>Set Autostart</button>'
 	echo '                </td>'
 	echo '                <td class="column150">'
-	echo '                  <input class="small1" type="radio" name="APMODE" value="yes" '$APMODEyes'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="APMODE" value="no" '$APMODEno'>No'
+	echo '                  <input id="rad1" type="radio" name="APMODE" value="yes" '$APMODEyes'>'
+	echo '                  <label for="rad1">Yes&nbsp;&nbsp;</label>'
+	echo '                  <input id="rad2" type="radio" name="APMODE" value="no" '$APMODEno'>'
+	echo '                  <label for="rad2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Automatic start of AP Mode when pCP boots&nbsp;&nbsp;'
@@ -287,7 +289,7 @@ pcp_ap_enable() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_ap_enable
+[ $MODE -ge $MODE_SERVER ] && pcp_ap_enable
 #----------------------------------------------------------------------------------------
 
 #----------------------------------Install/uninstall AP Mode-----------------------------
@@ -325,7 +327,7 @@ pcp_ap_install() {
 	fi
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_ap_install
+[ $MODE -ge $MODE_SERVER ] && pcp_ap_install
 #----------------------------------------------------------------------------------------
 
 #----------------------------------Start AP Mode-----------------------------------------
@@ -379,7 +381,7 @@ pcp_ap_startstop() {
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_ap_startstop
+[ $MODE -ge $MODE_SERVER ] && pcp_ap_startstop
 #----------------------------------------------------------------------------------------
 echo '            </table>'
 echo '          </fieldset>'
@@ -520,8 +522,10 @@ pcp_ap_configure(){
 	echo '                  <p class="row">Wireless AC</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="AP_80211AC" value="1" '$AP_80211ACyes'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="AP_80211AC" value="0" '$AP_80211ACno'>No'
+	echo '                  <input id="rad3" type="radio" name="AP_80211AC" value="1" '$AP_80211ACyes'>'
+	echo '                  <label for="rad3">Yes&nbsp;&nbsp;</label>'
+	echo '                  <input id="rad4" type="radio" name="AP_80211AC" value="0" '$AP_80211ACno'>'
+	echo '                  <label for="rad4">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Enable Wireless AC function of the radio&nbsp;&nbsp;'
@@ -571,8 +575,10 @@ pcp_ap_configure(){
 	echo '                  <p class="row">Bridge Mode</p>'
 	echo '                </td>'
 	echo '                <td class="column210">'
-	echo '                  <input class="small1" type="radio" name="AP_BRIDGE" value="1" '$AP_BRIDGEyes'>Yes&nbsp;&nbsp;'
-	echo '                  <input class="small1" type="radio" name="AP_BRIDGE" value="0" '$AP_BRIDGEno'>No'
+	echo '                  <input id="br1" type="radio" name="AP_BRIDGE" value="1" '$AP_BRIDGEyes'>'
+	echo '                  <label for="br1">Yes&nbsp;&nbsp;</label>'
+	echo '                  <input id="br2" type="radio" name="AP_BRIDGE" value="0" '$AP_BRIDGEno'>'
+	echo '                  <label for="br2">No</label>'
 	echo '                </td>'
 	echo '                <td>'
 	echo '                  <p>Use Bridge mode, instead of Router mode.&nbsp;&nbsp;'
@@ -592,7 +598,7 @@ pcp_ap_configure(){
 	echo '                </td>'
 	echo '              </tr>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_ap_configure
+[ $MODE -ge $MODE_SERVER ] && pcp_ap_configure
 #----------------------------------------------------------------------------------------
 
 echo '            </table>'
@@ -605,7 +611,6 @@ echo '</table>'
 #----------------------------------------------------------------------------------------
 
 pcp_footer
-[ $MODE -ge $MODE_NORMAL ] && pcp_mode
 pcp_copyright
 
 echo '</body>'

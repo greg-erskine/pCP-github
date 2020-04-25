@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-14
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-lms-functions
@@ -136,7 +136,7 @@ pcp_log_show() {
 
 	if [ ! "$SELECTION" = "All" ]; then
 		LOG=${LOGDIR}/${SELECTION}
-		[ $MODE -ge $MODE_BETA ] && pcp_pastebin_button $SELECTION
+		[ $MODE -ge $MODE_PLAYER ] && pcp_pastebin_button $SELECTION
 	fi
 }
 [ "$ACTION" = "Show" ] && pcp_log_show

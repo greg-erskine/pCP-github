@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2019-11-01
 
 #========================================================================================
 # This script sets a static IP.
@@ -35,6 +35,7 @@ pcp_navigation
 pcp_httpd_query_string
 
 VALIDNETWORKS=$(ls /sys/class/net | sed '/^lo/d')
+FAIL=0
 unset REBOOT_REQUIRED
 
 #========================================================================================
@@ -275,6 +276,51 @@ pcp_get_nodhcp() {
 }
 
 #========================================================================================
+# Validate Static IP settings
+#----------------------------------------------------------------------------------------
+pcp_validate_static_ip() {
+	pcp_table_top "Validating IP Settings"
+	echo '              <textarea class="inform" style="height:80px">'
+	echo -n "[ INFO ] Checking Gateway: $GATEWAY......"
+	ping -c 2 -W 5 $GATEWAY >/dev/null
+	if [ $? -eq 0 ]; then
+		echo "[OK]"
+	else
+		echo "[FAIL]"
+		FAIL=1
+	fi
+	echo -n "[ INFO ] Checking IP Unused: $IP......"
+	CURIP=$(ifconfig $NETWORK | grep "inet addr" | cut -d':' -f2 | cut -d' ' -f1)
+	if [ "$IP" = "$CURIP" ]; then
+		echo "Matches Current [OK]"
+	else
+		ping -c 2 -W 5 $IP >/dev/null
+		if [ $? -eq 1 ]; then
+			echo "[OK]"
+		else
+			echo "IP address already in use. [FAIL]"
+			FAIL=1
+		fi
+	fi
+	echo -n "[ INFO ] Checking Netmask..."
+	echo "$NETMASK" | grep -E -q "^(255)\.(255|0)\.(255|0)\.0"
+	if [ $? -eq 0 ]; then
+		echo "Looks [OK]"
+	else
+		echo "Seems incorrect, check before rebooting. [WARN]"
+	fi
+	echo -n "[ INFO ] Checking Broadcast..."
+	TEST=$(echo "$GATEWAY" | awk -F'.' '{ print $1 "." $2 "." $3 ".255" }')
+	if [ "$BROADCAST" = "$TEST" ]; then
+		echo "Looks [OK]"
+	else
+		echo "Seems incorrect, check before rebooting. [WARN]"
+	fi
+	echo '                </textarea>'
+	pcp_table_end
+}
+
+#========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
 [ $DEBUG -eq 1 ] && pcp_table_top "Debug information"
@@ -292,8 +338,10 @@ case "$SUBMIT" in
 			pcp_nodhcp_bootcode delete
 			[ "${NETWORK:0:3}" = "eth" ] && pcp_edit_bootlocal delete
 		fi
-		pcp_backup >/dev/null
-		REBOOT_REQUIRED=TRUE
+		if [ "$STATIC" != "firstrun" ]; then
+			pcp_backup >/dev/null
+			REBOOT_REQUIRED=TRUE
+		fi
 	;;
 	Delete)
 		rm -f $STATICIP
@@ -350,8 +398,11 @@ echo '      <form name="staticip" action="xtras_staticip.cgi" method="get" id="s
 echo '        <div class="row">'
 echo '          <fieldset>'
 echo '            <legend>Set static IP for '$NETWORK'</legend>'
-echo '            <table class="bggrey percent100">'
+
+[ "$SUBMIT" = "Save" -a "$STATIC" != "firstrun" -a "$DHCP" = "off" ] && pcp_validate_static_ip
+
 #--------------------------------------DHCP----------------------------------------------
+echo '            <table class="bggrey percent100">'
 pcp_incr_id
 pcp_start_row_shade
 echo '              <tr class="'$ROWSHADE'">'
@@ -359,8 +410,10 @@ echo '                <td class="'$COLUMN1'">'
 echo '                  <p class="row">DHCP/Static IP</p>'
 echo '                </td>'
 echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="small1" type="radio" id="DHCPon" name="DHCP" value="on" '$NODHCPNO'>DHCP&nbsp;&nbsp;'
-echo '                  <input class="small1" type="radio" id="DHCPoff" name="DHCP" value="off" '$NODHCPYES'>Static IP'
+echo '                  <input id="rad1" type="radio" id="DHCPon" name="DHCP" value="on" '$NODHCPNO'>'
+echo '                  <label for="rad1">DHCP&nbsp;&nbsp;</label>'
+echo '                  <input id="rad2" type="radio" id="DHCPoff" name="DHCP" value="off" '$NODHCPYES'>'
+echo '                  <label for="rad2">Static IP</label>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Select DHCP or Static IP&nbsp;&nbsp;'
@@ -562,8 +615,11 @@ echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column400">'
 echo '                  <input type="submit" title="Save configuration to /opt/'${NETWORK}'.sh" name="SUBMIT" value="Save">'
 echo '                  <input type="hidden" name="NETWORK" value="'$NETWORK'">'
-[ "$DHCP" = "off" ] &&
-echo '                  <input type="submit" title="Fill-in blanks with default values" name="SUBMIT" value="Defaults">'
+if [ "$DHCP" = "off" ]; then
+  echo '                  <input type="submit" title="Fill-in blanks with default values" name="SUBMIT" value="Defaults">'
+else
+  echo '                  <input type="hidden" name="STATIC" value="firstrun">'
+fi
 [ -f "/opt/${NETWORK}.sh" ] &&
 echo '                  <input type="submit" title="Delete /opt/'${NETWORK}'.sh" name="SUBMIT" value="Delete">'
 echo '                </td>'
@@ -683,7 +739,7 @@ fi
 pcp_footer
 pcp_copyright
 
-[ $REBOOT_REQUIRED ] && pcp_reboot_required
+[ $REBOOT_REQUIRED -a $FAIL -eq 0 ] && pcp_reboot_required
 
 echo '</body>'
 echo '</html>'

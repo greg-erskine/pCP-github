@@ -1,7 +1,7 @@
 #!/bin/sh
 # Boot diagnostics script
 
-# Version: 5.0.0 2019-03-01
+# Version: 6.0.0 2020-01-01
 
 . pcp-functions
 
@@ -57,7 +57,7 @@ echo '                  <li><a href="#'$ID'">/opt/bootsync.sh</a></li>'
 pcp_incr_id
 echo '                  <li><a href="#'$ID'">/opt/bootlocal.sh</a></li>'
 pcp_incr_id
-echo '                  <li><a href="#'$ID'">/home/tc/www/cgi-bin/pcp_startup.sh</a></li>'
+echo '                  <li><a href="#'$ID'">/usr/local/etc/init.d/pcp_startup.sh</a></li>'
 pcp_incr_id
 echo '                  <li><a href="#'$ID'">/home/tc/.profile</a></li>'
 pcp_incr_id
@@ -141,7 +141,10 @@ echo '                <div id="'$ID'">'
 echo '                </div>'
 pcp_incr_id
 echo '                <div id="'$ID'">'
+if [ -f /home/tc/www/cgi-bin/pcp_startup.sh ]; then
                         pcp_textarea_inform "" "cat /home/tc/www/cgi-bin/pcp_startup.sh" 600 log
+elif [ -f /usr/local/etc/init.d/pcp_startup ]; then
+                        pcp_textarea_inform "" "cat /usr/local/etc/init.d/pcp_startup.sh" 600 log
 echo '                </div>'
 pcp_incr_id
 echo '                <div id="'$ID'">'

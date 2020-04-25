@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-06-28
+# Version: 6.0.0 2019-10-29
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
@@ -36,7 +36,7 @@ pcp_debug_save() {
 pcp_debug_reset() {
 	pcp_write_var_to_config DEBUG 0
 	pcp_write_var_to_config TEST 0
-	pcp_write_var_to_config MODE $MODE_INITIAL
+	pcp_write_var_to_config MODE $MODE_PLAYER
 	. $PCPCFG
 }
 
@@ -111,8 +111,10 @@ echo '                <td class="'$COLUMN1'">'
 echo '                  <p>DEBUG</p>'
 echo '                </td>'
 echo '                <td class="'$COLUMN2'">'
-echo '                  <input class="small1" type="radio" name="d" value="1" '$D1SELECTED'>On&nbsp;'
-echo '                  <input class="small1" type="radio" name="d" value="0" '$D0SELECTED'>Off'
+echo '                  <input id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
+echo '                  <label for="rad1">On&nbsp;</label>'
+echo '                  <input id="rad2" type="radio" name="d" value="0" '$D0SELECTED'>'
+echo '                  <label for="rad2">Off</label>'
 echo '                </td>'
 echo '                <td>'
 echo '                  <p>Set DEBUG: [on|off].</p>'
@@ -127,16 +129,19 @@ echo '                  <p>MODE</p>'
 echo '                </td>'
 echo '                <td class="'$COLUMN2'">'
 echo '                  <select class="large10" name="m">'
-echo '                    <option value="0" '$MODE0'>Initial</option>'
-echo '                    <option value="10" '$MODE10'>Basic</option>'
-echo '                    <option value="20" '$MODE20'>Normal</option>'
-echo '                    <option value="30" '$MODE30'>Advanced</option>'
+#echo '                    <option value="0" '$MODE0'>Initial</option>'
+#echo '                    <option value="10" '$MODE10'>Basic</option>'
+#echo '                    <option value="20" '$MODE20'>Normal</option>'
+#echo '                    <option value="30" '$MODE30'>Advanced</option>'
+echo '                    <option value="10" '$MODE10'>Player</option>'
+echo '                    <option value="30" '$MODE30'>Player/Server</option>'
 echo '                    <option value="40" '$MODE40'>Beta</option>'
 echo '                    <option value="100" '$MODE100'>Developer</option>'
 echo '                  </select>'
 echo '                </td>'
 echo '                <td>'
-echo '                  <p>Set MODE level: [Initial|Basic|Normal|Advanced|Beta|Developer].</p>'
+#echo '                  <p>Set MODE level: [Initial|Basic|Normal|Advanced|Beta|Developer].</p>'
+echo '                  <p>Set MODE level: [Player|Server|Beta|Developer].</p>'
 echo '                </td>'
 echo '              </tr>'
 #--------------------------------------TEST----------------------------------------------

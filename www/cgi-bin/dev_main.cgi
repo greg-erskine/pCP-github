@@ -10,7 +10,7 @@ pcp_banner
 pcp_running_script
 pcp_httpd_query_string
 
-DEV_PAGES=$(ls /home/tc/www/cgi-bin/dev_*.cgi)
+DEV_PAGES=$(ls $WWWROOT/cgi-bin/dev_*.cgi)
 
 pcp_start_row_shade
 pcp_toggle_row_shade

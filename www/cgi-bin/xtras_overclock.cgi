@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 6.0.0 2020-01-29
 
 #========================================================================================
 # References:
@@ -98,11 +98,22 @@ pcp_warning_message() {
 #----------------------------------------------------------------------------------------
 pcp_set_overclock() {
 	[ $DEBUG -eq 1 ] && echo '<p class="info">[ INFO ] Setting OVERCLOCK to '$1'</p>'
+
 	sudo sed -i "/arm_freq=/c\arm_freq=$2" $CONFIGTXT
-	sudo sed -i "/gpu_freq=/c\gpu_freq=$3" $CONFIGTXT
-	sudo sed -i "/core_freq=/c\core_freq=$4" $CONFIGTXT
-	sudo sed -i "/sdram_freq=/c\sdram_freq=$5" $CONFIGTXT
-	sudo sed -i "/over_voltage=/c\over_voltage=$6" $CONFIGTXT
+	case $RPITYPE in
+		0|1|2|3)
+			sudo sed -i "/gpu_freq=/c\gpu_freq=$3" $CONFIGTXT
+			sudo sed -i "/core_freq=/c\core_freq=$4" $CONFIGTXT
+			sudo sed -i "/sdram_freq=/c\sdram_freq=$5" $CONFIGTXT
+			sudo sed -i "/over_voltage=/c\over_voltage=$6" $CONFIGTXT
+		;;
+		4)	# Cannot gpu/core/sdram frequencies are mostly locked on the pi4
+			sudo sed -i 's/^gpu_freq=/#gpu_freq=/g' $CONFIGTXT
+			sudo sed -i 's/^core_freq=/#core_freq=/g' $CONFIGTXT
+			sudo sed -i 's/^sdram_freq=/#sdram_freq=/g' $CONFIGTXT
+			sudo sed -i 's/^over_voltage=/#over_voltage=/g' $CONFIGTXT
+		;;
+	esac
 }
 
 pcp_set_overclock_default() {
@@ -235,10 +246,17 @@ pcp_start_save() {
 				*)     pcp_set_overclock_default ;;
 			esac
 		;;
-		3|4)
+		3)
 			case "$ADVOVERCLOCK" in
 				Lowest)pcp_set_overclock Lowest 600 250 250 400 0 ;;
 				Under) pcp_set_overclock Under 800 200 200 400 0 ;;
+				None)  pcp_set_overclock_default ;;
+				*)     pcp_set_overclock_default ;;
+			esac
+		;;
+		4)
+			case "$ADVOVERCLOCK" in
+				Under) pcp_set_overclock Under 800 500 500 3200 0 ;;
 				None)  pcp_set_overclock_default ;;
 				*)     pcp_set_overclock_default ;;
 			esac
@@ -395,8 +413,12 @@ case $RPITYPE in
 		echo '                    <option value="None" '$OCnone'>None</option>'
 		echo '                    <option value="High" '$OChigh'>High</option>'
 	;;
-	3|4)
+	3)
 		echo '                    <option value="Lowest" '$OClowest'>Lowest</option>'
+		echo '                    <option value="Under" '$OCunder'>Under</option>'
+		echo '                    <option value="None" '$OCnone'>None</option>'
+	;;
+	4)
 		echo '                    <option value="Under" '$OCunder'>Under</option>'
 		echo '                    <option value="None" '$OCnone'>None</option>'
 	;;
@@ -559,7 +581,7 @@ if [ $DEBUG -eq 1 ]; then
 	echo '</table>'
 fi
 
-if [ $MODE -ge $MODE_BETA ]; then
+if [ $MODE -ge $MODE_PLAYER ]; then
 	#====================================================================================
 	# Display current overclock settings
 	#------------------------------------------------------------------------------------

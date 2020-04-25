@@ -460,7 +460,7 @@ pcp_wifi_available_networks() {
 #----------------------------------------------------------------------------------------
 pcp_wifi_html_end() {
 	pcp_footer
-	[ $MODE -ge $MODE_NORMAL ] && pcp_mode
+	pcp_mode
 	pcp_copyright
 	echo '</body>'
 	echo '</html>'
@@ -486,9 +486,9 @@ pcp_wifi_not_using_wifi () {
 	echo '  <tr>'
 	echo '    <td>'
 	echo '      <div class="row">'
-	echo '        <fieldset>'
+	echo '        <fieldset class="warning">'
 	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="warning">'
+	echo '            <tr>'
 	echo '              <td>'
 	echo '                <p><b>Warning:</b></p>'
 	echo '                <ul>'

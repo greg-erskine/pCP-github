@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-09
+# Version: 6.0.0 2019-10-29
 
 . pcp-functions
 . pcp-lms-functions
@@ -71,7 +71,7 @@ pcp_backup_if_required() {
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td>'
 		echo '                <textarea class="inform" style="height:40px">'
-		                        pcp_backup_nohtml
+		                        pcp_backup text
 		                        [ $? -eq 0 ] || FAIL_MSG="Backup failed."
 		echo '                </textarea>'
 		echo '              </td>'
@@ -194,12 +194,14 @@ pcp_ir_uninstall() {
 			sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
 			sudo sed -i '/.lircrc/d' /opt/.filetool.lst
 			IR_LIRC="no"
+			pcp_save_to_config
 		;;
 		irtools)
 			sudo sed -i '/pcp-irtools.tcz/d' $ONBOOTLST
 			sudo rm /usr/local/etc/keytables/jivelite
 			sudo sed -i '/usr\/local\/etc\/keytables\/jivelite/d' /opt/.filetool.lst
 			IR_KEYTABLES="no"
+			pcp_save_to_config
 		;;
 	esac
 
@@ -503,7 +505,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '              </tr>'
 	#----------------------------------------------------------------------------------------
 
-	if [ $MODE -ge $MODE_BETA ]; then
+	if [ $MODE -ge $MODE_PLAYER ]; then
 		#------------------------------------------LIRC GPIO OUT---------------------------------
 		# gpio_out_pin    GPIO for output
 		#----------------------------------------------------------------------------------------
