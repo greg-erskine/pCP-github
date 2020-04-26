@@ -242,15 +242,26 @@ HEAVY_CHECK_MARK="&#10004;"
 HEAVY_BALLOT_X="&#10008;"
 
 pcp_green_tick() {
-	INDICATOR=$HEAVY_CHECK_MARK
-	CLASS="indicator_green"
+	INDICATOR=$(pcp_bi_check)
 	STATUS="$1"
 }
 
 pcp_red_cross() {
-	INDICATOR=$HEAVY_BALLOT_X
-	CLASS="indicator_red"
+	INDICATOR=$(pcp_bi_x)
 	STATUS="$1"
+}
+
+pcp_bi_check() {
+	echo '<svg class="bi bi-check text-success" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
+	echo '</svg>'
+}
+
+pcp_bi_x() {
+	echo '<svg class="bi bi-x text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
+	echo '  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z" clip-rule="evenodd"/>'
+	echo '</svg>'
 }
 
 #========================================================================================
@@ -303,23 +314,8 @@ pcp_sufficient_free_space() {
 }
 
 #========================================================================================
-# Row shading and help ID numbering.
+# Row help ID numbering.
 #----------------------------------------------------------------------------------------
-pcp_start_row_shade() {
-	SHADE=0
-	ROWSHADE="even"
-}
-
-pcp_toggle_row_shade() {
-	if [ $SHADE -eq 1 ]; then
-		SHADE=0
-		ROWSHADE="even"
-	else
-		SHADE=1
-		ROWSHADE="odd"
-	fi
-}
-
 pcp_incr_id() {
 	ID=$((ID+1))
 }
@@ -521,7 +517,7 @@ pcp_html_head() {
 	echo '<!-- Start of pcp_html_head -->'
 	echo '<html lang="en">'
 	echo '<head>'
-	echo '  <meta charset="UTF-8">'
+	echo '  <meta charset="utf-8">'
 	if [ $DEBUG -eq 0 ]; then
 		if [ x"" != x"$3" ] && [ x"" != x"$4" ]; then
 			echo '  <meta http-equiv="Refresh" content="'$3'; url='$4'">'
@@ -561,8 +557,8 @@ pcp_html_head() {
 
 	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
 
-#	echo '  <script src="../bootstrap/js/bootstrap.min.js"></script>'
-	echo '  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>'
+	echo '  <script src="../bootstrap/js/bootstrap.min.js"></script>'
+#	echo '  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>'
 
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js?'$JS_VER'"></script>'
@@ -801,7 +797,7 @@ pcp_mode() {
 	esac
 
 	echo '<!-- Start of mode toolbar -->'
-	echo '<p>'
+	echo '<div>'
 	echo '  <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
 	echo '  <a class="'$TAB_STYLE_MODE_BETA'"'
@@ -816,8 +812,8 @@ pcp_mode() {
 	[ $PCP_CUR_REPO -eq 1 ] && NEXT_REPO="pCP Mirror Repo" || NEXT_REPO="pCP Main Repo"
 	echo '  <a id="Theme" class="'$TAB_STYLE_THEME'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()" >'$T_THEME' Theme</a>'
 	echo '  <a id="Repo" class="'$TAB_STYLE_REPO'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()" >'$T_REPO'</a>'
-	echo '</p>'
-	echo '<div class="tab7end">pCP</div>'
+	echo '</div>'
+
 	echo '<!-- End of mode toolbar -->'
 }
 
