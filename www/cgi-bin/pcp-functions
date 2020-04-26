@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-04-21
+# Version: 7.0.0 2020-04-26
 
 WWW_BUILD=0008
 
@@ -551,6 +551,18 @@ pcp_html_head() {
 	echo '  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">'
 	echo '  <!-- Bootstrap CSS -->'
 	echo '  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">'
+	echo '  <script src="../bootstrap/js/bootstrap.min.js"></script>'
+
+	echo '  <script src="../jquery/jquery.js"></script>'
+
+	echo' <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
+
+
+	echo '  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">'
+	echo '  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>'
+	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
+	echo '  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>'
+
 
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js?'$JS_VER'"></script>'
@@ -1220,7 +1232,7 @@ pcp_refresh_button() {
 
 pcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
-	echo '<p><input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
+	echo '<p><input type="button"  class="btn btn-primary" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
 }
 
@@ -1231,7 +1243,7 @@ pcp_redirect_button() {
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '<form name="redirect button" action="'$2'" method="get">'
 	echo '  <p>'
-	echo '    <input class="large12" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
+	echo '    <input class="large12" class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
 	echo '  </p>'
 	echo '</form>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'

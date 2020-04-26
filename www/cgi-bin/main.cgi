@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-01-12
+# Version: 7.0.0 2020-04-26
 
 . pcp-functions
 . pcp-lms-functions
@@ -14,8 +14,9 @@ pcp_controls
 pcp_banner
 pcp_navigation
 
-COLUMN1="col-sm-2"
-COLUMN2="col-sm-10"
+COLUMN1="col-sm-3"
+COLUMN2="col-sm-9"
+BUTTON="btn btn-primary"
 
 #========================================================================================
 # Reboot page.
@@ -71,10 +72,30 @@ fi
 #========================================================================================
 # Main piCorePlayer operations
 #----------------------------------------------------------------------------------------
-#echo '      <div class="row">'
-#echo '        <fieldset>'
-echo '          <h5>Main piCorePlayer functions</h5>'
-#echo '          <table class="bggrey percent100">'
+echo '    <h5>Main piCorePlayer functions</h5>'
+
+
+
+echo '    <p>'
+echo '      <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button">'
+echo '        Link with href'
+echo '      </a>'
+echo '      <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample">'
+echo '        Button with data-target'
+echo '      </button>'
+echo '    </p>'
+echo '    <div class="collapse" id="collapseExample">'
+echo '      <div class="card card-body">'
+echo '        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.'
+echo '      </div>'
+echo '    </div>'
+
+
+
+#echo '<svg class="bi bi-check" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+#echo '  <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z" clip-rule="evenodd"/>'
+#echo '</svg'
+
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Squeezelite Indication------------------------------
@@ -154,24 +175,26 @@ pcp_main_shairport_indication() {
 
 	pcp_incr_id
 
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-
-	echo '                <p>Shairport is '$STATUS'&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
-	echo '                  </ul>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>Shairport must be running for music to play from iDevices.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-
+	echo '    <div class="form-group row">'
+	echo '      <div class="'$COLUMN1'">'$INDICATOR'</div>'
+	echo '      <div class="'$COLUMN2'">'
+	echo '        <p>Shairport is '$STATUS'&nbsp;&nbsp;'
+	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '        </p>'
+	echo '        <div id="'$ID'" class="less">'
+	echo '          <ul>'
+	echo '            <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
+	echo '            <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
+	echo '          </ul>'
+	echo '          <p><b>Note:</b></p>'
+	echo '          <ul>'
+	echo '            <li>Shairport must be running for music to play from iDevices.</li>'
+	echo '          </ul>'
+	echo '        </div>'
+	echo '      </div>'
+	echo '    </div>'
 }
-[ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication && pcp_table_padding "2"
+[ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
@@ -182,7 +205,7 @@ pcp_main_restart_squeezelite() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Restart" action="restartsqlt.cgi" method="get">'
-	echo '          <input type="submit" value="Restart">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -210,7 +233,7 @@ pcp_main_restart_shairport() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Restart" action="restartsqlt.cgi" method="get">'
-	echo '          <input type="submit" value="Restart">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -233,10 +256,6 @@ pcp_main_restart_shairport() {
 [ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Padding---------------------------------------
-#[ $MODE -le $MODE_PLAYER ] && pcp_table_padding "2"
-#----------------------------------------------------------------------------------------
-
 #------------------------------------------Update Squeezelite----------------------------
 pcp_main_update_sqlt() {
 
@@ -245,8 +264,8 @@ pcp_main_update_sqlt() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
-	echo '          <button type="submit" name="ACTION" value="update">Update</button>'
-	echo '          <button type="submit" name="ACTION" value="full_update">Full Update</button>'
+	echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="update">Update</button>'
+	echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="full_update">Full Update</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -296,7 +315,7 @@ pcp_main_ffmpeg() {
 		echo '    <div class="form-group row">'
 		echo '      <div class="'$COLUMN1'">'
 		echo '        <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
-		echo '          <button type="submit" name="ACTION" value="inst_ffmpeg">Install</button>'
+		echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="inst_ffmpeg">Install</button>'
 		echo '        </form>'
 		echo '      </div>'
 
@@ -320,7 +339,7 @@ pcp_main_ffmpeg() {
 		echo '    <div class="form-group row">'
 		echo '      <div class="'$COLUMN1'">'
 		echo '        <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
-		echo '          <button type="submit" name="ACTION" value="rem_ffmpeg">Remove</button>'
+		echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="rem_ffmpeg">Remove</button>'
 		echo '        </form>'
 		echo '      </div>'
 
@@ -348,7 +367,7 @@ pcp_main_bluetooth() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Bluetooth" action="bluetooth.cgi" method="get">'
-	echo '          <input type="submit" value="Bluetooth">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Bluetooth">Bluetooth</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -373,7 +392,7 @@ pcp_main_reboot() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''main.cgi?ACTION=reboot'\'')" method="get">'
-	echo '          <input type="submit" value="Reboot">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Reboot">Reboot</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -403,7 +422,7 @@ pcp_main_diagnostics() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Diagnostics" action="diagnostics.cgi" method="get">'
-	echo '          <input type="submit" value="Diagnostics">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Diagnostics">Diagnostics</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -428,7 +447,7 @@ pcp_main_save_usb() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Saveconfig" action="save2usb.cgi" method="get">'
-	echo '          <input type="submit" value="Save to USB">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Save to USB">Save to USB</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -466,7 +485,7 @@ pcp_main_stop() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Stop" action="stop.cgi" method="get">'
-	echo '          <input type="submit" value="Stop">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Stop">Stop</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -497,7 +516,7 @@ pcp_main_backup() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="backup" action="javascript:pcp_confirm('\''Do a backup on '$NAME'?'\'','\''backup.cgi'\'')" method="get">'
-	echo '          <input type="submit" value="Backup">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Backup">Backup</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -530,7 +549,7 @@ pcp_main_shutdown() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''main.cgi?ACTION=shutdown'\'')" method="get">'
-	echo '          <input type="submit" value="Shutdown">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Shutdown">Shutdown</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -557,7 +576,7 @@ pcp_main_resize_fs() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Resize FS" action="xtras_resize.cgi" method="get">'
-	echo '          <input type="submit" value="Resize FS">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Resize FS">Resize FS</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -583,7 +602,7 @@ pcp_main_extensions() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Stop" action="xtras_extensions.cgi" method="get">'
-	echo '          <input type="submit" value="Extensions">'
+	echo '          <input type="submit" class="'$BUTTON'" value="Extensions">'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -614,7 +633,7 @@ pcp_main_update_pcpbase() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Update" action="updatebase.cgi" method="get">'
-	echo '          <button type="submit" name="ACTION" value="Update">Patch Update</button>'
+	echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="Update">Patch Update</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -640,7 +659,7 @@ pcp_main_minor_update() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Minor" action="minor_update.cgi" method="get">'
-	echo '          <button type="submit" name="ACTION value="initial">Minor Update</button>'
+	echo '          <button type="submit" class="'$BUTTON'" name="ACTION value="initial">Minor Update</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -666,8 +685,8 @@ pcp_main_update_pcp() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
-	echo '          <input type="submit" value="Full Update">'
-	echo '          <input type="hidden" name="ACTION" value="initial">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Full Update">Full Update</button>'
+	echo '          <button type="hidden" class="'$BUTTON'" name="ACTION" value="initial">initial</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -711,7 +730,7 @@ pcp_main_static_ip() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Static IP" action="xtras_staticip.cgi" method="get">'
-	echo '          <input type="submit" value="Static IP">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Static IP">Static IP</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -738,7 +757,7 @@ pcp_main_extras() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Extras" action="xtras.cgi" method="get">'
-	echo '          <input type="submit" value="Extras">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Extras">Extras</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -763,7 +782,7 @@ pcp_main_security() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Security" action="security.cgi" method="get">'
-	echo '          <input type="submit" value="Security">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Security">Security</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -788,7 +807,7 @@ pcp_main_dosfsck() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
-	echo '          <input type="submit" value="DOS fsck">'
+	echo '          <button type="submit" class="'$BUTTON'" value="DOS fsck">DOS fsck</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -807,7 +826,7 @@ pcp_main_dosfsck() {
 
 #------------------------------------------Developer mode fieldset-----------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
-	echo '      <div class="row">'
+	echo '      <h5>Developer options</h5>'
 fi
 #----------------------------------------------------------------------------------------
 
@@ -819,7 +838,7 @@ pcp_main_reset_all() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi?SUBMIT=Reset'\'')" method="get">'
-	echo '          <input type="submit" name="SUBMIT" value="Reset ALL">'
+	echo '          <button type="submit" class="'$BUTTON'" name="SUBMIT" value="Reset ALL">Reset ALL</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -845,7 +864,7 @@ pcp_main_restore_all() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Restore ALL" action="writetoconfig.cgi" method="get">'
-	echo '          <input type="submit" name="SUBMIT" value="Restore ALL">'
+	echo '          <button type="submit" class="'$BUTTON'" name="SUBMIT" value="Restore ALL">Restore ALL</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -860,7 +879,7 @@ pcp_main_restore_all() {
 	echo '      </div>'
 	echo '    </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_restore_all
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_restore_allx
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update config---------------------------------
@@ -871,7 +890,7 @@ pcp_main_update_config() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Update config" action="writetoconfig.cgi" method="get">'
-	echo '          <input type="submit" name="SUBMIT" value="Update config">'
+	echo '          <button type="submit" class="'$BUTTON'" name="SUBMIT" value="Update config">Update config</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -896,7 +915,7 @@ pcp_main_debug() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Debug" action="debug.cgi" method="get">'
-	echo '          <input type="submit" value="Debug">'
+	echo '          <button type="submit" class="'$BUTTON'" value="Debug">Debug</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -921,7 +940,7 @@ pcp_main_copy2fs() {
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="copy2fs" action="xtras_copy2fs.cgi" method="get">'
-	echo '          <input type="submit" value="copy2fs">'
+	echo '          <button type="submit" class="'$BUTTON'" value="copy2fs">copy2fs</button>'
 	echo '        </form>'
 	echo '      </div>'
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-10-29
+# Version: 7.0.0 2020-10-26
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
@@ -85,6 +85,7 @@ pcp_navigation
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
+	
 	echo '<div>'
 #	pcp_table_top "Debug"
 	pcp_debug_variables "html" QUERY_STRING DEBUG d MODE m TEST t ACTION
