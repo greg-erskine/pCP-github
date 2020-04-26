@@ -84,8 +84,8 @@ pcp_main_squeezelite_indication() {
 	else
 		pcp_red_cross "not running"
 	fi
-	pcp_incr_id
 
+	pcp_incr_id
 	echo '    <div class="form-group row">'
 	echo '      <div class="'$COLUMN1'">'$INDICATOR'</div>'
 	echo '      <div class="'$COLUMN2'">'
@@ -97,7 +97,6 @@ pcp_main_squeezelite_indication() {
 	fi
 
 	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
-
 	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <ul>'
 	echo '            <li><span class="indicator_green">&#x2714;</span> = Squeezelite running.</li>'
@@ -130,9 +129,7 @@ pcp_main_lms_indication() {
 	echo '      <div class="'$COLUMN1'">'$INDICATOR'</div>'
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>LMS is '$STATUS'&nbsp;&nbsp;'
-
 	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
-
 	echo '        </p>'
 	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <ul>'
@@ -222,9 +219,9 @@ pcp_main_restart_shairport() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Restart Squeezelite and Shairport with new settings&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will kill the Squeezelite and Shairport processes then restart them.</p>'
 	echo '          <p><b>Note:</b></p>'
 	echo '          <ul>'
@@ -379,9 +376,9 @@ pcp_main_reboot() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Reboot piCorePlayer&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will reboot piCorePlayer.</p>'
 	echo '          <p><b>Note: </b>This will do the following:</p>'
 	echo '          <ul>'
@@ -409,9 +406,9 @@ pcp_main_diagnostics() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Go to Diagnostics page&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will go to the Diagnostics page.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -434,9 +431,9 @@ pcp_main_save_usb() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
 	echo '          <p><b>Note:</b></p>'
 	echo '          <ul>'
@@ -472,9 +469,9 @@ pcp_main_stop() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Stop Squeezelite&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will kill the Squeezelite process.</p>'
 	echo '          <p>Click [Restart] to start Squeezelite again.</p>'
 	echo '          <p><b>Note:</b></p>'
@@ -503,9 +500,9 @@ pcp_main_backup() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Backup your changes&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will do a piCore backup to your SD card.</p>'
 	echo '          <p>piCorePlayer does a backup after it changes any setting, so this option is really just for "peace of mind"'
 	echo '             before doing a shutdown or reboot.</p>'
@@ -536,9 +533,9 @@ pcp_main_shutdown() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Shutdown piCorePlayer&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will shutdown piCorePlayer gracefully.</p>'
 	echo '          <p>To restart piCorePlayer you will need to remove then reapply the power.</p>'
 	echo '          <p><b>Note: </b>This option is not really required - piCorePlayer can be turned off at the switch.</p>'
@@ -563,9 +560,9 @@ pcp_main_resize_fs() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Resize file system&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This command will resize the file system on the SD card.</p>'
 	echo '          <p><b>Note:</b> Only required if you need to add extra extensions.</p>'
 	echo '        </div>'
@@ -589,9 +586,9 @@ pcp_main_extensions() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Search, load or delete piCore extensions&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This page gives you the option to search, load or delete piCore extensions.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -620,9 +617,9 @@ pcp_main_update_pcpbase() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Patch pCP current version extensions&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will check for updated pcp extensions and update if needed.</p>'
 	echo '          <p>pCP Version will remain unchanged.</p>'
 	echo '        </div>'
@@ -643,12 +640,11 @@ pcp_main_minor_update() {
 	echo '          <button type="submit" class="'$BUTTON'" name="ACTION value="initial">Minor Update</button>'
 	echo '        </form>'
 	echo '      </div>'
-
 	echo '      <div class="'$COLUMN2'">'
-	echo '        <p>Check for minor pCP update.&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '        <p>Check for minor pCP update&nbsp;&nbsp;'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will check for a pCP minor upgrade.</p>'
 	echo '          <p>This will change the pCP verion.</p>'
 	echo '        </div>'
@@ -673,9 +669,9 @@ pcp_main_update_pcp() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Insitu Update piCorePlayer without removing the SD card&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This can be used when the SD card slot is not accessible.</p>'
 	echo '          <p><b>Note:</b></p>'
 	echo '          <ul>'
@@ -717,9 +713,9 @@ pcp_main_static_ip() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Static IP for network interface&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</p>'
 	echo '          <p>This option allows you to set a static IP for network interface.</p>'
 	echo '          <p>You will need to re-install static IP after an insitu update.</p>'
@@ -744,9 +740,9 @@ pcp_main_extras() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Go to Extras page&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will go to the Extras page.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -769,9 +765,9 @@ pcp_main_security() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Go to Security page&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will go to the Security page.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -794,9 +790,9 @@ pcp_main_dosfsck() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>DOS file system check&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This option allows you to run dosfsck on the SD card.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -825,9 +821,9 @@ pcp_main_reset_all() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Reset all settings in configuration file&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This command will reset all settings in the configuration file to the defaults that'
 	echo '             are defined in pcp-functions. </p>'
 	echo '        </div>'
@@ -851,9 +847,9 @@ pcp_main_restore_all() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Restore all settings in configuration file&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This command will restore all settings in the configuration file to those found in'
 	echo '             newconfig.cfg on USB flash memory.</p>'
 	echo '        </div>'
@@ -877,9 +873,9 @@ pcp_main_update_config() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Update configuration file&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This command will update your configuration file.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -902,9 +898,9 @@ pcp_main_debug() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Go to Debug page&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will go to the Debug page.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -927,9 +923,9 @@ pcp_main_copy2fs() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Set copy2fs flag&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This sets the copy2fs flag so extensions are loaded into ram.</p>'
 	echo '        </div>'
 	echo '      </div>'
