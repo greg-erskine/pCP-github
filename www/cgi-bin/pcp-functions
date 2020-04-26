@@ -1241,11 +1241,13 @@ pcp_redirect_button() {
 	# $2 - redirection URL
 	# $3 - redirection delay
 	echo '<!-- Start of pcp_redirect_button -->'
-	echo '<form name="redirect button" action="'$2'" method="get">'
-	echo '  <p>'
-	echo '    <input class="large12" class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
-	echo '  </p>'
-	echo '</form>'
+	echo '<div>'
+	echo '  <form name="redirect button" action="'$2'" method="get">'
+	echo '    <p>'
+	echo '      <input class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
+	echo '    </p>'
+	echo '  </form>'
+	echo '</div>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
 	echo '<!-- End of pcp_redirect_button -->'
 }

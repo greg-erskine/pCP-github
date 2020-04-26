@@ -74,28 +74,6 @@ fi
 #----------------------------------------------------------------------------------------
 echo '    <h5>Main piCorePlayer functions</h5>'
 
-
-
-echo '    <p>'
-echo '      <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button">'
-echo '        Link with href'
-echo '      </a>'
-echo '      <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample">'
-echo '        Button with data-target'
-echo '      </button>'
-echo '    </p>'
-echo '    <div class="collapse" id="collapseExample">'
-echo '      <div class="card card-body">'
-echo '        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.'
-echo '      </div>'
-echo '    </div>'
-
-
-
-#echo '<svg class="bi bi-check" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-#echo '  <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z" clip-rule="evenodd"/>'
-#echo '</svg'
-
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Squeezelite Indication------------------------------
@@ -118,8 +96,9 @@ pcp_main_squeezelite_indication() {
 		echo '        <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
 	fi
 
-	echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
+
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <ul>'
 	echo '            <li><span class="indicator_green">&#x2714;</span> = Squeezelite running.</li>'
 	echo '            <li><span class="indicator_red">&#x2718;</span> = Squeezelite not running.</li>'
@@ -151,9 +130,11 @@ pcp_main_lms_indication() {
 	echo '      <div class="'$COLUMN1'">'$INDICATOR'</div>'
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>LMS is '$STATUS'&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
+
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <ul>'
 	echo '            <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
 	echo '            <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
@@ -179,9 +160,9 @@ pcp_main_shairport_indication() {
 	echo '      <div class="'$COLUMN1'">'$INDICATOR'</div>'
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Shairport is '$STATUS'&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <ul>'
 	echo '            <li><span class="indicator_green">&#x2714;</span> = Shairport running.</li>'
 	echo '            <li><span class="indicator_red">&#x2718;</span> = Shairport not running.</li>'
@@ -211,9 +192,11 @@ pcp_main_restart_squeezelite() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Restart Squeezelite with new settings&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
+
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will kill the Squeezelite process then restart it.</p>'
 	echo '          <p><b>Note:</b></p>'
 	echo '          <ul>'
@@ -271,9 +254,9 @@ pcp_main_update_sqlt() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Update Squeezelite Extensions&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will update the pCP Squeezelite extension from the pCP repository.</p>'
 	echo '          <p><b>Note:</b></p>'
 	echo '          <ul>'
@@ -306,9 +289,7 @@ pcp_main_ffmpeg() {
 		VERSIONlarge="selected"
 	fi
 
-
 	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
 
 	if [ "${VERSIONsmall}" = "selected" ]; then
 
@@ -321,9 +302,9 @@ pcp_main_ffmpeg() {
 
 		echo '      <div class="'$COLUMN2'">'
 		echo '        <p>Install FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 		echo '        </p>'
-		echo '        <div id="'$ID'" class="less">'
+		echo '        <div id="x'$ID'" class="collapse">'
 		echo '          <p>This will download and install FFMpeg Libraries from the pCP repository.</p>'
 		echo '          <p><b>Note:</b></p>'
 		echo '          <ul>'
@@ -345,9 +326,9 @@ pcp_main_ffmpeg() {
 
 		echo '      <div class="'$COLUMN2'">'
 		echo '        <p>Remove FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 		echo '        </p>'
-		echo '        <div id="'$ID'" class="less">'
+		echo '        <div id="x'$ID'" class="collapse">'
 		echo '          <p>This will remove the FFMpeg Libraries from the system.</p>'
 		echo '        </div>'
 		echo '      </div>'
@@ -373,9 +354,9 @@ pcp_main_bluetooth() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Go to Bluetooth page&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" class="text-warning" data-toggle="collapse" data-target="#x'$ID'">Help></a>'
 	echo '        </p>'
-	echo '        <div id="'$ID'" class="less">'
+	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will go to the Bluetooth page.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -686,7 +667,7 @@ pcp_main_update_pcp() {
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Full Update">Full Update</button>'
-	echo '          <button type="hidden" class="'$BUTTON'" name="ACTION" value="initial">initial</button>'
+	echo '          <input type="hidden" name="ACTION" value="initial">'
 	echo '        </form>'
 	echo '      </div>'
 
