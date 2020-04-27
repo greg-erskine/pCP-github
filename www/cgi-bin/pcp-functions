@@ -573,7 +573,7 @@ pcp_html_head() {
 	echo '</head>'
 	echo ''
 	[ "$5" != "nobody" ] && echo '<body>'
-	echo '<div class="container">'
+	echo '<div class="container bg-light">'
 
 	if [ "$PLAYERTABS" = "yes" ]; then
 		echo '  <script>setplayertabs();</script>'
