@@ -1,7 +1,7 @@
 #!/bin/sh
 # Diagnostics script
 
-# Version: 4.0.0 2018-06-15
+# Version: 7.0.0 2020-04-27
 
 . pcp-functions
 . pcp-rpi-functions
@@ -15,22 +15,13 @@ pcp_html_head "Diagnostics" "GE"
 
 pcp_banner
 pcp_diagnostics
-pcp_running_script
 
 #=========================================================================================
 # Diagnostics
 #-----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Diagnostics</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
+
+#echo '      <div class="row">'
+
 
 pcp_textarea_inform "piCorePlayer version: $(pcp_picoreplayer_version)" "cat ${PCPVERSIONCFG}; echo \"WWW_BUILD: $WWW_BUILD\"" 60 log
 pcp_textarea_inform "piCore version: $(pcp_picore_version)" "version" 60 log
@@ -59,19 +50,11 @@ pcp_textarea_inform "Backup mydata" "tar tzf /$TCEMNT/tce/mydata.tgz" 300 log
 pcp_textarea_inform "lsmod" "lsmod" 300 log
 pcp_textarea_inform "Directory of www/cgi-bin" "ls -al" 300 log
 
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
 
 pcp_footer
 pcp_copyright
-
+#echo '</div>'
 echo '</body>'
 echo '</html>'

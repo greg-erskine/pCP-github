@@ -584,6 +584,7 @@ pcp_html_head() {
 pcp_html_end() {
 	pcp_footer
 	pcp_copyright
+	echo '</div>'
 	echo '</body>'
 	echo '</html>'
 	exit
@@ -615,8 +616,8 @@ pcp_navigation() {
 	esac
 
 	echo ' <!-- Start of pcp_navigation toolbar -->'
-	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-dark">'
-	echo '    <a class="navbar-brand" href="#">pCP</a>'
+	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-primary">'
+	echo '    <a class="navbar-brand" href="main.cgi">pCP</a>'
 	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
 	echo '      <span class="navbar-toggler-icon"></span>'
 	echo '    </button>'
@@ -674,17 +675,17 @@ pcp_navigation() {
 pcp_footer() {
 	if [ "$1" = "static" ]; then
 		echo '<!-- Start of pcp_footer -->'
-		echo '<div class="row">'
-		echo '  <div class="col-12 text-center">'
-		echo '  <p>
-		            '$NAME' |
-		            piCorePlayer v'$(pcp_picoreplayer_version)' |
-		            www v'$WWW_BUILD' |
-		            linux '$(pcp_linux_release)' |
-		            piCore v'$(pcp_picore_version)' |
-		            Squeezelite v'$(pcp_squeezelite_version)'</p>'
+		echo '  <div class="row">'
+		echo '    <div class="col-12 text-center bg-primary text-light">'
+		echo '      <small>
+		                '$NAME' |
+		                piCorePlayer v'$(pcp_picoreplayer_version)' |
+		                www v'$WWW_BUILD' |
+		                linux '$(pcp_linux_release)' |
+		                piCore v'$(pcp_picore_version)' |
+		                Squeezelite v'$(pcp_squeezelite_version)'</small>'
+		echo '    </div>'
 		echo '  </div>'
-		echo '</div>'
 		echo '<!-- End of pcp_footer -->'
 	else
 		if [ -f "/tmp/footer.html" ] && [ $MODE -lt $MODE_DEVELOPER ]; then
@@ -704,7 +705,7 @@ pcp_footer() {
 
 			echo '<!-- Start of pcp_footer -->'
 #			echo '  <div class="row">'
-			echo '    <div class="col-12 text-center bg-dark text-light">'
+			echo '    <div class="col-12 text-center bg-primary text-light">'
 			echo '      <small>
 				        '$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
 				        '$NAME' |
@@ -770,7 +771,7 @@ pcp_xtras() {
 pcp_picoreplayers_toolbar() {
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<div>'
-	echo '<p>'
+#	echo '<p>'
 	echo '  <a id="PlayerTabsAfter" class=" " href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help</a>'
 
 	if [ $MODE -ge $MODE_PLAYER ] && [ "$PLAYERTABS" = "yes" ]; then
@@ -782,7 +783,8 @@ pcp_picoreplayers_toolbar() {
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 		echo '  <a class=" " href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
 	fi
-	echo '</p>'
+
+#	echo '</p>'
 	echo '</div>'
 	echo '<!-- End of pcp_picoreplayers toolbar -->'
 }
@@ -888,10 +890,14 @@ pcp_textarea() {
 
 pcp_textarea_inform() {
 	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
-	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
-	echo '<textarea class="inform" style="height:'$3'px">'
-	eval $2
-	echo '</textarea>'
+	[ "$TITLE" = "none" ] || echo '<h5>[ INFO ] '$TITLE'</h5>'
+	echo '  <div class="row ol-12">'
+	echo '    <form>'
+	echo '      <textarea class="form-control col-12">'
+	            eval $2
+	echo '      </textarea>'
+	echo '    </form>'
+	echo '  </div>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
 }
 
