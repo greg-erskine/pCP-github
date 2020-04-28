@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-04-27
+# Version: 7.0.0 2020-04-28
 
 . pcp-functions
 . pcp-lms-functions
@@ -71,10 +71,16 @@ if [ "$ACTION" = "shutdown" ]; then
 	exit
 fi
 
+	echo '    <div class="alert alert-primary alert-dismissible fade show" role="alert">'
+	echo '      <button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+	echo '        <span aria-hidden="true">&times;</span>'
+	echo '      </button>'
+	echo '      Reboot pending.'
+	echo '    </div>'
+
 #========================================================================================
 # Main piCorePlayer operations
 #----------------------------------------------------------------------------------------
-echo '    <h5>Main piCorePlayer functions</h5>'
 
 #----------------------------------------------------------------------------------------
 
@@ -237,6 +243,30 @@ pcp_main_restart_shairport() {
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
 #----------------------------------------------------------------------------------------
+
+echo '    <h5>Main piCorePlayer functions</h5>'
+
+
+
+echo '    <ul class="nav navbar-dark nav-tabs">'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link active" href="#!">Main piCorePlayer functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Advanced functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Updates</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Beta</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Developer</a>'
+echo '      </li>'
+echo '    </ul>'
+
+
 
 #------------------------------------------Update Squeezelite----------------------------
 pcp_main_update_sqlt() {
