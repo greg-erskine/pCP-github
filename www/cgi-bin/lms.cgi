@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-01-19
+# Version: 7.0.0 2020-04-29
 
 . pcp-functions
 . pcp-rpi-functions
@@ -8,10 +8,8 @@
 
 pcp_html_head "LMS Main Page" "SBP"
 
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
 pcp_remove_query_string
 pcp_httpd_query_string
 
@@ -40,9 +38,7 @@ WGET="/bin/busybox wget"
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
 	pcp_incr_id
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <div class="row">'
 	echo '        <fieldset class="warning">'
 	echo '          <table class="bggrey percent100">'
@@ -63,9 +59,7 @@ pcp_lms_warning() {
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 pcp_install_lms() {
@@ -413,27 +407,17 @@ df | grep -qs ntfs
 # Warning message if using AudioCore
 #----------------------------------------------------------------------------------------
 pcp_lms_audiocore_warning() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <div class="row">'
-	echo '        <fieldset class="warning">'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
+
 	echo '                <p><b>Warning:</b> Running LMS on the Realtime AudioCore is not recommended.</p>'
 	echo '                <ul>'
 	echo '                  <li>Realtime kernels do not work well in a server environment.</li>'
 	echo '                  <li>If it does not work properly, you have been warned.</li>'
 	echo '                </ul>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
+
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 [ $(pcp_audio_core) -eq 1 -a $MODE -ge $MODE_SERVER ] && pcp_lms_audiocore_warning
 
@@ -487,7 +471,7 @@ pcp_lms_enable_lms() {
 		no) LMSERVERno="checked" ;;
 	esac
 
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '          <form name="Select" action="writetolms.cgi" method="get">'
 	echo '            <table class="bggrey percent100">'
@@ -527,7 +511,7 @@ pcp_lms_server_interface() {
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
 	LMS_SERVER_WEB_URL="http://${LMS_SERVER_WEB}:${LMSPORT}"
 
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '          <form name="LMS_Interface" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '            <table class="bggrey percent100">'
@@ -557,7 +541,7 @@ pcp_lms_configure_lms() {
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
 	LMS_SERVER_WEB_URL="http://${LMS_SERVER_WEB}:${LMSPORT}/settings/index.html"
 
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '          <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '            <table class="bggrey percent100">'
@@ -585,7 +569,7 @@ echo '          <form name="LMS" action="'$0'">'
 echo '            <table class="bggrey percent100">'
 #--------------------------------------Rescan LMS----------------------------------------
 pcp_rescan_lms() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -612,7 +596,7 @@ pcp_rescan_lms() {
 
 #------------------------------------------Install/uninstall LMS-------------------------
 pcp_lms_install_lms() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -646,7 +630,7 @@ pcp_lms_install_lms() {
 
 #------------------------------------------Remove LMS cache-------------------------
 pcp_lms_remove_cache() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -668,7 +652,7 @@ pcp_lms_remove_cache() {
 
 #------------------------------------------Start LMS-------------------------------------
 pcp_lms_start_lms() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -689,7 +673,7 @@ pcp_lms_start_lms() {
 
 #------------------------------------------Stop LMS--------------------------------------
 pcp_lms_stop_lms() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -710,7 +694,7 @@ pcp_lms_stop_lms() {
 
 #---------------------------------Restart LMS--------------------------------------------
 pcp_lms_restart_lms() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -742,7 +726,7 @@ pcp_lms_no_mysb() {
 		*) NOMYSBno="checked";;
 	esac
 
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -777,7 +761,7 @@ pcp_lms_show_logs() {
 		*) LOGSHOWno="checked" ;;
 	esac
 
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -812,7 +796,7 @@ pcp_lms_show_cconvert() {
 		*) CCSHOWno="checked" ;;
 	esac
 
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -835,7 +819,7 @@ pcp_lms_show_cconvert() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -860,7 +844,7 @@ echo '          </form>'
 
 #-------------------------------custom convert-------------------------------------------
 pcp_lms_customconvert() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '          <form name="Custom" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
 	echo '            <table class="bggrey percent100">'
@@ -888,7 +872,7 @@ pcp_lms_customconvert() {
 
 #--------------------------------------Update LMS----------------------------------------
 pcp_update_lms() {
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '          <form name="Update" action="lms-update.cgi">'
 	echo '            <table class="bggrey percent100">'
@@ -905,7 +889,7 @@ pcp_update_lms() {
 	echo '                  </div>'
 	echo '                </td>'
 	echo '              </tr>'
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -953,7 +937,7 @@ pcp_slimserver_persistence() {
 	COL3="210"
 	COL4="380"
 	pcp_start_row_shade
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
@@ -986,7 +970,7 @@ pcp_slimserver_persistence() {
 			else
 				USByes=""
 			fi
-			pcp_toggle_row_shade
+		
 			echo '              <tr class="'$ROWSHADE'">'
 			echo '                <td class="column'$COL1' center">'
 			echo '                  <p>'
@@ -1022,7 +1006,7 @@ pcp_slimserver_persistence() {
 		else
 			Netyes=""
 		fi
-		pcp_toggle_row_shade
+	
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column'$COL1' center">'
 		echo '                  <p>'
@@ -1050,7 +1034,7 @@ pcp_slimserver_persistence() {
 		usb:|net:)
 			if [ $LMSMNTFOUND -eq 0 ]; then
 				[ -f /home/tc/.slimserver.cfg ] && . /home/tc/.slimserver.cfg
-				pcp_toggle_row_shade
+			
 				echo '              <tr class="'$ROWSHADE'">'
 				echo '                <td class="column'$COL1' center">'
 				echo '                  <p>'
@@ -1071,7 +1055,7 @@ pcp_slimserver_persistence() {
 		*);;
 	esac
 	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
 	echo '                  <p>'
@@ -1094,7 +1078,7 @@ pcp_slimserver_persistence() {
 	fi
 	echo '              </tr>'
 #--------------------------------------Submit button-------------------------------------
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td  class="column150 center">'
@@ -1190,12 +1174,12 @@ pcp_extra_filesys() {
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
 	if [ "$EXTRAFSYS" = "yes" ]; then
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		[ -x /usr/local/sbin/mount.exfat ] && EXFATFS="yes" || EXFATFS="no"
 		if [ "$EXFATFS" = "no" ]; then
@@ -1318,7 +1302,7 @@ pcp_mount_usbdrives() {
 	COL5="75"
 	COL6="300"
 	COL7="75"
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
 	echo '                <td class="column'$COL2'"><p><b>Mount Point</b></p></td>'
@@ -1370,7 +1354,7 @@ pcp_mount_usbdrives() {
 				esac
 			J=$((J+1))
 			done
-			pcp_toggle_row_shade
+		
 			case "$PTTYPE" in
 				fat*|vfat|ext*) DISABLE="";;
 				exfat)
@@ -1433,7 +1417,7 @@ pcp_mount_usbdrives() {
 	#------------------------------------------------------------------------------------
 	fdisk -l | grep -q "Found valid GPT"
 	if [ $? -eq 0 ]; then
-		pcp_toggle_row_shade
+	
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column'$COL1' center">'
 		echo '                </td>'
@@ -1456,7 +1440,7 @@ pcp_mount_usbdrives() {
 			if [ "$TST" = "no" ]; then
 				# Drive is actually not attached, but we needed it to be.
 				NUM_USB_ATTACHED=$((NUM_USB_ATTACHED+1))
-				pcp_toggle_row_shade
+			
 				echo '              <tr class="'$ROWSHADE'">'
 				echo '                <td class="column'$COL1' center">'
 				echo '                  <p>'
@@ -1475,7 +1459,7 @@ pcp_mount_usbdrives() {
 		J=$((J+1))
 	done
 	#--------------------------------------Submit button---------------------------------
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '                <tr class="'$ROWSHADE'">'
 	echo '                  <td class="column150 center">'
@@ -1699,7 +1683,7 @@ pcp_mount_netdrives() {
 	COL6="100"
 	COL7="100"
 	COL8="150"
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center"><p><b>Enabled</b></p></td>'
 	echo '                <td class="column'$COL2'"><p><b>Mount Point</b></p></td>'
@@ -1748,7 +1732,7 @@ pcp_mount_netdrives() {
 		else
 			DISABLE=""
 		fi
-		pcp_toggle_row_shade
+	
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td class="column'$COL1' center">'
 		echo '                  <p>'
@@ -1799,7 +1783,7 @@ pcp_mount_netdrives() {
 		I=$((I+1))
 	done
 	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column'$COL1' center">'
 	echo '                  <p>'
@@ -1812,7 +1796,7 @@ pcp_mount_netdrives() {
 	echo '                </td>'
 	echo '              </tr>'
 	#--------------------------------------Submit button---------------------------------
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	if [ "$EXTRAFSYS" = "no" ]; then
@@ -1908,7 +1892,7 @@ pcp_samba() {
 #----------------------------------------------------------------------------------------
 #	pcp_table_padding "2"
 #----------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
+
 	pcp_incr_id
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150 center">'
@@ -1972,7 +1956,7 @@ pcp_samba() {
 			*) SAMBAno="checked" ;;
 		esac
 
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2004,7 +1988,7 @@ pcp_samba() {
 		echo '            <form name="Samba_Run" action="'$0'">'
 		echo '              <table class="bggrey percent100">'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2020,7 +2004,7 @@ pcp_samba() {
 		echo '                  </td>'
 		echo '                </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2036,7 +2020,7 @@ pcp_samba() {
 		echo '                  </td>'
 		echo '                </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2063,7 +2047,7 @@ pcp_samba() {
 		echo '            <form name="Passwd" action="writetosamba.cgi" method="get">'
 		echo '              <table class="bggrey percent100">'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2104,7 +2088,7 @@ pcp_samba() {
 		echo '            <form name="Select" action="writetosamba.cgi" method="get">'
 		echo '              <table class="bggrey percent100">'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2123,7 +2107,7 @@ pcp_samba() {
 		echo '                  </td>'
 		echo '                </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+	
 		pcp_incr_id
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
@@ -2149,7 +2133,7 @@ pcp_samba() {
 		COL5="150"
 		COL6="100"
 		COL7="150"
-		pcp_toggle_row_shade
+	
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column'$COL1' center"><p><b>Share Name</b></p></td>'
 		echo '                  <td class="column'$COL2'"><p><b>Share Path</b></p></td>'
@@ -2163,7 +2147,7 @@ pcp_samba() {
 		do
 			TST=$(eval echo "\${SHARE${I}}")
 			[ "$TST" != "" ] && REQ="required" || REQ=""
-			pcp_toggle_row_shade
+		
 			echo '                <tr class="'$ROWSHADE'">'
 			echo '                  <td class="column'$COL1' center">'
 			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
@@ -2227,7 +2211,7 @@ pcp_samba() {
 		echo '                  }'
 		echo '                </script>'
 		#----------------------------------Submit button---------------------------------
-		pcp_toggle_row_shade
+	
 		echo '                <tr class="'$ROWSHADE'">'
 		echo '                  <td class="column150 center">'
 		echo '                    <input type="hidden" name="COMMAND" value="setconfig">'

@@ -9,12 +9,12 @@ pcp_html_head "Main Page" "SBP"
 
 pcp_httpd_query_string
 
-pcp_controls
+pcp_controls1
 pcp_navbar
 
-COLUMN1="col-3"
+COLUMN1="col-sm-3"
 COLUMN2="col-9"
-BUTTON="btn btn-primary"
+BUTTON="btn btn-primary w-50"
 
 #========================================================================================
 # Reboot page.
@@ -179,6 +179,28 @@ pcp_main_shairport_indication() {
 [ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
 
+#echo '    <h5>Main piCorePlayer functions</h5>'
+
+echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
+
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link active" href="#!">Main piCorePlayer functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Advanced functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Updates</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Beta functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link" href="#!">Developer functions</a>'
+echo '      </li>'
+
+echo '    </ul>'
+
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
 pcp_main_restart_squeezelite() {
 
@@ -188,7 +210,7 @@ pcp_main_restart_squeezelite() {
 
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Restart" action="restartsqlt.cgi" method="get">'
-	echo '          <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
+	echo '          <button type="submit" class="'$BUTTON'" style="width: 150px" value="Restart">Restart</button>'
 	echo '        </form>'
 	echo '      </div>'
 
@@ -241,29 +263,6 @@ pcp_main_restart_shairport() {
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
 #----------------------------------------------------------------------------------------
-
-echo '    <h5>Main piCorePlayer functions</h5>'
-
-echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
-
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link active" href="#!">Main piCorePlayer functions</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Advanced functions</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Updates</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Beta functions</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Developer functions</a>'
-echo '      </li>'
-
-echo '    </ul>'
-
 
 
 #------------------------------------------Update Squeezelite----------------------------

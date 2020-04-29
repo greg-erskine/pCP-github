@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 6.0.0 2019-10-29
+# Version: 7.0.0 2020-04-29
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
@@ -41,6 +41,26 @@ pcp_controls() {
 		echo '    </td>'
 		echo '  </tr>'
 		echo '</table>'
+		echo '<!-- End of pcp_lms_controls toolbar -->'
+	else
+		echo '<!-- pcp_lms_controls toolbar set to no -->'
+	fi
+}
+
+pcp_controls1() {
+	if [ "$LMSCONTROLS" = "yes" ]; then
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
+		echo '<!-- Start of pcp_lms_controls toolbar -->'
+		echo '  <div class="btn-group" role="group">'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')"><b>R</b></button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">'$(pcp_bi_volume_up_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">'$(pcp_bi_volume_down_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$(pcp_bi_skip_start_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">'$(pcp_bi_skip_end_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">'$(pcp_bi_play_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">'$(pcp_bi_pause_fill)'</button>'
+		echo '  </div>'
 		echo '<!-- End of pcp_lms_controls toolbar -->'
 	else
 		echo '<!-- pcp_lms_controls toolbar set to no -->'
