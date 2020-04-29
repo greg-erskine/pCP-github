@@ -6,7 +6,7 @@
 
 pcp_html_head "Backup mydata" "SBP"
 
-pcp_banner
+pcp_navbar
 
 echo '<div>'
 pcp_backup

@@ -257,6 +257,7 @@ pcp_bi_check() {
 	echo '</svg>'
 }
 
+# Changed width="2em" height="2em"
 pcp_bi_x() {
 	echo '<svg class="bi bi-x text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
 	echo '  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
@@ -264,6 +265,7 @@ pcp_bi_x() {
 	echo '</svg>'
 }
 
+# Changed width="2em" height="2em"
 pcp_bi_info_circle() {
 	echo '<svg class="bi bi-info-circle text-info" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
 	echo '  <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 108 0a8 8 0 000 16z" clip-rule="evenodd"/>'
@@ -271,6 +273,8 @@ pcp_bi_info_circle() {
 	echo '  <circle cx="8" cy="4.5" r="1"/>'
 	echo '</svg>'
 }
+
+HELPBADGE="$(pcp_bi_info_circle)"
 
 #========================================================================================
 # Free space on tce mount device  default:/mnt/mmcblk0p2
@@ -604,7 +608,11 @@ pcp_banner() {
 	echo '  <!-- End of pcp_banner -->'
 }
 
-pcp_navigation() {
+pcp_navigation() {	# GE Delete.
+	pcp_navbar
+}
+
+pcp_navbar() {
 
 	case "$0" in
 		main.cgi)        local STYLE_MAIN="active" ;;
@@ -617,33 +625,71 @@ pcp_navigation() {
 
 	echo ' <!-- Start of pcp_navigation toolbar -->'
 	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-primary">'
-	echo '    <a class="navbar-brand" href="main.cgi">pCP</a>'
+	echo '    <a class="navbar-brand" href="main.cgi">'
+	echo '      <img src="../images/pCP.png" height="30" alt="piCorePlayer"> piCorePlayer</a>'
 	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
 	echo '      <span class="navbar-toggler-icon"></span>'
 	echo '    </button>'
-	echo '  '
+
 	echo '    <div class="collapse navbar-collapse" id="navbarSupportedContent">'
 	echo '      <ul class="navbar-nav">'
 	echo '        <li class="nav-item '$STYLE_MAIN'">'
-	echo '          <a class="nav-link" href="main.cgi">Main</a>'
+	echo '          <a class="nav-link" href="main.cgi">Main page</a>'
 	echo '        </li>'
 	echo '        <li class="nav-item '$STYLE_SQUEEZELITE'">'
-	echo '          <a class="nav-link" href="squeezelite.cgi">Squeezelite</a>'
+	echo '          <a class="nav-link" href="squeezelite.cgi">Squeezelite settings</a>'
 	echo '        </li>'
 	echo '        <li class="nav-item '$STYLE_WIFI'">'
-	echo '          <a class="nav-link" href="wifi.cgi">Wifi</a>'
+	echo '          <a class="nav-link" href="wifi.cgi">Wifi settings</a>'
 	echo '        </li>'
 	echo '        <li class="nav-item '$STYLE_TWEAKS'">'
 	echo '          <a class="nav-link" href="tweaks.cgi">Tweaks</a>'
 	echo '        </li>'
 	echo '        <li class="nav-item '$STYLE_LMS'">'
-	echo '          <a class="nav-link" href="lms.cgi">LMS</a>'
+	echo '          <a class="nav-link" href="lms.cgi">LMS settings</a>'
 	echo '        </li>'
 	echo '        <li class="nav-item '$STYLE_ABOUT'">'
 	echo '          <a class="nav-link" href="about.cgi">About</a>'
 	echo '        </li>'
 	echo '      </ul>'
 	echo '    </div>'
+
+	echo '    <div class="navbar-nav">'
+
+	# LMS web interface tab
+	if [ $MODE -ge $MODE_PLAYER ] && [ "$PLAYERTABS" = "yes" ]; then
+		if [ "$LMSERVER" = "yes" ]; then
+			[ x"" = x"$(pcp_eth0_ip)" ] && LMSIP=$(pcp_wlan0_ip) || LMSIP=$(pcp_eth0_ip)
+		else
+			LMSIP=$(pcp_lmsip)
+		fi
+		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
+		echo '        <a class="nav-item nav-link" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+	fi
+
+	# Online pCP Help
+	echo '        <a id="xxxPlayerTabsAfter"
+	                 class="nav-item nav-link"
+	                 href="https://www.picoreplayer.org/main_about.shtml"
+	                 title="Online pCP Help"
+	                 target="_blank">Help</a>'
+
+
+	echo '    <div class="nav-item dropdown">'
+	echo '        <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">'$NAME'</a>'
+	echo '        <div class="dropdown-menu" collapse>'
+	echo '            <a id="PlayerTabsAfter" href="#""></a>'
+	echo '        </div>'
+	echo '    </div>'
+
+
+
+
+
+
+
+	echo '    </div>'
+
 	echo '  </nav>'
 	echo '<!-- End of pcp_navigation toolbar -->'
 
@@ -772,7 +818,7 @@ pcp_picoreplayers_toolbar() {
 	echo '<!-- Start of pcp_picoreplayers toolbar -->'
 	echo '<div>'
 #	echo '<p>'
-	echo '  <a id="PlayerTabsAfter" class=" " href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help</a>'
+	echo '  <a id="xxxPlayerTabsAfter" class=" " href="https://www.picoreplayer.org/main_about.shtml" title="Help" target="_blank">Help</a>'
 
 	if [ $MODE -ge $MODE_PLAYER ] && [ "$PLAYERTABS" = "yes" ]; then
 		if [ "$LMSERVER" = "yes" ]; then

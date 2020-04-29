@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-04-28
+# Version: 7.0.0 2020-04-29
 
 . pcp-functions
 . pcp-lms-functions
@@ -9,16 +9,12 @@ pcp_html_head "Main Page" "SBP"
 
 pcp_httpd_query_string
 
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
 
 COLUMN1="col-3"
 COLUMN2="col-9"
 BUTTON="btn btn-primary"
-#HELPBADGE='<span class="badge badge-pill badge-info">'$(pcp_bi_check)'</span>'
-HELPBADGE="$(pcp_bi_info_circle)"
 
 #========================================================================================
 # Reboot page.
@@ -189,6 +185,7 @@ pcp_main_restart_squeezelite() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Restart" action="restartsqlt.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
@@ -197,9 +194,7 @@ pcp_main_restart_squeezelite() {
 
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Restart Squeezelite with new settings&nbsp;&nbsp;'
-
 	echo '          <a type="button" data-toggle="collapse" data-target="#x'$ID'">'$HELPBADGE'</a>'
-
 	echo '        </p>'
 	echo '        <div id="x'$ID'" class="collapse">'
 	echo '          <p>This will kill the Squeezelite process then restart it.</p>'
@@ -211,6 +206,7 @@ pcp_main_restart_squeezelite() {
 	echo '          </ul>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 
@@ -219,6 +215,7 @@ pcp_main_restart_shairport() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Restart" action="restartsqlt.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
@@ -239,6 +236,7 @@ pcp_main_restart_shairport() {
 	echo '          </ul>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
@@ -246,9 +244,8 @@ pcp_main_restart_shairport() {
 
 echo '    <h5>Main piCorePlayer functions</h5>'
 
+echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
 
-
-echo '    <ul class="nav navbar-dark nav-tabs">'
 echo '      <li class="nav-item">'
 echo '        <a class="nav-link active" href="#!">Main piCorePlayer functions</a>'
 echo '      </li>'
@@ -259,11 +256,12 @@ echo '      <li class="nav-item">'
 echo '        <a class="nav-link" href="#!">Updates</a>'
 echo '      </li>'
 echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Beta</a>'
+echo '        <a class="nav-link" href="#!">Beta functions</a>'
 echo '      </li>'
 echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Developer</a>'
+echo '        <a class="nav-link" href="#!">Developer functions</a>'
 echo '      </li>'
+
 echo '    </ul>'
 
 
@@ -274,6 +272,7 @@ pcp_main_update_sqlt() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="update">Update</button>'
@@ -303,8 +302,8 @@ pcp_main_update_sqlt() {
 	echo '          <p>'$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')'</p>'
 	echo '        </div>'
 	echo '      </div>'
-	echo '    </div>'
 
+	echo '    </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_sqlt
 #----------------------------------------------------------------------------------------
@@ -323,6 +322,7 @@ pcp_main_ffmpeg() {
 	if [ "${VERSIONsmall}" = "selected" ]; then
 
 		echo '    <div class="form-group row">'
+
 		echo '      <div class="'$COLUMN1'">'
 		echo '        <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
 		echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="inst_ffmpeg">Install</button>'
@@ -342,11 +342,13 @@ pcp_main_ffmpeg() {
 		echo '          </ul>'
 		echo '        </div>'
 		echo '      </div>'
+
 		echo '    </div>'
 
 	else
 
 		echo '    <div class="form-group row">'
+
 		echo '      <div class="'$COLUMN1'">'
 		echo '        <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
 		echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="rem_ffmpeg">Remove</button>'
@@ -361,10 +363,9 @@ pcp_main_ffmpeg() {
 		echo '          <p>This will remove the FFMpeg Libraries from the system.</p>'
 		echo '        </div>'
 		echo '      </div>'
-		echo '    </div>'
 
+		echo '    </div>'
 	fi
-	echo '            </tr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_ffmpeg
 #----------------------------------------------------------------------------------------
@@ -375,6 +376,7 @@ pcp_main_bluetooth() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Bluetooth" action="bluetooth.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Bluetooth">Bluetooth</button>'
@@ -389,6 +391,7 @@ pcp_main_bluetooth() {
 	echo '          <p>This will go to the Bluetooth page.</p>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_bluetooth
@@ -400,6 +403,7 @@ pcp_main_reboot() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''main.cgi?ACTION=reboot'\'')" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Reboot">Reboot</button>'
@@ -419,6 +423,7 @@ pcp_main_reboot() {
 	echo '          </ul>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 pcp_main_reboot
@@ -430,6 +435,7 @@ pcp_main_diagnostics() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Diagnostics" action="diagnostics.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Diagnostics">Diagnostics</button>'
@@ -444,6 +450,7 @@ pcp_main_diagnostics() {
 	echo '          <p>This will go to the Diagnostics page.</p>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_diagnostics
@@ -635,12 +642,13 @@ if [ $MODE -ge $MODE_PLAYER ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Update pcp web and base-------------------------------
+#-------------------------------------Update pcp web and base----------------------------
 pcp_main_update_pcpbase() {
 
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Update" action="updatebase.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" name="ACTION" value="Update">Patch Update</button>'
@@ -656,6 +664,7 @@ pcp_main_update_pcpbase() {
 	echo '          <p>pCP Version will remain unchanged.</p>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcpbase
@@ -667,11 +676,13 @@ pcp_main_minor_update() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Minor" action="minor_update.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" name="ACTION value="initial">Minor Update</button>'
 	echo '        </form>'
 	echo '      </div>'
+
 	echo '      <div class="'$COLUMN2'">'
 	echo '        <p>Check for minor pCP update&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#x'$ID'">'$HELPBADGE'</a>'
@@ -681,6 +692,7 @@ pcp_main_minor_update() {
 	echo '          <p>This will change the pCP verion.</p>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_minor_update
@@ -692,6 +704,7 @@ pcp_main_update_pcp() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Full Update">Full Update</button>'
@@ -720,6 +733,7 @@ pcp_main_update_pcp() {
 	echo '          </ul>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcp
@@ -737,6 +751,7 @@ pcp_main_static_ip() {
 	pcp_incr_id
 
 	echo '    <div class="form-group row">'
+
 	echo '      <div class="'$COLUMN1'">'
 	echo '        <form name="Static IP" action="xtras_staticip.cgi" method="get">'
 	echo '          <button type="submit" class="'$BUTTON'" value="Static IP">Static IP</button>'
@@ -753,6 +768,7 @@ pcp_main_static_ip() {
 	echo '          <p>You will need to re-install static IP after an insitu update.</p>'
 	echo '        </div>'
 	echo '      </div>'
+
 	echo '    </div>'
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
