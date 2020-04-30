@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 7.0.0 2020-04-29
+# Version: 7.0.0 2020-04-30
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
@@ -27,37 +27,12 @@ pcp_controls() {
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 		[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 		echo '<!-- Start of pcp_lms_controls toolbar -->'
-		echo '<table class="lmscontrols">'
-		echo '  <tr>'
-		echo '    <td>'
-		echo '      <p>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')">Random</button>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">Volume Up '$BLACKTRIANGLE'</button>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">Volume Down '$BLACKTRIANGLEDOWN'</button>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$BLACKTRIANGLELEFT$BLACKTRIANGLELEFT' Previous Track</button>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">Next Track '$BLACKTRIANGLERIGHT$BLACKTRIANGLERIGHT'</button>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">Play '$BLACKTRIANGLERIGHT'</button>'
-		echo '        <button class="ctrlbutton" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">Stop '$FILLEDSAMLLSQUARE'</button>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
-		echo '<!-- End of pcp_lms_controls toolbar -->'
-	else
-		echo '<!-- pcp_lms_controls toolbar set to no -->'
-	fi
-}
-
-pcp_controls1() {
-	if [ "$LMSCONTROLS" = "yes" ]; then
-		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-		[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
-		echo '<!-- Start of pcp_lms_controls toolbar -->'
 		echo '  <div class="btn-group" role="group">'
 		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')"><b>R</b></button>'
 		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">'$(pcp_bi_volume_up_fill)'</button>'
 		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">'$(pcp_bi_volume_down_fill)'</button>'
-		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$(pcp_bi_skip_start_fill)'</button>'
-		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">'$(pcp_bi_skip_end_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$(pcp_bi_skip_backward_fill)'</button>'
+		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">'$(pcp_bi_skip_forward_fill)'</button>'
 		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">'$(pcp_bi_play_fill)'</button>'
 		echo '    <button class="btn btn-sm" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">'$(pcp_bi_pause_fill)'</button>'
 		echo '  </div>'
@@ -79,17 +54,9 @@ pcp_lms_controls() {
 
 pcp_lms_favorites() {
 	echo '<!-- Start of favorites toolbar -->'
-	echo '<table class="bgblack">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <p>'
-
+	echo '      <div>'
 	pcp_lms_favorites_list nav
-
-	echo '      </p>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '      </div>'
 	echo '<!-- End of favorites toolbar -->'
 }
 
@@ -108,9 +75,9 @@ pcp_lms_build_loop() {
 }
 
 pcp_lms_build_request() {
-	#Should be at least 2 arguments
-	#arguments should be <player id or name> <command> <arguments for command>
-	#For player non-specific request player id is "-"
+	# Should be at least 2 arguments
+	# Arguments should be <player id or name> <command> <arguments for command>
+	# For player non-specific request player id is "-"
 	ID=$1
 	shift
 	RLOOP="["
@@ -120,11 +87,11 @@ pcp_lms_build_request() {
 }
 
 pcp_lms_build_result() {
-	#Should be at least 2 arguments, result is almost always the first.
+	# Should be at least 2 arguments, result is almost always the first.
 	RLOOP="["
 	pcp_lms_build_loop $@
 	REQ="$RLOOP]"
-	# escape the brackets [ ] for egrep and sed
+	# Escape the brackets [ ] for egrep and sed
 	echo $REQ | sed 's/\[/\\\[/' | sed 's/\]/\\\]/'
 }
 
@@ -191,7 +158,7 @@ pcp_lms_json_request_debug() {
 #	client forget
 #	disconnect
 #	players
-
+#----------------------------------------------------------------------------------------
 
 pcp_lms_player_count() {
 	REQUEST=$(pcp_lms_build_request - player count ?)
@@ -352,6 +319,8 @@ pcp_lms_connect() {
 # ServerInfo
 #----------------------------------------------------------------------------------------
 #	version							Implemented
+#----------------------------------------------------------------------------------------
+
 pcp_lms_version() {
 	REQUEST=$(pcp_lms_build_request - version ?)
 	RESULT=$(pcp_lms_build_result result _version)
@@ -385,6 +354,7 @@ pcp_lms_version() {
 #	titles
 #	search
 #	pragma
+#----------------------------------------------------------------------------------------
 
 pcp_lms_rescan() {
 	REQUEST=$(pcp_lms_build_request - rescan)
@@ -488,6 +458,7 @@ pcp_lms_artists() {
 #	playlist shuffle
 #	playlist repeat
 #	playlistcontrol
+#----------------------------------------------------------------------------------------
 
 pcp_lms_play() {
 	REQUEST=$(pcp_lms_build_request "$NAME" play)
@@ -587,7 +558,6 @@ pcp_lms_playlist_play() {
 		pcp_lms_json_request
 	fi
 }
-
 
 #========================================================================================
 # Auto start LMS routine

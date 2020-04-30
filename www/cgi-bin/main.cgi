@@ -9,7 +9,7 @@ pcp_html_head "Main Page" "SBP"
 
 pcp_httpd_query_string
 
-pcp_controls1
+pcp_controls
 pcp_navbar
 
 COLUMN1="col-sm-3"
@@ -76,8 +76,6 @@ fi
 
 #========================================================================================
 # Main piCorePlayer operations
-#----------------------------------------------------------------------------------------
-
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Squeezelite Indication------------------------------
@@ -179,26 +177,10 @@ pcp_main_shairport_indication() {
 [ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
 
-#echo '    <h5>Main piCorePlayer functions</h5>'
-
 echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
-
 echo '      <li class="nav-item">'
 echo '        <a class="nav-link active" href="#!">Main piCorePlayer functions</a>'
 echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Advanced functions</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Updates</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Beta functions</a>'
-echo '      </li>'
-echo '      <li class="nav-item">'
-echo '        <a class="nav-link" href="#!">Developer functions</a>'
-echo '      </li>'
-
 echo '    </ul>'
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
@@ -263,7 +245,6 @@ pcp_main_restart_shairport() {
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
 #----------------------------------------------------------------------------------------
-
 
 #------------------------------------------Update Squeezelite----------------------------
 pcp_main_update_sqlt() {
@@ -487,9 +468,15 @@ pcp_main_save_usb() {
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Advanced mode fieldset------------------------
+#----------------------------------------------Advanced mode ----------------------------
 if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '          <h5>Additional functions</h5>'
+
+	echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
+	echo '      <li class="nav-item">'
+	echo '        <a class="nav-link active" href="#!">Advanced functions</a>'
+	echo '      </li>'
+	echo '    </ul>'
+
 fi
 #----------------------------------------------------------------------------------------
 
@@ -637,7 +624,11 @@ pcp_main_extensions() {
 
 #------------------------------------------Update fieldset-------------------------------
 if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '          <h5>pCP updates</h5>'
+	echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
+	echo '      <li class="nav-item">'
+	echo '        <a class="nav-link active" href="#!">Updates</a>'
+	echo '      </li>'
+	echo '    </ul>'
 fi
 #----------------------------------------------------------------------------------------
 
@@ -740,7 +731,11 @@ pcp_main_update_pcp() {
 
 #------------------------------------------Beta mode fieldset----------------------------
 if [ $MODE -ge $MODE_BETA ]; then
-	echo '          <h5>Beta functions</h5>'
+	echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
+	echo '      <li class="nav-item">'
+	echo '        <a class="nav-link active" href="#!">Beta functions</a>'
+	echo '      </li>'
+	echo '    </ul>'
 fi
 #----------------------------------------------------------------------------------------
 
@@ -848,9 +843,13 @@ pcp_main_dosfsck() {
 [ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Developer mode fieldset-----------------------
+#----------------------------------------------Developer mode ---------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
-	echo '      <h5>Developer options</h5>'
+	echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
+	echo '      <li class="nav-item">'
+	echo '        <a class="nav-link active" href="#!">Developer functions</a>'
+	echo '      </li>'
+	echo '    </ul>'
 fi
 #----------------------------------------------------------------------------------------
 

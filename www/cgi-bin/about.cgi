@@ -1,16 +1,14 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-04-27
+# Version: 7.0.0 2020-04-30
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "About" "SBP"
 
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
 
 #----------------------------------------------------------------------------------------
 echo '    <div>'
