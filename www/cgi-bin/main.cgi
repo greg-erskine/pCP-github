@@ -12,8 +12,8 @@ pcp_httpd_query_string
 pcp_controls
 pcp_navbar
 
-COLUMN1="col-sm-3"
-COLUMN2="col-9"
+COLUMN1="col-sm-4 text-md-right"
+COLUMN2="col-8"
 BUTTON="btn btn-primary w-50"
 
 #========================================================================================

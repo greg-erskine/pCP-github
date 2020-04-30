@@ -946,14 +946,20 @@ pcp_textarea() {
 }
 
 pcp_textarea_inform() {
+	# $1 - blank | label | none
+	# $2 - command
+	# $3 - rows
+	# $4 - log
+
 	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
-	[ "$TITLE" = "none" ] || echo '<h5>[ INFO ] '$TITLE'</h5>'
-	echo '  <div class="row ol-12">'
-	echo '    <form>'
-	echo '      <textarea class="form-control col-12">'
+	[ $3 -gt 30 ] && ROWS=10 || ROWS="$3"
+	echo '  <br>'
+	echo '  <div class="form-group>'
+	[ "$TITLE" = "none" ] ||
+	echo '    <label for="Textarea1">[ INFO ] '$TITLE'</label>'
+	echo '      <textarea class="form-control rounded-0" id="Textarea1" rows="'$ROWS'">'
 	            eval $2
 	echo '      </textarea>'
-	echo '    </form>'
 	echo '  </div>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
 }
