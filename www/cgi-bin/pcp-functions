@@ -814,34 +814,98 @@ pcp_copyright() {
 }
 
 pcp_diagnostics() {
+
+	case "$0" in
+		main.cgi)        local STYLE_MAIN="active" ;;
+		diagnostics.cgi) local STYLE_DIAG="active" ;;
+		diag_rpi.cgi)    local STYLE_RPI="active" ;;
+		diag_net.cgi)    local STYLE_NET="active" ;;
+		diag_boot.cgi)   local STYLE_BOOT="active" ;;
+		diag_snd.cgi)    local STYLE_SND="active" ;;
+		diag_logs.cgi)   local STYLE_LOGS="active" ;;
+	esac
+
 	echo '<!-- Start of diagnostics toolbar -->'
-	echo '<div>'
-	echo '  <p>'
-	echo '    <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '    <a class="nav7" href="diagnostics.cgi" title="pCP - Diagnostics">Diagnostics</a>'
-	echo '    <a class="nav7" href="diag_rpi.cgi" title="pCP - Raspberry Pi">Raspberry Pi</a>'
-	echo '    <a class="nav7" href="diag_net.cgi" title="pCP - Network">Network</a>'
-	echo '    <a class="nav7" href="diag_boot.cgi" title="pCP - Boot Process">Boot Process</a>'
-	echo '    <a class="nav7" href="diag_snd.cgi" title="pCP - Sound">Sound</a>'
-	echo '    <a class="nav7" href="diag_logs.cgi" title="pCP - Logs">Logs</a>'
-	echo '  </p>'
-	echo '</div>'
+	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-primary">'
+	echo '    <a class="navbar-brand" href="main.cgi">'
+	echo '      <img src="../images/pCP.png" height="30" alt="piCorePlayer"> piCorePlayer</a>'
+	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
+	echo '      <span class="navbar-toggler-icon"></span>'
+	echo '    </button>'
+	echo '    <div class="collapse navbar-collapse" id="navbarSupportedContent">'
+	echo '      <ul class="navbar-nav">'
+	echo '        <li class="nav-item '$STYLE_MAIN'">'
+	echo '          <a class="nav-link" href="main.cgi">Main page</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_DIAG'">'
+	echo '          <a class="nav-link" href="diagnostics.cgi">Diagnostics</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_RPI'">'
+	echo '          <a class="nav-link" href="diag_rpi.cgi">Raspberry Pi</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_NET'">'
+	echo '          <a class="nav-link" href="diag_net.cgi">Network</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_BOOT'">'
+	echo '          <a class="nav-link" href="diag_boot.cgi">Boot Process</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_SND'">'
+	echo '          <a class="nav-link" href="diag_snd.cgi">Sound</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_LOGS'">'
+	echo '          <a class="nav-link" href="diag_logs.cgi">Logs</a>'
+	echo '        </li>'
+	echo '      </ul>'
+	echo '    </div>'
+	echo '  </nav>'
 	echo '<!-- End of diagnostics toolbar -->'
 }
 
 pcp_xtras() {
+
+	case "$0" in
+		main.cgi)            local STYLE_MAIN="active" ;;
+		xtras_test.cgi)      local STYLE_TEST="active" ;;
+		xtras_asoundrc.cgi)  local STYLE_ASOUND="active" ;;
+		xtras_bootcodes.cgi) local STYLE_BOOtCODES="active" ;;
+		xtras_controls.cgi)  local STYLE_CONTROLS="active" ;;
+		xtras_cpu_temp.cgi)  local STYLE_CPU_TEMP="active" ;;
+		xtras_lmsclis.cgi)   local STYLE_LMS_CLIS="active" ;;
+	esac
+
 	echo '<!-- Start of xtras toolbar -->'
-	echo '<div>'
-	echo '  <p>'
-	echo '    <a class="nav7" href="main.cgi" title="pCP - Main Page">Main Page</a>'
-	echo '    <a class="nav7" href="xtras_test.cgi" title="pCP - Xtras Test">Test</a>'
-	echo '    <a class="nav7" href="xtras_asoundrc.cgi" title="pCP - Xtras Asound">Asound</a>'
-	echo '    <a class="nav7" href="xtras_bootcodes.cgi" title="pCP - Xtras Bootcodes">Bootcodes</a>'
-	echo '    <a class="nav7" href="xtras_controls.cgi" title="pCP - Xtras Controls">Controls</a>'
-	echo '    <a class="nav7" href="xtras_cpu_temp.cgi" title="pCP - Xtras CPU Temp">CPU Temp</a>'
-	echo '    <a class="nav7" href="xtras_lmsclis.cgi" title="pCP - Xtras LMS CLI">LMS CLI</a>'
-	echo '  </p>'
-	echo '</div>'
+	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-primary">'
+	echo '    <a class="navbar-brand" href="main.cgi">'
+	echo '      <img src="../images/pCP.png" height="30" alt="piCorePlayer"> piCorePlayer</a>'
+	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
+	echo '      <span class="navbar-toggler-icon"></span>'
+	echo '    </button>'
+	echo '    <div class="collapse navbar-collapse" id="navbarSupportedContent">'
+	echo '      <ul class="navbar-nav">'
+	echo '        <li class="nav-item '$STYLE_MAIN'">'
+	echo '          <a class="nav-link" href="main.cgi">Main page</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_TEST'">'
+	echo '          <a class="nav-link" href="xtras_test.cgi">Test</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_ASOUND'">'
+	echo '          <a class="nav-link" href="xtras_asoundrc.cgi">Asound</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_BOOtCODES'">'
+	echo '          <a class="nav-link" href="xtras_bootcodes.cgi">Bootcodes</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_CONTROLS'">'
+	echo '          <a class="nav-link" href="xtras_controls.cgi">Controls</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_CPU_TEMP'">'
+	echo '          <a class="nav-link" href="xtras_cpu_temp.cgi">CPU Temp</a>'
+	echo '        </li>'
+	echo '        <li class="nav-item '$STYLE_LMS_CLIS'">'
+	echo '          <a class="nav-link" href="xtras_lmsclis.cgi">LMS CLI</a>'
+	echo '        </li>'
+	echo '      </ul>'
+	echo '    </div>'
+	echo '  </nav>'
 	echo '<!-- End of xtras toolbar -->'
 }
 
@@ -930,7 +994,7 @@ pcp_tc_user() {
 # Show various configuration and setup files
 # $1 = title, $2 = command, $3 = height, $4 = write to log
 #----------------------------------------------------------------------------------------
-pcp_textarea() {
+pcp_textarea_xxxx() {
 	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
 	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
 	echo '<textarea style="height:'$3'px">'
@@ -945,6 +1009,10 @@ pcp_textarea() {
 }
 
 pcp_textarea_inform() {
+	pcp_textarea
+}
+
+pcp_textarea() {
 	# $1 - blank | label | none
 	# $2 - command
 	# $3 - rows
@@ -957,7 +1025,7 @@ pcp_textarea_inform() {
 	[ "$TITLE" = "none" ] ||
 	echo '    <label for="Textarea1">[ INFO ] '$TITLE'</label>'
 	echo '    <textarea class="form-control rounded-0" style="font-family: monospace" id="Textarea1" rows="'$ROWS'">'
-	          eval $2
+	            eval $2
 	echo '    </textarea>'
 	echo '  </div>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
@@ -1084,6 +1152,7 @@ pcp_confirmation_required() {
 pcp_squeezelite_start() {
 	# $1 - nohtml
 	# $2 - display     (Used for taskset)
+
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
