@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 5.0.0 2019-03-03
+# Version: 7.0.0 2020-05-01
 
 pcp_debug_log "$0 - Running pcp-pastebin-functions..."
 
@@ -53,34 +53,17 @@ pcp_install_wget() {
 #----------------------------------------------------------------------------------------
 pcp_pastebin_button() {
 	if [ $MODE -ge $MODE_PLAYER ]; then
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
+		echo '    <div class="row">'
+		echo '      <h5>Upload to Pastebin</h5>'
 		echo '      <div class="row">'
-		echo '        <form name="Paste" action="pastebin.cgi" method="get">'
-		echo '          <div class="row">'
-		echo '            <fieldset>'
-		echo '              <legend>Upload to Pastebin</legend>'
-		echo '              <table class="bggrey percent100">'
-		pcp_start_row_shade
-		echo '                <tr class="'$ROWSHADE'">'
-		echo '                  <td class="column150 center">'
-		echo '                    <input type="submit" name="SUBMIT" value="Upload">'
-		echo '                    <input type="hidden" name="FILE" value="'$LOG'">'
-		echo '                    <input type="hidden" name="REPORT" value="'${1}'">'
-		echo '                  </td>'
-		echo '                  <td>'
-		echo '                    <p>Upload to Pastebin.</p>'
-		echo '                  </td>'
-		echo '                </tr>'
-		echo '              </table>'
-		echo '            </fieldset>'
-		echo '          </div>'
-		echo '        </form>'
+		echo '        <input type="submit" name="SUBMIT" value="Upload">'
+		echo '        <input type="hidden" name="FILE" value="'$LOG'">'
+		echo '        <input type="hidden" name="REPORT" value="'${1}'">'
 		echo '      </div>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+		echo '      <div class="row">'
+		echo '        <p>Upload to Pastebin.</p>'
+		echo '      </div>'
+		echo '    </div>'
 	fi
 }
 

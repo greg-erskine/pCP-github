@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-04-29
+# Version: 7.0.0 2020-05-01
 
 WWW_BUILD=0008
 
@@ -613,10 +613,10 @@ pcp_html_head() {
 	echo '  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">'
 #	echo '  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">'
 
-	echo '<!-- JS files: jQuery first, then Popper.js, then Bootstrap JS -->'
+	echo '  <!-- js files: jQuery first, then Popper.js, then Bootstrap js -->'
 
-	echo '  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>'
 #	echo '  <script src="../jquery/jquery.js"></script>'
+	echo '  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>'
 
 	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
 
@@ -674,7 +674,7 @@ pcp_navbar() {
 		about.cgi)       local STYLE_ABOUT="active" ;;
 	esac
 
-	echo ' <!-- Start of pcp_navigation toolbar -->'
+	echo '<!-- Start of pcp_navigation toolbar -->'
 	echo '  <nav class="navbar navbar-expand-md navbar-dark bg-primary">'
 
 	echo '    <a class="navbar-brand" href="main.cgi">'
@@ -716,15 +716,14 @@ pcp_navbar() {
 			LMSIP=$(pcp_lmsip)
 		fi
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-		echo '        <a class="nav-item nav-link" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		echo '      <a class="nav-item nav-link" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
 	fi
 
 	# Online pCP Help
-	echo '        <a id="xxxPlayerTabsAfter"
-	                 class="nav-item nav-link"
-	                 href="https://www.picoreplayer.org/main_about.shtml"
-	                 title="Online pCP Help"
-	                 target="_blank">Help</a>'
+	echo '      <a class="nav-item nav-link" 
+	            href="https://www.picoreplayer.org/main_about.shtml"
+	            title="Online pCP Help"
+	            target="_blank">Help</a>'
 
 	echo '      <div class="nav-item dropdown">'
 	echo '        <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">'$NAME'</a>'
@@ -864,22 +863,22 @@ pcp_mode() {
 	esac
 
 	echo '<!-- Start of mode toolbar -->'
-	echo '<div>'
-	echo '  <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
-	echo '  <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
-	echo '  <a class="'$TAB_STYLE_MODE_BETA'"'
-	echo '     onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
-	echo '     href="javascript:void(0);" title="Beta mode">Beta</a>'
+	echo '  <div>'
+	echo '    <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
+	echo '    <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
+	echo '    <a class="'$TAB_STYLE_MODE_BETA'"'
+	echo '       onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
+	echo '       href="javascript:void(0);" title="Beta mode">Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
-	echo '  <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
-	echo '<script>setcurrenttheme('\'$THEME\'');setcurrentrepo('\'$PCP_CUR_REPO\'');</script>'
+	echo '    <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
+	echo '    <script>setcurrenttheme('\'$THEME\'');setcurrentrepo('\'$PCP_CUR_REPO\'');</script>'
 	[ "$THEME" = "Light" ] && T_THEME="Light" || T_THEME="Dark"
 	[ "$THEME" = "Light" ] && NEXT_THEME="Dark" || NEXT_THEME="Light"
 	[ $PCP_CUR_REPO -eq 1 ] && T_REPO="pCP Main Repo" || T_REPO="pCP Mirror Repo"
 	[ $PCP_CUR_REPO -eq 1 ] && NEXT_REPO="pCP Mirror Repo" || NEXT_REPO="pCP Main Repo"
-	echo '  <a id="Theme" class="'$TAB_STYLE_THEME'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()" >'$T_THEME' Theme</a>'
-	echo '  <a id="Repo" class="'$TAB_STYLE_REPO'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()" >'$T_REPO'</a>'
-	echo '</div>'
+	echo '    <a id="Theme" class="'$TAB_STYLE_THEME'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()" >'$T_THEME' Theme</a>'
+	echo '    <a id="Repo" class="'$TAB_STYLE_REPO'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()" >'$T_REPO'</a>'
+	echo '  </div>'
 
 	echo '<!-- End of mode toolbar -->'
 }
@@ -957,9 +956,9 @@ pcp_textarea_inform() {
 	echo '  <div class="form-group>'
 	[ "$TITLE" = "none" ] ||
 	echo '    <label for="Textarea1">[ INFO ] '$TITLE'</label>'
-	echo '      <textarea class="form-control rounded-0" id="Textarea1" rows="'$ROWS'">'
-	            eval $2
-	echo '      </textarea>'
+	echo '    <textarea class="form-control rounded-0" style="font-family: monospace" id="Textarea1" rows="'$ROWS'">'
+	          eval $2
+	echo '    </textarea>'
 	echo '  </div>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
 }
@@ -987,12 +986,6 @@ pcp_trimval() {
 	echo $1 | cut -d '=' -f2 | xargs
 }
 
-pcp_showmore() {
-	echo '<script>'
-	echo '  more('\'''$1''\'')'
-	echo '</script>'
-}
-
 #========================================================================================
 # Create table functions
 #----------------------------------------------------------------------------------------
@@ -1001,9 +994,6 @@ pcp_table_top() {
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '        <legend>'$1'</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td '$2'>'
 }
 
 pcp_table_textarea_top() {
@@ -1012,22 +1002,12 @@ pcp_table_textarea_top() {
 }
 
 pcp_table_middle() {
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td '$1'>'
+	echo '              </div>'
+	echo '              <div>'
 }
 
 pcp_table_end() {
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '              </div>'
 }
 
 pcp_table_textarea_end() {
