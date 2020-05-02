@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-02-01
+# Version: 7.0.0 2020-05-02
 
 . pcp-functions
 . pcp-rpi-functions
@@ -11,8 +11,7 @@ pcp_html_head "Squeezelite Settings" "SBP"
 
 pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
 
 #========================================================================================
 # Create Squeezelite command string
@@ -106,7 +105,7 @@ pcp_submit_button() {
 # PROBLEM???: See routines below. If RPi model is unknown, RP_MODEL will be set twice???
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_is_hat) -ne 0 ]; then
-	# RPi is P5-connetion no HAT model or unknown
+	# RPi is P5-connection no HAT model or unknown
 	RP_MODEL=ALL_NO_HAT
 fi
 
