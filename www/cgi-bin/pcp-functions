@@ -645,24 +645,6 @@ pcp_html_end() {
 	exit
 }
 
-pcp_banner() {
-	echo '  <!-- Start of pcp_banner -->'
-	echo '  <div>'
-	echo '    <img src="../images/banner.png" alt="piCorePlayer" usemap="#hotspot" />'
-	echo '    <map name="hotspot">'
-	echo '      <area shape="rect" coords="0,0,790,140" href="about.cgi" alt="pCP Logo">'
-	echo '      <area shape="circle" coords="790,74,3" href="debug.cgi?m=100" alt="pCP Logo">'
-	echo '      <area shape="circle" coords="790,100,3" href="debug.cgi?a=0" alt="pCP Logo">'
-	echo '      <area shape="circle" coords="790,125,3" href="debug.cgi" alt="pCP Logo">'
-	echo '    </map>'
-	echo '  </div>'
-	echo '  <!-- End of pcp_banner -->'
-}
-
-pcp_navigation() {	# GE Obsolete. Delete.
-	pcp_navbar
-}
-
 pcp_navbar() {
 
 	case "$0" in
@@ -867,7 +849,7 @@ pcp_xtras() {
 		main.cgi)            local STYLE_MAIN="active" ;;
 		xtras_test.cgi)      local STYLE_TEST="active" ;;
 		xtras_asoundrc.cgi)  local STYLE_ASOUND="active" ;;
-		xtras_bootcodes.cgi) local STYLE_BOOtCODES="active" ;;
+		xtras_bootcodes.cgi) local STYLE_BOOTCODES="active" ;;
 		xtras_controls.cgi)  local STYLE_CONTROLS="active" ;;
 		xtras_cpu_temp.cgi)  local STYLE_CPU_TEMP="active" ;;
 		xtras_lmsclis.cgi)   local STYLE_LMS_CLIS="active" ;;
@@ -891,7 +873,7 @@ pcp_xtras() {
 	echo '        <li class="nav-item '$STYLE_ASOUND'">'
 	echo '          <a class="nav-link" href="xtras_asoundrc.cgi">Asound</a>'
 	echo '        </li>'
-	echo '        <li class="nav-item '$STYLE_BOOtCODES'">'
+	echo '        <li class="nav-item '$STYLE_BOOTCODES'">'
 	echo '          <a class="nav-link" href="xtras_bootcodes.cgi">Bootcodes</a>'
 	echo '        </li>'
 	echo '        <li class="nav-item '$STYLE_CONTROLS'">'
@@ -910,42 +892,78 @@ pcp_xtras() {
 }
 
 pcp_mode() {
-	local TAB="tab14"
 
-	local TAB_STYLE_MODE_PLAYER="$TAB"
-	local TAB_STYLE_MODE_SERVER="$TAB"
-	local TAB_STYLE_MODE_BETA="$TAB"
-	local TAB_STYLE_MODE_DEVELOPER="$TAB"
-	local TAB_STYLE_THEME="${TAB}b"
-	local TAB_STYLE_REPO="${TAB}c"
+	MODE_STYLE="btn btn-sm btn-primary"
+
+	STATUS_MODE_PLAYER=""
+	STATUS_MODE_SERVER=""
+	STATUS_MODE_BETA=""
+	STATUS_MODE_DEVELOPER=""
 
 	case $MODE in
-		$MODE_PLAYER)    local TAB_STYLE_MODE_PLAYER="${TAB}a" ;;
-		$MODE_SERVER)    local TAB_STYLE_MODE_SERVER="${TAB}a" ;;
-		$MODE_BETA)      local TAB_STYLE_MODE_BETA="${TAB}a" ;;
-		$MODE_DEVELOPER) local TAB_STYLE_MODE_DEVELOPER="${TAB}a" ;;
+		$MODE_PLAYER)    local STATUS_MODE_PLAYER="active" ;;
+		$MODE_SERVER)    local STATUS_MODE_SERVER="active" ;;
+		$MODE_BETA)      local STATUS_MODE_BETA="active" ;;
+		$MODE_DEVELOPER) local STATUS_MODE_DEVELOPER="active" ;;
 	esac
 
 	echo '<!-- Start of mode toolbar -->'
-	echo '  <div>'
-	echo '    <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
-	echo '    <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
-	echo '    <a class="'$TAB_STYLE_MODE_BETA'"'
+	echo '  <div class="btn-group">'
+#	echo '    <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
+#	echo '    <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
+	
+	echo '    <a type="button" class="'$MODE_STYLE'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode" '$STATUS_MODE_PLAYER'>Player</a>'
+	echo '    <a type="button" class="'$MODE_STYLE'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode" '$STATUS_MODE_SERVER'>Player/Server</a>'
+	
+	
+#	echo '    <a class="'$TAB_STYLE_MODE_BETA'"'
+#	echo '       onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
+#	echo '       href="javascript:void(0);" title="Beta mode">Beta</a>'
+
+	echo '    <a class="'$MODE_STYLE'"'
 	echo '       onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
-	echo '       href="javascript:void(0);" title="Beta mode">Beta</a>'
+	echo '       href="javascript:void(0);" title="Beta mode" '$STATUS_MODE_BETA'>Beta</a>'
+
+
 	[ $MODE -ge $MODE_DEVELOPER ] &&
-	echo '    <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
+#	echo '    <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
+
+	echo '    <a class="'$MODE_STYLE'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode" '$STATUS_MODE_DEVELOPER'>Developer</a>'
+	echo '  </div>'
+
 	echo '    <script>setcurrenttheme('\'$THEME\'');setcurrentrepo('\'$PCP_CUR_REPO\'');</script>'
 	[ "$THEME" = "Light" ] && T_THEME="Light" || T_THEME="Dark"
 	[ "$THEME" = "Light" ] && NEXT_THEME="Dark" || NEXT_THEME="Light"
 	[ $PCP_CUR_REPO -eq 1 ] && T_REPO="pCP Main Repo" || T_REPO="pCP Mirror Repo"
 	[ $PCP_CUR_REPO -eq 1 ] && NEXT_REPO="pCP Mirror Repo" || NEXT_REPO="pCP Main Repo"
-	echo '    <a id="Theme" class="'$TAB_STYLE_THEME'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()" >'$T_THEME' Theme</a>'
-	echo '    <a id="Repo" class="'$TAB_STYLE_REPO'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()" >'$T_REPO'</a>'
+
+	echo '  <div class="btn-group">'
+	echo '    <a id="Theme" class="'$MODE_STYLE'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()">'$T_THEME' Theme</a>'
+	echo '    <a id="Repo" class="'$MODE_STYLE'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()">'$T_REPO'</a>'
 	echo '  </div>'
 
 	echo '<!-- End of mode toolbar -->'
 }
+
+
+#<div class="container">
+#  <h2>Button Group</h2>
+
+#  <p>Button groups are "inline" by default, which makes them appear side by side when you have multiple groups:</p>
+#  <div class="btn-group">
+#    <button type="button" class="btn btn-primary">Apple</button>
+#    <button type="button" class="btn btn-primary">Samsung</button>
+#    <button type="button" class="btn btn-primary">Sony</button>
+#  </div>
+#  <div class="btn-group">
+#    <button type="button" class="btn btn-primary">BMW</button>
+#    <button type="button" class="btn btn-primary">Mercedes</button>
+#    <button type="button" class="btn btn-primary">Volvo</button>
+#  </div>
+
+#</div>
+
+
 
 #========================================================================================
 # Versions
