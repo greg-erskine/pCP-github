@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-01
+# Version: 7.0.0 2020-05-03
 
 WWW_BUILD=0008
 
@@ -628,7 +628,7 @@ pcp_html_head() {
 	echo '</head>'
 	echo ''
 	[ "$5" != "nobody" ] && echo '<body>'
-	echo '<div class="container bg-light">'
+	echo '<div class="container-fluid bg-light">'
 
 	if [ "$PLAYERTABS" = "yes" ]; then
 		echo '  <script>setplayertabs();</script>'
@@ -735,7 +735,7 @@ pcp_footer() {
 	if [ "$1" = "static" ]; then
 		echo '<!-- Start of pcp_footer -->'
 		echo '  <div class="row">'
-		echo '    <div class="col-12 text-center bg-primary text-light">'
+		echo '    <div class="col-12 text-center bg-primary text-light pb-1">'
 		echo '      <small>
 		              '$NAME' |
 		              piCorePlayer v'$(pcp_picoreplayer_version)' |
@@ -764,7 +764,7 @@ pcp_footer() {
 
 			echo '<!-- Start of pcp_footer -->'
 			echo '  <div class="row">'
-			echo '    <div class="col-12 text-center bg-primary text-light">'
+			echo '    <div class="col-12 text-center bg-primary text-light pb-1">'
 			echo '      <small>
 				          '$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
 				          '$NAME' |
@@ -893,12 +893,7 @@ pcp_xtras() {
 
 pcp_mode() {
 
-	MODE_STYLE="btn btn-sm btn-primary"
-
-	STATUS_MODE_PLAYER=""
-	STATUS_MODE_SERVER=""
-	STATUS_MODE_BETA=""
-	STATUS_MODE_DEVELOPER=""
+	MODE_STYLE="btn btn-sm btn-outline-primary"
 
 	case $MODE in
 		$MODE_PLAYER)    local STATUS_MODE_PLAYER="active" ;;
@@ -909,26 +904,13 @@ pcp_mode() {
 
 	echo '<!-- Start of mode toolbar -->'
 	echo '  <div class="btn-group">'
-#	echo '    <a class="'$TAB_STYLE_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
-#	echo '    <a class="'$TAB_STYLE_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
-	
-	echo '    <a type="button" class="'$MODE_STYLE'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode" '$STATUS_MODE_PLAYER'>Player</a>'
-	echo '    <a type="button" class="'$MODE_STYLE'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode" '$STATUS_MODE_SERVER'>Player/Server</a>'
-	
-	
-#	echo '    <a class="'$TAB_STYLE_MODE_BETA'"'
-#	echo '       onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
-#	echo '       href="javascript:void(0);" title="Beta mode">Beta</a>'
-
-	echo '    <a class="'$MODE_STYLE'"'
+	echo '    <a type="button" class="'$MODE_STYLE' '$STATUS_MODE_PLAYER'" href="debug.cgi?m='$MODE_PLAYER'" title="Player mode">Player</a>'
+	echo '    <a type="button" class="'$MODE_STYLE' '$STATUS_MODE_SERVER'" href="debug.cgi?m='$MODE_SERVER'" title="Server mode">Player/Server</a>'
+	echo '    <a class="'$MODE_STYLE' '$STATUS_MODE_BETA'"'
 	echo '       onclick="javascript:pcp_confirm('\'WARNING: Beta mode can be dangerous.\\nPress [OK] to accept risk.\',\'debug.cgi?m=''$MODE_BETA''\'')"'
-	echo '       href="javascript:void(0);" title="Beta mode" '$STATUS_MODE_BETA'>Beta</a>'
-
-
+	echo '       href="javascript:void(0);" title="Beta mode" >Beta</a>'
 	[ $MODE -ge $MODE_DEVELOPER ] &&
-#	echo '    <a class="'$TAB_STYLE_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
-
-	echo '    <a class="'$MODE_STYLE'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode" '$STATUS_MODE_DEVELOPER'>Developer</a>'
+	echo '    <a class="'$MODE_STYLE' '$STATUS_MODE_DEVELOPER'" href="debug.cgi?m='$MODE_DEVELOPER'" title="Developer mode">Developer</a>'
 	echo '  </div>'
 
 	echo '    <script>setcurrenttheme('\'$THEME\'');setcurrentrepo('\'$PCP_CUR_REPO\'');</script>'
@@ -937,33 +919,15 @@ pcp_mode() {
 	[ $PCP_CUR_REPO -eq 1 ] && T_REPO="pCP Main Repo" || T_REPO="pCP Mirror Repo"
 	[ $PCP_CUR_REPO -eq 1 ] && NEXT_REPO="pCP Mirror Repo" || NEXT_REPO="pCP Main Repo"
 
-	echo '  <div class="btn-group">'
+	echo '  <div class="btn-group ml-auto">'
 	echo '    <a id="Theme" class="'$MODE_STYLE'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()">'$T_THEME' Theme</a>'
+	echo '  </div>'
+	echo '  <div class="btn-group ml-auto">'
 	echo '    <a id="Repo" class="'$MODE_STYLE'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()">'$T_REPO'</a>'
 	echo '  </div>'
 
 	echo '<!-- End of mode toolbar -->'
 }
-
-
-#<div class="container">
-#  <h2>Button Group</h2>
-
-#  <p>Button groups are "inline" by default, which makes them appear side by side when you have multiple groups:</p>
-#  <div class="btn-group">
-#    <button type="button" class="btn btn-primary">Apple</button>
-#    <button type="button" class="btn btn-primary">Samsung</button>
-#    <button type="button" class="btn btn-primary">Sony</button>
-#  </div>
-#  <div class="btn-group">
-#    <button type="button" class="btn btn-primary">BMW</button>
-#    <button type="button" class="btn btn-primary">Mercedes</button>
-#    <button type="button" class="btn btn-primary">Volvo</button>
-#  </div>
-
-#</div>
-
-
 
 #========================================================================================
 # Versions
@@ -1038,7 +1002,6 @@ pcp_textarea() {
 
 	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
 	[ $3 -gt 30 ] && ROWS=10 || ROWS="$3"
-#	ID=$(($ID+1))
 	echo '  <div class="form-group mt-3">'
 	[ "$TITLE" = "none" ] ||
 	echo '    <label for="ta'$ID'">[ INFO ] '$TITLE'</label>'
