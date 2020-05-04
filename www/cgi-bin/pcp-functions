@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-03
+# Version: 7.0.0 2020-05-04
 
 WWW_BUILD=0008
 
@@ -919,14 +919,22 @@ pcp_mode() {
 	[ $PCP_CUR_REPO -eq 1 ] && T_REPO="pCP Main Repo" || T_REPO="pCP Mirror Repo"
 	[ $PCP_CUR_REPO -eq 1 ] && NEXT_REPO="pCP Mirror Repo" || NEXT_REPO="pCP Main Repo"
 
-	echo '  <div class="btn-group ml-auto">'
+	echo '  <div class="btn-group ml-auto float-right">'
 	echo '    <a id="Theme" class="'$MODE_STYLE'" title="Click to use '$NEXT_THEME' Theme" onclick="switchtheme()">'$T_THEME' Theme</a>'
 	echo '  </div>'
-	echo '  <div class="btn-group ml-auto">'
+	echo '  <div class="btn-group ml-auto float-right mr-1">'
 	echo '    <a id="Repo" class="'$MODE_STYLE'" title="Click to use '$NEXT_REPO'" onclick="switchrepo()">'$T_REPO'</a>'
 	echo '  </div>'
 
 	echo '<!-- End of mode toolbar -->'
+}
+
+pcp_heading5() {
+	echo '  <div class="row mt-3">'
+	echo '    <div class="'$COLUMN1'">'
+	echo '      <h5>'$1'</h5>'
+	echo '    </div>'
+	echo '  </div>'
 }
 
 #========================================================================================
@@ -1340,12 +1348,11 @@ pcp_redirect_button() {
 	# $1 - button text
 	# $2 - redirection URL
 	# $3 - redirection delay
+
 	echo '<!-- Start of pcp_redirect_button -->'
-	echo '<div>'
+	echo '<div class="mb-3">'
 	echo '  <form name="redirect button" action="'$2'" method="get">'
-	echo '    <p>'
-	echo '      <input class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
-	echo '    </p>'
+	echo '    <input class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
 	echo '  </form>'
 	echo '</div>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'

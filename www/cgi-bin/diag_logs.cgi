@@ -63,16 +63,16 @@ if [ $DEBUG -eq 1 ]; then
 	echo '<!-- End of debug info -->'
 fi
 
-
-
 #========================================================================================
 # Log selection form
 #----------------------------------------------------------------------------------------
-echo '  <div class="row mt-3">'
-echo '    <div class="'$COLUMN1'">'
-echo '      <h5>Log file operations</h5>'
-echo '    </div>'
-echo '  </div>'
+#echo '  <div class="row mt-3">'
+#echo '    <div class="'$COLUMN1'">'
+#echo '      <h5>Log file operations</h5>'
+#echo '    </div>'
+#echo '  </div>'
+
+pcp_heading5 "Log file operations"
 
 #----------------------------------------------------------------------------------------
 echo '  <form name="log" action="'$0'" method="get">'

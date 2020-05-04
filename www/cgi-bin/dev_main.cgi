@@ -1,61 +1,43 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-20
+# Version: 7.0.0 2020-05-04
 
 . pcp-functions
 
 pcp_html_head "Development pages" "GE"
 
-pcp_banner
-pcp_running_script
+pcp_controls
+pcp_navbar
 pcp_httpd_query_string
 
-DEV_PAGES=$(ls $WWWROOT/cgi-bin/dev_*.cgi)
+DEV_PAGES=$(ls ${WWWROOT}/cgi-bin/dev_*.cgi)
 
-pcp_start_row_shade
-pcp_toggle_row_shade
-
+COLUMN1="col-12"
 #========================================================================================
 # Developer web pages
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Developer web pages</legend>'
-echo '          <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
+pcp_heading5 "Developer web pages"
+
+echo '  <div class="row">'
+
 for PAGE in $DEV_PAGES
 do
 	pcp_get_page_info $PAGE
 	[ "$TITLE" = "" ] && TITLE=$BASENAME
 	if [ "$BASENAME" != "$0" ]; then
-		pcp_toggle_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td class="column200">'
-		echo '                <p><a href="'$BASENAME'">'$TITLE'</a></p>'
-		echo '              </td>'
-		echo '              <td class="column550">'
-		echo '                <p>'$DESCR'</a></p>'
-		echo '              </td>'
-		echo '              <td>'
-		echo '                <p>'$VERSION'</a></p>'
-		echo '              </td>'
-		echo '            </tr>'
+		echo '    <div class="col-3">'
+		echo '      <a href="'$BASENAME'">'$TITLE'</a>'
+		echo '    </div>'
+		echo '    <div class="col-7">'
+		echo '      '$DESCR
+		echo '    </div>'
+		echo '    <div class="col-2">'
+		echo '      '$VERSION
+		echo '    </div>'
 	fi
 done
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-#----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
+echo '  </div>'
 
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit
