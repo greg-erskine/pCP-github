@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-04-23
+# Version: 7.0.0 2020-05-04
 
 #========================================================================================
 # This script downloads, installs, deletes, updates and reports on extensions.
@@ -20,8 +20,8 @@
 
 pcp_html_head "Add piCore extension" "GE"
 
-pcp_banner
-pcp_navigation
+pcp_controls
+pcp_navbar
 pcp_httpd_query_string
 pcp_debug_info
 
@@ -51,11 +51,11 @@ sudo chmod 777 $ACCCESSIBLETXT
 pcp_debug_info() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		pcp_table_top "Debug"
+		echo '<div>' #"Debug"
 		pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG \
 			PCP_CUR_REPO PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1 PICORE_REPO_2 \
 			CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
-		pcp_table_end
+		echo '</div>'
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -121,9 +121,9 @@ pcp_set_repository() {
 # Note: Extension will be added to onboot.lst
 #----------------------------------------------------------------------------------------
 pcp_load_extn() {
-	pcp_table_top "Loading '$EXTN' . . . "
-	pcp_textarea_inform "none" "sudo -u tc $TCELOAD -iw $EXTN" 50
-	pcp_table_end
+	echo '<div>'
+	pcp_textarea "Loading '$EXTN'" "sudo -u tc $TCELOAD -iw $EXTN" 10
+	echo '</div>'
 }
 
 #========================================================================================
@@ -132,9 +132,9 @@ pcp_load_extn() {
 #       Extension will not be added to onboot.lst
 #----------------------------------------------------------------------------------------
 pcp_install_extn() {
-	pcp_table_top "Installing '$EXTN' . . . "
-	pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
-	pcp_table_end
+	echo '<div>'
+	pcp_textarea "Installing '$EXTN'" "sudo -u tc $TCELOAD -i $EXTN" 10
+	echo '</div>'
 }
 
 #========================================================================================
@@ -142,11 +142,11 @@ pcp_install_extn() {
 # Note: This will remove the extension from onboot.lst but will not delete the extension.
 #       NOT IMPLEMENTED.
 #----------------------------------------------------------------------------------------
-pcp_uninstall_extn() {
-	pcp_table_top "Uninstalling '$EXTN' . . . "
-#	pcp_textarea_inform "none" "sudo -u tc $TCELOAD -i $EXTN" 50
-	pcp_table_end
-}
+#pcp_uninstall_extn() {
+#	pcp_table_top "Uninstalling '$EXTN' . . . "
+#	pcp_textarea "none" "sudo -u tc $TCELOAD -i $EXTN" 50
+#	pcp_table_end
+#}
 
 #========================================================================================
 # Delete extension.
@@ -169,7 +169,7 @@ pcp_delete_extn() {
 #----------------------------------------------------------------------------------------
 pcp_update_extn() {
 	pcp_table_top "Updating '$EXTN' . . . "
-	pcp_textarea_inform "none" "sudo -u tc pcp-update $EXTN" 50
+	pcp_textarea "none" "sudo -u tc pcp-update $EXTN" 50
 	pcp_table_end
 }
 
@@ -226,7 +226,7 @@ pcp_create_localmirrors() {
 # Repository/extension information message
 #----------------------------------------------------------------------------------------
 pcp_information_message() {
-	pcp_table_top "Information"
+	echo '<div>'  # "Information"
 	echo '                <p><b>piCorePlayer</b> uses 3 repositories for downloading extensions:</p>'
 	echo '                <ul>'
 	echo '                  <li><b>piCorePlayer main repository</b> - maintained by the piCorePlayer team (default).</li>'
@@ -240,7 +240,7 @@ pcp_information_message() {
 	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
 #	echo '                  <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
 	echo '                </ul>'
-	pcp_table_end
+	echo '</div>'
 }
 
 #========================================================================================
@@ -298,88 +298,81 @@ pcp_display_files() {
 #----------------------------------------------------------------------------------------
 pcp_display_information() {
 	if [ $EXTNFOUND -eq 1 ]; then
-		pcp_start_row_shade
-		echo '<table class="bggrey">'
-		echo '  <tr>'
-		echo '    <td>'
+
 		echo '      <form name="Extension_size" method="get">'
 		echo '        <div class="row">'
-		echo '          <fieldset>'
-		echo "            <legend>Information for '$EXTN'. . . </legend>"
+
+		echo "            <h5>Information for '$EXTN'. . . </h5>"
 		echo '            <table class="bggrey percent100">'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
 		echo '                  <p><b>Information:</b></p>'
 		echo '                </td>'
 		echo '              </tr>'
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		                        pcp_textarea_inform "none" "pcp_display_info" 200
+		                        pcp_textarea "none" "pcp_display_info" 200
 		echo '                </td>'
 		echo '              </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
 		echo '                  <p><b>Dependencies:</b></p>'
 		echo '                </td>'
 		echo '              </tr>'
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		                        pcp_textarea_inform "none" "pcp_display_depends" 100
+		                        pcp_textarea "none" "pcp_display_depends" 100
 		echo '                </td>'
 		echo '              </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
 		echo '                  <p><b>Tree:</b></p>'
 		echo '                </td>'
 		echo '              </tr>'
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		                        pcp_textarea_inform "none" "pcp_display_tree" 100
+		                        pcp_textarea "none" "pcp_display_tree" 100
 		echo '                </td>'
 		echo '              </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
 		echo '                  <p><b>Size:</b></p>'
 		echo '                </td>'
 		echo '              </tr>'
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		                        pcp_textarea_inform "none" "pcp_display_size" 100
+		                        pcp_textarea "none" "pcp_display_size" 100
 		echo '                </td>'
 		echo '              </tr>'
 		#--------------------------------------------------------------------------------
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
 		echo '                  <p><b>Files:</b></p>'
 		echo '                </td>'
 		echo '              </tr>'
-		pcp_toggle_row_shade
+
 		echo '              <tr class="'$ROWSHADE'">'
 		echo '                <td>'
-		                        pcp_textarea_inform "none" "pcp_display_files" 100
+		                        pcp_textarea "none" "pcp_display_files" 100
 		echo '                </td>'
 		echo '              </tr>'
 		#--------------------------------------------------------------------------------
-		echo '            </table>'
-		echo '          </fieldset>'
+
 		echo '        </div>'
 		echo '      </form>'
-		echo '    </td>'
-		echo '  </tr>'
-		echo '</table>'
+
 	fi
 }
 
@@ -471,16 +464,13 @@ pcp_indicator_js() {
 # Internet, DNS and repository accessibility indicators.
 #----------------------------------------------------------------------------------------
 pcp_internet_check() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '          <legend>Checking Internet and repository accessiblity. . . </legend>'
-	echo '          <table class="bggrey percent100">'
 	#--------------------------------Internet accessible---------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
+
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -493,7 +483,7 @@ pcp_internet_check() {
 	pcp_indicator_js
 	#-----------------------------------DNS accessible-----------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
+
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -506,7 +496,7 @@ pcp_internet_check() {
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository 1 accessible-----------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -519,7 +509,7 @@ pcp_internet_check() {
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository 2 accessible-----------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -532,7 +522,7 @@ pcp_internet_check() {
 	pcp_indicator_js
 	#------------------------Official piCore repository accessible-----------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '            <tr class="'$ROWSHADE'">'
 	echo '              <td class="column50 center">'
 	echo '                <p id="indicator'$ID'">?</p>'
@@ -546,7 +536,7 @@ pcp_internet_check() {
 	#--------------------Official piCore mirror repository accessible--------------------
 	if [ $MODE -ge $MODE_DEVELOPER ]; then
 		pcp_incr_id
-		pcp_toggle_row_shade
+
 		echo '            <tr class="'$ROWSHADE'">'
 		echo '              <td class="column50 center">'
 		echo '                <p id="indicator'$ID'">?</p>'
@@ -562,9 +552,7 @@ pcp_internet_check() {
 	echo '          </table>'
 	echo '        </fieldset>'
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
@@ -602,9 +590,7 @@ pcp_free_space_check() {
 # Display tce mirror
 #----------------------------------------------------------------------------------------
 pcp_tce_mirror() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="tce_mirror" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -614,18 +600,16 @@ pcp_tce_mirror() {
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        read MIRROR < /opt/tcemirror
-	                        pcp_textarea_inform "none" 'echo "$MIRROR"' 15
+	                        pcp_textarea "none" 'echo "$MIRROR"' 15
 	                        RESULT=$(ls -al /etc/sysconfig | grep tcedir)
-	                        pcp_textarea_inform "none" 'echo "$RESULT"' 15
+	                        pcp_textarea "none" 'echo "$RESULT"' 15
 	echo '                </td>'
 	echo '              </tr>'
 	echo '            </table>'
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
@@ -659,9 +643,7 @@ pcp_set_repo_status() {
 
 pcp_select_repository() {
 	pcp_set_repo_status
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="current_repository" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -726,7 +708,7 @@ pcp_select_repository() {
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 	echo '                  <input type="submit" name="SUBMIT" value="Set">'
@@ -748,18 +730,14 @@ pcp_select_repository() {
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
 # Available extensions from current tags_*.db
 #----------------------------------------------------------------------------------------
 pcp_show_available_extns() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="available" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -767,7 +745,7 @@ pcp_show_available_extns() {
 	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Available extensions</p>'
@@ -814,18 +792,14 @@ pcp_show_available_extns() {
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
 # Installed extensions - tce-status -i
 #----------------------------------------------------------------------------------------
 pcp_show_installed_extns() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="installed" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -883,18 +857,14 @@ pcp_show_installed_extns() {
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
 # Uninstalled extensions - tce-status -u
 #----------------------------------------------------------------------------------------
 pcp_show_uninstalled_extns() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="uninstalled" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -952,9 +922,7 @@ pcp_show_uninstalled_extns() {
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
@@ -963,9 +931,7 @@ pcp_show_uninstalled_extns() {
 #----------------------------------------------------------------------------------------
 pcp_show_downloaded_extns() {
 	pcp_set_repo_status
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="downloaded" action="'$0'" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -973,7 +939,7 @@ pcp_show_downloaded_extns() {
 	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Downloaded extensions</p>'
@@ -1019,18 +985,16 @@ pcp_show_downloaded_extns() {
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
 # Show current onboot.lst - these are the extensions loaded during a boot.
 #----------------------------------------------------------------------------------------
 pcp_show_onboot_lst() {
-	pcp_table_top "Current $ONBOOTLST"
-	pcp_textarea_inform "none" "cat $ONBOOTLST" 50
-	pcp_table_end
+	echo '<div>'
+	pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 50
+	echo '</div>'
 }
 
 #========================================================================================
@@ -1058,32 +1022,39 @@ pcp_get_dependencies() {
 }
 
 pcp_full_dependency_tree() {
-	[ "$1" != "text" ] && pcp_table_textarea_top "Extension dependency tree" "" "300"
+#	[ "$1" != "text" ] && pcp_table_textarea_top "Extension dependency tree" "" "300"
 	for E in $(cat $ONBOOTLST)
 	do
 		pcp_dependency_tree $E
 		echo ""
-	done
-	[ "$1" != "text" ] && pcp_table_textarea_end
+	done >/var/log/pcp_dependency_tree.log
+#	[ "$1" != "text" ] && pcp_table_textarea_end
+
+	echo '<div>'
+	pcp_textarea "Extension dependency tree" "cat /var/log/pcp_dependency_tree.log" 15
+	echo '</div>'
 }
 
 #========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
-#pcp_generate_report
 pcp_debug_info
 
 echo '<!-- Start of pcp_extension_tabs toolbar -->'
-echo '<p style="margin-top:8px;">'
+echo '  <div>'
+echo '    <ul class="nav nav-tabs navbar-dark mt-1">'
 
 [ x"" = x"$CALLED_BY" ] && CALLED_BY="Information"
-for tab in Information Available Installed Uninstalled onboot.lst; do
-	[ "$tab" = "$CALLED_BY" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
-	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='$tab'" title="'$tab'">'$tab'</a>'
+for TAB in Information Available Installed Uninstalled onboot.lst
+do
+	[ "$TAB" = "$CALLED_BY" ] && TAB_ACTIVE="active" || TAB_ACTIVE=""
+	echo '      <li class="nav-item">'
+	echo '        <a class="nav-link '$TAB_ACTIVE'" href="'$0'?CALLED_BY='$TAB'" title="'$TAB'">'$TAB'</a>'
+	echo '      </li>'
 done
 
-echo '</p>'
-echo '<div class="tab7end" style="margin-bottom:10px;">pCP</div>'
+echo '    </ul>'
+echo '  </div>'
 echo '<!-- End of pcp_extension_tabs toolbar -->'
 
 case "$CALLED_BY" in
@@ -1139,10 +1110,5 @@ case "$CALLED_BY" in
 esac
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-[ $DEBUG -eq 1 ] && pcp_mode
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit

@@ -49,9 +49,5 @@ pcp_textarea "Directory of www/cgi-bin" "ls -al" 10 log
 
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button diagnostics
 
-pcp_footer
-pcp_copyright
-echo '</div>'
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit

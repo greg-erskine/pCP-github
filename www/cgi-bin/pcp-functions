@@ -1012,7 +1012,7 @@ pcp_textarea() {
 	[ $3 -gt 30 ] && ROWS=10 || ROWS="$3"
 	echo '  <div class="form-group mt-3">'
 	[ "$TITLE" = "none" ] ||
-	echo '    <label for="ta'$ID'">[ INFO ] '$TITLE'</label>'
+	echo '    <label class="ml-1" for="ta'$ID'">[ INFO ] '$TITLE'</label>'
 	echo '    <textarea class="form-control rounded-0" style="font-family: monospace" id="ta'$ID'" rows="'$ROWS'">'
 	            eval $2
 	echo '    </textarea>'
