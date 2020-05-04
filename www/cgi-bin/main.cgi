@@ -192,7 +192,7 @@ pcp_main_restart_squeezelite() {
 	echo '  <div class="form-group row">'
 	echo '    <div class="'$COLUMN1'">'
 	echo '      <form name="Restart" action="restartsqlt.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" style="width: 150px" value="Restart">Restart</button>'
+	echo '        <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
 	echo '      </form>'
 	echo '    </div>'
 	echo '    <div class="'$COLUMN2'">'

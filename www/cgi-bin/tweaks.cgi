@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-12-22
+# Version: 7.0.0 2020-05-04
 
 set -f
 
@@ -10,10 +10,8 @@ set -f
 
 pcp_html_head "Tweaks" "SBP"
 
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
 
 #========================================================================================
 # pCP System Tweaks

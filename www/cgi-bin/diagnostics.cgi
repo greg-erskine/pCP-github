@@ -1,10 +1,11 @@
 #!/bin/sh
 # Diagnostics script
 
-# Version: 7.0.0 2020-05-01
+# Version: 7.0.0 2020-05-04
 
 . pcp-functions
 . pcp-rpi-functions
+. pcp-lms-functions
 . pcp-pastebin-functions
 
 # Local variables
@@ -13,6 +14,7 @@ pcp_log_header $0
 
 pcp_html_head "Diagnostics" "GE"
 
+pcp_controls
 pcp_diagnostics
 
 #=========================================================================================
@@ -49,6 +51,7 @@ pcp_textarea "Directory of www/cgi-bin" "ls -al" 10 log
 
 pcp_footer
 pcp_copyright
+echo '</div>'
 echo '</body>'
 echo '</html>'
 exit

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-10-29
+# Version: 7.0.0 2020-05-04
 
 . pcp-functions
 . pcp-rpi-functions
@@ -13,10 +13,8 @@ unset ERROR_FLG
 
 pcp_html_head "Wifi WPA Settings" "GE"
 
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
 pcp_httpd_query_string_no_decode
 [ $DEBUG -eq 0 ] && pcp_remove_query_string
 
