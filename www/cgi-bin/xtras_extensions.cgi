@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-04
+# Version: 7.0.0 2020-05-05
 
 #========================================================================================
 # This script downloads, installs, deletes, updates and reports on extensions.
@@ -25,6 +25,7 @@ pcp_navbar
 pcp_httpd_query_string
 pcp_debug_info
 
+DEBUG=1
 #========================================================================================
 # Set variables
 #----------------------------------------------------------------------------------------
@@ -51,11 +52,10 @@ sudo chmod 777 $ACCCESSIBLETXT
 pcp_debug_info() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
-		echo '<div>' #"Debug"
+		pcp_heading5 "Debug"
 		pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG \
 			PCP_CUR_REPO PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1 PICORE_REPO_2 \
 			CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
-		echo '</div>'
 		echo '<!-- End of debug info -->'
 	fi
 }
@@ -154,14 +154,14 @@ pcp_install_extn() {
 #       Reboot required.
 #----------------------------------------------------------------------------------------
 pcp_delete_extn() {
-	pcp_table_top "Marking '$EXTN' and dependencies for deletion . . . "
-	echo '                <textarea class="inform" style="height:80px">'
+	echo '<div> "Marking '$EXTN' and dependencies for deletion . . . "'
+	echo '                <textarea>'
 	sudo -u tc tce-audit builddb
 	echo
 	echo 'After a reboot these extensions will be permanently deleted:'
 	sudo -u tc tce-audit delete $EXTN
 	echo '                </textarea>'
-	pcp_table_end
+	echo '</div>'
 }
 
 #========================================================================================
@@ -302,7 +302,7 @@ pcp_display_information() {
 		echo '      <form name="Extension_size" method="get">'
 		echo '        <div class="row">'
 
-		echo "            <h5>Information for '$EXTN'. . . </h5>"
+		echo '            <h5>Information for '$EXTN'. . . </h5>'
 		echo '            <table class="bggrey percent100">'
 		#--------------------------------------------------------------------------------
 
@@ -559,10 +559,7 @@ pcp_internet_check() {
 # Display disk space using df
 #----------------------------------------------------------------------------------------
 pcp_free_space_check() {
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+
 	echo '      <form name="diskspace" method="get">'
 	echo '        <div class="row">'
 	echo '          <fieldset>'
@@ -581,9 +578,7 @@ pcp_free_space_check() {
 	echo '          </fieldset>'
 	echo '        </div>'
 	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+
 }
 
 #========================================================================================
@@ -596,7 +591,7 @@ pcp_tce_mirror() {
 	echo '          <fieldset>'
 	echo '            <legend>Current tcemirror/tcedir</legend>'
 	echo '            <table class="bggrey percent100">'
-	pcp_start_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td>'
 	                        read MIRROR < /opt/tcemirror
@@ -652,7 +647,6 @@ pcp_select_repository() {
 	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
 
 	if [ $INTERNET_ACCESSIBLE -a $DNS_ACCESSIBLE ]; then
 		if [ $PCP_REPO_1_ACCESSIBLE ]; then
@@ -872,7 +866,7 @@ pcp_show_uninstalled_extns() {
 	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="column150">'
 	echo '                  <p>Uninstalled extensions</p>'
@@ -906,7 +900,7 @@ pcp_show_uninstalled_extns() {
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td colspan="3">'
 #	echo '                  <input type="submit" name="SUBMIT" value="Info">'
@@ -972,7 +966,6 @@ pcp_show_downloaded_extns() {
 	echo '                </td>'
 	echo '              </tr>'
 	#------------------------------------------------------------------------------------
-#	pcp_toggle_row_shade
 #	echo '              <tr class="'$ROWSHADE'">'
 #	echo '                <td colspan="3">'
 #	echo '                  <input type="submit" name="SUBMIT" value="Info">'

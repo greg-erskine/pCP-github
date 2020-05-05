@@ -158,42 +158,42 @@ pcp_message() {
 #	FORMAT: colour|text|html
 	local FORMAT=$3
 
-	[ "$4" = "-n" ] && local SLASHP="" || local SLASHP="</p>"
+	[ "$4" = "-n" ] && local SLASHP="" || local SLASHP="</div>"
 
 	case $TYPE in
 		OK|ok)
 			case $FORMAT in
 				col*|COL*) echo $4 "${GREEN}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo $4 '[ OK ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="ok">[ OK ] '${MESSAGE}${SLASHP} ;;
+				html|HTML) echo '<div class="text-success">[ OK ] '${MESSAGE}${SLASHP} ;;
 			esac
 		;;
 		INFO|info)
 			case $FORMAT in
 				col*|COL*) echo $4 "${YELLOW}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo $4 '[ INFO ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="info">[ INFO ] '${MESSAGE}${SLASHP} ;;
+				html|HTML) echo '<div class="text-info">[ INFO ] '${MESSAGE}${SLASHP} ;;
 			esac
 		;;
 		ERROR|error)
 			case $FORMAT in
 				col*|COL*) echo $4 "${RED}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo $4 '[ ERROR ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="error">[ ERROR ] '${MESSAGE}${SLASHP} ;;
+				html|HTML) echo '<div class="text-danger">[ ERROR ] '${MESSAGE}${SLASHP} ;;
 			esac
 		;;
 		DEBUG|debug)
 			case $FORMAT in
 				col*|COL*) echo $4 "${ORANGE}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo $4 '[ DEBUG ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="debug">[ DEBUG ] '${MESSAGE}${SLASHP} ;;
+				html|HTML) echo '<div class="text-warning">[ DEBUG ] '${MESSAGE}${SLASHP} ;;
 			esac
 		;;
 		WARN|warn)
 			case $FORMAT in
 				col*|COL*) echo $4 "${ORANGE}${MESSAGE}${NORMAL}" ;;
 				text|TEXT) echo $4 '[ WARN ] '${MESSAGE} ;;
-				html|HTML) echo '<p class="debug">[ WARN ] '${MESSAGE}${SLASHP} ;;
+				html|HTML) echo '<div class="text-warning">[ WARN ] '${MESSAGE}${SLASHP} ;;
 			esac
 		;;
 	esac
@@ -608,6 +608,7 @@ pcp_html_head() {
 
 	echo '  <!-- Required meta tags -->'
 	echo '  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">'
+
 	echo '  <!-- Bootstrap CSS -->'
 
 	echo '  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">'
@@ -711,7 +712,7 @@ pcp_navbar() {
 
 	echo '        <li class="nav-item dropdown">'
 	echo '          <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">'$NAME'</a>'
-	echo '          <div class="dropdown-menu" collapse>'
+	echo '          <div class="dropdown-menu collapse">'
 	echo '            <a id="PlayerTabsAfter" href="#"></a>'
 	                  # playerstabs.cgi adds content here via a javascript
 	echo '          </div>'
@@ -1056,7 +1057,7 @@ pcp_table_top() {
 
 pcp_table_textarea_top() {
 	pcp_table_top "$1" "$2"
-	echo '                <textarea class="inform" style="height:'$3'px">'
+	echo '                <textarea style="height:'$3'px">'
 }
 
 pcp_table_middle() {
@@ -1079,12 +1080,12 @@ pcp_table_textarea_end() {
 pcp_httpd_query_string_double_quote() {
 	# Process the $QUERY_STRING from httpd
 	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</div>'
 }
 
 pcp_httpd_query_string_single_quote() {
 	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\047\n",$i} }' | sed "s/=/='/")
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</div>'
 }
 
 pcp_httpd_query_string() {
@@ -1096,7 +1097,7 @@ pcp_httpd_query_string() {
 pcp_httpd_query_string_no_decode() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</p>'
+	[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</div>'
 }
 
 # This will remove the query string from the url, prevents page reloads and document.referrer from

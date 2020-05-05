@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-04
+# Version: 7.0.0 2020-05-05
 
 . pcp-functions
 . pcp-lms-functions
@@ -12,6 +12,7 @@ pcp_controls
 pcp_diagnostics
 pcp_httpd_query_string
 
+DEBUG=1
 COLUMN1="col-12"
 BUTTON="btn btn-primary w-50"
 #========================================================================================
@@ -57,21 +58,14 @@ cd $CWD
 
 if [ $DEBUG -eq 1 ]; then
 	echo '<!-- Start of debug info -->'
-	pcp_table_top "debug"
+	pcp_heading5 "Debug"
 	pcp_debug_variables "html" SELECTION ACTION LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
-	pcp_table_end
 	echo '<!-- End of debug info -->'
 fi
 
 #========================================================================================
 # Log selection form
 #----------------------------------------------------------------------------------------
-#echo '  <div class="row mt-3">'
-#echo '    <div class="'$COLUMN1'">'
-#echo '      <h5>Log file operations</h5>'
-#echo '    </div>'
-#echo '  </div>'
-
 pcp_heading5 "Log file operations"
 
 #----------------------------------------------------------------------------------------

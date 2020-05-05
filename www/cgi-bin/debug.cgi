@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-10-26
+# Version: 7.0.0 2020-05-06
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
@@ -55,7 +55,7 @@ pcp_debug_cli() {
 			pcp_debug_reset
 		;;
 		*)
-			[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] Invalid option: '$QUERY_STRING'</p>'
+			[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ ERROR ] Invalid option: '$QUERY_STRING'</div>'
 		;;
 	esac
 	. $PCPCFG
@@ -78,82 +78,71 @@ case "$ACTION" in
 	Res*) pcp_debug_reset ;;
 esac
 
-pcp_banner
-pcp_navigation
+pcp_navbar
 
 #========================================================================================
 # Debug info
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	
-	echo '<div>'
-#	pcp_table_top "Debug"
 	pcp_debug_variables "html" QUERY_STRING DEBUG d MODE m TEST t ACTION
-#	pcp_table_end
-	echo '</div>'
 fi
 
 #========================================================================================
 # Debug table
 #----------------------------------------------------------------------------------------
+pcp_heading5 "Set debug options"
+
 echo '<div>'
-echo '  <h4 class="mt-12">Set debug options</h4>'
 echo '  <form name="debug" action="'$0'" method="get">'
 echo '    <fieldset>'
 #--------------------------------------DEBUG---------------------------------------------
-eval D${DEBUG}SELECTED=checked
+eval D${DEBUG}SELECTED="checked"
 
 echo '    <div class="form-group row mt-12">'
-
-echo '        <div class="col-2">DEBUG</div>'
-echo '        <div class="col-3">'
-echo '          <input id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
-echo '          <label for="rad1">On&nbsp;</label>'
-echo '          <input id="rad2" type="radio" name="d" value="0" '$D0SELECTED'>'
-echo '          <label for="rad2">Off</label>'
-echo '        </div>'
-echo '        <div class="col-7">Set DEBUG: [on|off].</div>'
-
+echo '      <div class="col-2">DEBUG</div>'
+echo '      <div class="col-3">'
+echo '        <input id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
+echo '        <label for="rad1">On&nbsp;</label>'
+echo '        <input id="rad2" type="radio" name="d" value="0" '$D0SELECTED'>'
+echo '        <label for="rad2">Off</label>'
+echo '      </div>'
+echo '      <div class="col-7">Set DEBUG: [on|off].</div>'
 echo '    </div>'
 #--------------------------------------MODE----------------------------------------------
 eval MODE${MODE}="selected"
 
 echo '    <div class="form-group row">'
-
-echo '        <div class="col-sm-2">MODE</div>'
-echo '        <div class="col-sm-3">'
-echo '          <select class="btn btn-primary" name="m">'
-echo '            <option value="10" '$MODE10'>Player</option>'
-echo '            <option value="30" '$MODE30'>Player/Server</option>'
-echo '            <option value="40" '$MODE40'>Beta</option>'
-echo '            <option value="100" '$MODE100'>Developer</option>'
-echo '          </select>'
-echo '        </div>'
-echo '        <div class="col-sm-7">Set MODE level: [Player|Server|Beta|Developer].</div>'
-
+echo '      <div class="col-sm-2">MODE</div>'
+echo '      <div class="col-sm-3">'
+echo '        <select class="btn btn-primary" name="m">'
+echo '          <option value="10" '$MODE10'>Player</option>'
+echo '          <option value="30" '$MODE30'>Player/Server</option>'
+echo '          <option value="40" '$MODE40'>Beta</option>'
+echo '          <option value="100" '$MODE100'>Developer</option>'
+echo '        </select>'
+echo '      </div>'
+echo '      <div class="col-sm-7">Set MODE level: [Player|Server|Beta|Developer].</div>'
 echo '    </div>'
 #--------------------------------------TEST----------------------------------------------
 eval TEST${TEST}="selected"
 
 echo '    <div class="form-group row">'
-
-echo '        <div class="col-2">TEST</div>'
-echo '        <div class="col-3">'
-echo '          <select class="btn btn-primary" name="t">'
-echo '            <option value="0" '$TEST0'>0</option>'
-echo '            <option value="1" '$TEST1'>1</option>'
-echo '            <option value="2" '$TEST2'>2</option>'
-echo '            <option value="3" '$TEST3'>3</option>'
-echo '            <option value="4" '$TEST4'>4</option>'
-echo '            <option value="5" '$TEST5'>5</option>'
-echo '            <option value="6" '$TEST6'>6</option>'
-echo '            <option value="7" '$TEST7'>7</option>'
-echo '            <option value="8" '$TEST8'>8</option>'
-echo '            <option value="9" '$TEST9'>9</option>'
-echo '          </select>'
-echo '        </div>'
-echo '        <div class="col-7">Set TEST level: [0-9].</div>'
-
+echo '      <div class="col-2">TEST</div>'
+echo '      <div class="col-3">'
+echo '        <select class="btn btn-primary" name="t">'
+echo '          <option value="0" '$TEST0'>0</option>'
+echo '          <option value="1" '$TEST1'>1</option>'
+echo '          <option value="2" '$TEST2'>2</option>'
+echo '          <option value="3" '$TEST3'>3</option>'
+echo '          <option value="4" '$TEST4'>4</option>'
+echo '          <option value="5" '$TEST5'>5</option>'
+echo '          <option value="6" '$TEST6'>6</option>'
+echo '          <option value="7" '$TEST7'>7</option>'
+echo '          <option value="8" '$TEST8'>8</option>'
+echo '          <option value="9" '$TEST9'>9</option>'
+echo '        </select>'
+echo '      </div>'
+echo '      <div class="col-7">Set TEST level: [0-9].</div>'
 echo '    </div>'
 #--------------------------------------BUTTONS-------------------------------------------
 echo '    <div class="form-group row">'
@@ -162,16 +151,10 @@ echo '        <button type="submit" class="btn btn-primary" name="ACTION" value=
 echo '        <button type="submit" class="btn btn-primary" name="ACTION" value="Reset">Reset all</button>'
 echo '      </div>'
 echo '    </div>'
-
 #----------------------------------------------------------------------------------------
 echo '    </fieldset>'
 echo '  </form>'
 #----------------------------------------------------------------------------------------
-pcp_footer
-pcp_copyright
 pcp_remove_query_string
-
-echo '</div>'
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit

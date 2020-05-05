@@ -1,16 +1,17 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-04
+# Version: 7.0.0 2020-05-06
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "Main Page" "SBP"
 
-pcp_httpd_query_string
-
 pcp_controls
 pcp_navbar
+pcp_httpd_query_string
+
+pcp_debug_variables "html" CALLED_BY
 
 COLUMN1="col-sm-4 text-md-right"
 COLUMN2="col-8"
@@ -68,7 +69,7 @@ if [ "$ACTION" = "shutdown" ]; then
 fi
 
 # GE Test
-echo '    <div class="alert alert-primary alert-dismissible fade show" role="alert">'
+echo '    <div class="alert alert-warning alert-dismissible fade show" role="alert">'
 echo '      <button type="button" class="close" data-dismiss="alert" aria-label="Close">'
 echo '        <span aria-hidden="true">&times;</span>'
 echo '      </button>'
@@ -178,11 +179,45 @@ pcp_main_shairport_indication() {
 [ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
 
-echo '  <ul class="nav nav-tabs navbar-dark mb-3">'
-echo '    <li class="nav-item">'
-echo '      <a class="nav-link active" href="#!">Main piCorePlayer functions</a>'
-echo '    </li>'
-echo '  </ul>'
+#-------------------------------------Main Tab-------------------------------------------
+[ x"" = x"$CALLED_BY" ] && CALLED_BY="Main"
+
+pcp_debug_variables "html" CALLED_BY TAB_MAIN TAB_ADVANCED TAB_UPDATES TAB_BETA TAB_DEVELOPER
+
+case "$CALLED_BY" in
+	Main)      TAB_MAIN="active" ;;
+	Advanced)  TAB_ADVANCED="active" ;;
+	Updates)   TAB_UPDATES="active" ;;
+	Beta)      TAB_BETA="active" ;;
+	Developer) TAB_DEVELOPER="active" ;;
+esac
+
+echo '<!-- Start of pcp_main_tabs toolbar -->'
+echo '  <div>'
+echo '    <ul class="nav nav-tabs navbar-dark mb-3">'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link '$TAB_MAIN'" href="'$0'?CALLED_BY=Main">Main piCorePlayer functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link '$TAB_ADVANCED'" href="'$0'?CALLED_BY=Advanced">Advanced functions</a>'
+echo '      </li>'
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link '$TAB_UPDATES'" href="'$0'?CALLED_BY=Updates">Updates</a>'
+echo '      </li>'
+if [ $MODE -ge $MODE_BETA ]; then 
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link '$TAB_BETA'" href="'$0'?CALLED_BY=Beta">Beta functions</a>'
+echo '      </li>'
+fi
+if [ $MODE -ge $MODE_DEVELOPER ]; then 
+echo '      <li class="nav-item">'
+echo '        <a class="nav-link '$TAB_DEVELOPER'" href="'$0'?CALLED_BY=Developer">Developer functions</a>'
+echo '      </li>'
+fi
+echo '    </ul>'
+echo '  </div>'
+echo '<!-- End of pcp_main_tabs toolbar -->'
+#----------------------------------------------------------------------------------------
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
 pcp_main_restart_squeezelite() {
@@ -238,7 +273,14 @@ pcp_main_restart_shairport() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ "$SHAIRPORT" = "yes" ] && pcp_main_restart_shairport || pcp_main_restart_squeezelite
+
+if [ "$CALLED_BY" = "Main" ]; then
+	if [ "$SHAIRPORT" = "yes" ]; then
+		pcp_main_restart_shairport
+	else
+		pcp_main_restart_squeezelite
+	fi
+fi
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update Squeezelite----------------------------
@@ -277,7 +319,7 @@ pcp_main_update_sqlt() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_update_sqlt
+[ "$CALLED_BY" = "Main" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_sqlt
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Install/Remove FFMPEG-------------------------
@@ -292,7 +334,6 @@ pcp_main_ffmpeg() {
 	pcp_incr_id
 
 	if [ "${VERSIONsmall}" = "selected" ]; then
-
 		echo '  <div class="form-group row">'
 		echo '    <div class="'$COLUMN1'">'
 		echo '      <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
@@ -331,7 +372,7 @@ pcp_main_ffmpeg() {
 		echo '  </div>'
 	fi
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_ffmpeg
+[ "$CALLED_BY" = "Main" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_ffmpeg
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Bluetooth-------------------------------------
@@ -355,7 +396,7 @@ pcp_main_bluetooth() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_bluetooth
+[ "$CALLED_BY" = "Main" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_bluetooth
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------
@@ -384,7 +425,7 @@ pcp_main_reboot() {
 	echo '    </div>'
 	echo '  </div>'
 }
-pcp_main_reboot
+[ "$CALLED_BY" = "Main" ] && pcp_main_reboot
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Diagnostics-----------------------------------
@@ -408,7 +449,7 @@ pcp_main_diagnostics() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_diagnostics
+[ "$CALLED_BY" = "Main" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_diagnostics
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Save to USB-----------------------------------
@@ -439,17 +480,10 @@ pcp_main_save_usb() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
+[ "$CALLED_BY" = "Main" ] && [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------Advanced mode ----------------------------
-if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '  <ul class="nav nav-tabs navbar-dark mb-3">'
-	echo '    <li class="nav-item">'
-	echo '      <a class="nav-link active" href="#!">Advanced functions</a>'
-	echo '    </li>'
-	echo '  </ul>'
-fi
+#--------------------------------------Advanced mode-------------------------------------
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Stop------------------------------------------
@@ -479,7 +513,7 @@ pcp_main_stop() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_stop
+[ "$CALLED_BY" = "Advanced" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_stop
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Backup----------------------------------------
@@ -511,7 +545,7 @@ pcp_main_backup() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_backup
+[ "$CALLED_BY" = "Advanced" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_backup
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Shutdown--------------------------------------
@@ -537,7 +571,7 @@ pcp_main_shutdown() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_shutdown
+[ "$CALLED_BY" = "Advanced" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_shutdown
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Resize FS-------------------------------------
@@ -562,7 +596,7 @@ pcp_main_resize_fs() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_resize_fs
+[ "$CALLED_BY" = "Advanced" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_resize_fs
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Extensions------------------------------------
@@ -586,17 +620,10 @@ pcp_main_extensions() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_extensions
+[ "$CALLED_BY" = "Advanced" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Update fieldset-------------------------------
-if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '  <ul class="nav nav-tabs navbar-dark mb-3">'
-	echo '    <li class="nav-item">'
-	echo '      <a class="nav-link active" href="#!">Updates</a>'
-	echo '    </li>'
-	echo '  </ul>'
-fi
+#--------------------------------------------Update------t-------------------------------
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------Update pcp web and base----------------------------
@@ -621,7 +648,7 @@ pcp_main_update_pcpbase() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcpbase
+[ "$CALLED_BY" = "Updates" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcpbase
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------HotFix----------------------------------------
@@ -646,7 +673,7 @@ pcp_main_minor_update() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_minor_update
+[ "$CALLED_BY" = "Updates" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_minor_update
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update pCP------------------------------------
@@ -684,17 +711,10 @@ pcp_main_update_pcp() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcp
+[ "$CALLED_BY" = "Updates" ] && [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcp
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Beta mode fieldset----------------------------
-if [ $MODE -ge $MODE_BETA ]; then
-	echo '  <ul class="nav nav-tabs navbar-dark mb-3">'
-	echo '    <li class="nav-item">'
-	echo '      <a class="nav-link active" href="#!">Beta functions</a>'
-	echo '    </li>'
-	echo '  </ul>'
-fi
+#------------------------------------------Beta mode-------------------------------------
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Static IP-------------------------------------
@@ -720,7 +740,7 @@ pcp_main_static_ip() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
+[ "$CALLED_BY" = "Beta" ] && [ $MODE -ge $MODE_BETA ] && pcp_main_static_ip
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Extras----------------------------------------
@@ -744,7 +764,7 @@ pcp_main_extras() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_main_extras
+[ "$CALLED_BY" = "Beta" ] && [ $MODE -ge $MODE_BETA ] && pcp_main_extras
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Security--------------------------------------
@@ -768,7 +788,7 @@ pcp_main_security() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_main_security
+[ "$CALLED_BY" = "Beta" ] && [ $MODE -ge $MODE_BETA ] && pcp_main_security
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Dosfsck---------------------------------------
@@ -792,17 +812,10 @@ pcp_main_dosfsck() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
+[ "$CALLED_BY" = "Beta" ] && [ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------Developer mode ---------------------------
-if [ $MODE -ge $MODE_DEVELOPER ]; then
-	echo '  <ul class="nav nav-tabs navbar-dark mb-3">'
-	echo '    <li class="nav-item">'
-	echo '      <a class="nav-link active" href="#!">Developer functions</a>'
-	echo '    </li>'
-	echo '  </ul>'
-fi
+#----------------------------------------Developer mode ---------------------------------
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reset ALL-------------------------------------
@@ -827,7 +840,7 @@ pcp_main_reset_all() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_reset_all
+[ "$CALLED_BY" = "Developer" ] && [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_reset_all
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Restore ALL-----------------------------------
@@ -852,7 +865,7 @@ pcp_main_restore_all() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_restore_allx
+[ "$CALLED_BY" = "Developer" ] && [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_restore_allx
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Update config---------------------------------
@@ -876,7 +889,7 @@ pcp_main_update_config() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_config
+[ "$CALLED_BY" = "Developer" ] && [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_update_config
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Debug-----------------------------------------
@@ -900,7 +913,7 @@ pcp_main_debug() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_debug
+[ "$CALLED_BY" = "Developer" ] && [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_debug
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------copy2fs---------------------------------------
@@ -924,7 +937,7 @@ pcp_main_copy2fs() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_copy2fs
+[ "$CALLED_BY" = "Developer" ] && [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
 
 pcp_footer
@@ -934,3 +947,4 @@ pcp_copyright
 echo '</div>'
 echo '</body>'
 echo '</html>'
+exit

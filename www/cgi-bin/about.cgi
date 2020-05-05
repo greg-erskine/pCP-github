@@ -54,9 +54,5 @@ echo '      <p>//Paul, Ralphy, Steen and Greg</p>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-echo '</div>'
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit
