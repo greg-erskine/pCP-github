@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-11-03
+# Version: 7.0.0 2020-05-05
 
-# This function is for writting to the pcp.cfg in the background.
+# This function is for writing to the pcp.cfg in the background.
 
 . pcp-functions
 
@@ -17,5 +17,3 @@ fi
 
 pcp_save_to_config
 echo "OK"
-
-

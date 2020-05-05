@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-04
+# Version: 7.0.0 2020-05-05
 
 WWW_BUILD=0008
 
@@ -661,7 +661,7 @@ pcp_navbar() {
 
 	echo '    <a class="navbar-brand" href="main.cgi">'
 	echo '      <img src="../images/pCP.png" height="30" alt="piCorePlayer"> piCorePlayer</a>'
-	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
+	echo '      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
 	echo '      <span class="navbar-toggler-icon"></span>'
 	echo '    </button>'
 
@@ -686,9 +686,8 @@ pcp_navbar() {
 	echo '          <a class="nav-link" href="about.cgi">About</a>'
 	echo '        </li>'
 	echo '      </ul>'
-	echo '    </div>'
 
-	echo '    <div class="navbar-nav">'
+	echo '      <ul class="navbar-nav ml-md-auto">'
 
 	# LMS web interface tab
 	if [ $MODE -ge $MODE_PLAYER ] && [ "$PLAYERTABS" = "yes" ]; then
@@ -698,25 +697,27 @@ pcp_navbar() {
 			LMSIP=$(pcp_lmsip)
 		fi
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
-		echo '      <a class="nav-item nav-link" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		echo '        <li class="nav-item">'
+		echo '          <a class="nav-link" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		echo '        </li>' 
 	fi
 
-	# Online pCP Help
-	echo '      <a class="nav-item nav-link" 
-	            href="https://www.picoreplayer.org/main_about.shtml"
-	            title="Online pCP Help"
-	            target="_blank">Help</a>'
+	echo '        <li class="nav-item">'
+	echo '          <a class="nav-link" 
+	                href="https://www.picoreplayer.org/main_about.shtml"
+	                title="Online pCP Help"
+	                target="_blank">Help</a>'
+	echo '        </li>'
 
-	echo '      <div class="nav-item dropdown">'
-	echo '        <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">'$NAME'</a>'
-	echo '        <div class="dropdown-menu" collapse>'
-	echo '          <a id="PlayerTabsAfter" href="#"></a>'
-	                # playerstabs.cgi adds content here via a javascript
-	echo '        </div>'
-	echo '      </div>'
-
+	echo '        <li class="nav-item dropdown">'
+	echo '          <a href="#" class="nav-link dropdown-toggle active" data-toggle="dropdown">'$NAME'</a>'
+	echo '          <div class="dropdown-menu" collapse>'
+	echo '            <a id="PlayerTabsAfter" href="#"></a>'
+	                  # playerstabs.cgi adds content here via a javascript
+	echo '          </div>'
+	echo '        </li>'
+	echo '      </ul>'
 	echo '    </div>'
-
 	echo '  </nav>'
 	echo '<!-- End of pcp_navigation toolbar -->'
 
