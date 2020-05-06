@@ -104,7 +104,11 @@ case "${ACTION}" in
 		SPACE_REQUIRED=7000
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
+<<<<<<< Updated upstream
 		echo '                <textarea class="col-12 text-monospace" rows="15">'
+=======
+		echo '                <textarea class="col-12 monospace" style="height:200px">'
+>>>>>>> Stashed changes
 		pcp_squeezelite_stop "text"
 		if [ $DEBUG -eq 1 ]; then
 			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
@@ -122,7 +126,11 @@ case "${ACTION}" in
 	;;
 	rem_ffmpeg)
 		pcp_heading5 "Removing FFMpeg extension"
+<<<<<<< Updated upstream
 		echo '                <textarea class="col-12 text-monospace" rows="15">'
+=======
+		echo '                <textarea class="col-12 monospace" style="height:200px">'
+>>>>>>> Stashed changes
 		pcp_squeezelite_stop "text"
 		pcp_message INFO "FFMpeg extension marked for removal. Reboot required to complete." "text"
 		sudo -u tc tce-audit builddb
