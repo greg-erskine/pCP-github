@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 7.0.0 2020-05-06
 
 . pcp-functions
 
@@ -8,8 +8,7 @@ pcp_html_head "Updating Squeezelite" "SBP"
 
 WGET="/bin/busybox wget"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 unset REBOOT_REQUIRED
@@ -19,42 +18,41 @@ RESULT=0
 # Routines.
 #----------------------------------------------------------------------------------------
 pcp_end() {
-	echo '</body>'
-	echo '</html>'
+	pcp_html_end
 	exit
 }
 
 #----------------------------------------------------------------------------------------
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ACTION='$ACTION'</p>'
+pcp_debug_variables "html" ACTION
+
 case "${ACTION}" in
 	update)
-		pcp_table_top "Updating Squeezelite extension"
+		pcp_heading5 "Updating Squeezelite extension"
 		SPACE_REQUIRED=95
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="inform" style="height:180px">'
-		pcp_squeezelite_stop "nohtml"
-		echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
-
-		echo '[ INFO ] Waiting for Squeezelite to complete shutdown...'
+		echo '                <textarea class="col-12 monospace" style="height:200px">'
+		pcp_squeezelite_stop "text"
+		pcp_message INFO "Current Squeezelite version: '$(pcp_squeezelite_version)'" "text"
+		pcp_message INFO "Waiting for Squeezelite to complete shutdown..." "text"
 		CNT=0
 		until ! lsof | grep -q /tmp/tcloop/pcp-squeezelite
 		do
 			[ $((CNT++)) -gt 10 ] && break || sleep 1
 		done
 		if [ $CNT -gt 10 ]; then
-			echo '[ ERROR ] Squeezelite took too long to terminate, please run a full package update.'
+			pcp_message ERROR "Squeezelite took too long to terminate, please run a full package update." "text"
 			RESULT=1
 		fi
-		echo '[ INFO ] Removing old Squeezelite extension...'
+		pcp_message INFO "Removing old Squeezelite extension..." "text"
 		if [ $RESULT -eq 0 -a -d /tmp/tcloop/pcp-squeezelite ]; then
 			umount -d /tmp/tcloop/pcp-squeezelite
 			RESULT=$?
 		fi
 		if [ $RESULT -ne 0 ]; then
-			echo '[ ERROR ] Inplace update failed, please run a full package update.'
+			pcp_message ERROR "In place update failed, please run a full package update." "text"
 		else
-			echo '[ INFO ] Updating Squeezelite extension...'
+			pcp_message INFO "Updating Squeezelite extension..." "text"
 			rm -f /usr/local/tce.installed/pcp-squeezelite
 			mv -f $PACKAGEDIR/pcp-squeezelite.tcz /tmp
 			mv -f $PACKAGEDIR/pcp-squeezelite.tcz.md5.txt /tmp
@@ -65,40 +63,40 @@ case "${ACTION}" in
 			fi
 			if [ $? -ne 0 ]; then
 				DLERROR=1
-				echo '[ ERROR ] Download unsuccessful, try again later!'
+				pcp_message ERROR "Download unsuccessful, try again later!" "text"
 				mv -f /tmp/pcp-squeezelite.tcz $PACKAGEDIR
 				mv -f /tmp/pcp-squeezelite.tcz.md5.txt $PACKAGEDIR
 			else
 				rm -f /tmp/pcp-squeezelite.tcz*
 			fi
-			echo '[ INFO ] Reloading Squeezelite extension...'
+			pcp_message INFO "Reloading Squeezelite extension..." "text"
 			sudo -u tc pcp-load -i pcp-squeezelite.tcz
-			echo '[ INFO ] Current Squeezelite version: '$(pcp_squeezelite_version)''
+			pcp_message INFO "Current Squeezelite version: '$(pcp_squeezelite_version)'" "text"
 		fi
 		[ $DEBUG -eq 1 ] && (echo '[ OK ] '; ls -al ${SQLT_BIN})
-		pcp_squeezelite_start "nohtml"
+		pcp_squeezelite_start "text"
 		echo '                </textarea>'
 	;;
 	full_update)
-		pcp_table_top "Updating Squeezelite and any needed dependencies"
+		pcp_heading5 "Updating Squeezelite and any needed dependencies"
 		SPACE_REQUIRED=1300
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="inform" style="height:150px">'
-		pcp_squeezelite_stop "nohtml"
+		echo '                <textarea class="col-12 monospace" style="height:200px">'
+		pcp_squeezelite_stop "text"
 		pcp-update pcp-squeezelite
 		CHK=$?
 		if [ $CHK -eq 2 ]; then
-			echo '[ INFO ] There is no update for Squeezelite at this time.'
+			pcp_message INFO "There is no update for Squeezelite at this time." "text"
 			unset REBOOT_REQUIRED
 		elif [ $CHK -eq 1 ]; then
-			echo '[ ERROR ] There was an error updating Squeezelite, please try again later.'
+			pcp_message ERROR "There was an error updating Squeezelite, please try again later." "text"
 			unset REBOOT_REQUIRED
 		else
-			echo '[ INFO ] A [Reboot] is required to complete the update.'
+			pcp_message INFO "A [Reboot] is required to complete the update." "text"
 			REBOOT_REQUIRED=TRUE
 		fi
-		pcp_squeezelite_start "nohtml"
+		pcp_squeezelite_start "text"
 		echo '                </textarea>'
 	;;
 	inst_ffmpeg)
@@ -139,10 +137,9 @@ case "${ACTION}" in
 	;;
 esac
 
-pcp_table_middle
+echo '<div class="mt-3">'
 pcp_redirect_button "Go to Main Page" "main.cgi" 10
-pcp_table_end
-pcp_footer
-pcp_copyright
+echo '</div>'
+
 [ $REBOOT_REQUIRED ] && pcp_reboot_required
 pcp_end

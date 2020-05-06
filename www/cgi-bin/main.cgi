@@ -23,22 +23,18 @@ BUTTON="btn btn-primary w-50"
 if [ "$ACTION" = "reboot" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
-	pcp_table_top "Rebooting"
 	echo '<p>'$NAME' is rebooting...</p>'
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		pcp_debug_variables "html" MODEL RB_DELAY
 		echo '<!-- End of debug info -->'
 	fi
-	pcp_table_middle
+	echo '<div>'
 	pcp_redirect_button "Refresh Main Page" "main.cgi" $RB_DELAY
-	pcp_table_end
-	pcp_footer
-	pcp_copyright
+	echo '</div>'
 	pcp_remove_query_string
-	echo '</body>'
-	echo '</html>'
-	pcp rb
+	pcp_html_end
+	sudo reboot
 	exit
 fi
 
@@ -48,7 +44,6 @@ fi
 if [ "$ACTION" = "shutdown" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
-	pcp_table_top "Shutdown"
 	echo '<p>'$NAME' is shutting down...</p>'
 	echo '<p><b>Note:</b> You need to reapply power to restart after a shutdown.</p>'
 	if [ $DEBUG -eq 1 ]; then
@@ -56,25 +51,14 @@ if [ "$ACTION" = "shutdown" ]; then
 		pcp_debug_variables "html" MODEL RB_DELAY
 		echo '<!-- End of debug info -->'
 	fi
-	pcp_table_middle
+	echo '<div>'
 	pcp_redirect_button "Refresh Main Page" "main.cgi" 15
-	pcp_table_end
-	pcp_footer
-	pcp_copyright
+	echo '</div>'
 	pcp_remove_query_string
-	echo '</body>'
-	echo '</html>'
-	pcp sd
+	pcp_html_end
+	exitcheck.sh
 	exit
 fi
-
-# GE Test
-echo '    <div class="alert alert-warning alert-dismissible fade show" role="alert">'
-echo '      <button type="button" class="close" data-dismiss="alert" aria-label="Close">'
-echo '        <span aria-hidden="true">&times;</span>'
-echo '      </button>'
-echo '      Reboot pending.'
-echo '    </div>'
 
 #========================================================================================
 # Main piCorePlayer operations

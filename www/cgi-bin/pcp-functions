@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-05
+# Version: 7.0.0 2020-05-06
 
 WWW_BUILD=0008
 
@@ -222,110 +222,6 @@ pcp_red_cross() {
 	STATUS="$1"
 }
 
-#========================================================================================
-# Bootstrap icons - using Alpha 3 versions - Will need updating sometime.
-#
-# References:
-#  - https://icons.getbootstrap.com/
-#----------------------------------------------------------------------------------------
-pcp_bi_check() {
-	echo '<svg class="bi bi-check text-success" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em" added .text-danger
-pcp_bi_x() {
-	echo '<svg class="bi bi-x text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
-	echo '  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z" clip-rule="evenodd"/>'
-	echo '</svg>'
-}
-
-# Added .text-info
-pcp_bi_info_circle() {
-	echo '<svg class="bi bi-info-circle text-info" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 108 0a8 8 0 000 16z" clip-rule="evenodd"/>'
-	echo '  <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>'
-	echo '  <circle cx="8" cy="4.5" r="1"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_play_fill() {
-	echo '<svg class="bi bi-play-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_pause_fill() {
-	echo '<svg class="bi bi-pause-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path d="M5.5 3.5A1.5 1.5 0 017 5v6a1.5 1.5 0 01-3 0V5a1.5 1.5 0 011.5-1.5zm5 0A1.5 1.5 0 0112 5v6a1.5 1.5 0 01-3 0V5a1.5 1.5 0 011.5-1.5z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_skip_end_fill() {
-	echo '<svg class="bi bi-skip-end-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M12 3.5a.5.5 0 01.5.5v8a.5.5 0 01-1 0V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>'
-	echo '  <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em", commented out vertical bar
-pcp_bi_skip_backward_fill() {
-	echo '<svg class="bi bi-skip-backward-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-#	echo '  <path fill-rule="evenodd" d="M.5 3.5A.5.5 0 000 4v8a.5.5 0 001 0V4a.5.5 0 00-.5-.5z" clip-rule="evenodd"/>'
-	echo '  <path d="M.904 8.697l6.363 3.692c.54.313 1.233-.066 1.233-.697V4.308c0-.63-.692-1.01-1.233-.696L.904 7.304a.802.802 0 000 1.393z"/>'
-	echo '  <path d="M8.404 8.697l6.363 3.692c.54.313 1.233-.066 1.233-.697V4.308c0-.63-.693-1.01-1.233-.696L8.404 7.304a.802.802 0 000 1.393z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_skip_start_fill() {
-	echo '<svg class="bi bi-skip-start-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M4.5 3.5A.5.5 0 004 4v8a.5.5 0 001 0V4a.5.5 0 00-.5-.5z" clip-rule="evenodd"/>'
-	echo '  <path d="M4.903 8.697l6.364 3.692c.54.313 1.232-.066 1.232-.697V4.308c0-.63-.692-1.01-1.232-.696L4.903 7.304a.802.802 0 000 1.393z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em", commented out vertical bar
-pcp_bi_skip_forward_fill() {
-	echo '<svg class="bi bi-skip-forward-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-#	echo '  <path fill-rule="evenodd" d="M15.5 3.5a.5.5 0 01.5.5v8a.5.5 0 01-1 0V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>'
-	echo '  <path d="M7.596 8.697l-6.363 3.692C.693 12.702 0 12.322 0 11.692V4.308c0-.63.693-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
-	echo '  <path d="M15.096 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.693-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_volume_mute_fill() {
-	echo '<svg class="bi bi-volume-mute-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M6.717 3.55A.5.5 0 017 4v8a.5.5 0 01-.812.39L3.825 10.5H1.5A.5.5 0 011 10V6a.5.5 0 01.5-.5h2.325l2.363-1.89a.5.5 0 01.529-.06zm7.137 1.596a.5.5 0 010 .708l-4 4a.5.5 0 01-.708-.708l4-4a.5.5 0 01.708 0z" clip-rule="evenodd"/>'
-	echo '  <path fill-rule="evenodd" d="M9.146 5.146a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708l-4-4a.5.5 0 00-.708 0z" clip-rule="evenodd"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_volume_down_fill() {
-	echo '<svg class="bi bi-volume-down-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path fill-rule="evenodd" d="M8.717 3.55A.5.5 0 019 4v8a.5.5 0 01-.812.39L5.825 10.5H3.5A.5.5 0 013 10V6a.5.5 0 01.5-.5h2.325l2.363-1.89a.5.5 0 01.529-.06z" clip-rule="evenodd"/>'
-	echo '  <path d="M10.707 11.182A4.486 4.486 0 0012.025 8a4.486 4.486 0 00-1.318-3.182L10 5.525A3.489 3.489 0 0111.025 8c0 .966-.392 1.841-1.025 2.475l.707.707z"/>'
-	echo '</svg>'
-}
-
-# Changed width="2em" height="2em"
-pcp_bi_volume_up_fill() {
-	echo '<svg class="bi bi-volume-up-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-	echo '  <path d="M11.536 14.01A8.473 8.473 0 0014.026 8a8.473 8.473 0 00-2.49-6.01l-.708.707A7.476 7.476 0 0113.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>'
-	echo '  <path d="M10.121 12.596A6.48 6.48 0 0012.025 8a6.48 6.48 0 00-1.904-4.596l-.707.707A5.483 5.483 0 0111.025 8a5.483 5.483 0 01-1.61 3.89l.706.706z"/>'
-	echo '  <path d="M8.707 11.182A4.486 4.486 0 0010.025 8a4.486 4.486 0 00-1.318-3.182L8 5.525A3.489 3.489 0 019.025 8 3.49 3.49 0 018 10.475l.707.707z"/>'
-	echo '  <path fill-rule="evenodd" d="M6.717 3.55A.5.5 0 017 4v8a.5.5 0 01-.812.39L3.825 10.5H1.5A.5.5 0 011 10V6a.5.5 0 01.5-.5h2.325l2.363-1.89a.5.5 0 01.529-.06z" clip-rule="evenodd"/>'
-	echo '</svg>'
-}
-
-HELPBADGE="$(pcp_bi_info_circle)"
 
 #========================================================================================
 # Free space on tce mount device  default:/mnt/mmcblk0p2
@@ -643,7 +539,6 @@ pcp_html_end() {
 	echo '</div>'
 	echo '</body>'
 	echo '</html>'
-	exit
 }
 
 pcp_navbar() {
@@ -724,10 +619,12 @@ pcp_navbar() {
 
 	if [ -f $REBOOT_PENDING ] && [ "$ACTION" != "reboot" ]; then
 		echo '<!-- Start of reboot notification toolbar -->'
-		echo '  <div class="row">'
-		echo '    <p><b>Warning:</b> A reboot is required to complete changes.&nbsp;&nbsp;'
-		echo '      <input type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />'
-		echo '    </p>'
+		echo '  <div class="alert alert-warning alert-dismissible fade show" role="alert">'
+		echo '    <button type="button" class="close" data-dismiss="alert">'
+		echo '      <span aria-hidden="true">&times;</span>'
+		echo '    </button>'
+		echo '    A reboot is required to complete changes.&nbsp;&nbsp;'
+		echo '    <input class="btn btn-primary" type="button" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />'
 		echo '  </div>'
 		echo '<!-- End of reboot notification toolbar -->'
 	fi
@@ -1141,7 +1038,7 @@ pcp_confirmation_required() {
 # Start/stop Squeezelite
 #----------------------------------------------------------------------------------------
 pcp_squeezelite_start() {
-	# $1 - nohtml
+	# $1 - colour|text|html
 	# $2 - display     (Used for taskset)
 
 	if [ "$AUDIO" = "HDMI" ]; then
@@ -1150,27 +1047,29 @@ pcp_squeezelite_start() {
 	if [ "$SHAIRPORT" = "yes" ]; then
 		pcp_shairport_restart $1
 	fi
-	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
+	pcp_message INFO "" $1 -n
 	sudo /usr/local/etc/init.d/squeezelite start
-	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$1" = "html" ] && echo '</div>'
 	[ "$CPUISOL" != "" ] && pcp_squeezelite_taskset $2
 }
 
 pcp_squeezelite_stop() {
-	# $1 - nohtml
-	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
+	# $1 - colour|text|html
+
+	pcp_message INFO "" $1 -n
 	sudo /usr/local/etc/init.d/squeezelite stop
-	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$1" = "html" ] && echo '</div>'
 }
 
 pcp_squeezelite_restart() {
-	# $1 - nohtml
+	# $1 - colour|text|html
+
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
-	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
+	pcp_message INFO "" $1 -n
 	sudo /usr/local/etc/init.d/squeezelite restart
-	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$1" = "html" ] && echo '</div>'
 }
 
 pcp_squeezelite_status() {
@@ -1178,9 +1077,9 @@ pcp_squeezelite_status() {
 	RESULT=$?
 	if [ "$1" = "html" ]; then
 		if [ $RESULT -eq 0 ]; then
-			echo '<p class="ok">[ OK ] Squeezelite running.</p>'
+			pcp_message OK "Squeezelite running." "html"
 		else
-			echo '<p class="error">[ ERROR ] Squeezelite not running.</p>'
+			pcp_message ERROR "Squeezelite not running." "html"
 		fi
 	else
 		echo $RESULT
@@ -1495,9 +1394,9 @@ pcp_umount_device() {
 # If reboot is issued with wifi and net mounted drive, the reboot will hang.
 #----------------------------------------------------------------------------------------
 pcp_reboot() {
-	echo '<p class="info">[ INFO ] piCorePlayer is rebooting...</p>'
+	echo '<p class="text-info">[ INFO ] piCorePlayer is rebooting...</p>'
 	if [ "$NETMOUNT1" = "yes" ]; then
-		echo '<p class="info">[ INFO ] Unmounting Network Shared Drive...</p>'
+		echo '<p class="text-info">[ INFO ] Unmounting Network Shared Drive...</p>'
 		mount | grep -q cifs
 		[ $? -eq 0 ] && umount /mnt/$NETMOUNT1POINT
 	fi
@@ -1505,7 +1404,8 @@ pcp_reboot() {
 }
 
 pcp_shutdown() {
-	echo '<p class="info">[ INFO ] piCorePlayer is shutting down...</p>'
+#	echo '<div class="text-info">[ INFO ] piCorePlayer is shutting down...</div>'
+	pcp_message INFO "piCorePlayer is shutting down..." "html"
 	exitcheck.sh
 }
 
@@ -1759,47 +1659,106 @@ EOF
 }
 
 #========================================================================================
-# This is a developer function only, do not use in normal scripts.
-# Note: This must be obsolete? <==== GE
+# Bootstrap icons - using Alpha 3 versions - Will need updating sometime.
+#
+# References:
+#  - https://icons.getbootstrap.com/
 #----------------------------------------------------------------------------------------
-pcp_reset_config_to_defaults() {
-	pcp_update_config_to_defaults
-
-	# Remove timezone stuff
-	pcp_mount_bootpart_nohtml
-	sudo sed -i 's/\(tz=\)\S*[ ]\+//g' $CMDLINETXT
-	pcp_umount_bootpart_nohtml
-	sudo rm -f /etc/sysconfig/timezone
-
-	# Remove Jivelite stuff
-	sudo rm -f $TCEMNT/tce/optional/pcp-jivelite.tcz
-	sudo rm -f $TCEMNT/tce/optional/pcp-jivelite.tcz.md5.txt
-	sudo rm -rf /home/tc/.jivelite
-	sudo rm -rf /opt/jivelite
-	sudo sed -i '/jivelite.tcz/d' $ONBOOTLST
-	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
-
-	# Remove VU_Meter stuff
-	sudo rm -f $TCEMNT/tce/optional/VU_Meter*.tcz
-	sudo rm -f $TCEMNT/tce/optional/VU_Meter*.tcz.md5.txt
-
-	# Remove wifi stuff
-	sudo sed -i '/firmware-atheros.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-brcmwifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-rpi-wifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-ralinkwifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/firmware-rtlwifi.tcz/d' $ONBOOTLST
-	sudo sed -i '/wireless/d' $ONBOOTLST
-#	sudo sed -i '/wifi.tcz/d' $ONBOOTLST
-
-	# Remove cron stuff
-	( crontab -l | grep -v "reboot" ) | crontab -
-	( crontab -l | grep -v "restart" ) | crontab -
-	( crontab -l | grep -v "Custom" ) | crontab -
-
-	# Reset hostname to pCP default
-	sudo sed -i "s/host[=][^ ]* /host=piCorePlayer /g" $CMDLINETXT
-
-	# Make sure that onboard analog soundcard is enabled and i2s DAC overlays are removed
-	pcp_disable_i2s
+pcp_bi_check() {
+	echo '<svg class="bi bi-check text-success" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
+	echo '</svg>'
 }
+
+# Changed width="2em" height="2em" added .text-danger
+pcp_bi_x() {
+	echo '<svg class="bi bi-x text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z" clip-rule="evenodd"/>'
+	echo '  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z" clip-rule="evenodd"/>'
+	echo '</svg>'
+}
+
+# Added .text-info
+pcp_bi_info_circle() {
+	echo '<svg class="bi bi-info-circle text-info" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zm0 1A8 8 0 108 0a8 8 0 000 16z" clip-rule="evenodd"/>'
+	echo '  <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>'
+	echo '  <circle cx="8" cy="4.5" r="1"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_play_fill() {
+	echo '<svg class="bi bi-play-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_pause_fill() {
+	echo '<svg class="bi bi-pause-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path d="M5.5 3.5A1.5 1.5 0 017 5v6a1.5 1.5 0 01-3 0V5a1.5 1.5 0 011.5-1.5zm5 0A1.5 1.5 0 0112 5v6a1.5 1.5 0 01-3 0V5a1.5 1.5 0 011.5-1.5z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_skip_end_fill() {
+	echo '<svg class="bi bi-skip-end-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M12 3.5a.5.5 0 01.5.5v8a.5.5 0 01-1 0V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>'
+	echo '  <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em", commented out vertical bar
+pcp_bi_skip_backward_fill() {
+	echo '<svg class="bi bi-skip-backward-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+#	echo '  <path fill-rule="evenodd" d="M.5 3.5A.5.5 0 000 4v8a.5.5 0 001 0V4a.5.5 0 00-.5-.5z" clip-rule="evenodd"/>'
+	echo '  <path d="M.904 8.697l6.363 3.692c.54.313 1.233-.066 1.233-.697V4.308c0-.63-.692-1.01-1.233-.696L.904 7.304a.802.802 0 000 1.393z"/>'
+	echo '  <path d="M8.404 8.697l6.363 3.692c.54.313 1.233-.066 1.233-.697V4.308c0-.63-.693-1.01-1.233-.696L8.404 7.304a.802.802 0 000 1.393z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_skip_start_fill() {
+	echo '<svg class="bi bi-skip-start-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M4.5 3.5A.5.5 0 004 4v8a.5.5 0 001 0V4a.5.5 0 00-.5-.5z" clip-rule="evenodd"/>'
+	echo '  <path d="M4.903 8.697l6.364 3.692c.54.313 1.232-.066 1.232-.697V4.308c0-.63-.692-1.01-1.232-.696L4.903 7.304a.802.802 0 000 1.393z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em", commented out vertical bar
+pcp_bi_skip_forward_fill() {
+	echo '<svg class="bi bi-skip-forward-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+#	echo '  <path fill-rule="evenodd" d="M15.5 3.5a.5.5 0 01.5.5v8a.5.5 0 01-1 0V4a.5.5 0 01.5-.5z" clip-rule="evenodd"/>'
+	echo '  <path d="M7.596 8.697l-6.363 3.692C.693 12.702 0 12.322 0 11.692V4.308c0-.63.693-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
+	echo '  <path d="M15.096 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.693-1.01 1.233-.696l6.363 3.692a.802.802 0 010 1.393z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_volume_mute_fill() {
+	echo '<svg class="bi bi-volume-mute-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M6.717 3.55A.5.5 0 017 4v8a.5.5 0 01-.812.39L3.825 10.5H1.5A.5.5 0 011 10V6a.5.5 0 01.5-.5h2.325l2.363-1.89a.5.5 0 01.529-.06zm7.137 1.596a.5.5 0 010 .708l-4 4a.5.5 0 01-.708-.708l4-4a.5.5 0 01.708 0z" clip-rule="evenodd"/>'
+	echo '  <path fill-rule="evenodd" d="M9.146 5.146a.5.5 0 000 .708l4 4a.5.5 0 00.708-.708l-4-4a.5.5 0 00-.708 0z" clip-rule="evenodd"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_volume_down_fill() {
+	echo '<svg class="bi bi-volume-down-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path fill-rule="evenodd" d="M8.717 3.55A.5.5 0 019 4v8a.5.5 0 01-.812.39L5.825 10.5H3.5A.5.5 0 013 10V6a.5.5 0 01.5-.5h2.325l2.363-1.89a.5.5 0 01.529-.06z" clip-rule="evenodd"/>'
+	echo '  <path d="M10.707 11.182A4.486 4.486 0 0012.025 8a4.486 4.486 0 00-1.318-3.182L10 5.525A3.489 3.489 0 0111.025 8c0 .966-.392 1.841-1.025 2.475l.707.707z"/>'
+	echo '</svg>'
+}
+
+# Changed width="2em" height="2em"
+pcp_bi_volume_up_fill() {
+	echo '<svg class="bi bi-volume-up-fill" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+	echo '  <path d="M11.536 14.01A8.473 8.473 0 0014.026 8a8.473 8.473 0 00-2.49-6.01l-.708.707A7.476 7.476 0 0113.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>'
+	echo '  <path d="M10.121 12.596A6.48 6.48 0 0012.025 8a6.48 6.48 0 00-1.904-4.596l-.707.707A5.483 5.483 0 0111.025 8a5.483 5.483 0 01-1.61 3.89l.706.706z"/>'
+	echo '  <path d="M8.707 11.182A4.486 4.486 0 0010.025 8a4.486 4.486 0 00-1.318-3.182L8 5.525A3.489 3.489 0 019.025 8 3.49 3.49 0 018 10.475l.707.707z"/>'
+	echo '  <path fill-rule="evenodd" d="M6.717 3.55A.5.5 0 017 4v8a.5.5 0 01-.812.39L3.825 10.5H1.5A.5.5 0 011 10V6a.5.5 0 01.5-.5h2.325l2.363-1.89a.5.5 0 01.529-.06z" clip-rule="evenodd"/>'
+	echo '</svg>'
+}
+
+HELPBADGE="$(pcp_bi_info_circle)"
