@@ -31,7 +31,7 @@ case "${ACTION}" in
 		SPACE_REQUIRED=95
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="col-12 monospace" style="height:200px">'
+		echo '                <textarea class="col-12 text-monospace" rows="15">'
 		pcp_squeezelite_stop "text"
 		pcp_message INFO "Current Squeezelite version: '$(pcp_squeezelite_version)'" "text"
 		pcp_message INFO "Waiting for Squeezelite to complete shutdown..." "text"
@@ -54,8 +54,8 @@ case "${ACTION}" in
 		else
 			pcp_message INFO "Updating Squeezelite extension..." "text"
 			rm -f /usr/local/tce.installed/pcp-squeezelite
-			mv -f $PACKAGEDIR/pcp-squeezelite.tcz /tmp
-			mv -f $PACKAGEDIR/pcp-squeezelite.tcz.md5.txt /tmp
+			mv -f ${PACKAGEDIR}/pcp-squeezelite.tcz /tmp
+			mv -f ${PACKAGEDIR}/pcp-squeezelite.tcz.md5.txt /tmp
 			if [ $DEBUG -eq 1 ]; then
 				sudo -u tc pcp-load -r $PCP_REPO -w pcp-squeezelite.tcz 2>&1
 			else
@@ -82,7 +82,7 @@ case "${ACTION}" in
 		SPACE_REQUIRED=1300
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="col-12 monospace" style="height:200px">'
+		echo '                <textarea class="col-12 text-monospace" rows="15">'
 		pcp_squeezelite_stop "text"
 		pcp-update pcp-squeezelite
 		CHK=$?
@@ -100,12 +100,12 @@ case "${ACTION}" in
 		echo '                </textarea>'
 	;;
 	inst_ffmpeg)
-		pcp_table_top "Installing FFMpeg extension"
+		pcp_heading5 "Installing FFMpeg extension"
 		SPACE_REQUIRED=7000
 		pcp_sufficient_free_space $SPACE_REQUIRED
 		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="inform" style="height:100px">'
-		pcp_squeezelite_stop "nohtml"
+		echo '                <textarea class="col-12 text-monospace" rows="15">'
+		pcp_squeezelite_stop "text"
 		if [ $DEBUG -eq 1 ]; then
 			sudo -u tc pcp-load -r $PCP_REPO -w pcp-libffmpeg.tcz 2>&1
 			[ $? -eq 0 ] && FAIL=0 || FAIL=1
@@ -117,23 +117,23 @@ case "${ACTION}" in
 			sudo -u tc pcp-load -i pcp-libffmpeg.tcz
 			echo "pcp-libffmpeg.tcz" >> $ONBOOTLST
 		fi
-		pcp_squeezelite_start "nohtml"
+		pcp_squeezelite_start "text"
 		echo '                </textarea>'
 	;;
 	rem_ffmpeg)
-		pcp_table_top "Removing FFMpeg extension"
-		echo '                <textarea class="inform" style="height:100px">'
-		pcp_squeezelite_stop "nohtml"
-		echo '[ INFO ] FFMpeg extension marked for removal. Reboot required to complete.</p>'
+		pcp_heading5 "Removing FFMpeg extension"
+		echo '                <textarea class="col-12 text-monospace" rows="15">'
+		pcp_squeezelite_stop "text"
+		pcp_message INFO "FFMpeg extension marked for removal. Reboot required to complete." "text"
 		sudo -u tc tce-audit builddb
 		sudo -u tc tce-audit delete pcp-libffmpeg.tcz
 		sed -i '/pcp-libffmpeg.tcz/d' $ONBOOTLST
 		REBOOT_REQUIRED=TRUE
-		pcp_squeezelite_start "nohtml"
+		pcp_squeezelite_start "text"
 		echo '                </textarea>'
 	;;
 	*)
-		echo '<p class="error">[ ERROR ] Option Error!</p>'
+		pcp_message ERROR "Option Error!" "text"
 	;;
 esac
 

@@ -34,7 +34,8 @@ if [ "$ACTION" = "reboot" ]; then
 	echo '</div>'
 	pcp_remove_query_string
 	pcp_html_end
-	sudo reboot
+	pcp_reboot "none"
+#	sudo reboot
 	exit
 fi
 
@@ -56,7 +57,8 @@ if [ "$ACTION" = "shutdown" ]; then
 	echo '</div>'
 	pcp_remove_query_string
 	pcp_html_end
-	exitcheck.sh
+	pcp_shutdown "none"
+#	exitcheck.sh
 	exit
 fi
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-05
+# Version: 7.0.0 2020-05-06
 
 . pcp-functions
 . pcp-lms-functions
@@ -12,7 +12,6 @@ pcp_controls
 pcp_diagnostics
 pcp_httpd_query_string
 
-DEBUG=1
 COLUMN1="col-12"
 BUTTON="btn btn-primary w-50"
 #========================================================================================

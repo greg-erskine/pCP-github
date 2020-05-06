@@ -883,24 +883,6 @@ pcp_tc_user() {
 # Show various configuration and setup files
 # $1 = title, $2 = command, $3 = height, $4 = write to log
 #----------------------------------------------------------------------------------------
-pcp_textarea_xxxx() {
-	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
-	[ "$TITLE" = "none" ] || echo '<h1>[ INFO ] '$TITLE'</h1>'
-	echo '<textarea style="height:'$3'px">'
-	echo $START
-	if [ $DEBUG -eq 1 ]; then
-		echo '$1: '$1' $2: '$2' $3: '$3' $4: '$4
-	fi
-	eval $2
-	echo $END
-	echo '</textarea>'
-	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
-}
-
-pcp_textarea_inform() {
-	pcp_textarea
-}
-
 pcp_textarea() {
 	# $1 - blank | label | none
 	# $2 - command
@@ -912,7 +894,7 @@ pcp_textarea() {
 	echo '  <div class="form-group mt-3">'
 	[ "$TITLE" = "none" ] ||
 	echo '    <label class="ml-1" for="ta'$ID'">[ INFO ] '$TITLE'</label>'
-	echo '    <textarea class="form-control rounded-0" style="font-family: monospace" id="ta'$ID'" rows="'$ROWS'">'
+	echo '    <textarea class="form-control rounded-0 text-monospace" id="ta'$ID'" rows="'$ROWS'">'
 	            eval $2
 	echo '    </textarea>'
 	echo '  </div>'
@@ -1220,26 +1202,26 @@ pcp_user_commands() {
 #========================================================================================
 # Useful buttons
 #----------------------------------------------------------------------------------------
-pcp_go_main_button() {
+XXXpcp_go_main_button() {
 	echo '<!-- Start of pcp_go_main_button -->'
 	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
 	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</p></form>'
 	echo '<!-- End of pcp_go_main_button -->'
 }
 
-pcp_go_back_button() {
+XXXpcp_go_back_button() {
 	echo '<!-- Start of pcp_go_back_button -->'
 	echo '<p><input type="button" value="Go Back" onclick="javascript:location.href=document.referrer;" />&nbsp;&nbsp;Go back to previous page</p>'
 	echo '<!-- End of pcp_go_back_button -->'
 }
 
-pcp_refresh_button() {
+XXXpcp_refresh_button() {
 	echo '<!-- Start of pcp_refresh_button -->'
 	echo '<p><input type="button" value="Refresh" onClick="window.location.reload()" />&nbsp;&nbsp;Refresh this page</p>'
 	echo '<!-- End of pcp_refresh_button -->'
 }
 
-pcp_reboot_button() {
+XXXpcp_reboot_button() {
 	echo '<!-- Start of pcp_reboot_button -->'
 	echo '<p><input type="button"  class="btn btn-primary" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
 	echo '<!-- End of pcp_reboot_button -->'
@@ -1323,7 +1305,7 @@ EOF
 # Display which script is running
 #----------------------------------------------------------------------------------------
 pcp_running_script() {
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Running '$0'...</p>'
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Running '$0'..." "html"
 }
 
 #========================================================================================
@@ -1394,9 +1376,11 @@ pcp_umount_device() {
 # If reboot is issued with wifi and net mounted drive, the reboot will hang.
 #----------------------------------------------------------------------------------------
 pcp_reboot() {
-	echo '<p class="text-info">[ INFO ] piCorePlayer is rebooting...</p>'
+	# $1 - colour|text|html|none
+
+	[ "$1" = "none" ] || pcp_message INFO "piCorePlayer is rebooting..." "$1"
 	if [ "$NETMOUNT1" = "yes" ]; then
-		echo '<p class="text-info">[ INFO ] Unmounting Network Shared Drive...</p>'
+		[ "$1" = "none" ] || pcp_message INFO "Unmounting Network Shared Drive..." "$1"
 		mount | grep -q cifs
 		[ $? -eq 0 ] && umount /mnt/$NETMOUNT1POINT
 	fi
@@ -1404,8 +1388,9 @@ pcp_reboot() {
 }
 
 pcp_shutdown() {
-#	echo '<div class="text-info">[ INFO ] piCorePlayer is shutting down...</div>'
-	pcp_message INFO "piCorePlayer is shutting down..." "html"
+	# $1 - colour|text|html|none
+
+	[ "$1" = "none" ] || pcp_message INFO "piCorePlayer is shutting down..." "$1"
 	exitcheck.sh
 }
 
