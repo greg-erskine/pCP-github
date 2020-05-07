@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-20
+# Version: 7.0.0 2020-05-07
 
 # Title: Overlays README
 # Description: Easy method for viewing the README file in /mnt/mmcblk0p1/overlays
@@ -9,8 +9,7 @@
 
 pcp_html_head "View Overlay Readme" "GE"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 TMPPATH="/tmp"
@@ -22,7 +21,7 @@ TEMPDIR="dbt"
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Routines
+# Functions
 #----------------------------------------------------------------------------------------
 pcp_overlay_cleanup() {
 	rm -rf ${TMPPATH}/${TEMPDIR}
@@ -70,118 +69,64 @@ pcp_overlay_split_readme
 PCPOVERLAYS=$(ls "${TMPPATH}/${TEMPDIR}" | grep txt)
 #$(cat ${TMPPATH}/${TEMPDIR}/LOADED_OVERLAYS)
 
+COLUMN1="col-4"
+COLUMN2="col-8"
+COLUMN3="col-2"
+BUTTON="btn btn-primary w-50"
 #========================================================================================
 # Selection form
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Select overlay</legend>'
-echo '          <form name="log" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
 pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column300">'
-echo '                  <select class="large22" name="SELECTION">'
+pcp_heading5 "Select overlay"
+echo '    <form name="log" action="'$0'" method="get">'
+echo '      <div class="row">'
+echo '        <div class="'$COLUMN1'">'
+echo '          <select class="" name="SELECTION">'
 
-	                      for OVERLAY in $PCPOVERLAYS
-	                      do
-	                          [ "$SELECTION" = "$OVERLAY" ] && SELECTED="selected" || SELECTED=""
+	              for OVERLAY in $PCPOVERLAYS
+	              do
+	                  [ "$SELECTION" = "$OVERLAY" ] && SELECTED="selected" || SELECTED=""
+	                  echo '                    <option value="'$OVERLAY'" '$SELECTED'>'$(echo ${OVERLAY/.txt/})$AS'</option>'
+	              done
 
-#	                          for LOADED in $(cat ${TMPPATH}/${TEMPDIR}/LOADED_OVERLAYS)
-#	                          do
-#	                              if ([ "${LOADED%,*}" = "$(echo ${OVERLAY/.txt/})" ] || [ "${LOADED}" = "$(echo ${OVERLAY/.txt/})" ]); then
-#	                                  AS="***"
-#	                                  break
-#	                               else
-#	                                  AS=""
-#	                              fi
-#	                          done
-
-	                          echo '                    <option value="'$OVERLAY'" '$SELECTED'>'$(echo ${OVERLAY/.txt/})$AS'</option>'
-	                      done
-
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Overlays to show&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The overlays are located in /mnt/mmcblk0p1/overlays</p>'
-#echo '                    <p>Overlays marked *** are currently loaded.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="2">'
-echo '                  <input type="submit" name="ACTION" value="Show">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </form>'
-echo '        </fieldset>'
+echo '          </select>'
+echo '        </div>'
+echo '        <div class="'$COLUMN2'">'
+echo '          <p>Select overlay to show&nbsp;&nbsp;'
+echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="collapse">'
+echo '            <p>The overlays are located in /mnt/mmcblk0p1/overlays</p>'
+echo '          </div>'
+echo '        </div>'
+echo '        <div class="'$COLUMN3'">'
+echo '          <input type="submit" class="'$BUTTON'" name="ACTION" value="Show">'
+echo '        </div>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </form>'
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Overlay text area-----------------------------
 pcp_overlay_show() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>'$(echo ${SELECTION/.txt/})' overlay</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" 'cat ${TMPPATH}/${TEMPDIR}/$SELECTION' 250
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
+	echo '    <div class="row">'
+	echo '      <div class="col-12">'
+	              pcp_textarea "${SELECTION/.txt/} overlay" 'cat ${TMPPATH}/${TEMPDIR}/$SELECTION' 8
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '    </div>'
 }
 [ "$ACTION" = "Show" ] && pcp_overlay_show
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Overlay text area-----------------------------
 pcp_overlay_loaded() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Loaded overlays</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" 'cat ${TMPPATH}/${TEMPDIR}/LOADED_OVERLAYS' 50
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
+	echo '    <div class="row">'
+	echo '      <div class="col-12">'
+	              pcp_textarea "Loaded overlays" 'cat ${TMPPATH}/${TEMPDIR}/LOADED_OVERLAYS' 3
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '    </div>'
 }
 pcp_overlay_loaded
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit
