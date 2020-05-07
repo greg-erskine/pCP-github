@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-11-01
+# Version: 7.0.0 2020-05-07
 
 #========================================================================================
 # This script sets a static IP.
@@ -30,8 +30,7 @@
 
 pcp_html_head "xtras - Static IP" "GE"
 
-pcp_banner
-pcp_navigation
+pcp_navbar
 pcp_httpd_query_string
 
 VALIDNETWORKS=$(ls /sys/class/net | sed '/^lo/d')
@@ -66,27 +65,27 @@ STATICIP="/opt/${NETWORK}.sh"
 # -rwxr-xr-x    1 root     staff          284 Apr 19 22:39 bootsync.sh
 #----------------------------------------------------------------------------------------
 pcp_edit_bootlocal() {
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing /opt/bootlocal.sh...</p>'
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing /opt/bootlocal.sh..." "html"
 	grep -v ${NETWORK}.sh /opt/bootlocal.sh >/opt/bootlocal.sh~
 	sudo chmod u=rwx,go=rx /opt/bootlocal.sh~
 	sudo mv /opt/bootlocal.sh~ /opt/bootlocal.sh
 	sudo chown tc.staff /opt/bootlocal.sh
 	[ "$1" = "add" ] && sed -i "4i /opt/${NETWORK}.sh" /opt/bootlocal.sh
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] '$(ls -al /opt/bootlocal.sh)'</p>'
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "$(ls -al /opt/bootlocal.sh)" "html"
 }
 
 #========================================================================================
 # Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt ($CMDLINETXT).
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing '$CMDLINETXT'...</p>'
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing '$CMDLINETXT'..." "html"
 	pcp_mount_bootpart "nohtml" >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
 		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' $CMDLINETXT
 		pcp_umount_bootpart "nohtml" >/dev/null
 	else
-		[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] '$VOLUME' not mounted</p>'
+		[ $DEBUG -eq 1 ] && pcp_messsage ERROR "'$VOLUME' not mounted" "html"
 	fi
 }
 
@@ -246,7 +245,7 @@ pcp_network_tabs() {
 	done
 
 	echo '</p>'
-	echo '<div class="tab7end" style="margin-bottom:10px;">pCP</div>'
+
 	echo '<!-- End of pcp_network_tabs toolbar -->'
 }
 
@@ -259,19 +258,19 @@ pcp_get_nodhcp() {
 		cat $CMDLINETXT | grep nodhcp >/dev/null
 		case $? in
 			0)
-				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code found in '$CMDLINETXT'.</p>'
+				[ $DEBUG -eq 1 ] && pcp_message DEBUG "NODHCP boot code found in '$CMDLINETXT'." "html"
 				NODHCPYES="checked"
 				DHCP="off"
 			;;
 			*)
-				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NODHCP boot code not found in '$CMDLINETXT'.</p>'
+				[ $DEBUG -eq 1 ] && pcp_message DEBUG "NODHCP boot code not found in '$CMDLINETXT'." "html"
 				NODHCPNO="checked"
 				DHCP="on"
 			;;
 		esac
 		pcp_umount_bootpart "nohtml" >/dev/null
 	else
-		[ $DEBUG -eq 1 ] && echo '<p class="error">[ ERROR ] '$VOLUME' not mounted.</p>'
+		[ $DEBUG -eq 1 ] && pcp_message ERROR "'$VOLUME' not mounted." "html"
 	fi
 }
 
@@ -279,8 +278,8 @@ pcp_get_nodhcp() {
 # Validate Static IP settings
 #----------------------------------------------------------------------------------------
 pcp_validate_static_ip() {
-	pcp_table_top "Validating IP Settings"
-	echo '              <textarea class="inform" style="height:80px">'
+	pcp_heading5 "Validating IP Settings"
+	echo '              <textarea "col-12 text-monospace" rows="10">'
 	echo -n "[ INFO ] Checking Gateway: $GATEWAY......"
 	ping -c 2 -W 5 $GATEWAY >/dev/null
 	if [ $? -eq 0 ]; then
@@ -370,9 +369,8 @@ pcp_get_nodhcp
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Warning message-----------------------------------
-echo '<table class="bgred">'
-echo '  <tr>'
-echo '    <td>'
+
+echo '    <div>'
 echo '      <p><b>Warning:</b></p>'
 echo '      <ul>'
 echo '        <li>The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</li>'
@@ -381,9 +379,8 @@ echo '        <li>You must get all the IP addresses and mask correct, or unusual
 echo '        <li>All network interfaces must be DHCP or static IP, not mixed.</li>'
 echo '        <li>The network interface tabs will automatically show available network interfaces.</li>'
 echo '      </ul>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+
 #----------------------------------------------------------------------------------------
 
 pcp_network_tabs
@@ -391,9 +388,7 @@ pcp_network_tabs
 COLUMN1="column150"
 COLUMN2="column240"
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
+
 echo '      <form name="staticip" action="xtras_staticip.cgi" method="get" id="staticip">'
 echo '        <div class="row">'
 echo '          <fieldset>'
@@ -402,10 +397,10 @@ echo '            <legend>Set static IP for '$NETWORK'</legend>'
 [ "$SUBMIT" = "Save" -a "$STATIC" != "firstrun" -a "$DHCP" = "off" ] && pcp_validate_static_ip
 
 #--------------------------------------DHCP----------------------------------------------
-echo '            <table class="bggrey percent100">'
+
 pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
+
+
 echo '                <td class="'$COLUMN1'">'
 echo '                  <p class="row">DHCP/Static IP</p>'
 echo '                </td>'
@@ -424,13 +419,13 @@ echo '                    <p>&lt;DHCP|Static IP&gt;</p>'
 echo '                    <p>Dynamic Host Configuration Protocol (DHCP)</p>'
 echo '                  </div>'
 echo '                </td>'
-echo '              </tr>'
+
 #----------------------------------------------------------------------------------------
 
 if [ "$DHCP" = "off" ]; then
 	#--------------------------------------IP--------------------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p class="row">Static IP address</p>'
@@ -463,7 +458,7 @@ if [ "$DHCP" = "off" ]; then
 	echo '              </tr>'
 	#--------------------------------------NETMASK---------------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p class="row">Netmask</p>'
@@ -489,7 +484,7 @@ if [ "$DHCP" = "off" ]; then
 	echo '              </tr>'
 	#--------------------------------------BROADCAST-------------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p class="row">Broadcast</p>'
@@ -519,7 +514,7 @@ if [ "$DHCP" = "off" ]; then
 	echo '              </tr>'
 	#--------------------------------------GATEWAY---------------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p class="row">Default gateway</p>'
@@ -550,7 +545,7 @@ if [ "$DHCP" = "off" ]; then
 	echo '              </tr>'
 	#--------------------------------------NAMESERVER1-----------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p class="row">Nameserver 1</p>'
@@ -582,7 +577,7 @@ if [ "$DHCP" = "off" ]; then
 	echo '              </tr>'
 	#--------------------------------------NAMESERVER2-----------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
+
 	echo '              <tr class="'$ROWSHADE'">'
 	echo '                <td class="'$COLUMN1'">'
 	echo '                  <p class="row">Nameserver 2</p>'
@@ -610,7 +605,7 @@ fi
 
 #--------------------------------------BUTTONS-------------------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
+
 echo '              <tr class="'$ROWSHADE'">'
 echo '                <td class="column400">'
 echo '                  <input type="submit" title="Save configuration to /opt/'${NETWORK}'.sh" name="SUBMIT" value="Save">'
@@ -632,114 +627,23 @@ echo '            </table>'
 echo '          </fieldset>'
 echo '        </div>'
 echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
+
+#========================================================================================
 if [ $DEBUG -eq 1 ]; then
-	#========================================================================================
-	# Display current $STATICIP
-	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Current /opt/'${NETWORK}'.sh</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" "cat /opt/'${NETWORK}'.sh" 100
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	#----------------------------------------------------------------------------------------
+	pcp_textarea "" "cat /opt/'${NETWORK}'.sh" 10
 
-	#========================================================================================
-	# Display current /etc/resolv.conf
-	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Current /etc/resolv.conf</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" "cat /etc/resolv.conf" 25
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	#----------------------------------------------------------------------------------------
+	pcp_textarea "" "cat /etc/resolv.conf" 5
 
-	#========================================================================================
-	# Display current /mnt/mmcblk0p1/cmdline.txt
-	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Current '$CMDLINETXT'</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_mount_bootpart "nohtml" >/dev/null
-	                      pcp_textarea_inform "none" "cat $CMDLINETXT" 25
-	                      pcp_umount_bootpart "nohtml" >/dev/null
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	#----------------------------------------------------------------------------------------
+	pcp_mount_bootpart "nohtml" >/dev/null
+	pcp_textarea "" "cat $CMDLINETXT" 5
+	pcp_umount_bootpart "nohtml" >/dev/null
 
-	#========================================================================================
-	# Display current /opt/bootlocal.sh
-	#----------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Current /opt/bootlocal.sh</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" "cat /opt/bootlocal.sh" 70
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-	#----------------------------------------------------------------------------------------
+	pcp_textarea "" "cat /opt/bootlocal.sh" 10
+
 fi
-
-pcp_footer
-pcp_copyright
+#----------------------------------------------------------------------------------------
 
 [ $REBOOT_REQUIRED -a $FAIL -eq 0 ] && pcp_reboot_required
 
-echo '</body>'
-echo '</html>'
+pcp_html_end

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-01-10
+# Version: 7.0.0 2020-05-07
 
 . pcp-functions
 
@@ -8,8 +8,7 @@ pcp_html_head "Updating pcp-base extension" "PH"
 
 WGET="/bin/busybox wget"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 unset REBOOT_REQUIRED
@@ -18,58 +17,58 @@ unset REBOOT_REQUIRED
 # Routines.
 #----------------------------------------------------------------------------------------
 pcp_end() {
-	echo '</body>'
-	echo '</html>'
+	pcp_html_end
 	exit
 }
 
 #----------------------------------------------------------------------------------------
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ACTION='$ACTION'</p>'
+pcp_debug_variables "html" ACTION
+
 case "${ACTION}" in
 	Update)
-		pcp_table_top "Update pcp-base extension"
+		pcp_heading5 "Update pcp-base extension"
 		SPACE_REQUIRED=15
-		pcp_sufficient_free_space $SPACE_REQUIRED
-		[ $? -eq 0 ] || pcp_end
-		echo '                <textarea class="inform" style="height:350px">'
-		echo '[ INFO ] Updating pcp-base and any needed dependencies.'
-		sudo -u tc pcp-update pcp-base.tcz
-		CHK=$?
-		if [ $CHK -eq 2 ]; then
-			echo '[ INFO ] There is no update for pcp-base at this time.'
-		elif [ $CHK -eq 1 ]; then
-			echo '[ ERROR ] There was an error updating pcp-base, please try again later!'
-		else
-			REBOOT_REQUIRED=TRUE
-		fi
+		echo '                <textarea class="col-12 text-monospace" rows="22">'
+		pcp_sufficient_free_space $SPACE_REQUIRED "text"
+		if [ $? -eq 0 ]; then
+			pcp_message INFO "Updating pcp-base and any needed dependencies." "text"
+			sudo -u tc pcp-update pcp-base.tcz
+			CHK=$?
+			if [ $CHK -eq 2 ]; then
+				pcp_message INFO "There is no update for pcp-base at this time." "text"
+			elif [ $CHK -eq 1 ]; then
+				pcp_message ERROR "There was an error updating pcp-base, please try again later!" "text"
+			else
+				REBOOT_REQUIRED=TRUE
+			fi
 
-		WWWVER=$(pcp_picoreplayer_version | awk -F'-' '{ print $1}')
-		echo ''
-		echo '[ INFO ] Updating pcp-www and any needed dependencies.'
-		sudo -u tc pcp-update pcp-$WWWVER-www.tcz
-		CHK=$?
-		if [ $CHK -eq 2 ]; then
-			echo '[ INFO ] There is no update for pcp-base at this time.'
-		elif [ $CHK -eq 1 ]; then
-			echo '[ ERROR ] There was an error updating pcp-base, please try again later!'
-		else
-			REBOOT_REQUIRED=TRUE
+			WWWVER=$(pcp_picoreplayer_version | awk -F'-' '{ print $1}')
+			echo ''
+			pcp_message INFO "Updating pcp-www and any needed dependencies." "text"
+			sudo -u tc pcp-update pcp-$WWWVER-www.tcz
+			CHK=$?
+			if [ $CHK -eq 2 ]; then
+				pcp_message INFO "There is no update for pcp-base at this time." "text"
+			elif [ $CHK -eq 1 ]; then
+				pcp_message ERROR "There was an error updating pcp-base, please try again later!" "text"
+			else
+				REBOOT_REQUIRED=TRUE
+			fi
 		fi
 
 		echo '                </textarea>'
 	;;
 	*)
-		echo '<p class="error">[ ERROR ] Option Error!'
+		pcp_message ERROR "[ ERROR ] Option Error!" "text"
 	;;
 esac
 
-pcp_table_middle
-pcp_redirect_button "Go to Main Page" "main.cgi" 10
-pcp_table_end
-pcp_footer
-pcp_copyright
+echo '<div class="mt-3">'
+pcp_redirect_button "Go to Main Page" "main.cgi?CALLED_BY=Updates" 10
+echo '</div>'
+
 if [ $REBOOT_REQUIRED ]; then
-	echo '[ INFO ] A [Reboot] is required to complete the update.'
+	pcp_message INFO "A [Reboot] is required to complete the update." "text"
 	pcp_reboot_required
 fi
 pcp_end

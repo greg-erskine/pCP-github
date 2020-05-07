@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-06
+# Version: 7.0.0 2020-05-07
 
 . pcp-functions
 
@@ -15,7 +15,7 @@ pcp_backup
 echo '</div>'
 
 echo '<div class="mt-3">'
-pcp_redirect_button "Go to Main Page" "main.cgi" 10
+pcp_redirect_button "Go to Main Page" "main.cgi?CALLED_BY=Advanced" 10
 echo '</div>'
 
 pcp_html_end

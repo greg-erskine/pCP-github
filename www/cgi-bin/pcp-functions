@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-06
+# Version: 7.0.0 2020-05-07
 
 WWW_BUILD=0008
 
@@ -239,16 +239,11 @@ pcp_free_space() {
 }
 
 pcp_sufficient_free_space() {
-	local SPACE=$(pcp_free_space k)
 	local REQUIRED=$1
-
-	if [ $# -gt 1 ]; then
-		# FORMAT: html|text|colour
-		local FORMAT=$1
-		local REQUIRED=$2
-		[ "$FORMAT" = "nohtml" ] && local FORMAT="text" # <== GE nohtml depreciated
-	fi
+	# FORMAT: html|text|colour
+	local FORMAT=$2
 	[ x"$FORMAT" = x"" ] && local FORMAT="html"
+	local SPACE=$(pcp_free_space k)
 
 	if [ $DEBUG -eq 1 ]; then
 		pcp_message DEBUG "Free space: ${SPACE}k" "$FORMAT"
