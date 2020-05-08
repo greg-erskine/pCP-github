@@ -56,7 +56,7 @@ cd $CWD
 [ x"" = x"$LOGS" ] && FIRST="No log files found." || FIRST="All"
 
 if [ $DEBUG -eq 1 ]; then
-	pcp_debug_variables "html" SELECTION ACTION LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
+	pcp_debug_variables "html" QUERY_STRING SELECTION ACTION LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
 fi
 
 #========================================================================================

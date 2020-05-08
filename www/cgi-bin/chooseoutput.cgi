@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-04-14
+# Version: 7.0.0 2020-05-08
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -14,33 +14,35 @@ pcp_httpd_query_string
 
 pcp_html_head "Choose output" "SBP"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_remove_query_string
 pcp_httpd_query_string
+
+#DEBUG=1
+#COLUMN1="col-3"
 
 pcp_debug_info() {
 	pcp_debug_variables "html" AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 OUTPUT ALSA_PARAMS DT_MODE
 }
 
-pcp_table_top "Choose output"
+pcp_heading5 "Choose output"
 
 [ $DEBUG -eq 1 ] && pcp_debug_info
 
 if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
-	echo '<p class="info">[ INFO ] Audio output unchanged, still '$AUDIO'.</p>'
+	pcp_message INFO "Audio output unchanged, still $AUDIO." "html"
 	if [ "$DEFAULTS" = "yes" ]; then
-		echo '<p class="info">[ INFO ] Setting default Alsa parameters.</p>'
+		pcp_message INFO "Setting default ALSA parameters." "html"
 		pcp_squeezelite_stop
 		pcp_soundcontrol
 		pcp_squeezelite_start
 		pcp_save_to_config
 	else
-		echo '<p class="info">[ INFO ] Nothing to do.</p>'
+		pcp_message INFO "Nothing to do." "html"
 		unset CHANGED
 	fi
 else
-	echo '<p class="info">[ INFO ] Audio output changed from '$ORIG_AUDIO' to '$AUDIO'.</p>'
+	pcp_message INFO "Audio output changed from $ORIG_AUDIO to $AUDIO." "html"
 	# The next line is needed to clear OUTPUT from here when selecting USB.
 	# Whereas when pcp_read_chosen_audio is called from pcp_startup.sh it should use the correct USB OUTPUT from newpcp.
 	USBOUTPUT=""
@@ -59,7 +61,7 @@ if [ $CHANGED ]; then
 	PARAM1="$PARAMS1"
 
 	# Set the default settings
-	echo '<p class="info">[ INFO ] Setting Audio output to '$AUDIO'</p>'
+	pcp_message INFO "Setting Audio output to $AUDIO." "html"
 
 	# If ALSA equalizer is chosen output it should always be equal.
 	[ "$ALSAeq" = "yes" ] && OUTPUT="equal"
@@ -118,18 +120,14 @@ if [ $CHANGED ]; then
 	pcp_save_to_config
 	pcp_read_chosen_audio
 	[ $DEBUG -eq 1 ] && pcp_debug_info
-	[ $DEBUG -eq 1 ] && pcp_table_middle && pcp_textarea_inform "Updated pcp.cfg" "cat $PCPCFG" 380
+	[ $DEBUG -eq 1 ] && pcp_textarea "Updated pcp.cfg" "cat $PCPCFG" 380
 	pcp_backup
 fi
 
-pcp_table_middle
-[ $DEBUG -eq 1 ] && pcp_redirect_button "Go Back" "$FROM_PAGE" 60 || pcp_redirect_button "Go Back" "$FROM_PAGE" 5
-pcp_table_end
-
-pcp_footer
-pcp_copyright
+echo '<div class="mt-3">'
+pcp_redirect_button "Go Back" "$FROM_PAGE" 15
+echo '<div>'
 
 [ $CHANGED ] && pcp_reboot_required
 
-echo '</body>'
-echo '</html>'
+pcp_html_end
