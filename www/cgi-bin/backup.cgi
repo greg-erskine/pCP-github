@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-07
+# Version: 7.0.0 2020-05-08
 
 . pcp-functions
 
@@ -8,9 +8,11 @@ pcp_html_head "Backup mydata" "SBP"
 
 pcp_navbar
 
+COLUMN1="col-3"
+
 pcp_heading5 "Backing up configuration"
 
-echo '<div>'
+echo '<div class="p-3" style="border:1px solid">'
 pcp_backup
 echo '</div>'
 

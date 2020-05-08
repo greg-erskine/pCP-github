@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-06
+# Version: 7.0.0 2020-05-08
 
 . pcp-functions
 . pcp-lms-functions
@@ -56,10 +56,7 @@ cd $CWD
 [ x"" = x"$LOGS" ] && FIRST="No log files found." || FIRST="All"
 
 if [ $DEBUG -eq 1 ]; then
-	echo '<!-- Start of debug info -->'
-	pcp_heading5 "Debug"
 	pcp_debug_variables "html" SELECTION ACTION LOGDIR BOOTMNT TCEMNT PCPLOGS LMSLOGS LOGS
-	echo '<!-- End of debug info -->'
 fi
 
 #========================================================================================

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-07
+# Version: 7.0.0 2020-05-08
 
 WWW_BUILD=0008
 
@@ -22,11 +22,15 @@ pcp_debug_variables() {
 		local FORMAT=$1
 		shift
 
+		echo '<!-- Start of debug info -->'
+		echo '<div class="p-3" style="border:1px solid">'
 		for VAR in $@
 		do
 			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
 			pcp_message DEBUG "$MESSAGE" "$FORMAT"
 		done
+		echo '</div>'
+		echo '<!-- End of debug info -->'
 	fi
 }
 
@@ -35,7 +39,7 @@ pcp_debug_variables() {
 #----------------------------------------------------------------------------------------
 pcp_config_file() {
 	PCPCFG="/usr/local/etc/pcp/pcp.cfg"
-	# Old habbits might die hard.
+	# Old habits might die hard.
 	CONFIGCFG=$PCPCFG
 }
 
@@ -221,7 +225,6 @@ pcp_red_cross() {
 	INDICATOR=$(pcp_bi_x)
 	STATUS="$1"
 }
-
 
 #========================================================================================
 # Free space on tce mount device  default:/mnt/mmcblk0p2
@@ -552,7 +555,7 @@ pcp_navbar() {
 
 	echo '    <a class="navbar-brand" href="main.cgi">'
 	echo '      <img src="../images/pCP.png" height="30" alt="piCorePlayer"> piCorePlayer</a>'
-	echo '      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
+	echo '    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">'
 	echo '      <span class="navbar-toggler-icon"></span>'
 	echo '    </button>'
 
@@ -889,7 +892,7 @@ pcp_textarea() {
 	echo '  <div class="form-group mt-3">'
 	[ "$TITLE" = "none" ] ||
 	echo '    <label class="ml-1" for="ta'$ID'">[ INFO ] '$TITLE'</label>'
-	echo '    <textarea class="form-control rounded-0 text-monospace" id="ta'$ID'" rows="'$ROWS'">'
+	echo '    <textarea class="form-control text-monospace" id="ta'$ID'" rows="'$ROWS'" disabled>'
 	            eval $2
 	echo '    </textarea>'
 	echo '  </div>'
@@ -1254,6 +1257,7 @@ pcp_backup() {
 	pcp_message INFO "" $FORMAT "-n"
 	sudo filetool.sh -b
 	sync > /dev/null 2>&1
+	echo '</div>'
 
 	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
