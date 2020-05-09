@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-06
+# Version: 7.0.0 2020-05-09
 
 . pcp-functions
 . pcp-lms-functions
@@ -10,8 +10,6 @@ pcp_html_head "Main Page" "SBP"
 pcp_controls
 pcp_navbar
 pcp_httpd_query_string
-
-pcp_debug_variables "html" CALLED_BY
 
 COLUMN1="col-sm-4 text-md-right"
 COLUMN2="col-8"

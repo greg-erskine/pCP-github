@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-02-29
+# Version: 7.0.0 2020-05-09
 
 pcp_debug_log "$0 - Running pcp-soundcard-functions..."
 
@@ -153,7 +153,7 @@ pcp_generic_card_control() {
 
 			pcp_DSP_program_selection
 
-			#Deemphasis Section
+			# Deemphasis Section
 			amixer -c $CARD scontrols | grep -q 'Deemphasis' && Deemfound="yes" || Deemfound="no" 
 			if [ "$Deemfound" = "yes" ]; then
 				LIST=$(amixer -c $CARD sget 'Deemphasis' | grep "Items:" | awk -F': ' '{ print $NF }' | sed 's/'\'' '\''/:/g'| tr -d "'")
@@ -177,7 +177,7 @@ pcp_generic_card_control() {
 					# Populate Web Page Labels and radio button selection
 					TMP=$(eval echo "\${DEEM${I}}")
 					[ "$ACTUAL_DEEM" == "$TMP" ] && eval DEEM${I}_CHECK="checked" || eval DEEM${I}_CHECK=""
-					#Form Selection of the Deemphasis filter for setting mixer
+					# Form Selection of the Deemphasis filter for setting mixer
 					[ "$DEEMPHASIS" == "DEEM$I" ] && DEEM="$TMP"
 					I=$((I+1))
 				done
@@ -189,15 +189,6 @@ pcp_generic_card_control() {
 
 			pcp_DSP_program_selection
 		;;
-#		ES9023)
-#			CARD="ALSA"
-#			SSET="PCM"
-#			ACTUAL_VOL=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $4 }' | tr -d "[]%")
-#			ACTUAL_DB=$(amixer -c $CARD sget $SSET | grep "Mono: Playback" | awk '{ print $5 }' | tr -d "[]")
-#			TEXT="Choosing 384k will enable 352k and 384k sample rates. Selecting bclk_ratio_int_div will use bclk_ratio=50 for 16/24bps and bclk_ratio=100 for 32bps media when sample rate is a multiple of 8kHz and less than 192kHz. Which causes the selection of the 19M2 OSC as the parent for the PCM clock with an integer divider, rather than PLLD with fractional divider and MASH noise shaping."
-#			PARAMS1="384k"
-#			PARAMS2="bclk_ratio_int_div"
-#		;;
 	esac
 }
 
@@ -328,7 +319,7 @@ pcp_soundcontrol() {
 	[ "$OUTPUT" = "equal" ] && OUTPUT1="equal" 
 	shini_parse ${DACLOCATION}/${AUDIO}.conf
 	if [ "$CARD" = "ALSA" -a $BIT64 -eq 1 ]; then
-		# Disable mmap on Alsa card on 64 bit kernels.
+		# Disable mmap on ALSA card on 64 bit kernels.
 		ALSA_PARAMS="$(echo $ALSA_PARAMS | sed -e 's/:/*/3' -e 's/*1/*0/' -e 's/*/:/')"
 	fi
 	[ "$OUTPUT1" = "equal" ] && OUTPUT="equal" 

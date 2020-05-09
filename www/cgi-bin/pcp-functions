@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-08
+# Version: 7.0.0 2020-05-09
 
 WWW_BUILD=0008
 
@@ -957,12 +957,10 @@ pcp_table_textarea_end() {
 pcp_httpd_query_string_double_quote() {
 	# Process the $QUERY_STRING from httpd
 	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-	[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</div>'
 }
 
 pcp_httpd_query_string_single_quote() {
 	eval $($HTTPD -d "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\047\n",$i} }' | sed "s/=/='/")
-	[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</div>'
 }
 
 pcp_httpd_query_string() {
@@ -974,7 +972,6 @@ pcp_httpd_query_string() {
 pcp_httpd_query_string_no_decode() {
 	# Process the $QUERY_STRING from httpd
 	eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { printf "%s\"\n",$i} }' | sed 's/=/="/')
-	[ $DEBUG -eq 1 ] && echo '<div class="text-warning">[ DEBUG ] $QUERY_STRING: '$QUERY_STRING'</div>'
 }
 
 # This will remove the query string from the url, prevents page reloads and document.referrer from
@@ -1021,13 +1018,14 @@ pcp_squeezelite_start() {
 	# $1 - colour|text|html
 	# $2 - display     (Used for taskset)
 
+	FORMAT=$1
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
 	if [ "$SHAIRPORT" = "yes" ]; then
-		pcp_shairport_restart $1
+		pcp_shairport_restart $FORMAT
 	fi
-	pcp_message INFO "" $1 -n
+	pcp_message INFO "" $FORMAT -n
 	sudo /usr/local/etc/init.d/squeezelite start
 	[ "$1" = "html" ] && echo '</div>'
 	[ "$CPUISOL" != "" ] && pcp_squeezelite_taskset $2
@@ -1036,26 +1034,31 @@ pcp_squeezelite_start() {
 pcp_squeezelite_stop() {
 	# $1 - colour|text|html
 
-	pcp_message INFO "" $1 -n
+	FORMAT=$1
+	pcp_message INFO "" $FORMAT -n
 	sudo /usr/local/etc/init.d/squeezelite stop
-	[ "$1" = "html" ] && echo '</div>'
+	[ "$FORMAT" = "html" ] && echo '</div>'
 }
 
 pcp_squeezelite_restart() {
 	# $1 - colour|text|html
 
+	FORMAT=$1
 	if [ "$AUDIO" = "HDMI" ]; then
 		sudo amixer cset numid=3 2 >/dev/null 2>&1
 	fi
-	pcp_message INFO "" $1 -n
+	pcp_message INFO "" $FORMAT -n
 	sudo /usr/local/etc/init.d/squeezelite restart
 	[ "$1" = "html" ] && echo '</div>'
 }
 
 pcp_squeezelite_status() {
+	# $1 - colour|text|html
+
+	FORMAT=$1
 	sudo /usr/local/etc/init.d/squeezelite status > /dev/null 2>&1
 	RESULT=$?
-	if [ "$1" = "html" ]; then
+	if [ "$FORMAT" = "html" ]; then
 		if [ $RESULT -eq 0 ]; then
 			pcp_message OK "Squeezelite running." "html"
 		else
@@ -1093,24 +1096,30 @@ pcp_squeezelite_taskset() {
 # Start/stop Shairport-sync
 #----------------------------------------------------------------------------------------
 pcp_shairport_start() {
-	# $1 - nohtml
-	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
+	# $1 - colour|text|html
+
+	FORMAT=$1
+	pcp_message INFO "" $FORMAT -n
 	sudo /usr/local/etc/init.d/shairport-sync start
-	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$FORMAT" = "html" ] && echo '</div>'
 }
 
 pcp_shairport_stop() {
-	# $1 - nohtml
-	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
+	# $1 - colour|text|html
+
+	FORMAT=$1
+	pcp_message INFO "" $FORMAT -n
 	sudo /usr/local/etc/init.d/shairport-sync stop
-	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$FORMAT" = "html" ] && echo '</div>'
 }
 
 pcp_shairport_restart() {
-	# $1 - nohtml
-	[ "$1" = "nohtml" ] && echo -n '[ INFO ] ' || echo '<p class="info">[ INFO ] '
+	# $1 - colour|text|html
+
+	FORMAT=$1
+	pcp_message INFO "" $FORMAT -n
 	sudo /usr/local/etc/init.d/shairport-sync restart
-	[ "$1" = "nohtml" ] || echo '</p>'
+	[ "$FORMAT" = "html" ] && echo '</div>'
 }
 
 pcp_shairport_status() {
@@ -1257,7 +1266,7 @@ pcp_backup() {
 	pcp_message INFO "" $FORMAT "-n"
 	sudo filetool.sh -b
 	sync > /dev/null 2>&1
-	echo '</div>'
+	[ "$FORMAT" = "html" ] && echo '</div>'
 
 	# If backup_status file exists and is non-zero in size, then an error has occurred
 	if [ -s /tmp/backup_status ]; then
@@ -1309,64 +1318,63 @@ pcp_running_script() {
 
 #========================================================================================
 # Mounting/unmounting devices
+#
+# Defined above in pcp-variables:
+#	VOLUME=/mnt/mmcblk0p1
+#	DEVICE=/dev/mmcblk0p1
 #----------------------------------------------------------------------------------------
 pcp_mount_bootpart() {
+	# $1 - colour|text|html
+	FORMAT=$1
+
 	# Check if mmcblk0p1 is mounted otherwise mount it
 	if mount | grep $VOLUME; then
-		echo '<p class="error">[ WARN ] '$VOLUME' already mounted.</p>'
+		pcp_message ERROR "$VOLUME already mounted." $FORMAT
 	else
-		echo '<p class="info">[ INFO ] Mounting '$VOLUME'...</p>'
-		echo '<p style="font-size:10px">'
+		pcp_message INFO "Mounting $VOLUME..." $FORMAT
+#		[ "$FORMAT" = "html" ] && echo '<p style="font-size:10px">'
 		sudo mount $DEVICE;
 	fi
 }
 
 pcp_umount_bootpart() {
-	# Unmount mmcblk0p1
+	# $1 - colour|text|html
+	FORMAT=$1
+
 	sync
 	sync
-	echo '<p class="info">[ INFO ] Unmounting '$VOLUME'...</p>'
+	pcp_message INFO "Unmounting $VOLUME..." $FORMAT
 	sudo umount $DEVICE
 }
 
-pcp_mount_bootpart_nohtml() {
-	# Check if mmcblk0p1 is mounted otherwise mount it
-	if mount | grep >/dev/null $VOLUME; then
-		echo '[ WARN ] '$VOLUME' already mounted.'
-	else
-		echo '[ INFO ] Mounting '$VOLUME'...'
-		sudo mount $DEVICE;
-	fi
+pcp_mount_bootpart_nohtml() {    # <==== GE Depreciated
+	pcp_mount_bootpart "text"
 }
 
-pcp_umount_bootpart_nohtml() {
-	# Unmount mmcblk0p1
-	sync
-	sync
-	echo '[ INFO ] Unmounting '$VOLUME'...'
-	sudo umount $DEVICE
+pcp_umount_bootpart_nohtml() {   # <==== GE Depreciated
+	pcp_umount_bootpart "text"
 }
-
-# CHECK:  This is defined above in pcp-variables
-#	VOLUME=/mnt/mmcblk0p1
-#	DEVICE=/dev/mmcblk0p1
 
 pcp_mount_device() {
-	# Check if device is mounted otherwise mount it
+	# $2 - colour|text|html
+	FORMAT=$2
+
 	if mount | grep "/mnt/$1"; then
-		echo '<p class="error">[ WARN ] /mnt/'$1' already mounted.</p>'
+		pcp_message ERROR "/mnt/$1 already mounted." $FORMAT
 	else
-		echo '<p class="info">[ INFO ] Mounting /dev/'$1'...</p>'
-		echo '<p style="font-size:10px">'
+		pcp_message INFO "Mounting /dev/$1..." $FORMAT
+#		[ "$FORMAT" = "html" ] && echo '<p style="font-size:10px">'
 		sudo mount /dev/$1;
 	fi
 }
 
 pcp_umount_device() {
-	# Unmount device
+	# $2 - colour|text|html
+	FORMAT=$2
+
 	sync
 	sync
-	echo '<p class="info">[ INFO ] Unmounting /dev/'$1'...</p>'
+	pcp_message INFO "Unmounting /dev/$1..." $FORMAT
 	sudo umount /dev/$1
 }
 
@@ -1377,9 +1385,10 @@ pcp_umount_device() {
 pcp_reboot() {
 	# $1 - colour|text|html|none
 
-	[ "$1" = "none" ] || pcp_message INFO "piCorePlayer is rebooting..." "$1"
+	FORMAT=$1
+	[ "$FORMAT" = "none" ] || pcp_message INFO "piCorePlayer is rebooting..." $FORMAT
 	if [ "$NETMOUNT1" = "yes" ]; then
-		[ "$1" = "none" ] || pcp_message INFO "Unmounting Network Shared Drive..." "$1"
+		[ "$FORMAT" = "none" ] || pcp_message INFO "Unmounting Network Shared Drive..." $FORMAT
 		mount | grep -q cifs
 		[ $? -eq 0 ] && umount /mnt/$NETMOUNT1POINT
 	fi
@@ -1389,7 +1398,8 @@ pcp_reboot() {
 pcp_shutdown() {
 	# $1 - colour|text|html|none
 
-	[ "$1" = "none" ] || pcp_message INFO "piCorePlayer is shutting down..." "$1"
+	FORMAT=$1
+	[ "$FORMAT" = "none" ] || pcp_message INFO "piCorePlayer is shutting down..." "$FORMAT"
 	exitcheck.sh
 }
 

@@ -18,24 +18,21 @@ pcp_navbar
 pcp_remove_query_string
 pcp_httpd_query_string
 
-#DEBUG=1
-#COLUMN1="col-3"
-
-pcp_debug_info() {
-	pcp_debug_variables "html" AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 PARAMS3 PARAMS4 PARAMS5 OUTPUT ALSA_PARAMS DT_MODE
-}
-
+#----------------------------------------------------------------------------------------
+COLUMN1="col-3"
 pcp_heading5 "Choose output"
 
-[ $DEBUG -eq 1 ] && pcp_debug_info
+[ $DEBUG -eq 1 ] &&
+pcp_debug_variables "html" QUERY_STRING AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 PARAMS3 \
+                           PARAMS4 PARAMS5 OUTPUT ALSA_PARAMS DT_MODE
 
 if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 	pcp_message INFO "Audio output unchanged, still $AUDIO." "html"
 	if [ "$DEFAULTS" = "yes" ]; then
 		pcp_message INFO "Setting default ALSA parameters." "html"
-		pcp_squeezelite_stop
+		pcp_squeezelite_stop "html"
 		pcp_soundcontrol
-		pcp_squeezelite_start
+		pcp_squeezelite_start "html"
 		pcp_save_to_config
 	else
 		pcp_message INFO "Nothing to do." "html"
@@ -51,7 +48,7 @@ fi
 
 # Only do something if $AUDIO variable has changed.
 if [ $CHANGED ]; then
-	pcp_squeezelite_stop
+	pcp_squeezelite_stop "html"
 	pcp_soundcontrol
 
 	[ "$DEFAULTS" = "no" ] && ALSA_PARAMS=$ORIG_ALSA_PARAMS
@@ -116,12 +113,10 @@ if [ $CHANGED ]; then
 		pcp_confirmation_required
 	fi
 
-	pcp_squeezelite_start
+	pcp_squeezelite_start "html"
 	pcp_save_to_config
 	pcp_read_chosen_audio
-	[ $DEBUG -eq 1 ] && pcp_debug_info
-	[ $DEBUG -eq 1 ] && pcp_textarea "Updated pcp.cfg" "cat $PCPCFG" 380
-	pcp_backup
+	pcp_backup "html"
 fi
 
 echo '<div class="mt-3">'
