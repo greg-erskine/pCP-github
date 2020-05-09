@@ -445,11 +445,11 @@ fi
 #--------------------------------------Buttons------------------------------------------
 
 echo '    <div class="row">'
-echo '      <div class="'$COLUMN2_1'">'
+echo '      <div class="col-4">'
 
 if [ "$WIFI" = "on" ]; then
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Save" onclick="return(validate());">'
-	echo '        <input class="'$BUTTON'"type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
+	echo '        <input class="'$BUTTON'" type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 	echo '        <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
 else
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Config">Save</button>'
@@ -620,17 +620,17 @@ if [ "$WIFI" = "on" ]; then
 
 	pcp_heading5 "Wifi information"
 
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <input class="'$BUTTON'" form="setwifi" type="submit" name="SUBMIT" value="Scan">'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>Wifi MAC: '$WLANMAC'</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <p>Wifi IP: '$WLANIP'</p>'
-	echo '      </div>'
+	echo '  <div class="row">'
+	echo '    <div class="'$COLUMN3_1'">'
+	echo '      <input class="'$BUTTON'" form="setwifi" type="submit" name="SUBMIT" value="Scan">'
 	echo '    </div>'
+	echo '    <div class="'$COLUMN3_2'">'
+	echo '      <p>Wifi MAC: '$WLANMAC'</p>'
+	echo '    </div>'
+	echo '    <div class="'$COLUMN3_3'">'
+	echo '      <p>Wifi IP: '$WLANIP'</p>'
+	echo '    </div>'
+	echo '  </div>'
 
 #-------------------------------------Display available wifi networks--------------------
 	if [ "$SUBMIT" = "Scan" ]; then
@@ -648,6 +648,7 @@ wifi_apmode_page() {
 
 	pcp_incr_id
 
+	COLUMN1="col-12"
 	pcp_heading5 "Wireless Access Point (WAP) configuration page"
 
 	echo '    <div class="row">'
@@ -704,8 +705,8 @@ echo '        </div>'
 echo '      </div>'
 echo '    </div>'
 echo '    <div class="row">'
-echo '      <td colspan="3">'
-echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Network_wait">Save</button>'
+echo '      <div class="'$COLUMN3_1'">'
+echo '        <button class="'$BUTTON' mb-3" type="submit" name="ACTION" value="Network_wait">Save</button>'
 echo '      </div>'
 echo '    </div>'
 echo '  </form>'

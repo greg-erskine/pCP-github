@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 7.0.0 2020-05-09
 
 #========================================================================================
 # onboot.lst functions
@@ -462,6 +462,7 @@ pcp_wifi_html_end() {
 	pcp_footer
 	pcp_mode
 	pcp_copyright
+	echo '</div>'
 	echo '</body>'
 	echo '</html>'
 	exit
@@ -476,32 +477,20 @@ pcp_wifi_using_wifi() {
 
 pcp_wifi_not_using_wifi () {
 	if [ $DEBUG -eq 1 ]; then
-		echo '<p class="debug">[ DEBUG ] Physical MAC: '$(pcp_eth0_mac_address)'</p>'
-		echo '<p class="debug">[ DEBUG ] Wireless MAC: '$(pcp_wlan0_mac_address)'</p>'
-		echo '<p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
-		echo '<p class="debug">[ DEBUG ] Not using wifi interface.</p>'
+		pcp_message DEBUG "Physical MAC: $(pcp_eth0_mac_address)" "html"
+		pcp_message DEBUG "Wireless MAC: $(pcp_wlan0_mac_address)" "html"
+		pcp_message DEBUG "Controls MAC: $(pcp_controls_mac_address)" "html"
+		pcp_message DEBUG "Not using wifi interface." "html"
 	fi
 
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset class="warning">'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	echo '                <p><b>Warning:</b></p>'
-	echo '                <ul>'
-	echo '                  <li>piCorePlayer is not currently using the wifi interface.</li>'
-	echo '                  <li>Squeezelite/piCorePlayer will default to the wired interface.</li>'
-	echo '                  <li>Shutdown, remove the ethernet cable, then reboot to use the wifi interface.</li>'
-	echo '                </ul>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
+	echo '    <div class="row">'
+	echo '      <div>'
+	echo '        <p><b>Warning:</b></p>'
+	echo '        <ul>'
+	echo '          <li>piCorePlayer is not currently using the wifi interface.</li>'
+	echo '          <li>Squeezelite/piCorePlayer will default to the wired interface.</li>'
+	echo '          <li>Shutdown, remove the ethernet cable, then reboot to use the wifi interface.</li>'
+	echo '        </ul>'
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '    </div>'
 }
