@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-09
+# Version: 7.0.0 2020-05-10
 
 . pcp-functions
 . pcp-rpi-functions
@@ -41,13 +41,14 @@ STRING="${SQLT_BIN} "
 #COLUMN1="col-sm-3 text-md-right"
 
 COLUMN3_1="col-sm-2"
-COLUMN3_2="col-sm-3"
-COLUMN3_3="col-sm-7"
+COLUMN3_2="col-sm-4"
+COLUMN3_3="col-sm-6"
 
-COLUMN2_1="$COLUMN3_1"
-COLUMN2_2="col-9"
+COLUMN2_1="col-sm-2"
+COLUMN2_2="col-sm-10"
 
 BUTTON="btn btn-primary w-50"
+COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 
 #========================================================================================
 # Missing squeezelite options
@@ -86,20 +87,19 @@ pcp_submit_button() {
 
 	HELP_URL="diag_logs.cgi?SELECTION=pcp_squeezelite_help.log&ACTION=Show"
 
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="form-group '$COLUMN2_1'">'
-	echo '        <input class="form-control form-control-lg'$BUTTON'" type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
+	echo '        <input class="form-control form-control-sm '$BUTTON'" type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 	echo '      </div>'
 
 	if [ $MODE -ge $MODE_PLAYER ]; then
+		pcp_incr_id
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Squeezelite command string&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
-		echo '        <div id="dt'$ID'" class="collapse">'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p><b>Warning: </b>For advanced users only!</p>'
 		echo '          <p>'$STRING'</p>'
 		echo '          <p>For more information&#8212;see <a href="'$HELP_URL'">Squeezelite help</a>.</p>'
@@ -153,32 +153,31 @@ pcp_heading5 "Audio output device settings"
 
 echo '  <form name="setaudio" action="chooseoutput.cgi" method="get" id="setaudio">'
 echo '    <div class="row">'
-
 #--------------------------------------Audio output-------------------------------
-pcp_incr_id
-
 echo '      <div class="form-group '$COLUMN3_1'">'
-echo '        <input class="'$BUTTON'" id="save_out" type="submit"'
+echo '        <input class="'$BUTTON'"'
+echo '               id="save_out"'
+echo '               type="submit"'
 echo '               name="DEFAULTS"'
 echo '               value="Save"'
 echo '               title="Save &quot;Audio output&quot; to configuration file"'
-[ $MODE -ge $MODE_DEVELOPER ] && echo '                         onclick=load_defaults();'
 echo '               >'
 echo '      </div>'
 echo '      <div class="'$COLUMN3_2'">'
-echo '        <select class="form-control" id="audiocard" name="AUDIO">'
+echo '        <select class="form-control form-control-sm" id="audiocard" name="AUDIO">'
 
 cat /tmp/dropdown.cfg | grep $RP_MODEL | sed 's/notselected//' | awk -F: '{ print "<option value=\""$1"\" "$2">"$3"</option>"}'
 
 echo '        </select>'
 echo '      </div>'
+pcp_incr_id
 echo '      <div class="'$COLUMN3_3'">'
 echo '        <p><b>Do this First:</b> Select Audio output, then press [ Save ]&nbsp;&nbsp;'
 echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 echo '        </p>'
-echo '        <div id="dt'$ID'" class="collapse">'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '          <p>Set Audio output before changing Squeezelite settings below.</p>'
-echo '          <p><b>Note: </b>This will overwrite some default values of the Squeezelite settings below. You may need to reset them.</p>'
+echo '          <p><b>Note: </b>This will overwrite some default Squeezelite settings below. You may need to reset them.</p>'
 echo '        </div>'
 echo '      </div>'
 echo '    </div>'
@@ -196,7 +195,7 @@ if [ x"" != x"$CONTROL_PAGE" ]; then
 	echo '          <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
 	echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '          </p>'
-	echo '          <div id="dt'$ID'" class="collapse">'
+	echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '            <p>Setup and card specific hardware or mixer options on this page.</p>'
 	echo '          </div>'
 	echo '        </div>'
@@ -211,6 +210,7 @@ echo '  </form>'
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
+echo '<hr>'
 pcp_heading5 "Change Squeezelite settings"
 
 echo '  <form name="squeeze" action="writetoconfig.cgi" method="get">'
@@ -218,8 +218,6 @@ echo '  <form name="squeeze" action="writetoconfig.cgi" method="get">'
 #----------------------------------------------------------------------------------------
 pcp_submit_button
 #--------------------------------------Name of your player-------------------------------
-pcp_incr_id
-
 echo '    <div class="row">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Name of your player</p>'
@@ -234,11 +232,12 @@ echo '               title="Invalid characters: $ &amp; ` / &quot;"'
 echo '               pattern="[^$&`/\x22]+"'
 echo '        >'
 echo '      </div>'
+pcp_incr_id
 echo '      <div class="'$COLUMN3_3'">'
 echo '        <p>Specify the piCorePlayer name (-n)&nbsp;&nbsp;'
 echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 echo '        </p>'
-echo '        <div id="dt'$ID'" class="collapse">'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '          <p>&lt;name&gt;</p>'
 echo '          <p>This is the player name that will be used by LMS, it will appear in the web interface and apps.'
 echo '             It is recommended that you use standard alphanumeric characters for maximum compatibility.</p>'
@@ -261,7 +260,6 @@ case "$ALSAeq" in
 esac
 
 pcp_incr_id
-
 echo '    <div class="row">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Output setting</p>'
@@ -286,7 +284,7 @@ else
 	echo '        <p>Specify the output device (-o)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;output device&gt;</p>'
 	echo '          <ul>'
 	echo '            <li>Default: default</li>'
@@ -319,13 +317,10 @@ echo '    </div>'
 
 #--------------------------------------ALSA settings-------------------------------------
 pcp_squeezelite_alsa() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>ALSA setting</p>'
 	echo '      </div>'
-	echo '      <div class="form-group '$COLUMN3_2'">'
 
 	              ALSA_PARAMS1=$(echo $ALSA_PARAMS | cut -d: -f1 )		# b = buffer time in ms or size in bytes
 	              ALSA_PARAMS2=$(echo $ALSA_PARAMS | cut -d: -f2 )		# p = period count or size in bytes
@@ -333,6 +328,7 @@ pcp_squeezelite_alsa() {
 	              ALSA_PARAMS4=$(echo $ALSA_PARAMS | cut -d: -f4 )		# m = use mmap (0|1)
 	              ALSA_PARAMS5=$(echo $ALSA_PARAMS | cut -d: -f5 )		# d = opens ALSA twice
 
+	echo '      <div class="form-group col">'
 	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="ALSA_PARAMS1"'
@@ -340,6 +336,8 @@ pcp_squeezelite_alsa() {
 	echo '               title="buffer time"'
 	echo '               pattern="\d*"'
 	echo '        >'
+	echo '      </div>'
+	echo '      <div class="form-group col">'
 	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="ALSA_PARAMS2"'
@@ -347,6 +345,8 @@ pcp_squeezelite_alsa() {
 	echo '               title="period count"'
 	echo '               pattern="\d*"'
 	echo '        >'
+	echo '      </div>'
+	echo '      <div class="form-group col">'
 	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="ALSA_PARAMS3"'
@@ -354,14 +354,18 @@ pcp_squeezelite_alsa() {
 	echo '               title="sample format ( 16 | 24 | 24_3 | 32 )"'
 	echo '               pattern="16|24_3|24|32"'
 	echo '        >'
-	echo '        <input class="form-control input-sm"'
+	echo '      </div>'
+	echo '      <div class="form-group col">'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="ALSA_PARAMS4"'
 	echo '               value="'$ALSA_PARAMS4'"'
 	echo '               title="mmap ( 0 | 1 )"'
 	echo '               pattern="[0-1]"'
 	echo '        >'
-	echo '        <input class="form-control input-sm"'
+	echo '      </div>'
+	echo '      <div class="form-group col">'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="ALSA_PARAMS5"'
 	echo '               value="'$ALSA_PARAMS5'"'
@@ -369,11 +373,12 @@ pcp_squeezelite_alsa() {
 	echo '               pattern="[d]"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Specify the ALSA params to open output device (-a)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;b&gt;:&lt;p&gt;:&lt;f&gt;:&lt;m&gt;:&lt;d&gt;</p>'
 	echo '          <ul>'
 	echo '            <li>b = buffer time in ms or size in bytes</li>'
@@ -403,7 +408,7 @@ pcp_squeezelite_alsa() {
 		echo '       <div class="'$COLUMN3_1'">'
 		echo '       </div>'
 		echo '       <div class="form-group '$COLUMN3_2'">'
-		echo '         <input class="form-control input-sm" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'" readonly>'
+		echo '         <input class="form-control form-control-sm" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'" readonly>'
 		echo '       </div>'
 		echo '       <div class="'$COLUMN3_3'">'
 		echo '       </div>'
@@ -416,14 +421,12 @@ pcp_squeezelite_alsa() {
 
 #--------------------------------------Buffer size settings------------------------------
 pcp_squeezelite_buffer() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Buffer size settings</p>'
 	echo '      </div>'
 	echo '      <div class="form-group '$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="BUFFER_SIZE"'
 	echo '               value="'$BUFFER_SIZE'"'
@@ -431,11 +434,12 @@ pcp_squeezelite_buffer() {
 	echo '               pattern="\d+:\d+"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Specify internal Stream and Output buffer sizes in Kb (-b)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;stream&gt;:&lt;output&gt;</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -446,14 +450,12 @@ pcp_squeezelite_buffer() {
 
 #--------------------------------------Codec settings------------------------------------
 pcp_squeezelite_codec() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Restrict codec setting</p>'
 	echo '      </div>'
 	echo '      <div class="form-group '$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="_CODEC"'
 	echo '               value="'$_CODEC'"'
@@ -461,11 +463,12 @@ pcp_squeezelite_codec() {
 	echo '               pattern="[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Restrict codecs to those specified, otherwise load all available codecs (-c)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;codec1,codec2&gt;</p>'
 	echo '          <p>Known codecs:</p>'
 	echo '          <ul>'
@@ -488,14 +491,12 @@ pcp_squeezelite_codec() {
 
 #--------------------------------------Exclude Codec settings----------------------------
 pcp_squeezelite_xcodec() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Exclude codec setting</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="XCODEC"'
 	echo '               value="'$XCODEC'"'
@@ -503,11 +504,12 @@ pcp_squeezelite_xcodec() {
 	echo '               pattern="[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+(,[dsd|flac|pcm|mp3|ogg|aac|wma|alac|mad|mpg]+)*"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Explicitly exclude native support for one or more codecs (-e)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;codec1,codec2&gt;</p>'
 	echo '          <p>Known codecs:</p>'
 	echo '          <ul>'
@@ -531,14 +533,12 @@ pcp_squeezelite_xcodec() {
 
 #--------------------------------------Priority setting----------------------------------
 pcp_squeezelite_priority() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Priority setting</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="number"'
 	echo '               name="PRIORITY"'
 	echo '               value="'$PRIORITY'"'
@@ -547,11 +547,12 @@ pcp_squeezelite_priority() {
 	echo '               title="Priority ( 0 - 99 )"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Set real time priority of output thread (-p)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;priority&gt;</p>'
 	echo '          <p>Range: 0-99</p>'
 	echo '          <p>Default: 45</p>'
@@ -565,25 +566,24 @@ pcp_squeezelite_priority() {
 
 #--------------------------------------Max sample rate-----------------------------------
 pcp_squeezelite_max_sample() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Max sample rate</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="MAX_RATE"'
 	echo '               value="'$MAX_RATE'"'
 	echo '               title="Max sample rate"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Sample rates supported, allows output to be off when Squeezelite is started (-r)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;rates&gt;[:&lt;delay&gt;]</p>'
 	echo '          <ul>'
 	echo '            <li>rates = &lt;maxrate&gt;|&lt;minrate&gt;-&lt;maxrate&gt;|&lt;rate1&gt;,&lt;rate2&gt;,&lt;rate3&gt;</li>'
@@ -598,25 +598,24 @@ pcp_squeezelite_max_sample() {
 
 #--------------------------------------Upsample settings---------------------------------
 pcp_squeezelite_upsample_settings() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Upsample setting</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="UPSAMPLE"'
 	echo '               value="'$UPSAMPLE'"'
 	echo '               title="Upsample settings"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Resampling parameters (-R)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;recipe&gt;:&lt;flags&gt;:&lt;attenuation&gt;:&lt;precision&gt;:<br />'
 	echo '             &lt;passband_end&gt;:&lt;stopband_start&gt;:&lt;phase_response&gt;</p>'
 	echo '          <ul>'
@@ -642,14 +641,12 @@ pcp_squeezelite_upsample_settings() {
 
 #--------------------------------------MAC address---------------------------------------
 pcp_squeezelite_mac_address() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>MAC address</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="MAC_ADDRESS"'
 	echo '               value="'$MAC_ADDRESS'"'
@@ -657,11 +654,12 @@ pcp_squeezelite_mac_address() {
 	echo '               pattern="([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Set MAC address (-m)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;mac addr&gt;</p>'
 	echo '          <p>Format: ab:cd:ef:12:34:56</p>'
 	echo '          <p>This is used if you want to use a fake MAC address or you want to overwrite the default MAC address determined by Squeezelite.'
@@ -681,14 +679,12 @@ pcp_squeezelite_mac_address() {
 
 #--------------------------------------Squeezelite server IP-----------------------------
 pcp_squeezelite_server_ip() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS IP</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="SERVER_IP"'
 	echo '               value="'$SERVER_IP'"'
@@ -696,11 +692,12 @@ pcp_squeezelite_server_ip() {
 	echo '               pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Connect to the specified LMS, otherwise autodiscovery will find the server (-s)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;server&gt;[:&lt;port&gt;]</p>'
 	echo '          <p>Default port: 3483</p>'
 	echo '          <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port number.</p>'
@@ -746,14 +743,12 @@ pcp_squeezelite_log_level() {
 		*)                LOGLEVEL0="selected" ;;
 	esac
 
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Log level setting</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control" name="LOGLEVEL" title="Log level setting">'
+	echo '        <select class="form-control form-control-sm" name="LOGLEVEL" title="Log level setting">'
 	echo '          <option value="" '$LOGLEVEL0'>none</option>'
 	echo '          <option value="all=info" '$LOGLEVEL1'>all=info</option>'
 	echo '          <option value="all=debug" '$LOGLEVEL2'>all=debug</option>'
@@ -775,11 +770,12 @@ pcp_squeezelite_log_level() {
 	echo '          <option value="ir=sdebug" '$LOGLEVEL18'>ir=sdebug</option>'
 	echo '        </select>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>Set logging level (-d)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;log&gt;=&lt;level&gt;</p>'
 	echo '          <ul>'
 	echo '            <li>log: all|slimproto|stream|decode|output|ir</li>'
@@ -795,14 +791,12 @@ pcp_squeezelite_log_level() {
 
 #------------------------------------Device supports DSD/DoP-----------------------------
 pcp_squeezelite_dop() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Device supports DSD/DoP</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="DSDOUT"'
 	echo '               value="'$DSDOUT'"'
@@ -810,11 +804,12 @@ pcp_squeezelite_dop() {
 	echo '               pattern="^\d+((:dop)|(:u8)|(:u16le)|(:u16be)|(:u32le)|(:u32be))?"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Output device supports native DSD (-D)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;delay&gt;:&lt;format&gt;</p>'
 	echo '          <p>delay = optional delay switching between PCM and DoP in ms.</p>'
 	echo '          <p>format = dop (default if not specified), u8, u16le, u16be, u32le or u32be.</p>'
@@ -828,14 +823,12 @@ pcp_squeezelite_dop() {
 
 #--------------------------------------Close output setting------------------------------
 pcp_squeezelite_close_output() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Close output setting</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="number"'
 	echo '               name="CLOSEOUT"'
 	echo '               value="'$CLOSEOUT'"'
@@ -844,11 +837,12 @@ pcp_squeezelite_close_output() {
 	echo '               max="1000"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Set idle time before Squeezelite closes output (-C)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;timeout&gt;</p>'
 	echo '          <p>Value in seconds.</p>'
 	echo '          <p>Close output device when idle after timeout seconds, default is to keep it open while player is on.</p>'
@@ -867,25 +861,24 @@ pcp_squeezelite_unmute() {
 		*) UNMUTENO="checked" ;;
 	esac
 
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Unmute ALSA control</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="UNMUTE"'
 	echo '               value="'$UNMUTE'"'
 	echo '               title="Unmute ALSA control"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Set ALSA control to unmute and set to full volume (-U)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;control&gt;</p>'
 	echo '          <p>Unmute ALSA control and set to full volume.</p>'
 	echo '          <p><b>Note:</b> Not supported with -V option.</p>'
@@ -904,25 +897,24 @@ pcp_squeezelite_volume() {
 		*) ALSAVOLUMENO="checked" ;;
 	esac
 
-	pcp_incr_id
-
 	echo '              <div class="row">'
 	echo '                <div class="'$COLUMN3_1'">'
 	echo '                  <p>ALSA volume control</p>'
 	echo '                </div>'
 	echo '                <div class="'$COLUMN3_2'">'
-	echo '                  <input class="form-control input-sm"'
+	echo '                  <input class="form-control form-control-sm"'
 	echo '                         type="text"'
 	echo '                         name="ALSAVOLUME"'
 	echo '                         value="'$ALSAVOLUME'"'
 	echo '                         title="ALSA volume control"'
 	echo '                  >'
 	echo '                </div>'
+	pcp_incr_id
 	echo '                <div class="'$COLUMN3_3'">'
 	echo '                  <p>Set ALSA control for volume adjustment (-V)&nbsp;&nbsp;'
 	echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '                  </p>'
-	echo '                  <div id="dt'$ID'" class="collapse">'
+	echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '                    <p>&lt;control&gt;</p>'
 	echo '                    <p>Use ALSA control for volume adjustment otherwise use software volume adjustment.</p>'
 	echo '                    <p>Select and use the appropiate name of the possible controls from the list below.</p>'
@@ -944,14 +936,12 @@ pcp_squeezelite_power_gpio() {
 		esac
 	fi
 
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Power On/Off GPIO</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="number"'
 	echo '               name="POWER_GPIO"'
 	echo '               value="'$POWER_GPIO'"'
@@ -960,11 +950,12 @@ pcp_squeezelite_power_gpio() {
 	echo '               max="40"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Power On/Off GPIO (-G)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="collapse bg-light border border-secondary p-3">'
 	echo '          <p>&lt;gpio&gt;:&lt;H|L&gt;</p>'
 	echo '          <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
 	echo '          <p>H or L to tell Squeezlite if the output should be active High or Low.</p>'
@@ -975,43 +966,40 @@ pcp_squeezelite_power_gpio() {
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'"></div>'
-	echo '      <div class=""'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input id="pow1" type="radio" name="POWER_OUTPUT" value="H" title="Set GPIO active high" '$POH'>'
 	echo '        <label for="pow1">Active High&nbsp;&nbsp;</label>'
 	echo '        <input id="pow2" type="radio" name="POWER_OUTPUT" value="L" '$POL'>'
 	echo '        <label for="pow2">Active Low</label>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_1'"></div>'
+	echo '      <div class="'$COLUMN3_3'"></div>'
 	echo '    </div>'
-
 }
 [ $MODE -ge $MODE_PLAYER ] && [ $(pcp_squeezelite_build_option GPIO ) -eq 0 ] && pcp_squeezelite_power_gpio
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Power On/Off Script-------------------------------
 pcp_squeezelite_power_script() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Power On/Off Script</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="POWER_SCRIPT"'
 	echo '               value="'$POWER_SCRIPT'"'
 	echo '               title="Power On/Off script"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Power On/Off Script (-S)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;/path/script.sh&gt;</p>'
 	echo '          <p>Squeezelite will run this script when the Power On/Off button is pressed.</p>'
 	echo '          <p class="error"><b>WARNING:</b></p>'
@@ -1026,25 +1014,24 @@ pcp_squeezelite_power_script() {
 
 #--------------------------------------Various input-------------------------------------
 pcp_squeezelite_various_input() {
-	pcp_incr_id
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Various Options</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control input-sm"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="OTHER"'
 	echo '               value="'$OTHER'"'
 	echo '               title="Add your other input"'
 	echo '        >'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Add another option&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Use this field to add options that are supported by Squeezelite but unavailable in the piCorePlayer web interface.</p>'
 	echo '          <p><b>Note: </b>Ensure to include the correct switch first, i.e. -n or -o etc</p>'
 	echo '          <p><b>Example: </b>-W -X -Z</p>'
@@ -1085,8 +1072,7 @@ pcp_squeezelite_binary() {
 		*) DEFyes="checked";;
 	esac
 
-	pcp_incr_id
-
+	echo '<hr>'
 	pcp_heading5 "Set Squeezelite Binary"
 
 	echo '  <form name="binary" action="writetoconfig.cgi" method="get">'
@@ -1132,7 +1118,6 @@ pcp_squeezelite_binary() {
 	echo '      </div>'
 	echo '    </div>'
 	#--------------------------------------Submit button---------------------------------
-
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON' mb-3" type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite Binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
@@ -1149,6 +1134,5 @@ pcp_squeezelite_binary() {
 [ $MODE -ge $MODE_PLAYER ] && pcp_squeezelite_binary
 #----------------------------------------------------------------------------------------
 
-echo '</div>'
 pcp_html_end
 exit

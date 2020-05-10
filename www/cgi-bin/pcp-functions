@@ -524,6 +524,7 @@ pcp_html_head() {
 	echo ''
 	[ "$5" != "nobody" ] && echo '<body>'
 	echo '<div class="container-fluid bg-light">'
+	echo '<div class="container shadow bg-light">'
 
 	if [ "$PLAYERTABS" = "yes" ]; then
 		echo '  <script>setplayertabs();</script>'
@@ -827,10 +828,10 @@ pcp_mode() {
 }
 
 pcp_heading5() {
-	echo '  <div class="row mt-3">'
-	echo '    <div class="'$COLUMN1'">'
+	echo '  <div class="row mt-3 col-12">'
+#	echo '    <div class="'$COLUMN1'">'
 	echo '      <h5>'$1'</h5>'
-	echo '    </div>'
+#	echo '    </div>'
 	echo '  </div>'
 }
 
