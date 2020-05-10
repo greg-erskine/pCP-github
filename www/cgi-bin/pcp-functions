@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-09
+# Version: 7.0.0 2020-05-10
 
 WWW_BUILD=0008
 
@@ -303,8 +303,8 @@ pcp_picore_accessible() {
 	echo $?
 }
 
-pcp_pcp_repo_accessible() {	# GE depreciated ???
-	/bin/busybox wget --spider ${REPO}/repo.htm >/dev/null 2>&1
+pcp_pcp_repo_accessible() {
+	/bin/busybox wget --spider ${PCP_REPO}/repo.htm >/dev/null 2>&1
 	echo $?
 }
 
