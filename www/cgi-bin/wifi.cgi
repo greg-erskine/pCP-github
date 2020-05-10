@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-10
+# Version: 7.0.0 2020-05-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -24,15 +24,16 @@ WPA_PASSWORD=""
 WPA_SSID=""
 
 COLUMN3_1="col-sm-2"
-COLUMN3_2="col-sm-3"
-COLUMN3_3="col-sm-7"
+COLUMN3_2="col-sm-4"
+COLUMN3_3="col-sm-6"
 
 COLUMN2_1="$COLUMN3_1"
 COLUMN2_2="col-9"
 
 COLUMN1="$COLUMN3_1"
 
-BUTTON="btn btn-primary"
+BUTTON="btn btn-primary w-100"
+COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 
 # Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
 # it would need to be manually decoded like this
@@ -158,11 +159,11 @@ case "$ACTION" in
 		/usr/local/etc/init.d/wifi wlan0 stop
 	;;
 	Status)
-		pcp_heading5 "Status option" "" "30"
+		pcp_heading5 "Status option"
 		/usr/local/etc/init.d/wifi wlan0 status
 	;;
 	Convert1)
-		pcp_heading5 "Convert option" "" "100"
+		pcp_heading5 "Convert option"
 		WPACONFIGFILE="/tmp/newconfig.cfg"
 		if [ -f $WPACONFIGFILE ]; then
 			pcp_wifi_read_newconfig "text"
@@ -170,7 +171,7 @@ case "$ACTION" in
 		fi
 	;;
 	Convert2)
-		pcp_heading5 "Convert option" "" "100"
+		pcp_heading5 "Convert option"
 		WPACONFIGFILE="/tmp/wpa_supplicant.conf"
 		if [ -f $WPACONFIGFILE ]; then
 			pcp_wifi_read_wpa_supplicant "text"
@@ -189,7 +190,8 @@ esac
 # Debug information.
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	pcp_debug_variables "html" ACTION WIFI WPA_SSID WPA_PSK WPA_PW WPA_PASSWORD WPA_PASSPHRASE WPA_ENCRYPTION WPA_HIDDENSSID RPI3INTWIFI RPIBLUETOOTH
+	pcp_debug_variables "html" ACTION WIFI WPA_SSID WPA_PSK WPA_PW WPA_PASSWORD \
+	WPA_PASSPHRASE WPA_ENCRYPTION WPA_HIDDENSSID RPI3INTWIFI RPIBLUETOOTH
 fi
 
 #========================================================================================
@@ -239,7 +241,7 @@ echo '      <div class="'$COLUMN3_3'">'
 echo '        <p>Set wifi on or off&nbsp;&nbsp;'
 echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 echo '        </p>'
-echo '        <div id="dt'$ID'" class="collapse">'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '          <p>&lt;On|Off&gt;</p>'
 echo '          <ul>'
 echo '            <li>Turning wifi on will enable the remaining fields.</li>'
@@ -272,7 +274,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Enter wifi network SSID&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <ul>'
 	echo '            <li>Service Set Identifier (SSID).</li>'
 	echo '            <li>Use valid alphanumeric characters only.</li>'
@@ -305,7 +307,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Enter wifi network password&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <ul>'
 #	echo '            <li>Use valid alphanumeric characters only.</li>'
 	echo '            <li>Maximum length of 64 characters.</li>'
@@ -333,7 +335,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Readonly wifi network passphrase&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <ul>'
 	echo '            <li>Usually auto-generated from SSID and wifi password.</li>'
 	echo '            <li>Maximum length of 64 characters.</li>'
@@ -360,7 +362,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Two character Wireless Country Code&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Country Codes are two Letters.</p>'
 	echo '          <p>Reference <a href=https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 target="_blank">Country Code List</a>.</p>'
 	echo '        </div>'
@@ -391,7 +393,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Set wifi network security level&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;WPA-PSK|WEP|Open&gt;</p>'
 	echo '          <p>Recommended: WPA-PSK</p>'
 	echo '        </div>'
@@ -419,7 +421,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Set hiddden SSID&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Select yes to use a hidden SSID.</p>'
 	echo '          <p><b>Note: </b>We do not recommend the use of a hidden SSID. '
 	echo '          This option is only for the convenience of users that have already setup a hidden SSID.</p>'
@@ -429,10 +431,12 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 fi
 #--------------------------------------Buttons------------------------------------------
 echo '    <div class="row">'
-echo '      <div class="col-4">'
+echo '      <div class="col-2">'
 
 if [ "$WIFI" = "on" ]; then
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Save" onclick="return(validate());">'
+	echo '      </div>'
+	echo '      <div class="col-2">'
 	echo '        <input class="'$BUTTON'" type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 	echo '        <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
 else
@@ -483,7 +487,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '        <p>Turn off Raspberry Pi built-in wifi&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will load an overlay that disables built-in wifi.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -509,7 +513,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '        <p>Turn off Raspberry Pi built-in bluetooth&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will load an overlay that disables built-in bluetooth.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -632,7 +636,7 @@ wifi_apmode_page() {
 	echo '        <p>Setup piCorePlayer as a Wireless Access Point (WAP)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Disable wifi client above to enable this button.</p>'
 	echo '        </div>'
 	echo '      </div>'
@@ -655,6 +659,7 @@ echo '        <input class="form-control form-control-sm"'
 echo '               type="text"'
 echo '               name="NETWORK_WAIT"'
 echo '               value="'$NETWORK_WAIT'"'
+echo '               maxlength="4"'
 echo '               pattern="\d*"'
 echo '               title="Use numbers."'
 echo '        >'
@@ -664,7 +669,7 @@ echo '      <div class="'$COLUMN3_3'">'
 echo '        <p>Adjust network wait&nbsp;&nbsp;'
 echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 echo '        </p>'
-echo '        <div id="dt'$ID'" class="collapse">'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '          <p>&lt;xx&gt;</p>'
 echo '          <p><b>Default: </b>50 (25 seconds)</p>'
 echo '          <p>During the boot process, some USB wifi adapters take a long time to be set by DHCP.</p>'

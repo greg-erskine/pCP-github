@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-10
+# Version: 7.0.0 2020-05-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -11,6 +11,18 @@ pcp_html_head "Squeezelite Settings" "SBP"
 
 pcp_controls
 pcp_navbar
+
+#COLUMN1="col-sm-3 text-md-right"
+
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-4"
+COLUMN3_3="col-sm-6"
+
+COLUMN2_1="col-sm-2"
+COLUMN2_2="col-sm-10"
+
+BUTTON="btn btn-primary w-100"
+COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 
 #========================================================================================
 # Create Squeezelite command string
@@ -37,18 +49,6 @@ STRING="${SQLT_BIN} "
 [ x"" != x"$POWER_GPIO" ]   && STRING="$STRING -G $POWER_GPIO:$POWER_OUTPUT"
 [ x"" != x"$POWER_SCRIPT" ] && STRING="$STRING -S $POWER_SCRIPT"
 [ x"" != x"$OTHER" ]        && STRING="$STRING $OTHER"
-
-#COLUMN1="col-sm-3 text-md-right"
-
-COLUMN3_1="col-sm-2"
-COLUMN3_2="col-sm-4"
-COLUMN3_3="col-sm-6"
-
-COLUMN2_1="col-sm-2"
-COLUMN2_2="col-sm-10"
-
-BUTTON="btn btn-primary w-50"
-COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 
 #========================================================================================
 # Missing squeezelite options
@@ -89,7 +89,7 @@ pcp_submit_button() {
 
 	echo '    <div class="row">'
 	echo '      <div class="form-group '$COLUMN2_1'">'
-	echo '        <input class="form-control form-control-sm '$BUTTON'" type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
+	echo '        <input class="form-control '$BUTTON'" type="submit" name="SUBMIT" value="Save" title="Save &quot;Squeezelite settings&quot; to configuration file, and restart squeezelite." onclick="return(validate());">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="squeezelite.cgi">'
 	echo '      </div>'
 
@@ -188,7 +188,7 @@ if [ x"" != x"$CONTROL_PAGE" ]; then
 	pcp_incr_id
 	echo '      <div class="row">'
 	echo '        <div class="form-group '$COLUMN2_1'">'
-	echo '          <input class="form-control form-control-sm '$BUTTON'" type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
+	echo '          <input class="form-control '$BUTTON'" type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
 	echo '        </div>'
 	echo '        <div class="'$COLUMN2_2'">'
 	[ -f $REBOOT_PENDING ] &&
@@ -293,6 +293,10 @@ else
 	echo '          <p>Available output devices (click to use):</p>'
 	echo '          <p>  hw: devices are normally the best choice, but try and decide for yourself:</p>'
 	echo '          <ul>'
+
+####
+# Fix cursor below.
+####
 
 	OPTION=1
 	OUT_DEVICES=$(aplay -L | grep -v '^  ' | grep -E -v 'dmix|dsnoop')
@@ -405,15 +409,13 @@ pcp_squeezelite_alsa() {
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
 		echo '     <div class="row">'
-		echo '       <div class="'$COLUMN3_1'">'
-		echo '       </div>'
+		echo '       <div class="'$COLUMN3_1'"></div>'
 		echo '       <div class="form-group '$COLUMN3_2'">'
 		echo '         <input class="form-control form-control-sm" type="text" name="ALSA_PARAMS" value="'$ALSA_PARAMS'" readonly>'
 		echo '       </div>'
-		echo '       <div class="'$COLUMN3_3'">'
-		echo '       </div>'
+		echo '       <div class="'$COLUMN3_3'"></div>'
 		echo '     </div>'
-		echo '<!-- END of debug info -->'
+		echo '<!-- End of debug info -->'
 	fi
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_squeezelite_alsa
@@ -701,6 +703,7 @@ pcp_squeezelite_server_ip() {
 	echo '          <p>&lt;server&gt;[:&lt;port&gt;]</p>'
 	echo '          <p>Default port: 3483</p>'
 	echo '          <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default LMS port number.</p>'
+
 	                if [ "$LMSERVER" = "no" ]; then
 	echo   '          <p>Current LMS IP is:</p>'
 	echo   '          <ul>'
@@ -712,6 +715,7 @@ pcp_squeezelite_server_ip() {
 	echo   '            <li><b>127.0.0.1</b> in the LMS IP field</li>'
 	echo   '          </ul>'
 	                fi
+
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
@@ -721,6 +725,7 @@ pcp_squeezelite_server_ip() {
 
 #--------------------------------------Log level setting---------------------------------
 pcp_squeezelite_log_level() {
+
 	case "$LOGLEVEL" in
 		all=info)         LOGLEVEL1="selected" ;;
 		all=debug)        LOGLEVEL2="selected" ;;
@@ -856,6 +861,7 @@ pcp_squeezelite_close_output() {
 
 #--------------------------------------Unmute ALSA control-------------------------------
 pcp_squeezelite_unmute() {
+
 	case "$UNMUTE" in
 		PCM) UNMUTEYES="checked" ;;
 		*) UNMUTENO="checked" ;;
@@ -892,6 +898,7 @@ pcp_squeezelite_unmute() {
 
 #--------------------------------------ALSA volume control-------------------------------
 pcp_squeezelite_volume() {
+
 	case "$ALSAVOLUME" in
 		PCM) ALSAVOLUMEYES="checked" ;;
 		*) ALSAVOLUMENO="checked" ;;
@@ -929,6 +936,7 @@ pcp_squeezelite_volume() {
 
 #--------------------------------------Power On/Off GPIO---------------------------------
 pcp_squeezelite_power_gpio() {
+
 	if [ -n "$POWER_GPIO" ]; then
 		case "$POWER_OUTPUT" in
 			H) POH="checked" ;;
@@ -1063,10 +1071,10 @@ echo '</script>'
 # Select Squeezelite binary.  Support custom versions of squeezelite.
 #----------------------------------------------------------------------------------------
 pcp_squeezelite_binary() {
-	DEFyes=""
-	CUSTOMyes=""
+
 	# Check to make sure this is really a symlink before we allow setting via web
 	[ -f $TCEMNT/tce/squeezelite -a "$(readlink $TCEMNT/tce/squeezelite)" = "" ] && DISABLE="disabled" || DISABLE=""
+
 	case $SQBINARY in
 		custom) CUSTOMyes="checked"; break;;
 		*) DEFyes="checked";;
@@ -1091,7 +1099,7 @@ pcp_squeezelite_binary() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1' center">'
 	echo '        <p>'
-	echo '          <input class="" id="sqreg" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
+	echo '          <input class="XXXX" id="sqreg" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
 	echo '          <label for="sqreg">&#8202;</label>'
 	echo '        <p>'
 	echo '      </div>'
@@ -1106,7 +1114,7 @@ pcp_squeezelite_binary() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1' center">'
 	echo '        <p>'
-	echo '          <input class="" id="sqcust" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
+	echo '          <input class="XXXX" id="sqcust" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
 	echo '          <label for="sqcust">&#8202;</label>'
 	echo '        <p>'
 	echo '      </div>'

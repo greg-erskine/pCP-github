@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-10
+# Version: 7.0.0 2020-05-11
 
 WWW_BUILD=0008
 
@@ -828,10 +828,10 @@ pcp_mode() {
 }
 
 pcp_heading5() {
-	echo '  <div class="row mt-3 col-12">'
-#	echo '    <div class="'$COLUMN1'">'
-	echo '      <h5>'$1'</h5>'
-#	echo '    </div>'
+	echo '  <div class="row">'
+	echo '    <div class="col-12 my-3">'
+	echo '      <h4>'$1'</h4>'
+	echo '    </div>'
 	echo '  </div>'
 }
 
