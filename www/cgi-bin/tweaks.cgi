@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-10
+# Version: 7.0.0 2020-05-11
 
 set -f
 
@@ -13,17 +13,25 @@ pcp_html_head "Tweaks" "SBP"
 pcp_controls
 pcp_navbar
 
-COLUMN1_1="col-3"
+COLUMN1_1="col-12"
 
 COLUMN2_1="col-sm-2"
-COLUMN2_2="col-9"
+COLUMN2_2="col-10"
 
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-3"
 COLUMN3_3="col-sm-7"
 
-BUTTON="btn btn-primary w-50"
+COLUMN4_1="col-sm-2"
+COLUMN4_2="col-sm-3"
+COLUMN4_3="col-sm-3"
+COLUMN4_4="col-sm-4"
 
+BUTTON="btn btn-primary"
+
+#========================================================================================
+# Functions
+#----------------------------------------------------------------------------------------
 pcp_the_end() {
 	pcp_footer
 	pcp_mode
@@ -48,7 +56,7 @@ pcp_tweaks_hostname() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">Host name</div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="HOST"'
 	echo '               value="'$HOST'"'
@@ -62,7 +70,7 @@ pcp_tweaks_hostname() {
 	echo '        <p>Provide a host name, so the player is easier to identify on your LAN&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p><b>Note:</b> This is the linux hostname, not the piCorePlayer name used by LMS.</p>'
 	echo '          <p>The Internet standards for protocols mandate that component hostname labels may '
 	echo '             contain only the ASCII letters "a" through "z" (in a case-insensitive manner), '
@@ -73,7 +81,7 @@ pcp_tweaks_hostname() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
@@ -91,7 +99,7 @@ pcp_tweaks_timezone() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">Timezone</div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="TIMEZONE"'
 	echo '               value="'$TIMEZONE'"'
@@ -104,7 +112,7 @@ pcp_tweaks_timezone() {
 	echo '        <p>Add or change your timezone&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p><b>Format:</b> EST-10EST,M10.1.0,M4.1.0/3</p>'
 	echo '          <p>Your timezone should be automatically populated.</p>'
 	echo '          <p>Delete and reboot to force piCorePlayer to automatically populate timezone.</p>'
@@ -118,7 +126,7 @@ pcp_tweaks_timezone() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
@@ -153,7 +161,7 @@ pcp_tweaks_playertabs() {
 	echo '        <p>Display piCorePlayer Tabs&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Sometimes it might be useful to turn off the piCorePlayer Tabs.</p>'
 	echo '          <p>piCorePlayer checks LMS for available players. This can be slow on older RPis.</p>'
 	echo '        </div>'
@@ -161,7 +169,7 @@ pcp_tweaks_playertabs() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
@@ -197,7 +205,7 @@ pcp_tweaks_lmscontrols() {
 	echo '        <p>Display LMS Controls Toolbar&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Sometimes it might be useful to turn off the LMS Controls Toolbar.</p>'
 	echo '          <p>These controls are not intended for normal use, but they are handy when testing.</p>'
 	echo '        </div>'
@@ -241,7 +249,7 @@ pcp_tweaks_hdmipower() {
 	echo '        <p>HDMI power&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Powering off HDMI to save a little power.</p>'
 	echo '          <p>Using this option will download and install rpi-vc.tcz.</p>'
 	echo '          <p>A reboot will be required.</p>'
@@ -270,7 +278,7 @@ pcp_tweaks_lmswebport() {
 	echo '        <p>LMS Web Port</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="number"'
 	echo '               name="LMSWEBPORT"'
 	echo '               value="'$LMSWEBPORT'"'
@@ -283,7 +291,7 @@ pcp_tweaks_lmswebport() {
 	echo '        <p>Enter non-default LMS Web Port number&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;number&gt;</p>'
 	echo '          <p><b>Default:</b> 9000</p>'
 	echo '          <p><b>Range:</b> 9001:9999</p>'
@@ -314,7 +322,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '        <p>Internet check IP</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="INTERNET_CHECK_IP"'
 	echo '               value="'$INTERNET_CHECK_IP'"'
@@ -327,7 +335,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '        <p>Enter non-default Internet check IP address&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;IP address&gt;</p>'
 	echo '          <p><b>Default:</b> blank or 8.8.8.8</p>'
 	echo '          <p>piCorePlayer uses this IP address to confirm that it has Internet access.</p>'
@@ -395,7 +403,7 @@ pcp_tweaks_rotdash() {
 	echo '        <p>Replace the default rotating dash with a new one&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>The default rotating dash displays -/|\ while the new one displays .....</p>'
 	echo '          <p>You can see the difference when doing a backup for example.</p>'
 	echo '          <p><b>Note:</b> Requires a reboot to activate.</p>'
@@ -419,7 +427,8 @@ pcp_tweaks_rotdash() {
 # pCP OS/Kernel Tweaks
 #----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '          <legend>pCP Kernel Tweaks</legend>'
+	echo '<hr>'
+	pcp_heading5 "pCP Kernel Tweaks"
 fi
 #--------------------------------------Governor------------------------------------------
 pcp_tweaks_governor() {
@@ -431,7 +440,7 @@ pcp_tweaks_governor() {
 	echo '        <p>CPU Governor</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control" name="CPUGOVERNOR">'
+	echo '        <select class="form-control form-control-sm" name="CPUGOVERNOR">'
 
 	                for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)
 	                do
@@ -447,7 +456,7 @@ pcp_tweaks_governor() {
 	echo '        <p>Change CPU Governor &nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p><b>Available CPU Governors:</b></p>'
 	echo '          <p>&lt;'$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors | sed 's/ $//' | sed 's/ /|/g' )'&gt;</p>'
 	echo '          <p><b>Commonly used CPU Governors:</b></p>'
@@ -495,7 +504,7 @@ pcp_tweaks_overclock() {
 	echo '        <p>Overclock</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control" name="OVERCLOCK" '$DISABLED'>'
+	echo '        <select class="form-control form-control-sm" name="OVERCLOCK" '$DISABLED'>'
 	echo '          <option value="NONE" '$OCnone'>No overclocking</option>'
 	echo '          <option value="MILD" '$OCmild'>Mild overclocking</option>'
 	echo '          <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
@@ -506,7 +515,7 @@ pcp_tweaks_overclock() {
 	echo '        <p>Change Raspberry Pi Model 1 overclocking&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;No overclocking|Mild overclocking|Moderate overclocking&gt;</p>'
 	echo '          <p><b>Note:</b> Only suitable for Raspberry Pi Model 1.</p>'
 	echo '          <p>Reboot is needed.<p>'
@@ -553,7 +562,7 @@ pcp_tweaks_cpuisol() {
 	echo '        <p>CPU Isolation</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="CPUISOL"'
 	echo '               value="'$CPUISOL'"'
@@ -565,7 +574,7 @@ pcp_tweaks_cpuisol() {
 	echo '        <p>Comma separated list of CPUs to isolate&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Isolation means the kernel will not run user tasks on the selected CPUs, unless specified.</p>'
 	echo '          <p><b>Recommended setting:&nbsp;</b>0,3</p>'
 	echo '          <p>CPU 0 to only run kernel interrupts.</p>'
@@ -603,7 +612,7 @@ pcp_tweaks_sqlite_affinity() {
 	echo '         <p>Squeezelite CPU</p>'
 	echo '       </div>'
 	echo '       <div class="'$COLUMN3_2'">'
-	echo '         <input class="form-control"'
+	echo '         <input class="form-control form-control-sm"'
 	echo '                type="text"'
 	echo '                name="SQLAFFINITY"'
 	echo '                value="'$SQLAFFINITY'"'
@@ -615,7 +624,7 @@ pcp_tweaks_sqlite_affinity() {
 	echo '         <p>Comma separated list of CPUs to run squeezelite process&nbsp;&nbsp;'
 	echo '           <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '         </p>'
-	echo '         <div id="dt'$ID'" class="collapse">'
+	echo '         <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '           <p><b>Recommended:&nbsp;</b>blank</p>'
 	echo '           <p>blank:&nbsp;Kernel decides which CPU to run Squeezelite threads.</p>'
 	echo '           <p>If not resampling, then use the same settings as the output thread in next box.</p>'
@@ -628,7 +637,7 @@ pcp_tweaks_sqlite_affinity() {
 	echo '        <p>Squeezelite Output CPU</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="SQLOUTAFFINITY"'
 	echo '               value="'$SQLOUTAFFINITY'"'
@@ -640,7 +649,7 @@ pcp_tweaks_sqlite_affinity() {
 	echo '        <p>CPU to run squeezelite output thread&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p><b>Recommended:&nbsp;</b>3</p>'
 	echo '          <p>CPU 3 to run the squeezelite output thread.</p>'
 	echo '        </div>'
@@ -664,10 +673,6 @@ pcp_tweaks_sqlite_affinity() {
 }
 [ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_PLAYER ]; then
-	echo greg???
-fi
-#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Wake-on-LAN table
@@ -690,8 +695,9 @@ pcp_tweaks_wol() {
 		[ "$WOL_NIC" = "" ] && WOL_NIC=$7
 		[ "$WOL_LMSMACADDRESS" = "" ] && WOL_LMSMACADDRESS=$4
 	fi
-	
-	echo '  <legend>Wake-on-LAN (WOL)</legend>'
+
+	echo '<hr>'
+	pcp_heading5 "Wake-on-LAN (WOL)"
 
 	echo '  <form name="wol" action="writetoconfig.cgi" method="get">'
 	#----------------------------------WOL-----------------------------------------------
@@ -710,19 +716,20 @@ pcp_tweaks_wol() {
 	echo '        <p>LMS Wake-on-LAN&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Transmits a Wake-On-LAN (WOL) "Magic Packet", used for restarting machines that have been soft-powered-down.</p>'
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
 	#----------------------------------LMS NIC-------------------------------------------
+	pcp_incr_id
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS NIC</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input id="input'$ID'"'
-	echo '               class="form-control"'
+	echo '               class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="WOL_NIC"'
 	echo '               value="'$WOL_NIC'"'
@@ -731,12 +738,11 @@ pcp_tweaks_wol() {
 	echo '               '$WOLDISABLED
 	echo '        >'
 	echo '      </div>'
-	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>LMS Network Interface Card&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;'
 	echo '            <span id="option'$ID'a" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}a\'')">eth0</span> |'
 	echo '            <span id="option'$ID'b" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}b\'')">eth1</span> |'
@@ -749,13 +755,14 @@ pcp_tweaks_wol() {
 	echo '      </div>'
 	echo '    </div>'
 	#----------------------------------LMS MAC address-----------------------------------
+	pcp_incr_id
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS MAC address</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input id="input'$ID'"'
-	echo '               class="form-control"'
+	echo '               class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="WOL_LMSMACADDRESS"'
 	echo '               value="'$WOL_LMSMACADDRESS'"'
@@ -764,12 +771,11 @@ pcp_tweaks_wol() {
 	echo '               '$WOLDISABLED
 	echo '        >'
 	echo '      </div>'
-	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>LMS MAC address&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;01:23:45:67:ab:cd:ef&gt;</p>'
 	echo '          <p class="pointer" title="Click to use '$4'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
 	echo '            <b>Example:</b> <span id="example'$ID'">'$4'</span></p>'
@@ -793,8 +799,8 @@ pcp_tweaks_wol() {
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_auto_start() {
-
-	echo '  <legend>Auto start tweaks</legend>'
+	echo '<hr>'
+	pcp_heading5 "Auto start tweaks"
 
 	#---------------------------------Auto start favorite--------------------------------
 	case "$A_S_FAV" in
@@ -826,7 +832,7 @@ pcp_tweaks_auto_start() {
 	echo '        <p>Select your auto start favorite from list&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Allows you to set an auto start favorite command that is run after'
 	echo '             a "hard" power on. '
 	echo '             This could be handy for people building Internet radios.<p>'
@@ -881,7 +887,7 @@ pcp_tweaks_auto_start() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">Auto start LMS</div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control" type="text" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
+	echo '        <input class="form-control form-control-sm" type="text" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <input id="as3" type="radio" name="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>'
@@ -894,11 +900,11 @@ pcp_tweaks_auto_start() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN3_2_lg'">'
 	echo '        <p>Cut and paste your auto start LMS command&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Allows you to set an auto start LMS command that is run after'
 	echo '             a "hard" power on. This field can contain any valid LMS CLI command.'
 	echo '             This could be handy for people building Internet radios.<p>'
@@ -944,7 +950,8 @@ pcp_tweaks_auto_start() {
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '          <legend>Jivelite Setup</legend>'
+	echo '<hr>'
+	pcp_heading5 "Jivelite Setup"
 fi
 
 #----------------------------------------------------------------------------------------
@@ -969,12 +976,12 @@ pcp_tweaks_install_jivelite() {
 		echo '      <p>Install Jivelite on pCP&nbsp;&nbsp;'
 		echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '      </p>'
-		echo '      <div id="dt'$ID'" class="collapse">'
+		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '        <p>This will install Jivelite and VU meters on pCP.</p>'
 		echo '      </div>'
 		echo '    </div>'
 	else
-		echo '    <div class="'$COLUMN3_3'">'
+		echo '    <div class="'$COLUMN3_1'">'
 		echo '      <form name="jivelite1" action="writetojivelite.cgi" method="get">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Update">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Reset">'
@@ -983,11 +990,11 @@ pcp_tweaks_install_jivelite() {
 		echo '      </form>'
 		echo '    </div>'
 		pcp_incr_id
-		echo '    <div class="'$COLUMN3_3'">'
+		echo '    <div class="'$COLUMN3_2_lg'">'
 		echo '      <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
 		echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '      </p>'
-		echo '      <div id="dt'$ID'" class="collapse">'
+		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '        <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
 		echo '        <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
 		echo '        <p>A reboot after installation is needed.<p>'
@@ -1046,7 +1053,7 @@ pcp_tweaks_enable_jivelite() {
 	echo '        <p>Automatic start of Jivelite when pCP boots&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Yes - will enable automatic start of Jivelite when pCP boots.</p>'
 	echo '          <p>No - will disable automatic start of Jivelite when pCP boots.</p>'
 	echo '        </div>'
@@ -1070,7 +1077,7 @@ pcp_tweaks_vumeter() {
 	echo '        <p>Jivelite VU Meter</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control" name="VUMETER">'
+	echo '        <select class="form-control form-control-sm" name="VUMETER">'
 
 	                          LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
 	                          VUMETERS=$( ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
@@ -1088,7 +1095,7 @@ pcp_tweaks_vumeter() {
 	echo '        <p>Select Jivelite VU Meter (Joggler/Grid Skins only)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Allows you to select VU Meters from a dropdown list.</p>'
 	echo '          <p>Jivelite will restart after changing VU Meter.<p>'
 	echo '          <p>VU Meters have been sourced from various community members. Thank you.<p>'
@@ -1097,7 +1104,7 @@ pcp_tweaks_vumeter() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Download">'
 	echo '        <input type="hidden" name="OPTION" value="VUMETER">'
@@ -1169,7 +1176,7 @@ pcp_tweaks_screenrotate() {
 	echo '        <p>Screen rotation (0|180)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Allows you to rotate the screen if the display is upside down.</p>'
 	echo '          <p>A reboot is required to activate the changes.<p>'
 	echo '          <p><b>Note:</b> On some (most) screen mounts, the screen is actually upside down.</p>'
@@ -1205,17 +1212,17 @@ pcp_tweaks_screensize() {
 	echo '        <p>Width:&nbsp;</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
-	echo '        <p><input class="form-control" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
+	echo '        <p><input class="form-control form-control-sm" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <p>Height: <input class="form-control" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
+	echo '      <div class="'$COLUMN4_4'">'
+	echo '        <p>Height: <input class="form-control form-control-sm" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN1_1'">'
 	echo '        <p>Screen size&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Allows you to set a custom Jivelite screen size.</p>'
 	echo '          <p>Zero/Zero uses the default screen resolution.</p>'
 	echo '        </div>'
@@ -1246,7 +1253,7 @@ pcp_tweaks_framebuffer() {
 	echo '        <p>Frame Buffer:&nbsp;</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
-	echo '        <p><input class="form-control" type="text" name="JL_FRAME_BUFFER" value="'$JL_FRAME_BUFFER'"></p>'
+	echo '        <p><input class="form-control form-control-sm" type="text" name="JL_FRAME_BUFFER" value="'$JL_FRAME_BUFFER'"></p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_4'">'
 	echo '        <p>Set the Frame Buffer Device. (default: /dev/fb0)</p>'
@@ -1260,7 +1267,7 @@ pcp_tweaks_framebuffer() {
 	echo '        <p>Frame Rate:&nbsp;</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
-	echo '        <p><input class="form-control" type="number" min="4" max="60" name="JL_FRAME_RATE" value="'$JL_FRAME_RATE'" ></p>'
+	echo '        <p><input class="form-control form-control-sm" type="number" min="4" max="60" name="JL_FRAME_RATE" value="'$JL_FRAME_RATE'" ></p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_4'">'
 	echo '        <p>Set the Frame Buffer refresh rate.</p>'
@@ -1274,7 +1281,7 @@ pcp_tweaks_framebuffer() {
 	echo '        <p>Frame Depth:&nbsp;</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
-	echo '        <p><input class="form-control" type="text" name="JL_FRAME_DEPTH" value="'$JL_FRAME_DEPTH'" pattern="(8|16|24|32)" ></p>'
+	echo '        <p><input class="form-control form-control-sm" type="text" name="JL_FRAME_DEPTH" value="'$JL_FRAME_DEPTH'" pattern="(8|16|24|32)" ></p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_4'">'
 	echo '        <p>Set the Frame Buffer color depth.</p>'
@@ -1293,9 +1300,8 @@ pcp_tweaks_framebuffer() {
 #----------------------------------------------------------------------------------------
 
 if [ $MODE -ge $MODE_PLAYER ]; then
-
-	echo 'gregzzzz'
-
+	echo '<hr>'
+	pcp_heading5 "IR remote control"
 fi
 #----------------------------------------------------------------------------------------
 
@@ -1303,8 +1309,6 @@ fi
 # IR Remote table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_lirc() {
-
-	echo '          <legend>IR remote control</legend>'
 
 	pgrep lircd > /dev/null && IR_RUN=0
 	if [ $IR_RUN -eq 0 ]; then
@@ -1327,7 +1331,7 @@ pcp_tweaks_lirc() {
 	echo '        <p>LIRC IR remote control is '$STATUS' &nbsp;&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>LIRC will not automatically start if jivelite is installed.</p>'
 	echo '          <p>Go to IR page to:</p>'
 	echo '          <ul>'
@@ -1358,7 +1362,7 @@ pcp_tweaks_lirc() {
 		echo '        <p>IR remote control for jivelite, using kernel keytables, is '$STATUS' &nbsp;&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
-		echo '        <div id="dt'$ID'" class="collapse">'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Go to IR page to...</p>'
 		echo '          <p>Install/remove IR Tools.</p>'
 		echo '          <p>Change GPIO number for ir receiver.</p>'
@@ -1383,8 +1387,8 @@ pcp_tweaks_lirc() {
 # Poweroff/Shutdown Table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_poweroff() {
-
-	echo '          <legend>Poweroff/Shutdown Overlays</legend>'
+	echo '<hr>'
+	pcp_heading5 "Poweroff/Shutdown Overlays"
 
 	echo '  <form name="poweroff" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
@@ -1394,7 +1398,7 @@ pcp_tweaks_poweroff() {
 	echo '        <p>Poweroff GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Drives a GPIO pin High/Low to signal external device to power down.</p>'
 	echo '          <p>Refer to '$BOOTMNT'/overlays/README<p>'
 	echo '        </div>'
@@ -1422,7 +1426,7 @@ pcp_tweaks_poweroff() {
 	echo '        <label for="gpio2">No</label>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
-	echo '        GPIO: <input class="form-control"'
+	echo '        GPIO: <input class="form-control form-control-sm"'
 	echo '             type="number"'
 	echo '             name="GPIOPOWEROFF_GPIO"'
 	echo '             value="'$GPIOPOWEROFF_GPIO'"'
@@ -1450,7 +1454,7 @@ pcp_tweaks_poweroff() {
 	echo '        <p>Shutdown GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Defines a GPIO pin as a linux KEY_POWER event</p>'
 	echo '          <p>Works in conjunction with shutdown-monitor.tcz -or- a custom shell script.</p>'
 	echo '          <p>Refer to '$BOOTMNT'/overlays/README<p>'
@@ -1484,7 +1488,7 @@ pcp_tweaks_poweroff() {
 	echo '        <label for="gpiosd2">No</label>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
-	echo '        GPIO: <input class="form-control"'
+	echo '        GPIO: <input class="form-control form-control-sm"'
 	echo '             type="number"'
 	echo '             name="GPIOSHUTDOWN_GPIO"'
 	echo '             value="'$GPIOSHUTDOWN_GPIO'"'
@@ -1524,7 +1528,7 @@ pcp_tweaks_poweroff() {
 		echo '        <p>Install Shutdown Monitor (REQURIED to actually shutdown pCP)&nbsp;&nbsp;'
 		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '        </p>'
-		echo '        <div id="dt'$ID'" class="collapse">'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Monitors the gpio-keys driver for a linux KEY_POWER event</p>'
 		echo '          <p>issues a system shutdown.</p>'
 		echo '        </div>'
@@ -1542,8 +1546,8 @@ pcp_tweaks_poweroff() {
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
-
-	echo '        <legend>Audio tweaks</legend>'
+	echo '<hr>'
+	pcp_heading5 "Audio tweaks"
 
 	case "$SQUEEZELITE" in
 		yes) SQUEEZELITEyes="checked" ;;
@@ -1567,22 +1571,16 @@ pcp_tweaks_audio_tweaks() {
 	echo '        <p>Automatically start Squeezelite when pCP starts&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Enable or disable that Squeezelite starts automatically.</p>'
 	echo '          <p>If pCP is used as a LMS server or touch controler for other players it is not needed that Squeezelite starts.</p>'
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
 #------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN3_3'">'
-		          pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
+
 #-------------------------------------------Shairport--------------------------------
 	case "$SHAIRPORT" in
 		yes) SHAIRPORTyes="checked" ;;
@@ -1611,21 +1609,15 @@ pcp_tweaks_audio_tweaks() {
 	echo '        <p>Use Shairport-sync to stream from iDevices&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Automatically start Shairport when pCP starts to stream audio from your iDevice.</p>'
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
 #------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN3_3'">'
-		pcp_debug_variables "html" SHAIRPORT SHAIRPORTyes SHAIRPORTno
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" SHAIRPORT SHAIRPORTyes SHAIRPORTno
+
 #-------------------------------------ALSA Equalizer---------------------------------
 	case "$ALSAeq" in
 		yes) ALSAeqyes="checked" ;;
@@ -1654,7 +1646,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '          Use 10 band ALSA equalizer&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p><b>Note: </b>Toggle ALSA Equalizer on off.</p>'
 	echo '          <p><b>Steps to manually adjust Equalizer settings:</b></p>'
 	echo '          <ol>'
@@ -1673,7 +1665,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <input id="input'$ID'"'
-		echo '               class="large15"'
+		echo '               class="XXXX"'
 		echo '               type="text"'
 		echo '               name="EQUAL_OUT_DEVICE"'
 		echo '               value="'$EQUAL_OUT_DEVICE'"'
@@ -1686,7 +1678,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '        <p>Specify the input device from list&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
-		echo '        <div id="dt'$ID'" class="collapse">'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Available input devices (click to use):</p>'
 		echo '          <ul>'
 
@@ -1710,15 +1702,8 @@ pcp_tweaks_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 #------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN3_3'">'
-		pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes EQUAL_OUT_DEVICE
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes EQUAL_OUT_DEVICE
 
 #--------------------------------------PCP Streamer----------------------------------
 	case "$STREAMER" in
@@ -1746,7 +1731,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '          <a id="stream_url" href=""></a>&nbsp;&nbsp;'
 	fi
 	echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '          <div id="dt'$ID'" class="collapse">'
+	echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '            <p>To play stream from LMS, play URL as follows.</p>'
 	echo '            <ul>'
 	echo '              <li id="stream_usage"></li>'
@@ -1765,7 +1750,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <input id="input'$ID'"'
-		echo '               class="large15"'
+		echo '               class="XXXX"'
 		echo '               type="text"'
 		echo '               name="STREAMER_IN_DEVICE"'
 		echo '               value="'$STREAMER_IN_DEVICE'"'
@@ -1778,7 +1763,7 @@ pcp_tweaks_audio_tweaks() {
 		echo '        <p>Specify the input device from list&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
-		echo '        <div id="dt'$ID'" class="collapse">'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Available input devices (click to use):</p>'
 		echo '          <ul>'
 
@@ -1820,8 +1805,8 @@ pcp_tweaks_audio_tweaks() {
 # USB audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_usb_audio_tweaks() {
-
-	echo '          <legend>USB Audio tweaks</legend>'
+	echo '<hr>'
+	pcp_heading5 "USB Audio tweaks"
 
 	case "$CMD" in
 		Default) CMDdefault="checked" ;;
@@ -1845,7 +1830,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '        <p>Fix C-Media based DACs by "dwc_otg.speed=1"&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Adds "dwc_otg.speed=1" to cmdline.txt on the boot Device</p>'
 	echo '          <p>The USB2.0 controller can have issues with USB1.1 audio devices, so this forces the controller into USB1.1 mode.</p>'
 	echo '          <p>Often needed for C-Media based DACs if sound is crackling.</p>'
@@ -1853,15 +1838,9 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN3_3'">'
-		pcp_debug_variables "html" CMD CMDdefault CMDslow
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" CMD CMDdefault CMDslow
+
 	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 ----------------
 	case "$FSM" in
 		Default) FSMdefault="checked" ;;
@@ -1883,7 +1862,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '        <p>Fix Emotiva XMC-1 DAC by "dwc_otg.fiq_fsm_enable=0"&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Adds "dwc_otg.fiq_fsm_enable=0" to cmdline.txt on the boot device</p>'
 	echo '          <p>The USB controller can have issues with external DACs. If set to 0 the new FIQ_FSM driver is disabled and the old NOP FIQ is used.</p>'
 	echo '          <p>This is needed for Emotiva XMC-1 DAC.</p>'
@@ -1891,15 +1870,9 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN3_3'">'
-		          pcp_debug_variables "html" FSM FSMdefault FSMdisabled
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" FSM FSMdefault FSMdisabled
+
 	#-----------------------------------FIQ-Split acceleration---------------------------
 	case "$FIQ" in
 		0x1) selected1="selected" ;;
@@ -1916,7 +1889,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '        <p>FIQ-Split acceleration</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="large50" name="FIQ">'
+	echo '        <select class="XXXX" name="FIQ">'
 	echo '          <option value="0x1" '$selected1'>0x1 Accelerate non-periodic split transactions</option>'
 	echo '          <option value="0x2" '$selected2'>0x2 Accelerate periodic split transactions</option>'
 	echo '          <option value="0x3" '$selected3'>0x3 Accelerate all except high-speed isochronous transactions</option>'
@@ -1936,7 +1909,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '        <p>Change FIQ_FSM USB settings&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <ul>'
 	echo '            <li>This might solve USB audio problems.</li>'
 	echo '            <li>Important for specific USB DACs - like the Naim DAC-V1 card, try option 1, 2, 3 or 8.</li>'
@@ -1946,16 +1919,9 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN3_3'">'
-		pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 \
-		                           selected5 selected6 selected7
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 \
+
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN1_1'">'
@@ -1981,8 +1947,8 @@ pcp_tweaks_usb_audio_tweaks() {
 #
 #----------------------------------------------------------------------------------------
 pcp_tweaks_cron() {
-
-	echo '          <legend>Schedule CRON jobs</legend>'
+	echo '<hr>'
+	pcp_heading5 "Schedule CRON jobs"
 
 	/etc/init.d/services/crond status >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
@@ -1994,15 +1960,15 @@ pcp_tweaks_cron() {
 	echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	#-------------------------------------crond indicator--------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>crond is '$STATUS'&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <ul>'
 	echo '            <li><span class="indicator_green">&#x2714;</span> = crond running.</li>'
 	echo '            <li><span class="indicator_red">&#x2718;</span> = crond not running.</li>'
@@ -2017,38 +1983,45 @@ pcp_tweaks_cron() {
 	esac
 
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="col-3">'
 	echo '        <p>Schedule piCorePlayer reboot<p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <label for="RB_H">Hour:</label>'
-	echo '        <input id="RB_H"'
-	echo '               class="small2"'
-	echo '               type="text"'
-	echo '               name="RB_H"'
-	echo '               value="'$RB_H'"'
-	echo '               maxlength="2"'
-	echo '               pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$"'
-	echo '        >'
-	echo '        <label for="RB_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
-	echo '        <input id="RB_WD"'
-	echo '               class="small2"'
-	echo '               type="text"'
-	echo '               name="RB_WD"'
-	echo '               value="'$RB_WD'"'
-	echo '               maxlength="1" pattern="^([0-6]|\*)$"'
-	echo '        >'
-	echo '        <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
-	echo '        <input id="RB_DMONTH"'
-	echo '               class="small2"'
-	echo '               type="text"'
-	echo '               name="RB_DMONTH"'
-	echo '               value="'$RB_DMONTH'"'
-	echo '               maxlength="2"'
-	echo '               pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"'
-	echo '        >'
+
+	echo '      <div class="col-12">'
+	echo '        <div class="col">'
+	echo '          <label for="RB_H">Hour:</label>'
+	echo '          <input id="RB_H"'
+	echo '                 class="form-control-sm"'
+	echo '                 type="text"'
+	echo '                 name="RB_H"'
+	echo '                 value="'$RB_H'"'
+	echo '                 maxlength="2"'
+	echo '                 pattern="^(2[0-3]|1[0-9]|[0-9]|\*)$"'
+	echo '          >'
+	echo '        </div>'
+	echo '        <div class="col">'
+	echo '          <label for="RB_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
+	echo '          <input id="RB_WD"'
+	echo '                 class="form-control-sm"'
+	echo '                 type="text"'
+	echo '                 name="RB_WD"'
+	echo '                 value="'$RB_WD'"'
+	echo '                 maxlength="1" pattern="^([0-6]|\*)$"'
+	echo '          >'
+	echo '        </div>'
+	echo '        <div class="col">'
+	echo '          <label for="RB_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
+	echo '          <input id="RB_DMONTH"'
+	echo '                 class="form-control-sm"'
+	echo '                 type="text"'
+	echo '                 name="RB_DMONTH"'
+	echo '                 value="'$RB_DMONTH'"'
+	echo '                 maxlength="2"'
+	echo '                 pattern="^(3[0-1]|2[0-9]|1[0-9]|[0-9]|\*)$"'
+	echo '          >'
+	echo '        </div>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="col-3">'
 	echo '        <input id="reboot1" type="radio" name="REBOOT" value="Enabled" '$REBOOT_Y'>'
 	echo '        <label for="reboot1">Enabled</label>'
 	echo '        <input id="reboot2" type="radio" name="REBOOT" value="Disabled" '$REBOOT_N'>'
@@ -2068,7 +2041,7 @@ pcp_tweaks_cron() {
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <label for="RS_H">Hour:</label>'
 	echo '        <input id="RS_H"'
-	echo '               class="small2"'
+	echo '               class="XXXX"'
 	echo '               type="text"'
 	echo '               name="RS_H"'
 	echo '               value="'$RS_H'"'
@@ -2077,7 +2050,7 @@ pcp_tweaks_cron() {
 	echo '        >'
 	echo '        <label for="RS_WD">&nbsp;&nbsp;Weekday (0-6):</label>'
 	echo '        <input id="RS_WD"'
-	echo '               class="small2"'
+	echo '               class="XXXX"'
 	echo '               type="text"'
 	echo '               name="RS_WD"'
 	echo '               value="'$RS_WD'"'
@@ -2086,7 +2059,7 @@ pcp_tweaks_cron() {
 	echo '        >'
 	echo '        <label for="RS_DMONTH">&nbsp;&nbsp;Day of Month:</label>'
 	echo '        <input id="RS_DMONTH"'
-	echo '               class="small2"'
+	echo '               class="XXXX"'
 	echo '               type="text"'
 	echo '               name="RS_DMONTH"'
 	echo '               value="'$RS_DMONTH'"'
@@ -2111,7 +2084,7 @@ pcp_tweaks_cron() {
 	echo '        <p>Fill out the crontab fields&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>"*" it means every hour, every day, every month.</p>'
 	echo '          <p><b>Example:</b></p>'
 	echo '          <ul>'
@@ -2128,7 +2101,7 @@ pcp_tweaks_cron() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">Custom Cron command</div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="form-control" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
+	echo '        <input class="form-control form-control-sm" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
 	echo '      </div>'
 	echo '    </div>'
 	echo '    <div class="row">'
@@ -2138,7 +2111,7 @@ pcp_tweaks_cron() {
 	echo '        <p>Add user defined commands to the cron scheduler&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This feature gives advanced users the possibility to manipulate the cron scheduler.'
 	echo '             It will allow users to add a single command to the cron job or'
 	echo '             to schedule a script that performs multiple actions.</p>'
@@ -2161,13 +2134,8 @@ pcp_tweaks_cron() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 
-	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N \
-		                           RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH CRON_COMMAND
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N \
+
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 }
@@ -2176,15 +2144,15 @@ pcp_tweaks_cron() {
 
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
-
-	echo '  <legend>User commands</legend>'
+	echo '<hr>'
+	pcp_heading5 "User commands"
 
 	echo '  <form name="setusercommands" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">User command #1</div>'
-	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <input class="form-control"'
+	echo '      <div class="'$COLUMN2_1'">User command #1</div>'
+	echo '      <div class="'$COLUMN2_2'">'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               id="USER_COMMAND_1"'
 	echo '               name="USER_COMMAND_1"'
@@ -2197,9 +2165,9 @@ pcp_tweaks_user_commands() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">User command #2</div>'
-	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <input class="form-control"'
+	echo '      <div class="'$COLUMN2_1'">User command #2</div>'
+	echo '      <div class="'$COLUMN2_2'">'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               id="USER_COMMAND_2"'
 	echo '               name="USER_COMMAND_2"'
@@ -2212,9 +2180,9 @@ pcp_tweaks_user_commands() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">User command #3</div>'
-	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <input class="form-control"'
+	echo '      <div class="'$COLUMN2_1'">User command #3</div>'
+	echo '      <div class="'$COLUMN2_2'">'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               id="USER_COMMAND_3"'
 	echo '               name="USER_COMMAND_3"'
@@ -2237,12 +2205,12 @@ pcp_tweaks_user_commands() {
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'"></div>'
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="'$COLUMN2_1'"></div>'
+	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This feature gives advanced users a couple of hooks into the startup procedure.'
 	echo '             It will allow advanced users the ability to run extra instances of Squeezelite for example,'
 	echo '             or maybe, run a Linux procedure that shuts down processes, like the web server to optimise performance.</p>'
@@ -2259,18 +2227,16 @@ pcp_tweaks_user_commands() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
-	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Clear">'
+	echo '      <div class="'$COLUMN2_1'">'
+	echo '        <input class="'$BUTTON' mb-1" type="submit" name="SUBMIT" value="Save">'
+	echo '        <input class="'$BUTTON' mb-1" type="submit" name="SUBMIT" value="Clear">'
 	echo '        <input type="hidden" name="AUTOSTART" value="CMD">'
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
-		echo '<!-- End of debug info -->'
-	fi
+
+	pcp_debug_variables "html" USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
+
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 }

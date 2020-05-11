@@ -18,6 +18,13 @@ pcp_navbar
 
 [ $(pcp_wifi_using_wifi) -eq 0 ] || pcp_wifi_not_using_wifi
 
+COLUMN4_1="col-2"
+COLUMN4_2="col-4"
+COLUMN4_3="col-2"
+COLUMN4_4="col-4"
+
+COLUMN4_2_lg="col-10"
+
 #========================================================================================
 # Routine to display:
 #  - USB wifi adapters found during boot process.
@@ -238,82 +245,76 @@ pcp_heading5 "Wifi diagnostics"
 
 #----------------------------------Wifi / Wifi MAC---------------------------------------
 echo '            <div class="row">'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Wifi</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_2'">'
 echo '                <p>'$WIFI'</p>'
 echo '              </div>'
-echo '              <div class="col">'
-echo '                <p></p>'
-echo '              </div>'
-echo '              <div class="col">'
-echo '                <p></p>'
-echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_3'">'
 echo '                <p>Wifi MAC:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_4'">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_mac_address)'</p>'
 echo '              </div>'
 echo '            </div>'
 #----------------------------------SSID / Wifi IP----------------------------------------
 echo '            <div class="row">'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>SSID:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_2'">'
 echo '                <p>'$WPA_SSID'</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_3'">'
 echo '                <p>Wifi IP:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_4'">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_ip)'</p>'
 echo '              </div>'
 echo '            </div>'
 #----------------------------------Password / Security-----------------------------------
 echo '            <div class="row">'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Password:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_2'">'
 echo '                <p>'$WPA_PASSWORD'</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_3'">'
 echo '                <p>Security:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_4'">'
 echo '                <p>'$WPA_ENCRYPTION'</p>'
 echo '              </div>'
 echo '            </div>'
 #----------------------------------Passphrase--------------------------------------------
 echo '            <div class="row">'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Passphrase:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_2_lg'">'
 echo '                <p>'$WPA_PASSPHRASE'</p>'
 echo '              </div>'
 echo '            </div>'
-#----------------------------------Country/Hidden SSID-------------------------------------------
+#----------------------------------Country/Hidden SSID-----------------------------------
 echo '            <div class="row">'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Country:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_2'">'
 echo '                <p>'$WPA_COUNTRY'</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_3'">'
 echo '                <p>Hidden SSID:</p>'
 echo '              </div>'
-echo '              <div class="col">'
+echo '              <div class="'$COLUMN4_4'">'
 echo '                <p>'$(pcp_diag_wifi_hiddenssid)'</p>'
 echo '              </div>'
 echo '            </div>'
 #----------------------------------------------------------------------------------------
 
-#----------------------------------Uptime------------------------------------------------
+#----------------------------------------Uptime------------------------------------------
 if [ $(pcp_uptime_seconds) -lt 86400 ]; then
 	pcp_green_tick "No reboot required."
 else
@@ -321,13 +322,13 @@ else
 fi
 
 echo '  <div class="row">'
-echo '    <div class="col">'
+echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Uptime:</p>'
 echo '    </div>'
-echo '    <div class="col">'
+echo '    <div class="'$COLUMN4_2'">'
 echo '      <p>'$(pcp_uptime_days)'</p>'
 echo '    </div>'
-echo '    <div class="col">'
+echo '    <div class="'$COLUMN4_4'">'
 echo '      <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
 echo '    </div>'
 echo '  </div>'
