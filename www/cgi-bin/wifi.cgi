@@ -33,7 +33,8 @@ COLUMN2_2="col-9"
 COLUMN1="$COLUMN3_1"
 
 BUTTON="btn btn-primary w-100"
-COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
+#COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
+#INFOBOX="bg-white border border-secondary shadow rounded mt-1 px-3 py-1"
 
 # Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
 # it would need to be manually decoded like this
@@ -89,7 +90,9 @@ case "$ACTION" in
 		pcp_wifi_error_messages
 		if [ "$WIFI" = "on" ]; then
 			pcp_heading5 "Initial option"
-			pcp_wifi_read_wpa_supplicant "text"
+			echo '<div class="'$INFOBOX'">'
+			pcp_wifi_read_wpa_supplicant "html"
+			echo '</div>'
 		fi
 	;;
 	Config)
@@ -107,34 +110,44 @@ case "$ACTION" in
 		pcp_wifi_error_messages
 		pcp_heading5 "Save option"
 		if [ "$WIFI" = "on" ]; then
-			pcp_wifi_load_wifi_firmware_extns "text"
-			pcp_wifi_load_wifi_extns "text"
-			pcp_wifi_generate_passphrase "text"
-			pcp_wifi_write_wpa_supplicant "text"
-			pcp_wifi_read_wpa_supplicant "text"
+			echo '<div class="'$INFOBOX'">'
+			pcp_wifi_load_wifi_firmware_extns "html"
+			pcp_wifi_load_wifi_extns "html"
+			pcp_wifi_generate_passphrase "html"
+			pcp_wifi_write_wpa_supplicant "html"
+			pcp_wifi_read_wpa_supplicant "html"
+			pcp_message INFO "" "html" "-n"
 			/usr/local/etc/init.d/wifi wlan0 stop
+			echo '</div>'
+			pcp_message INFO "" "html" "-n"
 			/usr/local/etc/init.d/wifi wlan0 start
+			echo '</div>'
+			pcp_save_to_config
+			pcp_backup "html"
+			echo '</div>'
 		else
 			/usr/local/etc/init.d/wifi wlan0 stop
 			pcp_wifi_unload_wifi_extns "text"
 			pcp_wifi_unload_wifi_firmware_extns "text"
+			pcp_save_to_config
+			pcp_backup "text"
 		fi
-		pcp_save_to_config
-		pcp_backup "text"
 	;;
 	Network_wait)
 		pcp_wifi_error_messages
 		pcp_heading5 "Network wait"
-		pcp_wifi_read_wpa_supplicant "text"
+		echo '<div class="'$INFOBOX'">'
+		pcp_wifi_read_wpa_supplicant "html"
+		pcp_message INFO "Saving $NETWORK_WAIT to network wait in pCP config..." "html"
 		pcp_save_to_config
-		pcp_backup "text"
+		pcp_backup "html"
+		echo '</div>'
 	;;
 	#----------------------------------DEBUG - Developer options-----------------------------
 	Read)
 		pcp_wifi_error_messages
 		pcp_heading5 "Read option"
 		pcp_wifi_read_wpa_supplicant "text"
-		
 	;;
 	Delete)
 		pcp_heading5 "Delete option"
@@ -609,7 +622,7 @@ if [ "$WIFI" = "on" ]; then
 
 #-------------------------------------Display available wifi networks--------------------
 	if [ "$SUBMIT" = "Scan" ]; then
-		pcp_textarea "Available wifi networks" "pcp_wifi_available_networks" 110
+		pcp_textarea "Available wifi networks" "pcp_wifi_available_networks" 15
 	fi
 #----------------------------------------------------------------------------------------
 fi

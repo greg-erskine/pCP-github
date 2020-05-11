@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 6.0.0 2019-10-29
+# Version: 7.0.0 2020-05-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -14,9 +14,7 @@ WPACONFIGFILE=$WPASUPPLICANTCONF
 
 pcp_html_head "Wifi Diagnostics" "GE"
 
-pcp_banner
-pcp_diagnostics
-pcp_running_script
+pcp_navbar
 
 [ $(pcp_wifi_using_wifi) -eq 0 ] || pcp_wifi_not_using_wifi
 
@@ -214,18 +212,6 @@ pcp_diag_wifi_hiddenssid() {
 }
 
 #========================================================================================
-# Table row padding.
-#----------------------------------------------------------------------------------------
-pcp_padding() {
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <p></p>'
-	echo '                </td>'
-	echo '              </tr>'
-}
-
-#========================================================================================
 # Create the log file. Start with some basic information.
 #----------------------------------------------------------------------------------------
 pcp_wifi_read_wpa_supplicant "none"
@@ -247,115 +233,86 @@ echo >>$LOG
 #========================================================================================
 # Raspberry Pi
 #----------------------------------------------------------------------------------------
-COL="column120"
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Wifi diagnostics</legend>'
-echo '          <table class="bggrey percent100">'
+echo '<hr>'
+pcp_heading5 "Wifi diagnostics"
+
 #----------------------------------Wifi / Wifi MAC---------------------------------------
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="'$COL'">'
+echo '            <div class="row">'
+echo '              <div class="col">'
 echo '                <p>Wifi</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$WIFI'</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>Wifi MAC:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_mac_address)'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------SSID / Wifi IP----------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="'$COL'">'
+echo '            <div class="row">'
+echo '              <div class="col">'
 echo '                <p>SSID:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$WPA_SSID'</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>Wifi IP:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$(pcp_diag_wifi_wlan0_ip)'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------Password / Security-----------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="'$COL'">'
+echo '            <div class="row">'
+echo '              <div class="col">'
 echo '                <p>Password:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$WPA_PASSWORD'</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>Security:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$WPA_ENCRYPTION'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------Passphrase--------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="'$COL'">'
+echo '            <div class="row">'
+echo '              <div class="col">'
 echo '                <p>Passphrase:</p>'
-echo '              </td>'
-echo '              <td colspan="5">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$WPA_PASSPHRASE'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------Country/Hidden SSID-------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="'$COL'">'
+echo '            <div class="row">'
+echo '              <div class="col">'
 echo '                <p>Country:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$WPA_COUNTRY'</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>Hidden SSID:</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
+echo '              </div>'
+echo '              <div class="col">'
 echo '                <p>'$(pcp_diag_wifi_hiddenssid)'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '          <table class="bggrey percent100">'
+
 #----------------------------------Uptime------------------------------------------------
 if [ $(pcp_uptime_seconds) -lt 86400 ]; then
 	pcp_green_tick "No reboot required."
@@ -363,237 +320,49 @@ else
 	pcp_red_cross "Reboot recommended."
 fi
 
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="'$COL'">'
-echo '                <p>Uptime:</p>'
-echo '              </td>'
-echo '              <td colspan="2">'
-echo '                <p>'$(pcp_uptime_days)'</p>'
-echo '              </td>'
-echo '              <td class="'$COL'">'
-echo '                <p></p>'
-echo '              </td>'
-echo '              <td colspan="2">'
-echo '                <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '  <div class="row">'
+echo '    <div class="col">'
+echo '      <p>Uptime:</p>'
+echo '    </div>'
+echo '    <div class="col">'
+echo '      <p>'$(pcp_uptime_days)'</p>'
+echo '    </div>'
+echo '    <div class="col">'
+echo '      <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
+echo '    </div>'
+echo '  </div>'
 #----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '          <table class="bggrey percent100">'
-#------------------------------------dmesg-----------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>dmesg:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="12">'
-                        pcp_diag_wifi_dmesg
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------lsmod-----------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>Loaded modules:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="6">'
-                        pcp_diag_wifi_lsmod
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------lsusb-----------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>lsusb results:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="2">'
-                        pcp_diag_wifi_lsusb
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------wpa_supplicant.conf---------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>/etc/wpa_supplicant.conf:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="14">'
-                        pcp_diag_wifi_wpa_suplicant
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------onboot.lst------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>'$ONBOOTLST':</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="10">'
-                        pcp_diag_wifi_onbootlst
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------wifi extensions installed---------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>wifi extensions installed:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="9">'
-                        pcp_diag_wifi_extensions_installed
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------iwconfig--------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>iwconfig results:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="11">'
-                        pcp_diag_wifi_iwconfig
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------ifconfig--------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>ifconfig results:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="9">'
-                        pcp_diag_wifi_ifconfig
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#------------------------------------iwlist----------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>iwlist results:</b></p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" rows="10">'
-                        pcp_diag_wifi_iwlist
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-#----------------------------------------------------------------------------------------
+pcp_textarea "dmesg:" "pcp_diag_wifi_dmesg" "12"
 
-#------------------------------------Available networks----------------------------------
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Available wifi networks</legend>'
-echo '            <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <textarea class="inform" rows="10">'
-                          pcp_diag_wifi_available_networks
-echo '                  </textarea>'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-#----------------------------------------------------------------------------------------
+pcp_textarea "Loaded modules:" "pcp_diag_wifi_lsmod" "11"
 
-#------------------------------------Ping test-------------------------------------------
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Ping tests</legend>'
-echo '            <table class="bggrey percent100">'
-#------------------------------------Ping LMS--------------------------------------------
-pcp_start_row_shade
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <p><b>ping LMS results:</b></p>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <textarea class="inform" rows="25">'
-                          pcp_diag_wifi_ping_lms
-echo '                  </textarea>'
-echo '                </td>'
-echo '              </tr>'
-pcp_padding
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <ul>'
-echo '                    <li>You need to learn what is normal for your network.</li>'
-echo '                    <li>Check the ping time is consistent and only a few ms.</li>'
-echo '                    <li>Check for 0% packet loss.</li>'
-echo '                  </ul>'
-echo '                </td>'
-echo '              </tr>'
+pcp_textarea "lsusb results:" "pcp_diag_wifi_lsusb" "2"
+
+pcp_textarea "/etc/wpa_supplicant.conf:" "pcp_diag_wifi_wpa_suplicant" "14"
+
+pcp_textarea "${ONBOOTLST}:" "pcp_diag_wifi_onbootlst" "10"
+
+pcp_textarea "wifi extensions installed:" "pcp_diag_wifi_extensions_installed" "9"
+
+pcp_textarea "iwconfig results:" "pcp_diag_wifi_iwconfig" "11"
+
+pcp_textarea "ifconfig results:" "pcp_diag_wifi_ifconfig" "9"
+
+pcp_textarea "iwlist results:" "pcp_diag_wifi_iwlist" "10"
+
+pcp_textarea "Available wifi networks" "pcp_wifi_available_networks" 15
+
+pcp_textarea "ping LMS results:" "pcp_diag_wifi_ping_lms" "25"
+
+echo '  <div class="row">'
+echo '    <ul>'
+echo '      <li>You need to learn what is normal for your network.</li>'
+echo '      <li>Check the ping time is consistent and only a few ms.</li>'
+echo '      <li>Check for 0% packet loss.</li>'
+echo '    </ul>'
+echo '  </div>'
 #----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-#----------------------------------------------------------------------------------------
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 
 pcp_pastebin_button "wifi"
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end

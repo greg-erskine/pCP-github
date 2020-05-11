@@ -8,12 +8,10 @@ pcp_html_head "Backup mydata" "SBP"
 
 pcp_navbar
 
-COLUMN1="col-3"
-
 pcp_heading5 "Backing up configuration"
 
 echo '<span class="monospace">'
-echo '<div class="p-3" style="border:1px solid">'
+echo '<div class="'$INFOBOX'">'
 pcp_backup
 echo '</div>'
 echo '</span>'

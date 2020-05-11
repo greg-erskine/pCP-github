@@ -23,7 +23,7 @@ pcp_debug_variables() {
 		shift
 
 		echo '<!-- Start of debug info -->'
-		echo '<div class="p-3" style="border:1px solid">'
+		echo '<div class="bg-white border border-secondary shadow rounded mt-1 px-3 py-1">'
 		for VAR in $@
 		do
 			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
@@ -100,7 +100,9 @@ pcp_variables() {
 
 	[ $PCP_CUR_REPO -eq 1 ] && INSITU_DOWNLOAD="https://repo.picoreplayer.org/insitu" || INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/insitu"
 
-	# Use beta/test download area
+	#------------------------------------------------------------------------------------
+	# Define beta/test repositories
+	#------------------------------------------------------------------------------------
 	if [ $TEST -eq 3 ]; then
 		[ $PCP_CUR_REPO -eq 1 ] && INSITU_DOWNLOAD="https://repo.picoreplayer.org/beta" || INSITU_DOWNLOAD="http://picoreplayer.sourceforge.net/beta"
 		[ $PCP_CUR_REPO -eq 1 ] && PCP_REPO="https://repo.picoreplayer.org/beta" || PCP_REPO="http://picoreplayer.sourceforge.net/beta"
@@ -110,6 +112,12 @@ pcp_variables() {
 	# Set Squeezelite variable to binary location.
 	#------------------------------------------------------------------------------------
 	[ -f /etc/sysconfig/tcedir/squeezelite ] && SQLT_BIN=/etc/sysconfig/tcedir/squeezelite || SQLT_BIN=/usr/local/bin/squeezelite
+
+	#------------------------------------------------------------------------------------
+	# Define Bootstrap variables
+	#------------------------------------------------------------------------------------
+	COLLAPSE="collapse bg-white border border-secondary shadow rounded px-3 pt-2"
+	INFOBOX="bg-white border border-secondary shadow rounded mt-1 px-3 py-1"
 }
 
 pcp_config_file
@@ -506,17 +514,13 @@ pcp_html_head() {
 	echo '  <!-- Bootstrap CSS -->'
 
 	echo '  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">'
-#	echo '  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">'
 
 	echo '  <!-- js files: jQuery first, then Popper.js, then Bootstrap js -->'
 
-#	echo '  <script src="../jquery/jquery.js"></script>'
-	echo '  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>'
-
-	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
-
+	echo '  <script src="../jquery/jquery.min.js"></script>'
+#	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
+	echo '  <script src="../popper/popper.js"></script>'
 	echo '  <script src="../bootstrap/js/bootstrap.min.js"></script>'
-#	echo '  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>'
 
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
 	echo '  <script src="../js/piCorePlayer.js?'$JS_VER'"></script>'
@@ -890,10 +894,10 @@ pcp_textarea() {
 
 	[ "$1" = "" ] && TITLE="$2" || TITLE="$1"
 	[ $3 -gt 30 ] && ROWS=10 || ROWS="$3"
-	echo '  <div class="form-group mt-3">'
+	echo '  <div class="form-group">'
 	[ "$TITLE" = "none" ] ||
 	echo '    <label class="ml-1" for="ta'$ID'">[ INFO ] '$TITLE'</label>'
-	echo '    <textarea class="form-control text-monospace" id="ta'$ID'" rows="'$ROWS'" disabled>'
+	echo '    <textarea class="form-control text-monospace '$INFOBOX'" id="ta'$ID'" rows="'$ROWS'" disabled>'
 	            eval $2
 	echo '    </textarea>'
 	echo '  </div>'

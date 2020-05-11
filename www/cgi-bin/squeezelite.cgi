@@ -22,7 +22,7 @@ COLUMN2_1="col-sm-2"
 COLUMN2_2="col-sm-10"
 
 BUTTON="btn btn-primary w-100"
-COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
+COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2 mb-3"
 
 #========================================================================================
 # Create Squeezelite command string

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-09
+# Version: 7.0.0 2020-05-11
 
 #========================================================================================
 # onboot.lst functions
@@ -484,13 +484,11 @@ pcp_wifi_not_using_wifi () {
 	fi
 
 	echo '    <div class="row">'
-	echo '      <div>'
-	echo '        <p><b>Warning:</b></p>'
-	echo '        <ul>'
-	echo '          <li>piCorePlayer is not currently using the wifi interface.</li>'
-	echo '          <li>Squeezelite/piCorePlayer will default to the wired interface.</li>'
-	echo '          <li>Shutdown, remove the ethernet cable, then reboot to use the wifi interface.</li>'
-	echo '        </ul>'
-	echo '      </div>'
+	echo '      <p><b>Warning:</b></p>'
+	echo '      <ul>'
+	echo '        <li>piCorePlayer is not currently using the wifi interface.</li>'
+	echo '        <li>Squeezelite/piCorePlayer will default to the wired interface.</li>'
+	echo '        <li>Shutdown, remove the ethernet cable, then reboot to use the wifi interface.</li>'
+	echo '      </ul>'
 	echo '    </div>'
 }

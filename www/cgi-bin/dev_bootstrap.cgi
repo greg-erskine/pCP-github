@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-04-24
+# Version: 7.0.0 2020-05-11
 
 # Title: Bootstrap
 # Description: Bootstrap test
@@ -20,11 +20,25 @@ echo
 echo '    <!-- Bootstrap CSS -->'
 echo '    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">'
 echo
+
+echo '  <script src="../popper/popper.js"></script>'
+
+#echo '  <script src="https://unpkg.com/@popperjs/core@2"></script>'
+
 echo '    <title>Hello, world!</title>'
 echo '  </head>'
 echo '  <body>'
 
 echo '<div class="container">'
+
+echo '  <button id="button" aria-describedby="tooltip">My button</button>'
+echo '  <div id="tooltip" role="tooltip">My tooltip</div>'
+
+echo '  <script>'
+echo '    const button = document.querySelector('#button');'
+echo '    const tooltip = document.querySelector('#tooltip');'
+echo '    Popper.createPopper(button, tooltip);'
+echo '  </script>'
 
 echo '     <div class="clearfix">'
 echo '       <button type="button" class="btn btn-secondary float-left">Example left</button>'
