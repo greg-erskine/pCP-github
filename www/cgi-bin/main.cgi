@@ -23,19 +23,12 @@ COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 if [ "$ACTION" = "reboot" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
-	echo '<p>'$NAME' is rebooting...</p>'
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" MODEL RB_DELAY
-		echo '<!-- End of debug info -->'
-	fi
-	echo '<div>'
+	pcp_heading5 "$NAME is rebooting..."
+	pcp_debug_variables "html" MODEL RB_DELAY
 	pcp_redirect_button "Refresh Main Page" "main.cgi" $RB_DELAY
-	echo '</div>'
 	pcp_remove_query_string
 	pcp_html_end
 	pcp_reboot "none"
-#	sudo reboot
 	exit
 fi
 
@@ -45,20 +38,13 @@ fi
 if [ "$ACTION" = "shutdown" ]; then
 	. pcp-rpi-functions
 	pcp_rpi_details
-	echo '<p>'$NAME' is shutting down...</p>'
+	pcp_heading5 "$NAME is shutting down..."
 	echo '<p><b>Note:</b> You need to reapply power to restart after a shutdown.</p>'
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" MODEL RB_DELAY
-		echo '<!-- End of debug info -->'
-	fi
-	echo '<div>'
+	pcp_debug_variables "html" MODEL RB_DELAY
 	pcp_redirect_button "Refresh Main Page" "main.cgi" 15
-	echo '</div>'
 	pcp_remove_query_string
 	pcp_html_end
 	pcp_shutdown "none"
-#	exitcheck.sh
 	exit
 fi
 

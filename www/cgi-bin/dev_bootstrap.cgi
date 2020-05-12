@@ -19,17 +19,14 @@ echo '    <meta name="viewport" content="width=device-width, initial-scale=1, sh
 echo
 echo '    <!-- Bootstrap CSS -->'
 echo '    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">'
-echo
-
-echo '  <script src="../popper/popper.js"></script>'
-
-#echo '  <script src="https://unpkg.com/@popperjs/core@2"></script>'
 
 echo '    <title>Hello, world!</title>'
 echo '  </head>'
 echo '  <body>'
 
 echo '<div class="container">'
+
+echo '<hr>'
 
 echo '  <button id="button" aria-describedby="tooltip">My button</button>'
 echo '  <div id="tooltip" role="tooltip">My tooltip</div>'
@@ -40,13 +37,53 @@ echo '    const tooltip = document.querySelector('#tooltip');'
 echo '    Popper.createPopper(button, tooltip);'
 echo '  </script>'
 
+echo '<hr>'
+
+echo '  <div class="container mt-3">'
+echo '    <h2>Modal Example</h2>'
+echo '    <!-- Button to Open the Modal -->'
+echo '    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">'
+echo '      Open modal'
+echo '    </button>'
+echo '    '
+echo '    <!-- The Modal -->'
+echo '    <div class="modal fade" id="myModal">'
+echo '      <div class="modal-dialog">'
+echo '        <div class="modal-content">'
+echo '        '
+echo '          <!-- Modal Header -->'
+echo '          <div class="modal-header">'
+echo '            <h5 class="modal-title">Backup configuration</h5>'
+echo '            <button type="button" class="close" data-dismiss="modal">×</button>'
+echo '          </div>'
+echo '          '
+echo '          <!-- Modal body -->'
+echo '          <div class="modal-body">'
+echo '            Modal body..'
+echo '          </div>'
+echo '          '
+echo '          <!-- Modal footer -->'
+echo '          <div class="modal-footer">'
+echo '            <a type="button" class="btn btn-success" href="backup.cgi">Backup</a>'
+echo '            <button type="button" class="btn btn-success">OK</button>'
+echo '            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>'
+echo '          </div>'
+echo '          '
+echo '        </div>'
+echo '      </div>'
+echo '    </div>'
+echo '    '
+echo '  </div>'
+
+echo '<hr>'
+
 echo '     <div class="clearfix">'
 echo '       <button type="button" class="btn btn-secondary float-left">Example left</button>'
 echo '       <button type="button" class="btn btn-secondary float-left">Example left</button>'
 echo '       <button type="button" class="btn btn-secondary float-right">Example right</button>'
 echo '     </div>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '     <div class="row">'
 echo '        <div class="col-sm-8">col-sm-8</div>'
@@ -58,7 +95,7 @@ echo '        <div class="col-sm">col-sm</div>'
 echo '        <div class="col-sm">col-sm</div>'
 echo '      </div>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <form>'
 echo '      <div class="form-group">'
@@ -91,7 +128,7 @@ echo '        <textarea class="form-control" id="exampleFormControlTextarea1" ro
 echo '      </div>'
 echo '    </form>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <div class="custom-control custom-switch">'
 echo '      <input type="checkbox" class="custom-control-input" id="customSwitch1">'
@@ -102,7 +139,7 @@ echo '      <input type="checkbox" class="custom-control-input" disabled id="cus
 echo '      <label class="custom-control-label" for="customSwitch2">Disabled switch element</label>'
 echo '    </div>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">'
 echo '      <button type="button" class="btn btn-secondary">1</button>'
@@ -119,7 +156,7 @@ echo '        </div>'
 echo '      </div>'
 echo '    </div>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <div class="btn-group btn-group-toggle" data-toggle="buttons">'
 echo '      <label class="btn btn-secondary active">'
@@ -133,7 +170,7 @@ echo '        <input type="radio" name="options" id="option3"> Television'
 echo '      </label>'
 echo '    </div>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <button type="button" class="btn btn-primary">Primary</button>'
 echo '    <button type="button" class="btn btn-secondary">Secondary</button>'
@@ -146,7 +183,7 @@ echo '    <button type="button" class="btn btn-dark">Dark</button>'
 echo ' '
 echo '    <button type="button" class="btn btn-link">Link</button>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <span class="badge badge-primary">Primary</span>'
 echo '    <span class="badge badge-secondary">Secondary</span>'
@@ -157,7 +194,7 @@ echo '    <span class="badge badge-info">Info</span>'
 echo '    <span class="badge badge-light">Light</span>'
 echo '    <span class="badge badge-dark">Dark</span>'
 
-echo '<p></p>'
+echo '<hr>'
 
 echo '    <h1>Example heading <span class="badge badge-secondary">New</span></h1>'
 echo '    <h2>Example heading <span class="badge badge-secondary">New</span></h2>'
