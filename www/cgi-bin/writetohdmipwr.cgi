@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-11
+# Version: 7.0.0 2020-05-12
 
 . pcp-functions
 
@@ -9,8 +9,7 @@ REBOOT_REQUIRED=false
 
 pcp_html_head "Write to HDMI Power" "GE"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 #========================================================================================
@@ -19,34 +18,34 @@ pcp_httpd_query_string
 pcp_install_rpi_vc() {
 	tce-status -i | grep rpi-vc >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		echo '[  OK  ] rpi-vc.tcz already installed.'
+		pcp_message OK "rpi-vc.tcz already installed." "html"
 	else
 		if [ ! -f ${PACKAGEDIR}/rpi-vc.tcz ]; then
-			echo -n '[ INFO ] rpi-vc.tcz downloading... '
+			ppc_message INFO "rpi-vc.tcz downloading... " "html" "-n"
 			sudo -u tc $TCELOAD -w rpi-vc.tcz >/dev/null 2>&1
-			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
+			[ $? -eq 0 ] && echo 'Done.</div>' || echo 'Error.</div>'
 		else
-			echo '[  OK  ] rpi-vc.tcz downloaded.'
+			pcp_message OK "rpi-vc.tcz downloaded." "html"
 		fi
-		echo -n '[ INFO ] rpi-vc.tcz installing... '
+		pcp_message INFO "rpi-vc.tcz installing... " "html" "-n"
 		sudo -u tc $TCELOAD -i rpi-vc.tcz >/dev/null 2>&1
-		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
+		[ $? -eq 0 ] && echo 'Done.</div>' || echo 'Error.</div>'
 	fi
 }
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-pcp_table_top "Powering HDMI on/off"
-echo '                <textarea class="inform" style="height:130px">'
-[ $DEBUG -eq 1 ] && pcp_debug_variables "text" HDMIPOWER
-echo '[ INFO ] Powering '$HDMIPOWER' HMDI...'
-echo '[ INFO ] Checking for tvservice software...'
+pcp_heading5 "Powering HDMI on/off"
+pcp_infobox_begin
+
+pcp_message INFO "Powering $HDMIPOWER HMDI..." "html"
+pcp_message INFO "Checking for tvservice software..." "html"
 
 pcp_install_rpi_vc
 pcp_save_to_config
 
-echo -n '[ INFO ] '
+pcp_message INFO "" "html" "-n"
 
 case "$HDMIPOWER" in
 	on)
@@ -55,7 +54,7 @@ case "$HDMIPOWER" in
 			sed -i '/rpi-vc.tcz/d' $ONBOOTLST
 			REBOOT_REQUIRED=true
 		else
-			echo '[ ERROR ] Error with "tvservice --preferred" command.'
+			pcp_message ERROR "Error with \"tvservice --preferred\" command." "html"
 		fi
 	;;
 	off)
@@ -65,24 +64,20 @@ case "$HDMIPOWER" in
 			echo 'rpi-vc.tcz' >> $ONBOOTLST
 			REBOOT_REQUIRED=true
 		else
-			echo '[ ERROR ] Error with "tvservice --off" command.'
+			pcp_message ERROR "Error with \"tvservice --off\" command." "html"
 		fi
 	;;
 	*)
-		echo '[ ERROR ] Invalid value.'
+		pcp_message ERROR "Invalid value." "html"
 	;;
 esac
 
-pcp_backup text
-echo '                </textarea>'
-pcp_table_middle
+pcp_backup
+pcp_infobox_end
+
 pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 100
-pcp_table_end
-pcp_footer
-pcp_copyright
 
 $REBOOT_REQUIRED
 [ $? -eq 0 ] && pcp_reboot_required
 
-echo '</body>'
-echo '</html>'
+pcp_html_end

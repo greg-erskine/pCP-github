@@ -1,6 +1,19 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-11
+# Version: 7.0.0 2020-05-12
+
+#========================================================================================
+# piCorePlayer log files should be located in the $LOGDIR directory (default /var/log).
+#
+# Log filenames need to be formatted correctly:
+#  - start with "pcp_"
+#  - end in ".log"
+#
+# i.e. pcp_diagnostics.log
+#
+# Note:
+#  LMS log filenames do not follow this standard and are located in /var/log/slimserver.
+#----------------------------------------------------------------------------------------
 
 . pcp-functions
 . pcp-lms-functions
@@ -15,18 +28,6 @@ pcp_httpd_query_string
 COLUMN1="col-3"
 COLUMN2="col-9"
 BUTTON="btn btn-primary w-100"
-#========================================================================================
-# piCorePlayer log files should be located in the $LOGDIR directory (default /var/log).
-#
-# Log filenames need to be formatted correctly:
-#  - start with "pcp_"
-#  - end in ".log"
-#
-# i.e. pcp_diagnostics.log
-#
-# Note:
-#  LMS log filenames do not follow this standard and are located in /var/log/slimserver.
-#----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Copy log files from persistent locations to $LOGDIR directory
@@ -93,7 +94,7 @@ echo '      </div>'
 #----------------------------------------------------------------------------------------
 if [ "$FIRST" = "All" ]; then
 	echo '      <div class="'$COLUMN1' mb-3">'
-	echo '        <button type="submit" class="'$BUTTON'" name="ACTION" value="Show">Show</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Show">Show</button>'
 	echo '      </div>'
 fi
 #----------------------------------------------------------------------------------------

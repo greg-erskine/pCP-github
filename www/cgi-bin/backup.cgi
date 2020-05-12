@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-09
+# Version: 7.0.0 2020-05-12
 
 . pcp-functions
 
@@ -10,14 +10,10 @@ pcp_navbar
 
 pcp_heading5 "Backing up configuration"
 
-echo '<span class="monospace">'
-echo '<div class="'$INFOBOX'">'
+pcp_infobox_begin
 pcp_backup
-echo '</div>'
-echo '</span>'
+pcp_infobox_end
 
-echo '<div class="mt-3">'
 pcp_redirect_button "Go to Main Page" "main.cgi?CALLED_BY=Advanced" 10
-echo '</div>'
 
 pcp_html_end

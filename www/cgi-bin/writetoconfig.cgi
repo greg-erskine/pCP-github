@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-10-29
+# Version: 7.0.0 2020-05-12
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -20,7 +20,7 @@ unset REBOOT_REQUIRED
 
 pcp_html_head "Write to pcp.cfg" "SBP" "15" "squeezelite.cgi"
 
-pcp_banner
+pcp_navbar
 pcp_remove_query_string
 pcp_httpd_query_string
 
@@ -79,7 +79,7 @@ install_shutdown_monitor() {
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-pcp_table_top "Write to config"
+pcp_heading5 "Write to config"
 
 case "$SUBMIT" in
 	Save)
@@ -90,9 +90,12 @@ case "$SUBMIT" in
 			[ $POWER_GPIO -eq 0 ] && POWER_GPIO=""
 		fi
 		[ $SQUEEZELITE = "no" ] && unset RESTART_REQUIRED
-		echo '<p class="info">[ INFO ] Saving config file.</p>'
+		pcp_infobox_begin
+		pcp_message INFO "Saving config file." "html"
 		pcp_save_to_config
 		pcp_footer static >/tmp/footer.html
+		pcp_backup
+		pcp_infobox_end
 	;;
 	Binary)
 		SAVE=0
@@ -106,12 +109,12 @@ case "$SUBMIT" in
 					rm -f $TCEMNT/tce/squeezelite; ln -s $TCEMNT/tce/squeezelite-custom $TCEMNT/tce/squeezelite
 					SAVE=1
 				else
-					echo '<p class="error">[ ERROR ] Custom Squeezelite not found. Copy custom binary before setting this option.</p>'
+					pcp_message ERROR "Custom Squeezelite not found. Copy custom binary before setting this option." "html"
 				fi
 			;;
 		esac
 		if [ $SAVE -eq 1 ]; then
-			echo '<p class="info">[ INFO ] Saving config file.</p>'
+			pcp_message INFO "Saving config file." "html"
 			pcp_save_to_config
 		fi
 	;;
@@ -169,7 +172,7 @@ case "$SUBMIT" in
 		install_shutdown_monitor
 	;;
 	*)
-		echo '<p class="error">[ ERROR ] Invalid case argument.</p>'
+		pcp_message ERROR "Invalid case argument." "html"
 	;;
 esac
 
@@ -181,10 +184,10 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	pcp_confirmation_required
 fi
 
-pcp_backup
-pcp_table_middle
+pcp_backup   # <===== GE Eventually remove this
+
 [ $RESTART_REQUIRED ] || pcp_redirect_button "Go Back" $FROM_PAGE 5
-pcp_table_end
+
 pcp_footer
 pcp_copyright
 
@@ -192,5 +195,6 @@ sleep 1
 [ $REBOOT_REQUIRED ] && pcp_reboot_required
 [ $RESTART_REQUIRED ] && pcp_restart_required $FROM_PAGE
 
+echo '</div>'
 echo '</body>'
 echo '</html>'

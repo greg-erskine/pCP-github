@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-11
+# Version: 7.0.0 2020-05-12
 
 WWW_BUILD=0008
 
@@ -928,10 +928,9 @@ pcp_trimval() {
 }
 
 #========================================================================================
-# Create table functions
+# Create table functions <==== GE
 #----------------------------------------------------------------------------------------
 pcp_table_top() {
-
 	echo '      <div class="row">'
 	echo '        <fieldset>'
 	echo '        <legend>'$1'</legend>'
@@ -954,6 +953,17 @@ pcp_table_end() {
 pcp_table_textarea_end() {
 	echo '                </textarea>'
 	pcp_table_end
+}
+
+#========================================================================================
+# Create info box functions
+#----------------------------------------------------------------------------------------
+pcp_infobox_begin() {
+	echo '<div class="'$INFOBOX'">'
+}
+
+pcp_infobox_end() {
+	echo '</div>'
 }
 
 #========================================================================================
@@ -1245,7 +1255,7 @@ pcp_redirect_button() {
 	# $3 - redirection delay
 
 	echo '<!-- Start of pcp_redirect_button -->'
-	echo '<div class="mb-3">'
+	echo '<div class="mb-3 mt-3">'
 	echo '  <form name="redirect button" action="'$2'" method="get">'
 	echo '    <input class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
 	echo '  </form>'

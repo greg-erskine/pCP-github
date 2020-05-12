@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 7.0.0 2020-05-12
 
 #========================================================================================
 # The hostname is set during the boot process. It needs to be set before the network is
@@ -31,37 +31,38 @@
 
 pcp_html_head "Write Hostname" "SBP" "10" "tweaks.cgi"
 
-pcp_banner
-pcp_running_script
+REDIRECT_WAIT=5
+
+pcp_navbar
 pcp_httpd_query_string
 
-pcp_table_top "Changing hostname"
-echo '<p class="info">[ INFO ] Host is now: '$HOST'</p>'
+pcp_heading5 "Changing hostname"
+
+pcp_infobox_begin
+pcp_message INFO "Host is now: $HOST" "html"
 pcp_mount_bootpart
 pcp_write_to_host
-
-[ $DEBUG -eq 1 ] && pcp_textarea_inform "Current $CMDLINETXT" "cat $CMDLINETXT" 70
-
 pcp_umount_bootpart
 pcp_save_to_config
 pcp_backup
+pcp_infobox_end
 
 if [ $DEBUG -eq 1 ]; then
-	pcp_textarea_inform "Current hostname" "hostname" 20
-	pcp_textarea_inform "Current /proc/cmdline" "cat /proc/cmdline" 100
-	pcp_textarea_inform "Current /etc/hostname" "cat /etc/hostname" 50
-	pcp_textarea_inform "Current /etc/hosts" "cat /etc/hosts" 180
-	pcp_textarea_inform "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 100
-	pcp_textarea_inform "Current pcp.cfg" "cat $PCPCFG" 380
-	pcp_textarea_inform "ps " "ps | grep -v grep | grep udhcpc" 50
+	REDIRECT_WAIT=30
+	echo '<hr>'
+	pcp_heading5 "Debug information"
+	pcp_mount_bootpart
+	pcp_textarea "Current $CMDLINETXT" "cat $CMDLINETXT" 7
+	pcp_umount_bootpart
+	pcp_textarea "Current hostname" "hostname" 2
+	pcp_textarea "Current /proc/cmdline" "cat /proc/cmdline" 10
+	pcp_textarea "Current /etc/hostname" "cat /etc/hostname" 5
+	pcp_textarea "Current /etc/hosts" "cat /etc/hosts" 20
+	pcp_textarea "Current /opt/bootsync.sh" "cat /opt/bootsync.sh" 10
+	pcp_textarea "Current pcp.cfg" "cat $PCPCFG" 20
+	pcp_textarea "ps " "ps | grep -v grep | grep udhcpc" 5
 fi
 
-pcp_table_middle
-pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 5
-pcp_table_end
-pcp_footer
-pcp_copyright
+pcp_redirect_button "Go to Tweaks" "tweaks.cgi" $REDIRECT_WAIT
 pcp_reboot_required
-
-echo '</body>'
-echo '</html>'
+pcp_html_end

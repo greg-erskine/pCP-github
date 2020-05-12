@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-11
+# Version: 7.0.0 2020-05-12
 
 set -f
 
@@ -87,6 +87,7 @@ pcp_tweaks_hostname() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_hostname
 #----------------------------------------------------------------------------------------
@@ -132,6 +133,7 @@ pcp_tweaks_timezone() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_timezone
 #----------------------------------------------------------------------------------------
@@ -176,6 +178,7 @@ pcp_tweaks_playertabs() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_playertabs
 #----------------------------------------------------------------------------------------
@@ -220,6 +223,7 @@ pcp_tweaks_lmscontrols() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lmscontrols
 #----------------------------------------------------------------------------------------
@@ -264,6 +268,7 @@ pcp_tweaks_hdmipower() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_hdmipower
 #----------------------------------------------------------------------------------------
@@ -308,6 +313,7 @@ pcp_tweaks_lmswebport() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
@@ -374,6 +380,7 @@ pcp_tweaks_internet_check_ip() {
 	fi
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_internet_check_ip
 #----------------------------------------------------------------------------------------
@@ -478,6 +485,7 @@ pcp_tweaks_governor() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  <hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_governor
 #----------------------------------------------------------------------------------------
@@ -541,7 +549,8 @@ pcp_tweaks_overclock() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo ' </form>'
+	echo '  </form>'
+	echo '  <hr>'
 
 	if [ $DEBUG -eq 1 ]; then
 		echo '<!-- Start of debug info -->'
@@ -665,11 +674,8 @@ pcp_tweaks_sqlite_affinity() {
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" SQLAFFINITY SQLOUTAFFINITY
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" SQLAFFINITY SQLOUTAFFINITY
+
 }
 [ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
 #----------------------------------------------------------------------------------------
@@ -937,12 +943,7 @@ pcp_tweaks_auto_start() {
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" AUTOSTARTLMS A_S_LMS_Y A_S_LMS_N
-		echo '<!-- End of debug info -->'
-	fi
-	#------------------------------------------------------------------------------------
+	pcp_debug_variables "html" AUTOSTARTLMS A_S_LMS_Y A_S_LMS_N
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_auto_start
 
@@ -1012,11 +1013,7 @@ pcp_tweaks_install_jivelite() {
 	fi
 	echo '  </div>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_install_jivelite
 
@@ -1190,11 +1187,7 @@ pcp_tweaks_screenrotate() {
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" SCREENROTATE SCREEN0 SCREEN180
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" SCREENROTATE SCREEN0 SCREEN180
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_screenrotate
 #----------------------------------------------------------------------------------------
@@ -1231,11 +1224,7 @@ pcp_tweaks_screensize() {
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" JL_SCREEN_WIDTH JL_SCREEN_HEIGHT
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" JL_SCREEN_WIDTH JL_SCREEN_HEIGHT
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_screensize
 #----------------------------------------------------------------------------------------
@@ -1290,11 +1279,7 @@ pcp_tweaks_framebuffer() {
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" JL_FRAME_BUFFER JL_FRAME_RATE JL_FRAME_DEPTH
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" JL_FRAME_BUFFER JL_FRAME_RATE JL_FRAME_DEPTH
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_framebuffer
 #----------------------------------------------------------------------------------------
@@ -1535,7 +1520,7 @@ pcp_tweaks_poweroff() {
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '            </form>'
+		echo '  </form>'
 	fi
 	#------------------------------------------------------------------------------------
 }
@@ -1578,9 +1563,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 #------------------------------------------------------------------------------------
-
 	pcp_debug_variables "html" SQUEEZELITE SQUEEZELITEyes SQUEEZELITEno
-
 #-------------------------------------------Shairport--------------------------------
 	case "$SHAIRPORT" in
 		yes) SHAIRPORTyes="checked" ;;
@@ -1615,9 +1598,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 #------------------------------------------------------------------------------------
-
 	pcp_debug_variables "html" SHAIRPORT SHAIRPORTyes SHAIRPORTno
-
 #-------------------------------------ALSA Equalizer---------------------------------
 	case "$ALSAeq" in
 		yes) ALSAeqyes="checked" ;;
@@ -1702,9 +1683,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 #------------------------------------------------------------------------------------
-
 	pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes EQUAL_OUT_DEVICE
-
 #--------------------------------------PCP Streamer----------------------------------
 	case "$STREAMER" in
 		yes) STREAMERyes="checked" ;;
@@ -1838,9 +1817,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
 	pcp_debug_variables "html" CMD CMDdefault CMDslow
-
 	#-------------------------------------------dwc_otg.fiq_fsm_enable=0 ----------------
 	case "$FSM" in
 		Default) FSMdefault="checked" ;;
@@ -1870,9 +1847,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
 	pcp_debug_variables "html" FSM FSMdefault FSMdisabled
-
 	#-----------------------------------FIQ-Split acceleration---------------------------
 	case "$FIQ" in
 		0x1) selected1="selected" ;;
@@ -1919,9 +1894,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
-	pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4 \
-
+	pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN1_1'">'
@@ -2133,9 +2106,7 @@ pcp_tweaks_cron() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
-	pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N \
-
+	pcp_debug_variables "html" REBOOT REBOOT_Y REBOOT_N RESTART RESTART_Y RESTART_N
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 }
@@ -2234,14 +2205,11 @@ pcp_tweaks_user_commands() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
 	pcp_debug_variables "html" USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
-
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_user_commands
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------------------------------------------------
 pcp_the_end

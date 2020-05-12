@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-06
+# Version: 7.0.0 2020-05-12
 
 . pcp-functions
 
@@ -14,7 +14,7 @@ pcp_remove_query_string
 
 pcp_heading5 "Restarting Squeezelite"
 
-echo '<div>'
+echo '<div class="'$INFOBOX'">'
 pcp_squeezelite_stop "html"
 sleep 2
 pcp_squeezelite_start "html"
