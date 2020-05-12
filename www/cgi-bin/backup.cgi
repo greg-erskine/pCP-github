@@ -14,6 +14,6 @@ pcp_infobox_begin
 pcp_backup
 pcp_infobox_end
 
-pcp_redirect_button "Go to Main Page" "main.cgi?CALLED_BY=Advanced" 10
+pcp_redirect_button "Go to Main Page" "main.cgi" 10
 
 pcp_html_end

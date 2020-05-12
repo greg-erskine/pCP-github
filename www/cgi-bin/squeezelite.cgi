@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-11
+# Version: 7.0.0 2020-05-12
 
 . pcp-functions
 . pcp-rpi-functions
@@ -207,6 +207,12 @@ echo '  </form>'
 
 . $PCPCFG
 
+echo '<script>'
+echo '    $(document).ready(function(){'
+echo '        $('[data-toggle="tooltip"]').tooltip();'
+echo '    });'
+echo '</script>'
+
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
@@ -228,6 +234,8 @@ echo '               type="text"'
 echo '               name="NAME"'
 echo '               value="'$NAME'"'
 echo '               required'
+echo '               data-toggle="tooltip"'
+echo '               data-placement="top"'
 echo '               title="Invalid characters: $ &amp; ` / &quot;"'
 echo '               pattern="[^$&`/\x22]+"'
 echo '        >'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-11
+# Version: 7.0.0 2020-05-12
 
 #========================================================================================
 # onboot.lst functions
@@ -477,10 +477,12 @@ pcp_wifi_using_wifi() {
 
 pcp_wifi_not_using_wifi () {
 	if [ $DEBUG -eq 1 ]; then
+		pcp_infobox_begin
 		pcp_message DEBUG "Physical MAC: $(pcp_eth0_mac_address)" "html"
 		pcp_message DEBUG "Wireless MAC: $(pcp_wlan0_mac_address)" "html"
 		pcp_message DEBUG "Controls MAC: $(pcp_controls_mac_address)" "html"
 		pcp_message DEBUG "Not using wifi interface." "html"
+		pcp_infobox_end
 	fi
 
 	echo '    <div class="row">'

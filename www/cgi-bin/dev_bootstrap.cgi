@@ -1,41 +1,53 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-11
+# Version: 7.0.0 2020-05-12
 
 # Title: Bootstrap
 # Description: Bootstrap test
 
-#. pcp-functions
+. pcp-functions
 
+pcp_html_head "Dev bootstrap" "GE"
 
-echo 'Content-Type: text/html'
+echo '<hr>'
+
+echo '<script>'
+echo '    $(document).ready(function(){'
+echo '        $('[data-toggle="tooltip"]').tooltip();'
+echo '    });'
+echo '</script>'
 echo ''
-echo '<!doctype html>'
-echo '<html lang="en">'
-echo '  <head>'
-echo '    <!-- Required meta tags -->'
-echo '    <meta charset="utf-8">'
-echo '    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">'
-echo
-echo '    <!-- Bootstrap CSS -->'
-echo '    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">'
+echo '<div>'
+echo '    <ul class="list-inline">'
+echo '        <li class="list-inline-item">'
+echo '            <a href="#" data-toggle="tooltip" data-placement="top" title="Default tooltip">Tooltip</a>'
+echo '        </li>'
+echo '        <li class="list-inline-item">'
+echo '            <a href="#" data-toggle="tooltip" data-placement="right" title="Another tooltip">Another tooltip</a>'
+echo '        </li>'
+echo '        <li class="list-inline-item">'
+echo '            <a href="#" data-toggle="tooltip" data-placement="bottom" title="A much longer tooltip to demonstrate the max-width of the Bootstrap tooltip.">Large tooltip</a>'
+echo '        </li>'
+echo '        <li class="list-inline-item">'
+echo '            <a href="#" data-toggle="tooltip" data-placement="left" title="The last tip!">Last tooltip</a>'
+echo '        </li>'
+echo '    </ul>'
+echo '</div>'
 
-echo '    <title>Hello, world!</title>'
-echo '  </head>'
-echo '  <body>'
+
 
 echo '<div class="container">'
 
 echo '<hr>'
 
-echo '  <button id="button" aria-describedby="tooltip">My button</button>'
-echo '  <div id="tooltip" role="tooltip">My tooltip</div>'
-
-echo '  <script>'
-echo '    const button = document.querySelector('#button');'
-echo '    const tooltip = document.querySelector('#tooltip');'
-echo '    Popper.createPopper(button, tooltip);'
-echo '  </script>'
+#echo '  <button id="button" aria-describedby="tooltip">My button</button>'
+#echo '  <div id="tooltip" role="tooltip">My tooltip</div>'
+#
+#echo '  <script>'
+#echo '    const button = document.querySelector('#button');'
+#echo '    const tooltip = document.querySelector('#tooltip');'
+#echo '    Popper.createPopper(button, tooltip);'
+#echo '  </script>'
 
 echo '<hr>'
 
@@ -65,7 +77,6 @@ echo '          '
 echo '          <!-- Modal footer -->'
 echo '          <div class="modal-footer">'
 echo '            <a type="button" class="btn btn-success" href="backup.cgi">Backup</a>'
-echo '            <button type="button" class="btn btn-success">OK</button>'
 echo '            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>'
 echo '          </div>'
 echo '          '

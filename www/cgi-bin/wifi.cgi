@@ -33,8 +33,6 @@ COLUMN2_2="col-9"
 COLUMN1="$COLUMN3_1"
 
 BUTTON="btn btn-primary w-100"
-#COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
-#INFOBOX="bg-white border border-secondary shadow rounded mt-1 px-3 py-1"
 
 # Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
 # it would need to be manually decoded like this
@@ -90,9 +88,9 @@ case "$ACTION" in
 		pcp_wifi_error_messages
 		if [ "$WIFI" = "on" ]; then
 			pcp_heading5 "Initial option"
-			echo '<div class="'$INFOBOX'">'
+			pcp_infobox_begin
 			pcp_wifi_read_wpa_supplicant "html"
-			echo '</div>'
+			pcp_infobox_end
 		fi
 	;;
 	Config)
@@ -110,7 +108,7 @@ case "$ACTION" in
 		pcp_wifi_error_messages
 		pcp_heading5 "Save option"
 		if [ "$WIFI" = "on" ]; then
-			echo '<div class="'$INFOBOX'">'
+			pcp_infobox_begin
 			pcp_wifi_load_wifi_firmware_extns "html"
 			pcp_wifi_load_wifi_extns "html"
 			pcp_wifi_generate_passphrase "html"
@@ -124,7 +122,7 @@ case "$ACTION" in
 			echo '</div>'
 			pcp_save_to_config
 			pcp_backup "html"
-			echo '</div>'
+			pcp_infobox_end
 		else
 			/usr/local/etc/init.d/wifi wlan0 stop
 			pcp_wifi_unload_wifi_extns "text"
@@ -136,12 +134,12 @@ case "$ACTION" in
 	Network_wait)
 		pcp_wifi_error_messages
 		pcp_heading5 "Network wait"
-		echo '<div class="'$INFOBOX'">'
+		pcp_infobox_begin
 		pcp_wifi_read_wpa_supplicant "html"
 		pcp_message INFO "Saving $NETWORK_WAIT to network wait in pCP config..." "html"
 		pcp_save_to_config
 		pcp_backup "html"
-		echo '</div>'
+		pcp_infobox_end
 	;;
 	#----------------------------------DEBUG - Developer options-----------------------------
 	Read)
@@ -202,10 +200,8 @@ esac
 #========================================================================================
 # Debug information.
 #----------------------------------------------------------------------------------------
-if [ $DEBUG -eq 1 ]; then
-	pcp_debug_variables "html" ACTION WIFI WPA_SSID WPA_PSK WPA_PW WPA_PASSWORD \
+pcp_debug_variables "html" ACTION WIFI WPA_SSID WPA_PSK WPA_PW WPA_PASSWORD \
 	WPA_PASSPHRASE WPA_ENCRYPTION WPA_HIDDENSSID RPI3INTWIFI RPIBLUETOOTH
-fi
 
 #========================================================================================
 # Main.
@@ -223,8 +219,7 @@ echo '  return true;'
 echo '}'
 echo '</script>'
 
-echo '<hr>'
-pcp_heading5 "Set wifi configuration"
+pcp_heading5 "Set wifi configuration" hr
 
 #----------------------------------------------------------------------------------------
 if [ "$WIFI" = "on" ]; then
@@ -476,8 +471,7 @@ echo '  </form>'
 
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
-	echo '<hr>'
-	pcp_heading5 "RPi Built-in WiFi/Blue Tooth"
+	pcp_heading5 "RPi Built-in WiFi/Blue Tooth" hr
 #--------------------------------------Built-in Wifi-------------------------------------
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
@@ -545,18 +539,25 @@ fi
 
 if [ $DEBUG -eq 1 ]; then
 #--------------------------------------DEBUG---------------------------------------------
-	pcp_table_top "[ DEBUG ] $WPASUPPLICANTCONF tests"
-	[ $(pcp_exists_wpa_supplicant) -eq 0 ] &&
-	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' exists</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' does not exists.</p>'
-	[ $(pcp_wifi_maintained_by_pcp) -eq 0 ] &&
-	echo '<p>[ INFO ] '$WPASUPPLICANTCONF' "Maintained by piCorePlayer"</p>' || echo '<p>[ ERROR ] '$WPASUPPLICANTCONF' not "Maintained by piCorePlayer".</p>'
-	pcp_table_end
+	pcp_heading5 "[ DEBUG ] $WPASUPPLICANTCONF tests" hr
+
+	pcp_infobox_begin
+	if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
+		pcp_message INFO "$WPASUPPLICANTCONF exists." "html"
+	else
+		pcp_message ERROR "$WPASUPPLICANTCONF does not exists." "html"
+	fi
+	if [ $(pcp_wifi_maintained_by_pcp) -eq 0 ]; then
+		pcp_message INFO "$WPASUPPLICANTCONF \"Maintained by piCorePlayer\"." "html"
+	else
+		pcp_message ERROR "$WPASUPPLICANTCONF not \"Maintained by piCorePlayer\"." "html"
+	fi
+	pcp_infobox_end
 #--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/newconfig.cfg"
-	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
-	pcp_textarea "none" "cat ${WPACONFIGFILE}" 80
+	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE" hr
+	pcp_textarea "none" "cat ${WPACONFIGFILE}" 8
 	if [ -f $WPACONFIGFILE ]; then
-		pcp_toggle_row_shade
 		echo '    <div class="row">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <form name="wpatest1" action="'$0'" method="get">'
@@ -570,7 +571,7 @@ if [ $DEBUG -eq 1 ]; then
 
 #--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/wpa_supplicant.conf"
-	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
+	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE" hr
 	pcp_textarea "none" "cat ${WPACONFIGFILE}" 12
 	if [ -f $WPACONFIGFILE ]; then
 		echo '    <div class="row">'
@@ -584,16 +585,11 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "html"
 	fi
 
-#--------------------------------------DEBUG---------------------------------------------
-	pcp_textarea "[ DEBUG ] $WPASUPPLICANTCONF" "cat ${WPASUPPLICANTCONF}" 150
-#--------------------------------------DEBUG---------------------------------------------
-	pcp_table_top "[ DEBUG ] Installed extensions"
-	pcp_wifi_all_extensions_installed "html"
-#--------------------------------------DEBUG---------------------------------------------
-	pcp_textarea "[ DEBUG ] $FILETOOLLST" "cat $FILETOOLLST" 150
-#--------------------------------------DEBUG---------------------------------------------
-	pcp_textarea "[ DEBUG ] $ONBOOTLST" "cat $ONBOOTLST" 150
-#----------------------------------------------------------------------------------------
+	#--------------------------------------DEBUG---------------------------------------------
+	pcp_textarea "[ DEBUG ] $WPASUPPLICANTCONF" "cat ${WPASUPPLICANTCONF}" 15
+	pcp_textarea "[ DEBUG ] $FILETOOLLST" "cat $FILETOOLLST" 15
+	pcp_textarea "[ DEBUG ] $ONBOOTLST" "cat $ONBOOTLST" 15
+	#----------------------------------------------------------------------------------------
 fi
 
 #---------------/usr/local/etc/pcp/wpa_supplicant.conf maintained by user----------------
@@ -605,8 +601,7 @@ if [ "$WIFI" = "on" ]; then
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - insert wifi adapter and [Save] to connect." || WLANMAC=$(pcp_wlan0_mac_address)
 	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - [Reboot] or [Save] to connect." || WLANIP=$(pcp_wlan0_ip)
 
-	echo '<hr>'
-	pcp_heading5 "Wifi information"
+	pcp_heading5 "Wifi information" hr
 
 	echo '  <div class="row">'
 	echo '    <div class="'$COLUMN3_1'">'
@@ -634,9 +629,7 @@ fi
 wifi_apmode_page() {
 	[ "$WIFI" = "on" ] && DISABLED="disabled" || unset DISABLED
 
-	COLUMN1="col-12"
-	echo '<hr>'
-	pcp_heading5 "Wireless Access Point (WAP) configuration page"
+	pcp_heading5 "Wireless Access Point (WAP) configuration page" hr
 
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN2_1'">'
@@ -659,8 +652,7 @@ wifi_apmode_page() {
 #----------------------------------------------------------------------------------------
 
 #-----------------------------------Network wait-----------------------------------------
-echo '<hr>'
-pcp_heading5 "Network wait"
+pcp_heading5 "Network wait" hr
 
 echo '  <form id="Network_wait" name="Network_wait" action="'$0'" method="get">'
 echo '    <div class="row">'

@@ -518,8 +518,8 @@ pcp_html_head() {
 	echo '  <!-- js files: jQuery first, then Popper.js, then Bootstrap js -->'
 
 	echo '  <script src="../jquery/jquery.min.js"></script>'
-#	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
-	echo '  <script src="../popper/popper.js"></script>'
+	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
+#	echo '  <script src="../popper/popper.js"></script>'
 	echo '  <script src="../bootstrap/js/bootstrap.min.js"></script>'
 
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
@@ -832,8 +832,12 @@ pcp_mode() {
 }
 
 pcp_heading5() {
+	# $1 - message
+	# $2 - hr
+
+	[ "$2" = "hr" ] && echo '<hr>'
 	echo '  <div class="row">'
-	echo '    <div class="col-12 my-3">'
+	echo '    <div class="col-12 my-2">'
 	echo '      <h4>'$1'</h4>'
 	echo '    </div>'
 	echo '  </div>'
