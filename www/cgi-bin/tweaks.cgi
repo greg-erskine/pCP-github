@@ -350,12 +350,13 @@ pcp_tweaks_internet_check_ip() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
+	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
+	echo '      </div>'
+
 	if [ $DEBUG -eq 1 ]; then
-		echo '    <div class="row">'
-		echo '      <div class="'$COLUMN1_1'">'
-		echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
-		echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
-		echo '      </div>'
 
 		if [ $(pcp_internet_accessible) -eq 0 ]; then
 			pcp_green_tick "Internet found."
@@ -368,13 +369,6 @@ pcp_tweaks_internet_check_ip() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>'$STATUS'</p>'
-		echo '      </div>'
-		echo '    </div>'
-	else
-		echo '    <div class="row">'
-		echo '      <div class="'$COLUMN1_1'">'
-		echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
-		echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 		echo '      </div>'
 		echo '    </div>'
 	fi
@@ -537,26 +531,21 @@ pcp_tweaks_overclock() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save" '$DISABLED'>'
 	echo '        <input type="hidden" name="ACTION" value="oc">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input class="'$BUTTON'" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN1_1'">'
-	echo '        <p>Advanced Overclocking page.</p>'
+	echo '      <div class="'$COLUMN3_3'">'
+	echo '        <p>Go to Advanced Overclocking page.</p>'
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	pcp_debug_variables "html" OVERCLOCK OCnone OCmild OCmoderate
 	echo '  <hr>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" OVERCLOCK OCnone OCmild OCmoderate
-		echo '<!-- End of debug info -->'
-	fi
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_overclock
 #----------------------------------------------------------------------------------------
@@ -601,12 +590,7 @@ pcp_tweaks_cpuisol() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" CPUISOL
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" CPUISOL
 }
 [ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 ] && pcp_tweaks_cpuisol
 #----------------------------------------------------------------------------------------
@@ -673,9 +657,7 @@ pcp_tweaks_sqlite_affinity() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-
 	pcp_debug_variables "html" SQLAFFINITY SQLOUTAFFINITY
-
 }
 [ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
 #----------------------------------------------------------------------------------------
@@ -856,19 +838,6 @@ pcp_tweaks_auto_start() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		echo '<div class="row">'
-		echo '  <div class="'$COLUMN1_1'">'
-		echo '    <p class="debug">[ DEBUG ] Controls MAC: '$(pcp_controls_mac_address)'</p>'
-		echo '    <p class="debug">[ DEBUG ] LMS IP: '$(pcp_lmsip)'</p>'
-		          pcp_debug_variables "html" AUTOSTARTFAV
-		          pcp_textarea_inform FAVLIST "cat /tmp/json_list" 50
-		echo '  </div>'
-		echo '</div>'
-		echo '<!-- End of debug info -->'
-	fi
-	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN1_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
@@ -880,6 +849,18 @@ pcp_tweaks_auto_start() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	#------------------------------------------------------------------------------------
+	if [ $DEBUG -eq 1 ]; then
+		echo '<!-- Start of debug info -->'
+		pcp_infobox_begin
+		pcp_message DEBUG "Controls MAC: $(pcp_controls_mac_address)" "html"
+		pcp_message DEBUG "LMS IP: $(pcp_lmsip)" "html"
+		pcp_infobox_end
+		pcp_debug_variables "html" AUTOSTARTFAV
+		pcp_textarea FAVLIST "cat /tmp/json_list" 5
+		echo '<!-- End of debug info -->'
+	fi
+	#------------------------------------------------------------------------------------
 
 	#---------------------------------Autostart LMS--------------------------------------
 	AUTOSTARTLMS=`sudo $HTTPD -d $AUTOSTARTLMS`
@@ -887,7 +868,7 @@ pcp_tweaks_auto_start() {
 		Enabled) A_S_LMS_Y="checked" ;;
 		Disabled) A_S_LMS_N="checked" ;;
 	esac
-	
+
 	echo '  <form name="autostartlms" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
@@ -1124,7 +1105,7 @@ pcp_tweaks_vumeter() {
 		#--------------------------------------------------------------------------------
 		echo '    <div class="row">'
 		echo '      <div class="'$COLUMN1_1'">'
-		                       pcp_textarea_inform "none" "df | grep /dev/loop " 200
+		                       pcp_textarea "none" "df | grep /dev/loop " 200
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
@@ -1137,7 +1118,7 @@ pcp_tweaks_vumeter() {
 		echo '    <div class="row">'
 		echo '      <div class="'$COLUMN1_1'">'
 		                       ls /usr/local/tce.installed >/tmp/installed.lst
-		                       pcp_textarea_inform "none" "cat /tmp/installed.lst" 100
+		                       pcp_textarea "none" "cat /tmp/installed.lst" 100
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
@@ -2002,7 +1983,7 @@ pcp_tweaks_cron() {
 	echo '      </div>'
 	echo '    </div>'
 	#-------------------------------------Squeezelite restart----------------------------
-		case "$RESTART" in
+	case "$RESTART" in
 		Enabled) RESTART_Y="checked" ;;
 		Disabled) RESTART_N="checked" ;;
 	esac
