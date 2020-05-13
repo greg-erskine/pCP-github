@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-13
 
 set -f
 
@@ -370,8 +370,8 @@ pcp_tweaks_internet_check_ip() {
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>'$STATUS'</p>'
 		echo '      </div>'
-		echo '    </div>'
 	fi
+	echo '      </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	echo '  <hr>'
@@ -428,8 +428,7 @@ pcp_tweaks_rotdash() {
 # pCP OS/Kernel Tweaks
 #----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '<hr>'
-	pcp_heading5 "pCP Kernel Tweaks"
+	pcp_heading5 "pCP Kernel Tweaks" hr
 fi
 #--------------------------------------Governor------------------------------------------
 pcp_tweaks_governor() {
@@ -684,8 +683,7 @@ pcp_tweaks_wol() {
 		[ "$WOL_LMSMACADDRESS" = "" ] && WOL_LMSMACADDRESS=$4
 	fi
 
-	echo '<hr>'
-	pcp_heading5 "Wake-on-LAN (WOL)"
+	pcp_heading5 "Wake-on-LAN (WOL)" hr
 
 	echo '  <form name="wol" action="writetoconfig.cgi" method="get">'
 	#----------------------------------WOL-----------------------------------------------
@@ -787,8 +785,8 @@ pcp_tweaks_wol() {
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_auto_start() {
-	echo '<hr>'
-	pcp_heading5 "Auto start tweaks"
+
+	pcp_heading5 "Auto start tweaks" hr
 
 	#---------------------------------Auto start favorite--------------------------------
 	case "$A_S_FAV" in
@@ -814,9 +812,9 @@ pcp_tweaks_auto_start() {
 	echo '    </div>'
 	pcp_incr_id
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="'$COLUMN2_1'">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Select your auto start favorite from list&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -860,6 +858,7 @@ pcp_tweaks_auto_start() {
 		pcp_textarea FAVLIST "cat /tmp/json_list" 5
 		echo '<!-- End of debug info -->'
 	fi
+	echo '  <p></p>' # Add a little space
 	#------------------------------------------------------------------------------------
 
 	#---------------------------------Autostart LMS--------------------------------------
@@ -885,9 +884,9 @@ pcp_tweaks_auto_start() {
 	echo '    </div>'
 	pcp_incr_id
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="'$COLUMN2_1'">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2_lg'">'
+	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Cut and paste your auto start LMS command&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -931,17 +930,13 @@ pcp_tweaks_auto_start() {
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
-if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '<hr>'
-	pcp_heading5 "Jivelite Setup"
-fi
+[ $MODE -ge $MODE_PLAYER ] && pcp_heading5 "Jivelite Setup" hr
 
 #----------------------------------------------------------------------------------------
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
 
-	#------------------------------------------------------------------------------------
 	echo '  <div class="row">'
 
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
@@ -956,14 +951,14 @@ pcp_tweaks_install_jivelite() {
 		pcp_incr_id
 		echo '    <div class="'$COLUMN3_3'">'
 		echo '      <p>Install Jivelite on pCP&nbsp;&nbsp;'
-		echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '      </p>'
 		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '        <p>This will install Jivelite and VU meters on pCP.</p>'
 		echo '      </div>'
 		echo '    </div>'
 	else
-		echo '    <div class="'$COLUMN3_1'">'
+		echo '    <div class="col">'
 		echo '      <form name="jivelite1" action="writetojivelite.cgi" method="get">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Update">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Reset">'
@@ -972,9 +967,9 @@ pcp_tweaks_install_jivelite() {
 		echo '      </form>'
 		echo '    </div>'
 		pcp_incr_id
-		echo '    <div class="'$COLUMN3_2_lg'">'
+		echo '    <div class="'$COLUMN3_3'">'
 		echo '      <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
-		echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '      </p>'
 		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '        <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
@@ -1057,14 +1052,14 @@ pcp_tweaks_vumeter() {
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <select class="form-control form-control-sm" name="VUMETER">'
 
-	                          LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
-	                          VUMETERS=$( ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
-	                          for i in $VUMETERS
-	                          do
-	                            [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
-	                            DISPLAY=$( echo $i | sed -e 's/^VU_Meter_//' -e 's/.tcz$//' -e 's/_/ /g' )
-	                            echo '          <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
-	                          done
+	                LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
+	                VUMETERS=$( ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
+	                for i in $VUMETERS
+	                do
+	                  [ "$i" = "$LOADED_VU_METER" ] && SEL="selected" || SEL=""
+	                  DISPLAY=$( echo $i | sed -e 's/^VU_Meter_//' -e 's/.tcz$//' -e 's/_/ /g' )
+	                  echo '          <option value="'$i'" '$SEL'>'$DISPLAY'</option>'
+	                done
 
 	echo '        </select>'
 	echo '      </div>'
@@ -1082,7 +1077,7 @@ pcp_tweaks_vumeter() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="col">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Download">'
 	echo '        <input type="hidden" name="OPTION" value="VUMETER">'
@@ -1266,8 +1261,7 @@ pcp_tweaks_framebuffer() {
 #----------------------------------------------------------------------------------------
 
 if [ $MODE -ge $MODE_PLAYER ]; then
-	echo '<hr>'
-	pcp_heading5 "IR remote control"
+	pcp_heading5 "IR remote control" hr
 fi
 #----------------------------------------------------------------------------------------
 
@@ -1353,8 +1347,8 @@ pcp_tweaks_lirc() {
 # Poweroff/Shutdown Table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_poweroff() {
-	echo '<hr>'
-	pcp_heading5 "Poweroff/Shutdown Overlays"
+
+	pcp_heading5 "Poweroff/Shutdown Overlays" hr
 
 	echo '  <form name="poweroff" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
@@ -1512,8 +1506,8 @@ pcp_tweaks_poweroff() {
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
-	echo '<hr>'
-	pcp_heading5 "Audio tweaks"
+
+	pcp_heading5 "Audio tweaks" hr
 
 	case "$SQUEEZELITE" in
 		yes) SQUEEZELITEyes="checked" ;;
@@ -1765,8 +1759,8 @@ pcp_tweaks_audio_tweaks() {
 # USB audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_usb_audio_tweaks() {
-	echo '<hr>'
-	pcp_heading5 "USB Audio tweaks"
+
+	pcp_heading5 "USB Audio tweaks" hr
 
 	case "$CMD" in
 		Default) CMDdefault="checked" ;;
@@ -1901,8 +1895,8 @@ pcp_tweaks_usb_audio_tweaks() {
 #
 #----------------------------------------------------------------------------------------
 pcp_tweaks_cron() {
-	echo '<hr>'
-	pcp_heading5 "Schedule CRON jobs"
+
+	pcp_heading5 "Schedule CRON jobs" hr
 
 	/etc/init.d/services/crond status >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
@@ -2096,8 +2090,8 @@ pcp_tweaks_cron() {
 
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
-	echo '<hr>'
-	pcp_heading5 "User commands"
+
+	pcp_heading5 "User commands" hr
 
 	echo '  <form name="setusercommands" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------

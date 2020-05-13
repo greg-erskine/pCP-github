@@ -527,7 +527,7 @@ pcp_html_head() {
 	echo '</head>'
 	echo ''
 	[ "$5" != "nobody" ] && echo '<body>'
-	echo '<div class="container-fluid bg-light">'
+#	echo '<div class="container-fluid bg-light">'
 	echo '<div class="container shadow bg-light">'
 
 	if [ "$PLAYERTABS" = "yes" ]; then
