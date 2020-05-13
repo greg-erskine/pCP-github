@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-09
+# Version: 7.0.0 2020-05-13
 
 . pcp-functions
+. pcp-lms-functions
 . pcp-soundcard-functions
 
 # Store the original values so we can see if they are changed.
@@ -14,17 +15,18 @@ pcp_httpd_query_string
 
 pcp_html_head "Choose output" "SBP"
 
+pcp_controls
 pcp_navbar
 pcp_remove_query_string
 pcp_httpd_query_string
 
 #----------------------------------------------------------------------------------------
-COLUMN1="col-3"
 pcp_heading5 "Choose output"
 
-[ $DEBUG -eq 1 ] &&
 pcp_debug_variables "html" QUERY_STRING AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 PARAMS3 \
                            PARAMS4 PARAMS5 OUTPUT ALSA_PARAMS DT_MODE
+
+pcp_infobox_begin
 
 if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
 	pcp_message INFO "Audio output unchanged, still $AUDIO." "html"
@@ -119,10 +121,7 @@ if [ $CHANGED ]; then
 	pcp_backup "html"
 fi
 
-echo '<div class="mt-3">'
+pcp_infobox_end
 pcp_redirect_button "Go Back" "$FROM_PAGE" 15
-echo '<div>'
-
 [ $CHANGED ] && pcp_reboot_required
-
 pcp_html_end

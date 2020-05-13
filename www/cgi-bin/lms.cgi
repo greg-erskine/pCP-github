@@ -329,39 +329,34 @@ case "$ACTION" in
 	;;
 	Install_Samba)
 		pcp_heading5 "Installing Samba4 Server"
+		pcp_infobox_begin
 		pcp_sufficient_free_space 25000
 		if [ $? -eq 0 ]; then
-			echo '                <textarea class="inform" style="height:120px">'
 			pcp_install_samba4
-			echo '                </textarea>'
 		fi
-		pcp_table_end
+		pcp_infobox_end
 	;;
 	Remove_Samba)
 		pcp_heading5 "Removing Samba4 Server"
-		echo '                <textarea class="inform" style="height:120px">'
+		pcp_infobox_begin
 		pcp_remove_samba4
-		echo '                </textarea>'
 		SAMBA="disabled"
 		pcp_save_to_config
 		pcp_backup "text"
-		pcp_table_end
+		pcp_infobox_end
 		REBOOT_REQUIRED=1
 	;;
 	SambaStart)
 		pcp_heading5 "Starting Samba"
 		pcp_textarea "none" "/usr/local/etc/init.d/samba4 start" 40
-		pcp_table_end
 	;;
 	SambaStop)
 		pcp_heading5 "Stopping Samba"
 		pcp_textarea "none" "/usr/local/etc/init.d/samba4 stop" 40
-		pcp_table_end
 	;;
 	SambaRestart)
 		pcp_heading5 "Re-Starting Samba"
 		pcp_textarea "none" "/usr/local/etc/init.d/samba4 restart" 40
-		pcp_table_end
 	;;
 	Mysb)
 		pcp_heading5 "Setting LMS command line options"
@@ -428,7 +423,7 @@ else
 fi
 
 echo '  <div class="form-group row mt-3">'
-echo '    <div class="'$COLUMN2_1'">'
+echo '    <div class="'$COLUMN2_1' text-md-right">'
 echo '      <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '    </div>'
 pcp_incr_id
@@ -438,11 +433,14 @@ echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$H
 echo '      </p>'
 echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '        <ul>'
-echo '          <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
-echo '          <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
+echo '          <li>'$(pcp_bi_check)' = LMS running.</li>'
+echo '          <li>'$(pcp_bi_x)' = LMS not running.</li>'
 echo '        </ul>'
-
-echo '      </div>'
+echo '        <p><b>Note:</b></p>'
+echo '        <ul>'
+echo '          <li>LMS must be running to stream music to players from this pCP.</li>'
+echo '        </ul>'
+echo '      </div>' 
 echo '    </div>'
 echo '  </div>'
 #----------------------------------------------------------------------------------------
