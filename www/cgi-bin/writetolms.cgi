@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-06-15
+# Version: 7.0.0 2020-05-13
 
 . pcp-functions
 
@@ -9,8 +9,7 @@ ORIG_LMSERVER="$LMSERVER"
 
 pcp_html_head "Write LMS settings" "SBP"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 WGET="/bin/busybox wget"
@@ -23,14 +22,20 @@ REBOOT_REQUIRED=0
 # Routines
 #--------------------------------------------------------------------------------------------------------
 pcp_enable_lms() {
-	echo '<p class="info">[ INFO ] Enabling automatic start of LMS...</p>'
-	[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is added to onboot.lst</p>'
+	# $1 - format
+
+	FORMAT=$1
+	pcp_message INFO "Enabling automatic start of LMS..." $FORMAT
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "LMS is added to onboot.lst" $FORMAT
 	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 	sudo echo 'slimserver.tcz' >> $ONBOOTLST
 }
 
 pcp_disable_lms() {
-	echo '<p class="info">[ INFO ] Disabling automatic start of LMS...</p>'
+	# $1 - format
+
+	FORMAT=$1
+	pcp_message INFO "Disabling automatic start of LMS..." $FORMAT
 #	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 }
@@ -56,31 +61,32 @@ case "$ACTION" in
 	#----------------------------------------------------------------------------------------
 	# Only do something if variable is changed
 	Startup)
+		pcp_heading5 "LMS Server Auto Start"
+		pcp_infobox_begin
+		pcp_message INFO "LMS is set to: $LMSERVER" "html"
 		if [ "$ORIG_LMSERVER" != "$LMSERVER" -a "$UPDATE" = "" ]; then
-			pcp_table_top "LMS Server Auto Start"
-			echo '<p class="info">[ INFO ] LMS is set to: '$LMSERVER'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMS is: '$ORIG_LMSERVER'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMS is: '$LMSERVER'</p>'
-
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_LMS is: $ORIG_LMSERVER" "html"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "LMS is: $LMSERVER" "html"
 			case "$LMSERVER" in
 				yes)
-					echo '<p class="info">[ INFO ] Automatic start of LMS is enabled.</p>'
-					pcp_enable_lms
+					pcp_message INFO "Automatic start of LMS is enabled." "html"
+					pcp_enable_lms html
 				;;
 				no)
-					echo '<p class="info">[ INFO ] Automatic start of LMS is disabled</p>'
-					pcp_disable_lms
+					pcp_message INFO "Automatic start of LMS is disabled." "html"
+					pcp_disable_lms html
 				;;
 				*)
-					echo '<p class="error">[ ERROR ] LMS selection invalid: '$LMSERVER'</p>'
+					pcp_message ERROR "LMS selection invalid: $LMSERVER" "html"
 				;;
 			esac
 			pcp_save_to_config
-			pcp_backup
+			pcp_backup html
 		else
-			pcp_table_top "LMS Server Auto Start"
-			echo '<p class="info">[ INFO ] LMS variable unchanged.</p>'
+			pcp_message INFO "LMS Server Auto Start unchanged." "html"
+			
 		fi
+		pcp_infobox_end
 	;;
 	#========================================================================================
 	# Update of LMS section
@@ -95,18 +101,11 @@ case "$ACTION" in
 	;;
 esac
 
-#echo '<hr>'
-
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 150
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $PCPCFG" "cat $PCPCFG" 150
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 15
+[ $DEBUG -eq 1 ] && pcp_textarea "Current $PCPCFG" "cat $PCPCFG" 15
 
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
-pcp_table_middle
 pcp_redirect_button "Go to LMS" "lms.cgi" 15
-pcp_table_end
-pcp_footer
-pcp_copyright
 
-echo '</body>'
-echo '</html>'
+pcp_html_end

@@ -35,37 +35,36 @@ WGET="/bin/busybox wget"
 
 COLUMN1_1="col-12"
 
-COLUMN2_1="col-sm-3"
-COLUMN2_2="col-9"
+COLUMN2_1="col-sm-2"
+COLUMN2_2="col-sm-9"
 
-COLUMN3_1="col-sm-3"
-COLUMN3_2="col-sm-3"
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-4"
 COLUMN3_3="col-sm-6"
 
-COLUMN4_1="col-sm-3"
-COLUMN4_2="col-sm-3"
-COLUMN4_3="col-sm-3"
-COLUMN4_4="col-sm-3"
+COLUMN4_1="col-sm-2"
+COLUMN4_2="col-sm-4"
+COLUMN4_3="col-sm-2"
+COLUMN4_4="col-sm-4"
 
-BUTTON="btn btn-primary"
+BUTTON="btn btn-primary btn-sm w-100"
 
 #========================================================================================
 # Local functions
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
 	pcp_incr_id
-	echo '  <div class="row">'
-	echo '    <p><b>Warning:</b> Logitech Media Server (LMS)'
+	echo '    <div class="bg-warning col-12 pb-1">'
+	echo '      <b>Warning:</b> Logitech Media Server (LMS)'
 	echo '      is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
 	echo '      <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '    </p>'
-	echo '    <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '      <ul>'
-	echo '        <li>Do NOT just pull the power plug.</li>'
-	echo '        <li>Use [Main Page] > [Shutdown].</li>'
-	echo '      </ul>'
+	echo '      <div id="dt'$ID'" class="bg-warning collapse">'
+	echo '        <ul>'
+	echo '          <li>Do NOT just pull the power plug.</li>'
+	echo '          <li>Use [Main Page] > [Shutdown].</li>'
+	echo '        </ul>'
+	echo '      </div>'
 	echo '    </div>'
-	echo '  </div>'
 }
 
 pcp_install_lms() {
@@ -212,129 +211,124 @@ case "$ACTION" in
 			;;
 			default) MNT="$TCEMNT";;
 		esac
-		pcp_table_top "Logitech Media Server (LMS)"
-		echo '                <textarea class="inform" style="height:40px">'
+		pcp_heading5 "Logitech Media Server (LMS)"
+		pcp_infobox_begin
 		mount | grep -qs $MNT
 		if [ $? -eq 0 ]; then
 			if [ ! -x /usr/local/etc/init.d/slimserver ]; then
-				pcp_message INFO "Loading LMS extensions..." "text"
+				pcp_message INFO "Loading LMS extensions..." "html"
 				sudo -u tc tce-load -i slimserver.tcz
 			fi
-			pcp_message INFO "Starting LMS..." "text"
-			echo -n '[ INFO ] '
+			pcp_message INFO "Starting LMS..." "html"
+			pcp_message INFO "" "html" "-n"
 			sudo /usr/local/etc/init.d/slimserver start
+			echo '</div>'
 		else
-			pcp_message ERROR "LMS data disk not mounted at '$MNT', LMS will not start." "text"
+			pcp_message ERROR "LMS data disk not mounted at $MNT, LMS will not start." "html"
 		fi
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_infobox_end
 	;;
 	Stop)
-		pcp_table_top "Logitech Media Server (LMS)"
-		echo '                <textarea class="inform" style="height:40px">'
-		pcp_message INFO "Stopping LMS..." "text"
-		echo -n '[ INFO ] '
+		pcp_heading5 "Logitech Media Server (LMS)"
+		pcp_infobox_begin
+		pcp_message INFO "Stopping LMS..." "html"
+		pcp_message INFO "" "html" "-n"
 		sudo /usr/local/etc/init.d/slimserver stop
-		echo '                </textarea>'
-		pcp_table_end
+		echo '</div>'
 		sleep 2
+		pcp_infobox_end
 	;;
 	Restart)
-		pcp_table_top "Logitech Media Server (LMS)"
-		echo '                <textarea class="inform" style="height:40px">'
-		pcp_message INFO "Restarting LMS..." "text"
-		echo -n '[ INFO ] '
+		pcp_heading5 "Logitech Media Server (LMS)"
+		pcp_infobox_begin
+		pcp_message INFO "Restarting LMS..." "html"
+		pcp_message INFO "" "html" "-n"
 		sudo /usr/local/etc/init.d/slimserver stop
-		echo -n '[ INFO ] '
+		echo '</div>'
+		pcp_message INFO "" "html" "-n"
 		sudo /usr/local/etc/init.d/slimserver start
-		echo '                </textarea>'
-		pcp_table_end
+		echo '</div>'
+		pcp_infobox_end
 	;;
 	Install)
-		pcp_table_top "Downloading Logitech Media Server (LMS)"
+		pcp_heading5 "Downloading Logitech Media Server (LMS)"
+		pcp_infobox_begin
 		pcp_sufficient_free_space 48000
 		if [ $? -eq 0 ]; then
-			echo '                <textarea class="inform" style="height:160px">'
 			pcp_install_lms
 			if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 				LMSERVER="yes"
 				pcp_save_to_config
-				pcp_backup "text"
+				pcp_backup "html"
 			else
-				pcp_message ERROR "Error Downloading LMS, please try again later." "text"
+				pcp_message ERROR "Error Downloading LMS, please try again later." "html"
 			fi
-			echo '                </textarea>'
-			pcp_table_end
 		fi
+		pcp_infobox_end
 	;;
 	Remove)
-		pcp_table_top "Removing Logitech Media Server (LMS)"
-		echo '                <textarea class="inform" style="height:160px">'
-		pcp_message INFO "Removing LMS Extensions..." "text"
-		echo
-		pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
+		pcp_heading5 "Removing Logitech Media Server (LMS)"
+		pcp_infobox_begin
+		pcp_message INFO "Removing LMS Extensions..." "html"
+		pcp_message INFO "After a reboot these extensions will be permanently deleted:" "html"
 		LMSERVER="no"
 		pcp_save_to_config
 		pcp_remove_lms
-		pcp_backup "text"
-		echo '                </textarea>'
+		pcp_backup "html"
 		if [ x"$DISABLECACHE" = x"" ]; then
 			STRING1='Press [OK] to remove LMS cache.....To keep the cache - Press [Cancel]'
 			SCRIPT1='lms.cgi?ACTION=Remove_cache&REBOOT_REQUIRED=1'
 			pcp_confirmation_required
 		fi
-		pcp_table_end
+		pcp_infobox_end
 		REBOOT_REQUIRED=1
 	;;
 	Remove_cache)
 		pcp_remove_lms_cache
 	;;
 	Remove_cconvert)
-		pcp_table_top "Removing custom_convert.conf"
+		pcp_heading5 "Removing custom_convert.conf"
+		pcp_infobox_begin
 		pcp_remove_custom_convert
-		pcp_table_end
+		pcp_infobox_end
 	;;
 	Rescan*)
 		( echo "$(pcp_controls_mac_address) $RESCAN"; echo exit ) | nc 127.0.0.1 9090 > /dev/null
 	;;
 	Install_FS)
-		pcp_table_top "Installing extra file system support"
+		pcp_heading5 "Installing extra file system support"
+		pcp_infobox_begin
 		pcp_sufficient_free_space 4300
 		if [ $? -eq 0 ]; then
-			echo '                <textarea class="inform" style="height:80px">'
 			pcp_install_fs
-			echo '                </textarea>'
-			pcp_table_end
 		fi
+		pcp_infobox_end
 	;;
 	Remove_FS)
-		pcp_table_top "Removing extra file system support"
-		echo '                <textarea class="inform" style="height:120px">'
+		pcp_heading5 "Removing extra file system support"
+		pcp_infobox_begin
 		pcp_remove_fs
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_infobox_end
 		REBOOT_REQUIRED=1
 	;;
 	Install_EXFAT)
-		pcp_table_top "Installing exFAT file system support"
+		pcp_heading5 "Installing exFAT file system support"
+		pcp_infobox_begin
 		pcp_sufficient_free_space 170
 		if [ $? -eq 0 ]; then
-			echo '                <textarea class="inform" style="height:80px">'
 			pcp_install_exfat
-			echo '                </textarea>'
-			pcp_table_end
 		fi
+		pcp_infobox_end
 	;;
 	Remove_EXFAT)
-		pcp_table_top "Removing exFAT file system support"
-		echo '                <textarea class="inform" style="height:120px">'
+		pcp_heading5 "Removing exFAT file system support"
+		pcp_infobox_begin
 		pcp_remove_exfat
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_infobox_end
 		REBOOT_REQUIRED=1
 	;;
 	Install_Samba)
-		pcp_table_top "Installing Samba4 Server"
+		pcp_heading5 "Installing Samba4 Server"
 		pcp_sufficient_free_space 25000
 		if [ $? -eq 0 ]; then
 			echo '                <textarea class="inform" style="height:120px">'
@@ -344,7 +338,7 @@ case "$ACTION" in
 		pcp_table_end
 	;;
 	Remove_Samba)
-		pcp_table_top "Removing Samba4 Server"
+		pcp_heading5 "Removing Samba4 Server"
 		echo '                <textarea class="inform" style="height:120px">'
 		pcp_remove_samba4
 		echo '                </textarea>'
@@ -355,32 +349,31 @@ case "$ACTION" in
 		REBOOT_REQUIRED=1
 	;;
 	SambaStart)
-		pcp_table_top "Starting Samba"
-		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba4 start" 40
+		pcp_heading5 "Starting Samba"
+		pcp_textarea "none" "/usr/local/etc/init.d/samba4 start" 40
 		pcp_table_end
 	;;
 	SambaStop)
-		pcp_table_top "Stopping Samba"
-		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba4 stop" 40
+		pcp_heading5 "Stopping Samba"
+		pcp_textarea "none" "/usr/local/etc/init.d/samba4 stop" 40
 		pcp_table_end
 	;;
 	SambaRestart)
-		pcp_table_top "Re-Starting Samba"
-		pcp_textarea_inform "none" "/usr/local/etc/init.d/samba4 restart" 40
+		pcp_heading5 "Re-Starting Samba"
+		pcp_textarea "none" "/usr/local/etc/init.d/samba4 restart" 40
 		pcp_table_end
 	;;
 	Mysb)
-		pcp_table_top "Setting LMS command line options"
-		echo '                <textarea class="inform" style="height:40px">'
-		pcp_message INFO "Setting --nomysqueezebox commandline option..." "text"
+		pcp_heading5 "Setting LMS command line options"
+		pcp_infobox_begin
+		pcp_message INFO "Setting --nomysqueezebox commandline option..." "html"
 		case $NOMYSB in
 			yes) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" ADD;;
-			no) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" DEL;;
-			*) pcp_warning_message;;
+			no)  pcp_lms_set_slimconfig OPTS "--nomysqueezebox" DEL;;
+			*)   pcp_warning_message;;
 		esac
 		[ -f $CFG_FILE ] && . $CFG_FILE
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_infobox_end
 	;;
 	*)
 		pcp_warning_message
@@ -426,7 +419,6 @@ pcp_lms_audiocore_warning() {
 #========================================================================================
 # Main table
 #----------------------------------------------------------------------------------------
-pcp_heading5 "Logitech Media Server (LMS) operations" hr
 
 #-----------------------------------LMS Indication---------------------------------------
 if [ $(pcp_lms_status) -eq 0 ]; then
@@ -435,7 +427,7 @@ else
 	pcp_red_cross "not running"
 fi
 
-echo '  <div class="row">'
+echo '  <div class="form-group row mt-3">'
 echo '    <div class="'$COLUMN2_1'">'
 echo '      <p class="'$CLASS'">'$INDICATOR'</p>'
 echo '    </div>'
@@ -449,14 +441,13 @@ echo '        <ul>'
 echo '          <li><span class="indicator_green">&#x2714;</span> = LMS running.</li>'
 echo '          <li><span class="indicator_red">&#x2718;</span> = LMS not running.</li>'
 echo '        </ul>'
-echo '        <p><b>Note:</b></p>'
-echo '        <ul>'
-echo '          <li>LMS must be running to stream music to players from this pCP.</li>'
-echo '        </ul>'
+
 echo '      </div>'
 echo '    </div>'
 echo '  </div>'
 #----------------------------------------------------------------------------------------
+
+pcp_heading5 "Logitech Media Server (LMS) operations" hr
 
 #----------------------------Enable/disable autostart of LMS-----------------------------
 pcp_lms_enable_lms() {
@@ -602,7 +593,7 @@ pcp_lms_install_lms() {
 	else
 		echo '    <div class="row">'
 		echo '      <div class="'$COLUMN2_1'">'
-		echo '        <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')">'
+		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')">'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Remove LMS from pCP&nbsp;&nbsp;'
@@ -833,14 +824,14 @@ pcp_lms_customconvert() {
 	echo '  <form name="Custom" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <button id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
+	echo '        <button class="'$BUTTON'" id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="large22" type="file" id="file" name="CUSTOMCONVERT" onclick="document.getElementById('\''UP1'\'').disabled = false">'
+	echo '        <input type="file" id="file" name="CUSTOMCONVERT" onclick="document.getElementById('\''UP1'\'').disabled = false">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <p>Upload custom-convert to LMS.&nbsp;'
+	echo '        <p>Upload custom-convert to LMS&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
@@ -959,7 +950,7 @@ pcp_slimserver_persistence() {
 				echo '        <p>There is a Cache folder found on this drive.</p>'
 				echo '      </div>'
 			else
-				echo '    <div class="'$COLUMN3_2'"></div>'
+				echo '    <div class="'$COLUMN4_4'"></div>'
 			fi
 		fi
 	done
@@ -2165,20 +2156,20 @@ pcp_lms_logview() {
 	#------------------------------------------------------------------------------------
 
 	echo '              <div class="'$COLUMN3_2'">'
-	                      pcp_textarea_inform "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 250
+	                      pcp_textarea "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 250
 	echo '              </div>'
 
 	#------------------------------------------------------------------------------------
 
 	echo '              <div class="'$COLUMN3_2'">'
-	                      pcp_textarea_inform "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 250
+	                      pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 250
 	echo '              </div>'
 
 	#------------------------------------------------------------------------------------
 	if [ -f $LMS_UPDATE_LOG ]; then
 
 		echo '              <div class="'$COLUMN3_2'">'
-		                      pcp_textarea_inform "$LMS_UPDATE_LOG" 'cat $LMS_UPDATE_LOG' 250
+		                      pcp_textarea "$LMS_UPDATE_LOG" 'cat $LMS_UPDATE_LOG' 250
 		echo '              </div>'
 
 	fi
@@ -2197,7 +2188,7 @@ pcp_lms_ccview() {
 	#------------------------------------------------------------------------------------
 
 	echo '              <div class="'$COLUMN3_2'">'
-	                      pcp_textarea_inform "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
+	                      pcp_textarea "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
 	echo '              </div>'
 
 	#------------------------------------------------------------------------------------

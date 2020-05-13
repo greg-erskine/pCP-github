@@ -14,7 +14,7 @@ pcp_httpd_query_string
 COLUMN2_1="col-sm-2 text-md-right"
 COLUMN2_2="col-10"
 
-BUTTON="btn btn-primary w-100"
+BUTTON="btn btn-primary btn-sm w-100"
 COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 
 #========================================================================================
@@ -61,9 +61,9 @@ pcp_main_squeezelite_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	pcp_incr_id
-	echo '  <div class="form-group row">'
+	echo '  <div class="form-group row mt-3">'
 	echo '    <div class="'$COLUMN2_1'">'$INDICATOR'</div>'
+	pcp_incr_id
 	echo '    <div class="'$COLUMN2_2'">'
 
 	if [ "$SQUEEZELITE" = "no" ]; then
@@ -73,6 +73,7 @@ pcp_main_squeezelite_indication() {
 	fi
 
 	echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	echo '      </p>'
 	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '        <ul>'
 	echo '          <li>'$(pcp_bi_check)' = Squeezelite running.</li>'
@@ -111,6 +112,11 @@ pcp_main_lms_indication() {
 	echo '          <li>'$(pcp_bi_check)' = LMS running.</li>'
 	echo '          <li>'$(pcp_bi_x)' = LMS not running.</li>'
 	echo '        </ul>'
+	echo '        <p><b>Note:</b></p>'
+	echo '        <ul>'
+	echo '          <li>LMS must be running to stream music to players from this pCP.</li>'
+	echo '        </ul>'
+	echo '      </div>'
 	echo '    </div>'
 	echo '  </div>'
 }
