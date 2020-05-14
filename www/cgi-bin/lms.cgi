@@ -885,17 +885,22 @@ pcp_update_lms() {
 #----------------------------------------------------------------------------------------
 pcp_slimserver_persistence() {
 
-	pcp_message5 "Save LMS Server Cache and Preferences to Mounted Drive" hr
+	COL1="col-1"
+	COL2="col-2"
+	COL3="col-3"
+	COL4="col-6"
+
+	pcp_heading5 "Save LMS Server Cache and Preferences to Mounted Drive" hr
 
 	pcp_incr_id
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN4_1' center"><p><b>Enabled</b></p></div>'
-	echo '      <div class="'$COLUMN4_2'"><p><b>Mount Type</b></p></div>'
-	echo '      <div class="'$COLUMN4_3'"><p><b>LMS Data Storage Location</b></p></div>'
-	echo '      <div class="'$COLUMN4_4'">'
+	echo '      <div class="'$COL1'"><p><b>Enabled</b></p></div>'
+	echo '      <div class="'$COL2'"><p><b>Mount Type</b></p></div>'
+	echo '      <div class="'$COL3'"><p><b>LMS Data Storage Location</b></p></div>'
+	echo '      <div class="'$COL4'">'
 	echo '        <p>This is the Location where LMS will save Data&nbsp;&nbsp;'
-	echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Including Music Database, Artwork Cache and System Preferences.</p>'
@@ -924,13 +929,10 @@ pcp_slimserver_persistence() {
 			fi
 
 			echo '    <div class="row">'
-			echo '      <div class="'$COLUMN4_1' center">'
-			echo '        <p>'
-			echo '          <input id="'$I'" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
-			echo '          <label for="'$I'">&nbsp;</label>'
-			echo '        </p>'
+			echo '      <div class="'$COL1' text-sm-center">'
+			echo '        <input id="'$I'" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN4_2'">'
+			echo '      <div class="'$COL2'">'
 
 			case $I in
 				/dev/sd*) echo '        <p>USB Disk</p>';;
@@ -938,16 +940,17 @@ pcp_slimserver_persistence() {
 			esac
 
 			echo '      </div>'
-			echo '      <div class="'$COLUMN4_3'">'
+			echo '      <div class="'$COL3'">'
 			echo '        <p>'${USBMOUNT}'/slimserver</p>'
 			echo '      </div>'
 			if [ -d ${USBMOUNT}/slimserver/Cache ]; then
-				echo '      <div class="'$COLUMN4_4'">'
+				echo '      <div class="'$COL4'">'
 				echo '        <p>There is a Cache folder found on this drive.</p>'
 				echo '      </div>'
 			else
-				echo '    <div class="'$COLUMN4_4'"></div>'
+				echo '      <div class="'$COL4'"></div>'
 			fi
+			echo '      </div>'
 		fi
 	done
 
@@ -961,25 +964,24 @@ pcp_slimserver_persistence() {
 		fi
 
 		echo '    <div class="row">'
-		echo '      <div class="'$COLUMN4_1' center">'
-		echo '        <p>'
+		echo '      <div class="'$COL1' text-sm-center">'
 		echo '          <input id="'$NETMOUNT'" type="radio" name="LMSDATA" value="'$NETmnt'" '$NETyes'>'
 		echo '          <label for="'$NETMOUNT'">&nbsp;</label>'
-		echo '        </p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN4_2'">'
+		echo '      <div class="'$COL2'">'
 		echo '        <p>Network Disk</p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN4_3'">'
+		echo '      <div class="'$COL3'">'
 		echo '        <p>'${NETMOUNT}'/slimserver</p>'
 		echo '      </div>'
 		if [ -d ${NETMOUNT}/slimserver/Cache ]; then
-			echo '    <div class="'$COLUMN4_4'">'
+			echo '    <div class="'$COL4'">'
 			echo '      <p>There is a Cache folder found on this drive.</p>'
 			echo '    </div>'
 		else
-			echo '    <div class="'$COLUMN4_4'"></div>'
+			echo '    <div class="'$COL4'"></div>'
 		fi
+		echo '    </div>'
 	done
 
 	case "${LMSDATA:0:4}" in
@@ -988,16 +990,13 @@ pcp_slimserver_persistence() {
 				[ -f /home/tc/.slimserver.cfg ] && . /home/tc/.slimserver.cfg
 
 				echo '    <div class="row">'
-				echo '      <div class="'$COLUMN4_1' center">'
-				echo '        <p>'
-				echo '          <input id="radxx" type="radio" name="LMSDATA" value="'${LMSDATA}'" checked disabled>'
-				echo '          <label for="radxx">&nbsp;</label>'
-				echo '        </p>'
+				echo '      <div class="'$COL1' text-sm-center">'
+				echo '        <input id="radxx" type="radio" name="LMSDATA" value="'${LMSDATA}'" checked disabled>'
 				echo '      </div>'
-				echo '      <div class="'$COLUMN4_2'">'
+				echo '      <div class="'$COL2'">'
 				echo '        <p>'$(echo ${LMSDATA:0:3} | tr [a-z] [A-Z])' Disk</p>'
 				echo '      </div>'
-				echo '      <div class="'$COLUMN3_3'">'
+				echo '      <div class="'$COL3'">'
 				TMP=$(echo $CACHE | awk -F"/" '{$2="/"$2"/"; print $2$3}')
 				echo '        <p>'$(echo ${LMSDATA:0:3} | tr [a-z] [A-Z])' Disk '${LMSDATA:4}' Not Mounted on '$TMP', LMS will not start.</p>'
 				echo '      </div>'
@@ -1008,24 +1007,21 @@ pcp_slimserver_persistence() {
 	esac
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN4_1' center">'
-	echo '        <p>'
-	echo '          <input id="radboot" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
-	echo '          <label for="radboot">&nbsp;</label>'
-	echo '        </p>'
+	echo '      <div class="'$COL1' text-sm-center">'
+	echo '        <input id="radboot" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_2'">'
+	echo '      <div class="'$COL2'">'
 	echo '        <p>pCP Boot Disk</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_3'">'
+	echo '      <div class="'$COL3'">'
 	echo '        <p>'$TCEMNT'/tce/slimserver</p>'
 	echo '      </div>'
 	if [ -d $TCEMNT/tce/slimserver/Cache ]; then
-		echo '      <div class="'$COLUMN4_4'">'
+		echo '      <div class="'$COL4'">'
 		echo '        <p>There is a Cache folder found on this drive.</p>'
 		echo '      </div>'
 	else
-		echo '      <div class="'$COLUMN4_4'"></div>'
+		echo '      <div class="'$COL4'"></div>'
 	fi
 	echo '    </div>'
 #--------------------------------------Submit button-------------------------------------
@@ -1075,9 +1071,9 @@ pcp_extra_filesys() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_FS">Install</button>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="col">'
 		echo '        <p>Install additional file systems for pCP&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will install file system support for pCP.</p>'
@@ -1089,9 +1085,9 @@ pcp_extra_filesys() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_FS">Remove</button>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="col">'
 		echo '        <p>Remove additional file systems from pCP&nbsp;&nbsp;'
-		echo '           <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will remove all but the default file system support from pCP.</p>'
@@ -1102,9 +1098,9 @@ pcp_extra_filesys() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_FS" Disabled>Remove</button>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="col">'
 		echo '        <p>Additional file systems are in use&nbsp;&nbsp;'
-		echo '           <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Unable to remove additional file system support from pCP'
@@ -1114,7 +1110,6 @@ pcp_extra_filesys() {
 	fi
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
 	pcp_incr_id
 	echo '    <div class="row">'
 
@@ -1128,7 +1123,7 @@ pcp_extra_filesys() {
 			echo '      </div>'
 			echo '      <div class="'$COLUMN3_2'">'
 			echo '        <p>Install exFAT file system for pCP&nbsp;&nbsp;'
-			echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 			echo '        </p>'
 			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 			echo '          <p>This will install exFAT file system support for pCP.</p>'
@@ -1142,7 +1137,7 @@ pcp_extra_filesys() {
 			echo '      </div>'
 			echo '      <div class="'$COLUMN3_2'">'
 			echo '        <p>Remove additional exFAT file system from pCP&nbsp;&nbsp;'
-			echo '           <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 			echo '        </p>'
 			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 			echo '          <p>This will remove exFAT file system support from pCP.</p>'
@@ -1201,21 +1196,16 @@ pcp_mount_usbdrives() {
 		done < $USBMOUNTCONF
 	fi
 	#------------------------------------------------------------------------------------
-
 	pcp_heading5 "Pick from the following detected USB disks to mount" hr
 
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
-
 	#------------------------------------------------------------------------------------
-
 	pcp_incr_id
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="col">'
 	echo '        <p>Mount USB Disk&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>If Enabled checked, the USB disk will be mounted to the mount point and will be auto-mounted on startup.</p>'
 	echo '          <p>&#60;Mount Point&#62; is the name of the mount point for the drive.</p>'
@@ -1467,157 +1457,144 @@ pcp_mount_netdrives() {
 		done < $NETMOUNTCONF
 	fi
 
-	echo '    <div class="'$COLUMN3_2'">'
-	echo '      <div class="row">'
 	if [ "$EXTRAFSYS" = "no" ]; then
-		echo '        <fieldset disabled="disabled">'
+		echo '        <div disabled="disabled"></div>'
 	else
-		echo '        <fieldset>'
+		echo '        <div></div>'
 	fi
 
 	pcp_heading5 "Setup Network Disk Mount" hr
 
-	echo '          <form name="Mount" action="writetomount.cgi" method="get">'
-
+	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-
 	pcp_incr_id
-	echo '              <div class="row">'
-	echo '                <div class="'$COLUMN3_2'">'
-	echo '                  <p>Mount Remote Network Share&nbsp;&nbsp;'
-	echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '                  </p>'
-	echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '                    <p>Field usage.</p>'
-	echo '                    <ul>'
-	echo '                      <li>If Enabled is checked, the network share will be mounted by to the mount point and will be automounted on startup.</li>'
-	echo '                      <li>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).'
-	echo '                        <ul>'
-	echo '                          <li>Do not use hardware device names like sda1 or mmcblk0.</li>'
-	echo '                        </ul>'
-	echo '                      </li>'
-	echo '                      <li>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</li>'
-	echo '                      <li>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</li>'
-	echo '                      <li>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</li>'
-	echo '                      <li>&#60;Username&#62; Username if needed for cifs mount.</li>'
-	echo '                      <li>&#60;Password&#62; Password if needed for cifs mount. Password must be re-entered for change in mount.</li>'
-	echo '                      <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.'
-	echo '                        <ul>'
-	echo '                          <li>CIFS'
-	echo '                            <ul>'
-	echo '                              <li>vers=2.0 - The linux kernel now defaults to SMB version 3.0, versions must be specified.</li>'
-	echo '                              <li>uid=1001 - mounts the drive with user &quot;tc&quot;.  Useful if using ssh sessions to write data to share.</li>'
-	echo '                              <li>gid=50 - mounts the drive with group &quot;staff&quot;.  Useful if using ssh sessions to write data to share.</li>'
-	echo '                            </ul>'
-	echo '                          </li>'
-	echo '                          <li>NFS'
-	echo '                            <ul>'
-	echo '                              <li>vers=3 - The linux kernel now defaults to NFS version 3, versions must be specified.</li>'
-	echo '                            </ul>'
-	echo '                          </li>'
-	echo '                        </ul>'
-	echo '                      </li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </div>'
-	echo '              </div>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p>Mount Remote Network Share&nbsp;&nbsp;'
+	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <p>Field usage.</p>'
+	echo '          <ul>'
+	echo '            <li>If Enabled is checked, the network share will be mounted by to the mount point and will be automounted on startup.</li>'
+	echo '            <li>&#60;Mount Point&#62; the name of the mount point for the drive. Alpha-numeric pathnames required (up to 32 characters).'
+	echo '              <ul>'
+	echo '                <li>Do not use hardware device names like sda1 or mmcblk0.</li>'
+	echo '              </ul>'
+	echo '            </li>'
+	echo '            <li>&#60;Server IP address&#62; is only the IP address.  Do not enter any / or :</li>'
+	echo '            <li>&#60;Server Share&#62; for CIFS is the share name only (DO not use /).</li>'
+	echo '            <li>&#60;Server Share&#62; for NFS is the complete volume i.e. /volume1/Media (DO not use :).</li>'
+	echo '            <li>&#60;Username&#62; Username if needed for cifs mount.</li>'
+	echo '            <li>&#60;Password&#62; Password if needed for cifs mount. Password must be re-entered for change in mount.</li>'
+	echo '            <li>&#60;Options&#62; are a comma delimited list of mount options. Ref mount man pages.'
+	echo '              <ul>'
+	echo '                <li>CIFS'
+	echo '                  <ul>'
+	echo '                    <li>vers=2.0 - The linux kernel now defaults to SMB version 3.0, versions must be specified.</li>'
+	echo '                    <li>uid=1001 - mounts the drive with user &quot;tc&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                    <li>gid=50 - mounts the drive with group &quot;staff&quot;.  Useful if using ssh sessions to write data to share.</li>'
+	echo '                  </ul>'
+	echo '                </li>'
+	echo '                <li>NFS'
+	echo '                  <ul>'
+	echo '                    <li>vers=3 - The linux kernel now defaults to NFS version 3, versions must be specified.</li>'
+	echo '                  </ul>'
+	echo '                </li>'
+	echo '              </ul>'
+	echo '            </li>'
+	echo '          </ul>'
+	echo '        </div>'
+	echo '      </div>'
+	echo '    </div>'
 	#------------------------------------------------------------------------------------
 
 	#------------------------------------------------------------------------------------
-	echo '            <script>'
-	echo '              function setnetrequired(id) {'
-	echo '                var box = "NET";'
-	echo '                var Box = box.concat(id);'
-	echo '                var box1 = "NETPOINT";'
-	echo '                var Box1 = box1.concat(id);'
-	echo '                var box2 = "NETIP";'
-	echo '                var Box2 = box2.concat(id);'
-	echo '                var box3 = "NETSHARE";'
-	echo '                var Box3 = box3.concat(id);'
-	echo '                if (document.getElementById(Box).checked){'
-	echo '                  document.getElementById(Box1).setAttribute("required", "");'
-	echo '                  document.getElementById(Box2).setAttribute("required", "");'
-	echo '                  document.getElementById(Box3).setAttribute("required", "");'
-	echo '                }'
-	echo '                else {'
-	echo '                  document.getElementById(Box1).required = false;'
-	echo '                  document.getElementById(Box2).required = false;'
-	echo '                  document.getElementById(Box3).required = false;'
-	echo '                }'
-	echo '                setfsopts(id);'
-	echo '              }'
-	echo '              function setfsopts(id) {'
-	echo '                var box = "NET";'
-	echo '                var Box = box.concat(id);'
-	echo '                var box3 = "NETSHARE";'
-	echo '                var Box3 = box3.concat(id);'
-	echo '                var box4 = "NETOPTS";'
-	echo '                var Box4 = box4.concat(id);'
-	echo '                var box5 = "NETFS";'
-	echo '                var Box5 = box5.concat(id);'
-	echo '                if (document.getElementById(Box).checked && (document.getElementById(Box5).value == "cifs")){'
-	echo '                  var x = document.getElementById(Box4).value;'
-	echo '                  x = ( x.length > 0 ) ? x.concat(",") : x;'
-	echo '                  x = ( x.indexOf("uid=") != -1 ) ? x : x.concat("uid=1001");'
-	echo '                  x = ( x.indexOf("gid=") != -1 ) ? x : x.concat(",gid=50");'
-	echo '                  x = ( x.substr(x.length - 1) == ",") ? x.substring(0, x.length - 1) : x;'
-	echo '                  document.getElementById(Box4).value = x;'
-	echo '                }'
-	echo '                if (document.getElementById(Box5).value == "nfs"){'
-	echo '                  document.getElementById(Box3).pattern = "(^[\\/])[a-zA-Z0-9_\\- \\/]{1,32}";'
-	echo '                } else {'
-	echo '                  document.getElementById(Box3).pattern = "[a-zA-Z0-9_\\- ]{1,32}";'
-	echo '                }'
-	echo '              }'
-	echo '              function setfstype(id) {'
-	echo '                var box = "NETFS";'
-	echo '                var Box = box.concat(id);'
-	echo '                var box1 = "NETUSER";'
-	echo '                var Box1 = box1.concat(id);'
-	echo '                var box2 = "NETPASS";'
-	echo '                var Box2 = box2.concat(id);'
-	echo '                if (document.getElementById(Box).value == "nfs" ){'
-	echo '                  document.getElementById(Box1).setAttribute("disabled", "");'
-	echo '                  document.getElementById(Box2).setAttribute("disabled", "");'
-	echo '                }'
-	echo '                else {'
-	echo '                  document.getElementById(Box1).disabled = false;'
-	echo '                  document.getElementById(Box2).disabled = false;'
-	echo '                }'
-	echo '                setfsopts(id);'
-	echo '                setpwstyle(id);'
-	echo '              }'
-	echo '              function setpwstyle(id) {'
-	echo '                var Box = "NETFS" + id;'
-	echo '                var Box1 = "NETPASS" + id;'
-	echo '                if ( (document.getElementById(Box).value == "cifs") && (document.getElementById(Box1).value == "" ))'
-	echo '                  document.getElementById(Box1).style.borderColor = "#ff9933";'
-	echo '                else'
-	echo '                  document.getElementById(Box1).removeAttribute("style");'
-	echo '              }'
-	echo '            </script>'
+	echo '    <script>'
+	echo '      function setnetrequired(id) {'
+	echo '        var box = "NET";'
+	echo '        var Box = box.concat(id);'
+	echo '        var box1 = "NETPOINT";'
+	echo '        var Box1 = box1.concat(id);'
+	echo '        var box2 = "NETIP";'
+	echo '        var Box2 = box2.concat(id);'
+	echo '        var box3 = "NETSHARE";'
+	echo '        var Box3 = box3.concat(id);'
+	echo '        if (document.getElementById(Box).checked){'
+	echo '          document.getElementById(Box1).setAttribute("required", "");'
+	echo '          document.getElementById(Box2).setAttribute("required", "");'
+	echo '          document.getElementById(Box3).setAttribute("required", "");'
+	echo '        }'
+	echo '        else {'
+	echo '          document.getElementById(Box1).required = false;'
+	echo '          document.getElementById(Box2).required = false;'
+	echo '          document.getElementById(Box3).required = false;'
+	echo '        }'
+	echo '        setfsopts(id);'
+	echo '      }'
+	echo '      function setfsopts(id) {'
+	echo '        var box = "NET";'
+	echo '        var Box = box.concat(id);'
+	echo '        var box3 = "NETSHARE";'
+	echo '        var Box3 = box3.concat(id);'
+	echo '        var box4 = "NETOPTS";'
+	echo '        var Box4 = box4.concat(id);'
+	echo '        var box5 = "NETFS";'
+	echo '        var Box5 = box5.concat(id);'
+	echo '        if (document.getElementById(Box).checked && (document.getElementById(Box5).value == "cifs")){'
+	echo '          var x = document.getElementById(Box4).value;'
+	echo '          x = ( x.length > 0 ) ? x.concat(",") : x;'
+	echo '          x = ( x.indexOf("uid=") != -1 ) ? x : x.concat("uid=1001");'
+	echo '          x = ( x.indexOf("gid=") != -1 ) ? x : x.concat(",gid=50");'
+	echo '          x = ( x.substr(x.length - 1) == ",") ? x.substring(0, x.length - 1) : x;'
+	echo '          document.getElementById(Box4).value = x;'
+	echo '        }'
+	echo '        if (document.getElementById(Box5).value == "nfs"){'
+	echo '          document.getElementById(Box3).pattern = "(^[\\/])[a-zA-Z0-9_\\- \\/]{1,32}";'
+	echo '        } else {'
+	echo '          document.getElementById(Box3).pattern = "[a-zA-Z0-9_\\- ]{1,32}";'
+	echo '        }'
+	echo '      }'
+	echo '      function setfstype(id) {'
+	echo '        var box = "NETFS";'
+	echo '        var Box = box.concat(id);'
+	echo '        var box1 = "NETUSER";'
+	echo '        var Box1 = box1.concat(id);'
+	echo '        var box2 = "NETPASS";'
+	echo '        var Box2 = box2.concat(id);'
+	echo '        if (document.getElementById(Box).value == "nfs" ){'
+	echo '          document.getElementById(Box1).setAttribute("disabled", "");'
+	echo '          document.getElementById(Box2).setAttribute("disabled", "");'
+	echo '        }'
+	echo '        else {'
+	echo '          document.getElementById(Box1).disabled = false;'
+	echo '          document.getElementById(Box2).disabled = false;'
+	echo '        }'
+	echo '        setfsopts(id);'
+	echo '        setpwstyle(id);'
+	echo '      }'
+	echo '      function setpwstyle(id) {'
+	echo '        var Box = "NETFS" + id;'
+	echo '        var Box1 = "NETPASS" + id;'
+	echo '        if ( (document.getElementById(Box).value == "cifs") && (document.getElementById(Box1).value == "" ))'
+	echo '          document.getElementById(Box1).style.borderColor = "#ff9933";'
+	echo '        else'
+	echo '          document.getElementById(Box1).removeAttribute("style");'
+	echo '      }'
+	echo '    </script>'
 	#------------------------------------------------------------------------------------
 
 	#------------------------------------------------------------------------------------
-	COL1="75"
-	COL2="150"
-	COL3="120"
-	COL4="100"
-	COL5="100"
-	COL6="100"
-	COL7="100"
-	COL8="150"
-
-	echo '              <div class="row">'
-	echo '                <div class="'$COLUMN4_1' center"><p><b>Enabled</b></p></div>'
-	echo '                <div class="'$COLUMN4_2'"><p><b>Mount Point</b></p></div>'
-	echo '                <div class="'$COLUMN4_3'"><p><b>IP Address</b></p></div>'
-	echo '                <div class="'$COLUMN4_4'"><p><b>Share Name</b></p></div>'
-	echo '                <div class="column'$COL5'"><p><b>Share Type</b></p></div>'
-	echo '                <div class="column'$COL6'"><p><b>Username</b></p></div>'
-	echo '                <div class="column'$COL7'"><p><b>Password</b></p></div>'
-	echo '                <div class="column'$COL8'"><p><b>Options</b></p></div>'
-	echo '              </div>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN4_1' center"><p><b>Enabled</b></p></div>'
+	echo '      <div class="'$COLUMN4_2'"><p><b>Mount Point</b></p></div>'
+	echo '      <div class="'$COLUMN4_3'"><p><b>IP Address</b></p></div>'
+	echo '      <div class="'$COLUMN4_4'"><p><b>Share Name</b></p></div>'
+	echo '      <div class="column'$COL5'"><p><b>Share Type</b></p></div>'
+	echo '      <div class="column'$COL6'"><p><b>Username</b></p></div>'
+	echo '      <div class="column'$COL7'"><p><b>Password</b></p></div>'
+	echo '      <div class="column'$COL8'"><p><b>Options</b></p></div>'
+	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	I=1
 	NUM_NET_CONF=$((NUM_NET_CONF+1))  # Adds a blank line to the form fields
@@ -1657,110 +1634,109 @@ pcp_mount_netdrives() {
 			DISABLE=""
 		fi
 
-		echo '              <div class="row">'
-		echo '                <div class="'$COLUMN4_1' center">'
-		echo '                  <p>'
-		echo '                    <input type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
-		echo '                    <label for="NET'${I}'">&#8239;</label>'
-		echo '                  </p>'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN4_2'">'
-		echo '                  <p>/mnt/&#8239;<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN4_3'">'
-		echo '                  <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN4_4'">'
-		echo '                  <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="" onclick="setfsopts('${I}')">'
-		echo '                </div>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN4_1' center">'
+		echo '        <p>'
+		echo '          <input type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
+		echo '          <label for="NET'${I}'">&#8239;</label>'
+		echo '        </p>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN4_2'">'
+		echo '        <p>/mnt/&#8239;<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN4_3'">'
+		echo '        <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN4_4'">'
+		echo '        <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="" onclick="setfsopts('${I}')">'
+		echo '      </div>'
 
 		case "$FSTYPE" in
 			cifs) CIFS1yes="selected"; USERdisable="";;
 			nfs) NFS1yes="selected"; USERdisable="Disabled";;
 		esac
 
-		echo '                <div class="column'$COL5'">'
-		echo '                  <select class="large6" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only CIFS(Samba) and NFS shares are supported" onchange="setfstype('${I}')">'
-		echo '                    <option value="cifs" '$CIFS1yes'>CIFS</option>'
-		echo '                    <option value="nfs" '$NFS1yes'>NFS</option>'
-		echo '                  </select>'
-		echo '                </div>'
-		echo '                <div class="column'$COL6'">'
-		echo '                  <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
-		echo '                </div>'
-		echo '                <div class="column'$COL7'">'
-		echo '                  <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" onchange="setpwstyle('${I}')" '$USERdisable'>'
-		echo '                </div>'
-		echo '                <div class="column'$COL8'">'
-		echo '                  <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0">'
-		echo '                </div>'
-		echo '              </div>'
+		echo '      <div class="column'$COL5'">'
+		echo '        <select class="large6" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only CIFS(Samba) and NFS shares are supported" onchange="setfstype('${I}')">'
+		echo '          <option value="cifs" '$CIFS1yes'>CIFS</option>'
+		echo '          <option value="nfs" '$NFS1yes'>NFS</option>'
+		echo '        </select>'
+		echo '      </div>'
+		echo '      <div class="column'$COL6'">'
+		echo '        <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
+		echo '      </div>'
+		echo '      <div class="column'$COL7'">'
+		echo '        <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" onchange="setpwstyle('${I}')" '$USERdisable'>'
+		echo '      </div>'
+		echo '      <div class="column'$COL8'">'
+		echo '        <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0">'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '              <script>'
-		echo '                var share = "'${SHARE}'";'
-		echo '                ShareBox = "NETSHARE'${I}'";'
-		echo '                document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
-		echo '                setfsopts('${I}');'
-		echo '                setpwstyle('${I}');'
-		echo '              </script>'
+		echo '    <script>'
+		echo '      var share = "'${SHARE}'";'
+		echo '      ShareBox = "NETSHARE'${I}'";'
+		echo '      document.getElementById(ShareBox).value = decodeURIComponent(share.replace(/\+/g, "%20"));'
+		echo '      setfsopts('${I}');'
+		echo '      setpwstyle('${I}');'
+		echo '    </script>'
 		#--------------------------------------------------------------------------------
 		I=$((I+1))
 	done
 	#------------------------------------------------------------------------------------
-
-	echo '              <div class="row">'
-	echo '                <div class="'$COLUMN4_1' center">'
-	echo '                  <p>'
-	echo '                    <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
-	echo '                    <label for="netclear">&nbsp;</label>'
-	echo '                  </p>'
-	echo '                </div>'
-	echo '                <div class="'$COLUMN3_1'">'
-	echo '                  <p> Check this box to clear configuration data for unused shares.</p>'
-	echo '                </div>'
-	echo '              </div>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN4_1' center">'
+	echo '        <p>'
+	echo '          <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
+	echo '          <label for="netclear">&nbsp;</label>'
+	echo '        </p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p> Check this box to clear configuration data for unused shares.</p>'
+	echo '      </div>'
+	echo '    </div>'
 	#--------------------------------------Submit button---------------------------------
 
 	pcp_incr_id
-	echo '              <div class="row">'
+	echo '    <div class="row">'
 	if [ "$EXTRAFSYS" = "no" ]; then
-		echo '                <div class="'$COLUMN3_1'">'
-		echo '                  <button class="'$BUTTON'" type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN3_3'">'
-		echo '                  <p>Mounting network drives requires extra file system support&nbsp;&nbsp;'
-		echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-		echo '                  </p>'
-		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                    <p>Please add additional file systems using the option above.</p>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_3'">'
+		echo '        <p>Mounting network drives requires extra file system support&nbsp;&nbsp;'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>Please add additional file systems using the option above.</p>'
+		echo '        </div>'
+		echo '      </div>'
 	elif [ "${LMSDATA:0:4}" = "net:" ]; then
-		echo '                <div class="'$COLUMN3_1'">'
-		echo '                  <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set NET Mount</button>'
-		echo '                  <input type="hidden" name="'$KEEPENABLED'" value="yes">'
-		echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
-		echo '                  <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN3_3'">'
-		echo '                  <p> LMS is currently using network drive '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
-		echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-		echo '                  </p>'
-		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                    <p>Must Move LMS Data to another disk (SDcard or USB Disk).</p>'
-		echo '                    <p>in order to change this mount.</p>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set NET Mount</button>'
+		echo '        <input type="hidden" name="'$KEEPENABLED'" value="yes">'
+		echo '        <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+		echo '        <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_3'">'
+		echo '        <p> LMS is currently using network drive '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>Must Move LMS Data to another disk (SDcard or USB Disk).</p>'
+		echo '          <p>in order to change this mount.</p>'
+		echo '        </div>'
+		echo '      </div>'
 	else
-		echo '                <div class="'$COLUMN3_1'" colspan="8">'
-		echo '                  <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set NET Mount</button>'
-		echo '                  <input type="hidden" name="MOUNTTYPE" value="networkshare">'
-		echo '                  <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
-		echo '                </div>'
+		echo '      <div class="'$COLUMN3_1'" colspan="8">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set NET Mount</button>'
+		echo '        <input type="hidden" name="MOUNTTYPE" value="networkshare">'
+		echo '        <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
+		echo '      </div>'
 	fi
-	echo '                </div>'
+	echo '    </div>'
 #----------------------------------------------------------------------------------------
-	echo '          </form>'
+	echo '  </form>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
@@ -1772,8 +1748,7 @@ pcp_samba() {
 
 	pcp_heading5 "Setup Samba Share" hr
 
-	echo '          <form name="Samba_Setup" action="'$0'" method="get">'
-
+	echo '  <form name="Samba_Setup" action="'$0'" method="get">'
 	#------------------------------------Samba Indication-----------------------------------
 
 	if [ $(pcp_samba_status) -eq 0 ]; then
@@ -1782,61 +1757,60 @@ pcp_samba() {
 		pcp_red_cross "not running"
 	fi
 
-
 	pcp_incr_id
-	echo '              <div class="row">'
-	echo '                <div class="'$COLUMN3_1'">'
-	echo '                  <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '                </div>'
-	echo '                <div class="'$COLUMN3_2'">'
-	echo '                  <p>Samba is '$STATUS'&nbsp;&nbsp;'
-	echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '                  </p>'
-	echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '                    <ul>'
-	echo '                      <li><span class="indicator_green">&#x2714;</span> = Samba running.</li>'
-	echo '                      <li><span class="indicator_red">&#x2718;</span> = Samba not running.</li>'
-	echo '                    </ul>'
-	echo '                    <p><b>Note:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>Samba must be running to share files from this pCP.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </div>'
-	echo '              </div>'
-#----------------------------------------------------------------------------------------
-#	pcp_table_padding "2"
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p>Samba is '$STATUS'&nbsp;&nbsp;'
+	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <ul>'
+	echo '            <li><span class="indicator_green">&#x2714;</span> = Samba running.</li>'
+	echo '            <li><span class="indicator_red">&#x2718;</span> = Samba not running.</li>'
+	echo '          </ul>'
+	echo '          <p><b>Note:</b></p>'
+	echo '          <ul>'
+	echo '            <li>Samba must be running to share files from this pCP.</li>'
+	echo '          </ul>'
+	echo '        </div>'
+	echo '      </div>'
+	echo '    </div>'
 #----------------------------------------------------------------------------------------
 
+#----------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '              <div class="row">'
-	echo '                <div class="'$COLUMN3_1'">'
+	echo '    <div class="row">'
 	if [ "$SAMBA" = "disabled" ]; then
-		echo '                  <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_Samba">Install</button>'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN3_2'">'
-		echo '                  <p>Install Samba for pCP&nbsp;&nbsp;'
-		echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-		echo '                  </p>'
-		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                    <p>This will install Samba Extension for SMB Share support for pCP.</p>'
-		echo '                  </div>'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_Samba">Install</button>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p>Install Samba for pCP&nbsp;&nbsp;'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>This will install Samba Extension for SMB Share support for pCP.</p>'
+		echo '        </div>'
+		echo '      </div>'
 	else
-		echo '                  <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_Samba">Remove</button>'
-		echo '                </div>'
-		echo '                <div class="'$COLUMN3_2'">'
-		echo '                  <p>Remove Samba from pCP&nbsp;&nbsp;'
-		echo '                    <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-		echo '                  </p>'
-		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                    <p>This will remove Samba Extension for SMB Share support for pCP.</p>'
-		echo '                  </div>'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_Samba">Remove</button>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p>Remove Samba from pCP&nbsp;&nbsp;'
+		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>This will remove Samba Extension for SMB Share support for pCP.</p>'
+		echo '        </div>'
+		echo '      </div>'
 	fi
-	echo '                </div>'
-	echo '              </div>'
+	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
-	echo '          </form>'
+	echo '  </form>'
 	#------------------------------------------------------------------------------------
 	if [ "$SAMBA" != "disabled" ]; then
 		if [ -f $SAMBACONF ]; then
@@ -1862,8 +1836,9 @@ pcp_samba() {
 				esac
 			done < $SAMBACONF
 		fi
-		echo '            <form name="Samba_Write" action="writetosamba.cgi" method="get">'
-		echo '              <table class="bggrey percent100">'
+
+#----------------------------------------------------------------------------------------
+		echo '  <form name="Samba_Write" action="writetosamba.cgi" method="get">'
 #----------------------------------------------------------------------------------------
 
 		case "$SAMBA" in
@@ -1871,191 +1846,171 @@ pcp_samba() {
 			*) SAMBAno="checked" ;;
 		esac
 
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <button class="'$BUTTON'" type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
-		echo '                  </div>'
-		echo '                  <div class="column100">'
-		echo '                  <p>'
-		echo '                    <input type="hidden" name="ACTION" value="Startup">'
-		echo '                    <input id="radsmb1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>'
-		echo '                    <label for="radsmb1">Yes</label>'
-		echo '                    <input id="radsmb2" type="radio" name="SAMBA" value="no" '$SAMBAno'>'
-		echo '                    <label for="radsmb2">No</label>'
-		echo '                  </p>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'">'
-		echo '                    <p>Automatic start of Samba when pCP boots&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                      <p>Yes - will enable automatic start of Samba when pCP boots.</p>'
-		echo '                      <p>No - will disable automatic start of Samba when pCP boots.</p>'
-		echo '                    </div>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
+		echo '      </div>'
+		echo '      <div class="column100">'
+		echo '      <p>'
+		echo '        <input type="hidden" name="ACTION" value="Startup">'
+		echo '        <input id="radsmb1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>'
+		echo '        <label for="radsmb1">Yes</label>'
+		echo '        <input id="radsmb2" type="radio" name="SAMBA" value="no" '$SAMBAno'>'
+		echo '        <label for="radsmb2">No</label>'
+		echo '      </p>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p>Automatic start of Samba when pCP boots&nbsp;&nbsp;'
+		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>Yes - will enable automatic start of Samba when pCP boots.</p>'
+		echo '          <p>No - will disable automatic start of Samba when pCP boots.</p>'
+		echo '        </div>'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '              </table>'
-		echo '            </form>'
+		echo '  </form>'
 		#--------------------------------------------------------------------------------
-		echo '            <form name="Samba_Run" action="'$0'">'
-		echo '              <table class="bggrey percent100">'
+		echo '  <form name="Samba_Run" action="'$0'">'
 		#--------------------------------------------------------------------------------
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaStart">Start Samba</button>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'">'
-		echo '                    <p>Start Samba&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                      <p>This will start Samba.</p>'
-		echo '                    </div>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaStart">Start Samba</button>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p>Start Samba&nbsp;&nbsp;'
+		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>This will start Samba.</p>'
+		echo '        </div>'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaStop">Stop Samba</button>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'">'
-		echo '                    <p>Stop Samba&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                      <p>This will stop Samba.</p>'
-		echo '                    </div>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaStop">Stop Samba</button>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p>Stop Samba&nbsp;&nbsp;'
+		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>This will stop Samba.</p>'
+		echo '        </div>'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaRestart">Restart Samba</button>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'">'
-		echo '                    <p>Restart Samba&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                      <p>This will stop Samba and then restart it.</p>'
-		echo '                      <p><b>Note:</b></p>'
-		echo '                        <ul>'
-		echo '                          <li>A restart of Samba is rarely needed.</li>'
-		echo '                          <li>Samba running indicator will turn green.</li>'
-		echo '                        </ul>'
-		echo '                    </div>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaRestart">Restart Samba</button>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p>Restart Samba&nbsp;&nbsp;'
+		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>This will stop Samba and then restart it.</p>'
+		echo '          <p><b>Note:</b></p>'
+		echo '            <ul>'
+		echo '              <li>A restart of Samba is rarely needed.</li>'
+		echo '              <li>Samba running indicator will turn green.</li>'
+		echo '            </ul>'
+		echo '        </div>'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '              </table>'
-		echo '            </form>'
+		echo '  </form>'
 		#--------------------------------------------------------------------------------
-		echo '            <form name="Passwd" action="writetosamba.cgi" method="get">'
-		echo '              <table class="bggrey percent100">'
+		echo '  <form name="Passwd" action="writetosamba.cgi" method="get">'
 		#--------------------------------------------------------------------------------
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
+		echo '    <div class="row">'
+
 		if [ "$STATUS" = "running" ]; then
 			PWDISABLE=""
 		else
 			PWDISABLE="disabled"
 		fi
-		echo '                    <button class="'$BUTTON'" type="submit" name="COMMAND" value="setpw" '$PWDISABLE'>Set Password</button>'
-		echo '                  </div>'
-		echo '                  <div class="column100 ">'
-		echo '                    <p class="row">UserName: tc</p>'
-		echo '                  </div>'
-		echo '                  <div class="column75">'
-		echo '                    <p class="row">Password:</p>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'">'
-		echo '                    <p><input class="large12" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'">'
+
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="COMMAND" value="setpw" '$PWDISABLE'>Set Password</button>'
+		echo '      </div>'
+		echo '      <div class="column100 ">'
+		echo '        <p class="row">UserName: tc</p>'
+		echo '      </div>'
+		echo '      <div class="column75">'
+		echo '        <p class="row">Password:</p>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p><input class="large12" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
 		if [ "$STATUS" = "running" ]; then
-			echo '                    <p>Username and Password to be used to access share&nbsp;&nbsp;'
-			echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-			echo '                    </p>'
-			echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-			echo '                      <p>Needs to be done first time.</p>'
-			echo '                      <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
-			echo '                    </div>'
+			echo '      <p>Username and Password to be used to access share&nbsp;&nbsp;'
+			echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '      </p>'
+			echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+			echo '        <p>Needs to be done first time.</p>'
+			echo '        <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
+			echo '      </div>'
 		else
-			echo '                    <p>Samba has to be running to set password.</p>'
+			echo '      <p>Samba has to be running to set password.</p>'
 		fi
-		echo '                  </div>'
-		echo '                </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '              </table>'
-		echo '            </form>'
+		echo '  </form>'
 		#--------------------------------------------------------------------------------
-		echo '            <form name="Select" action="writetosamba.cgi" method="get">'
-		echo '              <table class="bggrey percent100">'
+		echo '  <form name="Select" action="writetosamba.cgi" method="get">'
 		#--------------------------------------------------------------------------------
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <p class="row">Server Name</p>'
-		echo '                  </div>'
-		echo '                  <div class="column210">'
-		echo '                    <p><input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required></p>'
-		echo '                  </div>'
-		echo '                  <td colspan="3">'
-		echo '                    <p>This is the Server name that will show up in your network browser&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                      <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
-		echo '                    </div>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <p class="row">Server Name</p>'
+		echo '      </div>'
+		echo '      <div class="column210">'
+		echo '        <p><input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required></p>'
+		echo '      </div>'
+		echo '      <td colspan="3">'
+		echo '        <p>This is the Server name that will show up in your network browser&nbsp;&nbsp;'
+		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
+		echo '        </div>'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
-
 		pcp_incr_id
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <p class="row">Server WorkGroup</p>'
-		echo '                  </div>'
-		echo '                  <div class="column210">'
-		echo '                    <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required></p>'
-		echo '                  </div>'
-		echo '                  <td colspan="3">'
-		echo '                    <p>This is the Server Work Group that will show up in your network browser&nbsp;&nbsp;'
-		echo '                      <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-		echo '                    </p>'
-		echo '                    <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '                      <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
-		echo '                    </div>'
-		echo '                  </div>'
-		echo '                </div>'
+		echo '     <div class="row">'
+		echo '       <div class="'$COLUMN3_1'">'
+		echo '         <p class="row">Server WorkGroup</p>'
+		echo '       </div>'
+		echo '       <div class="column210">'
+		echo '         <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required></p>'
+		echo '       </div>'
+		echo '       <td colspan="3">'
+		echo '         <p>This is the Server Work Group that will show up in your network browser&nbsp;&nbsp;'
+		echo '           <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '         </p>'
+		echo '         <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '           <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
+		echo '         </div>'
+		echo '       </div>'
+		echo '     </div>'
 		#--------------------------------------------------------------------------------
-		COL1="150"
-		COL2="150"
-		COL3="150"
-		COL4="100"
-		COL5="150"
-		COL6="100"
-		COL7="150"
-
-		echo '                <div class="row">'
-		echo '                  <div class="'$COLUMN4_1' center"><p><b>Share Name</b></p></div>'
-		echo '                  <div class="'$COLUMN4_2'"><p><b>Share Path</b></p></div>'
-		echo '                  <div class="'$COLUMN4_3'"><p><b>Create File Mode</b></p></div>'
-		echo '                  <div class="'$COLUMN4_4' center"><p><b>Read ONLY</b></p></div>'
-		echo '                  <div class="'$COLUMN3_2'"> </div>'
-		echo '                </div>'
+		echo '     <div class="row">'
+		echo '       <div class="'$COLUMN4_1' center"><p><b>Share Name</b></p></div>'
+		echo '       <div class="'$COLUMN4_2'"><p><b>Share Path</b></p></div>'
+		echo '       <div class="'$COLUMN4_3'"><p><b>Create File Mode</b></p></div>'
+		echo '       <div class="'$COLUMN4_4' center"><p><b>Read ONLY</b></p></div>'
+		echo '       <div class="'$COLUMN3_2'"> </div>'
+		echo '     </div>'
 		I=1
 		SC=$((SC+1))
 		while [ $I -le $SC ]
@@ -2133,11 +2088,10 @@ pcp_samba() {
 		echo '                    <input type="hidden" name="SC" value="'$SC'">'
 		echo '                    <button class="'$BUTTON'" type="submit" name="ACTION" value="setconfig">Set Shares</button>'
 		echo '                  </div>'
-		echo '                  <td colspan="4"> </div>'
+		echo '                  <div class="'$COLUMN3_2'"> </div>'
 		echo '                </div>'
 		#--------------------------------------------------------------------------------
-		echo '              </table>'
-		echo '            </form>'
+		echo '  </form>'
 	fi
 
 }
@@ -2148,47 +2102,24 @@ pcp_samba() {
 pcp_lms_logview() {
 
 	pcp_heading5 "Show LMS logs" hr
-
 	#------------------------------------------------------------------------------------
-
-	echo '              <div class="'$COLUMN3_2'">'
-	                      pcp_textarea "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 250
-	echo '              </div>'
-
-	#------------------------------------------------------------------------------------
-
-	echo '              <div class="'$COLUMN3_2'">'
-	                      pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 250
-	echo '              </div>'
-
+	pcp_textarea "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 25
+pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 25
 	#------------------------------------------------------------------------------------
 	if [ -f $LMS_UPDATE_LOG ]; then
-
-		echo '              <div class="'$COLUMN3_2'">'
-		                      pcp_textarea "$LMS_UPDATE_LOG" 'cat $LMS_UPDATE_LOG' 250
-		echo '              </div>'
-
+		pcp_textarea "$LMS_UPDATE_LOG" 'cat $LMS_UPDATE_LOG' 25
 	fi
 	#------------------------------------------------------------------------------------
-
 }
 [ "$LOGSHOW" = "yes" ] && pcp_lms_logview
 #----------------------------------------------------------------------------------------
 
 #------------------------------LMS custom convert text area------------------------------
 pcp_lms_ccview() {
-
 	pcp_heading5 "Show LMS custom_convert.conf" hr
-
-
 	#------------------------------------------------------------------------------------
-
-	echo '              <div class="'$COLUMN3_2'">'
-	                      pcp_textarea "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
-	echo '              </div>'
-
+	pcp_textarea "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
 	#------------------------------------------------------------------------------------
-
 }
 [ "$CCSHOW" = "yes" -a -f $LMS_CC_FILE ] && pcp_lms_ccview
 #----------------------------------------------------------------------------------------

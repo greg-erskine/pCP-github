@@ -966,7 +966,7 @@ pcp_squeezelite_power_gpio() {
 	echo '        <p>Power On/Off GPIO (-G)&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="collapse bg-light border border-secondary p-3">'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;gpio&gt;:&lt;H|L&gt;</p>'
 	echo '          <p>Squeezelite will toggle this GPIO when the Power On/Off button is pressed.</p>'
 	echo '          <p>H or L to tell Squeezlite if the output should be active High or Low.</p>'

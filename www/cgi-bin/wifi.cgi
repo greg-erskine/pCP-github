@@ -37,7 +37,7 @@ COLUMN1="$COLUMN3_1"
 # [ -n "$ACTION" ] && ACTION=$($URL_DECODE $ACTION)
 # in this case, no other variables can contain encoded data.
 
-[ x"" = x"$ACTION" ] && ACTION=Initial
+[ x"" = x"$ACTION" ] && ACTION="Initial"
 WPACONFIGFILE=$WPASUPPLICANTCONF
 
 #========================================================================================
@@ -94,13 +94,15 @@ case "$ACTION" in
 	Config)
 		pcp_wifi_error_messages
 		pcp_heading5 "Config option"
+		pcp_infobox_begin
 		pcp_save_to_config
-		pcp_wifi_read_wpa_supplicant "text"
-		pcp_backup "text"
+		pcp_wifi_read_wpa_supplicant "html"
+		pcp_backup "html"
 		if [ "$WIFI" = "on" ]; then
-			pcp_wifi_load_wifi_firmware_extns "text"
-			pcp_wifi_load_wifi_extns "text"
+			pcp_wifi_load_wifi_firmware_extns "html"
+			pcp_wifi_load_wifi_extns "html"
 		fi
+		pcp_infobox_end
 	;;
 	Save)
 		pcp_wifi_error_messages
@@ -122,11 +124,15 @@ case "$ACTION" in
 			pcp_backup "html"
 			pcp_infobox_end
 		else
+			pcp_infobox_begin
+			pcp_message INFO "" "html" "-n"
 			/usr/local/etc/init.d/wifi wlan0 stop
+			echo '</div>'
 			pcp_wifi_unload_wifi_extns "text"
-			pcp_wifi_unload_wifi_firmware_extns "text"
+			pcp_wifi_unload_wifi_firmware_extns "html"
 			pcp_save_to_config
-			pcp_backup "text"
+			pcp_backup "html"
+			pcp_infobox_end
 		fi
 	;;
 	Network_wait)
@@ -143,33 +149,50 @@ case "$ACTION" in
 	Read)
 		pcp_wifi_error_messages
 		pcp_heading5 "Read option"
-		pcp_wifi_read_wpa_supplicant "text"
+		pcp_infobox_begin
+		pcp_wifi_read_wpa_supplicant "html"
+		pcp_infobox_end
 	;;
 	Delete)
 		pcp_heading5 "Delete option"
+		pcp_infobox_begin
 		rm -f $WPASUPPLICANTCONF
-		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "text"
+		[ $? -eq 0 ] && pcp_message OK "$WPASUPPLICANTCONF deleted." "html"
 		unset WPA_SSID WPA_PASSWORD WPA_PW WPA_PSK WPA_PASSPHRASE WPA_KEY_MGMT WPA_ENCRYPTION WPA_HIDDENSSID
-		pcp_backup "text"
-		
+		pcp_backup "html"
+		pcp_infobox_end
 	;;
 	Remove)
 		pcp_heading5 "Remove option"
-		pcp_wifi_unload_wifi_extns "text"
-		pcp_wifi_unload_wifi_firmware_extns "text"
-		pcp_backup "text"
+		pcp_infobox_begin
+		pcp_wifi_unload_wifi_extns "html"
+		pcp_wifi_unload_wifi_firmware_extns "html"
+		pcp_backup "html"
+		pcp_infobox_end
 	;;
 	Start)
 		pcp_heading5 "Start option"
+		pcp_infobox_begin
+		pcp_message INFO "" "html" "-n"
 		/usr/local/etc/init.d/wifi wlan0 start
+		echo '</div>'
+		pcp_infobox_end
 	;;
 	Stop)
 		pcp_heading5 "Stop option"
+		pcp_infobox_begin
+		pcp_message INFO "" "html" "-n"
 		/usr/local/etc/init.d/wifi wlan0 stop
+		echo '</div>'
+		pcp_infobox_end
 	;;
 	Status)
 		pcp_heading5 "Status option"
+		pcp_infobox_begin
+		pcp_message INFO "" "html" "-n"
 		/usr/local/etc/init.d/wifi wlan0 status
+		echo '</div>'
+		pcp_infobox_end
 	;;
 	Convert1)
 		pcp_heading5 "Convert option"
@@ -289,12 +312,12 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-
+	#------------------------------------------------------------------------------------
 	echo '    <script type="text/javascript">'
 	echo '      var enc = "'$ENCODED_WPA_SSID'";'
 	echo '      document.getElementById("ssid").value = decodeURIComponent(enc.replace(/\+/g, "%20"));'
 	echo '    </script>'
-#--------------------------------------Password------------------------------------------
+	#-----------------------------------Password-----------------------------------------
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>PSK Password</p>'
@@ -323,7 +346,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-#--------------------------------------Passphrase----------------------------------------
+	#----------------------------------Passphrase----------------------------------------
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>PSK Passphrase</p>'
@@ -349,7 +372,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-#----------------------------------------Country Code------------------------------------
+	#----------------------------------Country Code--------------------------------------
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Country Code</p>'
@@ -374,7 +397,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-#--------------------------------------Security Mode-------------------------------------
+	#---------------------------------Security Mode--------------------------------------
 	case "$WPA_ENCRYPTION" in
 		WPA-PSK) WPA_ENCRYPTIONwpa="checked" ;;
 		WEP) WPA_ENCRYPTIONwep="checked" ;;
@@ -390,7 +413,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <input id="1wifi1" type="radio" name="WPA_ENCRYPTION" value="WPA-PSK" '$WPA_ENCRYPTIONwpa'>'
 	echo '        <label for="1wifi1">WPA-PSK&nbsp;&nbsp;</label>'
 	echo '        <input id="1wifi2" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONwep'>'
-	echo '        <label for="1wifi2">WEP</label>'
+	echo '        <label for="1wifi2">WEP&nbsp;&nbsp;</label>'
 	echo '        <input id="1wifi3" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONopen'>'
 	echo '        <label for="1wifi3">OPEN</label>'
 	echo '      </div>'
@@ -405,7 +428,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-#--------------------------------------Hidden SSID---------------------------------------
+	#------------------------------------Hidden SSID-------------------------------------
 	case "$WPA_HIDDENSSID" in
 		0) WPA_HIDDENSSIDno="checked" ;;
 		1) WPA_HIDDENSSIDyes="checked" ;;
@@ -455,12 +478,12 @@ echo '    </div>'
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <input type="submit" name="ACTION" value="Read">'
-	echo '        <input type="submit" name="ACTION" value="Delete">'
-	echo '        <input type="submit" name="ACTION" value="Remove">'
-	echo '        <input type="submit" name="ACTION" value="Start">'
-	echo '        <input type="submit" name="ACTION" value="Stop">'
-	echo '        <input type="submit" name="ACTION" value="Status">'
+	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Read">'
+	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Delete">'
+	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove">'
+	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Start">'
+	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Stop">'
+	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Status">'
 	echo '      </div>'
 	echo '    </div>'
 fi
@@ -593,7 +616,7 @@ fi
 #---------------/usr/local/etc/pcp/wpa_supplicant.conf maintained by user----------------
 if [ "$WIFI" = "on" ]; then
 	if [ $(pcp_wifi_maintained_by_user) -eq 0 ]; then
-		pcp_textarea "/usr/local/etc/pcp/wpa_supplicant.conf maintained by user" "cat ${WPASUPPLICANTCONF}" 150
+		pcp_textarea "/usr/local/etc/pcp/wpa_supplicant.conf maintained by user" "cat ${WPASUPPLICANTCONF}" 15
 	fi
 #-----------------------------------------Wifi information-------------------------------
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - insert wifi adapter and [Save] to connect." || WLANMAC=$(pcp_wlan0_mac_address)
@@ -653,6 +676,7 @@ wifi_apmode_page() {
 pcp_heading5 "Network wait" hr
 
 echo '  <form id="Network_wait" name="Network_wait" action="'$0'" method="get">'
+#----------------------------------------------------------------------------------------
 echo '    <div class="row">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Network wait</p>'
@@ -683,11 +707,13 @@ echo '          <p><b>Note: </b>piCorePlayer uses half second increments, so 50 
 echo '        </div>'
 echo '      </div>'
 echo '    </div>'
+#----------------------------------------------------------------------------------------
 echo '    <div class="row">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <button class="'$BUTTON' mb-3" type="submit" name="ACTION" value="Network_wait">Save</button>'
 echo '      </div>'
 echo '    </div>'
+#----------------------------------------------------------------------------------------
 echo '  </form>'
 #----------------------------------------------------------------------------------------
 

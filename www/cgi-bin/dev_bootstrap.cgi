@@ -12,9 +12,9 @@ pcp_html_head "Dev bootstrap" "GE"
 echo '<hr>'
 
 echo '<script>'
-echo '    $(document).ready(function(){'
+echo '    $(function() {'
 echo '        $('[data-toggle="tooltip"]').tooltip();'
-echo '    });'
+echo '    })'
 echo '</script>'
 echo ''
 echo '<div>'
@@ -34,9 +34,33 @@ echo '        </li>'
 echo '    </ul>'
 echo '</div>'
 
+echo '<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Tooltip on top">'
+echo '  Tooltip on top'
+echo '</button>'
+echo '<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" title="Tooltip on right">'
+echo '  Tooltip on right'
+echo '</button>'
+echo '<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="bottom" title="Tooltip on bottom">'
+echo '  Tooltip on bottom'
+echo '</button>'
+
+
+
 
 
 echo '<div class="container">'
+
+
+echo '<!-- HTML to write -->'
+echo '<a href="#" data-toggle="tooltip" title="XXXX Some tooltip text!">Hover over me</a>'
+echo ''
+echo '<!-- Generated markup by the plugin -->'
+echo '<div class="tooltip bs-tooltip-top" role="tooltip">'
+echo '  <div class="arrow"></div>'
+echo '  <div class="tooltip-inner">'
+echo '    Some tooltip text!'
+echo '  </div>'
+echo '</div>'
 
 echo '<hr>'
 
@@ -48,6 +72,17 @@ echo '<hr>'
 #echo '    const tooltip = document.querySelector('#tooltip');'
 #echo '    Popper.createPopper(button, tooltip);'
 #echo '  </script>'
+
+
+echo '<hr>'
+
+echo '<a href="#" data-toggle="tooltip" title="Title Here">Hyperlink Text</a>'
+echo ''
+echo '<script>'
+echo '$(document).ready(function() {'
+echo '    $("body").tooltip({ selector: '[data-toggle=tooltip]' });'
+echo '});'
+echo '</script>'
 
 echo '<hr>'
 
