@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 7.0.0 2020-05-15
 
 . pcp-functions
 . pcp-lms-functions
@@ -8,7 +8,7 @@
 pcp_html_head "Controls" "GE" "" "" "nobody"
 
 [ $DEBUG -eq 1 ] && echo '<body>' || echo '<body onload="javascript:location.href=document.referrer;">'
-[ $DEBUG -eq 1 ] && pcp_controls && pcp_banner && pcp_navigation && pcp_running_script
+[ $DEBUG -eq 1 ] && pcp_controls && pcp_navbar
 
 pcp_httpd_query_string
 

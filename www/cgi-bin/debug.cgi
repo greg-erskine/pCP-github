@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-06
+# Version: 7.0.0 2020-05-15
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
@@ -94,7 +94,6 @@ pcp_heading5 "Set debug options"
 
 echo '<div>'
 echo '  <form name="debug" action="'$0'" method="get">'
-echo '    <fieldset>'
 #--------------------------------------DEBUG---------------------------------------------
 eval D${DEBUG}SELECTED="checked"
 
@@ -152,7 +151,6 @@ echo '        <button type="submit" class="btn btn-primary" name="ACTION" value=
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
-echo '    </fieldset>'
 echo '  </form>'
 #----------------------------------------------------------------------------------------
 pcp_remove_query_string
