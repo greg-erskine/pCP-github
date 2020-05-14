@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-13
+# Version: 7.0.0 2020-05-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -47,14 +47,12 @@ COLUMN4_2="col-sm-4"
 COLUMN4_3="col-sm-2"
 COLUMN4_4="col-sm-4"
 
-BUTTON="btn btn-primary btn-sm w-100"
-
 #========================================================================================
 # Local functions
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
 	pcp_incr_id
-	echo '    <div class="bg-warning col-12 pb-1">'
+	echo '    <div class="col-12 bg-warning pb-1">'
 	echo '      <b>Warning:</b> Logitech Media Server (LMS)'
 	echo '      is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
 	echo '      <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'

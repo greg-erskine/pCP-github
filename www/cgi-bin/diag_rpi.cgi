@@ -1,14 +1,23 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-02
+# Version: 7.0.0 2020-05-14
 
 . pcp-functions
 . pcp-rpi-functions
+. pcp-lms-functions
 . pcp-pastebin-functions
 
 pcp_html_head "Raspberry Pi Diagnostics" "GE"
 
+pcp_controls
 pcp_diagnostics
+
+COLUMN1="col-6 col-sm-2 text-right"
+COLUMN2="col-6 col-sm-2"
+COLUMN3="col-6 col-sm-2 text-right"
+COLUMN4="col-6 col-sm-2"
+COLUMN5="col-6 col-sm-2 text-right"
+COLUMN6="col-6 col-sm-2"
 
 #========================================================================================
 # Add information to log file.
@@ -107,21 +116,11 @@ pcp_diag_rpi_lmsip() {
 # GE - Move to pcp-functions
 BUILD=$(sudo ${SQLT_BIN} -? | grep "Build options" | awk -F": " '{print $2}')
 
-COLUMN1="col-sm-2"
-COLUMN2="col-sm-2"
-COLUMN3="col-sm-2"
-COLUMN4="col-sm-2"
-COLUMN5="col-sm-2"
-COLUMN6="col-sm-2"
 
 #========================================================================================
 # Raspberry Pi
 #----------------------------------------------------------------------------------------
-echo '  <div class="row mt-3">'
-echo '    <div class="'$COLUMN1'">'
-echo '      <h5>Raspberry Pi</h5>'
-echo '    </div>'
-echo '  </div>'
+pcp_heading5 "Raspberry Pi"
 #-------------------------------------Row 1----------------------------------------------
 echo '  <div class="row">'
 echo '    <div class="'$COLUMN1'">'
@@ -226,18 +225,15 @@ echo '  </div>'
 #========================================================================================
 # Squeezelite
 #----------------------------------------------------------------------------------------
+pcp_heading5 "Squeezelite" hr
+#-------------------------------------Row 1----------------------------------------------
+
 if [ $(pcp_squeezelite_status) -eq 0 ]; then
 	pcp_green_tick "Running."
 else
 	pcp_red_cross "Not running."
 fi
 
-echo '  <div class="row mt-3">'
-echo '    <div class="'$COLUMN1'">'
-echo '      <h5>Squeezelite</h5>'
-echo '    </div>'
-echo '  </div>'
-#-------------------------------------Row 1----------------------------------------------
 echo '  <div class="row">'
 echo '    <div class="'$COLUMN1' center">'
 echo '      '$INDICATOR
@@ -251,15 +247,13 @@ echo '    </div>'
 echo '    <div class="'$COLUMN4'">'
 echo '      '$(pcp_squeezelite_version)
 echo '    </div>'
-echo '    <div class="'$COLUMN5'"></div>'
-echo '    <div class="'$COLUMN6'"></div>'
 echo '  </div>'
 #-------------------------------------Row 2----------------------------------------------
 echo '  <div class="row">'
 echo '    <div class="'$COLUMN1'">'
 echo '      Build options:'
 echo '    </div>'
-echo '    <div class="col-10">'
+echo '    <div class="col">'
 echo '      '$BUILD
 echo '    </div>'
 echo '  </div>'
@@ -268,11 +262,7 @@ echo '  </div>'
 #========================================================================================
 # piCorePlayer
 #----------------------------------------------------------------------------------------
-echo '  <div class="row mt-3">'
-echo '    <div class="'$COLUMN1'">'
-echo '      <h5>piCorePlayer</h5>'
-echo '    </div>'
-echo '  </div>'
+pcp_heading5 "piCorePlayer" hr
 #-------------------------------------Row 1----------------------------------------------
 echo '  <div class="row">'
 echo '    <div class="'$COLUMN1'">'
@@ -299,11 +289,7 @@ echo '  </div>'
 #========================================================================================
 # piCore
 #----------------------------------------------------------------------------------------
-echo '  <div class="row mt-3">'
-echo '    <div class="'$COLUMN1'">'
-echo '      <h5>piCore</h5>'
-echo '    </div>'
-echo '  </div>'
+pcp_heading5 "piCore" hr
 #-------------------------------------Row 1----------------------------------------------
 echo '  <div class="row">'
 echo '    <div class="'$COLUMN1'">'
@@ -318,19 +304,13 @@ echo '    </div>'
 echo '    <div class="'$COLUMN4'">'
 echo '      '$(pcp_linux_release)
 echo '    </div>'
-echo '    <div class="'$COLUMN5'"></div>'
-echo '    <div class="'$COLUMN6'"></div>'
 echo '  </div>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Internet and piCorePlayer repository accessible
 #----------------------------------------------------------------------------------------
-echo '  <div class="row mt-3">'
-echo '    <div class="'$COLUMN1'">'
-echo '      <h5>Internet</h5>'
-echo '    </div>'
-echo '  </div>'
+pcp_heading5 "Internet" hr
 #-------------------------------------Row 1----------------------------------------------
 
 if [ $(pcp_internet_accessible) -eq 0 ]; then
@@ -340,12 +320,13 @@ else
 fi
 
 echo '  <div class="row">'
-echo '    <div class="'$COLUMN1'">'
+echo '    <div class="col-2">'
 echo '      '$INDICATOR
 echo '    </div>'
-echo '    <div class="'$COLUMN2'">'
+echo '    <div class="col">'
 echo '      '$STATUS
 echo '    </div>'
+echo '  </div>'
 
 if [ $(pcp_pcp_repo_1_accessible) -eq 0 ]; then
     pcp_green_tick "piCorePlayer repository accessible."
@@ -353,21 +334,18 @@ else
     pcp_red_cross "piCorePlayer repository not accessible."
 fi
 
-echo '    <div class="'$COLUMN3'">'
+echo '  <div class="row">'
+echo '    <div class="col-2">'
 echo '      '$INDICATOR
 echo '    </div>'
-echo '    <div class="col-6">'
+echo '    <div class="col">'
 echo '      '$STATUS
 echo '    </div>'
 echo '  </div>'
 #--------------------------------------------------------------------------------
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_pastebin_button "Raspberry-Pi"
 
-pcp_footer
-pcp_copyright
-echo '</div>'
-echo '</body>'
-echo '</html>'
+pcp_html_end
 
 pcp_add_to_log
 exit

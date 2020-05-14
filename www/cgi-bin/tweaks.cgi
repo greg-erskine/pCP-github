@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-13
+# Version: 7.0.0 2020-05-14
 
 set -f
 
@@ -26,8 +26,6 @@ COLUMN4_1="col-sm-2"
 COLUMN4_2="col-sm-3"
 COLUMN4_3="col-sm-3"
 COLUMN4_4="col-sm-4"
-
-BUTTON="btn btn-primary"
 
 #========================================================================================
 # Functions

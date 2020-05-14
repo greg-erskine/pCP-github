@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-14
 
 WWW_BUILD=0008
 
@@ -118,6 +118,7 @@ pcp_variables() {
 	#------------------------------------------------------------------------------------
 	COLLAPSE="collapse bg-white border border-secondary shadow rounded px-3 pt-2"
 	INFOBOX="bg-white border border-secondary shadow rounded mt-1 px-3 py-1"
+	BUTTON="btn btn-primary btn-sm w-100"
 }
 
 pcp_config_file

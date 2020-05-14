@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-14
 
 . pcp-functions
 . pcp-lms-functions
@@ -13,9 +13,6 @@ pcp_httpd_query_string
 
 COLUMN2_1="col-sm-2 text-md-right"
 COLUMN2_2="col-10"
-
-BUTTON="btn btn-primary btn-sm w-100"
-COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2"
 
 #========================================================================================
 # Reboot page.

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -20,9 +20,6 @@ COLUMN3_3="col-sm-6"
 
 COLUMN2_1="col-sm-2"
 COLUMN2_2="col-sm-10"
-
-BUTTON="btn btn-primary w-100"
-COLLAPSE="collapse bg-white border shadow rounded border-secondary px-3 pt-2 mb-3"
 
 #========================================================================================
 # Create Squeezelite command string
@@ -152,8 +149,8 @@ pcp_debug_variables "html" RP_MODEL
 pcp_heading5 "Audio output device settings"
 
 echo '  <form name="setaudio" action="chooseoutput.cgi" method="get" id="setaudio">'
-echo '    <div class="row">'
 #--------------------------------------Audio output-------------------------------
+echo '    <div class="row">'
 echo '      <div class="form-group '$COLUMN3_1'">'
 echo '        <input class="'$BUTTON'"'
 echo '               id="save_out"'
@@ -163,8 +160,8 @@ echo '               value="Save"'
 echo '               title="Save &quot;Audio output&quot; to configuration file"'
 echo '               >'
 echo '      </div>'
-echo '      <div class="'$COLUMN3_2'">'
-echo '        <select class="form-control form-control-sm" id="audiocard" name="AUDIO">'
+echo '      <div class="input-group '$COLUMN3_2'">'
+echo '        <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
 
 cat /tmp/dropdown.cfg | grep $RP_MODEL | sed 's/notselected//' | awk -F: '{ print "<option value=\""$1"\" "$2">"$3"</option>"}'
 
@@ -186,20 +183,20 @@ pcp_selected_soundcontrol
 if [ x"" != x"$CONTROL_PAGE" ]; then
 	[ -f $REBOOT_PENDING ] && CNTRL_DISABLED="disabled" || CNTRL_DISABLED=""
 	pcp_incr_id
-	echo '      <div class="row">'
-	echo '        <div class="form-group '$COLUMN2_1'">'
-	echo '          <input class="form-control '$BUTTON'" type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
-	echo '        </div>'
-	echo '        <div class="'$COLUMN2_2'">'
+	echo '    <div class="row">'
+	echo '      <div class="form-group '$COLUMN2_1'">'
+	echo '        <input class="form-control '$BUTTON'" type="button" value="Card Control" onClick="location.href='\'''$CONTROL_PAGE''\''" '$CNTRL_DISABLED'>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN2_2'">'
 	[ -f $REBOOT_PENDING ] &&
-	echo '          <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
-	echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '          </p>'
-	echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '            <p>Setup and card specific hardware or mixer options on this page.</p>'
-	echo '          </div>'
+	echo '        <p>Audio Hardware and Mixer settings are disabled until reboot&nbsp;&nbsp;'|| echo '                  <p>Audio Hardware and Mixer settings&nbsp;&nbsp;'
+	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <p>Setup and card specific hardware or mixer options on this page.</p>'
 	echo '        </div>'
 	echo '      </div>'
+	echo '    </div>'
 fi
 #----------------------------------------------------------------------------------------
 echo '  </form>'
@@ -216,11 +213,9 @@ echo '</script>'
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
-echo '<hr>'
-pcp_heading5 "Change Squeezelite settings"
+pcp_heading5 "Change Squeezelite settings" hr
 
 echo '  <form name="squeeze" action="writetoconfig.cgi" method="get">'
-
 #----------------------------------------------------------------------------------------
 pcp_submit_button
 #--------------------------------------Name of your player-------------------------------
@@ -760,8 +755,8 @@ pcp_squeezelite_log_level() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Log level setting</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control form-control-sm" name="LOGLEVEL" title="Log level setting">'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="LOGLEVEL" title="Log level setting">'
 	echo '          <option value="" '$LOGLEVEL0'>none</option>'
 	echo '          <option value="all=info" '$LOGLEVEL1'>all=info</option>'
 	echo '          <option value="all=debug" '$LOGLEVEL2'>all=debug</option>'
@@ -1088,46 +1083,40 @@ pcp_squeezelite_binary() {
 		*) DEFyes="checked";;
 	esac
 
-	echo '<hr>'
-	pcp_heading5 "Set Squeezelite Binary"
+	pcp_heading5 "Set Squeezelite binary" hr
 
 	echo '  <form name="binary" action="writetoconfig.cgi" method="get">'
+	#-----------------------------------Headings-----------------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1' center">'
+	echo '      <div class="'$COLUMN3_1' text-sm-center">'
 	echo '        <p><b>Enabled</b></p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p><b>Binary</b></p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <p>Select your Squeezelite Binary&nbsp;&nbsp;</p>'
+	echo '        <p><b>Select your Squeezelite Binary</b></p>'
 	echo '      </div>'
 	echo '    </div>'
-
+	#-------------------------Standard Squeezelite binary--------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1' center">'
-	echo '        <p>'
-	echo '          <input class="XXXX" id="sqreg" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
-	echo '          <label for="sqreg">&#8202;</label>'
-	echo '        <p>'
+	echo '      <div class="'$COLUMN3_1' text-sm-center">'
+	echo '        <input class="XXXX" id="sqreg" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>Squeezelite</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <p>Standard Squeezelite Binary.</p>'
+	echo '        <p>Standard Squeezelite binary.</p>'
 	echo '      </div>'
 	echo '    </div>'
-
+	#---------------------------Custom Squeezelite binary--------------------------------
 	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1' center">'
-	echo '        <p>'
-	echo '          <input class="XXXX" id="sqcust" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
-	echo '          <label for="sqcust">&#8202;</label>'
-	echo '        <p>'
+	echo '      <div class="'$COLUMN3_1' text-sm-center">'
+	echo '        <input class="XXXX" id="sqcust" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>Custom Squeezelite</p>'
+	echo '        <p>Custom Squeezelite binary</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Save your file as '$TCEMNT'/tce/squeezelite-custom</p>'

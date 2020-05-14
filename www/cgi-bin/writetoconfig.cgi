@@ -94,7 +94,7 @@ case "$SUBMIT" in
 		pcp_message INFO "Saving config file." "html"
 		pcp_save_to_config
 		pcp_footer static >/tmp/footer.html
-		pcp_backup
+		pcp_backup "html"
 		pcp_infobox_end
 	;;
 	Binary)
@@ -106,16 +106,23 @@ case "$SUBMIT" in
 			;;
 			custom)
 				if [ -f $TCEMNT/tce/squeezelite-custom ]; then
-					rm -f $TCEMNT/tce/squeezelite; ln -s $TCEMNT/tce/squeezelite-custom $TCEMNT/tce/squeezelite
+					rm -f $TCEMNT/tce/squeezelite
+					ln -s $TCEMNT/tce/squeezelite-custom $TCEMNT/tce/squeezelite
 					SAVE=1
 				else
+					pcp_infobox_begin
 					pcp_message ERROR "Custom Squeezelite not found. Copy custom binary before setting this option." "html"
+					pcp_infobox_end
 				fi
 			;;
 		esac
 		if [ $SAVE -eq 1 ]; then
+			pcp_infobox_begin
+			pcp_message INFO "Saving Squeezelite to $SQBINARY." "html"
 			pcp_message INFO "Saving config file." "html"
 			pcp_save_to_config
+			pcp_backup "html"
+			pcp_infobox_end
 		fi
 	;;
 	Reset*)
@@ -184,6 +191,7 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	pcp_confirmation_required
 fi
 
+pcp_message ERROR "Remove this second backup!!!" "html"
 pcp_backup   # <===== GE Eventually remove this
 
 [ $RESTART_REQUIRED ] || pcp_redirect_button "Go Back" $FROM_PAGE 5
@@ -193,7 +201,7 @@ pcp_copyright
 
 sleep 1
 [ $REBOOT_REQUIRED ] && pcp_reboot_required
-[ $RESTART_REQUIRED ] && pcp_restart_required $FROM_PAGE
+[ $RESTART_REQUIRED ] && pcp_restart_required $FROM_PAGE   # <===== GE Eventually remove this
 
 echo '</div>'
 echo '</body>'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-14
 
 . pcp-functions
 . pcp-rpi-functions
@@ -31,8 +31,6 @@ COLUMN2_1="$COLUMN3_1"
 COLUMN2_2="col-9"
 
 COLUMN1="$COLUMN3_1"
-
-BUTTON="btn btn-primary w-100"
 
 # Special characters will break pcp_httpd_query_string, so if any variable could contain url encoded data
 # it would need to be manually decoded like this
