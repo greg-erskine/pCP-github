@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-15
+# Version: 7.0.0 2020-05-16
 
 WWW_BUILD=0008
 
@@ -1277,11 +1277,14 @@ pcp_redirect_button() {
 	# $3 - redirection delay
 
 	echo '<!-- Start of pcp_redirect_button -->'
-	echo '<div class="mb-3 mt-3">'
 	echo '  <form name="redirect button" action="'$2'" method="get">'
-	echo '    <input class="btn btn-primary" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
-	echo '  </form>'
+	echo '<div class="mb-3 mt-3">'
+
+	echo '    <input class="col-2 '$BUTTON'" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
+
 	echo '</div>'
+	
+		echo '  </form>'
 	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
 	echo '<!-- End of pcp_redirect_button -->'
 }

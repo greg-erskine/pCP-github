@@ -36,6 +36,7 @@ cat $1 | sed \
 exit
 
 COLUMN2_1="col-sm-2 text-md-right"
+COLUMN2_1="col-sm-2 text-md-center"
 COLUMN2_2="col-10"
 
 
@@ -45,3 +46,6 @@ pcp_infobox_end
 pcp_heading5
 
 echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+
+
+

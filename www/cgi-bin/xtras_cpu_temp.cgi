@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-05-28
+# Version: 7.0.0 2020-05-16
 
 #========================================================================================
 # This is an experiment to work out how to generate graphs using only:
@@ -18,9 +18,7 @@ CPU_TEMP_LOG="/var/log/pcp_cpu_temp.log"
 
 pcp_html_head "xtras_graph" "GE"
 
-pcp_banner
 pcp_xtras
-pcp_running_script
 pcp_httpd_query_string
 
 #========================================================================================
@@ -93,7 +91,7 @@ echo '.labels {'
 #echo '  stroke: black;'
 #echo '  stroke-width: 1;'
 echo '  font-family: Courier;'
-echo '  font-size: 8px;'
+echo '  font-size: 11px;'
 #echo '  kerning: 1;'
 #echo '  text-anchor: middle;'
 echo '}'
@@ -138,16 +136,12 @@ X=$((($XMAX - $XMIN) / $XMAJOR))
 XTIC=5
 
 #========================================================================================
-# Display graph within table
+pcp_heading5 "CPU Temperature Graph"
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>CPU Temperature Graph</legend>'
-#echo '          <table class="bggrey percent100">'
-
+echo '  <div class="row">'
+echo '    <div class="col text-md-center">'
+#----------------------------------------------------------------------------------------
+echo '<!-- Start of CPU temperaure graph -->'
 echo '<svg version="1.1" class="graph"'
 echo '  baseProfile="full"'
 echo '  width="'$(($X * $XGAP + (2 * $MARGIN) + $LMARGIN))'" height="'$(($Y * $YGAP + $MARGIN + $MARGIN + $BMARGIN))'">'
@@ -291,62 +285,42 @@ echo '<text class="title cputemp_text" x="'$((((($X * $XGAP) + (2 * $MARGIN)) / 
 
 echo ''
 echo '</svg>'
-
+echo '<!-- End of CPU temperaure graph -->'
 #----------------------------------------------------------------------------------------
-#echo '          </table>'
-
-echo '          <table class="bggrey percent100">'
-echo '            <tr>'
-echo '              <td>'
-echo '                <form name="actions" action="'$0'" method="get">'
-echo '                  <input type="submit" name="OPTION" value="Previous">'
-echo '                  <input type="submit" name="OPTION" value="Next">'
-echo '                  <input type="hidden" name="COUNTER" value="'$COUNTER'">'
-echo '                </form>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
-echo '              </td>'
-echo '            </tr>'
-echo '            <tr>'
-echo '              <td colspan="2">'
-                      pcp_redirect_button "Refresh" "$0" 30
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
+echo '    </div>'
+echo '  </div>'
+echo '  <hr>'
+#----------------------------------------------------------------------------------------
+echo '  <form name="actions" action="'$0'" method="get">'
+echo '    <div class="row">'
+echo '      <div class="col-2">'
+echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Previous">'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Logging options</legend>'
-echo '          <form name="actions" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-echo '              <tr>'
-echo '                <td>'
-echo '                  <input type="submit" name="OPTION" value="Start">'
-echo '                  <input type="submit" name="OPTION" value="Stop">'
-echo '                  <input type="submit" name="OPTION" value="Clean">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </form>'
-echo '        </fieldset>'
+echo '      <div class="col-2">'
+echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Next">'
+echo '        <input type="hidden" name="COUNTER" value="'$COUNTER'">'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-
+echo '      <div class="col-8">'
+echo '        <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
+echo '      </div>'
+echo '    </div>'
 #----------------------------------------------------------------------------------------
-pcp_footer
-pcp_copyright
+pcp_redirect_button "Refresh" "$0" 30
+#----------------------------------------------------------------------------------------
+pcp_heading5 "Logging options" hr
 
-echo '</body>'
-echo '</html>'
+echo '    <div class="row">'
+echo '      <div class="col-2 mb-3">'
+echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Start">'
+echo '      </div>'
+echo '      <div class="col-2">'
+echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Stop">'
+echo '      </div>'
+echo '      <div class="col-2">'
+echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Clean">'
+echo '      </div>'
+echo '    </div>'
+echo '  </form>'
+#----------------------------------------------------------------------------------------
+
+pcp_html_end
