@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-14
+# Version: 7.0.0 2020-05-15
 
 WWW_BUILD=0008
 
@@ -519,8 +519,8 @@ pcp_html_head() {
 	echo '  <!-- js files: jQuery first, then Popper.js, then Bootstrap js -->'
 
 	echo '  <script src="../jquery/jquery.min.js"></script>'
-	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
-#	echo '  <script src="../popper/popper.js"></script>'
+#	echo '  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>'
+	echo '  <script src="../popper/popper.js"></script>'
 	echo '  <script src="../bootstrap/js/bootstrap.min.js"></script>'
 
 	echo '  <link rel="icon" href="../images/pCP.png" type="image/x-icon" />'
@@ -528,7 +528,7 @@ pcp_html_head() {
 	echo '</head>'
 	echo ''
 	[ "$5" != "nobody" ] && echo '<body>'
-	echo '<div class="container-fluid bg-light">'
+#	echo '<div class="container-fluid bg-light">'
 	echo '<div class="container shadow bg-light">'
 
 	if [ "$PLAYERTABS" = "yes" ]; then
@@ -907,6 +907,23 @@ pcp_textarea() {
 	echo '    </textarea>'
 	echo '  </div>'
 	[ "$4" = "log" ] && pcp_write_to_log "$TITLE" "$2"
+}
+
+pcp_textarea_begin() {
+	# $1 - blank | label | none
+	# $2 - rows
+
+	TITLE="$1"
+	ROWS="$2"
+	echo '  <div class="form-group">'
+	[ "$TITLE" = "none" -o x"$TITLE" = x"" ] ||
+	echo '    <label class="ml-1" for="ta'$ID'">[ INFO ] '$TITLE'</label>'
+	echo '    <textarea class="form-control text-monospace '$INFOBOX'" id="ta'$ID'" rows="'$ROWS'" disabled>'
+}
+
+pcp_textarea_end() {
+	echo '    </textarea>'
+	echo '  </div>'
 }
 
 pcp_write_to_log() {
