@@ -832,18 +832,6 @@ pcp_mode() {
 	echo '<!-- End of mode toolbar -->'
 }
 
-pcp_heading5() {
-	# $1 - message
-	# $2 - hr
-
-	[ "$2" = "hr" ] && echo '<hr>'
-	echo '  <div class="row">'
-	echo '    <div class="col-12 my-2">'
-	echo '      <h4>'$1'</h4>'
-	echo '    </div>'
-	echo '  </div>'
-}
-
 #========================================================================================
 # Versions
 #----------------------------------------------------------------------------------------
@@ -924,6 +912,22 @@ pcp_textarea_begin() {
 pcp_textarea_end() {
 	echo '    </textarea>'
 	echo '  </div>'
+}
+
+pcp_heading5() {
+	# $1 - message
+	# $2 - hr
+
+	[ "$2" = "hr" ] && echo '<hr>'
+	echo '  <div class="row">'
+	echo '    <div class="col-12 my-2">'
+	echo '      <h4>'$1'</h4>'
+	echo '    </div>'
+	echo '  </div>'
+}
+
+pcp_hr() {
+	echo "<hr>"
 }
 
 pcp_write_to_log() {
