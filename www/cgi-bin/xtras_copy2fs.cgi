@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-10
+# Version: 7.0.0 2020-05-17
+# Title: copy2fs
+# Description: Sets the copy2fs flag
 
 . pcp-functions
 
 pcp_html_head "xtras copy2fs" "GE"
 
-pcp_banner
 pcp_xtras
 pcp_httpd_query_string
 
@@ -27,134 +28,93 @@ case "$COPY2FS" in
 esac
 
 #========================================================================================
-# copy2fs table
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="copy2fs" action="'$0'" method="get">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>copy2fs</legend>'
-echo '            <table class="bggrey percent100">'
+pcp_heading5 "Set copy2fs flag"
 #----------------------------------------------------------------------------------------
 [ -f ${TCEMNT}/tce/copy2fs.flg ] && COPY2FSyes="checked" || COPY2FSno="checked"
 
-pcp_start_row_shade
+echo '  <form name="copy2fs" action="'$0'" method="get">'
+#----------------------------------------------------------------------------------------
+echo '    <div class="row">'
+echo '      <div class="col-2">'
+echo '        <p>copy2fs flag</p>'
+echo '      </div>'
+echo '      <div class="col-2">'
+echo '        <input id="rad1" type="radio" name="COPY2FS" value="yes" '$COPY2FSyes'>'
+echo '        <label for="rad1">Yes&nbsp;&nbsp;</label>'
+echo '        <input id="rad2" type="radio" name="COPY2FS" value="no" '$COPY2FSno'>'
+echo '        <label for="rad2">No</label>'
+echo '      </div>'
 pcp_incr_id
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>copy2fs flag set</p>'
-echo '                </td>'
-echo '                <td class="column150">'
-echo '                  <input id="rad1" type="radio" name="COPY2FS" value="yes" '$COPY2FSyes'>'
-echo '                  <label for="rad1">Yes</label>'
-echo '                  <input id="rad2" type="radio" name="COPY2FS" value="no" '$COPY2FSno'>'
-echo '                  <label for="rad2">No</label>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set the copy2fs flag&nbsp;&nbsp;'
-echo '                  <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a></p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>This sets the copy2fs flag so, on the next reboot, all extensions are loaded into RAM.</p>'
-echo '                    <p>A reboot is required for the copy2fs flag to take effect.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="3">'
-echo '                  <input type="submit" name="SUBMIT" value="Save">'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
+echo '      <div class="col-8">'
+echo '        <p>Set the copy2fs flag&nbsp;&nbsp;'
+echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '          <p>This sets the copy2fs flag so, on the next reboot, all extensions are loaded into RAM.</p>'
+echo '          <p>A reboot is required for the copy2fs flag to take effect.</p>'
 echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '      </div>'
+echo '    </div>'
+#----------------------------------------------------------------------------------------
+echo '    <div class="row">'
+echo '      <div class="col-2">'
+echo '        <input class="'$BUTTON'"type="submit" name="SUBMIT" value="Save">'
+echo '      </div>'
+echo '    </div>'
+#----------------------------------------------------------------------------------------
+echo '  </form>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
-# Mounted filesystems table
+pcp_heading5 "Current mounted filesystems" hr
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Current mounted filesystems</legend>'
-echo '          <table class="bggrey percent100">'
+pcp_textarea "none" "df" 20
 #----------------------------------------------------------------------------------------
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-                      pcp_textarea_inform "none" "df" 200
-echo '              </td>'
-echo '            </tr>'
-#----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>Example: copy2fs not set</b></p>'
-echo '                <p>Note: There will be lots of loop mounted filesystems, one for each extension.</p>'
-echo '              </td>'
-echo '            </tr>'
-#----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo                  '<textarea class="inform" style="height:160px">'
-echo                    'Filesystem           1K-blocks      Used Available Use% Mounted on'
-echo                    'tmpfs                   222492         0    222492   0% /dev/shm'
-echo                    '/dev/mmcblk0p2           36561     15244     18379  45% /mnt/mmcblk0p2'
-echo                    '/dev/loop0                 128       128         0 100% /tmp/tcloop/pcp'
-echo                    '/dev/loop1                 128       128         0 100% /tmp/tcloop/pcp-base'
-echo                    '/dev/loop2                 128       128         0 100% /tmp/tcloop/alsa'
-echo                    '/dev/loop3                1152      1152         0 100% /tmp/tcloop/alsa-utils'
-echo                    '/dev/loop4                 128       128         0 100% /tmp/tcloop/busybox-httpd'
-echo                    '     .                      .         .          .   .          .'
-echo                    '     .                      .         .          .   .          .'
-echo                  '</textarea>'
-echo '              </td>'
-echo '            </tr>'
-#----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <p><b>Example: copy2fs set</b></p>'
-echo '                <p>Note: There are no loop mounted filesystems.</p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_toggle_row_shade
-#----------------------------------------------------------------------------------------
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo                  '<textarea class="inform" style="height:60px">'
-echo                    'Filesystem           1K-blocks      Used Available Use% Mounted on'
-echo                    'tmpfs                   222492         0    222492   0% /dev/shm'
-echo                    '/dev/mmcblk0p2           36561     15244     18379  45% /mnt/mmcblk0p2'
-echo                  '</textarea>'
-echo '              </td>'
-echo '            </tr>'
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
-#----------------------------------------------------------------------------------------
+pcp_heading5 "Example: copy2fs not set" hr
 
-pcp_footer
-pcp_copyright
+echo '  <div class="row">'
+echo '    <div class="col-12">'
+echo '      <p><b>Note:</b> There will be lots of loop mounted filesystems, one for each extension.</p>'
+echo '    </div>'
+echo '  </div>'
+#----------------------------------------------------------------------------------------
+echo '  <div class="row">'
+echo '    <div class="col-12">'
+pcp_textarea_begin "" 10
+echo          'Filesystem           1K-blocks      Used Available Use% Mounted on'
+echo          'tmpfs                   222492         0    222492   0% /dev/shm'
+echo          '/dev/mmcblk0p2           36561     15244     18379  45% /mnt/mmcblk0p2'
+echo          '/dev/loop0                 128       128         0 100% /tmp/tcloop/pcp'
+echo          '/dev/loop1                 128       128         0 100% /tmp/tcloop/pcp-base'
+echo          '/dev/loop2                 128       128         0 100% /tmp/tcloop/alsa'
+echo          '/dev/loop3                1152      1152         0 100% /tmp/tcloop/alsa-utils'
+echo          '/dev/loop4                 128       128         0 100% /tmp/tcloop/busybox-httpd'
+echo          '     .                      .         .          .   .          .'
+echo          '     .                      .         .          .   .          .'
+pcp_textarea_end
+echo '    </div>'
+echo '  </div>'
+#----------------------------------------------------------------------------------------
+pcp_heading5 "Example: copy2fs set" hr
 
-echo '</body>'
-echo '</html>'
+echo '  <div class="row">'
+echo '    <div class="col-12">'
+echo '      <p><b>Note:</b> There are no loop mounted filesystems.</p>'
+echo '    </div>'
+echo '  </div>'
+#----------------------------------------------------------------------------------------
+echo '  <div class="row">'
+echo '    <div class="col-12">'
+pcp_textarea_begin "" 4
+echo          'Filesystem           1K-blocks      Used Available Use% Mounted on'
+echo          'tmpfs                   222492         0    222492   0% /dev/shm'
+echo          '/dev/mmcblk0p2           36561     15244     18379  45% /mnt/mmcblk0p2'
+pcp_textarea_end
+echo '    </div>'
+echo '  </div>'
+#----------------------------------------------------------------------------------------
 
 $REBOOT_REQUIRED
 [ $? -eq 0 ] && pcp_reboot_required
+
+pcp_html_end
 exit
