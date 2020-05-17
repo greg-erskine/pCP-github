@@ -1,88 +1,87 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-10
+# Version: 7.0.0 2020-05-17
 
 . pcp-functions
 
 pcp_html_head "Test" "GE"
 
-pcp_banner
-pcp_navigation
+pcp_navbar
+
+pcp_heading5 "Testing pcp_sufficient_free_space"
 
 #----------------------------------------------------------------------------------------
-pcp_table_top "10000"
+pcp_heading5 "Required: 10000 FORMAT: blank" hr
 pcp_sufficient_free_space 10000
 echo $?
-pcp_table_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_top "1000000"
+pcp_heading5 "Required: 1000000 FORMAT: blank" hr
 pcp_sufficient_free_space 1000000
 echo $?
-pcp_table_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_top "html 10000"
-pcp_sufficient_free_space html 10000
+pcp_heading5 "Required: 10000 FORMAT: html" hr
+pcp_sufficient_free_space 10000 html
 echo $?
-pcp_table_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_top "html 1000000"
-pcp_sufficient_free_space html 1000000
+pcp_heading5 "Required: 1000000 FORMAT: html" hr
+pcp_sufficient_free_space 1000000 html
 echo $?
-pcp_table_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_textarea_top "nohtml 10000"
-pcp_sufficient_free_space nohtml 10000
+pcp_heading5 "Required: 10000 FORMAT: text" hr
+pcp_sufficient_free_space 10000 text
 echo $?
-pcp_table_textarea_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_textarea_top "nohtml 1000000"
-pcp_sufficient_free_space nohtml 1000000
+pcp_heading5 "Required: 1000000 FORMAT: text" hr
+pcp_sufficient_free_space 1000000 text
 echo $?
-pcp_table_textarea_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_textarea_top "text 10000"
-pcp_sufficient_free_space text 10000
+pcp_heading5 "Required: 10000 FORMAT: color" hr
+pcp_sufficient_free_space 10000 color 
 echo $?
-pcp_table_textarea_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_textarea_top "text 1000000"
-pcp_sufficient_free_space text 1000000
+pcp_heading5 "Required: 1000000 FORMAT: color" hr
+pcp_sufficient_free_space 1000000 color 
 echo $?
-pcp_table_textarea_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_textarea_top "color 10000"
-pcp_sufficient_free_space color 10000
+pcp_heading5 "Required: 10000 FORMAT: none" hr
+pcp_sufficient_free_space 10000 none 
 echo $?
-pcp_table_textarea_end
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-pcp_table_textarea_top "color 1000000"
-pcp_sufficient_free_space color 1000000
+pcp_heading5 "Required: 1000000 FORMAT: none" hr
+pcp_sufficient_free_space 1000000 none 
 echo $?
-pcp_table_textarea_end
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
+#----------------------------------------------------------------------------------------
+pcp_heading5 "Required: 10000 FORMAT: nohtml" hr
+pcp_sufficient_free_space 10000 nohtml 
+echo $?
+#----------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------
+pcp_heading5 "Required: 1000000 FORMAT: nohtml" hr
+pcp_sufficient_free_space 1000000 nohtml 
+echo $?
+#----------------------------------------------------------------------------------------
+
 pcp_remove_query_string
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit

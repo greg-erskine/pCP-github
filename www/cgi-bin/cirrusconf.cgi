@@ -21,9 +21,9 @@ COLUMN3_2="col-2"
 COLUMN3_3="col-8"
 
 #---------------------------Routines-----------------------------------------------------
-
 pcp_install_cirrus() {
 	pcp_message INFO "Downloading Cirrus Configuration extension..." "text"
+	pcp_message INFO "" "text" "-n"
 	sudo -u tc pcp-load -r $PCP_REPO -w rpi-cirrus-config.tcz
 	if [ -f $TCEMNT/tce/optional/rpi-cirrus-config.tcz ]; then
 		pcp_message INFO "Installing Cirrus Configuration extension..." "text"
@@ -36,10 +36,12 @@ pcp_install_cirrus() {
 }
 
 pcp_remove_cirrus() {
+	pcp_message INFO "" "text" "-n"
 	sudo -u tc tce-audit builddb
+	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete rpi-cirrus-config.tcz
 	sudo sed -i '/rpi-cirrus-config.tcz/d' $ONBOOTLST
-	echo "Removing configuration files" "text"
+	pcp_message INFO "Removing configuration files..." "text"
 	rm -f $CIRRUSCONF
 }
 
@@ -87,8 +89,9 @@ set_cirrus_conf() {
 REBOOT_REQUIRED=0
 case "$ACTION" in
 	Install)
-		pcp_textarea_begin "" 9
-		pcp_sufficient_free_space 4500
+		pcp_textarea_begin "" 11
+		pcp_message INFO "Installing rpi-cirrus-config.tcz..." "text"
+		pcp_sufficient_free_space 4500 "text"
 		if [ $? -eq 0 ] ; then
 			pcp_install_cirrus
 			if [ ! -f $TCEMNT/tce/optional/rpi-cirrus-config.tcz ]; then
@@ -99,15 +102,15 @@ case "$ACTION" in
 		pcp_hr
 	;;
 	Remove)
-		pcp_textarea_begin "" 9
-		pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
+		pcp_textarea_begin "" 11
+		pcp_message INFO "Removing rpi-cirrus-config.tcz..." "text"
 		pcp_remove_cirrus
 		pcp_textarea_end
 		REBOOT_REQUIRED=1
 		pcp_hr
 	;;
 	Setconfig)
-		pcp_textarea_begin "" 9
+		pcp_textarea_begin "" 11
 		pcp_message INFO "Setting Cirrus Card configuration..." "text"
 		set_cirrus_conf
 		pcp_backup "text"
@@ -115,9 +118,9 @@ case "$ACTION" in
 		pcp_hr
 	;;
 	Update)
-		pcp_textarea_begin "" 9
-		pcp_sufficient_free_space 4500
+		pcp_textarea_begin "" 11
 		pcp_message INFO "Updating rpi-cirrus-config.tcz..." "text"
+		pcp_sufficient_free_space 4500 "text"
 		sudo -u tc pcp-update rpi-cirrus-config.tcz
 		case $? in
 			0) pcp_message INFO "Reboot required to finish update" "text"; REBOOT_REQUIRED=1;;
@@ -148,8 +151,8 @@ pcp_cirrus_install() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Install" />'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
-		echo '        <p>Required: Install Cirrus Logic Configuration Extension&nbsp;&nbsp;'
+		echo '      <div class="col-10">'
+		echo '        <p><b>Required:</b> Install Cirrus Logic configuration extension&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
@@ -164,11 +167,11 @@ pcp_cirrus_install() {
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove Cirrus Logic Configuration Scripts.\n\nAre you sure?'\'')"/>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
-		echo '        <p>Update or Remove Cirrus Logic Configuration Scripts from pCP&nbsp;&nbsp;'
+		echo '        <p>Update or Remove Cirrus Logic configuration scripts from pCP&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '          <p>This will remove Cirrus Logic Configuration Scripts.</p>'
+		echo '          <p>This will remove Cirrus Logic configuration scripts.</p>'
 		echo '        </div>'
 		echo '      </div>'
 	fi
@@ -206,7 +209,7 @@ pcp_cirrus_configure() {
 	echo '    <div class="row">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input id="cb1" type="checkbox" name="SPEAKERS" value="1" '$SPEAKERSyes $DISABLE'>'
-	echo '        <label for="cb1">&#8239;</label>'
+#	echo '        <label for="cb1">&#8239;</label>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>Speakers</p>'
@@ -251,10 +254,10 @@ pcp_cirrus_configure() {
 #	echo '        <label for="cb4">&#8239;</label>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>Spdif</p>'
+	echo '        <p>SPDIF</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
-	echo '        <p>Output to Spdif Port</p>'
+	echo '        <p>Output to SPDIF Port</p>'
 	echo '      </div>'
 	echo '    </div>'
 	#--------------------------------------Submit button---------------------------------
@@ -263,7 +266,7 @@ pcp_cirrus_configure() {
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Setconfig" '$DISABLE'>Set Outputs</button>'
 	echo '      </div>'
 	echo '      <div class="col-10">'
-	echo '        <p>Enable card outputs by selecting check boxes above, then press the "Set Outputs" button</p>'
+	echo '        <p>Enable card outputs by selecting check boxes above, then press the "Set Outputs" button.</p>'
 	echo '      </div>'
 	echo '    </div>'
 #----------------------------------------------------------------------------------------
