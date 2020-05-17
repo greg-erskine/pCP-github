@@ -38,6 +38,7 @@ do
 done
 
 echo '  </div>'
+echo '  <br>'
 
 pcp_html_end
 exit

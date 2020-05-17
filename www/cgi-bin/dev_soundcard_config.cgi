@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-20
+# Version: 7.0.0 2020-05-17
 
 # Title: Soundcard config files
 # Description: Easy method for viewing the Soundcard configuration files
@@ -10,8 +10,7 @@
 
 pcp_html_head "Show Soundcard Config File" "GE"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 PCPSOUNDCARDS=$(ls "${DACLOCATION}")
@@ -20,112 +19,66 @@ PCPSOUNDCARDS=$(ls "${DACLOCATION}")
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_overlays_loaded() {
-	pcp_mount_bootpart_nohtml >/dev/null 2>&1
+	pcp_mount_bootpart >/dev/null 2>&1
 	OVERLAYS=$(cat ${VOLUME}/config.txt | grep ^dtoverlay | sed 's/dtoverlay=//')
-	pcp_umount_bootpart_nohtml >/dev/null 2>&1
+	pcp_umount_bootpart >/dev/null 2>&1
 }
 pcp_overlays_loaded
 
 #========================================================================================
 # Selection form
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Select soundcard config file</legend>'
-echo '          <form name="soundcard" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
+pcp_heading5 "Select soundcard config file"
+
+echo '  <form name="soundcard" action="'$0'" method="get">'
 #----------------------------------------------------------------------------------------
-pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column300">'
-echo '                  <select class="large22" name="SELECTION">'
+echo '    <div class="row">'
+echo '      <div class="input-group col-3">'
+echo '        <select class="custom-select custom-select-sm" name="SELECTION">'
 
-	                      for CARD in $PCPSOUNDCARDS
-	                      do
-	                          [ "$SELECTION" = "$CARD" ] && SELECTED="selected" || SELECTED=""
-	                          echo '                    <option value="'$CARD'" '$SELECTED'>'$(echo ${CARD/.conf/})'</option>'
-	                      done
+	            for CARD in $PCPSOUNDCARDS
+	            do
+	                [ "$SELECTION" = "$CARD" ] && SELECTED="selected" || SELECTED=""
+	                echo '           <option value="'$CARD'" '$SELECTED'>'$(echo ${CARD/.conf/})'</option>'
+	            done
 
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Show soundcard config file&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>The soundcard config files are located in '$DACLOCATION'</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="2">'
-echo '                  <input type="submit" name="ACTION" value="Show">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </form>'
-echo '        </fieldset>'
+echo '        </select>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_incr_id
+echo '      <div class="col-9">'
+echo '        <p>Show soundcard config file&nbsp;&nbsp;'
+echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '        </p>'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '          <p>The soundcard config files are located in '$DACLOCATION'</p>'
+echo '        </div>'
+echo '      </div>'
+echo '    </div>'
+echo '    <div class="row">'
+echo '      <div class="col-2">'
+echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Show">'
+echo '      </div>'
+echo '    </div>'
 #----------------------------------------------------------------------------------------
-
-#------------------------------------------Soundcard text area-----------------------------
+echo '  </form>'
+#----------------------------------------------------------------------------------------
+pcp_hr
+#------------------------------------Soundcard text--------------------------------------
 pcp_soundcard_show() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>'$(echo ${SELECTION/.conf/})' config file</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" 'cat ${DACLOCATION}/$SELECTION' 250
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	pcp_heading5 "$(echo ${SELECTION/.conf/}) config file"
+	LINES=$(wc -l ${DACLOCATION}/$SELECTION)
+	pcp_textarea "none" 'cat ${DACLOCATION}/$SELECTION' $LINES
 }
 [ "$ACTION" = "Show" ] && pcp_soundcard_show
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Loaded overlays text area---------------------
+#------------------------------------Loaded overlays-------------------------------------
 pcp_card_loaded() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Loaded Overlays</legend>'
-	echo '          <table class="bggrey percent100">'
-	echo '            <tr>'
-	echo '              <td>'
-	                      pcp_textarea_inform "none" "echo $OVERLAYS | sed 's/ /\n/g'" 50
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	pcp_heading5 "Loaded overlays"
+	pcp_textarea "none" "echo $OVERLAYS | sed 's/ /\n/g'" 2
 }
 pcp_card_loaded
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit

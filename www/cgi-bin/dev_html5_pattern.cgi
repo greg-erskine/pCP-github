@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-20
+# Version: 7.0.0 2020-05-17
 
 # Title: HTML5 Pattern Test
 # Description: Used for testing HTML regex pattern matching
@@ -9,64 +9,46 @@
 
 pcp_html_head "HTML5 Pattern Test Page" "PH"
 
-pcp_banner
-pcp_navigation
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string_no_decode
 
 #========================================================================================
-# Main table
+pcp_heading5 "HTML5 Pattern Test"
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
+echo '    <div class="row">'
+echo '      <form name="LMS" action="'$0'">'
+echo '        <div class="row">'
+echo '          <div class="col-6">'
+echo '            <p>Submit</p>'
+echo '          </div>'
+echo '          <div class="col">'
+echo '            <p>Enter HTML5 Pattern Here.</p>'
+echo '          </div>'
+echo '          <div class="col-6">'
+echo '            <p>Type test strings here.</p>'
+echo '          </div>'
+echo '        </div>'
+echo '        <div class="row">'
+echo '          <div class="col-4">'
+echo '            <button type="submit" name="ACTION" value="Submit">Submit</button>'
+echo '          </div>'
+echo '          <div class="col-4">'
+echo '            <input id="PATTERN" class="XXXX" type="text" name="PATTERN" onchange="setpattern()">'
+echo '          </div>'
+echo '          <div class="col-4">'
+echo '            <input id="TEST" class="XXXX" type="text" name="TEST" required pattern="" onclick="setpattern()">'
+echo '          </div>'
+echo '        </div>'
+echo '      </form>'
 echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>HTML5 Pattern Test</legend>'
-pcp_start_row_shade
-echo '          <form name="LMS" action="'$0'">'
-echo '            <table class="bggrey percent100">'
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150 center">'
-echo '                  <p>Submit</p>'
-echo '                </td>'
-echo '                <td class="column300">'
-echo '                  <p>Enter HTML5 Pattern Here.</p>'
-echo '                </td>'
-echo '                <td class="column300">'
-echo '                  <p>Type test strings here.</p>'
-echo '                </td>'
-echo '              </tr>'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150 center">'
-echo '                  <button type="submit" name="ACTION" value="Submit">Submit</button>'
-echo '                </td>'
-echo '                <td class="column300">'
-echo '                  <input id="PATTERN" class="large22" type="text" name="PATTERN" onchange="setpattern()">'
-echo '                </td>'
-echo '                <td class="column300">'
-echo '                  <input id="TEST" class="large22" type="text" name="TEST" required pattern="" onclick="setpattern()">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </form>'
-echo '          <table class="bggrey percent100">'
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150 center">'
-echo '                <p>CGI Pattern Code</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p id="OUT">Enter HTML5 Pattern Here.</p>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
+echo '        <div class="col-5">'
+echo '          <p>CGI Pattern Code</p>'
+echo '        </div>'
+echo '        <div class="col-6">'
+echo '          <p id="OUT">Enter HTML5 Pattern Here.</p>'
+echo '        </div>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
 
 echo '<script>'
 echo '  var Box = "PATTERN";'
@@ -86,6 +68,5 @@ echo '  setpattern();'
 echo '  setout();'
 echo '</script>'
 
-pcp_footer
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit

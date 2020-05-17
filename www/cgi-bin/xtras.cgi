@@ -1,37 +1,45 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-10-06
+# Version: 7.0.0 2020-05-17
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "xtras" "GE"
 
-pcp_banner
-pcp_running_script
+pcp_controls
 pcp_xtras
+pcp_httpd_query_string
 
+XTRAS_PAGES=$(ls ${WWWROOT}/cgi-bin/xtras_*.cgi)
+
+COLUMN1="col-12"
 #========================================================================================
-pcp_table_top "Favorites toolbar"
-#echo '<h1>Favorites toolbar</h1>'
-echo '<p><b>Note: </b>Your favorites should be appearing in the toolbar below.</p>'
-pcp_table_end
-pcp_lms_favorites
+# Developer web pages
 #----------------------------------------------------------------------------------------
+pcp_heading5 "Xtras web pages"
 
-#========================================================================================
-pcp_table_top "Common buttons test"
-#echo '<h1>Common buttons test</h1>'
-echo '<p><b>Note: </b>The commonly used buttons should appear below.</p>'
-pcp_go_main_button
-pcp_refresh_button
-pcp_go_back_button
-pcp_reboot_button
-pcp_table_end
-#----------------------------------------------------------------------------------------
+echo '  <div class="row">'
 
-pcp_footer
-pcp_copyright
+for PAGE in $XTRAS_PAGES
+do
+	pcp_get_page_info $PAGE
+	[ "$TITLE" = "" ] && TITLE=$BASENAME
+	if [ "$BASENAME" != "$0" ]; then
+		echo '    <div class="col-3">'
+		echo '      <a href="'$BASENAME'">'$TITLE'</a>'
+		echo '    </div>'
+		echo '    <div class="col-7">'
+		echo '      '$DESCR
+		echo '    </div>'
+		echo '    <div class="col-2">'
+		echo '      '$VERSION
+		echo '    </div>'
+	fi
+done
 
-echo '</body>'
-echo '</html>'
+echo '  </div>'
+echo '  <br>'
+
+pcp_html_end
+exit

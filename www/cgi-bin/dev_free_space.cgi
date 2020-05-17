@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # Version: 7.0.0 2020-05-17
+# Title: Free space
+# Description: Testing pcp_sufficient_free_space function
 
 . pcp-functions
 
