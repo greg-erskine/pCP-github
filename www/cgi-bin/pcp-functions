@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-17
+# Version: 7.0.0 2020-05-19
 
 WWW_BUILD=0008
 
@@ -529,7 +529,7 @@ pcp_html_head() {
 	echo ''
 	[ "$5" != "nobody" ] && echo '<body>'
 #	echo '<div class="container-fluid bg-light">'
-	echo '<div class="container shadow bg-light">'
+	echo '<main class="container shadow bg-light">'
 
 	if [ "$PLAYERTABS" = "yes" ]; then
 		echo '  <script>setplayertabs();</script>'
@@ -540,7 +540,7 @@ pcp_html_head() {
 pcp_html_end() {
 	pcp_footer
 	pcp_copyright
-	echo '</div>'
+	echo '</main>'
 	echo '</body>'
 	echo '</html>'
 }
@@ -598,15 +598,18 @@ pcp_navbar() {
 		fi
 		[ x"" = x"$LMSWEBPORT" ] && LMSPORT=9000 || LMSPORT=$LMSWEBPORT
 		echo '        <li class="nav-item">'
-		echo '          <a class="nav-link" href="http://'$LMSIP':'$LMSPORT'/" title="'$LMSIP'" target="_blank">LMS</a>'
+		echo '          <a class="nav-link"
+	                       href="http://'$LMSIP':'$LMSPORT'/"
+	                       title="'$LMSIP'"
+	                       target="_blank">LMS</a>'
 		echo '        </li>' 
 	fi
 
 	echo '        <li class="nav-item">'
 	echo '          <a class="nav-link" 
-	                href="https://www.picoreplayer.org/main_about.shtml"
-	                title="Online pCP Help"
-	                target="_blank">Help</a>'
+	                   href="https://www.picoreplayer.org/main_about.shtml"
+	                   title="Online pCP Help"
+	                   target="_blank">Help</a>'
 	echo '        </li>'
 
 	echo '        <li class="nav-item dropdown">'
@@ -637,7 +640,7 @@ pcp_navbar() {
 pcp_footer() {
 	if [ "$1" = "static" ]; then
 		echo '<!-- Start of pcp_footer -->'
-		echo '  <div class="row">'
+#		echo '  <footer class="container shadow">'
 		echo '    <div class="col-12 text-center bg-primary text-light pb-1">'
 		echo '      <small>
 		              '$NAME' |
@@ -647,7 +650,7 @@ pcp_footer() {
 		              piCore v'$(pcp_picore_version)' |
 		              Squeezelite v'$(pcp_squeezelite_version)'</small>'
 		echo '    </div>'
-		echo '  </div>'
+#		echo '  </footer>'
 		echo '<!-- End of pcp_footer -->'
 	else
 		if [ -f "/tmp/footer.html" ] && [ $MODE -lt $MODE_DEVELOPER ]; then
@@ -666,7 +669,7 @@ pcp_footer() {
 			fi
 
 			echo '<!-- Start of pcp_footer -->'
-			echo '  <div class="row">'
+#			echo '  <footer class="container shadow bg-light">'
 			echo '    <div class="col-12 text-center bg-primary text-light pb-1">'
 			echo '      <small>
 				          '$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
@@ -678,7 +681,7 @@ pcp_footer() {
 				          '`echo $SQUEEZELITEfoot`' |
 				          '`echo $TIMESTAMP`'</small>'
 			echo '    </div>'
-			echo '  </div>'
+#			echo '  </footer>'
 			echo '<!-- End of pcp_footer -->'
 		fi
 	fi
@@ -920,7 +923,7 @@ pcp_heading5() {
 
 	[ "$2" = "hr" ] && echo '<hr>'
 	echo '  <div class="row">'
-	echo '    <div class="col-12 my-2">'
+	echo '    <div class="col-12 my-2 ml-3">'
 	echo '      <h4>'$1'</h4>'
 	echo '    </div>'
 	echo '  </div>'
