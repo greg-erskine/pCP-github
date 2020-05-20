@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-15
+# Version: 7.0.0 2020-05-20
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
@@ -49,5 +49,7 @@ echo '  <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBAD
 echo '  <div class="form-group '$COLUMN2_1'">'
 echo '    <input class="form-control form-control-sm"'
 
-echo '      <div class="input-group '$COLUMN3_2'">'
-echo '        <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
+echo '  <div class="input-group '$COLUMN3_2'">'
+echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
+
+

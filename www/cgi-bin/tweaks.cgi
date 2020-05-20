@@ -54,7 +54,7 @@ pcp_tweaks_hostname() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Host name</div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="form-group '$COLUMN3_2'">'
 	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="HOST"'
@@ -98,7 +98,7 @@ pcp_tweaks_timezone() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Timezone</div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="form-group '$COLUMN3_2'">'
 	echo '        <input class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="TIMEZONE"'
@@ -866,7 +866,7 @@ pcp_tweaks_auto_start() {
 		pcp_textarea FAVLIST "cat /tmp/json_list" 5
 		echo '<!-- End of debug info -->'
 	fi
-	echo '  <p></p>' # Add a little space
+	echo '<hr>'
 	#------------------------------------------------------------------------------------
 
 	#---------------------------------Autostart LMS--------------------------------------
@@ -1012,7 +1012,7 @@ pcp_tweaks_install_jivelite() {
 		echo '    </form>'
 		echo '  </div>'
 	fi
-
+	echo '<hr>'
 	#------------------------------------------------------------------------------------
 	pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
 }
@@ -1059,6 +1059,7 @@ pcp_tweaks_enable_jivelite() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '<hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_enable_jivelite
 #----------------------------------------------------------------------------------------
@@ -1112,6 +1113,7 @@ pcp_tweaks_vumeter() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '<hr>'
 
 	if [ $DEBUG -eq 1 ]; then
 		#================================================================================
@@ -1191,6 +1193,7 @@ pcp_tweaks_screenrotate() {
 	echo '  </form>'
 	#------------------------------------------------------------------------------------
 	pcp_debug_variables "html" SCREENROTATE SCREEN0 SCREEN180
+	echo '<hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_screenrotate
 #----------------------------------------------------------------------------------------
@@ -1228,6 +1231,7 @@ pcp_tweaks_screensize() {
 	echo '  </form>'
 	#------------------------------------------------------------------------------------
 	pcp_debug_variables "html" JL_SCREEN_WIDTH JL_SCREEN_HEIGHT
+	echo '<hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_screensize
 #----------------------------------------------------------------------------------------
@@ -1384,7 +1388,7 @@ pcp_tweaks_poweroff() {
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="col-12">'
 	echo '        <p>Poweroff GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -1405,27 +1409,30 @@ pcp_tweaks_poweroff() {
 	esac
 
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN4_1'">'
+	echo '      <div class="col-2">'
 	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_2'">'
+	echo '      <div class="col-2">'
 	echo '        <input id="gpio1" type="radio" name="GPIOPOWEROFF" value="yes" '$GPIOPOWEROFF_yes'>'
 	echo '        <label for="gpio1">Yes&nbsp;&nbsp;</label>'
 	echo '        <input id="gpio2" type="radio" name="GPIOPOWEROFF" value="no" '$GPIOPOWEROFF_no'>'
 	echo '        <label for="gpio2">No</label>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_3'">'
-	echo '        GPIO: <input class="form-control form-control-sm"'
-	echo '             type="number"'
-	echo '             name="GPIOPOWEROFF_GPIO"'
-	echo '             value="'$GPIOPOWEROFF_GPIO'"'
-	echo '             title="( 0 - 31 )"'
-	echo '             min="0"'
-	echo '             max="31"'
-	echo '        >'
+	echo '      <div class="row col-2">'
+	echo '        <div class="col text-right">GPIO:</div>'
+	echo '        <div class="input-group col">'
+	echo '          <input class="form-control form-control-sm" id="gpiopo1'
+	echo '               type="number"'
+	echo '               name="GPIOPOWEROFF_GPIO"'
+	echo '               value="'$GPIOPOWEROFF_GPIO'"'
+	echo '               title="( 0 - 31 )"'
+	echo '               min="0"'
+	echo '               max="31"'
+	echo '          >'
+	echo '        </div>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_4'">'
+	echo '      <div class="col-3">'
 	echo '        <input id="gpio3" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>'
 	echo '        <label for="gpio3">Active High&nbsp;&nbsp;</label>'
 	echo '        <input id="gpio4" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>'
@@ -1434,13 +1441,13 @@ pcp_tweaks_poweroff() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-
+	echo '<hr>'
 	#------------------------------------------------------------------------------------
 	echo '  <form name="shutdown" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="col-12">'
 	echo '        <p>Shutdown GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -1467,33 +1474,36 @@ pcp_tweaks_poweroff() {
 	esac
 
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="col-2">'
 	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="col-2">'
 	echo '        <input id="gpiosd1" type="radio" name="GPIOSHUTDOWN" value="yes" '$GPIOSHUTDOWN_yes'>'
 	echo '        <label for="gpiosd1">Yes&nbsp;&nbsp;</label>'
 	echo '        <input id="gpiosd2" type="radio" name="GPIOSHUTDOWN" value="no" '$GPIOSHUTDOWN_no'>'
 	echo '        <label for="gpiosd2">No</label>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_3'">'
-	echo '        GPIO: <input class="form-control form-control-sm"'
-	echo '             type="number"'
-	echo '             name="GPIOSHUTDOWN_GPIO"'
-	echo '             value="'$GPIOSHUTDOWN_GPIO'"'
-	echo '             title="( 0 - 31 )"'
-	echo '             min="0"'
-	echo '             max="31"'
-	echo '        >'
+	echo '      <div class="row col-2">'
+	echo '        <div class="col text-right">GPIO:</div>'
+	echo '        <div class="input-group col text-left">'
+	echo '               <input class="form-control form-control-sm" id="gpiopo2"'
+	echo '               type="number"'
+	echo '               name="GPIOSHUTDOWN_GPIO"'
+	echo '               value="'$GPIOSHUTDOWN_GPIO'"'
+	echo '               title="( 0 - 31 )"'
+	echo '               min="0"'
+	echo '               max="31"'
+	echo '          >'
+	echo '        </div>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="col-3">'
 	echo '        <input id="gpiosd3" type="radio" name="GPIOSHUTDOWN_HI" value="yes" '$GPIOSHUTDOWN_HI_yes'>'
-	echo '        <label for="gpiosd3">Active High</label>'
+	echo '        <label for="gpiosd3">Active High&nbsp;&nbsp;</label>'
 	echo '        <input id="gpiosd4" type="radio" name="GPIOSHUTDOWN_HI" value="no" '$GPIOSHUTDOWN_HI_no'>'
 	echo '        <label for="gpiosd4">Active Low</label>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="col-3">'
 	echo '        <input id="gpiosd5" type="radio" name="GPIOSHUTDOWN_PU" value="up" '$GPIOSHUTDOWN_PU_up'>'
 	echo '        <label for="gpiosd5">Pull Up&nbsp;&nbsp;</label>'
 	echo '        <input id="gpiosd6" type="radio" name="GPIOSHUTDOWN_PU" value="down" '$GPIOSHUTDOWN_PU_down'>'
@@ -1688,6 +1698,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
+	echo '<hr>'
 #------------------------------------------------------------------------------------
 	pcp_debug_variables "html" ALSAeq ALSAeqno ALSAeqyes EQUAL_OUT_DEVICE
 #--------------------------------------PCP Streamer----------------------------------

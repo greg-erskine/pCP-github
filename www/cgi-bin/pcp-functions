@@ -223,6 +223,36 @@ pcp_get_page_info() {
 	DESCR=$(cat $BASENAME | grep -m 1 "^# Description: " | sed "s/^# Description: //")
 }
 
+pcp_generate_listing() {
+	LS_FILES="$1"
+	LS_TITLE="$2"
+	LS_PAGES=$(ls ${WWWROOT}/cgi-bin/$LS_FILES)
+
+	echo '  <div class="'$BORDER' pb-3 mb-2">'
+	pcp_heading5 "$LS_TITLE"
+	echo '    <div class="row mx-1">'
+
+	for PAGE in $LS_PAGES
+	do
+		pcp_get_page_info $PAGE
+		[ x"$TITLE" = x"" ] && TITLE=$BASENAME
+		if [ "$BASENAME" != "$0" ]; then
+			echo '      <div class="col-3">'
+			echo '        <a href="'$BASENAME'">'$TITLE'</a>'
+			echo '      </div>'
+			echo '      <div class="col-7">'
+			echo '        '$DESCR
+			echo '      </div>'
+			echo '      <div class="col-2">'
+			echo '        '$VERSION
+			echo '      </div>'
+		fi
+	done
+
+	echo '    </div>'
+	echo '  </div>'
+}
+
 #========================================================================================
 # Green tick and red cross
 #----------------------------------------------------------------------------------------
