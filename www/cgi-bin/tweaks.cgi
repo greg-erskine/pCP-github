@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-14
+# Version: 7.0.0 2020-05-20
 
 set -f
 
@@ -44,6 +44,7 @@ pcp_the_end() {
 #========================================================================================
 # pCP System Tweaks
 #----------------------------------------------------------------------------------------
+echo '<div class="'$BORDER'">'
 pcp_heading5 "pCP System Tweaks"
 
 #----------------------------------------------Hostname----------------------------------
@@ -51,7 +52,7 @@ pcp_tweaks_hostname() {
 
 	echo '  <form name="squeeze" action="writetohost.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Host name</div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input class="form-control form-control-sm"'
@@ -78,14 +79,14 @@ pcp_tweaks_hostname() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	echo '<hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_hostname
 #----------------------------------------------------------------------------------------
@@ -95,7 +96,7 @@ pcp_tweaks_timezone() {
 
 	echo '  <form name="tzone" action="writetotimezone.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Timezone</div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input class="form-control form-control-sm"'
@@ -124,14 +125,14 @@ pcp_tweaks_timezone() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	echo '<hr>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_timezone
 #----------------------------------------------------------------------------------------
@@ -146,7 +147,7 @@ pcp_tweaks_playertabs() {
 
 	echo '  <form name="playertabs" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>piCorePlayer Tabs</p>'
 	echo '      </div>'
@@ -168,7 +169,7 @@ pcp_tweaks_playertabs() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -191,7 +192,7 @@ pcp_tweaks_lmscontrols() {
 
 	echo '  <form name="lmscontroltoolbar" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS Controls Toolbar</p>'
 	echo '      </div>'
@@ -213,8 +214,8 @@ pcp_tweaks_lmscontrols() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
@@ -236,7 +237,7 @@ pcp_tweaks_hdmipower() {
 
 	echo '  <form name="hdmipower" action="writetohdmipwr.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>HDMI power</p>'
 	echo '      </div>'
@@ -259,8 +260,8 @@ pcp_tweaks_hdmipower() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
@@ -276,7 +277,7 @@ pcp_tweaks_lmswebport() {
 
 	echo '  <form name="lmswebport" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS Web Port</p>'
 	echo '      </div>'
@@ -303,8 +304,8 @@ pcp_tweaks_lmswebport() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
@@ -321,7 +322,7 @@ pcp_tweaks_internet_check_ip() {
 
 	echo '  <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Internet check IP</p>'
 	echo '      </div>'
@@ -348,7 +349,7 @@ pcp_tweaks_internet_check_ip() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -387,7 +388,7 @@ pcp_tweaks_rotdash() {
 
 	echo '  <form name="rotdash" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Replace rotating dash</p>'
 	echo '      </div>'
@@ -410,8 +411,8 @@ pcp_tweaks_rotdash() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
@@ -421,19 +422,21 @@ pcp_tweaks_rotdash() {
 }
 [ $MODE -ge $MODE_BETA ] && pcp_tweaks_rotdash
 #----------------------------------------------------------------------------------------
+echo '</div>'
 
 #========================================================================================
 # pCP OS/Kernel Tweaks
 #----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_PLAYER ]; then
-	pcp_heading5 "pCP Kernel Tweaks" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "pCP Kernel Tweaks"
 fi
 #--------------------------------------Governor------------------------------------------
 pcp_tweaks_governor() {
 
 	echo '  <form name="governor" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>CPU Governor</p>'
 	echo '      </div>'
@@ -468,8 +471,8 @@ pcp_tweaks_governor() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="ACTION" value="gov">'
 	echo '      </div>'
@@ -498,7 +501,7 @@ pcp_tweaks_overclock() {
 
 	echo '  <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Overclock</p>'
 	echo '      </div>'
@@ -527,7 +530,7 @@ pcp_tweaks_overclock() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save" '$DISABLED'>'
 	echo '        <input type="hidden" name="ACTION" value="oc">'
@@ -552,7 +555,7 @@ pcp_tweaks_cpuisol() {
 
 	echo '  <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>CPU Isolation</p>'
 	echo '      </div>'
@@ -579,8 +582,8 @@ pcp_tweaks_cpuisol() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="ACTION" value="isol">'
 	echo '      </div>'
@@ -597,7 +600,7 @@ pcp_tweaks_sqlite_affinity() {
 
 	echo '  <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '     <div class="row">'
+	echo '     <div class="row mx-1">'
 	echo '       <div class="'$COLUMN3_1'">'
 	echo '         <p>Squeezelite CPU</p>'
 	echo '       </div>'
@@ -622,7 +625,7 @@ pcp_tweaks_sqlite_affinity() {
 	echo '       </div>'
 	echo '     </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Squeezelite Output CPU</p>'
 	echo '      </div>'
@@ -646,8 +649,8 @@ pcp_tweaks_sqlite_affinity() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="ACTION" value="sqlaffinity">'
 	echo '      </div>'
@@ -658,6 +661,7 @@ pcp_tweaks_sqlite_affinity() {
 }
 [ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 -a "$(cat /proc/cmdline | grep isolcpus)" != "" ] && pcp_tweaks_sqlite_affinity
 #----------------------------------------------------------------------------------------
+echo '</div>'
 
 #========================================================================================
 # Wake-on-LAN table
@@ -681,11 +685,12 @@ pcp_tweaks_wol() {
 		[ "$WOL_LMSMACADDRESS" = "" ] && WOL_LMSMACADDRESS=$4
 	fi
 
-	pcp_heading5 "Wake-on-LAN (WOL)" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Wake-on-LAN (WOL)"
 
 	echo '  <form name="wol" action="writetoconfig.cgi" method="get">'
 	#----------------------------------WOL-----------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>WOL</p>'
 	echo '      </div>'
@@ -707,7 +712,7 @@ pcp_tweaks_wol() {
 	echo '    </div>'
 	#----------------------------------LMS NIC-------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS NIC</p>'
 	echo '      </div>'
@@ -740,7 +745,7 @@ pcp_tweaks_wol() {
 	echo '    </div>'
 	#----------------------------------LMS MAC address-----------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>LMS MAC address</p>'
 	echo '      </div>'
@@ -767,8 +772,8 @@ pcp_tweaks_wol() {
 	echo '      </div>'
 	echo '    </div>'
 	#----------------------------------Submit button-------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
@@ -778,13 +783,14 @@ pcp_tweaks_wol() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_wol
 #----------------------------------------------------------------------------------------
+	echo '</div>'
 
 #========================================================================================
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_auto_start() {
-
-	pcp_heading5 "Auto start tweaks" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Auto start tweaks"
 
 	#---------------------------------Auto start favorite--------------------------------
 	case "$A_S_FAV" in
@@ -794,7 +800,7 @@ pcp_tweaks_auto_start() {
 
 	echo '  <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Auto start favorite</div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <select class="large30" name="AUTOSTARTFAV">'
@@ -809,7 +815,7 @@ pcp_tweaks_auto_start() {
 	echo '      </div>'
 	echo '    </div>'
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN2_2'">'
@@ -834,8 +840,8 @@ pcp_tweaks_auto_start() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Test">'
 	echo '        <input type="hidden" name="AUTOSTART" value="FAV">'
@@ -868,7 +874,7 @@ pcp_tweaks_auto_start() {
 
 	echo '  <form name="autostartlms" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Auto start LMS</div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input class="form-control form-control-sm" type="text" name="AUTOSTARTLMS" maxlength="254" value="'$AUTOSTARTLMS'">'
@@ -881,7 +887,7 @@ pcp_tweaks_auto_start() {
 	echo '      </div>'
 	echo '    </div>'
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN2_2'">'
@@ -909,8 +915,8 @@ pcp_tweaks_auto_start() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Test">'
 	echo '        <input type="hidden" name="AUTOSTART" value="LMS">'
@@ -925,17 +931,22 @@ pcp_tweaks_auto_start() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_auto_start
 
+	echo '</div>'
+
 #========================================================================================
 # Jivelite/Screen functions
 #----------------------------------------------------------------------------------------
-[ $MODE -ge $MODE_PLAYER ] && pcp_heading5 "Jivelite Setup" hr
+if [ $MODE -ge $MODE_PLAYER ]; then
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Jivelite Setup"
+fi
 
 #----------------------------------------------------------------------------------------
 # Function to download/install/delete Jivelite
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
 
-	echo '  <div class="row">'
+	echo '  <div class="row mx-1">'
 
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
 		echo '    <div class="'$COLUMN3_1'">'
@@ -1007,7 +1018,7 @@ pcp_tweaks_enable_jivelite() {
 
 	echo '  <form name="jivelite2" action="writetojivelite.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" value="Set Autostart" '$JLDISABLED'>'
 	echo '        <input type="hidden" name="OPTION" value="JIVELITE">'
@@ -1043,7 +1054,7 @@ pcp_tweaks_vumeter() {
 
 	echo '  <form name="vumeter" action= "writetojivelite.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Jivelite VU Meter</p>'
 	echo '      </div>'
@@ -1074,8 +1085,8 @@ pcp_tweaks_vumeter() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="col">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Download">'
 	echo '        <input type="hidden" name="OPTION" value="VUMETER">'
@@ -1090,25 +1101,25 @@ pcp_tweaks_vumeter() {
 		#--------------------------------------------------------------------------------
 		echo '<!-- Start of debug info -->'
 		#--------------------------------------------------------------------------------
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
 		echo '        <p class="debug">[ DEBUG ] Loop mounted extensions</p>'
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
 		                       pcp_textarea "none" "df | grep /dev/loop " 200
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
 		echo '        <p class="debug">[ DEBUG ] Installed extensions</p>'
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
 		                       ls /usr/local/tce.installed >/tmp/installed.lst
 		                       pcp_textarea "none" "cat /tmp/installed.lst" 100
@@ -1132,7 +1143,7 @@ pcp_tweaks_screenrotate() {
 
 	echo '  <form name="screen_rotate" action="writetoscreenrotate.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" name="ACTION" value="Rotation">Set Rotation</button>'
 	echo '      </div>'
@@ -1171,7 +1182,7 @@ pcp_tweaks_screensize() {
 
 	echo '  <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button name="ACTION" value="Size">Set Size</button>'
 	echo '      </div>'
@@ -1208,7 +1219,7 @@ pcp_tweaks_framebuffer() {
 	echo '  <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button name="ACTION" value="FrameBuffer">Set FB</button>'
 	echo '      </div>'
@@ -1222,7 +1233,7 @@ pcp_tweaks_framebuffer() {
 	echo '        <p>Set the Frame Buffer Device. (default: /dev/fb0)</p>'
 	echo '      </div>'
 	echo '    </div>'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <p>&nbsp;</p>'
 	echo '      </div>'
@@ -1236,7 +1247,7 @@ pcp_tweaks_framebuffer() {
 	echo '        <p>Set the Frame Buffer refresh rate.</p>'
 	echo '      </div>'
 	echo '    </div>'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <p>&nbsp;</p>'
 	echo '      </div>'
@@ -1257,9 +1268,11 @@ pcp_tweaks_framebuffer() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_framebuffer
 #----------------------------------------------------------------------------------------
+echo '</div>'
 
 if [ $MODE -ge $MODE_PLAYER ]; then
-	pcp_heading5 "IR remote control" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "IR remote control"
 fi
 #----------------------------------------------------------------------------------------
 
@@ -1277,7 +1290,7 @@ pcp_tweaks_lirc() {
 
 	echo '  <form name="LIRC" action="lirc.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>IR remote control</p>'
 	echo '      </div>'
@@ -1308,7 +1321,7 @@ pcp_tweaks_lirc() {
 			pcp_red_cross "not loaded"
 		fi
 
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>IR remote control</p>'
 		echo '      </div>'
@@ -1330,7 +1343,7 @@ pcp_tweaks_lirc() {
 		echo '    </div>'
 	fi
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN1_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="IR page">'
 	echo '      </div>'
@@ -1340,18 +1353,19 @@ pcp_tweaks_lirc() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lirc
 #----------------------------------------------------------------------------------------
+echo '</div>'
 
 #========================================================================================
 # Poweroff/Shutdown Table
 #----------------------------------------------------------------------------------------
 pcp_tweaks_poweroff() {
-
-	pcp_heading5 "Poweroff/Shutdown Overlays" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Poweroff/Shutdown Overlays"
 
 	echo '  <form name="poweroff" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Poweroff GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
@@ -1372,7 +1386,7 @@ pcp_tweaks_poweroff() {
 		no)  GPIOPOWEROFF_HI_no="checked";;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -1407,7 +1421,7 @@ pcp_tweaks_poweroff() {
 	echo '  <form name="shutdown" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Shutdown GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
@@ -1434,7 +1448,7 @@ pcp_tweaks_poweroff() {
 		off)  GPIOSHUTDOWN_PU_off="checked";;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -1476,7 +1490,7 @@ pcp_tweaks_poweroff() {
 	if [ "$GPIOSHUTDOWN" = "yes" -a ! -f /usr/local/bin/shutdown-monitor ]; then
 		echo '  <form name="shutdown-monitor" action="writetoconfig.cgi" method="get">'
 		#--------------------------------------------------------------------------------
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <button type="submit" name="SUBMIT" value="Install-monitor">Install Monitor</button>'
 		echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
@@ -1499,13 +1513,14 @@ pcp_tweaks_poweroff() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_poweroff
 #----------------------------------------------------------------------------------------
+	echo '</div>'
 
 #========================================================================================
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
-
-	pcp_heading5 "Audio tweaks" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Audio tweaks"
 
 	case "$SQUEEZELITE" in
 		yes) SQUEEZELITEyes="checked" ;;
@@ -1514,7 +1529,7 @@ pcp_tweaks_audio_tweaks() {
 
 	echo '  <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 #-------------------------------------------Squeezelite------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Squeezelite</p>'
 	echo '      </div>'
@@ -1543,7 +1558,7 @@ pcp_tweaks_audio_tweaks() {
 		no) SHAIRPORTno="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Shairport-sync</p>'
 	echo '      </div>'
@@ -1578,7 +1593,7 @@ pcp_tweaks_audio_tweaks() {
 		no) ALSAeqno="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>ALSA 10 band Equalizer</p>'
 	echo '      </div>'
@@ -1613,7 +1628,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '    </div>'
 #------------------------------------------------------------------------------------
 	if [ "$ALSAeq" = "yes" ]; then
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>Equalizer Device</p>'
 		echo '      </div>'
@@ -1650,8 +1665,8 @@ pcp_tweaks_audio_tweaks() {
 		echo '    </div>'
 	fi
 #------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
@@ -1663,7 +1678,7 @@ pcp_tweaks_audio_tweaks() {
 		no) STREAMERno="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Streamer for Audio Input</p>'
 	echo '      </div>'
@@ -1696,7 +1711,7 @@ pcp_tweaks_audio_tweaks() {
 	echo '    </div>'
 #------------------------------------------------------------------------------------
 	if [ "$STREAMER" = "yes" ]; then
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>Input Device</p>'
 		echo '      </div>'
@@ -1742,8 +1757,8 @@ pcp_tweaks_audio_tweaks() {
 	echo '      document.getElementById("stream_flac").innerHTML = "i.e. http://" + window.location.hostname + ":9100/S16_LE/44100/2/F";'
 	echo '    </script>'
 #------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
@@ -1752,13 +1767,14 @@ pcp_tweaks_audio_tweaks() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_audio_tweaks
 #----------------------------------------------------------------------------------------
+	echo '</div>'
 
 #========================================================================================
 # USB audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_usb_audio_tweaks() {
-
-	pcp_heading5 "USB Audio tweaks" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "USB Audio tweaks"
 
 	case "$CMD" in
 		Default) CMDdefault="checked" ;;
@@ -1767,7 +1783,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	
 	echo '  <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	#-----------------------------------------dwc_otg.speed------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>OTG-Speed</p>'
 	echo '      </div>'
@@ -1797,7 +1813,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		Disabled) FSMdisabled="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>USB-FSM driver</p>'
 	echo '      </div>'
@@ -1832,7 +1848,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		0xF) selected7="selected" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>FIQ-Split acceleration</p>'
 	echo '      </div>'
@@ -1849,7 +1865,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '    </div>'
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>&nbsp;</p>'
 	echo '      </div>'
@@ -1869,8 +1885,8 @@ pcp_tweaks_usb_audio_tweaks() {
 	#------------------------------------------------------------------------------------
 	pcp_debug_variables "html" FIQ selected1 selected2 selected3 selected4
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '    </div>'
@@ -1879,6 +1895,7 @@ pcp_tweaks_usb_audio_tweaks() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_usb_audio_tweaks
 #----------------------------------------------------------------------------------------
+	echo '</div>'
 
 #-------------------------------------------Schedule CRON jobs---------------------------
 #
@@ -1893,8 +1910,8 @@ pcp_tweaks_usb_audio_tweaks() {
 #
 #----------------------------------------------------------------------------------------
 pcp_tweaks_cron() {
-
-	pcp_heading5 "Schedule CRON jobs" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Schedule CRON jobs"
 
 	/etc/init.d/services/crond status >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
@@ -1905,7 +1922,7 @@ pcp_tweaks_cron() {
 
 	echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	#-------------------------------------crond indicator--------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '      </div>'
@@ -1928,7 +1945,7 @@ pcp_tweaks_cron() {
 		Disabled) REBOOT_N="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="col-3">'
 	echo '        <p>Schedule piCorePlayer reboot<p>'
 	echo '      </div>'
@@ -1980,7 +1997,7 @@ pcp_tweaks_cron() {
 		Disabled) RESTART_N="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Schedule Squeezelite restart</p>'
 	echo '      </div>'
@@ -2021,7 +2038,7 @@ pcp_tweaks_cron() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p></p>'
 	echo '      </div>'
@@ -2044,13 +2061,13 @@ pcp_tweaks_cron() {
 	echo '      </div>'
 	echo '    </div>'
 	#-------------------------------------Custom Cron command----------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Custom Cron command</div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input class="form-control form-control-sm" type="text" name="CRON_COMMAND" value="'$CRON_COMMAND'" maxlength="254">'
 	echo '      </div>'
 	echo '    </div>'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_2'"></div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -2070,8 +2087,8 @@ pcp_tweaks_cron() {
 	echo '      </div>'
 	echo '    </div>'
 	#-------------------------------------Buttons----------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Reset">'
 	[ $MODE -ge $MODE_PLAYER ] &&
@@ -2085,15 +2102,16 @@ pcp_tweaks_cron() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_cron
 #----------------------------------------------------------------------------------------
+	echo '</div>'
 
 #----------------------------------------------User Commands-----------------------------
 pcp_tweaks_user_commands() {
-
-	pcp_heading5 "User commands" hr
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "User commands"
 
 	echo '  <form name="setusercommands" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">User command #1</div>'
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <input class="form-control form-control-sm"'
@@ -2108,7 +2126,7 @@ pcp_tweaks_user_commands() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">User command #2</div>'
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <input class="form-control form-control-sm"'
@@ -2123,7 +2141,7 @@ pcp_tweaks_user_commands() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">User command #3</div>'
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <input class="form-control form-control-sm"'
@@ -2148,7 +2166,7 @@ pcp_tweaks_user_commands() {
 	echo '    </script>'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'"></div>'
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Adds user defined commands to the piCorePlayer startup procedure&nbsp;&nbsp;'
@@ -2170,8 +2188,8 @@ pcp_tweaks_user_commands() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN2_1'">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON' mb-1" type="submit" name="SUBMIT" value="Save">'
 	echo '        <input class="'$BUTTON' mb-1" type="submit" name="SUBMIT" value="Clear">'
 	echo '        <input type="hidden" name="AUTOSTART" value="CMD">'
@@ -2184,5 +2202,6 @@ pcp_tweaks_user_commands() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_user_commands
 #----------------------------------------------------------------------------------------
+echo '</div>'
 
 pcp_the_end

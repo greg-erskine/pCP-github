@@ -14,7 +14,6 @@ pcp_httpd_query_string
 COLUMN2_1="col-sm-2 text-md-right"
 COLUMN2_2="col-10"
 
-BORDER="border rounded mt-2 bg-white border-secondary"
 #========================================================================================
 # Reboot page.
 #----------------------------------------------------------------------------------------
