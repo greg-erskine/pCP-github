@@ -44,8 +44,10 @@ pcp_infobox_end
 
 pcp_heading5
 
-echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '  <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 
-	echo '      <div class="form-group '$COLUMN2_1'">'
-	echo '        <input class="form-control form-control-sm"
+echo '  <div class="form-group '$COLUMN2_1'">'
+echo '    <input class="form-control form-control-sm"'
 
+echo '      <div class="input-group '$COLUMN3_2'">'
+echo '        <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'

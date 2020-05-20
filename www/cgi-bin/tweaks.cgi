@@ -440,8 +440,8 @@ pcp_tweaks_governor() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>CPU Governor</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control form-control-sm" name="CPUGOVERNOR">'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="CPUGOVERNOR">'
 
 	                for GOV in $(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)
 	                do
@@ -505,8 +505,8 @@ pcp_tweaks_overclock() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Overclock</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control form-control-sm" name="OVERCLOCK" '$DISABLED'>'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="OVERCLOCK" '$DISABLED'>'
 	echo '          <option value="NONE" '$OCnone'>No overclocking</option>'
 	echo '          <option value="MILD" '$OCmild'>Mild overclocking</option>'
 	echo '          <option value="MODERATE" '$OCmoderate'>Moderate overclocking</option>'
@@ -802,14 +802,14 @@ pcp_tweaks_auto_start() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">Auto start favorite</div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="large30" name="AUTOSTARTFAV">'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="AUTOSTARTFAV">'
 	                pcp_lms_favorites_list select
 	echo '        </select>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <input id="as1" type="radio" name="A_S_FAV" value="Enabled" '$A_S_FAV_Y'>'
-	echo '        <label for="as1">Enabled</label>'
+	echo '        <label for="as1">Enabled&nbsp;&nbsp;&nbsp;</label>'
 	echo '        <input id="as2" type="radio" name="A_S_FAV" value="Disabled" '$A_S_FAV_N'>'
 	echo '        <label for="as2">Disabled</label>'
 	echo '      </div>'
@@ -843,9 +843,13 @@ pcp_tweaks_auto_start() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Test">'
 	echo '        <input type="hidden" name="AUTOSTART" value="FAV">'
+	echo '      </div>'
 	[ $MODE -ge $MODE_PLAYER ] &&
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Clear">'
 	echo '      </div>'
 	echo '    </div>'
@@ -881,7 +885,7 @@ pcp_tweaks_auto_start() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <input id="as3" type="radio" name="A_S_LMS" value="Enabled" '$A_S_LMS_Y'>'
-	echo '        <label for="as3">Enabled</label>'
+	echo '        <label for="as3">Enabled&nbsp;&nbsp;&nbsp;</label>'
 	echo '        <input id="as4" type="radio" name="A_S_LMS" value="Disabled" '$A_S_LMS_N'>'
 	echo '        <label for="as4">Disabled</label>'
 	echo '      </div>'
@@ -918,9 +922,13 @@ pcp_tweaks_auto_start() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Test">'
 	echo '        <input type="hidden" name="AUTOSTART" value="LMS">'
+	echo '      </div>'
 	[ $MODE -ge $MODE_PLAYER ] &&
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Clear">'
 	echo '      </div>'
 	echo '    </div>'
@@ -946,57 +954,65 @@ fi
 #----------------------------------------------------------------------------------------
 pcp_tweaks_install_jivelite() {
 
-	echo '  <div class="row mx-1">'
-
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-		echo '    <div class="'$COLUMN3_1'">'
-		echo '      <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '  <div class="row mx-1">'
+		echo '    <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+
+		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Install">'
 		echo '        <input type="hidden" name="OPTION" value="JIVELITE">'
-		echo '      </form>'
-		echo '    </div>'
-		echo '    <div class="'$COLUMN3_2'">'
-		echo '    </div>'
-		pcp_incr_id
-		echo '    <div class="'$COLUMN3_3'">'
-		echo '      <p>Install Jivelite on pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-		echo '      </p>'
-		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '        <p>This will install Jivelite and VU meters on pCP.</p>'
 		echo '      </div>'
-		echo '    </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '      </div>'
+		pcp_incr_id
+		echo '      <div class="'$COLUMN3_3'">'
+		echo '        <p>Install Jivelite on pCP&nbsp;&nbsp;'
+		echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>This will install Jivelite and VU meters on pCP.</p>'
+		echo '        </div>'
+		echo '      </div>'
+
+		echo '    </form>'
+		echo '  </div>'
 	else
-		echo '    <div class="col">'
-		echo '      <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '  <div class="row mx-1">'
+		echo '    <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Update">'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Reset">'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove">'
 		echo '        <input type="hidden" name="OPTION" value="JIVELITE">'
-		echo '      </form>'
-		echo '    </div>'
-		pcp_incr_id
-		echo '    <div class="'$COLUMN3_3'">'
-		echo '      <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-		echo '      </p>'
-		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '        <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
-		echo '        <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
-		echo '        <p>A reboot after installation is needed.<p>'
-		echo '        <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
-		echo '        <ul>'
-		echo '          <li>Install - Downloads and installs Jivelite.</li>'
-		echo '          <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
-		echo '          <li>Reset - Resets Jivelite preferences.</li>'
-		echo '          <li>Remove - Removes all traces of Jivelite.</li>'
-		echo '        </ul>'
-		echo '        <p>Jivelite requires resizing the file system.<p>'
-		echo '        <p>Installing Jivelite will also install the VU Meters.<p>'
 		echo '      </div>'
-		echo '    </div>'
+		pcp_incr_id
+		echo '      <div class="'$COLUMN3_3'">'
+		echo '        <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
+		echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		echo '        </p>'
+		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+		echo '          <p>Allows to view and control piCorePlayer via Jivelite on an attached screen.</p>'
+		echo '          <p>Jivelite for piCorePlayer is add-on extension developed by Ralphy.<p>'
+		echo '          <p>A reboot after installation is needed.<p>'
+		echo '          <p><b>Note:</b> For the first configuration of Jivelite an attached keyboard or touch screen is needed.</p>'
+		echo '          <ul>'
+		echo '            <li>Install - Downloads and installs Jivelite.</li>'
+		echo '            <li>Update - Updates the Jivelite Package, preferences are kept.  Reboot required.</li>'
+		echo '            <li>Reset - Resets Jivelite preferences.</li>'
+		echo '            <li>Remove - Removes all traces of Jivelite.</li>'
+		echo '          </ul>'
+		echo '          <p>Jivelite requires resizing the file system.<p>'
+		echo '          <p>Installing Jivelite will also install the VU Meters.<p>'
+		echo '        </div>'
+		echo '      </div>'
+		echo '    </form>'
+		echo '  </div>'
 	fi
-	echo '  </div>'
+
 	#------------------------------------------------------------------------------------
 	pcp_debug_variables "html" JIVELITE JIVEyes JIVEno
 }
@@ -1058,8 +1074,8 @@ pcp_tweaks_vumeter() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Jivelite VU Meter</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="form-control form-control-sm" name="VUMETER">'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="VUMETER">'
 
 	                LOADED_VU_METER=$( cat $ONBOOTLST | grep VU_Meter )
 	                VUMETERS=$( ls $PACKAGEDIR | grep VU_Meter | grep .tcz$ )
@@ -1088,6 +1104,8 @@ pcp_tweaks_vumeter() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Download">'
 	echo '        <input type="hidden" name="OPTION" value="VUMETER">'
 	echo '      </div>'
@@ -1184,7 +1202,7 @@ pcp_tweaks_screensize() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <button name="ACTION" value="Size">Set Size</button>'
+	echo '        <button class="'$BUTTON'" name="ACTION" value="Size">Set Size</button>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <p>Width:&nbsp;</p>'
@@ -1221,7 +1239,7 @@ pcp_tweaks_framebuffer() {
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <button name="ACTION" value="FrameBuffer">Set FB</button>'
+	echo '        <button class="'$BUTTON'" name="ACTION" value="FrameBuffer">Set FB</button>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <p>Frame Buffer:&nbsp;</p>'
@@ -1295,7 +1313,7 @@ pcp_tweaks_lirc() {
 	echo '        <p>IR remote control</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '       <p class="'$CLASS'">'$INDICATOR'</p>'
+	echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -1326,7 +1344,7 @@ pcp_tweaks_lirc() {
 		echo '        <p>IR remote control</p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
-		echo '       <p class="'$CLASS'">'$INDICATOR'</p>'
+		echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
 		echo '      </div>'
 		pcp_incr_id
 		echo '      <div class="'$COLUMN3_3'">'
@@ -1344,7 +1362,7 @@ pcp_tweaks_lirc() {
 	fi
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="IR page">'
 	echo '      </div>'
 	echo '    </div>'
@@ -1366,7 +1384,7 @@ pcp_tweaks_poweroff() {
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="'$COLUMN1_1'">'
 	echo '        <p>Poweroff GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -1388,7 +1406,7 @@ pcp_tweaks_poweroff() {
 
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <button type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Poweroff">gpio-poweroff</button>'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
@@ -1409,7 +1427,7 @@ pcp_tweaks_poweroff() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_4'">'
 	echo '        <input id="gpio3" type="radio" name="GPIOPOWEROFF_HI" value="yes" '$GPIOPOWEROFF_HI_yes'>'
-	echo '        <label for="gpio3">Active High</label>'
+	echo '        <label for="gpio3">Active High&nbsp;&nbsp;</label>'
 	echo '        <input id="gpio4" type="radio" name="GPIOPOWEROFF_HI" value="no" '$GPIOPOWEROFF_HI_no'>'
 	echo '        <label for="gpio4">Active Low</label>'
 	echo '      </div>'
@@ -1422,7 +1440,7 @@ pcp_tweaks_poweroff() {
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="'$COLUMN1_1'">'
 	echo '        <p>Shutdown GPIO&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -1450,7 +1468,7 @@ pcp_tweaks_poweroff() {
 
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <button type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Shutdown">gpio-shutdown</button>'
 	echo '        <input type="hidden" name="FROM_PAGE" value="tweaks.cgi">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
@@ -1657,7 +1675,7 @@ pcp_tweaks_audio_tweaks() {
 			echo '            <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'EQoption${OPTION}\'')">'
 			echo '              <span id="EQoption'${OPTION}'">'$IN'</span></li>'
 			OPTION=$((OPTION + 1))
-		done 
+		done
 
 		echo '          </ul>'
 		echo '        </div>'
@@ -1740,7 +1758,7 @@ pcp_tweaks_audio_tweaks() {
 			echo '            <li class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'STRoption${OPTION}\'')">'
 			echo '              <span id="STRoption'${OPTION}'">'$IN'</span></li>'
 			OPTION=$((OPTION + 1))
-		done 
+		done
 
 		echo '          </ul>'
 		echo '        </div>'
@@ -1780,7 +1798,7 @@ pcp_tweaks_usb_audio_tweaks() {
 		Default) CMDdefault="checked" ;;
 		Slow) CMDslow="checked" ;;
 	esac
-	
+
 	echo '  <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	#-----------------------------------------dwc_otg.speed------------------------------
 	echo '    <div class="row mx-1">'
@@ -1789,7 +1807,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input id="dwc1" type="radio" name="CMD" value="Default" '$CMDdefault'>'
-	echo '        <label for="dwc1">Default</label>'
+	echo '        <label for="dwc1">Default&nbsp;&nbsp;</label>'
 	echo '        <input id="dwc2" type="radio" name="CMD" value="Slow" '$CMDslow'>'
 	echo '        <label for="dwc2">dwc_otg.speed=1</label>'
 	echo '      </div>'
@@ -1819,7 +1837,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input id="fsm1" type="radio" name="FSM" value="Default" '$FSMdefault'>'
-	echo '        <label for="fsm1">Default</label>'
+	echo '        <label for="fsm1">Default&nbsp;&nbsp;</label>'
 	echo '        <input id="fsm2" type="radio" name="FSM" value="Disabled" '$FSMdisabled'>'
 	echo '        <label for="fsm2">Disable USB-FSM</label>'
 	echo '      </div>'
@@ -1852,8 +1870,8 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>FIQ-Split acceleration</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="XXXX" name="FIQ">'
+	echo '      <div class="input-group '$COLUMN3_3'">'
+	echo '        <select class="custom-select custom-select-sm" name="FIQ">'
 	echo '          <option value="0x1" '$selected1'>0x1 Accelerate non-periodic split transactions</option>'
 	echo '          <option value="0x2" '$selected2'>0x2 Accelerate periodic split transactions</option>'
 	echo '          <option value="0x3" '$selected3'>0x3 Accelerate all except high-speed isochronous transactions</option>'
@@ -1869,7 +1887,7 @@ pcp_tweaks_usb_audio_tweaks() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>&nbsp;</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Change FIQ_FSM USB settings&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
