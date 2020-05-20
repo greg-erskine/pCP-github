@@ -39,6 +39,11 @@ COLUMN2_1="col-sm-2 text-md-right"
 COLUMN2_1="col-sm-2 text-md-center"
 COLUMN2_2="col-10"
 
+COLUMN4_1="col-sm-1 text-sm-right"
+COLUMN4_2="col-sm-3"
+COLUMN4_3="col-sm-2"
+COLUMN4_4="col-sm-6"
+
 pcp_infobox_begin
 pcp_infobox_end
 
@@ -51,5 +56,7 @@ echo '    <input class="form-control form-control-sm"'
 
 echo '  <div class="input-group '$COLUMN3_2'">'
 echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
+
+echo '  <div class="'$BORDER'">'
 
 
