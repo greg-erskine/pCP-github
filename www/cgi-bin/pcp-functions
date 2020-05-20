@@ -116,7 +116,7 @@ pcp_variables() {
 	#------------------------------------------------------------------------------------
 	# Define Bootstrap variables
 	#------------------------------------------------------------------------------------
-	COLLAPSE="collapse bg-white border border-secondary shadow rounded px-3 pt-2"
+	COLLAPSE="collapse bg-white border border-secondary shadow rounded px-3 pt-2 mb-2"
 	INFOBOX="bg-white border border-secondary shadow rounded mt-1 px-3 py-1"
 	BUTTON="btn btn-primary btn-sm w-100"
 	BORDER="border rounded mt-2 bg-white border-secondary"
