@@ -59,4 +59,6 @@ echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AU
 
 echo '  <div class="'$BORDER'">'
 
+class="'$BUTTON'"
+
 
