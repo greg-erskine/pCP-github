@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 7.0.0 2020-05-22
+# Title: ALSA
+# Description: Have a play with Advanced Linux Sound Architecture (ALSA)
 
 . pcp-functions
-#. $CONFIGCFG
 
 CARDS=$(cat /proc/asound/card*/id)
 NO_OF_CARDS=$(echo $CARDS | wc -w )
@@ -11,19 +12,19 @@ NO_OF_CARDS=$(echo $CARDS | wc -w )
 pcp_html_head "xtras_alsa" "GE"
 
 pcp_controls
-pcp_banner
-pcp_navigation
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
+pcp_remove_query_string
 
 #=========================================================================================
 # 
 #-----------------------------------------------------------------------------------------
 pcp_view_asound_state() {
 	if [ -f /var/lib/alsa/asound.state ]; then
-		pcp_textarea_inform "Current /var/lib/alsa/asound.state" "cat /var/lib/alsa/asound.state" 180
+		pcp_textarea "Current /var/lib/alsa/asound.state" "cat /var/lib/alsa/asound.state" 18
 	else
-		pcp_textarea_inform "Current /var/lib/alsa/asound.state" "echo '[ WARN ] /var/lib/alsa/asound.state missing.'" 50
+		pcp_textarea "Current /var/lib/alsa/asound.state" \
+		"echo '[ WARN ] /var/lib/alsa/asound.state is missing. Press [Store] to create one using current settings.'" 3
 	fi
 }
 
@@ -39,179 +40,187 @@ case "$ACTION" in
 		sudo alsactl restore
 	;;
 	Backup)
+		pcp_infobox_begin
 		pcp_backup
+		pcp_infobox_end
 	;;
 	Custom)
-		echo
+		:
 	;;
 	View)
-		echo
+		:
 	;;
 	Delete)
 		sudo mv /var/lib/alsa/asound.state /var/lib/alsa/asound.state~
 	;;
 esac
 
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-3"
+COLUMN3_3="col-sm-7"
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>ALSA</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <form name="alsa" action="'$0'" method="get">'
+echo '  <form name="alsa" action="'$0'" method="get">'
+echo '    <div class="'$BORDER'">'
+pcp_heading5 "Advanced Linux Sound Architecture (ALSA)"
 #-----------------------------------------Card-------------------------------------------
 pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Sound card</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <select name="CARD">'
+echo '      <div class="row mx-1">'
+echo '        <div class="'$COLUMN3_1'">'
+echo '          <p>Sound card</p>'
+echo '        </div>'
+echo '        <div class="input-group '$COLUMN3_2'">'
+echo '          <select class="custom-select custom-select-sm" name="CARD">'
 
-                          for VALUE in $CARDS
-                          do
-                            echo '<option value="'$VALUE'">'$VALUE'</option>'
-                          done
+                  for VALUE in $CARDS
+                  do
+                    echo '<option value="'$VALUE'">'$VALUE'</option>'
+                  done
   
-echo '                  </select>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Select card&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Card</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Volume-------------------------------
+echo '          </select>'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_3'">'
+echo '          <p>Select card&nbsp;&nbsp;'
+echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>The RPi built-in sound card is named ALSA. This can cause some confusion '
+echo '               with Advanced Linux Sound Architecture (ALSA).</p>'
+echo '            <p>Some USB sound cards use the rather generic name Device.</p>' 
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Volume--------------------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Volume</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="VOL" value="'$VOL'">'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Specify the volume for card&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Volume</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Unmute---------------------------------------------
+echo '      <div class="row mx-1">'
+echo '        <div class="'$COLUMN3_1'">'
+echo '          <p>Volume</p>'
+echo '        </div>'
+echo '        <div class="form-group '$COLUMN3_2'">'
+echo '          <input class="form-control form-control-sm" type="text" name="VOL" value="'$VOL'">'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_3'">'
+echo '          <p>Specify the volume for card&nbsp;&nbsp;'
+echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>The volume range will be different depending on the sound card.
+                     Check Limits: under Sound Cards details.</p>'
+echo '            <p>For example: The built-in sound card has Limits: -10239 to 400</p>'
+echo '            <p>Where -10239 equals -102.39dB, 400 equals 4.00dB so 0 equals 0.00dB</p>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Unmute--------------------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Unmute/mute</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input id="rad1" type="radio" name="UNMUTE" value="unmute" checked>'
-echo '                  <label for="rad1">Umute&nbsp;</label>'
-echo '                  <input id="rad2" type="radio" name="UNMUTE" value="mute">'
-echo '                  <label for="rad2">Mute</label>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Unmute/mute card&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <ul>'
-echo '                      <li>Unmute or mute.</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+echo '      <div class="row mx-1">'
+echo '        <div class="'$COLUMN3_1'">'
+echo '          <p>Unmute/mute</p>'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_2'">'
+echo '          <input id="rad1" type="radio" name="UNMUTE" value="unmute" checked>'
+echo '          <label for="rad1">Umute&nbsp;&nbsp;</label>'
+echo '          <input id="rad2" type="radio" name="UNMUTE" value="mute">'
+echo '          <label for="rad2">Mute</label>'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_3'">'
+echo '          <p>Unmute/mute card&nbsp;&nbsp;'
+echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>Mute or unmute sound card.</p>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
 #--------------------------------------Analog/HDMI---------------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p>Analog/HDMI</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input id="rad3" type="radio" name="HDMI" value="1" checked>'
-echo '                  <label for="rad3">Analog&nbsp;</label>'
-echo '                  <input id="rad4" type="radio" name="HDMI" value="2">'
-echo '                  <label for="rad4">HDMI</label>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Select Analog/HDMI&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <ul>'
-echo '                      <li>Select Anlog or HDMI output for on-board sound card.</li>'
-echo '                    </ul>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
+echo '      <div class="row mx-1">'
+echo '        <div class="'$COLUMN3_1'">'
+echo '          <p>Analog/HDMI</p>'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_2'">'
+echo '          <input id="rad3" type="radio" name="HDMI" value="1" checked>'
+echo '          <label for="rad3">Analog&nbsp;&nbsp;</label>'
+echo '          <input id="rad4" type="radio" name="HDMI" value="2">'
+echo '          <label for="rad4">HDMI</label>'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_3'">'
+echo '          <p>Select Analog/HDMI&nbsp;&nbsp;'
+echo '            <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>Select Anlog or HDMI output for built-in sound card ALSA.</p>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <input type="submit" name="ACTION" value="Save">'
-eecho '                </td>'
-echo '              </tr>'
+echo '      <div class="row mx-1">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Save">'
+echo '        </div>'
+echo '      </div>'
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <textarea class="inform" style="height:220px">'
-
-                          echo Number of soundcards: $NO_OF_CARDS
-
-                          for VALUE in $CARDS
-                          do
-                            echo ------------------------------------------------------------------------------
-                            echo CARD=$VALUE
-                            amixer -c $VALUE -- sget PCM
-                            echo
-                          done
-
-echo '                  </textarea>'
-echo '                </td>'
+echo '<hr>'
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <input type="submit" name="ACTION" value="Store">'
-echo '                  <input type="submit" name="ACTION" value="Restore">'
-echo '                  <input type="submit" name="ACTION" value="Backup">'
-echo '                  <input type="submit" name="ACTION" value="Custom">'
-echo '                  <input type="submit" name="ACTION" value="View">'
-echo '                  <input type="submit" name="ACTION" value="Delete">'
-echo '                </td>'
-echo '              </tr>'
+pcp_incr_id
+echo '      <div class="col-12">'
+echo '        <p>Sound cards details&nbsp;&nbsp;'
+echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+echo '        </p>'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '          <div class="row">'
+echo '            <div class="col-12">'
+echo '              <pre>'
+
+                    echo Number of soundcards: $NO_OF_CARDS
+
+                    for VALUE in $CARDS
+                    do
+                      echo ------------------------------------------------------------------------------
+                      echo CARD=$VALUE
+                      amixer -c $VALUE -- sget PCM
+                      echo
+                    done
+
+echo '              </pre>'
+echo '            </div>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
+#----------------------------------------------------------------------------------------
+echo '      <div class="row mx-1">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Store" title="Store asound.state">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Restore" title="Restore asound.state">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="View" title="View asound.state">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Delete" title="Delete asound.state">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Backup" title="Backup pcp.cfg">'
+echo '        </div>'
+#echo '        <div class="col-2">'
+#echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Custom">'
+#echo '        </div>'
+echo '      </div>'
+#----------------------------------------------------------------------------------------
+echo '<hr>'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "View" ] || [ "$ACTION" = "Delete" ]; then
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        pcp_view_asound_state
-	echo '                </td>'
-	echo '              </tr>'
+	echo '      <div class="row mx-1">'
+	echo '        <div class="col-12">'
+	                pcp_view_asound_state
+	echo '        </div>'
+	echo '      </div>'
 fi
 #----------------------------------------------------------------------------------------
-echo '            </form>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+echo '  </form>'
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit
