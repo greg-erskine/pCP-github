@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # Version: 7.0.0 2020-05-21
+# Title: Bootcodes
+# Description: Set/adjust bootcodes in cmdline.txt
 
 . pcp-functions
 
@@ -292,7 +294,7 @@ pcp_heading5 "piCore bootcodes ( VARIABLE=value )"
 #--------------------------------------Headings------------------------------------------
 echo '    <div class="row mx-1">'
 echo '      <div class="'$COLUMN4_1'">'
-echo '        <p>Bootcode</p>'
+echo '        <pclass="text-bold">Bootcode</p>'
 echo '      </div>'
 echo '      <div class="'$COLUMN4_2'">'
 echo '        <p>Value</p>'
@@ -308,7 +310,7 @@ echo '    </div>'
 
 #--------------------------------------aoe-----------------------------------------------
 pcp_bootcode_aoe() {
-	[ x"" = x"$AOE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$AOE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -316,18 +318,17 @@ pcp_bootcode_aoe() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="aoe" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="AOE"'
 	echo '                 value="'$AOE'"'
-	echo '                 title="No spaces"'
 	echo '                 pattern="[^\s]*"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="aoe">'
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
-	echo '        <input class="'$BUTTON'" form="aoe" type="submit" name="SUBMIT" value="Save" title="Save AOE">'
+	echo '        <input class="'$BUTTON'" form="aoe" type="submit" name="SUBMIT" value="Save">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_4'">'
 	echo '        <p>Enter value for aoe&nbsp;&nbsp;'
@@ -344,7 +345,7 @@ pcp_bootcode_aoe() {
 
 #--------------------------------------blacklist-----------------------------------------
 pcp_bootcode_blacklist() {
-	[ x"" = x"$BLACKLIST" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$BLACKLIST" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -352,11 +353,11 @@ pcp_bootcode_blacklist() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="blacklist" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="BLACKLIST"'
 	echo '                 value="'$BLACKLIST'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="blacklist">'
 	echo '        </form>'
 	echo '      </div>'
@@ -379,7 +380,7 @@ pcp_bootcode_blacklist() {
 
 #--------------------------------------desktop-------------------------------------------
 pcp_bootcode_desktop() {
-	[ x"" = x"$DESKTOP" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$DESKTOP" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -387,11 +388,11 @@ pcp_bootcode_desktop() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="desktop" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="DESKTOP"'
 	echo '                 value="'$DESKTOP'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="desktop">'
 	echo '        </form>'
 	echo '      </div>'
@@ -414,7 +415,7 @@ pcp_bootcode_desktop() {
 
 #--------------------------------------home----------------------------------------------
 pcp_bootcode_home() {
-	[ x"" = x"$MYHOME" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYHOME" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -422,11 +423,11 @@ pcp_bootcode_home() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="home" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="MYHOME"'
 	echo '                 value="'$MYHOME'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="home">'
 	echo '        </form>'
 	echo '      </div>'
@@ -449,7 +450,7 @@ pcp_bootcode_home() {
 
 #--------------------------------------host----------------------------------------------
 pcp_bootcode_host() {
-	[ x"" = x"$MYHOST" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYHOST" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -457,12 +458,12 @@ pcp_bootcode_host() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="host" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="MYHOST"'
 	echo '                 value="'$MYHOST'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input class="'$BUTTON'" form="host" type="hidden" name="VARIABLE" value="host">'
 	echo '        </form>'
 	echo '      </div>'
@@ -486,7 +487,7 @@ pcp_bootcode_host() {
 
 #--------------------------------------httplist------------------------------------------
 pcp_bootcode_httplist() {
-	[ x"" = x"$HTTPLIST" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$HTTPLIST" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -494,11 +495,11 @@ pcp_bootcode_httplist() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="httplist" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="HTTPLIST"'
 	echo '                 value="'$HTTPLIST'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="httplist">'
 	echo '        </form>'
 	echo '      </div>'
@@ -520,7 +521,7 @@ pcp_bootcode_httplist() {
 
 #--------------------------------------icons---------------------------------------------
 pcp_bootcode_icons() {
-	[ x"" = x"$ICONS" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$ICONS" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -528,11 +529,11 @@ pcp_bootcode_icons() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="icons" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="ICONS"'
 	echo '                 value="'$ICONS'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="icons">'
 	echo '        </form>'
 	echo '      </div>'
@@ -554,7 +555,7 @@ pcp_bootcode_icons() {
 
 #--------------------------------------iso-----------------------------------------------
 pcp_bootcode_iso() {
-	[ x"" = x"$ISOFILE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$ISOFILE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -562,11 +563,11 @@ pcp_bootcode_iso() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="iso" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="ISOFILE"'
 	echo '                 value="'$ISOFILE'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="iso">'
 	echo '       </form>'
 	echo '      </div>'
@@ -589,7 +590,7 @@ pcp_bootcode_iso() {
 
 #--------------------------------------kmap----------------------------------------------
 pcp_bootcode_kmap() {
-	[ x"" = x"$KEYMAP" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$KEYMAP" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -597,11 +598,11 @@ pcp_bootcode_kmap() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="kmap" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="KEYMAP"'
 	echo '                 value="'$KEYMAP'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="kmap">'
 	echo '        </form>'
 	echo '      </div>'
@@ -625,7 +626,7 @@ pcp_bootcode_kmap() {
 
 #--------------------------------------lang----------------------------------------------
 pcp_bootcode_lang() {
-	[ x"" = x"$MYLANG" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYLANG" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -633,11 +634,11 @@ pcp_bootcode_lang() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="lang" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="MYLANG"'
 	echo '                 value="'$MYLANG'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="lang">'
 	echo '        </form>'
 	echo '      </div>'
@@ -661,7 +662,7 @@ pcp_bootcode_lang() {
 
 #--------------------------------------mydata--------------------------------------------
 pcp_bootcode_mydata() {
-	[ x"" = x"$MYDATA" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYDATA" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -669,11 +670,11 @@ pcp_bootcode_mydata() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="mydata" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="MYDATA"'
 	echo '                 value="'$MYDATA'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="mydata">'
 	echo '        </form>'
 	echo '      </div>'
@@ -697,7 +698,7 @@ pcp_bootcode_mydata() {
 
 #--------------------------------------nbd-----------------------------------------------
 pcp_bootcode_nbd() {
-	[ x"" = x"$NBD" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$NBD" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -705,11 +706,11 @@ pcp_bootcode_nbd() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="nbd" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="NBD"'
 	echo '                 value="'$NBD'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="nbd">'
 	echo '        </form>'
 	echo '      </div>'
@@ -731,7 +732,7 @@ pcp_bootcode_nbd() {
 
 #--------------------------------------nfsmount------------------------------------------
 pcp_bootcode_nfsmount() {
-	[ x"" = x"$NFSMOUNT" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$NFSMOUNT" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -739,11 +740,11 @@ pcp_bootcode_nfsmount() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="nfsmount" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="NFSMOUNT"'
 	echo '                 value="'$NFSMOUNT'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="nfsmount">'
 	echo '        </form>'
 	echo '      </div>'
@@ -765,7 +766,7 @@ pcp_bootcode_nfsmount() {
 
 #--------------------------------------ntpserver-----------------------------------------
 pcp_bootcode_ntpserver() {
-	[ x"" = x"$NTPSERVER" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$NTPSERVER" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -773,11 +774,11 @@ pcp_bootcode_ntpserver() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="ntpserver" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="NTPSERVER"'
 	echo '                 value="'$NTPSERVER'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="ntpserver">'
 	echo '        </form>'
 	echo '      </div>'
@@ -801,7 +802,7 @@ pcp_bootcode_ntpserver() {
 
 #--------------------------------------opt-----------------------------------------------
 pcp_bootcode_opt() {
-	[ x"" = x"$MYOPT" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYOPT" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -809,11 +810,11 @@ pcp_bootcode_opt() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="opt" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="MYOPT"'
 	echo '                 value="'$MYOPT'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="opt">'
 	echo '        </form>'
 	echo '      </div>'
@@ -836,7 +837,7 @@ pcp_bootcode_opt() {
 
 #--------------------------------------pretce--------------------------------------------
 pcp_bootcode_pretce() {
-	[ x"" = x"$PRETCE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$PRETCE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -844,11 +845,11 @@ pcp_bootcode_pretce() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="pretce" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="PRETCE"'
 	echo '                 value="'$PRETCE'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="pretce">'
 	echo '        </form>'
 	echo '      </div>'
@@ -870,7 +871,7 @@ pcp_bootcode_pretce() {
 
 #--------------------------------------restore-------------------------------------------
 pcp_bootcode_restore() {
-	[ x"" = x"$RESTORE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$RESTORE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -878,11 +879,11 @@ pcp_bootcode_restore() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="restore" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="RESTORE"'
 	echo '                 value="'$RESTORE'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="restore">'
 	echo '        </form>'
 	echo '      </div>'
@@ -907,7 +908,7 @@ pcp_bootcode_restore() {
 
 #--------------------------------------resume--------------------------------------------
 pcp_bootcode_resume() {
-	[ x"" = x"$RESUME" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$RESUME" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -915,11 +916,11 @@ pcp_bootcode_resume() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="resume" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="RESUME"'
 	echo '                 value="'$RESUME'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="resume">'
 	echo '        </form>'
 	echo '      </div>'
@@ -941,7 +942,7 @@ pcp_bootcode_resume() {
 
 #--------------------------------------rsyslog-------------------------------------------
 pcp_bootcode_rsyslog() {
-	[ x"" = x"$RSYSLOG" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$RSYSLOG" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -949,11 +950,11 @@ pcp_bootcode_rsyslog() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="rsyslog" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="RSYSLOG"'
 	echo '                 value="'$RSYSLOG'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="rsyslog">'
 	echo '        </form>'
 	echo '      </div>'
@@ -975,7 +976,7 @@ pcp_bootcode_rsyslog() {
 
 #--------------------------------------swapfile------------------------------------------
 pcp_bootcode_swapfile() {
-	[ x"" = x"$SWAPFILE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$SWAPFILE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -983,11 +984,11 @@ pcp_bootcode_swapfile() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="swapfile" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="SWAPFILE"'
 	echo '                 value="'$SWAPFILE'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="swapfile">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1010,7 +1011,7 @@ pcp_bootcode_swapfile() {
 
 #--------------------------------------tce-----------------------------------------------
 pcp_bootcode_tce() {
-	[ x"" = x"$MYTCE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$MYTCE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1018,11 +1019,11 @@ pcp_bootcode_tce() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="tce" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="MYTCE"'
 	echo '                 value="'$MYTCE'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="tce">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1052,7 +1053,7 @@ pcp_bootcode_tce() {
 
 #--------------------------------------tcvd----------------------------------------------
 pcp_bootcode_tcvd() {
-	[ x"" = x"$TCVD" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$TCVD" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1060,11 +1061,11 @@ pcp_bootcode_tcvd() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="tcvd" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="TCVD"'
 	echo '                 value="'$TCVD'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="tcvd">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1086,7 +1087,7 @@ pcp_bootcode_tcvd() {
 
 #--------------------------------------tftplist------------------------------------------
 pcp_bootcode_tftplist() {
-	[ x"" = x"$TFTPLIST" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$TFTPLIST" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1094,11 +1095,11 @@ pcp_bootcode_tftplist() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="tftplist" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="TFTPLIST"'
 	echo '                 value="'$TFTPLIST'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="tftplist">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1120,7 +1121,7 @@ pcp_bootcode_tftplist() {
 
 #--------------------------------------tz------------------------------------------------
 pcp_bootcode_tz() {
-	[ x"" = x"$TZ" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$TZ" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1128,12 +1129,12 @@ pcp_bootcode_tz() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="tz" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="TZ"'
 	echo '                 value="'$TZ'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="tz">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1158,7 +1159,7 @@ pcp_bootcode_tz() {
 
 #--------------------------------------user----------------------------------------------
 pcp_bootcode_user() {
-	[ x"" = x"$USER" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$USER" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1166,11 +1167,11 @@ pcp_bootcode_user() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="user" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="USER"'
 	echo '                 value="'$USER'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="user">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1193,7 +1194,7 @@ pcp_bootcode_user() {
 
 #--------------------------------------waitusb-------------------------------------------
 pcp_bootcode_waitusb() {
-	[ x"" = x"$WAITUSB" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$WAITUSB" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1201,14 +1202,14 @@ pcp_bootcode_waitusb() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="waitusb" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="number"'
 	echo '                 name="WAITUSB"'
 	echo '                 value="'$WAITUSB'"'
 	echo '                 min="1"'
 	echo '                 max="120"'
 	echo '                 title="waitsub ( 1 -120 )"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="waitusb">'
 	echo '        </form>'
 	echo '      </div>'
@@ -1231,7 +1232,7 @@ pcp_bootcode_waitusb() {
 
 #--------------------------------------xvesa---------------------------------------------
 pcp_bootcode_xvesa() {
-	[ x"" = x"$XVESA" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$XVESA" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -1239,11 +1240,11 @@ pcp_bootcode_xvesa() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="xvesa" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="XVESA"'
 	echo '                 value="'$XVESA'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="xvesa">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2040,7 +2041,7 @@ echo '      </div>'
 
 #---------------------------------------console------------------------------------------
 pcp_bootcode_console() {
-	[ x"" = x"$CONSOLE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$CONSOLE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2048,11 +2049,11 @@ pcp_bootcode_console() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="console" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="CONSOLE"'
 	echo '                 value="'$CONSOLE'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="console">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2077,7 +2078,7 @@ pcp_bootcode_console() {
 
 #--------------------------------------consoleblank--------------------------------------
 pcp_bootcode_consoleblank() {
-	[ x"" = x"$CONSOLEBLANK" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$CONSOLEBLANK" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2085,12 +2086,12 @@ pcp_bootcode_consoleblank() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="consoleblank" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="CONSOLEBLANK"'
 	echo '                 value="'$CONSOLEBLANK'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="consoleblank">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2112,7 +2113,7 @@ pcp_bootcode_consoleblank() {
 
 #--------------------------------------dwc_otg.fiq_fsm_mask------------------------------
 pcp_bootcode_fiq_fsm_mask() {
-	[ x"" = x"$FIQ_FSM_MASK" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$FIQ_FSM_MASK" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2120,12 +2121,12 @@ pcp_bootcode_fiq_fsm_mask() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="fiq_fsm_mask" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="FIQ_FSM_MASK"'
 	echo '                 value="'$FIQ_FSM_MASK'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="fiq_fsm_mask">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2147,7 +2148,7 @@ pcp_bootcode_fiq_fsm_mask() {
 
 #--------------------------------------dwc_otg.lpm_enable--------------------------------
 pcp_bootcode_lpm_enable() {
-	[ x"" = x"$LPM_ENABLE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$LPM_ENABLE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2155,12 +2156,12 @@ pcp_bootcode_lpm_enable() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="lpm_enable" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="LPM_ENABLE"'
 	echo '                 value="'$LPM_ENABLE'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="lpm_enable">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2182,7 +2183,7 @@ pcp_bootcode_lpm_enable() {
 
 #--------------------------------------elevator------------------------------------------
 pcp_bootcode_elevator() {
-	[ x"" = x"$ELEVATOR" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$ELEVATOR" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2190,12 +2191,12 @@ pcp_bootcode_elevator() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="elevator" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="ELEVATOR"'
 	echo '                 value="'$ELEVATOR'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="elevator">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2218,7 +2219,7 @@ pcp_bootcode_elevator() {
 
 #----------------------------------------fbcon-------------------------------------------
 pcp_bootcode_fbcon() {
-	[ x"" = x"$FBCON" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$FBCON" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2226,11 +2227,11 @@ pcp_bootcode_fbcon() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="fbcon" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="FBCON"'
 	echo '                 value="'$FBCON'"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="fbcon">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2254,7 +2255,7 @@ pcp_bootcode_fbcon() {
 
 #--------------------------------------isolcpus------------------------------------------
 pcp_bootcode_isolcpus() {
-	[ x"" = x"$ISOLCPUS" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$ISOLCPUS" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2262,12 +2263,12 @@ pcp_bootcode_isolcpus() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="isolcpus" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="ISOLCPUS"'
 	echo '                 value="'$ISOLCPUS'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="isolcpus">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2289,7 +2290,7 @@ pcp_bootcode_isolcpus() {
 
 #--------------------------------------loglevel------------------------------------------
 pcp_bootcode_loglevel() {
-	[ x"" = x"$LOGLEVEL" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$LOGLEVEL" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2297,14 +2298,14 @@ pcp_bootcode_loglevel() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="loglevel" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="number"'
 	echo '                 name="LOGLEVEL"'
 	echo '                 value="'$LOGLEVEL'"'
 	echo '                 min="0"'
 	echo '                 max="7"'
 	echo '                 title="logelevel ( 0 - 7 )"'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="loglevel">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2339,7 +2340,7 @@ pcp_bootcode_loglevel() {
 
 #--------------------------------------root----------------------------------------------
 pcp_bootcode_root() {
-	[ x"" = x"$ROOT" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$ROOT" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2347,12 +2348,12 @@ pcp_bootcode_root() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="root" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="ROOT"'
 	echo '                 value="'$ROOT'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="root">'
 	echo '        </form>'
 	echo '      </div>'
@@ -2375,7 +2376,7 @@ pcp_bootcode_root() {
 
 #--------------------------------------smsc95xx.turbo_mode-------------------------------
 pcp_bootcode_turbo_mode() {
-	[ x"" = x"$TURBO_MODE" ] && INDICATOR=$RED || INDICATOR=$GREEN
+	[ x"" = x"$TURBO_MODE" ] && INDICATOR="" || INDICATOR="border-success"
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
@@ -2383,12 +2384,12 @@ pcp_bootcode_turbo_mode() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <form id="turbo_mode" action="'$0'" method="get">'
-	echo '          <input class="form-control form-control-sm"'
+	echo '          <input class="form-control form-control-sm '$INDICATOR'"'
 	echo '                 type="text"'
 	echo '                 name="TURBO_MODE"'
 	echo '                 value="'$TURBO_MODE'"'
 	echo '                 readonly'
-	echo '          >'$INDICATOR
+	echo '          >'
 	echo '          <input type="hidden" name="VARIABLE" value="turbo_mode">'
 	echo '        </form>'
 	echo '      </div>'
