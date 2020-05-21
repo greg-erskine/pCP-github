@@ -38,20 +38,21 @@ pcp_httpd_query_string
 # Generate warning message
 #----------------------------------------------------------------------------------------
 pcp_warning_message() {
-	echo '  <div class="'$BORDER'">'
-	echo '    <div class="row">'
-	echo '      <div class="col-12 mx-1">'
-	echo '        <p><b>Warning:</b> It can be dangerous to play with bootcodes.</p>'
-	echo '        <ul>'
-	echo '          <li>Use at your own risk.</li>'
-	echo '          <li>Some of the Tiny Core Linux bootcodes may not work with piCorePlayer.</li>'
-	echo '          <li>Only a small subset of bootcodes are available on this page.</li>'
-	echo '          <li>Requests for activating additional bootcodes welcome.</li>'
-	echo '          <li>A reboot is required to make changed bootcodes active.</li>'
-	echo '        </ul>'
-	echo '      </div>'
-	echo '    </div>'
+	echo '<!-- Start of warning message -->'
+	echo '  <div class="alert alert-warning alert-dismissible fade show" role="alert">'
+	echo '    <button type="button" class="close" data-dismiss="alert">'
+	echo '      <span aria-hidden="true">&times;</span>'
+	echo '    </button>'
+	echo '    <p><b>Warning:</b> It can be dangerous to play with bootcodes.</p>'
+	echo '    <ul>'
+	echo '      <li>Use at your own risk.</li>'
+	echo '      <li>Some of the Tiny Core Linux bootcodes may not work with piCorePlayer.</li>'
+	echo '      <li>Only a small subset of bootcodes are available on this page.</li>'
+	echo '      <li>Requests for activating additional bootcodes welcome.</li>'
+	echo '      <li>A reboot is required to make changed bootcodes active.</li>'
+	echo '    </ul>'
 	echo '  </div>'
+	echo '<!-- End of warning message -->'
 }
 
 #========================================================================================
@@ -293,17 +294,17 @@ echo '  <div class="'$BORDER'">'
 pcp_heading5 "piCore bootcodes ( VARIABLE=value )"
 #--------------------------------------Headings------------------------------------------
 echo '    <div class="row mx-1">'
-echo '      <div class="'$COLUMN4_1'">'
-echo '        <pclass="text-bold">Bootcode</p>'
+echo '      <div class="'$COLUMN4_1' text-sm-center">'
+echo '        <p><b>Bootcode</b></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_2'">'
-echo '        <p>Value</p>'
+echo '      <div class="'$COLUMN4_2' text-sm-center">'
+echo '        <p><b>Value</b></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_3'">'
-echo '        <p>Save</p>'
+echo '      <div class="'$COLUMN4_3' text-sm-center">'
+echo '        <p><b>Save</b></p>'
 echo '      </div>'
 echo '      <div class="'$COLUMN4_4'">'
-echo '        <p>Description/Help</p>'
+echo '        <p><b>Description/Help</b></p>'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
@@ -1266,7 +1267,7 @@ pcp_bootcode_xvesa() {
 echo '  </div>'
 #----------------------------------------------------------------------------------------
 
-COLUMN4_1="col-1"
+COLUMN4_1="col-1 text-sm-right"
 COLUMN4_2="col-1"
 COLUMN4_3="col-2"
 COLUMN4_4="col-8"
@@ -1277,17 +1278,17 @@ echo '  <div class="'$BORDER'">'
 pcp_heading5 "piCore bootcodes ( VARIABLE )"
 #--------------------------------------Heading-------------------------------------------
 echo '    <div class="row mx-1">'
-echo '      <div class="'$COLUMN4_1'">'
+echo '      <div class="'$COLUMN4_1' text-sm-center">'
 echo '        <p></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_2'">'
-echo '        <p>Bootcode</p>'
+echo '      <div class="'$COLUMN4_2' text-sm-center">'
+echo '        <p><b>Bootcode</b></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_3'">'
-echo '        <p>Save</p>'
+echo '      <div class="'$COLUMN4_3' text-sm-center">'
+echo '        <p><b>Save</b></p>'
 echo '      </div>'
 echo '      <div class="'$COLUMN4_4'">'
-echo '        <p>Description/Help</p>'
+echo '        <p><b>Description/Help</b></p>'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
@@ -1305,7 +1306,7 @@ pcp_bootcode_base() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>base&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>base</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="base" type="submit" name="SUBMIT" value="Save">'
@@ -1337,7 +1338,7 @@ pcp_bootcode_cron() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>cron&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>cron</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="cron" type="submit" name="SUBMIT" value="Save">'
@@ -1368,7 +1369,7 @@ pcp_bootcode_laptop() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>laptop&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>laptop</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="laptop" type="submit" name="SUBMIT" value="Save">'
@@ -1399,7 +1400,7 @@ pcp_bootcode_noautologin() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>noautologin&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>noautologin</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="noautologin" type="submit" name="SUBMIT" value="Save">'
@@ -1430,7 +1431,7 @@ pcp_bootcode_nodhcp() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>nodhcp&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>nodhcp</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="nodhcp" type="submit" name="SUBMIT" value="Save">'
@@ -1462,7 +1463,7 @@ pcp_bootcode_noembed() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>noembed&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>noembed</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="noembed" type="submit" name="SUBMIT" value="Save">'
@@ -1494,7 +1495,7 @@ pcp_bootcode_nofstab() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>nofstab&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>nofstab</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="nofstab" type="submit" name="SUBMIT" value="Save">'
@@ -1525,7 +1526,7 @@ pcp_bootcode_noicons() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>noicons&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>noicons</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="noicons" type="submit" name="SUBMIT" value="Save">'
@@ -1556,7 +1557,7 @@ pcp_bootcode_norestore() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>norestore&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>norestore</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="norestore" type="submit" name="SUBMIT" value="Save">'
@@ -1587,7 +1588,7 @@ pcp_bootcode_nortc() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>nortc&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>nortc</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="nortc" type="submit" name="SUBMIT" value="Save">'
@@ -1619,7 +1620,7 @@ pcp_bootcode_noswap() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>noswap&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>noswap</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="noswap" type="submit" name="SUBMIT" value="Save">'
@@ -1650,7 +1651,7 @@ pcp_bootcode_noutc() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>noutc&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>noutc</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="noutc" type="submit" name="SUBMIT" value="Save">'
@@ -1681,7 +1682,7 @@ pcp_bootcode_nozswap() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>nozswap&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>nozswap</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="nozswap" type="submit" name="SUBMIT" value="Save">'
@@ -1712,7 +1713,7 @@ pcp_bootcode_pause() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>pause&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>pause</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="pause" type="submit" name="SUBMIT" value="Save">'
@@ -1743,7 +1744,7 @@ pcp_bootcode_protect() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>protect&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>protect</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="protect" type="submit" name="SUBMIT" value="Save">'
@@ -1774,7 +1775,7 @@ pcp_bootcode_safebackup() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>safebackup&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>safebackup</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="safebackup" type="submit" name="SUBMIT" value="Save">'
@@ -1805,7 +1806,7 @@ pcp_bootcode_secure() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>secure&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>secure</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="secure" type="submit" name="SUBMIT" value="Save">'
@@ -1836,7 +1837,7 @@ pcp_bootcode_showapps() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>showapps&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>showapps</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="showapps" type="submit" name="SUBMIT" value="Save">'
@@ -1868,7 +1869,7 @@ pcp_bootcode_superuser() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>superuser&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>superuser</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="superuser" type="submit" name="SUBMIT" value="Save">'
@@ -1899,7 +1900,7 @@ pcp_bootcode_syslog() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>syslog&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>syslog</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="syslog" type="submit" name="SUBMIT" value="Save">'
@@ -1930,7 +1931,7 @@ pcp_bootcode_text() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>text&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>text</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="text" type="submit" name="SUBMIT" value="Save">'
@@ -1962,7 +1963,7 @@ pcp_bootcode_xonly() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>xonly&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>xonly</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="xonly" type="submit" name="SUBMIT" value="Save">'
@@ -1993,7 +1994,7 @@ pcp_bootcode_xsetup() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>xsetup&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>xsetup</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="xsetup" type="submit" name="SUBMIT" value="Save">'
@@ -2013,7 +2014,7 @@ pcp_bootcode_xsetup() {
 echo '  </div>'
 #----------------------------------------------------------------------------------------
 
-COLUMN4_1="col-sm-2"
+COLUMN4_1="col-sm-2 text-sm-right"
 COLUMN4_2="col-sm-3"
 COLUMN4_3="col-sm-2"
 COLUMN4_4="col-sm-5"
@@ -2024,17 +2025,17 @@ echo '  <div class="'$BORDER'">'
 pcp_heading5 "Kernel bootcodes ( VARIABLE=value )"
 #--------------------------------------Heading-------------------------------------------
 echo '    <div class="row mx-1">'
-echo '      <div class="'$COLUMN4_1'">'
-echo '        <p>Bootcode</p>'
+echo '      <div class="'$COLUMN4_1' text-sm-center">'
+echo '        <p><b>Bootcode</b></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_2'">'
-echo '        <p>Set</p>'
+echo '      <div class="'$COLUMN4_2' text-sm-center">'
+echo '        <p><b>Value</b></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_3'">'
-echo '        <p>Save</p>'
+echo '      <div class="'$COLUMN4_3' text-sm-center">'
+echo '        <p><b>Save</b></p>'
 echo '      </div>'
 echo '      <div class="'$COLUMN4_4'">'
-echo '        <p>Description/Help</p>'
+echo '        <p><b>Description/Help</b></p>'
 echo '      </div>'
 echo '      </div>'
 #----------------------------------------------------------------------------------------
@@ -2422,17 +2423,17 @@ echo '  <div class="'$BORDER'">'
 pcp_heading5 "Kernel bootcodes ( VARIABLE )"
 #--------------------------------------Heading-------------------------------------------
 echo '    <div class="row mx-1">'
-echo '      <div class="'$COLUMN4_1'">'
+echo '      <div class="'$COLUMN4_1' text-sm-center">'
 echo '        <p></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_2'">'
-echo '        <p>Bootcode</p>'
+echo '      <div class="'$COLUMN4_2' text-sm-center">'
+echo '        <p><b>Bootcode</b></p>'
 echo '      </div>'
-echo '      <div class="'$COLUMN4_3'">'
-echo '        <p>Save</p>'
+echo '      <div class="'$COLUMN4_3' text-sm-center">'
+echo '        <p><b>Save</b></p>'
 echo '      </div>'
 echo '      <div class="'$COLUMN4_4'">'
-echo '        <p>Description/Help</p>'
+echo '        <p><b>Description/Help</b></p>'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
@@ -2450,7 +2451,7 @@ pcp_bootcode_nologo() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>logo.nologo&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>logo.nologo</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="nologo" type="submit" name="SUBMIT" value="Save">'
@@ -2481,7 +2482,7 @@ pcp_bootcode_quiet() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>quiet&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>quiet</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="quiet" type="submit" name="SUBMIT" value="Save">'
@@ -2513,7 +2514,7 @@ pcp_bootcode_rootwait() {
 	echo '        </form>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>rootwait&nbsp;&nbsp;'$INDICATOR'</p>'
+	echo '        <p>rootwait</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <input class="'$BUTTON'" form="rootwait" type="submit" name="SUBMIT" value="Save">'
@@ -2537,9 +2538,9 @@ echo '<hr>'
 #========================================================================================
 # $CMDLINETXT - /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
-pcp_textarea "[ INFO ] Current: $CMDLINETXT" "cat $CMDLINETXT" 6
+pcp_textarea "[ INFO ] Current $CMDLINETXT" "cat $CMDLINETXT" 5
 
-pcp_textarea_begin "[ INFO ] Bootcodes:" 25
+pcp_textarea_begin "[ INFO ] Current bootcodes in $CMDLINETXT" 20
 
 	cat $CMDLINETXT | awk '
 		BEGIN {
@@ -2568,9 +2569,9 @@ echo '<hr>'
 # /proc/cmdline
 #----------------------------------------------------------------------------------------
 pcp_proc_cmdline() {
-	pcp_textarea "[ INFO ] Current: /proc/cmdline" "cat /proc/cmdline" 10
+	pcp_textarea "[ INFO ] Current /proc/cmdline" "cat /proc/cmdline" 5
 
-	pcp_textarea_begin "[ INFO ] Bootcodes:" 25
+	pcp_textarea_begin "[ INFO ] Current bootcodes in /proc/cmdline" 25
 
 		cat /proc/cmdline | sed 's/  / /g' | awk '
 			BEGIN {
