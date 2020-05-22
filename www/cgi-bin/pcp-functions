@@ -1833,3 +1833,7 @@ pcp_bi_volume_up_fill() {
 }
 
 HELPBADGE="$(pcp_bi_info_circle)"
+
+pcp_helpbadge() {
+	echo '<a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+}
