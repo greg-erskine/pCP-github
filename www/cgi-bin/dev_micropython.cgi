@@ -1,5 +1,9 @@
 #!/usr/bin/micropython
 
+# Version: 7.0.0 2020-05-22
+
+# Title: Micropython
+# Description: Micropython test
 
 import uos as os
 #import usubprocess as subprocess

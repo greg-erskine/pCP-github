@@ -2,6 +2,9 @@
 
 # Version: 4.1.0 2018-09-19
 
+# Title: Plugin
+# Description: Plugin test
+
 . pcp-functions
 . pcp-soundcard-functions
 #. $CONFIGCFG

@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-19
+# Version: 7.0.0 2020-05-23
+# Title: LMS Controls
+# Description: Test LMS Controls
 
 #========================================================================================
 # This page shows the various types of LMS controls that are in development.
@@ -14,12 +16,8 @@
 
 pcp_html_head "xtras_controls" "GE"
 
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
 pcp_xtras
-pcp_mode_lt_developer
-pcp_running_script
 
 pcp_lms_controls
 

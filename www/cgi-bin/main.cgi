@@ -844,6 +844,26 @@ pcp_main_copy2fs() {
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
+pcp_main_dev() {
+	echo '  <div class="row mx-1">'
+	echo '    <div class="form-group '$COLUMN2_1'">'
+	echo '      <form name="Dev" action="dev_main.cgi" method="get">'
+	echo '        <button type="submit" class="'$BUTTON'" value="Dev">Development</button>'
+	echo '      </form>'
+	echo '    </div>'
+	pcp_incr_id
+	echo '    <div class="'$COLUMN2_2'">'
+	echo '      <p>Go to Development page&nbsp;&nbsp;'
+	echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	echo '      </p>'
+	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '        <p>This will go to the Development page.</p>'
+	echo '      </div>'
+	echo '    </div>'
+	echo '  </div>'
+}
+[ $MODE -ge $MODE_BETA ] && [ -f ${WWWROOT}/cgi-bin/dev_main.cgi ] && pcp_main_dev
+#----------------------------------------------------------------------------------------
 [ $MODE -ge $MODE_DEVELOPER ] && echo '</div>'
 
 pcp_html_end

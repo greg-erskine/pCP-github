@@ -2,6 +2,9 @@
 
 # Version: 7.0.0 2020-05-16
 
+# Title: CPU Temperature
+# Description: Plot the CPU temperature as a SVG graph
+
 #========================================================================================
 # This is an experiment to work out how to generate graphs using only:
 # - shell
@@ -25,7 +28,7 @@ pcp_httpd_query_string
 # This routine writes cputemp.sh
 #----------------------------------------------------------------------------------------
 pcp_write_cputemp_sh() {
-cat <<EOF > $CPU_TEMP_SH
+sudo cat <<EOF > $CPU_TEMP_SH
 #!/bin/sh
 
 . $WWWROOT/cgi-bin/pcp-functions
@@ -42,6 +45,8 @@ EOF
 
 	sudo chmod u=rwx,og=rx $CPU_TEMP_SH
 }
+
+pcp_debug_variables HTML CPU_TEMP_SH CPU_TEMP_LOG OPTION
 
 case "$OPTION" in
 	Start)
@@ -136,6 +141,7 @@ X=$((($XMAX - $XMIN) / $XMAJOR))
 XTIC=5
 
 #========================================================================================
+echo '  <div class="'$BORDER'">'
 pcp_heading5 "CPU Temperature Graph"
 #----------------------------------------------------------------------------------------
 echo '  <div class="row">'
@@ -291,36 +297,40 @@ echo '    </div>'
 echo '  </div>'
 echo '  <hr>'
 #----------------------------------------------------------------------------------------
-echo '  <form name="actions" action="'$0'" method="get">'
-echo '    <div class="row">'
-echo '      <div class="col-2">'
-echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Previous">'
+echo '    <form name="actions1" action="'$0'" method="get">'
+echo '      <div class="row mx-1">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="OPTION" value="Previous">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="OPTION" value="Next">'
+echo '          <input type="hidden" name="COUNTER" value="'$COUNTER'">'
+echo '        </div>'
+echo '        <div class="col-8">'
+echo '          <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
+echo '        </div>'
 echo '      </div>'
-echo '      <div class="col-2">'
-echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Next">'
-echo '        <input type="hidden" name="COUNTER" value="'$COUNTER'">'
-echo '      </div>'
-echo '      <div class="col-8">'
-echo '        <p>Lines: '$LINES' Begin: '$BEGINRANGE' End: '$ENDRANGE' Counter: '$COUNTER'</p>'
-echo '      </div>'
-echo '    </div>'
+echo '    </form>'
 #----------------------------------------------------------------------------------------
 pcp_redirect_button "Refresh" "$0" 30
+echo '  </div>'
 #----------------------------------------------------------------------------------------
-pcp_heading5 "Logging options" hr
-
-echo '    <div class="row">'
-echo '      <div class="col-2 mb-3">'
-echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Start">'
+echo '  <div class="'$BORDER'">'
+pcp_heading5 "Logging options"
+echo '    <form name="actions2" action="'$0'" method="get">'
+echo '      <div class="row mx-1">'
+echo '        <div class="col-2 mb-3">'
+echo '          <input class="'$BUTTON'" type="submit" name="OPTION" value="Start">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="OPTION" value="Stop">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="OPTION" value="Clean">'
+echo '        </div>'
 echo '      </div>'
-echo '      <div class="col-2">'
-echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Stop">'
-echo '      </div>'
-echo '      <div class="col-2">'
-echo '        <input class="'$BUTTON'" type="submit" name="OPTION" value="Clean">'
-echo '      </div>'
-echo '    </div>'
-echo '  </form>'
+echo '    </form>'
+echo '  </div>'
 #----------------------------------------------------------------------------------------
 
 pcp_html_end

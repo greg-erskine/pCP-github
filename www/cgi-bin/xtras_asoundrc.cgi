@@ -186,15 +186,15 @@ echo '  </div>'
 
 #----------------------------------------------------------------------------------------
 echo '  <div class="'$BORDER'">'
-echo '    <form name="asound" action="xtras_asoundrc.cgi" method="get" id="asound">'
+echo '    <form name="asound" action="'$0'" method="get" id="asound">'
 pcp_heading5 "Generate asound.conf"
-#--------------------------------------Warning-------------------------------------------
+#-----------------------------------------Warning----------------------------------------
 echo '      <div class="row mx-1">'
 echo '        <div class="col-12">'
 echo '          <p><b>Note:</b> Using an incompatible asound.conf may stop squeezelite from starting.</b></p>'
 echo '        </div>'
 echo '      </div>'
-#--------------------------------------Default/Stereo/Mono/Swap/Left/Right---------------
+#--------------------------Default/Stereo/Mono/Swap/Left/Right---------------------------
 echo '      <div class="row mx-1">'
 echo '        <div class="col-3">'
 echo '          <p>Stereo/Mono/Swap/L/R</p>'
@@ -214,26 +214,31 @@ echo '          <input id="rad6" type="radio" name="OPTION" value="right" '$RIG'
 echo '          <label for="rad6">Right channel</label>'
 echo '        </div>'
 echo '      </div>'
-#--------------------------------------Volume left---------------------------------------
+#-------------------------------------Volume left----------------------------------------
 echo '      <div class="row mx-1">'
 echo '        <div class="col-3">'
 echo '          <p>Left channel: '$VOLUMELEFT'</p>'
 echo '        </div>'
-echo '        <div class="form-group col-9">'
-echo '          <input class="form-control form-control-sm" type="text" name="VOLUMELEFT" value="'$VOLUMELEFT'">&nbsp;Volume (0-100)'
+echo '        <div class="form-group col-1">'
+echo '          <input class="form-control form-control-sm" type="text" name="VOLUMELEFT" value="'$VOLUMELEFT'">'
+echo '        </div>'
+echo '        <div class="col-6">'
+echo '          <p>Volume (0-100)</p>'
 echo '        </div>'
 echo '      </div>'
-#--------------------------------------Volume right---------------------------------------
+#-------------------------------------Volume right----------------------------------------
 echo '      <div class="row mx-1">'
 echo '        <div class="col-3">'
 echo '          <p>Right channel: '$VOLUMERIGHT'</p>'
 echo '        </div>'
-echo '        <div class="form-group col-9">'
-echo '          <input class="form-control form-control-sm" id="vr" type="text" name="VOLUMERIGHT" value="'$VOLUMERIGHT'">'
-echo '          <label class="input-group-text" for="vr">Volume (0-100)</label>'
+echo '        <div class="form-group col-1">'
+echo '          <input class="form-control form-control-sm" type="text" name="VOLUMERIGHT" value="'$VOLUMERIGHT'">'
+echo '        </div>'
+echo '        <div class="col-6">'
+echo '          <p>Volume (0-100)</p>'
 echo '        </div>'
 echo '      </div>'
-#--------------------------------------Plug----------------------------------------------
+#-----------------------------------------Plug-------------------------------------------
 echo '      <div class="row mx-1">'
 echo '        <div class="col-3">'
 echo '          <p>Plug: '$HW'</p>'
