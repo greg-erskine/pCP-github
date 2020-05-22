@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-12-29
+# Version: 7.0.0 2020-05-22
+# Title: asound.conf
+# Description: BETA - Modify asound.conf
 
 . pcp-functions
 
 pcp_html_head "xtras_asound_conf" "GE"
 
 pcp_controls
-pcp_banner
 pcp_xtras
-pcp_running_script
 
 VOLUMELEFT=100
 VOLUMERIGHT=100
@@ -34,7 +34,6 @@ pcp_write_asound_conf() {
    # '$OPTION'\
    type route;\
    slave.pcm "'$PCMTYPE'";\
-   ttable {\
       0.0 '$VOLLEFT';\
       1.1 '$VOLRIGHT';\
    }
@@ -45,7 +44,6 @@ pcp_write_asound_conf() {
    # '$OPTION'\
    type route;\
    slave.pcm "'$PCMTYPE'";\
-   ttable {\
       0.1 '$VOLLEFT';\
       0.0 '$VOLLEFT';\
       1.0 '$VOLRIGHT';\
@@ -58,7 +56,6 @@ pcp_write_asound_conf() {
    # '$OPTION'\
    type route;\
    slave.pcm "'$PCMTYPE'";\
-   ttable {\
       0.1 '$VOLLEFT';\
       1.0 '$VOLRIGHT';\
    }
@@ -69,7 +66,6 @@ pcp_write_asound_conf() {
    # '$OPTION'\
    type route;\
    slave.pcm "'$PCMTYPE'";\
-   ttable {\
       0.0 '$VOLLEFT';\
       1.1 0;\
    }
@@ -80,7 +76,6 @@ pcp_write_asound_conf() {
    # '$OPTION'\
    type route;\
    slave.pcm "'$PCMTYPE'";\
-   ttable {\
       0.0 0;\
       1.1 '$VOLRIGHT';\
    }
@@ -113,16 +108,16 @@ fi
 
 case "$SUBMIT" in
 	Write)
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Writing asound.conf...</p>'
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing asound.conf..." "html"
 		pcp_write_asound_conf
 	;;
 	*)
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Invalid option '$SUBMIT'...</p>'
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Invalid option $SUBMIT..." "html"
 	;;
 esac
 
 TYPE=$(cat $ASOUNDCONF)
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Type '${TYPE:2:3}'</p>'
+[ $DEBUG -eq 1 ] && pcp_message DEBUG "Type ${TYPE:2:3}" "html"
 case ${TYPE:2:3} in
 	def) DEF="checked" ;;
 	ste) STE="checked" ;;
@@ -181,172 +176,130 @@ esac
 #========================================================================================
 # WARNING message
 #----------------------------------------------------------------------------------------
-echo '<table class="bgred">'
-echo '  <tr>'
-echo '    <td>'
+echo '  <div>'
+echo '    <div>'
 echo '      <p><b>WARNING:</b> Beta software!! Does not work 100%,'
 echo '      but it may be useful. Use at your own risk.</p>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+echo '  </div>'
 #========================================================================================
-# Start table
+
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <form name="asound" action="xtras_asoundrc.cgi" method="get" id="asound">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Generate asound.conf</legend>'
-echo '            <table class="bggrey percent100">'
+echo '  <div class="'$BORDER'">'
+echo '    <form name="asound" action="xtras_asoundrc.cgi" method="get" id="asound">'
+pcp_heading5 "Generate asound.conf"
 #--------------------------------------Warning-------------------------------------------
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="warning" colspan="3">'
-echo '                  <p><b>Note:</b> Using an incompatible asound.conf may stop squeezelite from starting.</b></p>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Default/Stereo/Mono/Swap/Left/Right---------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Stereo/Mono/Swap/L/R</p>'
-echo '                </td>'
-echo '                <td class="column410">'
-echo '                  <input id="rad1" type="radio" name="OPTION" value="default" '$DEF'>'
-echo '                  <label for="rad1">Default&nbsp;</label>'
-echo '                  <input id="rad2" type="radio" name="OPTION" value="stereo" '$STE'>'
-echo '                  <label for="rad2">Stereo&nbsp;</label>'
-echo '                  <input id="rad3" type="radio" name="OPTION" value="mono" '$MON'>'
-echo '                  <label for="rad3">Mono&nbsp;</label>'
-echo '                  <input id="rad4" type="radio" name="OPTION" value="swap" '$SWA'>'
-echo '                  <label for="rad4">Swap channels&nbsp;</label>'
-echo '                  <input id="rad5" type="radio" name="OPTION" value="left" '$LEF'>'
-echo '                  <label for="rad5">Left channel&nbsp;</label>'
-echo '                  <input id="rad6" type="radio" name="OPTION" value="right" '$RIG'>'
-echo '                  <label for="rad6">Right channel</label>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Volume left---------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Left channel: '$VOLUMELEFT'</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="small2" type="text" name="VOLUMELEFT" value="'$VOLUMELEFT'">&nbsp;Volume (0-100)'
-echo '                </td>'
-echo '                <td colspan="2">'
-echo '                  <p class="row"></p>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Volume right---------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Right channel: '$VOLUMERIGHT'</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="small2" type="text" name="VOLUMERIGHT" value="'$VOLUMERIGHT'">&nbsp;Volume (0-100)'
-echo '                </td>'
-echo '                <td class="column150">'
-echo '                  <p class="row"></p>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Plug----------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Plug: '$HW'</p>'
-echo '                </td>'
-echo '                <td class="column410">'
-echo '                  <input id="radhw1" type="radio" name="HW" value="hw" '$HW0'>'
-echo '                  <label for="radhw1">hw&nbsp;</label>'
-echo '                  <input id="radhw2" type="radio" name="HW" value="plughw" '$HW1'>'
-echo '                  <label for="radhw2">plughw&nbsp;</label>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Card----------------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150">'
-echo '                  <p class="row">Card: '$CARD'</p>'
-echo '                </td>'
-echo '                <td class="column410">'
-echo '                  <input id="radcard1" type="radio" name="CARD" value="0" '$CARD0'>'
-echo '                  <label for="radcard1">0&nbsp;</label>'
-echo '                  <input id="radcard2" type="radio" name="CARD" value="1" '$CARD1'>'
-echo '                  <label for="radcard2">1&nbsp;</label>'
-echo '                </td>'
-echo '              </tr>'
-#--------------------------------------Write button--------------------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td colspan="3">'
-echo '                  <input type="submit" name="SUBMIT" value="Write">'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
+echo '      <div class="row mx-1">'
+echo '        <div class="col-12">'
+echo '          <p><b>Note:</b> Using an incompatible asound.conf may stop squeezelite from starting.</b></p>'
 echo '        </div>'
-echo '      </form>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '      </div>'
+#--------------------------------------Default/Stereo/Mono/Swap/Left/Right---------------
+echo '      <div class="row mx-1">'
+echo '        <div class="col-3">'
+echo '          <p>Stereo/Mono/Swap/L/R</p>'
+echo '        </div>'
+echo '        <div class="col-9">'
+echo '          <input id="rad1" type="radio" name="OPTION" value="default" '$DEF'>'
+echo '          <label for="rad1">Default&nbsp;&nbsp;</label>'
+echo '          <input id="rad2" type="radio" name="OPTION" value="stereo" '$STE'>'
+echo '          <label for="rad2">Stereo&nbsp;&nbsp;</label>'
+echo '          <input id="rad3" type="radio" name="OPTION" value="mono" '$MON'>'
+echo '          <label for="rad3">Mono&nbsp&nbsp;</label>'
+echo '          <input id="rad4" type="radio" name="OPTION" value="swap" '$SWA'>'
+echo '          <label for="rad4">Swap channels&nbsp;&nbsp;</label>'
+echo '          <input id="rad5" type="radio" name="OPTION" value="left" '$LEF'>'
+echo '          <label for="rad5">Left channel&nbsp;&nbsp;</label>'
+echo '          <input id="rad6" type="radio" name="OPTION" value="right" '$RIG'>'
+echo '          <label for="rad6">Right channel</label>'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Volume left---------------------------------------
+echo '      <div class="row mx-1">'
+echo '        <div class="col-3">'
+echo '          <p>Left channel: '$VOLUMELEFT'</p>'
+echo '        </div>'
+echo '        <div class="form-group col-9">'
+echo '          <input class="form-control form-control-sm" type="text" name="VOLUMELEFT" value="'$VOLUMELEFT'">&nbsp;Volume (0-100)'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Volume right---------------------------------------
+echo '      <div class="row mx-1">'
+echo '        <div class="col-3">'
+echo '          <p>Right channel: '$VOLUMERIGHT'</p>'
+echo '        </div>'
+echo '        <div class="form-group col-9">'
+echo '          <input class="form-control form-control-sm" id="vr" type="text" name="VOLUMERIGHT" value="'$VOLUMERIGHT'">'
+echo '          <label class="input-group-text" for="vr">Volume (0-100)</label>'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Plug----------------------------------------------
+echo '      <div class="row mx-1">'
+echo '        <div class="col-3">'
+echo '          <p>Plug: '$HW'</p>'
+echo '        </div>'
+echo '        <div class="col-9">'
+echo '          <input id="radhw1" type="radio" name="HW" value="hw" '$HW0'>'
+echo '          <label for="radhw1">hw&nbsp;&nbsp;</label>'
+echo '          <input id="radhw2" type="radio" name="HW" value="plughw" '$HW1'>'
+echo '          <label for="radhw2">plughw</label>'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Card----------------------------------------------
+echo '      <div class="row mx-1">'
+echo '        <div class="col-3">'
+echo '          <p>Card: '$CARD'</p>'
+echo '        </div>'
+echo '        <div class="col-9">'
+echo '          <input id="radcard1" type="radio" name="CARD" value="0" '$CARD0'>'
+echo '          <label for="radcard1">0&nbsp;&nbsp;</label>'
+echo '          <input id="radcard2" type="radio" name="CARD" value="1" '$CARD1'>'
+echo '          <label for="radcard2">1</label>'
+echo '        </div>'
+echo '      </div>'
+#--------------------------------------Write button--------------------------------------
+echo '      <div class="row mx-1 mb-2">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Write">'
+echo '        </div>'
+echo '      </div>'
+#----------------------------------------------------------------------------------------
+echo '    </form>'
+echo '  </div>'
 
 #========================================================================================
 # Current asound.conf
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Current asound.conf</legend>'
-echo '            <table class="bggrey percent100">'
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-	                    pcp_textarea_inform "none" "cat $ASOUNDCONF" 150
-echo '                </td>'
-echo '              </tr>'
+pcp_textarea "Current $ASOUNDCONF" "cat $ASOUNDCONF" 15
 
+echo '  <div class="'$BORDER'">'
+pcp_heading5 "Current asound.conf"
 #--------------------------------------Output settings-----------------------------------
-echo '              <tr class="warning">'
-echo '                <td class="column150">'
-echo '                  <p>Output settings</p>'
-echo '                </td>'
-echo '                <td class="column210">'
-echo '                  <input class="large15" type="text" name="OUTPUT" value="'$OUTPUT'" readonly>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>This field should be empty - use Squeezelite Settings page to remove Output setting.</p>'
-echo '                </td>'
-echo '              </tr>'
+echo '    <div class="row mx-1">'
+echo '      <div class="col-2">'
+echo '        <p>Output settings</p>'
+echo '      </div>'
+echo '      <div class="form-group col-3">'
+echo '        <input class="form-control form-control-sm" type="text" name="OUTPUT" value="'$OUTPUT'" readonly>'
+echo '      </div>'
+echo '      <div class="col-7">'
+echo '        <p>This field should be empty - use Squeezelite Settings page to remove Output setting.</p>'
+echo '      </div>'
+echo '    </div>'
 #------------------------------------Squeezelite restart button--------------------------
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column150 center">'
-echo '                  <form name="Restart" action="restartsqlt.cgi" method="get">'
-echo '                    <input type="submit" value="Restart" />'
-echo '                  </form>'
-echo '                </td>'
-echo '                <td colspan="2">'
-echo '                  <p> Restart Squeezelite - necessary for new asound.conf to take effect.</p>'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    <div class="row mx-1">'
+echo '      <div class="col-2">'
+echo '        <form name="Restart" action="restartsqlt.cgi" method="get">'
+echo '          <input class="'$BUTTON'" type="submit" value="Restart">'
+echo '        </form>'
+echo '      </div>'
+echo '      <div class="col-10">'
+echo '        <p>Restart Squeezelite for new asound.conf to take effect.</p>'
+echo '      </div>'
+echo '    </div>'
+#----------------------------------------------------------------------------------------
+echo '  </div>'
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit

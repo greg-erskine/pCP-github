@@ -39,6 +39,10 @@ COLUMN2_1="col-sm-2 text-md-right"
 COLUMN2_1="col-sm-2 text-md-center"
 COLUMN2_2="col-10"
 
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-3"
+COLUMN3_3="col-sm-7"
+
 COLUMN4_1="col-sm-1 text-sm-right"
 COLUMN4_2="col-sm-3"
 COLUMN4_3="col-sm-2"
