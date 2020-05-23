@@ -11,6 +11,7 @@ cat $1 | sed \
 	-e '/pcp_banner/ d' \
 	-e '/pcp_running_script/ d' \
 	-e '/pcp_picoreplayers_toolbar/ d' \
+	-e '/COLUMN\(.*\)"col\(.*\)/ d' \
 	-e "s|^# Version: \(.*\)|$VERSION| g" \
 	-e 's|pcp_navigation|pcp_navbar| g' \
 	-e 's/<tr>/<div>/ g' \
@@ -29,11 +30,11 @@ cat $1 | sed \
 	-e "s|id=\"'\$ID'|id=\"dt'\$ID'| g" \
 	-e "s|'\$ROWSHADE'|row| g" \
 	-e "s|echo '\(.*\)<legend>\(.*\)</legend>'|pcp_heading5 \"\2\"| g" \
-	-e 's|<td class="\(.*\)">|<div class="XXXX">| g' \
-	-e 's|<td colspan="\(.*\)">|<div class="XXXX">| g' \
-	-e "s|<a id=\"dt'\$ID'a\" class=\"moreless\" href=# onclick=\"return more('\\'''\$ID''\\'')\">more></a>'|GREG| g"
+	-e "s|<td class=\"\(.*\)\">|<div class=\"'\$COLUMN4_1'\">| g" \
+	-e "s|<td colspan=\"\(.*\)\">|<div class=\"'\$COLUMN4_1'\">| g"
 
 exit
+
 
 COLUMN2_1="col-sm-2 text-md-right"
 COLUMN2_1="col-sm-2 text-md-center"
@@ -48,10 +49,15 @@ COLUMN4_2="col-sm-3"
 COLUMN4_3="col-sm-2"
 COLUMN4_4="col-sm-6"
 
-pcp_infobox_begin
+pcp_infobox_begin "" 10
 pcp_infobox_end
 
+pcp_textarea_begin "" 10
+pcp_textarea_end
+
 pcp_heading5
+
+pcp_helpbadge
 
 echo '  <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-07
+# Version: 7.0.0 2020-05-23
 
 #========================================================================================
 # This script sets a static IP.
@@ -79,11 +79,11 @@ pcp_edit_bootlocal() {
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
 	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing '$CMDLINETXT'..." "html"
-	pcp_mount_bootpart "nohtml" >/dev/null
+	pcp_mount_bootpart >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
 		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' $CMDLINETXT
-		pcp_umount_bootpart "nohtml" >/dev/null
+		pcp_umount_bootpart >/dev/null
 	else
 		[ $DEBUG -eq 1 ] && pcp_messsage ERROR "'$VOLUME' not mounted" "html"
 	fi
@@ -147,15 +147,14 @@ pcp_which_class() {
 	FIRST=$(echo $(pcp_lmsip) | awk -F. '{ print $1 }')
 	THIRD=$(echo $(pcp_lmsip) | awk -F. '{ print $3 }')
 
-	case $FIRST in
+	case "$FIRST" in
 		10)  CLASS=A ;;
 		172) CLASS=B ;;
 		192) CLASS=C ;;
 	esac
 
 	case "$CLASS" in
-		A)
-			EXAMPLE1="10.0.0.123"
+		A)	EXAMPLE1="10.0.0.123"
 			EXAMPLE2="10.0.1.123"
 			EXAMPLE3="255.0.0.0"
 			EXAMPLE4="10.0.0.255"
@@ -163,9 +162,9 @@ pcp_which_class() {
 			EXAMPLE6="10.0.0.1"
 			EXAMPLE7="10.0.1.1"
 			EXAMPLE8="10.0.1.254"
+			EXAMPLE9="8.8.8.8"
 		;;
-		B)
-			EXAMPLE1="172.16.0.123"
+		B)	EXAMPLE1="172.16.0.123"
 			EXAMPLE2="172.16.1.123"
 			EXAMPLE3="255.255.0.0"
 			EXAMPLE4="172.16.0.255"
@@ -173,9 +172,9 @@ pcp_which_class() {
 			EXAMPLE6="172.16.0.1"
 			EXAMPLE7="172.16.1.1"
 			EXAMPLE8="172.16.1.254"
+			EXAMPLE9="8.8.8.8"
 		;;
-		C)
-			EXAMPLE1="192.168.0.123"
+		C)	EXAMPLE1="192.168.0.123"
 			EXAMPLE2="192.168.1.123"
 			EXAMPLE3="255.255.255.0"
 			EXAMPLE4="192.168.0.255"
@@ -183,28 +182,24 @@ pcp_which_class() {
 			EXAMPLE6="192.168.0.1"
 			EXAMPLE7="192.168.1.1"
 			EXAMPLE8="192.168.1.254"
+			EXAMPLE9="8.8.8.8"
 		;;
 	esac
-
-	EXAMPLE9="8.8.8.8"
 }
 
 pcp_set_defaults() {
 	case "$CLASS" in
-		A)
-			[ x"" = x"$IP" ] && IP="10.0.0.123"
+		A)	[ x"" = x"$IP" ] && IP="10.0.0.123"
 			[ x"" = x"$NETMASK" ] && NETMASK="255.0.0.0"
 			[ x"" = x"$BROADCAST" ] && BROADCAST="10.0.0.255"
 			[ x"" = x"$GATEWAY" ] && GATEWAY="10.0.0.1"
 		;;
-		B)
-			[ x"" = x"$IP" ] && IP="172.16.0.123"
+		B)	[ x"" = x"$IP" ] && IP="172.16.0.123"
 			[ x"" = x"$NETMASK" ] && NETMASK="255.255.0.0"
 			[ x"" = x"$BROADCAST" ] && BROADCAST="172.16.0.255"
 			[ x"" = x"$GATEWAY" ] && GATEWAY="172.16.0.1"
 		;;
-		C)
-			[ x"" = x"$IP" ] && IP="192.168.$THIRD.123"
+		C)	[ x"" = x"$IP" ] && IP="192.168.$THIRD.123"
 			[ x"" = x"$NETMASK" ] && NETMASK="255.255.255.0"
 			[ x"" = x"$BROADCAST" ] && BROADCAST="192.168.$THIRD.255"
 			[ x"" = x"$GATEWAY" ] && GATEWAY="192.168.$THIRD.1"
@@ -253,78 +248,92 @@ pcp_network_tabs() {
 # Look for nodhcp boot code in /mnt/mmcblk0p1/cmdline.txt
 #----------------------------------------------------------------------------------------
 pcp_get_nodhcp() {
-	pcp_mount_bootpart "nohtml" >/dev/null
+	pcp_mount_bootpart >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		cat $CMDLINETXT | grep nodhcp >/dev/null
 		case $? in
 			0)
-				[ $DEBUG -eq 1 ] && pcp_message DEBUG "NODHCP boot code found in '$CMDLINETXT'." "html"
+				[ $DEBUG -eq 1 ] && pcp_message DEBUG "NODHCP boot code found in $CMDLINETXT." "html"
 				NODHCPYES="checked"
 				DHCP="off"
 			;;
 			*)
-				[ $DEBUG -eq 1 ] && pcp_message DEBUG "NODHCP boot code not found in '$CMDLINETXT'." "html"
+				[ $DEBUG -eq 1 ] && pcp_message DEBUG "NODHCP boot code not found in $CMDLINETXT." "html"
 				NODHCPNO="checked"
 				DHCP="on"
 			;;
 		esac
-		pcp_umount_bootpart "nohtml" >/dev/null
+		pcp_umount_bootpart >/dev/null
 	else
-		[ $DEBUG -eq 1 ] && pcp_message ERROR "'$VOLUME' not mounted." "html"
+		[ $DEBUG -eq 1 ] && pcp_message ERROR "$VOLUME not mounted." "html"
 	fi
 }
+
+# && INDICATOR="" || INDICATOR="border-success"
 
 #========================================================================================
 # Validate Static IP settings
 #----------------------------------------------------------------------------------------
 pcp_validate_static_ip() {
 	pcp_heading5 "Validating IP Settings"
-	echo '              <textarea "col-12 text-monospace" rows="10">'
-	echo -n "[ INFO ] Checking Gateway: $GATEWAY......"
-	ping -c 2 -W 5 $GATEWAY >/dev/null
-	if [ $? -eq 0 ]; then
-		echo "[OK]"
-	else
-		echo "[FAIL]"
-		FAIL=1
-	fi
-	echo -n "[ INFO ] Checking IP Unused: $IP......"
+	pcp_textarea_begin "" 5
+
+	echo -n "[ INFO ] Checking IP unused: $IP..."
 	CURIP=$(ifconfig $NETWORK | grep "inet addr" | cut -d':' -f2 | cut -d' ' -f1)
 	if [ "$IP" = "$CURIP" ]; then
 		echo "Matches Current [OK]"
+		IP_IND="border-success"
 	else
 		ping -c 2 -W 5 $IP >/dev/null
 		if [ $? -eq 1 ]; then
 			echo "[OK]"
+			IP_IND="border-success"
 		else
-			echo "IP address already in use. [FAIL]"
+			echo "IP address already in use. [ERROR]"
 			FAIL=1
+			IP_IND="border-danger"
 		fi
 	fi
+
 	echo -n "[ INFO ] Checking Netmask..."
 	echo "$NETMASK" | grep -E -q "^(255)\.(255|0)\.(255|0)\.0"
 	if [ $? -eq 0 ]; then
-		echo "Looks [OK]"
+		echo "[OK]"
+		NETMASK_IND="border-success"
 	else
-		echo "Seems incorrect, check before rebooting. [WARN]"
+		echo "Seems incorrect, check before rebooting. [ERROR]"
+		NETMASK_IND="border-warning"
 	fi
+
 	echo -n "[ INFO ] Checking Broadcast..."
 	TEST=$(echo "$GATEWAY" | awk -F'.' '{ print $1 "." $2 "." $3 ".255" }')
 	if [ "$BROADCAST" = "$TEST" ]; then
-		echo "Looks [OK]"
+		echo "[OK]"
+		BROADCAST_IND="border-success"
 	else
-		echo "Seems incorrect, check before rebooting. [WARN]"
+		echo "Seems incorrect, check before rebooting. [ERROR]"
+		BROADCAST_IND="border-warning"
 	fi
-	echo '                </textarea>'
-	pcp_table_end
+
+	echo -n "[ INFO ] Checking Gateway: $GATEWAY..."
+	ping -c 2 -W 5 $GATEWAY >/dev/null
+	if [ $? -eq 0 ]; then
+		echo "[OK]"
+		GATEWAY_IND="border-success"
+	else
+		echo "[ERROR]"
+		FAIL=1
+		GATEWAY_IND="border-danger"
+	fi
+
+	pcp_textarea_end
 }
 
 #========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
-[ $DEBUG -eq 1 ] && pcp_table_top "Debug information"
 pcp_which_class
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] SUBMIT -> '$SUBMIT' option...</p>'
+[ $DEBUG -eq 1 ] && pcp_debug_variables "html" SUBMIT
 
 case "$SUBMIT" in
 	Save)
@@ -362,14 +371,8 @@ esac
 [ -f "/opt/${NETWORK}.sh" ] && pcp_read_script
 
 pcp_get_nodhcp
-[ $DEBUG -eq 1 ] && pcp_table_end
-
-#========================================================================================
-# Start table.
-#----------------------------------------------------------------------------------------
 
 #--------------------------------------Warning message-----------------------------------
-
 echo '    <div>'
 echo '      <p><b>Warning:</b></p>'
 echo '      <ul>'
@@ -380,264 +383,263 @@ echo '        <li>All network interfaces must be DHCP or static IP, not mixed.</
 echo '        <li>The network interface tabs will automatically show available network interfaces.</li>'
 echo '      </ul>'
 echo '    </div>'
-
 #----------------------------------------------------------------------------------------
 
 pcp_network_tabs
 
-COLUMN1="column150"
-COLUMN2="column240"
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-3"
+COLUMN3_3="col-sm-7"
+
 #----------------------------------------------------------------------------------------
-
-echo '      <form name="staticip" action="xtras_staticip.cgi" method="get" id="staticip">'
-echo '        <div class="row">'
-echo '          <fieldset>'
-echo '            <legend>Set static IP for '$NETWORK'</legend>'
-
 [ "$SUBMIT" = "Save" -a "$STATIC" != "firstrun" -a "$DHCP" = "off" ] && pcp_validate_static_ip
 
-#--------------------------------------DHCP----------------------------------------------
+echo '  <div class="'$BORDER'">'
+pcp_heading5 "Set static IP for $NETWORK"
+echo '    <form name="staticip" action="'$0'" method="get" id="staticip">'
 
+#-----------------------------------------DHCP-------------------------------------------
+echo '        <div class="row mx-1">'
+echo '          <div class="'$COLUMN3_1'">'
+echo '            <p>DHCP/Static IP</p>'
+echo '          </div>'
+echo '          <div class="'$COLUMN3_2'">'
+echo '            <input type="radio" id="DHCPon" name="DHCP" value="on" '$NODHCPNO'>'
+echo '            <label for="DHCPon">DHCP&nbsp;&nbsp;</label>'
+echo '            <input type="radio" id="DHCPoff" name="DHCP" value="off" '$NODHCPYES'>'
+echo '            <label for="DHCPoff">Static IP</label>'
+echo '          </div>'
 pcp_incr_id
-
-
-echo '                <td class="'$COLUMN1'">'
-echo '                  <p class="row">DHCP/Static IP</p>'
-echo '                </td>'
-echo '                <td class="'$COLUMN2'">'
-echo '                  <input id="rad1" type="radio" id="DHCPon" name="DHCP" value="on" '$NODHCPNO'>'
-echo '                  <label for="rad1">DHCP&nbsp;&nbsp;</label>'
-echo '                  <input id="rad2" type="radio" id="DHCPoff" name="DHCP" value="off" '$NODHCPYES'>'
-echo '                  <label for="rad2">Static IP</label>'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Select DHCP or Static IP&nbsp;&nbsp;'
-echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>&lt;DHCP|Static IP&gt;</p>'
-echo '                    <p>Dynamic Host Configuration Protocol (DHCP)</p>'
-echo '                  </div>'
-echo '                </td>'
-
+echo '          <div class="'$COLUMN3_3'">'
+echo '            <p>Select DHCP or Static IP&nbsp;&nbsp;'
+pcp_helpbadge
+echo '            </p>'
+echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '              <p>&lt;DHCP|Static IP&gt;</p>'
+echo '              <p>Dynamic Host Configuration Protocol (DHCP)</p>'
+echo '            </div>'
+echo '          </div>'
+echo '        </div>'
 #----------------------------------------------------------------------------------------
 
 if [ "$DHCP" = "off" ]; then
 	#--------------------------------------IP--------------------------------------------
+	echo '        <div class="row mx-1">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <p>Static IP address *</p>'
+	echo '          </div>'
+	echo '          <div class="form-group '$COLUMN3_2'">'
+	echo '            <input class="form-control form-control-sm '$IP_IND'"'
+	echo '                   type="text"'
+	echo '                   name="IP"'
+	echo '                   value="'$IP'"'
+	echo '                   title="xxx.xxx.xxx.xxx"'
+	echo '                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '            >'
+	echo '          </div>'
 	pcp_incr_id
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'">'
-	echo '                  <p class="row">Static IP address</p>'
-	echo '                </td>'
-	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="IP"'
-	echo '                         value="'$IP'"'
-	echo '                         title="xxx.xxx.xxx.xxx"'
-	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-	echo '                  >*'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="row">Set static IP address&nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Static IP must be unique and not clash with any other IP on your network.</li>'
-	echo '                      <li>Static IP must not be in the range of IP addresses controlled by DHCP.</li>'
-	echo '                    </ul>'
-	echo '                    <p><b>Example: </b></p>'
-	echo '                    <ul>'
-	echo '                      <li>'$EXAMPLE1'</li>'
-	echo '                      <li>'$EXAMPLE2'</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#--------------------------------------NETMASK---------------------------------------
+	echo '          <div class="'$COLUMN3_3'">'
+	echo '            <p>Set static IP address&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '            </p>'
+	echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '              <ul>'
+	echo '                <li>Static IP must be unique and not clash with any other IP on your network.</li>'
+	echo '                <li>Static IP must not be in the range of IP addresses controlled by DHCP.</li>'
+	echo '              </ul>'
+	echo '              <p><b>Example: </b></p>'
+	echo '              <ul>'
+	echo '                <li>'$EXAMPLE1'</li>'
+	echo '                <li>'$EXAMPLE2'</li>'
+	echo '              </ul>'
+	echo '            </div>'
+	echo '          </div>'
+	echo '        </div>'
+	#------------------------------------NETMASK-----------------------------------------
+	echo '        <div class="row mx-1">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <p>Netmask *</p>'
+	echo '          </div>'
+	echo '          <div class="form-group '$COLUMN3_2'">'
+	echo '            <input class="form-control form-control-sm '$NETMASK_IND'"'
+	echo '                   type="text"'
+	echo '                   name="NETMASK"'
+	echo '                   value="'$NETMASK'"'
+	echo '                   title="xxx.xxx.xxx.xxx"'
+	echo '                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '            >'
+	echo '          </div>'
 	pcp_incr_id
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'">'
-	echo '                  <p class="row">Netmask</p>'
-	echo '                </td>'
-	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="NETMASK"'
-	echo '                         value="'$NETMASK'"'
-	echo '                         title="xxx.xxx.xxx.xxx"'
-	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-	echo '                  >*'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="row">Set netmask address&nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The netmask must be the same on all your devices.</p>'
-	echo '                    <p><b>Example: </b>'$EXAMPLE3'</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#--------------------------------------BROADCAST-------------------------------------
+	echo '          <div class="'$COLUMN3_3'">'
+	echo '            <p>Set netmask address&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '            </p>'
+	echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '              <p>The netmask must be the same on all your devices.</p>'
+	echo '              <p><b>Example: </b>'$EXAMPLE3'</p>'
+	echo '            </div>'
+	echo '          </div>'
+	echo '        </div>'
+	#-----------------------------------BROADCAST----------------------------------------
+	echo '        <div class="row mx-1">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <p>Broadcast *</p>'
+	echo '          </div>'
+	echo '          <div class="form-group '$COLUMN3_2'">'
+	echo '            <input class="form-control form-control-sm '$BROADCAST_IND'"'
+	echo '                   type="text"'
+	echo '                   name="BROADCAST"'
+	echo '                   value="'$BROADCAST'"'
+	echo '                   title="xxx.xxx.xxx.xxx"'
+	echo '                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '            >'
+	echo '          </div>'
 	pcp_incr_id
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'">'
-	echo '                  <p class="row">Broadcast</p>'
-	echo '                </td>'
-	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="BROADCAST"'
-	echo '                         value="'$BROADCAST'"'
-	echo '                         title="xxx.xxx.xxx.xxx"'
-	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-	echo '                  >*'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="row">Set broadcast address&nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The broadcast address is fixed and can not be used for other purposes.</p>'
-	echo '                    <p><b>Example:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>'$EXAMPLE4'</li>'
-	echo '                      <li>'$EXAMPLE5'</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#--------------------------------------GATEWAY---------------------------------------
+	echo '          <div class="'$COLUMN3_3'">'
+	echo '            <p>Set broadcast address&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '            </p>'
+	echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '              <p>The broadcast address is fixed and can not be used for other purposes.</p>'
+	echo '              <p><b>Example:</b></p>'
+	echo '              <ul>'
+	echo '                <li>'$EXAMPLE4'</li>'
+	echo '                <li>'$EXAMPLE5'</li>'
+	echo '              </ul>'
+	echo '            </div>'
+	echo '          </div>'
+	echo '        </div>'
+	#------------------------------------GATEWAY-----------------------------------------
+	echo '        <div class="row mx-1">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <p>Default gateway *</p>'
+	echo '          </div>'
+	echo '          <div class="form-group '$COLUMN3_2'">'
+	echo '            <input class="form-control form-control-sm '$GATEWAY_IND'"'
+	echo '                   type="text"'
+	echo '                   name="GATEWAY"'
+	echo '                   value="'$GATEWAY'"'
+	echo '                   title="xxx.xxx.xxx.xxx"'
+	echo '                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '            >'
+	echo '          </div>'
 	pcp_incr_id
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'">'
-	echo '                  <p class="row">Default gateway</p>'
-	echo '                </td>'
-	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="GATEWAY"'
-	echo '                         value="'$GATEWAY'"'
-	echo '                         title="xxx.xxx.xxx.xxx"'
-	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-	echo '                  >*'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="row">Set default gateway address&nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The gateway address is usually your modem IP address.</p>'
-	echo '                    <p><b>Example:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>'$EXAMPLE6'</li>'
-	echo '                      <li>'$EXAMPLE7'</li>'
-	echo '                      <li>'$EXAMPLE8'</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '          <div class="'$COLUMN3_3'">'
+	echo '            <p>Set default gateway address&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '            </p>'
+	echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '              <p>The gateway address is usually your modem IP address.</p>'
+	echo '              <p><b>Example:</b></p>'
+	echo '              <ul>'
+	echo '                <li>'$EXAMPLE6'</li>'
+	echo '                <li>'$EXAMPLE7'</li>'
+	echo '                <li>'$EXAMPLE8'</li>'
+	echo '              </ul>'
+	echo '            </div>'
+	echo '          </div>'
+	echo '        </div>'
 	#--------------------------------------NAMESERVER1-----------------------------------
+	echo '        <div class="row mx-1">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <p>Nameserver 1 *</p>'
+	echo '          </div>'
+	echo '          <div class="form-group '$COLUMN3_2'">'
+	echo '            <input class="form-control form-control-sm"'
+	echo '                   type="text"'
+	echo '                   name="NAMESERVER1"'
+	echo '                   value="'$NAMESERVER1'"'
+	echo '                   title="xxx.xxx.xxx.xxx"'
+	echo '                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '            >'
+	echo '          </div>'
 	pcp_incr_id
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'">'
-	echo '                  <p class="row">Nameserver 1</p>'
-	echo '                </td>'
-	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="NAMESERVER1"'
-	echo '                         value="'$NAMESERVER1'"'
-	echo '                         title="xxx.xxx.xxx.xxx"'
-	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-	echo '                  >*'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="row">Set nameserver 1 (DNS) address &nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>The nameserver address is usually your modem IP address.</p>'
-	echo '                    <p><b>Example:</b></p>'
-	echo '                    <ul>'
-	echo '                      <li>'$EXAMPLE6'</li>'
-	echo '                      <li>'$EXAMPLE7'</li>'
-	echo '                      <li>'$EXAMPLE8'</li>'
-	echo '                      <li>'$EXAMPLE9'</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '          <div class="'$COLUMN3_3'">'
+	echo '            <p>Set nameserver 1 (DNS) address &nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '            </p>'
+	echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '              <p>The nameserver address is usually your modem IP address.</p>'
+	echo '              <p><b>Example:</b></p>'
+	echo '              <ul>'
+	echo '                <li>'$EXAMPLE6'</li>'
+	echo '                <li>'$EXAMPLE7'</li>'
+	echo '                <li>'$EXAMPLE8'</li>'
+	echo '                <li>'$EXAMPLE9'</li>'
+	echo '              </ul>'
+	echo '            </div>'
+	echo '          </div>'
+	echo '        </div>'
 	#--------------------------------------NAMESERVER2-----------------------------------
+	echo '        <div class="row mx-1">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <p>Nameserver 2</p>'
+	echo '          </div>'
+	echo '          <div class="form-group '$COLUMN3_2'">'
+	echo '            <input class="form-control form-control-sm"'
+	echo '                   type="text"'
+	echo '                   name="NAMESERVER2"'
+	echo '                   value="'$NAMESERVER2'"'
+	echo '                   title="xxx.xxx.xxx.xxx"'
+	echo '                   pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
+	echo '            >'
+	echo '          </div>'
 	pcp_incr_id
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'">'
-	echo '                  <p class="row">Nameserver 2</p>'
-	echo '                </td>'
-	echo '                <td class="'$COLUMN2'">'
-	echo '                  <input class="large15"'
-	echo '                         type="text"'
-	echo '                         name="NAMESERVER2"'
-	echo '                         value="'$NAMESERVER2'"'
-	echo '                         title="xxx.xxx.xxx.xxx"'
-	echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
-	echo '                  >'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p class="row">Set nameserver 2 (DNS) address &nbsp;&nbsp;'
-	echo '                    <a class="moreless" id="'$ID'a" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Alternative nameserver address, incase nameserver 1 is not available.</p>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '          <div class="'$COLUMN3_3'">'
+	echo '            <p>Set nameserver 2 (DNS) address &nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '            </p>'
+	echo '            <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '              <p>Alternative nameserver address, incase nameserver 1 is not available.</p>'
+	echo '            </div>'
+	echo '          </div>'
+	echo '        </div>'
 	#------------------------------------------------------------------------------------
 fi
 
 #--------------------------------------BUTTONS-------------------------------------------
-pcp_incr_id
+echo '        <div class="row mx-1 mb-2">'
+echo '          <div class="'$COLUMN3_1'">'
+echo '            <input class="'$BUTTON'" type="submit" title="Save configuration to /opt/'${NETWORK}'.sh" name="SUBMIT" value="Save">'
+echo '            <input type="hidden" name="NETWORK" value="'$NETWORK'">'
+echo '          </div>'
 
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="column400">'
-echo '                  <input type="submit" title="Save configuration to /opt/'${NETWORK}'.sh" name="SUBMIT" value="Save">'
-echo '                  <input type="hidden" name="NETWORK" value="'$NETWORK'">'
 if [ "$DHCP" = "off" ]; then
-  echo '                  <input type="submit" title="Fill-in blanks with default values" name="SUBMIT" value="Defaults">'
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <input class="'$BUTTON'" type="submit" title="Fill-in blanks with default values" name="SUBMIT" value="Defaults">'
+	echo '          </div>'
 else
-  echo '                  <input type="hidden" name="STATIC" value="firstrun">'
+	echo '          <input type="hidden" name="STATIC" value="firstrun">'
 fi
-[ -f "/opt/${NETWORK}.sh" ] &&
-echo '                  <input type="submit" title="Delete /opt/'${NETWORK}'.sh" name="SUBMIT" value="Delete">'
-echo '                </td>'
-echo '                <td colspan="2">'
-echo '                  <p>* required field</p>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </fieldset>'
-echo '        </div>'
-echo '      </form>'
 
+if [ -f "/opt/${NETWORK}.sh" ]; then
+	echo '          <div class="'$COLUMN3_1'">'
+	echo '            <input class="'$BUTTON'" type="submit" title="Delete /opt/'${NETWORK}'.sh" name="SUBMIT" value="Delete">'
+	echo '          </div>'
+fi
+
+if [ "$DHCP" = "off" ]; then
+	echo '          <div class="'$COLUMN3_2'">'
+	echo '            <p>* required field</p>'
+	echo '          </div>'
+fi
+
+echo '        </div>'
+#----------------------------------------------------------------------------------------
+echo '      </div>'
+echo '    </form>'
+echo '  </div>'
 
 #========================================================================================
 if [ $DEBUG -eq 1 ]; then
-	pcp_textarea "" "cat /opt/'${NETWORK}'.sh" 10
+	pcp_hr
+	pcp_textarea "" "cat /opt/${NETWORK}.sh" 10
 
 	pcp_textarea "" "cat /etc/resolv.conf" 5
 
-	pcp_mount_bootpart "nohtml" >/dev/null
+	pcp_mount_bootpart >/dev/null
 	pcp_textarea "" "cat $CMDLINETXT" 5
-	pcp_umount_bootpart "nohtml" >/dev/null
+	pcp_umount_bootpart >/dev/null
 
 	pcp_textarea "" "cat /opt/bootlocal.sh" 10
 

@@ -1,15 +1,18 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-19
+# Version: 7.0.0 2020-05-23
+
+# Title: dosfsck
+# Description: Get rid of the dirty bits on your boot partition
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "xtras_dosfsck" "GE"
 
-pcp_banner
-pcp_navigation
+pcp_navbar
 pcp_httpd_query_string
+pcp_remove_query_string
 
 REBOOT_REQUIRED=false
 
@@ -17,83 +20,83 @@ REBOOT_REQUIRED=false
 # Check for dosfstools.tcz and download and install.
 #----------------------------------------------------------------------------------------
 pcp_check_dosfsck() {
-	echo '<textarea class="inform" rows="6">'
-	echo '[ INFO ] Requires dosfstools.tcz'
+	pcp_infobox_begin
+	pcp_message INFO "Requires dosfstools.tcz" "html"
 	which fsck.fat >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		echo '[ INFO ] dosfstools.tcz already installed.'
+		pcp_message INFO "dosfstools.tcz already installed." "html"
 	else
 		if [ ! -f ${PACKAGEDIR}/dosfstools.tcz ]; then
-			echo '[ INFO ] dosfstools.tcz downloading...'
+			pcp_message INFO "dosfstools.tcz downloading..." "html"
 			sudo -u tc pcp-load -r ${PCP_REPO} -w dosfstools.tcz
 			[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 		else
-			echo '[ INFO ] dosfstools.tcz downloaded.'
+			pcp_message INFO "dosfstools.tcz downloaded." "html"
 		fi
-		echo '[ INFO ] dosfstools.tcz installing...'
+		pcp_message INFO "dosfstools.tcz installing..." "html"
 		sudo -u tc tce-load -i dosfstools.tcz
 		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 	fi
-	echo '</textarea>'
+	pcp_infobox_end
 }
 
 #========================================================================================
 # Main.
 #----------------------------------------------------------------------------------------
-pcp_table_top "Check boot partition"
 pcp_check_dosfsck
-pcp_table_middle
-echo '                <form name="fsck" action="'$0'" method="get">'
-echo '                  <input type="submit"'
-echo '                         name="ACTION"'
-echo '                         value="dosfsck"'
-echo '                  >&nbsp;&nbsp;Auto fix boot partition&nbsp;&nbsp;'
-echo '                  <input type="submit"'
-echo '                         name="ACTION"'
-echo '                         value="Delete"'
-echo '                  >&nbsp;&nbsp;Delete dosfstools.tcz extension (and dependencies)'
-echo '                </form>'
+echo '  <form name="fsck" action="'$0'" method="get">'
+echo '    <div class="'$BORDER'">'
+echo '      <div class="row my-2 mx-1">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit"'
+echo '                 name="ACTION"'
+echo '                 value="dosfsck"'
+echo '          >'
+echo '        </div>'
+echo '        <div class="col-3">'
+echo '          Auto fix boot partition'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit"'
+echo '                 name="ACTION"'
+echo '                 value="Delete"'
+echo '          >'
+echo '        </div>'
+echo '        <div class="col">'
+echo '          Delete dosfstools.tcz extension (and dependencies)'
+echo '        </div>'
+echo '      </div>'
+echo '    </div>'
+echo '  </form>'
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "dosfsck" ]; then
-	pcp_table_middle
-	echo '                <textarea class="inform" rows="10">'
-	                        fsck.fat -a $BOOTDEV
-	echo '                </textarea>'
+	pcp_textarea_begin "" "8"
+	fsck.fat -a $BOOTDEV
+	pcp_textarea_end
 fi
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" = "Delete" ]; then
 	REBOOT_REQUIRED=true
-	pcp_table_middle
-	echo '                <textarea class="inform" rows="10">'
+	pcp_textarea_begin "" "10"
 	                        sudo -u tc tce-audit builddb
 	echo
 	echo                    'After a reboot the following extensions will be permanently deleted:'
 	echo
 	                        sudo -u tc tce-audit delete dosfstools.tcz
-	echo '                </textarea>'
+	pcp_textarea_end
 fi
 #----------------------------------------------------------------------------------------
-pcp_table_end
 
 #========================================================================================
 # Partition information
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" != "Delete" ]; then
-	pcp_table_top "Boot partition information"
-	pcp_textarea_inform "none" "fsck.fat -vrf ${BOOTDEV}" 300
-	pcp_table_middle
-	pcp_table_middle
-	pcp_textarea_inform "none" "fsck -h" 25
-	pcp_table_end
+	pcp_textarea "none" "fsck.fat -vrf ${BOOTDEV}" 22
+	pcp_textarea "none" "fsck -h" 3
 fi
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-pcp_remove_query_string
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
 
 $REBOOT_REQUIRED
 [ $? -eq 0 ] && pcp_reboot_required
