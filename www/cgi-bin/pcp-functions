@@ -230,26 +230,42 @@ pcp_generate_listing() {
 
 	echo '  <div class="'$BORDER' pb-3 mb-2">'
 	pcp_heading5 "$LS_TITLE"
+
+#----------------------------------------------------------------------------------------	
 	echo '    <div class="row mx-1">'
+	echo '      <div class="font-weight-bold col-12 col-sm-3 d-none d-md-block mb-2">'
+	echo '        Title'
+	echo '      </div>'
+	echo '      <div class="font-weight-bold col-12 col-sm-7 d-none d-md-block">'
+	echo '        Description'
+	echo '      </div>'
+	echo '      <div class="font-weight-bold col-12 col-sm-2 d-none d-md-block">'
+	echo '        Version'
+	echo '      </div>'
+	echo '    </div>'
+#	echo '    <hr class="d-none d-md-block">'
+#----------------------------------------------------------------------------------------
 
 	for PAGE in $LS_PAGES
 	do
 		pcp_get_page_info $PAGE
 		[ x"$TITLE" = x"" ] && TITLE=$BASENAME
 		if [ "$BASENAME" != "$0" ]; then
-			echo '      <div class="col-3">'
+			echo '    <div class="row mx-1">'
+			echo '      <div class="col-12 col-sm-3">'
 			echo '        <a href="'$BASENAME'">'$TITLE'</a>'
 			echo '      </div>'
-			echo '      <div class="col-7">'
+			echo '      <div class="col-12 col-sm-7">'
 			echo '        '$DESCR
 			echo '      </div>'
-			echo '      <div class="col-2">'
+			echo '      <div class="col-12 col-sm-2">'
 			echo '        '$VERSION
 			echo '      </div>'
+			echo '    </div>'
+			echo '    <hr class="d-sm-none">'
 		fi
 	done
 
-	echo '    </div>'
 	echo '  </div>'
 }
 
