@@ -2,6 +2,9 @@
 
 # Version: 7.0.0 2020-05-23
 
+# Title: Static IP
+# Description: Set a static IP. The preferred method is to use DHCP.
+
 #========================================================================================
 # This script sets a static IP.
 #----------------------------------------------------------------------------------------
@@ -78,14 +81,14 @@ pcp_edit_bootlocal() {
 # Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt ($CMDLINETXT).
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
-	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing '$CMDLINETXT'..." "html"
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing $CMDLINETXT..." "html"
 	pcp_mount_bootpart >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
 		[ "$1" = "add" ] && sed -i 's/^/nodhcp /' $CMDLINETXT
 		pcp_umount_bootpart >/dev/null
 	else
-		[ $DEBUG -eq 1 ] && pcp_messsage ERROR "'$VOLUME' not mounted" "html"
+		[ $DEBUG -eq 1 ] && pcp_messsage ERROR "$VOLUME not mounted" "html"
 	fi
 }
 
@@ -232,15 +235,18 @@ pcp_debug_info() {
 #----------------------------------------------------------------------------------------
 pcp_network_tabs() {
 	echo '<!-- Start of pcp_network_tabs toolbar -->'
-	echo '<p style="margin-top:8px;">'
+	echo '  <div>'
+	echo '    <ul class="nav nav-tabs navbar-dark mt-1">'
 
 	for i in $VALIDNETWORKS; do
-		[ "$i" = "$NETWORK" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
-		echo '  <a class="'$TAB_STYLE'" href="'$0'?NETWORK='$i'" title="'$i'">'$i'</a>'
+		[ "$i" = "$NETWORK" ] && TAB_ACTIVE="active" || TAB_ACTIVE=""
+		echo '      <li class="nav-item">'
+		echo '        <a class="nav-link '$TAB_ACTIVE'" href="'$0'?NETWORK='$i'" title="'$i'">'$i'</a>'
+		echo '      </li>'
 	done
 
-	echo '</p>'
-
+	echo '    </ul>'
+	echo '  </div>'
 	echo '<!-- End of pcp_network_tabs toolbar -->'
 }
 
@@ -353,6 +359,7 @@ case "$SUBMIT" in
 	;;
 	Delete)
 		rm -f $STATICIP
+		[ "${NETWORK:0:3}" = "eth" ] && pcp_edit_bootlocal delete
 		pcp_clear_defaults
 		pcp_backup >/dev/null
 	;;
@@ -373,7 +380,7 @@ esac
 pcp_get_nodhcp
 
 #--------------------------------------Warning message-----------------------------------
-echo '    <div>'
+echo '    <div class="alert alert-primary" role="alert">'
 echo '      <p><b>Warning:</b></p>'
 echo '      <ul>'
 echo '        <li>The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</li>'
@@ -385,19 +392,16 @@ echo '      </ul>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 
-pcp_network_tabs
-
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-3"
 COLUMN3_3="col-sm-7"
-
 #----------------------------------------------------------------------------------------
 [ "$SUBMIT" = "Save" -a "$STATIC" != "firstrun" -a "$DHCP" = "off" ] && pcp_validate_static_ip
+pcp_network_tabs
 
-echo '  <div class="'$BORDER'">'
+echo '  <div class="'$BORDER' mb-2">'
 pcp_heading5 "Set static IP for $NETWORK"
 echo '    <form name="staticip" action="'$0'" method="get" id="staticip">'
-
 #-----------------------------------------DHCP-------------------------------------------
 echo '        <div class="row mx-1">'
 echo '          <div class="'$COLUMN3_1'">'
@@ -634,13 +638,10 @@ echo '  </div>'
 if [ $DEBUG -eq 1 ]; then
 	pcp_hr
 	pcp_textarea "" "cat /opt/${NETWORK}.sh" 10
-
 	pcp_textarea "" "cat /etc/resolv.conf" 5
-
 	pcp_mount_bootpart >/dev/null
 	pcp_textarea "" "cat $CMDLINETXT" 5
 	pcp_umount_bootpart >/dev/null
-
 	pcp_textarea "" "cat /opt/bootlocal.sh" 10
 
 fi
