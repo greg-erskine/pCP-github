@@ -52,8 +52,7 @@ COLUMN4_4="col-sm-6"
 pcp_infobox_begin "" 10
 pcp_infobox_end
 
-pcp_textarea_begin "" 10
-pcp_textarea_end
+pcp_textarea_begin "" 10 pcp_textarea_end
 
 pcp_heading5
 

@@ -15,6 +15,9 @@ pcp_httpd_query_string
 FDISK="/bin/busybox fdisk"
 SDVALID=0
 
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-3"
+COLUMN3_3="col-sm-7"
 #========================================================================================
 # Local functions
 #----------------------------------------------------------------------------------------
@@ -97,18 +100,15 @@ case "$SUBMIT" in
 		echo "SIZE=$SD_SIZE" > /home/tc/fdisk_part2_required
 		[ x"$SD_SIZE" = x"" ] && NEW_SIZE=$P2_MAX_SIZE_MB || NEW_SIZE=$SD_SIZE
 
-		pcp_textarea_begin
-
-		pcp_message INFO "New '$TCEDEV' partition 2 size will be: '$NEW_SIZE' MB" "text"
-		pcp_message INFO "Resizing the partition is occuring, please wait..." "text"
+		pcp_textarea_begin "" 10
+		pcp_message INFO "New $TCEDEV partition 2 size will be: $NEW_SIZE MB" "text"
+		pcp_message INFO "Resizing the partition is occurring, please wait..." "text"
 		pcp_message INFO "This will take a couple of minutes and piCorePlayer will reboot a number of times." "text"
 		pcp_message INFO "The bigger the partition, the longer the process will take." "text"
 		pcp_backup text
 		pcp_message INFO "Click [Go to Main Page] or [Refresh] after a few minutes." "text"
 		(sleep 1; sudo reboot) &
-		
 		pcp_textarea_end
-		
 		pcp_remove_query_string
 		pcp_redirect_button "Go to Main Page" "main.cgi" 90
 	;;
@@ -116,9 +116,8 @@ case "$SUBMIT" in
 		#================================================================================
 		# Add partition 3 - PC_DATA
 		#--------------------------------------------------------------------------------
-		pcp_textarea_begin
-
-		pcp_message INFO "Adding '$DATADEV' partition 3 is occuring, please wait..." "text"
+		pcp_textarea_begin "" 10
+		pcp_message INFO "Adding $DATADEV partition 3 is occurring, please wait..." "text"
 		pcp_message INFO "This will take a couple of minutes and piCorePlayer will reboot a number of times." "text"
 		touch /home/tc/fdisk_part3_required
 		pcp_backup text
@@ -158,16 +157,16 @@ case "$SUBMIT" in
 		pcp_incr_id
 
 		echo '  <div class="'$BORDER'">'
-		pcp_heading5 "Resize partition 2 ('$P2_NAME')"
+		pcp_heading5 "Resize partition 2 ($P2_NAME)"
 		echo '    <form name="auto" action="'$0'" method="get">'
 		#================================================================================
 		# Resize partition 2 - PCP_ROOT
 		#--------------------------------------------------------------------------------
 		if [ $SDVALID -eq 0 ]; then
 			if [ $AVAILABLE_SPACE_MB -gt 100 ]; then
-				echo '      <div class="row">'
-				echo '        <div class="'$COLUMN4_1'">'
-				echo '          <select class="large16" name="SD_SIZE">'
+				echo '      <div class="row mx-1">'
+				echo '        <div class="input-group col-2">'
+				echo '          <select class="custom-select custom-select-sm" name="SD_SIZE">'
 				echo '            <option value="100" '"$DISABLED100"'>100 MB</option>'
 				echo '            <option value="200" '"$DISABLED200"'>200 MB</option>'
 				echo '            <option value="300" '"$DISABLED300"'>300 MB</option>'
@@ -177,9 +176,9 @@ case "$SUBMIT" in
 				echo '            <option value="'$(($P2_MAX_SIZE_MB-100))'" '"$DISABLED000"'>Whole '$PHYSDEV'</option>'
 				echo '          </select>'
 				echo '        </div>'
-				echo '        <div class="'$COLUMN4_1'">'
+				echo '        <div class="col-10">'
 				echo '          <p>Select new partition size (currently '$P2_ACTUAL_SIZE_MB' MB)&nbsp;&nbsp;'
-				echo '          <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+				pcp_helpbadge
 				echo '          </p>'
 				echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
 				echo '            <p>You should only need to increase the size of the partition if you are adding'
@@ -191,23 +190,28 @@ case "$SUBMIT" in
 				echo '            </ol>'
 				echo '          </div>'
 				echo '        </div>'
-#				echo '      </div>'
+				echo '      </div>'
 			fi
-		#--------------------------------------------------------------------------------
-			echo '      <div class="row">'
-			echo '        <div class="'$COLUMN4_1'">'
+			#--------------------------------------------------------------------------------
 			if [ $AVAILABLE_SPACE_MB -gt 100 ]; then
-				echo '        <p>'
-				echo '          <input type="submit" name="SUBMIT" value="Resize">&nbsp;&nbsp;Click [Resize] to start the resize partition process.'
-				echo '        </p>'
+				echo '      <div class="row mx-1 mb-2">'
+				echo '        <div class="col-2">'
+				echo '          <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Resize">'
+				echo '        </div>'
+				echo '        <div class="col-10">'
+				echo '           Click [Resize] to start the resize partition process.'
+				echo '        </div>'
+				echo '      </div>'
 			else
-				echo '        <p><b>WARNING:</b> Partition can not be expanded (only '$AVAILABLE_SPACE_MB' MB left).</p>'
+				echo '      <div class="row mx-1">'
+				echo '        <div class="col-12">'
+				echo '          <p><b>WARNING:</b> Partition can not be expanded (only '$AVAILABLE_SPACE_MB' MB left).</p>'
+				echo '        </div>'
+				echo '      </div>'
 			fi
-			echo '        </div>'
-			echo '      </div>'
 		else
-			echo '      <div class="row">'
-			echo '        <div class="'$COLUMN4_1'">'
+			echo '      <div class="row mx-1">'
+			echo '        <div class="col-10">'
 			echo '          <p><b>WARNING:</b> The resize partition 2 option has been disabled to prevent damage to your '$PHYSDEV'.</p>'
 			echo '          <p>You have:</p>'
 			echo '          <ul>'
@@ -230,24 +234,26 @@ case "$SUBMIT" in
 		#--------------------------------------------------------------------------------
 		if [ $MODE -ge $MODE_BETA ]; then
 			pcp_incr_id
-			echo '  <div class="'$BORDER'">'
-
+			echo '  <div class="'$BORDER' mb-3">'
 			pcp_heading5 "Add partition 3 (PCP_DATA)"
 			echo '    <form name="add" action="'$0'" method="get">'
-			echo '      <div class="row">'
-			echo '        <p>It is NOT recommended adding partition 3 to your '$PHYSDEV'&nbsp;&nbsp;'
-			echo '        <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-			echo '        </p>'
-			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
-			echo '          <ul>'
-			echo '            <li>This operation will add an ext4 formatted partition 3, starting at the end of partition 2 and filling up the rest of the '$PHYSDEV'.</li>'
-			echo '            <li>It is more reliable to store your data on a separate USB stick or HDD.</li>'
-			echo '            <li>Once partition 3 is added, it will be very difficult to increase the size of partition 2.</li>'
-			echo '            <li>Use [LMS] > <a href="lms.cgi#partmount">"Pick from the following detected USB disks to mount"</a> to mount partition.</li>'
-			echo '          </ul>'
+			#----------------------------------------------------------------------------
+			echo '      <div class="row mx-1">'
+			echo '        <div class="col-12">'
+			echo '          <p>It is NOT recommended adding partition 3 to your '$PHYSDEV'&nbsp;&nbsp;'
+			pcp_helpbadge
+			echo '          </p>'
+			echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+			echo '            <ul>'
+			echo '              <li>This operation will add an ext4 formatted partition 3, starting at the end of partition 2 and filling up the rest of the '$PHYSDEV'.</li>'
+			echo '              <li>It is more reliable to store your data on a separate USB stick or HDD.</li>'
+			echo '              <li>Once partition 3 is added, it will be very difficult to increase the size of partition 2.</li>'
+			echo '              <li>Use [LMS] > <a href="lms.cgi#partmount">"Pick from the following detected USB disks to mount"</a> to mount partition.</li>'
+			echo '            </ul>'
+			echo '          </div>'
 			echo '        </div>'
 			echo '      </div>'
-			echo '        <div class="'$COLUMN4_1'">'
+
 			if [ $AVAILABLE_SPACE_MB -lt 1000 ]; then
 				ADD_ERROR=TRUE
 				ADD_ERROR_MSG="Partition 3 can not be added insufficient free space (only $AVAILABLE_SPACE_MB MB left)."
@@ -256,18 +262,23 @@ case "$SUBMIT" in
 				ADD_ERROR=TRUE
 				ADD_ERROR_MSG="Partition 3 ($P3_NAME) already exists."
 			fi
-			if ! [ $ADD_ERROR ]; then
-				echo '                  <p>'
-				echo '                    <input type="submit" name="SUBMIT" value="Add">&nbsp;&nbsp;Click [Add] to add partition 3.'
-				echo '                  </p>'
-			else
-				echo '                  <p><b>WARNING:</b> '$ADD_ERROR_MSG'</p>'
-			fi
-			echo '                </div>'
-			echo '              </div>'
-			echo '          </form>'
-			echo '      </div>'
 
+			echo '      <div class="row mx-1">'
+			if ! [ $ADD_ERROR ]; then
+				echo '        <div class="col-2 mb-2">'
+				echo '          <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Add">'
+				echo '        </div>'
+				echo '        <div class="col-10">'
+				echo '          Click [Add] to add partition 3.'
+				echo '        </div>'
+			else
+				echo '        <div class="col-12">'
+				echo '          <p><b>WARNING:</b> '$ADD_ERROR_MSG'</p>'
+				echo '        </div>'
+			fi
+			echo '      </div>'
+			echo '    </form>'
+			echo '  </div>'
 		fi
 
 		#================================================================================
@@ -275,15 +286,24 @@ case "$SUBMIT" in
 		#--------------------------------------------------------------------------------
 		if [ $MODE -ge $MODE_BETA ]; then
 			if [ "$P3_NAME" = "PCP_DATA" ]; then
+				echo '    <div class="row mx-1 mb-2">'
 				if mount | grep "$DATADEV" >/dev/null 2>&1; then
-					echo '  <form name="create" action="'$0'" method="get">'
-					echo '    <input type="submit" name="SUBMIT" value="Create">'
-					echo '    &nbsp;&nbsp;Click [Create] to create default directories on partition 3.'
-					echo '  </form>'
+					echo '      <div class="col-2 mb-2">'
+					echo '        <form name="create" action="'$0'" method="get">'
+					echo '          <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Create">'
+					echo '        </form>'
+					echo '      </div>'
+					echo '      <div class="col-10">'
+					echo '        Click [Create] to create default directories on partition 3.'
+					echo '      </div>'
 				else
-					echo '  <p>'$MOUNTED'<b>WARNING:</b> Partition 3 not mounted.</p>'
-					echo '  <p>Use [LMS] > <a href="lms.cgi#partmount">"Pick from the following detected USB disks to mount"</a> to mount partition.</p>'
+					echo '      <div class="col-12">'
+					echo '        <p>'$MOUNTED'<b>WARNING:</b> Partition 3 not mounted.</p>'
+					echo '        <p>Use [LMS] > <a href="lms.cgi#partmount">"Pick from the following detected USB disks to mount"</a> to mount partition.</p>'
+					echo '      </div>'
 				fi
+				echo '    </div>'
+				echo '  </div>'
 			fi
 		fi
 
