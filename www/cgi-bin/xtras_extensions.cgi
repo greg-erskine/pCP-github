@@ -51,7 +51,7 @@ SIZELIST_PICORE="/tmp/sizelist_picore"
 KERNEL="$(uname -r)"
 
 ACCCESSIBLETXT="/tmp/accessible.txt"
-sudo chmod 777 $ACCCESSIBLETXT
+sudo chmod 777 $ACCCESSIBLETXT # <==GE ???
 [ -f /tmp/accessible.txt ] && . /tmp/accessible.txt
 
 #========================================================================================
@@ -147,15 +147,15 @@ pcp_install_extn() {
 
 #========================================================================================
 # Delete extension.
-# Note: This will delete the extension and its dependencies.
-#       Reboot required.
+# Note: This will mark the extension and its dependencies for deletion.
+#       A reboot required to delete extensions.
 #----------------------------------------------------------------------------------------
 pcp_delete_extn() {
 	pcp_textarea_begin "" 10
 	pcp_message INFO "Marking $EXTN and dependencies for deletion..." "text"
 	sudo -u tc tce-audit builddb
 	echo
-	pcp_message INFO "After a reboot these extensions will be permanently deleted:"
+	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete $EXTN
 	pcp_textarea_end
 }
@@ -220,21 +220,23 @@ pcp_create_localmirrors() {
 # Repository/extension information message
 #----------------------------------------------------------------------------------------
 pcp_information_message() {
-	echo '<div>'  # "Information"
-	echo '     <p><b>piCorePlayer</b> uses 3 repositories for downloading extensions:</p>'
-	echo '     <ul>'
-	echo '       <li><b>piCorePlayer main repository</b> - maintained by the piCorePlayer team (default).</li>'
-	echo '       <li><b>piCorePlayer mirror repository</b> - maintained by the piCorePlayer team.</li>'
-	echo '       <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
-	echo '     </ul>'
-	echo '     <p><b>Extensions</b> can be:</p>'
-	echo '     <ul>'
-	echo '       <li><b>Available</b> - the extension is available for download from the above repositories.</li>'
-	echo '       <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
-	echo '       <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
-#	echo '       <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
-	echo '     </ul>'
-	echo '</div>'
+	echo '  <div class="'$BORDER'">'
+	echo '    <div class="col-12 mx-1 pt-3">'
+	echo '      <p><b>piCorePlayer</b> uses 3 repositories for downloading extensions:</p>'
+	echo '      <ul>'
+	echo '        <li><b>piCorePlayer main repository</b> - maintained by the piCorePlayer team (default).</li>'
+	echo '        <li><b>piCorePlayer mirror repository</b> - maintained by the piCorePlayer team.</li>'
+	echo '        <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
+	echo '      </ul>'
+	echo '      <p><b>Extensions</b> can be:</p>'
+	echo '      <ul>'
+	echo '        <li><b>Available</b> - the extension is available for download from the above repositories.</li>'
+	echo '        <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
+	echo '        <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
+#	echo '        <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
+	echo '      </ul>'
+	echo '    </div>'
+	echo '  </div>'
 }
 
 #========================================================================================
@@ -296,7 +298,7 @@ pcp_display_information() {
 		pcp_textarea "Dependencies:" "pcp_display_depends" 10
 		pcp_textarea "Tree:" "pcp_display_tree" 10
 		pcp_textarea "Size:" "pcp_display_size" 10
-		pcp_textarea "Files:" "pcp_display_files" 100
+		pcp_textarea "Files:" "pcp_display_files" 10
 	fi
 }
 
@@ -313,7 +315,7 @@ pcp_internet() {
 		echo "[ ERROR ] Internet not accessible." >> $LOG
 		echo "unset INTERNET_ACCESSIBLE" > $ACCCESSIBLETXT
 	fi
-	#INDICATOR="$(echo $INDICATOR | sed -e 's|"|/"|g')"
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_dns() {
@@ -326,6 +328,7 @@ pcp_dns() {
 		echo "[ ERROR ] DNS not accessible." >> $LOG
 		echo "unset DNS_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_pcp_repo_1() {
@@ -338,6 +341,7 @@ pcp_pcp_repo_1() {
 		echo "[ ERROR ] piCorePlayer main repository not accessible. ($PCP_REPO_1)" >> $LOG
 		echo "unset PCP_REPO_1_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_pcp_repo_2() {
@@ -350,6 +354,7 @@ pcp_pcp_repo_2() {
 		echo "[ ERROR ] piCorePlayer mirror repository not accessible. ($PCP_REPO_2)" >> $LOG
 		echo "unset PCP_REPO_2_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_picore_repo_1() {
@@ -362,6 +367,7 @@ pcp_picore_repo_1() {
 		echo "[ ERROR ] Official piCore repository not accessible. ($PICORE_REPO_1)" >> $LOG
 		echo "unset PICORE_REPO_1_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_picore_repo_2() {
@@ -374,6 +380,7 @@ pcp_picore_repo_2() {
 		echo "[ ERROR ] Official piCore mirror repository not accessible. ($PICORE_REPO_2)" >> $LOG
 		echo "unset PICORE_REPO_2_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_indicator_js() {
@@ -383,104 +390,52 @@ pcp_indicator_js() {
 	echo '	document.getElementById("status'$ID'").innerHTML = "'$STATUS'";'
 	echo '</script>'
 }
-#	echo '	theIndicator.classList.add("'$CLASS'");'
+
+pcp_indicator () {
+	INDICATOR_MESSAGE="$1"
+	COLUMN2_1="col-1"
+	COLUMN2_2="col-11"
+
+	pcp_incr_id
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN2_1' text-md-right">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN2_2'">'
+	echo '        <p id="status'$ID'">'$INDICATOR_MESSAGE'</p>'
+	echo '      </div>'
+	echo '    </div>'
+}
+
 #----------------------------------------------------------------------------------------
 # Internet, DNS and repository accessibility indicators.
 #----------------------------------------------------------------------------------------
 pcp_internet_check() {
-	echo '  <div class="'$BORDER'">'
-<<<<<<< HEAD
-	pcp_heading5 "Checking Internet and repository accessiblity. . . "
-=======
+	echo '  <div class="'$BORDER' mb-2">'
 	pcp_heading5 "Checking Internet and repository accessibility. . . "
->>>>>>> origin/develop
 	#--------------------------------Internet accessible---------------------------------
-	pcp_incr_id
-
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p id="indicator'$ID'">?</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p id="status'$ID'">Checking internet...</p>'
-	echo '      </div>'
-	echo '    </div>'
-<<<<<<< HEAD
-=======
-	
-	
-	
-	
-	
->>>>>>> origin/develop
+	pcp_indicator "Checking internet..."
 	pcp_internet
-	
-	echo greg$INDICATOR
 	pcp_indicator_js
 	#-----------------------------------DNS accessible-----------------------------------
-	pcp_incr_id
-
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p id="indicator'$ID'">?</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p id="status'$ID'">Checking DNS...</p>'
-	echo '      </div>'
-	echo '    </div>'
+	pcp_indicator "Checking DNS..."
 	pcp_dns
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository 1 accessible-----------------------
-	pcp_incr_id
-
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p id="indicator'$ID'">?</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p id="status'$ID'">Checking piCorePlayer repository...</p>'
-	echo '      </div>'
-	echo '    </div>'
+	pcp_indicator "Checking piCorePlayer repository..."
 	pcp_pcp_repo_1
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository 2 accessible-----------------------
-	pcp_incr_id
-
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p id="indicator'$ID'">?</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p id="status'$ID'">Checking piCorePlayer miror repository...</p>'
-	echo '      </div>'
-	echo '    </div>'
+	pcp_indicator "Checking piCorePlayer mirror repository..."
 	pcp_pcp_repo_2
 	pcp_indicator_js
 	#------------------------Official piCore repository accessible-----------------------
-	pcp_incr_id
-
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p id="indicator'$ID'">?</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p id="status'$ID'">Checking piCore repository...</p>'
-	echo '      </div>'
-	echo '    </div>'
+	pcp_indicator "Checking piCore repository..."
 	pcp_picore_repo_1
 	pcp_indicator_js
 	#--------------------Official piCore mirror repository accessible--------------------
 	if [ $MODE -ge $MODE_DEVELOPER ]; then
-		pcp_incr_id
-
-		echo '    <div class="row">'
-		echo '      <div class="'$COLUMN3_1'">'
-		echo '        <p id="indicator'$ID'">?</p>'
-		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
-		echo '        <p id="status'$ID'">Checking piCore mirror repository...</p>'
-		echo '      </div>'
-		echo '    </div>'
+		pcp_indicator "Checking piCore mirror repository..."
 		pcp_picore_repo_2
 		pcp_indicator_js
 	fi
@@ -492,9 +447,9 @@ pcp_internet_check() {
 # Display disk space using df
 #----------------------------------------------------------------------------------------
 pcp_free_space_check() {
+	echo '  <div class="'$BORDER' mb-2">'
 	pcp_heading5 "Check free space. . . "
-
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>'$(pcp_free_space)' free space</p>'
 	echo '      </div>'
@@ -503,6 +458,7 @@ pcp_free_space_check() {
 	echo '        <p>Use [ Main Page ] > <a href="xtras_resize.cgi">[ Resize FS ]</a> to increase the size of partition 2 (if required).</p>'
 	echo '      </div>'
 	echo '    </div>'
+	echo '  </div>'
 }
 
 #========================================================================================
@@ -512,9 +468,9 @@ pcp_tce_mirror() {
 	pcp_heading5 "Current tcemirror/tcedir"
 
 	read MIRROR < /opt/tcemirror
-	pcp_textarea "none" 'echo "$MIRROR"' 15
+	pcp_textarea "none" 'echo "$MIRROR"' 2
 	RESULT=$(ls -al /etc/sysconfig | grep tcedir)
-	pcp_textarea "none" 'echo "$RESULT"' 15
+	pcp_textarea "none" 'echo "$RESULT"' 2
 }
 
 #========================================================================================
@@ -548,7 +504,8 @@ pcp_set_repo_status() {
 
 pcp_select_repository() {
 	pcp_set_repo_status
-	pcp_debug_variables "html" INTERNET_ACCESSIBLE DNS_ACCESSIBLE CALLED_BY PCP_CUR_REPO MYMIRROR PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1
+	pcp_debug_variables "html" INTERNET_ACCESSIBLE DNS_ACCESSIBLE CALLED_BY \
+		PCP_CUR_REPO MYMIRROR PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1
 
 	echo '<div class="'$BORDER'">'
 	pcp_heading5 "Set extension repository"
@@ -610,22 +567,20 @@ pcp_select_repository() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '    <div class="row mx-1 mb-2">'
+	echo '      <div class="col-2">'
 	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Set">'
 	echo '        <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
 	echo '      </div>'
-	echo '    </div>'
-	if [ "$SELECTED_PCP_1" != "selected" ]; then
-		echo '    <div class="row">'
-		echo '      <div class="'$COLUMN3_2'">'
+		if [ "$SELECTED_PCP_1" != "selected" ]; then
+		echo '      <div class="col-2">'
 		echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Reset">'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_3'">'
+		echo '      <div class="col-8">'
 		echo '        <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
 		echo '      </div>'
-		echo '    </div>'
 	fi
+	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	echo '</div>'
@@ -636,18 +591,18 @@ pcp_select_repository() {
 #----------------------------------------------------------------------------------------
 pcp_show_available_extns() {
 	echo '  <div class="'$BORDER'">'
-	pcp_heading5 "Available extensions in the '$STATUS'"
+	pcp_heading5 "Available extensions in the $STATUS"
 	echo '  <form name="available" action="'$0'" method="get">'
 
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Available extensions</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="large22" name="EXTN">'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="EXTN">'
 
 	                for E in $(cat $DB | awk '{print $1}')
 	                do
@@ -674,16 +629,19 @@ pcp_show_available_extns() {
 	echo '      </div>'
 	echo '    </div>'
 	#----------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <input type="submit" name="SUBMIT" value="Info">'
-	echo '        <input type="submit" name="SUBMIT" value="Load">'
+	echo '    <div class="row mx-1 mb-2">'
+	echo '      <div class="'col-2'">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Info">'
+	echo '      </div>'
+	echo '      <div class="col-2">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Load">'
 	echo '        <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
 	echo '        <input type="hidden" name="DB" value="'$DB'">'
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	echo '  </div>'
 }
 
 #========================================================================================
@@ -828,8 +786,8 @@ pcp_show_downloaded_extns() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>Downloaded extensions</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="large22" name="EXTN">'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="EXTN">'
 
 	                for E in $(ls $PACKAGEDIR/*.tcz | awk -F 'optional/' '{print $2}' | sort -f)
 	                do
