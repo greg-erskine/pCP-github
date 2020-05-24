@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-05
+# Version: 7.0.0 2020-05-23
+
+# Title: Extensions
+# Description: Download, install, delete, update and report on extensions
 
 #========================================================================================
 # This script downloads, installs, deletes, updates and reports on extensions.
@@ -25,7 +28,12 @@ pcp_navbar
 pcp_httpd_query_string
 pcp_debug_info
 
-DEBUG=1
+DEBUG=0
+
+COLUMN3_1="col-sm-3"
+COLUMN3_2="col-sm-4"
+COLUMN3_3="col-sm-5"
+
 #========================================================================================
 # Set variables
 #----------------------------------------------------------------------------------------
@@ -50,14 +58,9 @@ sudo chmod 777 $ACCCESSIBLETXT
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_heading5 "Debug"
-		pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG \
-			PCP_CUR_REPO PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1 PICORE_REPO_2 \
-			CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" EXTN SUBMIT MYMIRROR MIRROR LOG \
+		PCP_CUR_REPO PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1 PICORE_REPO_2 \
+		CALLED_BY EXTNFOUND KERNELVER PACKAGEDIR KERNEL
 }
 
 #========================================================================================
@@ -121,9 +124,7 @@ pcp_set_repository() {
 # Note: Extension will be added to onboot.lst
 #----------------------------------------------------------------------------------------
 pcp_load_extn() {
-	echo '<div>'
-	pcp_textarea "Loading '$EXTN'" "sudo -u tc $TCELOAD -iw $EXTN" 10
-	echo '</div>'
+	pcp_textarea "Loading $EXTN" "sudo -u tc $TCELOAD -iw $EXTN" 10
 }
 
 #========================================================================================
@@ -132,9 +133,7 @@ pcp_load_extn() {
 #       Extension will not be added to onboot.lst
 #----------------------------------------------------------------------------------------
 pcp_install_extn() {
-	echo '<div>'
-	pcp_textarea "Installing '$EXTN'" "sudo -u tc $TCELOAD -i $EXTN" 10
-	echo '</div>'
+	pcp_textarea "Installing $EXTN" "sudo -u tc $TCELOAD -i $EXTN" 10
 }
 
 #========================================================================================
@@ -143,9 +142,7 @@ pcp_install_extn() {
 #       NOT IMPLEMENTED.
 #----------------------------------------------------------------------------------------
 #pcp_uninstall_extn() {
-#	pcp_table_top "Uninstalling '$EXTN' . . . "
 #	pcp_textarea "none" "sudo -u tc $TCELOAD -i $EXTN" 50
-#	pcp_table_end
 #}
 
 #========================================================================================
@@ -154,23 +151,20 @@ pcp_install_extn() {
 #       Reboot required.
 #----------------------------------------------------------------------------------------
 pcp_delete_extn() {
-	echo '<div> "Marking '$EXTN' and dependencies for deletion . . . "'
-	echo '                <textarea>'
+	pcp_textarea_begin "" 10
+	pcp_message INFO "Marking $EXTN and dependencies for deletion..." "text"
 	sudo -u tc tce-audit builddb
 	echo
-	echo 'After a reboot these extensions will be permanently deleted:'
+	pcp_message INFO "After a reboot these extensions will be permanently deleted:"
 	sudo -u tc tce-audit delete $EXTN
-	echo '                </textarea>'
-	echo '</div>'
+	pcp_textarea_end
 }
 
 #========================================================================================
 # Update extension.
 #----------------------------------------------------------------------------------------
 pcp_update_extn() {
-	pcp_table_top "Updating '$EXTN' . . . "
-	pcp_textarea "none" "sudo -u tc pcp-update $EXTN" 50
-	pcp_table_end
+	pcp_textarea "Updating $EXTN..." "sudo -u tc pcp-update $EXTN" 5
 }
 
 #========================================================================================
@@ -227,19 +221,19 @@ pcp_create_localmirrors() {
 #----------------------------------------------------------------------------------------
 pcp_information_message() {
 	echo '<div>'  # "Information"
-	echo '                <p><b>piCorePlayer</b> uses 3 repositories for downloading extensions:</p>'
-	echo '                <ul>'
-	echo '                  <li><b>piCorePlayer main repository</b> - maintained by the piCorePlayer team (default).</li>'
-	echo '                  <li><b>piCorePlayer mirror repository</b> - maintained by the piCorePlayer team.</li>'
-	echo '                  <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
-	echo '                </ul>'
-	echo '                <p><b>Extensions</b> can be:</p>'
-	echo '                <ul>'
-	echo '                  <li><b>Available</b> - the extension is available for download from the above repositories.</li>'
-	echo '                  <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
-	echo '                  <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
-#	echo '                  <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
-	echo '                </ul>'
+	echo '     <p><b>piCorePlayer</b> uses 3 repositories for downloading extensions:</p>'
+	echo '     <ul>'
+	echo '       <li><b>piCorePlayer main repository</b> - maintained by the piCorePlayer team (default).</li>'
+	echo '       <li><b>piCorePlayer mirror repository</b> - maintained by the piCorePlayer team.</li>'
+	echo '       <li><b>Official piCore repository</b> - maintained by the piCore/TinyCore team.</li>'
+	echo '     </ul>'
+	echo '     <p><b>Extensions</b> can be:</p>'
+	echo '     <ul>'
+	echo '       <li><b>Available</b> - the extension is available for download from the above repositories.</li>'
+	echo '       <li><b>Installed</b> - the extension has been downloaded to local storage and installed.</li>'
+	echo '       <li><b>Uninstalled</b> - the extension has been downloaded to local storage but not installed.</li>'
+#	echo '       <li><b>Downloaded</b> - the extension has been downloaded to local storage.</li>'
+	echo '     </ul>'
 	echo '</div>'
 }
 
@@ -247,13 +241,13 @@ pcp_information_message() {
 # The following section of code is based on piCore tce-ab script
 #----------------------------------------------------------------------------------------
 pcp_display_info() {
-		sudo -u tc tce-fetch.sh "${EXTN}.info"
-		if [ $? -eq 0 ]; then
-			cat "${EXTN}.info"
-#			rm -f "${EXTN}.info"
-		else
-			echo "${EXTN}.info not found!"
-		fi
+	sudo -u tc tce-fetch.sh "${EXTN}.info"
+	if [ $? -eq 0 ]; then
+		cat "${EXTN}.info"
+#		rm -f "${EXTN}.info"
+	else
+		echo "${EXTN}.info not found!"
+	fi
 }
 
 pcp_display_depends() {
@@ -298,81 +292,11 @@ pcp_display_files() {
 #----------------------------------------------------------------------------------------
 pcp_display_information() {
 	if [ $EXTNFOUND -eq 1 ]; then
-
-		echo '      <form name="Extension_size" method="get">'
-		echo '        <div class="row">'
-
-		echo '            <h5>Information for '$EXTN'. . . </h5>'
-		echo '            <table class="bggrey percent100">'
-		#--------------------------------------------------------------------------------
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <p><b>Information:</b></p>'
-		echo '                </td>'
-		echo '              </tr>'
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea "none" "pcp_display_info" 200
-		echo '                </td>'
-		echo '              </tr>'
-		#--------------------------------------------------------------------------------
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <p><b>Dependencies:</b></p>'
-		echo '                </td>'
-		echo '              </tr>'
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea "none" "pcp_display_depends" 100
-		echo '                </td>'
-		echo '              </tr>'
-		#--------------------------------------------------------------------------------
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <p><b>Tree:</b></p>'
-		echo '                </td>'
-		echo '              </tr>'
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea "none" "pcp_display_tree" 100
-		echo '                </td>'
-		echo '              </tr>'
-		#--------------------------------------------------------------------------------
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <p><b>Size:</b></p>'
-		echo '                </td>'
-		echo '              </tr>'
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea "none" "pcp_display_size" 100
-		echo '                </td>'
-		echo '              </tr>'
-		#--------------------------------------------------------------------------------
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		echo '                  <p><b>Files:</b></p>'
-		echo '                </td>'
-		echo '              </tr>'
-
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td>'
-		                        pcp_textarea "none" "pcp_display_files" 100
-		echo '                </td>'
-		echo '              </tr>'
-		#--------------------------------------------------------------------------------
-
-		echo '        </div>'
-		echo '      </form>'
-
+		pcp_textarea "Information for $EXTN" "pcp_display_info" 20
+		pcp_textarea "Dependencies:" "pcp_display_depends" 10
+		pcp_textarea "Tree:" "pcp_display_tree" 10
+		pcp_textarea "Size:" "pcp_display_size" 10
+		pcp_textarea "Files:" "pcp_display_files" 100
 	fi
 }
 
@@ -464,147 +388,119 @@ pcp_indicator_js() {
 # Internet, DNS and repository accessibility indicators.
 #----------------------------------------------------------------------------------------
 pcp_internet_check() {
-
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Checking Internet and repository accessiblity. . . </legend>'
+	echo '  <div class="'$BORDER'">'
+	pcp_heading5 "Checking Internet and repository accessiblity. . . "
 	#--------------------------------Internet accessible---------------------------------
 	pcp_incr_id
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking internet...</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p id="status'$ID'">Checking internet...</p>'
+	echo '      </div>'
+	echo '    </div>'
 	pcp_internet
 	pcp_indicator_js
 	#-----------------------------------DNS accessible-----------------------------------
 	pcp_incr_id
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking DNS...</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p id="status'$ID'">Checking DNS...</p>'
+	echo '      </div>'
+	echo '    </div>'
 	pcp_dns
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository 1 accessible-----------------------
 	pcp_incr_id
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking piCorePlayer repository...</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p id="status'$ID'">Checking piCorePlayer repository...</p>'
+	echo '      </div>'
+	echo '    </div>'
 	pcp_pcp_repo_1
 	pcp_indicator_js
 	#-------------------------piCorePlayer repository 2 accessible-----------------------
 	pcp_incr_id
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking piCorePlayer miror repository...</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p id="status'$ID'">Checking piCorePlayer miror repository...</p>'
+	echo '      </div>'
+	echo '    </div>'
 	pcp_pcp_repo_2
 	pcp_indicator_js
 	#------------------------Official piCore repository accessible-----------------------
 	pcp_incr_id
 
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking piCore repository...</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <p id="status'$ID'">Checking piCore repository...</p>'
+	echo '      </div>'
+	echo '    </div>'
 	pcp_picore_repo_1
 	pcp_indicator_js
 	#--------------------Official piCore mirror repository accessible--------------------
 	if [ $MODE -ge $MODE_DEVELOPER ]; then
 		pcp_incr_id
 
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '              <td class="column50 center">'
-		echo '                <p id="indicator'$ID'">?</p>'
-		echo '              </td>'
-		echo '              <td>'
-		echo '                <p id="status'$ID'">Checking piCore mirror repository...</p>'
-		echo '              </td>'
-		echo '            </tr>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <p id="indicator'$ID'">?</p>'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <p id="status'$ID'">Checking piCore mirror repository...</p>'
+		echo '      </div>'
+		echo '    </div>'
 		pcp_picore_repo_2
 		pcp_indicator_js
 	fi
 	#------------------------------------------------------------------------------------
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-
+	echo '  </div>'
 }
 
 #========================================================================================
 # Display disk space using df
 #----------------------------------------------------------------------------------------
 pcp_free_space_check() {
+	pcp_heading5 "Check free space. . . "
 
-	echo '      <form name="diskspace" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Check free space. . . </legend>'
-	echo '            <table class="bggrey percent100">'
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column210 center">'
-	echo '                  <p>'$(pcp_free_space)' free space</p>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p><b>WARNING:</b> Check there is sufficient free space before downloading extensions.</p>'
-	echo '                  <p>Use [ Main Page ] > <a href="xtras_resize.cgi">[ Resize FS ]</a> to increase the size of partition 2 (if required).</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p>'$(pcp_free_space)' free space</p>'
+	echo '      </div>'
+	echo '      <div class="col-9">'
+	echo '        <p><b>WARNING:</b> Check there is sufficient free space before downloading extensions.</p>'
+	echo '        <p>Use [ Main Page ] > <a href="xtras_resize.cgi">[ Resize FS ]</a> to increase the size of partition 2 (if required).</p>'
+	echo '      </div>'
+	echo '    </div>'
 }
 
 #========================================================================================
 # Display tce mirror
 #----------------------------------------------------------------------------------------
 pcp_tce_mirror() {
+	pcp_heading5 "Current tcemirror/tcedir"
 
-	echo '      <form name="tce_mirror" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Current tcemirror/tcedir</legend>'
-	echo '            <table class="bggrey percent100">'
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	                        read MIRROR < /opt/tcemirror
-	                        pcp_textarea "none" 'echo "$MIRROR"' 15
-	                        RESULT=$(ls -al /etc/sysconfig | grep tcedir)
-	                        pcp_textarea "none" 'echo "$RESULT"' 15
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-
+	read MIRROR < /opt/tcemirror
+	pcp_textarea "none" 'echo "$MIRROR"' 15
+	RESULT=$(ls -al /etc/sysconfig | grep tcedir)
+	pcp_textarea "none" 'echo "$RESULT"' 15
 }
 
 #========================================================================================
@@ -638,13 +534,11 @@ pcp_set_repo_status() {
 
 pcp_select_repository() {
 	pcp_set_repo_status
-
-	echo '      <form name="current_repository" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Set extension repository</legend>'
 	pcp_debug_variables "html" INTERNET_ACCESSIBLE DNS_ACCESSIBLE CALLED_BY PCP_CUR_REPO MYMIRROR PCP_REPO PCP_REPO_1 PCP_REPO_2 PICORE_REPO_1
-	echo '            <table class="bggrey percent100">'
+
+	echo '<div class="'$BORDER'">'
+	pcp_heading5 "Set extension repository"
+	echo '  <form name="current_repository" action="'$0'" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 
@@ -676,247 +570,232 @@ pcp_select_repository() {
 		PICORE_REPO_1_DISABLED="disabled"
 	fi
 
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Current repository</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="MYMIRROR">'
-	echo '                    <option value="'$PCP_REPO_1'" '$SELECTED_PCP_1' '$PCP_REPO_1_DISABLED'>piCorePlayer main repository '$PCP_REPO_1_ACCESS'</option>'
-	echo '                    <option value="'$PCP_REPO_2'" '$SELECTED_PCP_2' '$PCP_REPO_2_DISABLED' >piCorePlayer mirror repository '$PCP_REPO_2_ACCESS'</option>'
-	echo '                    <option value="'$PICORE_REPO_1'" '$SELECTED_PICORE' '$PICORE_REPO_1_DISABLED'>Official piCore repository '$PICORE_REPO_1_ACCESS'</option>'
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>Select extension repository&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <p>Select the required extension repository:</p>'
-	echo '                    <ul>'
-	echo '                      <li>piCorePlayer main repository (default)</li>'
-	echo '                      <li>piCorePlayer mirror repository</li>'
-	echo '                      <li>Official piCore repository.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p>Current repository</p>'
+	echo '      </div>'
+	echo '      <div class="form-group '$COLUMN3_2'">'
+	echo '        <select class="form-control form-control-sm" name="MYMIRROR">'
+	echo '          <option value="'$PCP_REPO_1'" '$SELECTED_PCP_1' '$PCP_REPO_1_DISABLED'>piCorePlayer main repository '$PCP_REPO_1_ACCESS'</option>'
+	echo '          <option value="'$PCP_REPO_2'" '$SELECTED_PCP_2' '$PCP_REPO_2_DISABLED' >piCorePlayer mirror repository '$PCP_REPO_2_ACCESS'</option>'
+	echo '          <option value="'$PICORE_REPO_1'" '$SELECTED_PICORE' '$PICORE_REPO_1_DISABLED'>Official piCore repository '$PICORE_REPO_1_ACCESS'</option>'
+	echo '        </select>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_3'">'
+	echo '        <p>Select extension repository&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <p>Select the required extension repository:</p>'
+	echo '          <ul>'
+	echo '            <li>piCorePlayer main repository (default)</li>'
+	echo '            <li>piCorePlayer mirror repository</li>'
+	echo '            <li>Official piCore repository.</li>'
+	echo '          </ul>'
+	echo '        </div>'
+	echo '      </div>'
+	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Set">'
-	echo '                  <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Set">'
+	echo '        <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
+	echo '      </div>'
+	echo '    </div>'
 	if [ "$SELECTED_PCP_1" != "selected" ]; then
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150">'
-		echo '                  <input type="submit" name="SUBMIT" value="Reset">'
-		echo '                </td>'
-		echo '                <td colspan="2">'
-		echo '                  <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '    <div class="row">'
+		echo '      <div class="'$COLUMN3_2'">'
+		echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Reset">'
+		echo '      </div>'
+		echo '      <div class="'$COLUMN3_3'">'
+		echo '        <p><b>WARNING:</b> Remember to press [Reset] before leaving this page.</p>'
+		echo '      </div>'
+		echo '    </div>'
 	fi
 	#------------------------------------------------------------------------------------
-	echo '            </table>'
-	echo '          </fieldset>'
-	echo '        </div>'
-	echo '      </form>'
-
+	echo '  </form>'
+	echo '</div>'
 }
 
 #========================================================================================
 # Available extensions from current tags_*.db
 #----------------------------------------------------------------------------------------
 pcp_show_available_extns() {
+	echo '  <div class="'$BORDER'">'
+	pcp_heading5 "Available extensions in the '$STATUS'"
+	echo '  <form name="available" action="'$0'" method="get">'
 
-	echo '      <form name="available" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Available extensions in the '$STATUS'</legend>'
-	echo '            <table class="bggrey percent100">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Available extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p>Available extensions</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <select class="large22" name="EXTN">'
 
-	                          for E in $(cat $DB | awk '{print $1}')
-	                          do
-	                            [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
-	                            echo '                    <option value="'$E'" '$SELECTED'>'$E'</option>'
-	                          done
+	                for E in $(cat $DB | awk '{print $1}')
+	                do
+	                  [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
+	                  echo '                    <option value="'$E'" '$SELECTED'>'$E'</option>'
+	                done
 
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of '$(cat $DB | wc -l)' extensions available in the '$STATUS'&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all '$(cat $DB | wc -l)' extensions that are currently available for download from '$STATUS'</li>'
-	echo '                    </ul>'
-	echo '                    <p>Buttons:</p>'
-	echo '                    <ul>'
-	echo '                      <li><b>[Info]</b> will display information about the selected extension.</li>'
-	echo '                      <li><b>[Load]</b> will load and install the selected extension.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Load">'
-	echo '                  <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
-	echo '                  <input type="hidden" name="DB" value="'$DB'">'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	echo '            </table>'
-	echo '          </fieldset>'
+	echo '        </select>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_3'">'
+	echo '        <p>List of '$(cat $DB | wc -l)' extensions available in the '$STATUS'&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <ul>'
+	echo '            <li>Lists all '$(cat $DB | wc -l)' extensions that are currently available for download from '$STATUS'</li>'
+	echo '          </ul>'
+	echo '          <p>Buttons:</p>'
+	echo '          <ul>'
+	echo '            <li><b>[Info]</b> will display information about the selected extension.</li>'
+	echo '            <li><b>[Load]</b> will load and install the selected extension.</li>'
+	echo '          </ul>'
 	echo '        </div>'
-	echo '      </form>'
-
+	echo '      </div>'
+	echo '    </div>'
+	#----------------------------------------------------------------------------
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <input type="submit" name="SUBMIT" value="Info">'
+	echo '        <input type="submit" name="SUBMIT" value="Load">'
+	echo '        <input type="hidden" name="CALLED_BY" value="'$CALLED_BY'">'
+	echo '        <input type="hidden" name="DB" value="'$DB'">'
+	echo '      </div>'
+	echo '    </div>'
+	#------------------------------------------------------------------------------------
+	echo '  </form>'
 }
 
 #========================================================================================
 # Installed extensions - tce-status -i
 #----------------------------------------------------------------------------------------
 pcp_show_installed_extns() {
-
-	echo '      <form name="installed" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Installed extensions</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '<div class="'$BORDER' mb-2">'
+	pcp_heading5 "Installed extensions"
+	echo '  <form name="installed" action="'$0'" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Installed extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p>Installed extensions</p>'
+	echo '      </div>'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="EXTN">'
 
-	                          for i in $(tce-status -i | sort -f)
-	                          do
-	                            echo '                    <option value="'$i'.tcz">'$i'.tcz</option>'
-	                          done
+	                for i in $(tce-status -i | sort -f)
+	                do
+	                  echo '                    <option value="'$i'.tcz">'$i'.tcz</option>'
+	                done
 
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of '$(tce-status -i | wc -l)' installed extensions&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all extensions that are currently installed.</li>'
-	echo '                      <li>These extensions are usually loaded at boot via '$ONBOOTLST'.</li>'
-	echo '                      <li>There are '$(find /usr/local/tce.installed -not -type d | wc -l)' extensions in the tce.installed directory.</li>'
-	echo '                    </ul>'
-	echo '                    <p>Buttons:</p>'
-	echo '                    <ul>'
-#	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-	echo '                      <li><b>[Update]</b> will check for a new version and update the selected extension if needed.</li>'
-	echo '                      <li><b>[Delete]</b> will delete the selected extension and dependencies on reboot.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-#	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-	echo '                  <input type="submit" name="SUBMIT" value="Update">'
-	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-	echo '                  <input type="hidden" name="CALLED_BY" value="Installed">'
-	echo '                  <input type="hidden" name="DB" value="'$DB'">'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	echo '            </table>'
-	echo '          </fieldset>'
+	echo '        </select>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_3'">'
+	echo '        <p>List of '$(tce-status -i | wc -l)' installed extensions&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <ul>'
+	echo '            <li>Lists all extensions that are currently installed.</li>'
+	echo '            <li>These extensions are usually loaded at boot via '$ONBOOTLST'.</li>'
+	echo '            <li>There are '$(find /usr/local/tce.installed -not -type d | wc -l)' extensions in the tce.installed directory.</li>'
+	echo '          </ul>'
+	echo '          <p>Buttons:</p>'
+	echo '          <ul>'
+#	echo '            <li><b>[Info]</b> will display additional information about the extension.</li>'
+	echo '            <li><b>[Update]</b> will check for a new version and update the selected extension if needed.</li>'
+	echo '            <li><b>[Delete]</b> will delete the selected extension and dependencies on reboot.</li>'
+	echo '          </ul>'
 	echo '        </div>'
-	echo '      </form>'
-
+	echo '      </div>'
+	echo '    </div>'
+	#------------------------------------------------------------------------------------
+	echo '    <div class="row mx-1 mb-2">'
+#	echo '      <div class="col-2">'
+#	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Info">'
+#	echo '      </div>'
+	echo '      <div class="col-2">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Update">'
+	echo '      </div>'
+	echo '      <div class="col-2">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Delete">'
+	echo '        <input type="hidden" name="CALLED_BY" value="Installed">'
+	echo '        <input type="hidden" name="DB" value="'$DB'">'
+	echo '      </div>'
+	echo '    </div>'
+	#------------------------------------------------------------------------------------
+	echo '  </form>'
+	echo '</div>'
 }
 
 #========================================================================================
 # Uninstalled extensions - tce-status -u
 #----------------------------------------------------------------------------------------
 pcp_show_uninstalled_extns() {
-
-	echo '      <form name="uninstalled" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Uninstalled extensions</legend>'
-	echo '            <table class="bggrey percent100">'
+	echo '<div class="'$BORDER' mb-2">'
+	pcp_heading5 "Uninstalled extensions"
+	echo '  <form name="uninstalled" action="'$0'" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Uninstalled extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p>Uninstalled extensions</p>'
+	echo '      </div>'
+	echo '      <div class="input-group '$COLUMN3_2'">'
+	echo '        <select class="custom-select custom-select-sm" name="EXTN">'
 
-	                          for i in $(tce-status -u | sort -f)
-	                          do
-	                            echo '                    <option value="'$i'">'$i'</option>'
-	                          done
+	                for i in $(tce-status -u | sort -f)
+	                do
+	                  echo '                    <option value="'$i'">'$i'</option>'
+	                done
 
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of '$(tce-status -u | wc -l)' uninstalled extensions&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all extensions that are currently downloaded but not installed.</li>'
-	echo '                    </ul>'
-	echo '                    <p>Buttons:</p>'
-	echo '                    <ul>'
-#	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-#	echo '                      <li><b>[Install]</b> will install the extension.</li>'
-	echo '                      <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
-	echo '                      <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td colspan="3">'
-#	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-#	echo '                  <input type="submit" name="SUBMIT" value="Install">'
-	echo '                  <input type="submit" name="SUBMIT" value="Update">'
-	echo '                  <input type="submit" name="SUBMIT" value="Delete">'
-	echo '                  <input type="hidden" name="CALLED_BY" value="Uninstalled">'
-	echo '                  <input type="hidden" name="DB" value="'$DB'">'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	echo '            </table>'
-	echo '          </fieldset>'
+	echo '        </select>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_3'">'
+	echo '        <p>List of '$(tce-status -u | wc -l)' uninstalled extensions&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <ul>'
+	echo '            <li>Lists all extensions that are currently downloaded but not installed.</li>'
+	echo '          </ul>'
+	echo '          <p>Buttons:</p>'
+	echo '          <ul>'
+#	echo '            <li><b>[Info]</b> will display additional information about the extension.</li>'
+#	echo '            <li><b>[Install]</b> will install the extension.</li>'
+	echo '            <li><b>[Update]</b> will check for a new version and update the extension if needed.</li>'
+	echo '            <li><b>[Delete]</b> will delete the extension and dependencies on reboot.</li>'
+	echo '          </ul>'
 	echo '        </div>'
-	echo '      </form>'
+	echo '      </div>'
+	echo '    </div>'
+	#----------------------------------------------------------------------------
 
+	echo '    <div class="row mx-1 mb-2">'
+#	echo '      <div class="col-2">'
+#	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Info">'
+#	echo '      </div>'
+#	echo '      <div class="col-2">'
+#	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Install">'
+#	echo '      </div>'
+	echo '      <div class="col-2">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Update">'
+	echo '      </div>'
+	echo '      <div class="col-2">'
+	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Delete">'
+	echo '        <input type="hidden" name="CALLED_BY" value="Uninstalled">'
+	echo '        <input type="hidden" name="DB" value="'$DB'">'
+	echo '      </div>'
+	echo '    </div>'
+	#------------------------------------------------------------------------------------
+	echo '  </form>'
+	echo '</div>'
 }
 
 #========================================================================================
@@ -926,68 +805,59 @@ pcp_show_uninstalled_extns() {
 pcp_show_downloaded_extns() {
 	pcp_set_repo_status
 
-	echo '      <form name="downloaded" action="'$0'" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>Downloaded extensions</legend>'
-	echo '            <table class="bggrey percent100">'
+	pcp_heading5 "Downloaded extensions"
+	echo '  <form name="downloaded" action="'$0'" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150">'
-	echo '                  <p>Downloaded extensions</p>'
-	echo '                </td>'
-	echo '                <td class="column300">'
-	echo '                  <select class="large22" name="EXTN">'
+	echo '    <div class="row">'
+	echo '      <div class="'$COLUMN3_1'">'
+	echo '        <p>Downloaded extensions</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_2'">'
+	echo '        <select class="large22" name="EXTN">'
 
-	                          for E in $(ls $PACKAGEDIR/*.tcz | awk -F 'optional/' '{print $2}' | sort -f)
-	                          do
-	                            [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
-	                            echo '                    <option value="'$E'" '$SELECTED'>'$E'</option>'
-	                          done
+	                for E in $(ls $PACKAGEDIR/*.tcz | awk -F 'optional/' '{print $2}' | sort -f)
+	                do
+	                  [ "$E" = "$EXTN" ] && SELECTED="selected" || SELECTED=""
+	                  echo '                    <option value="'$E'" '$SELECTED'>'$E'</option>'
+	                done
 
-	echo '                  </select>'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <p>List of downloaded extensions&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
-	echo '                    <ul>'
-	echo '                      <li>Lists all extensions that are currently downloaded.</li>'
-	echo '                      <li>These extensions may be installed or uninstalled.</li>'
-	echo '                    </ul>'
-	echo '                    <p>Buttons:</p>'
-	echo '                    <ul>'
-	echo '                      <li><b>[Info]</b> will display additional information about the extension.</li>'
-	echo '                    </ul>'
-	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-#	echo '              <tr class="'$ROWSHADE'">'
-#	echo '                <td colspan="3">'
-#	echo '                  <input type="submit" name="SUBMIT" value="Info">'
-#	echo '                  <input type="hidden" name="CALLED_BY" value="Downloaded">'
-#	echo '                  <input type="hidden" name="DB" value="'$DB'">'
-#	echo '                </td>'
-#	echo '              </tr>'
-	#------------------------------------------------------------------------------------
-	echo '            </table>'
-	echo '          </fieldset>'
+	echo '        </select>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN3_3'">'
+	echo '        <p>List of downloaded extensions&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '        </p>'
+	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '          <ul>'
+	echo '            <li>Lists all extensions that are currently downloaded.</li>'
+	echo '            <li>These extensions may be installed or uninstalled.</li>'
+	echo '          </ul>'
+	echo '          <p>Buttons:</p>'
+	echo '          <ul>'
+	echo '            <li><b>[Info]</b> will display additional information about the extension.</li>'
+	echo '          </ul>'
 	echo '        </div>'
-	echo '      </form>'
-
+	echo '      </div>'
+	echo '    </div>'
+	#------------------------------------------------------------------------------------
+#	echo '    <div class="row">'
+#	echo '      <div class="'$COLUMN3_1'">'
+#	echo '        <input type="submit" name="SUBMIT" value="Info">'
+#	echo '        <input type="hidden" name="CALLED_BY" value="Downloaded">'
+#	echo '        <input type="hidden" name="DB" value="'$DB'">'
+#	echo '      </div>'
+#	echo '    </div>'
+	#------------------------------------------------------------------------------------
+	echo '  </form>'
 }
 
 #========================================================================================
 # Show current onboot.lst - these are the extensions loaded during a boot.
 #----------------------------------------------------------------------------------------
 pcp_show_onboot_lst() {
-	echo '<div>'
 	pcp_textarea "Current $ONBOOTLST" "cat $ONBOOTLST" 50
-	echo '</div>'
 }
 
 #========================================================================================
@@ -1015,17 +885,13 @@ pcp_get_dependencies() {
 }
 
 pcp_full_dependency_tree() {
-#	[ "$1" != "text" ] && pcp_table_textarea_top "Extension dependency tree" "" "300"
 	for E in $(cat $ONBOOTLST)
 	do
 		pcp_dependency_tree $E
 		echo ""
 	done >/var/log/pcp_dependency_tree.log
-#	[ "$1" != "text" ] && pcp_table_textarea_end
 
-	echo '<div>'
 	pcp_textarea "Extension dependency tree" "cat /var/log/pcp_dependency_tree.log" 15
-	echo '</div>'
 }
 
 #========================================================================================
