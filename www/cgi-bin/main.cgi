@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-20
+# Version: 7.0.0 2020-05-24
 
 . pcp-functions
 . pcp-lms-functions
@@ -862,7 +862,7 @@ pcp_main_dev() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[ $MODE -ge $MODE_BETA ] && [ -f ${WWWROOT}/cgi-bin/dev_main.cgi ] && pcp_main_dev
+[ $MODE -ge $MODE_DEVELOPER ] && [ -f ${WWWROOT}/cgi-bin/dev_main.cgi ] && pcp_main_dev
 #----------------------------------------------------------------------------------------
 [ $MODE -ge $MODE_DEVELOPER ] && echo '</div>'
 

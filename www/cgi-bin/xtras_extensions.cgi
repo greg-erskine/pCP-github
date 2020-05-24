@@ -313,6 +313,7 @@ pcp_internet() {
 		echo "[ ERROR ] Internet not accessible." >> $LOG
 		echo "unset INTERNET_ACCESSIBLE" > $ACCCESSIBLETXT
 	fi
+	#INDICATOR="$(echo $INDICATOR | sed -e 's|"|/"|g')"
 }
 
 pcp_dns() {
@@ -378,18 +379,21 @@ pcp_picore_repo_2() {
 pcp_indicator_js() {
 	echo '<script>'
 	echo 'var theIndicator = document.querySelector("#indicator'$ID'");'
-	echo '	theIndicator.classList.add("'$CLASS'");'
 	echo '	document.getElementById("indicator'$ID'").innerHTML = "'$INDICATOR'";'
 	echo '	document.getElementById("status'$ID'").innerHTML = "'$STATUS'";'
-	echo '</script> '
+	echo '</script>'
 }
-
+#	echo '	theIndicator.classList.add("'$CLASS'");'
 #----------------------------------------------------------------------------------------
 # Internet, DNS and repository accessibility indicators.
 #----------------------------------------------------------------------------------------
 pcp_internet_check() {
 	echo '  <div class="'$BORDER'">'
+<<<<<<< HEAD
 	pcp_heading5 "Checking Internet and repository accessiblity. . . "
+=======
+	pcp_heading5 "Checking Internet and repository accessibility. . . "
+>>>>>>> origin/develop
 	#--------------------------------Internet accessible---------------------------------
 	pcp_incr_id
 
@@ -401,7 +405,17 @@ pcp_internet_check() {
 	echo '        <p id="status'$ID'">Checking internet...</p>'
 	echo '      </div>'
 	echo '    </div>'
+<<<<<<< HEAD
+=======
+	
+	
+	
+	
+	
+>>>>>>> origin/develop
 	pcp_internet
+	
+	echo greg$INDICATOR
 	pcp_indicator_js
 	#-----------------------------------DNS accessible-----------------------------------
 	pcp_incr_id

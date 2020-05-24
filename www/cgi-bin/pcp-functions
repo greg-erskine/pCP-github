@@ -272,12 +272,12 @@ pcp_generate_listing() {
 # Green tick and red cross
 #----------------------------------------------------------------------------------------
 pcp_green_tick() {
-	INDICATOR=$(pcp_bi_check)
+	INDICATOR="$(pcp_bi_check)"
 	STATUS="$1"
 }
 
 pcp_red_cross() {
-	INDICATOR=$(pcp_bi_x)
+	INDICATOR="$(pcp_bi_x)"
 	STATUS="$1"
 }
 
