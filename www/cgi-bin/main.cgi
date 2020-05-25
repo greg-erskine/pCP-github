@@ -48,7 +48,8 @@ fi
 #========================================================================================
 # Main piCorePlayer operations
 #----------------------------------------------------------------------------------------
-
+	echo '<div class="'$BORDER'">'
+	echo '  <div class="row mt-3">'
 #------------------------------------Squeezelite Indication------------------------------
 pcp_main_squeezelite_indication() {
 
@@ -58,11 +59,9 @@ pcp_main_squeezelite_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '<div class="'$BORDER'">'
-	echo '  <div class="row mt-3">'
-	echo '    <div class="form-group '$COLUMN2_1'">'$INDICATOR'</div>'
+	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="'$COLUMN2_2'">'
+	echo '    <div class="col-sm-3 col-11">'
 
 	if [ "$SQUEEZELITE" = "no" ]; then
 		echo '      <p>Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
@@ -84,8 +83,7 @@ pcp_main_squeezelite_indication() {
 	echo '        </ul>'
 	echo '      </div>'
 	echo '    </div>'
-	echo '  </div>'
-	echo '</div>'
+
 }
 pcp_main_squeezelite_indication
 #----------------------------------------------------------------------------------------
@@ -99,11 +97,9 @@ pcp_main_lms_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '<div class="'$BORDER'">'
-	echo '  <div class="row mx-1">'
-	echo '    <div class="form-group '$COLUMN2_1'">'$INDICATOR'</div>'
+	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="'$COLUMN2_2'">'
+	echo '    <div class="col-sm-3 col-11">'
 	echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
 	echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '      </p>'
@@ -118,8 +114,6 @@ pcp_main_lms_indication() {
 	echo '        </ul>'
 	echo '      </div>'
 	echo '    </div>'
-	echo '  </div>'
-	echo '</div>'
 }
 [ "$LMSERVER" = "yes" ] && pcp_main_lms_indication
 #----------------------------------------------------------------------------------------
@@ -133,11 +127,9 @@ pcp_main_shairport_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '<div class="'$BORDER'">'
-	echo '  <div class="row mx-1">'
-	echo '    <div class="form-group '$COLUMN2_1'">'$INDICATOR'</div>'
+	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="'$COLUMN2_2'">'
+	echo '    <div class="col-2">'
 	echo '      <p>Shairport is '$STATUS'&nbsp;&nbsp;'
 	echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '      </p>'
@@ -152,11 +144,11 @@ pcp_main_shairport_indication() {
 	echo '        </ul>'
 	echo '      </div>'
 	echo '    </div>'
-	echo '  </div>'
-	echo '</div>'
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
+	echo '  </div>'
+	echo '</div>'
 
 #-------------------------------------Main Tab-------------------------------------------
 echo '<div class="'$BORDER'">'
