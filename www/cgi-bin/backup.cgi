@@ -11,7 +11,7 @@ pcp_navbar
 pcp_heading5 "Backing up configuration"
 
 pcp_infobox_begin
-pcp_backup
+pcp_backup "text"
 pcp_infobox_end
 
 pcp_redirect_button "Go to Main Page" "main.cgi" 10

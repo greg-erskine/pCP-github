@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-19
+# Version: 7.0.0 2020-05-25
 
 . pcp-functions
 . pcp-rpi-functions
@@ -12,16 +12,12 @@ pcp_html_head "Squeezelite Settings" "SBP"
 pcp_controls
 pcp_navbar
 
-#COLUMN1="col-sm-3 text-md-right"
-
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-4"
 COLUMN3_3="col-sm-6"
 
 COLUMN2_1="col-sm-2"
 COLUMN2_2="col-sm-10"
-
-BORDER="border rounded mt-2 bg-white border-secondary"
 
 #========================================================================================
 # Create Squeezelite command string

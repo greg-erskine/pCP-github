@@ -1474,7 +1474,7 @@ pcp_mount_netdrives() {
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="col-12">'
 	echo '        <p>Mount Remote Network Share&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '        </p>'
@@ -1589,16 +1589,25 @@ pcp_mount_netdrives() {
 	echo '    </script>'
 	#------------------------------------------------------------------------------------
 
+	COLUMN8_1="col-1"
+	COLUMN8_2="col-1"
+	COLUMN8_3="col-1"
+	COLUMN8_4="col-1"
+	COLUMN8_5="col-1"
+	COLUMN8_6="col-1"
+	COLUMN8_7="col-1"
+	COLUMN8_8="col-1"
+
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN4_1' center"><p><b>Enabled</b></p></div>'
-	echo '      <div class="'$COLUMN4_2'"><p><b>Mount Point</b></p></div>'
-	echo '      <div class="'$COLUMN4_3'"><p><b>IP Address</b></p></div>'
-	echo '      <div class="'$COLUMN4_4'"><p><b>Share Name</b></p></div>'
-	echo '      <div class="column'$COL5'"><p><b>Share Type</b></p></div>'
-	echo '      <div class="column'$COL6'"><p><b>Username</b></p></div>'
-	echo '      <div class="column'$COL7'"><p><b>Password</b></p></div>'
-	echo '      <div class="column'$COL8'"><p><b>Options</b></p></div>'
+	echo '      <div class="'$COLUMN8_1'"><p><b>Enabled</b></p></div>'
+	echo '      <div class="'$COLUMN8_2'"><p><b>Mount Point</b></p></div>'
+	echo '      <div class="'$COLUMN8_3'"><p><b>IP Address</b></p></div>'
+	echo '      <div class="'$COLUMN8_4'"><p><b>Share Name</b></p></div>'
+	echo '      <div class="'$COLUMN8_5'"><p><b>Share Type</b></p></div>'
+	echo '      <div class="'$COLUMN8_6'"><p><b>Username</b></p></div>'
+	echo '      <div class="'$COLUMN8_7'"><p><b>Password</b></p></div>'
+	echo '      <div class="'$COLUMN8_8'"><p><b>Options</b></p></div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	I=1
@@ -1640,19 +1649,19 @@ pcp_mount_netdrives() {
 		fi
 
 		echo '    <div class="row mx-1">'
-		echo '      <div class="'$COLUMN4_1' center">'
+		echo '      <div class="'$COLUMN8_1'">'
 		echo '        <p>'
 		echo '          <input type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
 		echo '          <label for="NET'${I}'">&#8239;</label>'
 		echo '        </p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN4_2'">'
+		echo '      <div class="'$COLUMN8_2'">'
 		echo '        <p>/mnt/&#8239;<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN4_3'">'
+		echo '      <div class="'$COLUMN8_3'">'
 		echo '        <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN4_4'">'
+		echo '      <div class="'$COLUMN8_4'">'
 		echo '        <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="" onclick="setfsopts('${I}')">'
 		echo '      </div>'
 
@@ -1661,19 +1670,19 @@ pcp_mount_netdrives() {
 			nfs) NFS1yes="selected"; USERdisable="Disabled";;
 		esac
 
-		echo '      <div class="column'$COL5'">'
+		echo '      <div class="column'$COLUMN8_5'">'
 		echo '        <select class="large6" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only CIFS(Samba) and NFS shares are supported" onchange="setfstype('${I}')">'
 		echo '          <option value="cifs" '$CIFS1yes'>CIFS</option>'
 		echo '          <option value="nfs" '$NFS1yes'>NFS</option>'
 		echo '        </select>'
 		echo '      </div>'
-		echo '      <div class="column'$COL6'">'
+		echo '      <div class="column'$COLUMN8_6'">'
 		echo '        <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '      </div>'
-		echo '      <div class="column'$COL7'">'
+		echo '      <div class="column'$COLUMN8_7'">'
 		echo '        <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" onchange="setpwstyle('${I}')" '$USERdisable'>'
 		echo '      </div>'
-		echo '      <div class="column'$COL8'">'
+		echo '      <div class="column'$COLUMN8_8'">'
 		echo '        <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0">'
 		echo '      </div>'
 		echo '    </div>'
@@ -1690,14 +1699,14 @@ pcp_mount_netdrives() {
 	done
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN4_1' center">'
+	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <p>'
 	echo '          <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
 	echo '          <label for="netclear">&nbsp;</label>'
 	echo '        </p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p> Check this box to clear configuration data for unused shares.</p>'
+	echo '        <p>Check this box to clear configuration data for unused shares.</p>'
 	echo '      </div>'
 	echo '    </div>'
 	#--------------------------------------Submit button---------------------------------
@@ -1733,7 +1742,7 @@ pcp_mount_netdrives() {
 		echo '        </div>'
 		echo '      </div>'
 	else
-		echo '      <div class="'$COLUMN3_1'" colspan="8">'
+		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set NET Mount</button>'
 		echo '        <input type="hidden" name="MOUNTTYPE" value="networkshare">'
 		echo '        <input type="hidden" name="NUMNET" value="'$NUM_NET_CONF'">'
@@ -1794,7 +1803,7 @@ pcp_samba() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_Samba">Install</button>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="col-10">'
 		echo '        <p>Install Samba for pCP&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
@@ -1806,7 +1815,7 @@ pcp_samba() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_Samba">Remove</button>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="col-10">'
 		echo '        <p>Remove Samba from pCP&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
@@ -1858,7 +1867,7 @@ pcp_samba() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
 		echo '      </div>'
-		echo '      <div class="column100">'
+		echo '      <div class="'$COLUMN3_2'">'
 		echo '      <p>'
 		echo '        <input type="hidden" name="ACTION" value="Startup">'
 		echo '        <input id="radsmb1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>'
@@ -1867,7 +1876,7 @@ pcp_samba() {
 		echo '        <label for="radsmb2">No</label>'
 		echo '      </p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>Automatic start of Samba when pCP boots&nbsp;&nbsp;'
 		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '        </p>'
@@ -1948,11 +1957,11 @@ pcp_samba() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="COMMAND" value="setpw" '$PWDISABLE'>Set Password</button>'
 		echo '      </div>'
-		echo '      <div class="column100 ">'
-		echo '        <p class="row">UserName: tc</p>'
+		echo '      <div class="'$COLUMN3_1' ">'
+		echo '        <p>UserName: tc</p>'
 		echo '      </div>'
-		echo '      <div class="column75">'
-		echo '        <p class="row">Password:</p>'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <p>Password:</p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <p><input class="large12" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
@@ -1978,12 +1987,12 @@ pcp_samba() {
 		pcp_incr_id
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
-		echo '        <p class="row">Server Name</p>'
+		echo '        <p>Server Name</p>'
 		echo '      </div>'
-		echo '      <div class="column210">'
-		echo '        <p><input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required></p>'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required>'
 		echo '      </div>'
-		echo '      <td colspan="3">'
+		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>This is the Server name that will show up in your network browser&nbsp;&nbsp;'
 		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '        </p>'
@@ -1996,12 +2005,12 @@ pcp_samba() {
 		pcp_incr_id
 		echo '     <div class="row mx-1">'
 		echo '       <div class="'$COLUMN3_1'">'
-		echo '         <p class="row">Server WorkGroup</p>'
+		echo '         <p>Server WorkGroup</p>'
 		echo '       </div>'
-		echo '       <div class="column210">'
-		echo '         <p><input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required></p>'
+		echo '       <div class="'$COLUMN3_1'">'
+		echo '         <input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required>'
 		echo '       </div>'
-		echo '       <td colspan="3">'
+		echo '       <div class="'$COLUMN4_1'">'
 		echo '         <p>This is the Server Work Group that will show up in your network browser&nbsp;&nbsp;'
 		echo '           <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '         </p>'
@@ -2012,10 +2021,10 @@ pcp_samba() {
 		echo '     </div>'
 		#--------------------------------------------------------------------------------
 		echo '     <div class="row mx-1">'
-		echo '       <div class="'$COLUMN4_1' center"><p><b>Share Name</b></p></div>'
+		echo '       <div class="'$COLUMN4_1'"><p><b>Share Name</b></p></div>'
 		echo '       <div class="'$COLUMN4_2'"><p><b>Share Path</b></p></div>'
 		echo '       <div class="'$COLUMN4_3'"><p><b>Create File Mode</b></p></div>'
-		echo '       <div class="'$COLUMN4_4' center"><p><b>Read ONLY</b></p></div>'
+		echo '       <div class="'$COLUMN4_4'"><p><b>Read ONLY</b></p></div>'
 		echo '       <div class="'$COLUMN3_2'"> </div>'
 		echo '     </div>'
 		I=1
@@ -2026,7 +2035,7 @@ pcp_samba() {
 			[ "$TST" != "" ] && REQ="required" || REQ=""
 
 			echo '                <div class="row mx-1">'
-			echo '                  <div class="'$COLUMN4_1' center">'
+			echo '                  <div class="'$COLUMN4_1'">'
 			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
 			eval echo -n "\${SHARE${I}}"
 			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$" onchange="setsmbrequired('$I')">'
@@ -2046,61 +2055,58 @@ pcp_samba() {
 				yes) SHAREROyes="checked";;
 				*) SHAREROyes="";;
 			esac
-			echo '                  <div class="'$COLUMN4_4' center">'
-			echo '                    <input type="checkbox" id="RO'${I}'" name="SHARERO'$I'" value="yes" '$SHAREROyes'>'
-			echo '                    <label for="RO'${I}'">&#8239;</label>'
-			echo '                  </div>'
-			echo '                  <div class="column'$COL5' center">'
-			echo '                    <input type="button" value="Remove" onclick="eraseshare('$I')">'
-			echo '                  </div>'
-			echo '                </div>'
+			echo '      <div class="'$COLUMN4_4'">'
+			echo '        <input type="checkbox" id="RO'${I}'" name="SHARERO'$I'" value="yes" '$SHAREROyes'>'
+			echo '        <label for="RO'${I}'">&#8239;</label>'
+			echo '      </div>'
+			echo '      <div class="column'$COL5'">'
+			echo '        <input type="button" value="Remove" onclick="eraseshare('$I')">'
+			echo '      </div>'
+			echo '    </div>'
 			I=$((I+1))
 		done
 		#--------------------------------------------------------------------------------
-		echo '                <script>'
-		echo '                  function eraseshare(i) {'
-		echo '                    var box = "SHARE";'
-		echo '                    var Box = box.concat(i);'
-		echo '                    document.getElementById(Box).value = "";'
-		echo '                    var box = "SHAREPATH";'
-		echo '                    var Box = box.concat(i);'
-		echo '                    document.getElementById(Box).value = "";'
-		echo '                    var box = "SHAREMASK";'
-		echo '                    var Box = box.concat(i);'
-		echo '                    document.getElementById(Box).value = "";'
-		echo '                    setsmbrequired(i);'
-		echo '                  }'
-		echo '                  function setsmbrequired(id) {'
-		echo '                    var box = "SHARE";'
-		echo '                    var Box = box.concat(id);'
-		echo '                    var box1 = "SHAREPATH";'
-		echo '                    var Box1 = box1.concat(id);'
-		echo '                    var box2 = "SHAREMASK";'
-		echo '                    var Box2 = box2.concat(id);'
-		echo '                    if (document.getElementById(Box).value != ""){'
-		echo '                      document.getElementById(Box1).setAttribute("required", "");'
-		echo '                      document.getElementById(Box2).setAttribute("required", "");'
-		echo '                    }'
-		echo '                    else {'
-		echo '                      document.getElementById(Box1).required = false;'
-		echo '                      document.getElementById(Box2).required = false;'
-		echo '                    }'
-		echo '                  }'
-		echo '                </script>'
+		echo '    <script>'
+		echo '      function eraseshare(i) {'
+		echo '        var box = "SHARE";'
+		echo '        var Box = box.concat(i);'
+		echo '        document.getElementById(Box).value = "";'
+		echo '        var box = "SHAREPATH";'
+		echo '        var Box = box.concat(i);'
+		echo '        document.getElementById(Box).value = "";'
+		echo '        var box = "SHAREMASK";'
+		echo '        var Box = box.concat(i);'
+		echo '        document.getElementById(Box).value = "";'
+		echo '        setsmbrequired(i);'
+		echo '      }'
+		echo '      function setsmbrequired(id) {'
+		echo '        var box = "SHARE";'
+		echo '        var Box = box.concat(id);'
+		echo '        var box1 = "SHAREPATH";'
+		echo '        var Box1 = box1.concat(id);'
+		echo '        var box2 = "SHAREMASK";'
+		echo '        var Box2 = box2.concat(id);'
+		echo '        if (document.getElementById(Box).value != ""){'
+		echo '          document.getElementById(Box1).setAttribute("required", "");'
+		echo '          document.getElementById(Box2).setAttribute("required", "");'
+		echo '        }'
+		echo '        else {'
+		echo '          document.getElementById(Box1).required = false;'
+		echo '          document.getElementById(Box2).required = false;'
+		echo '        }'
+		echo '      }'
+		echo '    </script>'
 		#----------------------------------Submit button---------------------------------
-
-		echo '                <div class="row mx-1">'
-		echo '                  <div class="'$COLUMN3_1'">'
-		echo '                    <input type="hidden" name="COMMAND" value="setconfig">'
-		echo '                    <input type="hidden" name="SC" value="'$SC'">'
-		echo '                    <button class="'$BUTTON'" type="submit" name="ACTION" value="setconfig">Set Shares</button>'
-		echo '                  </div>'
-		echo '                  <div class="'$COLUMN3_2'"> </div>'
-		echo '                </div>'
+		echo '    <div class="row mx-1">'
+		echo '      <div class="'$COLUMN3_1'">'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="setconfig">Set Shares</button>'
+		echo '        <input type="hidden" name="COMMAND" value="setconfig">'
+		echo '        <input type="hidden" name="SC" value="'$SC'">'
+		echo '      </div>'
+		echo '    </div>'
 		#--------------------------------------------------------------------------------
 		echo '  </form>'
 	fi
-
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_samba
 #----------------------------------------------------------------------------------------
@@ -2113,7 +2119,7 @@ pcp_lms_logview() {
 	pcp_heading5 "Show LMS logs"
 	#------------------------------------------------------------------------------------
 	pcp_textarea "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 25
-pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 25
+	pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 25
 	#------------------------------------------------------------------------------------
 	if [ -f $LMS_UPDATE_LOG ]; then
 		pcp_textarea "$LMS_UPDATE_LOG" 'cat $LMS_UPDATE_LOG' 25
@@ -2127,11 +2133,10 @@ pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 25
 pcp_lms_ccview() {
 	pcp_heading5 "Show LMS custom_convert.conf"
 	#------------------------------------------------------------------------------------
-	pcp_textarea "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
+	pcp_textarea "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 25
 	#------------------------------------------------------------------------------------
 }
 [ "$CCSHOW" = "yes" -a -f $LMS_CC_FILE ] && pcp_lms_ccview
 #----------------------------------------------------------------------------------------
-
 
 pcp_html_end

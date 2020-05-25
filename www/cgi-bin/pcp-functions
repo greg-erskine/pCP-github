@@ -1034,11 +1034,11 @@ pcp_table_textarea_end() {
 # Create info box functions
 #----------------------------------------------------------------------------------------
 pcp_infobox_begin() {
-	echo '<div class="'$INFOBOX'">'
+	echo '<div class="'$INFOBOX'"><pre>'
 }
 
 pcp_infobox_end() {
-	echo '</div>'
+	echo '</pre></div>'
 }
 
 #========================================================================================
