@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-14
+# Version: 7.0.0 2020-05-25
 
 . pcp-functions
 . pcp-rpi-functions
@@ -36,7 +36,7 @@ WGET="/bin/busybox wget"
 COLUMN1_1="col-12"
 
 COLUMN2_1="col-sm-2"
-COLUMN2_2="col-sm-9"
+COLUMN2_2="col-sm-10"
 
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-4"
@@ -52,16 +52,16 @@ COLUMN4_4="col-sm-4"
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
 	pcp_incr_id
-	echo '    <div class="col-12 bg-secondary pb-1">'
+	echo '    <div class="alert col-12 bg-warning pb-1">'
 	echo '      <b>Warning:</b> Logitech Media Server (LMS)'
 	echo '      is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
-	echo '      <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '      <div id="dt'$ID'" class="collapse">'
+#	echo '      <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+#	echo '      <div id="dt'$ID'" class="collapse">'
 	echo '        <ul>'
 	echo '          <li>Do NOT just pull the power plug.</li>'
 	echo '          <li>Use [Main Page] > [Shutdown].</li>'
 	echo '        </ul>'
-	echo '      </div>'
+#	echo '      </div>'
 	echo '    </div>'
 }
 
@@ -250,19 +250,19 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_heading5 "Downloading Logitech Media Server (LMS)"
-		pcp_infobox_begin
+		pcp_textarea_begin "" 12
 		pcp_sufficient_free_space 48000
 		if [ $? -eq 0 ]; then
 			pcp_install_lms
 			if [ -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 				LMSERVER="yes"
 				pcp_save_to_config
-				pcp_backup "html"
+				pcp_backup "text"
 			else
-				pcp_message ERROR "Error Downloading LMS, please try again later." "html"
+				pcp_message ERROR "Error Downloading LMS, please try again later." "text"
 			fi
 		fi
-		pcp_infobox_end
+		pcp_textbox_end
 	;;
 	Remove)
 		pcp_heading5 "Removing Logitech Media Server (LMS)"
@@ -346,15 +346,15 @@ case "$ACTION" in
 	;;
 	SambaStart)
 		pcp_heading5 "Starting Samba"
-		pcp_textarea "none" "/usr/local/etc/init.d/samba4 start" 40
+		pcp_textarea "none" "/usr/local/etc/init.d/samba4 start" 4
 	;;
 	SambaStop)
 		pcp_heading5 "Stopping Samba"
-		pcp_textarea "none" "/usr/local/etc/init.d/samba4 stop" 40
+		pcp_textarea "none" "/usr/local/etc/init.d/samba4 stop" 4
 	;;
 	SambaRestart)
 		pcp_heading5 "Re-Starting Samba"
-		pcp_textarea "none" "/usr/local/etc/init.d/samba4 restart" 40
+		pcp_textarea "none" "/usr/local/etc/init.d/samba4 restart" 4
 	;;
 	Mysb)
 		pcp_heading5 "Setting LMS command line options"
@@ -443,7 +443,8 @@ echo '    </div>'
 echo '  </div>'
 #----------------------------------------------------------------------------------------
 
-pcp_heading5 "Logitech Media Server (LMS) operations" hr
+echo '  <div class="'$BORDER'">'
+pcp_heading5 "Logitech Media Server (LMS) operations"
 
 #----------------------------Enable/disable autostart of LMS-----------------------------
 pcp_lms_enable_lms() {
@@ -455,7 +456,7 @@ pcp_lms_enable_lms() {
 
 	pcp_incr_id
 	echo '  <form name="Select" action="writetolms.cgi" method="get">'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
 	echo '      </div>'
@@ -492,7 +493,7 @@ pcp_lms_server_interface() {
 
 	pcp_incr_id
 	echo '  <form name="LMS_Interface" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" value="LMS_Web_Page" '$DISABLE_LMS'>LMS Web Page</button>'
 	echo '      </div>'
@@ -519,7 +520,7 @@ pcp_lms_configure_lms() {
 
 	pcp_incr_id
 	echo '  <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" value="Configure LMS" '$DISABLE_LMS'>Configure LMS</button>'
 	echo '      </div>'
@@ -544,7 +545,7 @@ echo '  <form name="LMS" action="'$0'">'
 pcp_rescan_lms() {
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Rescan LMS">'
 	echo '      </div>'
@@ -573,7 +574,7 @@ pcp_lms_install_lms() {
 	pcp_incr_id
 
 	if [ ! -f $TCEMNT/tce/optional/slimserver.tcz ]; then
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install">Install LMS</button>'
 		echo '      </div>'
@@ -587,7 +588,7 @@ pcp_lms_install_lms() {
 		echo '      </div>'
 		echo '    </div>'
 	else
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')">'
 		echo '      </div>'
@@ -610,7 +611,7 @@ pcp_lms_install_lms() {
 pcp_lms_remove_cache() {
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_cache" onclick="return confirm('\''This will remove all LMS Cache,settings and plugins.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove cache</button>'
 	echo '      </div>'
@@ -632,7 +633,7 @@ pcp_lms_remove_cache() {
 pcp_lms_start_lms() {
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Start" '$DISABLE_LMS'>Start LMS</button>'
 	echo '      </div>'
@@ -653,7 +654,7 @@ pcp_lms_start_lms() {
 pcp_lms_stop_lms() {
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Stop" '$DISABLE_LMS'>Stop LMS</button>'
 	echo '      </div>'
@@ -674,7 +675,7 @@ pcp_lms_stop_lms() {
 pcp_lms_restart_lms() {
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Restart" '$DISABLE_LMS'>Restart LMS</button>'
 	echo '      </div>'
@@ -705,7 +706,7 @@ pcp_lms_no_mysb() {
 	esac
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Mysb" '$DISABLE_LMS'>No MySB</button>'
 	echo '      </div>'
@@ -739,7 +740,7 @@ pcp_lms_show_logs() {
 	esac
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" value="Show Logs" '$DISABLE_LMS'>'
 	echo '      </div>'
@@ -773,7 +774,7 @@ pcp_lms_show_cconvert() {
 	esac
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" value="Show CConv" '$DISABLE_LMS'>'
 	echo '      </div>'
@@ -796,7 +797,7 @@ pcp_lms_show_cconvert() {
 	echo '    </div>'
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '         <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_cconvert" onclick="return confirm('\''This will remove your custom convert settings file.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove CConv</button>'
 	echo '      </div>'
@@ -818,7 +819,7 @@ echo '  </form>'
 #-------------------------------Upload custom convert------------------------------------
 pcp_lms_customconvert() {
 	echo '  <form name="Custom" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '      </div>'
@@ -844,7 +845,7 @@ pcp_lms_customconvert() {
 pcp_update_lms() {
 	echo '  <form name="Update" action="lms-update.cgi">'
 	#---------------------------------Nightly update-------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Nightly" '$DISABLE_LMS'>Nightly Update</button>'
 	echo '      </div>'
@@ -859,7 +860,7 @@ pcp_update_lms() {
 	echo '      </div>'
 	echo '    </div>'
 	#-----------------------------------Update libs--------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Binary" '$DISABLE_LMS'>Update Libs</button>'
 	echo '      </div>'
@@ -879,7 +880,9 @@ pcp_update_lms() {
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
+	echo '  </div>'
 
+echo '  <div class="'$BORDER'">'
 #========================================================================================
 # Slimserver Cache and Prefs to Mounted Drive
 #----------------------------------------------------------------------------------------
@@ -890,11 +893,11 @@ pcp_slimserver_persistence() {
 	COL3="col-3"
 	COL4="col-6"
 
-	pcp_heading5 "Save LMS Server Cache and Preferences to Mounted Drive" hr
+	pcp_heading5 "Save LMS Server Cache and Preferences to Mounted Drive"
 
 	pcp_incr_id
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COL1'"><p><b>Enabled</b></p></div>'
 	echo '      <div class="'$COL2'"><p><b>Mount Type</b></p></div>'
 	echo '      <div class="'$COL3'"><p><b>LMS Data Storage Location</b></p></div>'
@@ -928,7 +931,7 @@ pcp_slimserver_persistence() {
 				USByes=""
 			fi
 
-			echo '    <div class="row">'
+			echo '    <div class="row mx-1">'
 			echo '      <div class="'$COL1' text-sm-center">'
 			echo '        <input id="'$I'" type="radio" name="LMSDATA" value="'$USBmnt'" '$USByes'>'
 			echo '      </div>'
@@ -963,7 +966,7 @@ pcp_slimserver_persistence() {
 			Netyes=""
 		fi
 
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COL1' text-sm-center">'
 		echo '          <input id="'$NETMOUNT'" type="radio" name="LMSDATA" value="'$NETmnt'" '$NETyes'>'
 		echo '          <label for="'$NETMOUNT'">&nbsp;</label>'
@@ -989,7 +992,7 @@ pcp_slimserver_persistence() {
 			if [ $LMSMNTFOUND -eq 0 ]; then
 				[ -f /home/tc/.slimserver.cfg ] && . /home/tc/.slimserver.cfg
 
-				echo '    <div class="row">'
+				echo '    <div class="row mx-1">'
 				echo '      <div class="'$COL1' text-sm-center">'
 				echo '        <input id="radxx" type="radio" name="LMSDATA" value="'${LMSDATA}'" checked disabled>'
 				echo '      </div>'
@@ -1006,7 +1009,7 @@ pcp_slimserver_persistence() {
 		*);;
 	esac
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COL1' text-sm-center">'
 	echo '        <input id="radboot" type="radio" name="LMSDATA" value="default" '$DEFyes'>'
 	echo '      </div>'
@@ -1025,7 +1028,7 @@ pcp_slimserver_persistence() {
 	fi
 	echo '    </div>'
 #--------------------------------------Submit button-------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Set">Set LMS Data</button>'
 	echo '        <input type="hidden" name="MOUNTTYPE" value="slimconfig">'
@@ -1044,13 +1047,15 @@ pcp_slimserver_persistence() {
 	echo '  </form>'
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_slimserver_persistence
+echo '    </div>'
 
+echo '  <div class="'$BORDER'">'
 #========================================================================================
 # Extra File System Support
 #----------------------------------------------------------------------------------------
 pcp_extra_filesys() {
 
-	pcp_heading5 "Install and Enable additional File Systems" hr
+	pcp_heading5 "Install and Enable additional File Systems"
 
 	DISABLE_REMOVEFS=0
 	DISABLE_REMOVEEXFAT=0
@@ -1066,12 +1071,12 @@ pcp_extra_filesys() {
 	echo '  <form name="Start" action="'$0'" method="get">'
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	if [ "$EXTRAFSYS" = "no" ]; then
-		echo '      <div class="'$COLUMN3_1'">'
+		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_FS">Install</button>'
 		echo '      </div>'
-		echo '      <div class="col">'
+		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Install additional file systems for pCP&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
@@ -1082,10 +1087,10 @@ pcp_extra_filesys() {
 		echo '        </div>'
 		echo '      </div>'
 	elif [ $DISABLE_REMOVEFS -eq 0 ]; then
-		echo '      <div class="'$COLUMN3_1'">'
+		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_FS">Remove</button>'
 		echo '      </div>'
-		echo '      <div class="col">'
+		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Remove additional file systems from pCP&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
@@ -1095,10 +1100,10 @@ pcp_extra_filesys() {
 		echo '        </div>'
 		echo '      </div>'
 	else
-		echo '      <div class="'$COLUMN3_1'">'
+		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_FS" Disabled>Remove</button>'
 		echo '      </div>'
-		echo '      <div class="col">'
+		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Additional file systems are in use&nbsp;&nbsp;'
 		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 		echo '        </p>'
@@ -1111,17 +1116,17 @@ pcp_extra_filesys() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 
 	if [ "$EXTRAFSYS" = "yes" ]; then
 
 		pcp_incr_id
 		[ -x /usr/local/sbin/mount.exfat ] && EXFATFS="yes" || EXFATFS="no"
 		if [ "$EXFATFS" = "no" ]; then
-			echo '      <div class="'$COLUMN3_1'">'
+			echo '      <div class="'$COLUMN2_1'">'
 			echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_EXFAT">Install exFAT</button>'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN3_2'">'
+			echo '      <div class="'$COLUMN2_2'">'
 			echo '        <p>Install exFAT file system for pCP&nbsp;&nbsp;'
 			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 			echo '        </p>'
@@ -1132,10 +1137,10 @@ pcp_extra_filesys() {
 			echo '        </div>'
 			echo '      </div>'
 		elif [ $DISABLE_REMOVEEXFAT -eq 0 ]; then
-			echo '      <div class="'$COLUMN3_1'">'
+			echo '      <div class="'$COLUMN2_1'">'
 			echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_EXFAT">Remove exFAT</button>'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN3_2'">'
+			echo '      <div class="'$COLUMN2_2'">'
 			echo '        <p>Remove additional exFAT file system from pCP&nbsp;&nbsp;'
 			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 			echo '        </p>'
@@ -1145,10 +1150,10 @@ pcp_extra_filesys() {
 			echo '        </div>'
 			echo '      </div>'
 		else
-			echo '      <div class="'$COLUMN3_1'">'
+			echo '      <div class="'$COLUMN2_1'">'
 			echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_EXFAT" Disabled>Remove exFAT</button>'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN3_2'">'
+			echo '      <div class="'$COLUMN2_2'">'
 			echo '        <p>exFAT file systems are in use&nbsp;&nbsp;'
 			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 			echo '        </p>'
@@ -1162,11 +1167,12 @@ pcp_extra_filesys() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_extra_filesys
 #----------------------------------------------------------------------------------------
+echo '  </div>'
 
+echo '  <div class="'$BORDER'">'
 #========================================================================================
 # USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
@@ -1196,12 +1202,12 @@ pcp_mount_usbdrives() {
 		done < $USBMOUNTCONF
 	fi
 	#------------------------------------------------------------------------------------
-	pcp_heading5 "Pick from the following detected USB disks to mount" hr
+	pcp_heading5 "Pick from the following detected USB disks to mount"
 
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="col">'
 	echo '        <p>Mount USB Disk&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
@@ -1221,14 +1227,14 @@ pcp_mount_usbdrives() {
 	#------------------------------------------------------------------------------------
 
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
-	echo '      <div class="col"><p><b>Enabled</b></p></div>'
-	echo '      <div class="col"><p><b>Mount Point</b></p></div>'
-	echo '      <div class="col"><p><b>Device</b></p></div>'
-	echo '      <div class="col"><p><b>Label</b></p></div>'
-	echo '      <div class="col"><p><b>FS Type</b></p></div>'
-	echo '      <div class="col"><p><b>UUID</b></p></div>'
-	echo '      <div class="col"><p><b>Size</b></p></div>'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="col-1 text-sm-center"><p><b>Enabled</b></p></div>'
+	echo '      <div class="col-4"><p><b>Mount Point</b></p></div>'
+	echo '      <div class="col-2"><p><b>Device</b></p></div>'
+	echo '      <div class="col-1"><p><b>Label</b></p></div>'
+	echo '      <div class="col-1"><p><b>FS Type</b></p></div>'
+	echo '      <div class="col-2"><p><b>UUID</b></p></div>'
+	echo '      <div class="col-1"><p><b>Size</b></p></div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	# Find all USB devices currently attached to system
@@ -1303,30 +1309,28 @@ pcp_mount_usbdrives() {
 				DISABLE="disabled"
 				UUID="Invalid UUID, Please check/reformat disk"
 			fi
-			echo '    <div class="row">'
-			echo '      <div class="'$COLUMN4_1' center">'
-			echo '        <p>'
-			echo '          <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
-			echo '          <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
-			echo '        </p>'
+			echo '    <div class="row mx-1">'
+			echo '      <div class="col-1 text-sm-center">'
+			echo '        <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
+			echo '        <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
 			echo '        <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN4_2'">'
+			echo '      <div class="col-4">'
 			echo '        <p>/mnt/&#8239;<input class="large6" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN4_3'">'
+			echo '      <div class="col-2">'
 			echo '        <p>'$PART'</p>'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN4_4'">'
+			echo '      <div class="col-1">'
 			echo '        <p>'$LBL'</p>'
 			echo '      </div>'
-			echo '      <div class="column'$XXXX'">'
+			echo '      <div class="col-1">'
 			echo '        <p>'$PTTYPE'</p>'
 			echo '      </div>'
-			echo '      <div class="column'$XXXX'">'
+			echo '      <div class="col-2">'
 			echo '        <p>'$UUID'</p>'
 			echo '      </div>'
-			echo '      <div class="column'$XXXX'">'
+			echo '      <div class="col-1">'
 			echo '        <p>'$SIZExB'</p>'
 			echo '      </div>'
 			echo '    </div>'
@@ -1336,7 +1340,7 @@ pcp_mount_usbdrives() {
 	fdisk -l | grep -q "Found valid GPT"
 	if [ $? -eq 0 ]; then
 
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
@@ -1359,17 +1363,15 @@ pcp_mount_usbdrives() {
 				# Drive is actually not attached, but we needed it to be.
 				NUM_USB_ATTACHED=$((NUM_USB_ATTACHED+1))
 
-				echo '    <div class="row">'
-				echo '      <div class="'$COLUMN4_1'">'
-				echo '        <p>'
-				echo '          <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" checked>'
-				echo '          <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
-				echo '        </p>'
+				echo '    <div class="row mx-1">'
+				echo '      <div class="col-1 text-sm-center">'
+				echo '        <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" checked>'
+				echo '        <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
 				echo '        <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 				echo '        <input type="hidden" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'">'
 				echo '      </div>'
-				echo '      <div class="'$COLUMN4_2'">'
-				echo '        <p>Previously selected disk '$UUID' not Found. Please insert and reboot system, or uncheck to disable disk.</p>'
+				echo '      <div class="col-11">'
+				echo '        <p>Previously selected disk '$UUID' not found. Please insert and reboot system, or uncheck to disable disk.</p>'
 				echo '      </div>'
 				echo '    </div>'
 			fi
@@ -1379,22 +1381,22 @@ pcp_mount_usbdrives() {
 	#--------------------------------------Submit button---------------------------------
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1 mb-2">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <input type="hidden" name="MOUNTTYPE" value="localdisk">'
-	echo '        <input type="hidden" name="NUMDRIVES" value="'$NUM_USB_ATTACHED'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set USB Mount</button>'
+	echo '        <input type="hidden" name="MOUNTTYPE" value="localdisk">'
+	echo '        <input type="hidden" name="NUMDRIVES" value="'$NUM_USB_ATTACHED'">'	
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_2'">'
+	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Permissions" onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted SD or USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
 	echo '      </div>'
 	case $LMSDATA in
 		usb*)
 			# Checkbox is disabled due to LMS using for cache storage, Keep the specific box enabled
-			echo '      <div class="'$COLUMN4_3'">'
+			echo '      <div class="'$COLUMN4_1'">'
 			echo '        <input type="hidden" name="'$KEEPENABLED'" value="enabled">'
 			echo '      </div>'
-			echo '      <div class="'$COLUMN4_4'">'
+			echo '      <div class="'$COLUMN4_1'">'
 			echo '        <p> LMS is currently using disk '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
 			echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 			echo '        </p>'
@@ -1434,7 +1436,10 @@ pcp_mount_usbdrives() {
 	#------------------------------------------------------------------------------------
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_mount_usbdrives
+#----------------------------------------------------------------------------------------
+echo '    </div>'
 
+echo '  <div class="'$BORDER'">'
 #========================================================================================
 # Network Disk Mounting Operations
 #----------------------------------------------------------------------------------------
@@ -1463,12 +1468,12 @@ pcp_mount_netdrives() {
 		echo '        <div></div>'
 	fi
 
-	pcp_heading5 "Setup Network Disk Mount" hr
+	pcp_heading5 "Setup Network Disk Mount"
 
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>Mount Remote Network Share&nbsp;&nbsp;'
 	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
@@ -1585,7 +1590,7 @@ pcp_mount_netdrives() {
 	#------------------------------------------------------------------------------------
 
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1' center"><p><b>Enabled</b></p></div>'
 	echo '      <div class="'$COLUMN4_2'"><p><b>Mount Point</b></p></div>'
 	echo '      <div class="'$COLUMN4_3'"><p><b>IP Address</b></p></div>'
@@ -1634,7 +1639,7 @@ pcp_mount_netdrives() {
 			DISABLE=""
 		fi
 
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN4_1' center">'
 		echo '        <p>'
 		echo '          <input type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
@@ -1684,7 +1689,7 @@ pcp_mount_netdrives() {
 		I=$((I+1))
 	done
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1' center">'
 	echo '        <p>'
 	echo '          <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
@@ -1698,7 +1703,7 @@ pcp_mount_netdrives() {
 	#--------------------------------------Submit button---------------------------------
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	if [ "$EXTRAFSYS" = "no" ]; then
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save" Disabled>Set NET Mount</button>'
@@ -1740,13 +1745,15 @@ pcp_mount_netdrives() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
+echo '  </div>'
 
+echo '  <div class="'$BORDER'">'
 #========================================================================================
 # Samba Share Drive Support
 #----------------------------------------------------------------------------------------
 pcp_samba() {
 
-	pcp_heading5 "Setup Samba Share" hr
+	pcp_heading5 "Setup Samba Share"
 
 	echo '  <form name="Samba_Setup" action="'$0'" method="get">'
 	#------------------------------------Samba Indication-----------------------------------
@@ -1758,7 +1765,7 @@ pcp_samba() {
 	fi
 
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
 	echo '      </div>'
@@ -1782,7 +1789,7 @@ pcp_samba() {
 
 #----------------------------------------------------------------------------------------
 	pcp_incr_id
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	if [ "$SAMBA" = "disabled" ]; then
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install_Samba">Install</button>'
@@ -1847,7 +1854,7 @@ pcp_samba() {
 		esac
 
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
 		echo '      </div>'
@@ -1876,7 +1883,7 @@ pcp_samba() {
 		echo '  <form name="Samba_Run" action="'$0'">'
 		#--------------------------------------------------------------------------------
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaStart">Start Samba</button>'
 		echo '      </div>'
@@ -1891,7 +1898,7 @@ pcp_samba() {
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaStop">Stop Samba</button>'
 		echo '      </div>'
@@ -1906,7 +1913,7 @@ pcp_samba() {
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="SambaRestart">Restart Samba</button>'
 		echo '      </div>'
@@ -1930,7 +1937,7 @@ pcp_samba() {
 		echo '  <form name="Passwd" action="writetosamba.cgi" method="get">'
 		#--------------------------------------------------------------------------------
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 
 		if [ "$STATUS" = "running" ]; then
 			PWDISABLE=""
@@ -1969,7 +1976,7 @@ pcp_samba() {
 		echo '  <form name="Select" action="writetosamba.cgi" method="get">'
 		#--------------------------------------------------------------------------------
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p class="row">Server Name</p>'
 		echo '      </div>'
@@ -1987,7 +1994,7 @@ pcp_samba() {
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
 		pcp_incr_id
-		echo '     <div class="row">'
+		echo '     <div class="row mx-1">'
 		echo '       <div class="'$COLUMN3_1'">'
 		echo '         <p class="row">Server WorkGroup</p>'
 		echo '       </div>'
@@ -2004,7 +2011,7 @@ pcp_samba() {
 		echo '       </div>'
 		echo '     </div>'
 		#--------------------------------------------------------------------------------
-		echo '     <div class="row">'
+		echo '     <div class="row mx-1">'
 		echo '       <div class="'$COLUMN4_1' center"><p><b>Share Name</b></p></div>'
 		echo '       <div class="'$COLUMN4_2'"><p><b>Share Path</b></p></div>'
 		echo '       <div class="'$COLUMN4_3'"><p><b>Create File Mode</b></p></div>'
@@ -2018,7 +2025,7 @@ pcp_samba() {
 			TST=$(eval echo "\${SHARE${I}}")
 			[ "$TST" != "" ] && REQ="required" || REQ=""
 
-			echo '                <div class="row">'
+			echo '                <div class="row mx-1">'
 			echo '                  <div class="'$COLUMN4_1' center">'
 			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
 			eval echo -n "\${SHARE${I}}"
@@ -2082,7 +2089,7 @@ pcp_samba() {
 		echo '                </script>'
 		#----------------------------------Submit button---------------------------------
 
-		echo '                <div class="row">'
+		echo '                <div class="row mx-1">'
 		echo '                  <div class="'$COLUMN3_1'">'
 		echo '                    <input type="hidden" name="COMMAND" value="setconfig">'
 		echo '                    <input type="hidden" name="SC" value="'$SC'">'
@@ -2097,11 +2104,13 @@ pcp_samba() {
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_samba
 #----------------------------------------------------------------------------------------
+echo '  </div>'
 
+echo '  <div class="'$BORDER'">'
 #------------------------------------------LMS log text area-----------------------------
 pcp_lms_logview() {
 
-	pcp_heading5 "Show LMS logs" hr
+	pcp_heading5 "Show LMS logs"
 	#------------------------------------------------------------------------------------
 	pcp_textarea "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 25
 pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 25
@@ -2116,12 +2125,13 @@ pcp_textarea "$LMS_SCAN_LOG" 'cat $LMS_SCAN_LOG' 25
 
 #------------------------------LMS custom convert text area------------------------------
 pcp_lms_ccview() {
-	pcp_heading5 "Show LMS custom_convert.conf" hr
+	pcp_heading5 "Show LMS custom_convert.conf"
 	#------------------------------------------------------------------------------------
 	pcp_textarea "$LMS_CC_FILE" 'cat $LMS_CC_FILE' 250
 	#------------------------------------------------------------------------------------
 }
 [ "$CCSHOW" = "yes" -a -f $LMS_CC_FILE ] && pcp_lms_ccview
 #----------------------------------------------------------------------------------------
+
 
 pcp_html_end

@@ -52,7 +52,10 @@ COLUMN4_4="col-sm-6"
 pcp_infobox_begin "" 10
 pcp_infobox_end
 
-pcp_textarea_begin "" 10 pcp_textarea_end
+pcp_textarea_begin "" 10
+pcp_textarea_end
+
+echo '  <div class="'$BORDER'">'
 
 pcp_heading5
 
@@ -65,8 +68,6 @@ echo '    <input class="form-control form-control-sm"'
 
 echo '  <div class="input-group '$COLUMN3_2'">'
 echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
-
-echo '  <div class="'$BORDER'">'
 
 class="'$BUTTON'"
 
