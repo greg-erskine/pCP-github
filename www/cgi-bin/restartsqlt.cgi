@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-26
 
 . pcp-functions
 
@@ -14,22 +14,20 @@ pcp_remove_query_string
 
 pcp_heading5 "Restarting Squeezelite"
 
-echo '<div class="'$INFOBOX'">'
-pcp_squeezelite_stop "html"
+pcp_infobox_begin
+pcp_squeezelite_stop "text"
 sleep 2
-pcp_squeezelite_start "html"
+pcp_squeezelite_start "text"
 sleep 1
-pcp_squeezelite_status "html"
+pcp_squeezelite_status "text"
 
 if [ "$SHAIRPORT" = "yes" ]; then
-	pcp_shairport_stop "html"
+	pcp_shairport_stop "text"
 	sleep 2
-	pcp_shairport_start "html"
+	pcp_shairport_start "text"
 fi
-echo '</div>'
+pcp_infobox_end
 
-echo '<div class="mt-3">'
 pcp_redirect_button "Go Back" "$FROM_PAGE" 5
-echo '</div>'
 
 pcp_html_end

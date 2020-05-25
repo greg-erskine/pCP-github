@@ -1034,6 +1034,18 @@ pcp_table_textarea_end() {
 # Create info box functions
 #----------------------------------------------------------------------------------------
 pcp_infobox_begin() {
+
+	echo '<style>'
+	echo '  pre {'
+	echo '     overflow-x: auto;'
+	echo '     white-space: pre-wrap;'
+	echo '     white-space: -moz-pre-wrap;'
+	echo '     white-space: -pre-wrap;'
+	echo '     white-space: -o-pre-wrap;'
+	echo '     word-wrap: break-word;'
+	echo '  }'
+	echo '</style>'
+
 	echo '<div class="'$INFOBOX'"><pre>'
 }
 
