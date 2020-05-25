@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-24
+# Version: 7.0.0 2020-05-25
 
 . pcp-functions
 . pcp-lms-functions
@@ -129,7 +129,7 @@ pcp_main_shairport_indication() {
 
 	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-2">'
+	echo '    <div class="col-sm-3 col-11">'
 	echo '      <p>Shairport is '$STATUS'&nbsp;&nbsp;'
 	echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 	echo '      </p>'
