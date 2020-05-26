@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-25
+# Version: 7.0.0 2020-05-26
 
 . pcp-functions
 . pcp-rpi-functions
@@ -79,6 +79,7 @@ pcp_install_lms() {
 pcp_remove_lms() {
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
 	sudo -u tc tce-audit builddb
+	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete slimserver.tcz
 	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 }
@@ -212,23 +213,23 @@ case "$ACTION" in
 		mount | grep -qs $MNT
 		if [ $? -eq 0 ]; then
 			if [ ! -x /usr/local/etc/init.d/slimserver ]; then
-				pcp_message INFO "Loading LMS extensions..." "html"
+				pcp_message INFO "Loading LMS extensions..." "text"
 				sudo -u tc tce-load -i slimserver.tcz
 			fi
-			pcp_message INFO "Starting LMS..." "html"
-			pcp_message INFO "" "html" "-n"
+			pcp_message INFO "Starting LMS..." "text"
+			pcp_message INFO "" "text" "-n"
 			sudo /usr/local/etc/init.d/slimserver start
 			echo '</div>'
 		else
-			pcp_message ERROR "LMS data disk not mounted at $MNT, LMS will not start." "html"
+			pcp_message ERROR "LMS data disk not mounted at $MNT, LMS will not start." "text"
 		fi
 		pcp_infobox_end
 	;;
 	Stop)
 		pcp_heading5 "Logitech Media Server (LMS)"
 		pcp_infobox_begin
-		pcp_message INFO "Stopping LMS..." "html"
-		pcp_message INFO "" "html" "-n"
+		pcp_message INFO "Stopping LMS..." "text"
+		pcp_message INFO "" "text" "-n"
 		sudo /usr/local/etc/init.d/slimserver stop
 		echo '</div>'
 		sleep 2
@@ -237,11 +238,11 @@ case "$ACTION" in
 	Restart)
 		pcp_heading5 "Logitech Media Server (LMS)"
 		pcp_infobox_begin
-		pcp_message INFO "Restarting LMS..." "html"
-		pcp_message INFO "" "html" "-n"
+		pcp_message INFO "Restarting LMS..." "text"
+		pcp_message INFO "" "text" "-n"
 		sudo /usr/local/etc/init.d/slimserver stop
 		echo '</div>'
-		pcp_message INFO "" "html" "-n"
+		pcp_message INFO "" "text" "-n"
 		sudo /usr/local/etc/init.d/slimserver start
 		echo '</div>'
 		pcp_infobox_end
@@ -265,12 +266,11 @@ case "$ACTION" in
 	Remove)
 		pcp_heading5 "Removing Logitech Media Server (LMS)"
 		pcp_infobox_begin
-		pcp_message INFO "Removing LMS Extensions..." "html"
-		pcp_message INFO "After a reboot these extensions will be permanently deleted:" "html"
+		pcp_message INFO "Removing LMS Extensions..." "text"
 		LMSERVER="no"
 		pcp_save_to_config
 		pcp_remove_lms
-		pcp_backup "html"
+		pcp_backup "text"
 		if [ x"$DISABLECACHE" = x"" ]; then
 			STRING1='Press [OK] to remove LMS cache.....To keep the cache - Press [Cancel]'
 			SCRIPT1='lms.cgi?ACTION=Remove_cache&REBOOT_REQUIRED=1'
@@ -357,7 +357,7 @@ case "$ACTION" in
 	Mysb)
 		pcp_heading5 "Setting LMS command line options"
 		pcp_infobox_begin
-		pcp_message INFO "Setting --nomysqueezebox commandline option..." "html"
+		pcp_message INFO "Setting --nomysqueezebox commandline option..." "text"
 		case $NOMYSB in
 			yes) pcp_lms_set_slimconfig OPTS "--nomysqueezebox" ADD;;
 			no)  pcp_lms_set_slimconfig OPTS "--nomysqueezebox" DEL;;

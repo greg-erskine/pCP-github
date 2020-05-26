@@ -1044,6 +1044,8 @@ pcp_infobox_begin() {
 	echo '     white-space: -pre-wrap;'
 	echo '     white-space: -o-pre-wrap;'
 	echo '     word-wrap: break-word;'
+	echo '     font-family: monospace;'
+	echo '     font-size: 1rem;'
 	echo '  }'
 	echo '</style>'
 
@@ -1141,7 +1143,7 @@ pcp_squeezelite_start() {
 		pcp_shairport_restart $FORMAT
 	fi
 	pcp_message INFO "" $FORMAT -n
-	sudo /usr/local/etc/init.d/squeezelite start
+	sudo /usr/local/etc/init.d/squeezelite start $FORMAT
 	[ "$1" = "html" ] && echo '</div>'
 	[ "$CPUISOL" != "" ] && pcp_squeezelite_taskset $2
 }

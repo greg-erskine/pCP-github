@@ -28,6 +28,6 @@ if [ "$SHAIRPORT" = "yes" ]; then
 fi
 pcp_infobox_end
 
-pcp_redirect_button "Go Back" "$FROM_PAGE" 5
+pcp_redirect_button "Go Back" "$FROM_PAGE" 50
 
 pcp_html_end
