@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-23
+# Version: 7.0.0 2020-05-26
 
 WWW_BUILD=0008
 
@@ -318,7 +318,8 @@ pcp_sufficient_free_space() {
 			STRING1='Not enough space. Press [OK] to start expanding your partition or [Cancel] to abort.'
 			SCRIPT1="xtras_resize.cgi"
 			pcp_confirmation_required
-			pcp_go_back_button
+			pcp_redirect_button "Go Back" "main.cgi" "10"
+#			pcp_go_back_button
 		fi
 		return 1
 	fi
@@ -1003,7 +1004,7 @@ pcp_trimval() {
 }
 
 #========================================================================================
-# Create table functions <==== GE
+# Create table functions <==== GE depreciated !!!
 #----------------------------------------------------------------------------------------
 pcp_table_top() {
 	echo '      <div class="row">'
@@ -1046,11 +1047,23 @@ pcp_infobox_begin() {
 	echo '  }'
 	echo '</style>'
 
-	echo '<div class="'$INFOBOX'"><pre>'
+	echo '<div class="'$INFOBOX'">'
+	echo '  <pre>'
 }
 
 pcp_infobox_end() {
-	echo '</pre></div>'
+	echo '  </pre>'
+	echo '</div>'
+}
+
+pcp_border_begin() {
+	echo '<!-- Beginning of border -->'
+	echo '  <div class="'$BORDER'">'
+}
+
+pcp_border_end() {
+	echo '  </div>'
+	echo '<!-- End of border -->'
 }
 
 #========================================================================================
@@ -1088,7 +1101,7 @@ pcp_remove_query_string() {
 pcp_reboot_required() {
 	if [ ! -f $REBOOT_PENDING ]; then
 		touch $REBOOT_PENDING
-		echo '<script language="javascript">'
+		echo '<script>'
 		echo '  window.addEventListener("load", function () {'
 		echo '    pcp_confirm('\''Reboot '$NAME'?\n\nPress [OK] to reboot now or [Cancel] to manually reboot later.'\'','\''main.cgi?ACTION=reboot'\'')'
 		echo '  })'
@@ -1162,9 +1175,9 @@ pcp_squeezelite_status() {
 	RESULT=$?
 	if [ "$FORMAT" = "html" ]; then
 		if [ $RESULT -eq 0 ]; then
-			pcp_message OK "Squeezelite running." "html"
+			pcp_message OK "Squeezelite running." "$FORMAT"
 		else
-			pcp_message ERROR "Squeezelite not running." "html"
+			pcp_message ERROR "Squeezelite not running." "$FORMAT"
 		fi
 	else
 		echo $RESULT
@@ -1311,31 +1324,11 @@ pcp_user_commands() {
 #========================================================================================
 # Useful buttons
 #----------------------------------------------------------------------------------------
-XXXpcp_go_main_button() {
-	echo '<!-- Start of pcp_go_main_button -->'
-	echo '<form name="Main" action="main.cgi" method="get" id="Main">'
-	echo '<p><input class="large12" type="submit" class="large" value="Go to Main Page" />&nbsp;&nbsp;Go to Main Page</p></form>'
-	echo '<!-- End of pcp_go_main_button -->'
-}
-
-XXXpcp_go_back_button() {
+pcp_go_back_button() {
 	echo '<!-- Start of pcp_go_back_button -->'
 	echo '<p><input type="button" value="Go Back" onclick="javascript:location.href=document.referrer;" />&nbsp;&nbsp;Go back to previous page</p>'
 	echo '<!-- End of pcp_go_back_button -->'
 }
-
-XXXpcp_refresh_button() {
-	echo '<!-- Start of pcp_refresh_button -->'
-	echo '<p><input type="button" value="Refresh" onClick="window.location.reload()" />&nbsp;&nbsp;Refresh this page</p>'
-	echo '<!-- End of pcp_refresh_button -->'
-}
-
-XXXpcp_reboot_button() {
-	echo '<!-- Start of pcp_reboot_button -->'
-	echo '<p><input type="button"  class="btn btn-primary" value="Reboot" onClick="javascript:pcp_confirm('\''Reboot '$NAME?''\'','\''main.cgi?ACTION=reboot'\'')" />&nbsp;&nbsp;Reboot '$NAME'</p>'
-	echo '<!-- End of pcp_reboot_button -->'
-}
-
 pcp_redirect_button() {
 	# $1 - button text
 	# $2 - redirection URL
@@ -1343,14 +1336,16 @@ pcp_redirect_button() {
 
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '  <form name="redirect button" action="'$2'" method="get">'
-	echo '<div class="mb-3 mt-3">'
-
-	echo '    <input class="col-2 '$BUTTON'" type="submit" value="'$1'">&nbsp;&nbsp;<span id="countdown"></span>'
-
-	echo '</div>'
-	
-		echo '  </form>'
-	echo '<script>pcp_redirect("'$3'","'$2'")</script>'
+	echo '    <div class="row mb-3 mt-3">'
+	echo '      <div class="col-6 col-sm-2">'
+	echo '        <input class="'$BUTTON'" type="submit" value="'$1'">'
+	echo '      </div>'
+	echo '      <div class="col-6 col-sm-10">'
+	echo '        <span id="countdown"></span>'
+	echo '      </div>'
+	echo '    </div>'
+	echo '  </form>'
+	echo '  <script>pcp_redirect("'$3'","'$2'")</script>'
 	echo '<!-- End of pcp_redirect_button -->'
 }
 

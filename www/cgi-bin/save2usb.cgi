@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 7.0.0 2020-05-26
 
 . pcp-functions
 
@@ -23,61 +23,15 @@ IS_MOUNTED=0
 
 pcp_html_head "Save configuration file to USB device" "SBP"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 
 #========================================================================================
-# Generate status message and finish HTML page.
+# Main
 #----------------------------------------------------------------------------------------
-pcp_html_end() {
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Status</legend>'
-	echo '          <table class="bggrey percent100">'
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	echo '                <p>'$FAIL_MSG'</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_redirect_button "Go to Main Page" "main.cgi" 10
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
-
-	pcp_footer
-	pcp_copyright
-
-	echo '</body>'
-	echo '</html>'
-	exit
-}
-
-#========================================================================================
-# First fieldset table.
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Coping configuration file to USB device ('$DEV_USB')</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <textarea class="inform" style="height:100px">'
+pcp_heading5 "Coping configuration file to USB device ($DEV_USB)"
+echo '    <div class="row">'
+echo '      <div class="col-12">'
+pcp_infobox_begin
 #----------------------------------------------------------------------------------------
 
 if [ $USB_FOUND -eq 1 ]; then
@@ -104,10 +58,10 @@ if [ $IS_MOUNTED -eq 1 ]; then
 	if [ -f ${MNT_USB}/newpcp.cfg ]; then
 		echo '[  OK  ] Your configuration file has been saved to your USB device.'
 		FAIL_MSG="OK - Your configuration file has been saved to your USB device."
-		echo '[ NOTE ] If you boot with this USB device attached, this configuration file will used.'
-		echo '[ NOTE ] This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.'
+		echo '[ INFO ] If you boot with this USB device attached, this configuration file will used.'
+		echo '[ INFO ] This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.'
 	else
-		echo '[ ERROR ] Your configuration file was not saved - reboot with your USB device attached and then try to save your configuration file again.'
+		pcp_message ERROR "Your configuration file was not saved - reboot with your USB device attached and then try to save your configuration file again." "text"
 		FAIL_MSG='Your configuration file was not saved.'
 	fi
 	sync
@@ -119,22 +73,31 @@ if [ $IS_MOUNTED -eq 1 ]; then
 		echo '[  OK  ] Leaving USB device mounted.'
 	fi
 else
-	echo '[ ERROR ] USB device is not mounted.'
-	echo '[ ERROR ] This routine will not save to the Boot Device if booting from USB.'
-	echo '[ ERROR ] Insert USB device and try again.'
-	FAIL_MSG='USB device is not mounted - Insert USB device and try again.'
+	pcp_message ERROR "USB device is not mounted." "text"
+	pcp_message ERROR "This routine will not save to the Boot Device if booting from USB." "text"
+	pcp_message ERROR "Insert USB device and try again." "text"
+	FAIL_MSG="USB device is not mounted - Insert USB device and try again."
 fi
 
 #----------------------------------------------------------------------------------------
-echo '                  </textarea>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
+pcp_infobox_end
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+#----------------------------------------------------------------------------------------
+
+#========================================================================================
+# Generate status message and finish HTML page.
+#----------------------------------------------------------------------------------------
+pcp_heading5 "Status"
+pcp_border_begin
+echo '    <div class="row mx-1">'
+echo '      <div class="col-12">'
+echo '        <p>'$FAIL_MSG'</p>'
+echo '      </div>'
+echo '    </div>'
+pcp_border_end
+
+pcp_redirect_button "Go to Main Page" "main.cgi" 100
 
 pcp_html_end
+exit

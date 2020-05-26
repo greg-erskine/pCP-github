@@ -52,16 +52,14 @@ COLUMN4_4="col-sm-4"
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
 	pcp_incr_id
-	echo '    <div class="alert col-12 bg-warning pb-1">'
-	echo '      <b>Warning:</b> Logitech Media Server (LMS)'
-	echo '      is a server database application and needs to be shutdown properly&nbsp;&nbsp;'
-#	echo '      <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-#	echo '      <div id="dt'$ID'" class="collapse">'
-	echo '        <ul>'
-	echo '          <li>Do NOT just pull the power plug.</li>'
-	echo '          <li>Use [Main Page] > [Shutdown].</li>'
-	echo '        </ul>'
-#	echo '      </div>'
+	echo '    <div class="alert alert-primary" role="alert">'
+	echo '      <b>Warning:</b>'
+	echo '      <p>Logitech Media Server (LMS) is a server database application'
+	echo '      and needs to be shutdown properly:</p>'
+	echo '      <ul>'
+	echo '        <li>Do NOT just pull the power plug.</li>'
+	echo '        <li>Use [Main Page] > [Shutdown].</li>'
+	echo '      </ul>'
 	echo '    </div>'
 }
 

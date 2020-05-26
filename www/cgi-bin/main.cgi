@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-25
+# Version: 7.0.0 2020-05-26
 
 . pcp-functions
 . pcp-lms-functions
@@ -48,8 +48,8 @@ fi
 #========================================================================================
 # Main piCorePlayer operations
 #----------------------------------------------------------------------------------------
-	echo '<div class="'$BORDER'">'
-	echo '  <div class="row mt-3">'
+pcp_border_begin
+echo '  <div class="row mt-3">'
 #------------------------------------Squeezelite Indication------------------------------
 pcp_main_squeezelite_indication() {
 
@@ -83,7 +83,6 @@ pcp_main_squeezelite_indication() {
 	echo '        </ul>'
 	echo '      </div>'
 	echo '    </div>'
-
 }
 pcp_main_squeezelite_indication
 #----------------------------------------------------------------------------------------
@@ -147,11 +146,11 @@ pcp_main_shairport_indication() {
 }
 [ "$SHAIRPORT" = "yes" ] && pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
-	echo '  </div>'
-	echo '</div>'
+echo '  </div>'
+pcp_border_end
 
 #-------------------------------------Main Tab-------------------------------------------
-echo '<div class="'$BORDER'">'
+pcp_border_begin
 pcp_heading5 "Main page"
 
 #-------------------------------Restart - Squeezelite / Shairpoint-----------------------
@@ -159,7 +158,7 @@ pcp_main_restart_squeezelite() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Restart" action="restartsqlt.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Restart">Restart</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -184,7 +183,7 @@ pcp_main_restart_shairport() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Restart" action="restartsqlt.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Restart">Restart</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Restart">Restart</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -218,7 +217,7 @@ pcp_main_update_sqlt() {
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
 	echo '        <button type="submit" class="'$BUTTON' mb-1" name="ACTION" value="update">Update</button>'
-	echo '        <button type="submit" class="'$BUTTON'" name="ACTION" value="full_update">Full Update</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="full_update">Full Update</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -262,7 +261,7 @@ pcp_main_ffmpeg() {
 		echo '  <div class="row mx-1">'
 		echo '    <div class="form-group '$COLUMN2_1'">'
 		echo '      <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
-		echo '        <button type="submit" class="'$BUTTON'" name="ACTION" value="inst_ffmpeg">Install</button>'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="inst_ffmpeg">Install</button>'
 		echo '      </form>'
 		echo '    </div>'
 		pcp_incr_id
@@ -284,7 +283,7 @@ pcp_main_ffmpeg() {
 		echo '  <div class="row mx-1">'
 		echo '    <div class="form-group '$COLUMN2_1'">'
 		echo '      <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
-		echo '        <button type="submit" class="'$BUTTON'" name="ACTION" value="rem_ffmpeg">Remove</button>'
+		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="rem_ffmpeg">Remove</button>'
 		echo '      </form>'
 		echo '    </div>'
 		pcp_incr_id
@@ -307,7 +306,7 @@ pcp_main_bluetooth() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Bluetooth" action="bluetooth.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Bluetooth">Bluetooth</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Bluetooth">Bluetooth</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -321,7 +320,7 @@ pcp_main_bluetooth() {
 	echo '    </div>'
 	echo '  </div>'
 }
-[[ $MODE -ge $MODE_PLAYER ] && pcp_main_bluetooth
+[ $MODE -ge $MODE_PLAYER ] && pcp_main_bluetooth
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Reboot----------------------------------------
@@ -329,7 +328,7 @@ pcp_main_reboot() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Reboot" action="javascript:pcp_confirm('\''Reboot '$NAME'?'\'','\''main.cgi?ACTION=reboot'\'')" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Reboot">Reboot</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Reboot">Reboot</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -356,7 +355,7 @@ pcp_main_diagnostics() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Diagnostics" action="diagnostics.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Diagnostics">Diagnostics</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Diagnostics">Diagnostics</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -378,7 +377,7 @@ pcp_main_save_usb() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Saveconfig" action="save2usb.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Save to USB">Save to USB</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Save to USB">Save to USB</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -401,9 +400,10 @@ pcp_main_save_usb() {
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
-	echo '</div>'
+pcp_border_end
+
 #--------------------------------------Advanced mode-------------------------------------
-echo '<div class="'$BORDER'">'
+pcp_border_begin
 pcp_heading5 "Advanced mode"
 
 #------------------------------------------Stop------------------------------------------
@@ -411,7 +411,7 @@ pcp_main_stop() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Stop" action="stop.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Stop">Stop</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Stop">Stop</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -439,7 +439,7 @@ pcp_main_backup() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="backup" action="javascript:pcp_confirm('\''Do a backup on '$NAME'?'\'','\''backup.cgi'\'')" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Backup">Backup</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Backup">Backup</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -469,7 +469,7 @@ pcp_main_shutdown() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Shutdown" action="javascript:pcp_confirm('\''Shutdown '$NAME'?'\'','\''main.cgi?ACTION=shutdown'\'')" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Shutdown">Shutdown</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Shutdown">Shutdown</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -493,7 +493,7 @@ pcp_main_resize_fs() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Resize FS" action="xtras_resize.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Resize FS">Resize FS</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Resize FS">Resize FS</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -516,7 +516,7 @@ pcp_main_extensions() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Stop" action="xtras_extensions.cgi" method="get">'
-	echo '        <input type="submit" class="'$BUTTON'" value="Extensions">'
+	echo '        <input  class="'$BUTTON'" type="submit" value="Extensions">'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -532,10 +532,10 @@ pcp_main_extensions() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_extensions
 #----------------------------------------------------------------------------------------
-echo '</div>'
+pcp_border_end
 
 #--------------------------------------------Update--------------------------------------
-echo '<div class="'$BORDER'">'
+pcp_border_begin
 pcp_heading5 "Update"
 
 #-------------------------------------Update pcp web and base----------------------------
@@ -543,7 +543,7 @@ pcp_main_update_pcpbase() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Update" action="updatebase.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" name="ACTION" value="Update">Patch Update</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Update">Patch Update</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -566,7 +566,7 @@ pcp_main_minor_update() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Minor" action="minor_update.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" name="ACTION value="initial">Minor Update</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="ACTION value="initial">Minor Update</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -589,7 +589,7 @@ pcp_main_update_pcp() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="InSitu" action="insitu_update_stage1.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Full Update">Full Update</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Full Update">Full Update</button>'
 	echo '        <input type="hidden" name="ACTION" value="initial">'
 	echo '      </form>'
 	echo '    </div>'
@@ -619,11 +619,11 @@ pcp_main_update_pcp() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_pcp
 #----------------------------------------------------------------------------------------
-echo '</div>'
+pcp_border_end
 
 #------------------------------------------Beta mode-------------------------------------
 if [ $MODE -ge $MODE_BETA ]; then
-	echo '<div class="'$BORDER'">'
+	pcp_border_begin
 	pcp_heading5 "Beta"
 fi
 
@@ -633,7 +633,7 @@ pcp_main_static_ip() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Static IP" action="xtras_staticip.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Static IP">Static IP</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Static IP">Static IP</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -657,7 +657,7 @@ pcp_main_extras() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Extras" action="xtras.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Extras">Extras</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Extras">Extras</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -679,7 +679,7 @@ pcp_main_security() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Security" action="security.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Security">Security</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Security">Security</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -701,7 +701,7 @@ pcp_main_dosfsck() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="DOS fsck" action="xtras_dosfsck.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="DOS fsck">DOS fsck</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="DOS fsck">DOS fsck</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -717,11 +717,11 @@ pcp_main_dosfsck() {
 }
 [ $MODE -ge $MODE_BETA ] && pcp_main_dosfsck
 #----------------------------------------------------------------------------------------
-[ $MODE -ge $MODE_BETA ] && echo '</div>'
+[ $MODE -ge $MODE_BETA ] && pcp_border_end
 
 #----------------------------------------Developer mode ---------------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
-	echo '<div class="'$BORDER'">'
+	pcp_border_begin
 	pcp_heading5 "Developer"
 fi
 
@@ -730,7 +730,7 @@ pcp_main_reset_all() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Reset ALL" action="javascript:pcp_confirm('\''WARNING:\nYou are about to RESET your configuration file.'\'','\''writetoconfig.cgi?SUBMIT=Reset'\'')" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" name="SUBMIT" value="Reset ALL">Reset ALL</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Reset ALL">Reset ALL</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -753,7 +753,7 @@ pcp_main_restore_all() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Restore ALL" action="writetoconfig.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" name="SUBMIT" value="Restore ALL">Restore ALL</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Restore ALL">Restore ALL</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -776,7 +776,7 @@ pcp_main_update_config() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Update config" action="writetoconfig.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" name="SUBMIT" value="Update config">Update config</button>'
+	echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Update config">Update config</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -798,7 +798,7 @@ pcp_main_debug() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Debug" action="debug.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Debug">Debug</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Debug">Debug</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -820,7 +820,7 @@ pcp_main_copy2fs() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="copy2fs" action="xtras_copy2fs.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="copy2fs">copy2fs</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="copy2fs">copy2fs</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -836,11 +836,13 @@ pcp_main_copy2fs() {
 }
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_main_copy2fs
 #----------------------------------------------------------------------------------------
+
+#--------------------------------------Development---------------------------------------
 pcp_main_dev() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Dev" action="dev_main.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON'" value="Dev">Development</button>'
+	echo '        <button class="'$BUTTON'" type="submit" value="Dev">Development</button>'
 	echo '      </form>'
 	echo '    </div>'
 	pcp_incr_id
@@ -856,7 +858,7 @@ pcp_main_dev() {
 }
 [ $MODE -ge $MODE_DEVELOPER ] && [ -f ${WWWROOT}/cgi-bin/dev_main.cgi ] && pcp_main_dev
 #----------------------------------------------------------------------------------------
-[ $MODE -ge $MODE_DEVELOPER ] && echo '</div>'
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_border_end
 
 pcp_html_end
 exit
