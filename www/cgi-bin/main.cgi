@@ -69,7 +69,7 @@ pcp_main_squeezelite_indication() {
 		echo '      <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
 	fi
 
-	echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '      </p>'
 	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '        <ul>'
