@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-27
+# Version: 7.0.0 2020-05-28
 
 COLUMN3_1="col-sm-3"
 COLUMN3_2="col-sm-3"
@@ -97,7 +97,7 @@ echo '        </div>'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
-echo '    <div class="row mx-1">'
+echo '    <div class="row mx-1 mb-2">'
 echo '      <div class="col-2">'
 	        if [ $SSH_FOUND -eq 0 ]; then
 echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Enable SSH">Enable SSH</button>'

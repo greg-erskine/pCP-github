@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-27
+# Version: 7.0.0 2020-05-28
 
 COLUMN3_1="col-sm-3"
 COLUMN3_2="col-sm-3"
@@ -38,9 +38,9 @@ pcp_security_check_password() {
 #    -c,--crypt-method ALG   des,md5,sha256/512 (default md5)
 #----------------------------------------------------------------------------------------
 pcp_security_change_password() {
-
+	pcp_infobox_begin
 	if [ $(pcp_security_check_password) -eq 0 ]; then
-		pcp_message OK "Current password correct." "text"
+		pcp_message OK "Current password entered correctly." "text"
 		if [ "$NEWPASSWORD" = "$CONFIRMPASSWORD" ]; then
 			if [ $DEBUG -eq 1 ]; then
 				pcp_message DEBUG "NEWPASSWORD: $NEWPASSWORD" "text"
@@ -49,7 +49,12 @@ pcp_security_change_password() {
 			fi
 #			echo "${USERNAME}:${NEWPASSWORD}" | sudo /usr/sbin/chpasswd --crypt-method sha256
 			echo "${USERNAME}:${NEWPASSWORD}" | sudo /usr/sbin/chpasswd -m
-			pcp_backup
+			if [ $? -eq 0 ]; then
+				pcp_message OK "Password changed." "text"
+			else
+				pcp_message ERROR "Password not changed." "text"
+			fi
+			pcp_backup "text"
 		else
 			pcp_message ERROR "New passwords not confirmed. Try again." "text"
 		fi
@@ -57,8 +62,8 @@ pcp_security_change_password() {
 		pcp_message ERROR "Current password incorrect." "text"
 		pcp_message ERROR "Password not changed." "text"
 	fi
-
 	pcp_remove_query_string
+	pcp_infobox_end
 }
 
 #========================================================================================
@@ -112,10 +117,8 @@ pcp_heading5 "Change $USERNAME password"
 echo '  <form name="password" action="./security.cgi" method="get">'
 #------------------------------------Warning---------------------------------------------
 if [ "$CURRENTPASSWDHASH" = "$(pcp_security_passwd_hash "$DEFAULTPASSWD")" ]; then
-	echo '    <div class="row mx-1">'
-	echo '      <div class="col-12">'
-	echo '        <p><b>WARNING: </b>Using default '$USERNAME' password.</p>'
-	echo '      </div>'
+	echo '    <div class="alert alert-primary" role="alert">'
+	echo '      <p><b>WARNING: </b>Using default '$USERNAME' password.</p>'
 	echo '    </div>'
 fi
 #--------------------------------Current password----------------------------------------
@@ -172,7 +175,6 @@ echo '        <p>Confirm new password.*</p>'
 echo '      </div>'
 echo '    </div>'
 #-----------------------------------Save button------------------------------------------
-pcp_incr_id
 echo '    <div class="row mx-1">'
 echo '      <div class="col-2">'
 echo '        <button class="'$BUTTON'"'
@@ -183,7 +185,9 @@ echo '                onclick="return(validate());"'
 echo '                >Save'
 echo '        </button>'
 echo '      </div>'
-echo '      <div class="col-10">'
+echo '      <div class="col-4"></div>'
+pcp_incr_id
+echo '      <div class="col-6">'
 echo '        <p>* required field&nbsp;&nbsp;'
 pcp_helpbadge
 echo '        </p>'

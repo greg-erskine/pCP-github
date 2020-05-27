@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-27
+# Version: 7.0.0 2020-05-28
 
 #========================================================================================
 # Disable web GUI
@@ -59,7 +59,7 @@ echo '        </div>'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
-echo '    <div class="row mx-1">'
+echo '    <div class="row mx-1 mb-2">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save GUI">Save</button>'
 echo '        <input type="hidden" name="CALLED_BY" value="Disable GUI">'

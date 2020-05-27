@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-27
+# Version: 7.0.0 2020-05-28
 
 . pcp-functions
 . pcp-lms-functions
@@ -19,15 +19,19 @@ unset REBOOT_REQUIRED
 # Page tabs
 #----------------------------------------------------------------------------------------
 echo '<!-- Start of pcp_security_tabs toolbar -->'
-echo '<p style="margin-top:8px;">'
+echo '  <div>'
+echo '    <ul class="nav nav-tabs navbar-dark mt-1">'
 
-for TAB in "tc password" "httpd settings" "Disable SSH" "Disable GUI"
+for TAB in "tc password" "httpd settings" "Disable SSH" # "Disable GUI"
 do
-	[ "$TAB" = "${CALLED_BY/+/ /}" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
-	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='${TAB/ /+}'" title="'$TAB'">'$TAB'</a>'
+	[ "$TAB" = "${CALLED_BY/+/ /}" ] && TAB_ACTIVE="active" || TAB_ACTIVE=""
+	echo '      <li class="nav-item">'
+	echo '        <a class="nav-link '$TAB_ACTIVE'" href="'$0'?CALLED_BY='${TAB/ /+}'" title="'$TAB'">'$TAB'</a>'
+	echo '      </li>'
 done
 
-echo '</p>'
+echo '    </ul>'
+echo '  </div>'
 echo '<!-- End of pcp_security_tabs toolbar -->'
 #----------------------------------------------------------------------------------------
 case "$CALLED_BY" in

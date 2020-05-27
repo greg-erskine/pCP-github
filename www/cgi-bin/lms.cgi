@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-26
+# Version: 7.0.0 2020-05-28
 
 . pcp-functions
 . pcp-rpi-functions
@@ -51,7 +51,6 @@ COLUMN4_4="col-sm-4"
 # Local functions
 #----------------------------------------------------------------------------------------
 pcp_lms_warning() {
-	pcp_incr_id
 	echo '    <div class="alert alert-primary" role="alert">'
 	echo '      <b>Warning:</b>'
 	echo '      <p>Logitech Media Server (LMS) is a server database application'
