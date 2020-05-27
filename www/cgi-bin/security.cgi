@@ -1,17 +1,15 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-07-16
+# Version: 7.0.0 2020-05-27
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "Security" "GE"
 
-pcp_httpd_query_string
-pcp_picoreplayers_toolbar
 pcp_controls
-pcp_banner
-pcp_navigation
+pcp_navbar
+pcp_httpd_query_string
 
 unset REBOOT_REQUIRED
 
@@ -23,14 +21,13 @@ unset REBOOT_REQUIRED
 echo '<!-- Start of pcp_security_tabs toolbar -->'
 echo '<p style="margin-top:8px;">'
 
-for TAB in "tc password" "httpd settings" "Disable SSH" # "Disable GUI"
+for TAB in "tc password" "httpd settings" "Disable SSH" "Disable GUI"
 do
 	[ "$TAB" = "${CALLED_BY/+/ /}" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
 	echo '  <a class="'$TAB_STYLE'" href="'$0'?CALLED_BY='${TAB/ /+}'" title="'$TAB'">'$TAB'</a>'
 done
 
 echo '</p>'
-echo '<div class="tab7end" style="margin-bottom:10px;">pCP</div>'
 echo '<!-- End of pcp_security_tabs toolbar -->'
 #----------------------------------------------------------------------------------------
 case "$CALLED_BY" in

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-27
 
 #========================================================================================
 # piCorePlayer log files should be located in the $LOGDIR directory (default /var/log).
@@ -25,9 +25,8 @@ pcp_controls
 pcp_diagnostics
 pcp_httpd_query_string
 
-COLUMN1="col-3"
-COLUMN2="col-9"
-BUTTON="btn btn-primary w-100"
+COLUMN2_1="col-3"
+COLUMN2_2="col-9"
 
 #========================================================================================
 # Copy log files from persistent locations to $LOGDIR directory
@@ -62,13 +61,13 @@ pcp_debug_variables "html" QUERY_STRING SELECTION ACTION LOGDIR BOOTMNT TCEMNT P
 #========================================================================================
 # Log selection form
 #----------------------------------------------------------------------------------------
+pcp_border_begin
 pcp_heading5 "Log file operations"
-
-#----------------------------------------------------------------------------------------
 echo '  <form name="log" action="'$0'" method="get">'
-echo '    <div class="row">'
-echo '      <div class="'$COLUMN1'">'
-echo '        <select class="form-control form-control-sm" name="SELECTION">'
+#----------------------------------------------------------------------------------------
+echo '    <div class="row mx-1">'
+echo '      <div class="input-group '$COLUMN2_1'">'
+echo '        <select class="custom-select custom-select-sm" name="SELECTION">'
 echo '          <option value="'$FIRST'">'$FIRST'</option>'
 
 	            for LOG in $LOGS
@@ -81,7 +80,7 @@ echo '          <option value="'$FIRST'">'$FIRST'</option>'
 echo '        </select>'
 echo '      </div>'
 pcp_incr_id
-echo '      <div class="'$COLUMN2'">'
+echo '      <div class="'$COLUMN2_2'">'
 echo '        <p>Select log file(s) to show&nbsp;&nbsp;'
 echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 echo '        </p>'
@@ -91,19 +90,23 @@ echo '          <p>Log files prefixed with "slimserver" are LMS log files (LMS n
 echo '          <p><b>Note:</b> Log files are temporary, they are not preserved after a reboot.</p>'
 echo '        </div>'
 echo '      </div>'
+echo '    </div>'
 #----------------------------------------------------------------------------------------
 if [ "$FIRST" = "All" ]; then
-	echo '      <div class="'$COLUMN1' mb-3">'
+	echo '    <div class="row mx-1">'
+	echo '      <div class="col-2 mx-1 mb-3">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Show">Show</button>'
 	echo '      </div>'
+	echo '    </div>'
 fi
 #----------------------------------------------------------------------------------------
-echo '    </div>'
 echo '  </form>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 #------------------------------------------Log text area---------------------------------
 pcp_log_show() {
+	pcp_hr
 	if [ "$SELECTION" = "All" ]; then
 		for LOG in $LOGS
 		do

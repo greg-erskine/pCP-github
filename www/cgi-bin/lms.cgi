@@ -410,7 +410,7 @@ pcp_lms_audiocore_warning() {
 #========================================================================================
 # Main table
 #----------------------------------------------------------------------------------------
-
+pcp_border_begin
 #-----------------------------------LMS Indication---------------------------------------
 if [ $(pcp_lms_status) -eq 0 ]; then
 	pcp_green_tick "running"
@@ -418,14 +418,14 @@ else
 	pcp_red_cross "not running"
 fi
 
-echo '  <div class="form-group row mt-3">'
-echo '    <div class="'$COLUMN2_1' text-md-right">'
-echo '      <p class="'$CLASS'">'$INDICATOR'</p>'
+echo '  <div class="row mt-3">'
+echo '    <div class="col-1 text-md-right">'
+echo '      <p>'$INDICATOR'</p>'
 echo '    </div>'
 pcp_incr_id
-echo '    <div class="'$COLUMN2_2'">'
+echo '    <div class="col-3">'
 echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
-echo '        <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+pcp_helpbadge
 echo '      </p>'
 echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '        <ul>'
@@ -438,12 +438,40 @@ echo '          <li>LMS must be running to stream music to players from this pCP
 echo '        </ul>'
 echo '      </div>' 
 echo '    </div>'
-echo '  </div>'
 #----------------------------------------------------------------------------------------
 
-echo '  <div class="'$BORDER'">'
-pcp_heading5 "Logitech Media Server (LMS) operations"
+#------------------------------------Samba Indication-----------------------------------
+if [ $(pcp_samba_status) -eq 0 ]; then
+	pcp_green_tick "running"
+else
+	pcp_red_cross "not running"
+fi
 
+echo '      <div class="col-1 text-md-right">'
+echo '        <p>'$INDICATOR'</p>'
+echo '      </div>'
+pcp_incr_id
+echo '      <div class="col-3">'
+echo '        <p>Samba is '$STATUS'&nbsp;&nbsp;'
+pcp_helpbadge
+echo '        </p>'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '          <ul>'
+echo '          <li>'$(pcp_bi_check)' = LMS running.</li>'
+echo '          <li>'$(pcp_bi_x)' = LMS not running.</li>'
+echo '          </ul>'
+echo '          <p><b>Note:</b></p>'
+echo '          <ul>'
+echo '            <li>Samba must be running to share files from this pCP.</li>'
+echo '          </ul>'
+echo '        </div>'
+echo '      </div>'
+#----------------------------------------------------------------------------------------
+echo '    </div>'
+pcp_border_end
+
+pcp_border_begin
+pcp_heading5 "Logitech Media Server (LMS) operations"
 #----------------------------Enable/disable autostart of LMS-----------------------------
 pcp_lms_enable_lms() {
 
@@ -452,12 +480,12 @@ pcp_lms_enable_lms() {
 		no) LMSERVERno="checked" ;;
 	esac
 
-	pcp_incr_id
 	echo '  <form name="Select" action="writetolms.cgi" method="get">'
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" value="LMS autostart" '$DISABLE_LMS'>Set Autostart</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>'
 	echo '          <input type="hidden" name="ACTION" value="Startup">'
@@ -469,7 +497,7 @@ pcp_lms_enable_lms() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Automatic start of LMS when pCP boots&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Yes - will enable automatic start of LMS when pCP boots.</p>'
@@ -489,15 +517,15 @@ pcp_lms_server_interface() {
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
 	LMS_SERVER_WEB_URL="http://${LMS_SERVER_WEB}:${LMSPORT}"
 
-	pcp_incr_id
 	echo '  <form name="LMS_Interface" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" value="LMS_Web_Page" '$DISABLE_LMS'>LMS Web Page</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>LMS Web Pages&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Use the standard LMS web interface to play music.</p>'
@@ -516,15 +544,15 @@ pcp_lms_configure_lms() {
 	[ x"" = x"$(pcp_eth0_ip)" ] && LMS_SERVER_WEB=$(pcp_wlan0_ip) || LMS_SERVER_WEB=$(pcp_eth0_ip)
 	LMS_SERVER_WEB_URL="http://${LMS_SERVER_WEB}:${LMSPORT}/settings/index.html"
 
-	pcp_incr_id
 	echo '  <form name="Configure" action="'$LMS_SERVER_WEB_URL'" target="_blank">'
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" value="Configure LMS" '$DISABLE_LMS'>Configure LMS</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Configure LMS&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Use the standard LMS web interface to adjust the LMS settings.</p>'
@@ -538,15 +566,14 @@ pcp_lms_configure_lms() {
 
 #-----------------------------------LMS Function Form------------------------------------
 echo '  <form name="LMS" action="'$0'">'
-
 #--------------------------------------Rescan LMS----------------------------------------
 pcp_rescan_lms() {
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Rescan LMS">'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <select class="large22" name="RESCAN">'
 	echo '          <option value="rescan">Look for new and changed media files</option>'
@@ -555,7 +582,7 @@ pcp_rescan_lms() {
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Rescan LMS library&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Rescan the local LMS library.</p>'
@@ -569,16 +596,15 @@ pcp_rescan_lms() {
 #------------------------------------------Install/uninstall LMS-------------------------
 pcp_lms_install_lms() {
 
-	pcp_incr_id
-
 	if [ ! -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Install">Install LMS</button>'
 		echo '      </div>'
+		pcp_incr_id
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Install LMS on pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will install LMS on pCP.</p>'
@@ -590,9 +616,10 @@ pcp_lms_install_lms() {
 		echo '      <div class="'$COLUMN2_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')">'
 		echo '      </div>'
+		pcp_incr_id
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Remove LMS from pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will remove LMS and all the extra packages that was added with LMS.</p>'
@@ -608,14 +635,14 @@ pcp_lms_install_lms() {
 #------------------------------------------Remove LMS cache-------------------------
 pcp_lms_remove_cache() {
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_cache" onclick="return confirm('\''This will remove all LMS Cache,settings and plugins.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove cache</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Remove LMS Cache and Preferences from pCP&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will remove your the LMS cache and preferences from pCP.</p>'
@@ -630,14 +657,14 @@ pcp_lms_remove_cache() {
 #------------------------------------------Start LMS-------------------------------------
 pcp_lms_start_lms() {
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Start" '$DISABLE_LMS'>Start LMS</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Start LMS&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will start LMS.</p>'
@@ -651,14 +678,14 @@ pcp_lms_start_lms() {
 #------------------------------------------Stop LMS--------------------------------------
 pcp_lms_stop_lms() {
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Stop" '$DISABLE_LMS'>Stop LMS</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Stop LMS&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will stop LMS.</p>'
@@ -672,14 +699,14 @@ pcp_lms_stop_lms() {
 #---------------------------------Restart LMS--------------------------------------------
 pcp_lms_restart_lms() {
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Restart" '$DISABLE_LMS'>Restart LMS</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Restart LMS&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will stop LMS and then restart it.</p>'
@@ -703,7 +730,6 @@ pcp_lms_no_mysb() {
 		*) NOMYSBno="checked";;
 	esac
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Mysb" '$DISABLE_LMS'>No MySB</button>'
@@ -716,9 +742,10 @@ pcp_lms_no_mysb() {
 	echo '        <label for="1rad2">No</label>'
 	echo '        </p>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Set --nomysqueezebox command line option for LMS&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>If enabled, this tells LMS to not use any mysqueezebox integrations.</p>'
@@ -737,7 +764,6 @@ pcp_lms_show_logs() {
 		*) LOGSHOWno="checked" ;;
 	esac
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" value="Show Logs" '$DISABLE_LMS'>'
@@ -750,9 +776,10 @@ pcp_lms_show_logs() {
 	echo '          <label for="2rad2">No</label>'
 	echo '        </p>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Show LMS logs&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Show Server and Scanner log in text area below.</p>'
@@ -771,7 +798,6 @@ pcp_lms_show_cconvert() {
 		*) CCSHOWno="checked" ;;
 	esac
 
-	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" value="Show CConv" '$DISABLE_LMS'>'
@@ -784,24 +810,25 @@ pcp_lms_show_cconvert() {
 	echo '          <label for="3rad2">No</label>'
 	echo '        </p>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Show LMS Custom Convert&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Show the current custom-convert.conf file on the system.</p>'
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-
-	pcp_incr_id
+	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '         <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_cconvert" onclick="return confirm('\''This will remove your custom convert settings file.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove CConv</button>'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Remove LMS custom_convert.conf from pCP&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>This will remove your the custom convert file for LMS  from pCP.</p>'
@@ -821,13 +848,13 @@ pcp_lms_customconvert() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '      </div>'
-	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <input type="file" id="file" name="CUSTOMCONVERT" onclick="document.getElementById('\''UP1'\'').disabled = false">'
 	echo '      </div>'
+	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Upload custom-convert to LMS&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Custom convert is used to define custom trascoding options.</p>'
@@ -850,7 +877,7 @@ pcp_update_lms() {
 	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Download and update LMS Nightly Server Package&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>The update process will take some minutes and finally LMS will restart.</p>'
@@ -865,7 +892,7 @@ pcp_update_lms() {
 	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Download and update LMS Binaries and Libraries&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>These packages are specific to pCP.</p>'
@@ -878,9 +905,9 @@ pcp_update_lms() {
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_update_lms
 #----------------------------------------------------------------------------------------
-	echo '  </div>'
+pcp_border_end
 
-echo '  <div class="'$BORDER'">'
+pcp_border_begin
 #========================================================================================
 # Slimserver Cache and Prefs to Mounted Drive
 #----------------------------------------------------------------------------------------
@@ -901,7 +928,7 @@ pcp_slimserver_persistence() {
 	echo '      <div class="'$COL3'"><p><b>LMS Data Storage Location</b></p></div>'
 	echo '      <div class="'$COL4'">'
 	echo '        <p>This is the Location where LMS will save Data&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Including Music Database, Artwork Cache and System Preferences.</p>'
@@ -1045,9 +1072,9 @@ pcp_slimserver_persistence() {
 	echo '  </form>'
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_slimserver_persistence
-echo '    </div>'
+pcp_border_end
 
-echo '  <div class="'$BORDER'">'
+pcp_border_begin
 #========================================================================================
 # Extra File System Support
 #----------------------------------------------------------------------------------------
@@ -1076,7 +1103,7 @@ pcp_extra_filesys() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Install additional file systems for pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will install file system support for pCP.</p>'
@@ -1090,7 +1117,7 @@ pcp_extra_filesys() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Remove additional file systems from pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will remove all but the default file system support from pCP.</p>'
@@ -1103,7 +1130,7 @@ pcp_extra_filesys() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN2_2'">'
 		echo '        <p>Additional file systems are in use&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Unable to remove additional file system support from pCP'
@@ -1126,7 +1153,7 @@ pcp_extra_filesys() {
 			echo '      </div>'
 			echo '      <div class="'$COLUMN2_2'">'
 			echo '        <p>Install exFAT file system for pCP&nbsp;&nbsp;'
-			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+			pcp_helpbadge
 			echo '        </p>'
 			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 			echo '          <p>This will install exFAT file system support for pCP.</p>'
@@ -1140,7 +1167,7 @@ pcp_extra_filesys() {
 			echo '      </div>'
 			echo '      <div class="'$COLUMN2_2'">'
 			echo '        <p>Remove additional exFAT file system from pCP&nbsp;&nbsp;'
-			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+			pcp_helpbadge
 			echo '        </p>'
 			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 			echo '          <p>This will remove exFAT file system support from pCP.</p>'
@@ -1153,7 +1180,7 @@ pcp_extra_filesys() {
 			echo '      </div>'
 			echo '      <div class="'$COLUMN2_2'">'
 			echo '        <p>exFAT file systems are in use&nbsp;&nbsp;'
-			echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+			pcp_helpbadge
 			echo '        </p>'
 			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 			echo '          <p>Unable to remove exFAT file system support from pCP'
@@ -1168,9 +1195,9 @@ pcp_extra_filesys() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_extra_filesys
 #----------------------------------------------------------------------------------------
-echo '  </div>'
+pcp_border_end
 
-echo '  <div class="'$BORDER'">'
+pcp_border_begin
 #========================================================================================
 # USB Disk Mounting Operations
 #----------------------------------------------------------------------------------------
@@ -1208,7 +1235,7 @@ pcp_mount_usbdrives() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="col">'
 	echo '        <p>Mount USB Disk&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>If Enabled checked, the USB disk will be mounted to the mount point and will be auto-mounted on startup.</p>'
@@ -1435,9 +1462,9 @@ pcp_mount_usbdrives() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_mount_usbdrives
 #----------------------------------------------------------------------------------------
-echo '    </div>'
+pcp_border_end
 
-echo '  <div class="'$BORDER'">'
+pcp_border_begin
 #========================================================================================
 # Network Disk Mounting Operations
 #----------------------------------------------------------------------------------------
@@ -1474,7 +1501,7 @@ pcp_mount_netdrives() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="col-12">'
 	echo '        <p>Mount Remote Network Share&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Field usage.</p>'
@@ -1717,7 +1744,7 @@ pcp_mount_netdrives() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>Mounting network drives requires extra file system support&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Please add additional file systems using the option above.</p>'
@@ -1732,7 +1759,7 @@ pcp_mount_netdrives() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p> LMS is currently using network drive '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Must Move LMS Data to another disk (SDcard or USB Disk).</p>'
@@ -1752,9 +1779,9 @@ pcp_mount_netdrives() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_mount_netdrives
 #----------------------------------------------------------------------------------------
-echo '  </div>'
+pcp_border_end
 
-echo '  <div class="'$BORDER'">'
+pcp_border_begin
 #========================================================================================
 # Samba Share Drive Support
 #----------------------------------------------------------------------------------------
@@ -1763,36 +1790,6 @@ pcp_samba() {
 	pcp_heading5 "Setup Samba Share"
 
 	echo '  <form name="Samba_Setup" action="'$0'" method="get">'
-	#------------------------------------Samba Indication-----------------------------------
-
-	if [ $(pcp_samba_status) -eq 0 ]; then
-		pcp_green_tick "running"
-	else
-		pcp_red_cross "not running"
-	fi
-
-	pcp_incr_id
-	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>Samba is '$STATUS'&nbsp;&nbsp;'
-	echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
-	echo '        </p>'
-	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '          <ul>'
-	echo '            <li><span class="indicator_green">&#x2714;</span> = Samba running.</li>'
-	echo '            <li><span class="indicator_red">&#x2718;</span> = Samba not running.</li>'
-	echo '          </ul>'
-	echo '          <p><b>Note:</b></p>'
-	echo '          <ul>'
-	echo '            <li>Samba must be running to share files from this pCP.</li>'
-	echo '          </ul>'
-	echo '        </div>'
-	echo '      </div>'
-	echo '    </div>'
-#----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 	pcp_incr_id
@@ -1803,7 +1800,7 @@ pcp_samba() {
 		echo '      </div>'
 		echo '      <div class="col-10">'
 		echo '        <p>Install Samba for pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will install Samba Extension for SMB Share support for pCP.</p>'
@@ -1815,7 +1812,7 @@ pcp_samba() {
 		echo '      </div>'
 		echo '      <div class="col-10">'
 		echo '        <p>Remove Samba from pCP&nbsp;&nbsp;'
-		echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will remove Samba Extension for SMB Share support for pCP.</p>'
@@ -2108,9 +2105,8 @@ pcp_samba() {
 }
 [ $MODE -ge $MODE_SERVER ] && pcp_samba
 #----------------------------------------------------------------------------------------
-echo '  </div>'
+pcp_border_end
 
-echo '  <div class="'$BORDER'">'
 #------------------------------------------LMS log text area-----------------------------
 pcp_lms_logview() {
 

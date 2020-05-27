@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-26
+# Version: 7.0.0 2020-05-27
 
 . pcp-functions
 . pcp-rpi-functions
@@ -27,8 +27,8 @@ COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-4"
 COLUMN3_3="col-sm-6"
 
-COLUMN2_1="$COLUMN3_1"
-COLUMN2_2="col-9"
+COLUMN2_1="col-sm-2"
+COLUMN2_2="col-sm-10"
 
 COLUMN1="$COLUMN3_1"
 
@@ -240,8 +240,9 @@ echo '  return true;'
 echo '}'
 echo '</script>'
 
+pcp_border_begin
+pcp_heading5 "Set wifi configuration"
 #----------------------------------------------------------------------------------------
-# GE Check this!!!
 if [ "$WIFI" = "on" ]; then
 	WIFIon="checked"
 	COLUMN1="$COLUMN3_1"
@@ -252,8 +253,6 @@ else
 	COLUMN2="$COLUMN3_2"
 fi
 
-pcp_border_begin
-pcp_heading5 "Set wifi configuration"
 echo '  <form id="setwifi" name="setwifi" action="'$0'" method="get">'
 #--------------------------------------Wifi on/off---------------------------------------
 echo '    <div class="row mx-1">'
@@ -621,11 +620,11 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "text"
 	fi
 
-	#--------------------------------------DEBUG-----------------------------------------
+	#--------------------------------------DEBUG---------------------------------------------
 	pcp_textarea "[ DEBUG ] $WPASUPPLICANTCONF" "cat ${WPASUPPLICANTCONF}" 15
 	pcp_textarea "[ DEBUG ] $FILETOOLLST" "cat $FILETOOLLST" 15
 	pcp_textarea "[ DEBUG ] $ONBOOTLST" "cat $ONBOOTLST" 15
-	#------------------------------------------------------------------------------------
+	#----------------------------------------------------------------------------------------
 fi
 
 #---------------/usr/local/etc/pcp/wpa_supplicant.conf maintained by user----------------
@@ -634,7 +633,7 @@ if [ "$WIFI" = "on" ]; then
 	if [ $(pcp_wifi_maintained_by_user) -eq 0 ]; then
 		pcp_textarea "/usr/local/etc/pcp/wpa_supplicant.conf maintained by user" "cat ${WPASUPPLICANTCONF}" 15
 	fi
-	#-------------------------------Wifi information-------------------------------------
+#-----------------------------------------Wifi information-------------------------------
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - insert wifi adapter and [Save] to connect." || WLANMAC=$(pcp_wlan0_mac_address)
 	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - [Reboot] or [Save] to connect." || WLANIP=$(pcp_wlan0_ip)
 
