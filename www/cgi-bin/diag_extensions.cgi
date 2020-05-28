@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 7.0.0 2020-05-28
 
 #========================================================================================
 # This script checks for required extensions in repositories.
@@ -11,8 +11,7 @@
 
 pcp_html_head "Diagnostics extensions" "GE"
 
-pcp_banner
-pcp_navigation
+pcp_navbar
 
 #========================================================================================
 # Set variables
@@ -35,48 +34,48 @@ getMirror
 #----------------------------------------------------------------------------------------
 pcp_downloaded_extensions() {
 	VERSION=$(echo ${KERNELVER} | awk -F"-" '{print $1}')
-	echo alsa-modules-${VERSION}-pcpCore.tcz     > $EXTENLIST
-	echo alsa-modules-${VERSION}-pcpCore_v7.tcz >> $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore.tcz      > $EXTENLIST
+	echo alsa-modules-${VERSION}-pcpCore_v7.tcz  >> $EXTENLIST
 	echo alsa-modules-${VERSION}-pcpCore_v7l.tcz >> $EXTENLIST
-	echo alsa-utils.tcz                         >> $EXTENLIST
-	echo alsa.tcz                               >> $EXTENLIST
-	echo ca-certificates.tcz                    >> $EXTENLIST
-	echo crda.tcz                               >> $EXTENLIST
-	echo dialog.tcz                             >> $EXTENLIST
-	echo firmware-atheros.tcz                   >> $EXTENLIST
-	echo firmware-brcmwifi.tcz                  >> $EXTENLIST
-	echo firmware-ralinkwifi.tcz                >> $EXTENLIST
-	echo firmware-rpi-wifi.tcz                  >> $EXTENLIST
-	echo firmware-rtlwifi.tcz                   >> $EXTENLIST
-	echo libasound.tcz                          >> $EXTENLIST
-	echo libedit.tcz                            >> $EXTENLIST
-	echo libgcrypt.tcz                          >> $EXTENLIST
-	echo libgpg-error.tcz                       >> $EXTENLIST
-	echo libiw.tcz                              >> $EXTENLIST
-	echo libnl.tcz                              >> $EXTENLIST
-	echo ncurses.tcz                            >> $EXTENLIST
-	echo net-usb-${VERSION}-pcpCore.tcz         >> $EXTENLIST
-	echo net-usb-${VERSION}-pcpCore_v7.tcz      >> $EXTENLIST
+	echo alsa-utils.tcz                          >> $EXTENLIST
+	echo alsa.tcz                                >> $EXTENLIST
+	echo ca-certificates.tcz                     >> $EXTENLIST
+	echo crda.tcz                                >> $EXTENLIST
+	echo dialog.tcz                              >> $EXTENLIST
+	echo firmware-atheros.tcz                    >> $EXTENLIST
+	echo firmware-brcmwifi.tcz                   >> $EXTENLIST
+	echo firmware-ralinkwifi.tcz                 >> $EXTENLIST
+	echo firmware-rpi-wifi.tcz                   >> $EXTENLIST
+	echo firmware-rtlwifi.tcz                    >> $EXTENLIST
+	echo libasound.tcz                           >> $EXTENLIST
+	echo libedit.tcz                             >> $EXTENLIST
+	echo libgcrypt.tcz                           >> $EXTENLIST
+	echo libgpg-error.tcz                        >> $EXTENLIST
+	echo libiw.tcz                               >> $EXTENLIST
+	echo libnl.tcz                               >> $EXTENLIST
+	echo ncurses.tcz                             >> $EXTENLIST
+	echo net-usb-${VERSION}-pcpCore.tcz          >> $EXTENLIST
+	echo net-usb-${VERSION}-pcpCore_v7.tcz       >> $EXTENLIST
 	echo net-usb-${VERSION}-pcpCore_v7l.tcz      >> $EXTENLIST
-	echo never_remove.tcz                       >> $EXTENLIST
-	echo openssh.tcz                            >> $EXTENLIST
-	echo openssl.tcz                            >> $EXTENLIST
-	echo pcp.tcz                                >> $EXTENLIST
-	echo pcp-base.tcz                           >> $EXTENLIST
-	echo pcp-libfaad2.tcz                       >> $EXTENLIST
-	echo pcp-libflac.tcz                        >> $EXTENLIST
-	echo pcp-libmad.tcz                         >> $EXTENLIST
-	echo pcp-libmpg123.tcz                      >> $EXTENLIST
-	echo pcp-libogg.tcz                         >> $EXTENLIST
-	echo pcp-libsoxr.tcz                        >> $EXTENLIST
-	echo pcp-libvorbis.tcz                      >> $EXTENLIST
-	echo pcp-squeezelite.tcz                    >> $EXTENLIST
-	echo readline.tcz                           >> $EXTENLIST
-	echo wireless-${VERSION}-pcpCore.tcz        >> $EXTENLIST
-	echo wireless-${VERSION}-pcpCore_v7.tcz     >> $EXTENLIST
+	echo never_remove.tcz                        >> $EXTENLIST
+	echo openssh.tcz                             >> $EXTENLIST
+	echo openssl.tcz                             >> $EXTENLIST
+	echo pcp.tcz                                 >> $EXTENLIST
+	echo pcp-base.tcz                            >> $EXTENLIST
+	echo pcp-libfaad2.tcz                        >> $EXTENLIST
+	echo pcp-libflac.tcz                         >> $EXTENLIST
+	echo pcp-libmad.tcz                          >> $EXTENLIST
+	echo pcp-libmpg123.tcz                       >> $EXTENLIST
+	echo pcp-libogg.tcz                          >> $EXTENLIST
+	echo pcp-libsoxr.tcz                         >> $EXTENLIST
+	echo pcp-libvorbis.tcz                       >> $EXTENLIST
+	echo pcp-squeezelite.tcz                     >> $EXTENLIST
+	echo readline.tcz                            >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore.tcz         >> $EXTENLIST
+	echo wireless-${VERSION}-pcpCore_v7.tcz      >> $EXTENLIST
 	echo wireless-${VERSION}-pcpCore_v7l.tcz     >> $EXTENLIST
-	echo wireless_tools.tcz                     >> $EXTENLIST
-	echo wpa_supplicant.tcz                     >> $EXTENLIST
+	echo wireless_tools.tcz                      >> $EXTENLIST
+	echo wpa_supplicant.tcz                      >> $EXTENLIST
 	unset VERSION
 }
 
@@ -87,48 +86,78 @@ pcp_internet() {
 	if [ $(pcp_internet_accessible) -eq 0 ]; then
 		pcp_green_tick "Internet accessible."
 		echo "[  OK  ] Internet accessible." >> $LOG
-		INTERNET_ACCESSIBLE=TRUE
+		echo "INTERNET_ACCESSIBLE=true" > $ACCCESSIBLETXT
 	else
 		pcp_red_cross "Internet not accessible."
 		echo "[ ERROR ] Internet not accessible." >> $LOG
-		unset INTERNET_ACCESSIBLE
+		echo "unset INTERNET_ACCESSIBLE" > $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
-pcp_pcp_repo() {
-	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		pcp_green_tick "piCorePlayer repository accessible ($PCP_REPO)."
-		echo "[  OK  ] piCorePlayer repository accessible. ($PCP_REPO)" >> $LOG
-		PCP_REPO_ACCESSIBLE=TRUE
+pcp_dns() {
+	if [ $(pcp_dns_accessible) -eq 0 ]; then
+		pcp_green_tick "DNS accessible."
+		echo "[  OK  ] DNS accessible." >> $LOG
+		echo "DNS_ACCESSIBLE=true" >> $ACCCESSIBLETXT
 	else
-		pcp_red_cross "piCorePlayer repository not accessible ($PCP_REPO)."
-		echo "[ ERROR ] piCorePlayer repository not accessible. ($PCP_REPO)" >> $LOG
-		unset PCP_REPO_ACCESSIBLE
+		pcp_red_cross "DNS not accessible."
+		echo "[ ERROR ] DNS not accessible." >> $LOG
+		echo "unset DNS_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
+}
+
+pcp_pcp_repo_1() {
+	if [ $(pcp_pcp_repo_1_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer main repository accessible ($PCP_REPO_1)."
+		echo "[  OK  ] piCorePlayer main repository accessible. ($PCP_REPO_1)" >> $LOG
+		echo "PCP_REPO_1_ACCESSIBLE=true" >> $ACCCESSIBLETXT
+	else
+		pcp_red_cross "piCorePlayer main repository not accessible ($PCP_REPO_1)."
+		echo "[ ERROR ] piCorePlayer main repository not accessible. ($PCP_REPO_1)" >> $LOG
+		echo "unset PCP_REPO_1_ACCESSIBLE" >> $ACCCESSIBLETXT
+	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
+}
+
+pcp_pcp_repo_2() {
+	if [ $(pcp_pcp_repo_2_accessible) -eq 0 ]; then
+		pcp_green_tick "piCorePlayer mirror repository accessible ($PCP_REPO_2)."
+		echo "[  OK  ] piCorePlayer mirror repository accessible. ($PCP_REPO_2)" >> $LOG
+		echo "PCP_REPO_2_ACCESSIBLE=true" >> $ACCCESSIBLETXT
+	else
+		pcp_red_cross "piCorePlayer mirror repository not accessible ($PCP_REPO_2)."
+		echo "[ ERROR ] piCorePlayer mirror repository not accessible. ($PCP_REPO_2)" >> $LOG
+		echo "unset PCP_REPO_2_ACCESSIBLE" >> $ACCCESSIBLETXT
+	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_picore_repo_1() {
 	if [ $(pcp_picore_repo_1_accessible) -eq 0 ]; then
 		pcp_green_tick "Official piCore repository accessible ($PICORE_REPO_1)."
 		echo "[  OK  ] Official piCore repository accessible. ($PICORE_REPO_1)" >> $LOG
-		PICORE_REPO_1_ACCESSIBLE=TRUE
+		echo "PICORE_REPO_1_ACCESSIBLE=true" >> $ACCCESSIBLETXT
 	else
 		pcp_red_cross "Official piCore repository not accessible ($PICORE_REPO_1)."
 		echo "[ ERROR ] Official piCore repository not accessible. ($PICORE_REPO_1)" >> $LOG
-		unset PICORE_REPO_1_ACCESSIBLE
+		echo "unset PICORE_REPO_1_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_picore_repo_2() {
 	if [ $(pcp_picore_repo_2_accessible) -eq 0 ]; then
 		pcp_green_tick "Official piCore mirror repository accessible ($PICORE_REPO_2)."
 		echo "[  OK  ] Official piCore mirror repository accessible. ($PICORE_REPO_2)" >> $LOG
-		PICORE_REPO_2_ACCESSIBLE=TRUE
+		echo "PICORE_REPO_2_ACCESSIBLE=true" >> $ACCCESSIBLETXT
 	else
 		pcp_red_cross "Official piCore mirror repository not accessible ($PICORE_REPO_2)."
 		echo "[ ERROR ] Official piCore mirror repository not accessible. ($PICORE_REPO_2)" >> $LOG
-		unset PICORE_REPO_2_ACCESSIBLE
+		echo "unset PICORE_REPO_2_ACCESSIBLE" >> $ACCCESSIBLETXT
 	fi
+	INDICATOR="$(echo $INDICATOR | sed -e 's|"|\\"|g')"
 }
 
 pcp_set_repo() {
@@ -155,11 +184,7 @@ pcp_extn_message() {
 # Display debug information
 #----------------------------------------------------------------------------------------
 pcp_debug_info() {
-	if [ $DEBUG -eq 1 ]; then
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" PICORE_REPO_1 PICORE_REPO_2 PCP_REPO LOG
-		echo '<!-- End of debug info -->'
-	fi
+	pcp_debug_variables "html" PICORE_REPO_1 PICORE_REPO_2 PCP_REPO LOG
 }
 
 #========================================================================================
@@ -168,90 +193,68 @@ pcp_debug_info() {
 pcp_indicator_js() {
 	echo '<script>'
 	echo 'var theIndicator = document.querySelector("#indicator'$ID'");'
-	echo '	theIndicator.classList.add("'$CLASS'");'
 	echo '	document.getElementById("indicator'$ID'").innerHTML = "'$INDICATOR'";'
 	echo '	document.getElementById("status'$ID'").innerHTML = "'$STATUS'";'
-	echo '</script> '
+	echo '</script>'
+}
+
+pcp_indicator () {
+	INDICATOR_MESSAGE="$1"
+	COLUMN2_1="col-1"
+	COLUMN2_2="col-11"
+
+	pcp_incr_id
+	echo '    <div class="row mx-1">'
+	echo '      <div class="'$COLUMN2_1' text-md-right">'
+	echo '        <p id="indicator'$ID'">?</p>'
+	echo '      </div>'
+	echo '      <div class="'$COLUMN2_2'">'
+	echo '        <p id="status'$ID'">'$INDICATOR_MESSAGE'</p>'
+	echo '      </div>'
+	echo '    </div>'
 }
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-pcp_running_script
 pcp_debug_info
 pcp_log_header $0
 
+COLUMN2_1="col-1"
+COLUMN2_2="col-11"
 #----------------------------------------------------------------------------------------
 # Repository accessibility indicators.
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Checking repositories accessiblity. . . </legend>'
-echo '          <table class="bggrey percent100">'
-#--------------------------------------Internet accessible-------------------------------
-pcp_start_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column50 center">'
-echo '                <p id="indicator'$ID'">?</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p id="status'$ID'">Checking internet...</p>'
-echo '              </td>'
-echo '            </tr>'
+pcp_heading5 "Checking Internet and repository accessibility. . . "
+pcp_border_begin
+#---------------------------------Internet accessible------------------------------------
+pcp_indicator "Checking internet..."
 pcp_internet
 pcp_indicator_js
-#--------------------------------------piCorePlayer repository accessible----------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column50 center">'
-echo '                <p id="indicator'$ID'">?</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p id="status'$ID'">Checking piCorePlayer repository...</p>'
-echo '              </td>'
-echo '            </tr>'
-pcp_pcp_repo
+#-----------------------------------DNS accessible---------------------------------------
+pcp_indicator "Checking DNS..."
+pcp_dns
 pcp_indicator_js
-#--------------------------------------Official piCore repository accessible-------------
-pcp_toggle_row_shade
-pcp_incr_id
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column50 center">'
-echo '                <p id="indicator'$ID'">?</p>'
-echo '              </td>'
-echo '              <td>'
-echo '                <p id="status'$ID'">Checking piCore repository...</p>'
-echo '              </td>'
-echo '            </tr>'
+#---------------------------piCorePlayer repository 1 accessible-------------------------
+pcp_indicator "Checking piCorePlayer repository..."
+pcp_pcp_repo_1
+pcp_indicator_js
+#---------------------------piCorePlayer repository 2 accessible-------------------------
+pcp_indicator "Checking piCorePlayer mirror repository..."
+pcp_pcp_repo_2
+pcp_indicator_js
+#--------------------------Official piCore repository accessible-------------------------
+pcp_indicator "Checking piCore repository..."
 pcp_picore_repo_1
 pcp_indicator_js
-#--------------------------------------Official piCore mirror repository accessible------
+#----------------------Official piCore mirror repository accessible----------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
-	pcp_toggle_row_shade
-	pcp_incr_id
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column50 center">'
-	echo '                <p id="indicator'$ID'">?</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p id="status'$ID'">Checking piCore mirror repository...</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	pcp_indicator "Checking piCore mirror repository..."
 	pcp_picore_repo_2
 	pcp_indicator_js
 fi
 #----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -263,20 +266,12 @@ echo "List of standard extensions" >> $LOG
 echo "---------------------------" >> $LOG
 echo "" >> $LOG
 
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Checking the standard extensions are downloaded . . .</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" style="height:300px">'
+pcp_heading5 "Checking the standard extensions are downloaded. . ."
 
+pcp_infobox_begin
 echo "[ INFO  ] The list of standard extensions must be maintained MANUALLY." | tee -a $LOG
 pcp_downloaded_extensions
+
 for i in $(cat $EXTENLIST)
 do
 	if [ -f /$TCEMNT/tce/optional/${i} ]; then
@@ -286,32 +281,16 @@ do
 	fi
 done 
 
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_infobox_end
+
 #----------------------------------------------------------------------------------------
 echo "" >> $LOG
 echo "List of additional (non-standard) extensions" >> $LOG
 echo "--------------------------------------------" >> $LOG
 echo "" >> $LOG
 
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Checking for extra extensions . . .</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-echo '                <textarea class="inform" style="height:300px">'
+pcp_heading5 "Checking for extra extensions . . ."
+pcp_infobox_begin
 
 EXTNS=$(ls $TCEMNT/tce/optional/*.tcz | awk -F 'optional/' '{print $2}')
 
@@ -324,15 +303,7 @@ do
 	fi
 done 
 
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_infobox_end
 #----------------------------------------------------------------------------------------
 
 echo "" >> $LOG
@@ -341,46 +312,25 @@ pcp_write_to_log "Downloaded extensions" "cat /tmp/downloadedextensions"
 pcp_write_to_log "Installed extensions" "tce-status -i"
 pcp_write_to_log "Uninstalled extensions" "tce-status -u"
 
+pcp_hr
+
 #--------------------------------------Warning message-----------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Warning</legend>'
-echo '          <table class="bggrey percent100">'
-echo '            <tr class="warning">'
-echo '              <td>'
-echo '                <p>The checks below only refer to extensions for:</p>'
-echo '                <ul>'
-echo '                  <li>Kernel: '${KERNELVER}'</li>'
-echo '                  <li>Major version: '$(getMajorVer)'.x</li>'
-echo '                  <li>Build version: '$(getBuild)'</li>'
-echo '                </ul>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
+echo '    <div class="alert alert-primary" role="alert">'
+echo '      <b>Warning:</b>'
+echo '      <p>The checks below only refer to extensions for:</p>'
+echo '      <ul>'
+echo '        <li>Kernel: '${KERNELVER}'</li>'
+echo '        <li>Major version: '$(getMajorVer)'.x</li>'
+echo '        <li>Build version: '$(getBuild)'</li>'
+echo '      </ul>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Checking extensions. . .</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td>'
-echo '                  <textarea class="inform" style="height:300px">'
+
+pcp_heading5 "Checking extensions. . ."
+pcp_infobox_begin
 
 echo "" >> $LOG
 echo "Checking repositories for extensions" >> $LOG
-
 #========================================================================================
 pcp_set_repo ${PCP_REPO%/}
 #========================================================================================
@@ -495,19 +445,8 @@ pcp_check_extension usbutils.tcz
 echo "" | tee -a $LOG
 echo "[ DONE ] Log report complete." | tee -a $LOG
 
-echo '                </textarea>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_infobox_end
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit
