@@ -1,16 +1,18 @@
 #!/bin/sh
 # Raspberry Pi network throughput diagnostics script
 
-# Version: 6.0.0 2019-08-16
+# Version: 7.0.0 2020-05-28
 
 . pcp-functions
 . pcp-rpi-functions
 
 pcp_html_head "Raspberry Pi Network Diagnostics" "PH"
 
-pcp_banner
 pcp_diagnostics
 pcp_httpd_query_string
+
+COLUMN4_1="col-sm-2"
+COLUMN4_2="col-sm-3"
 
 Set defaults.
 [ "$IPERF3_SERVER_MODE" = "" ] && IPERF3_SERVER_MODE="no"
@@ -45,25 +47,25 @@ pcp_diag_rpi_lmsip() {
 
 pcp_install_iperf3() {
 	RESULT=0
-	echo '[ INFO ] Downloading iperf3.'
+	pcp_message INFO "Downloading iperf3." "text"
 	sudo -u tc pcp-load -r $PCP_REPO -w iperf3.tcz
 	if [ -f $TCEMNT/tce/optional/iperf3.tcz ]; then
-		echo '[ INFO ] Loading iperf3'
+		pcp_message INFO "Loading iperf3" "text"
 		sudo -u tc tce-load -i iperf3.tcz
 		[ $? -eq 0 ] && echo -n . || (echo $?; RESULT=1)
 		if [ $RESULT -eq 0 ]; then
-			echo '[ INFO ] Iperf3 loaded...'
+			pcp_message INFO "Iperf3 loaded..." "text"
 		else
-			echo '[ ERROR ] Extensions not loaded, try again later!'
+			pcp_message ERROR "Extensions not loaded, try again later!" "text"
 		fi
 	fi
 }
 
 pcp_remove_iperf3() {
-	echo '[ INFO ] Removing Extensions'
+	pcp_message INFO "Removing Extensions" "text"
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete iperf3.tcz
-	echo '[ INFO ] Extensions are marked for removal. You must reboot to finish!'
+	pcp_message INFO "Extensions are marked for removal. You must reboot to finish!" "text"
 }
 
 pcp_load_iperf3() {
@@ -76,55 +78,45 @@ case "$ACTION" in
 		pkill iperf3
 	;;
 	Load)
-		pcp_table_top "Loading Iperf3"
-		echo '                <textarea class="inform" style="height:60px">'
+		pcp_border_begin
 		pcp_load_iperf3
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_border_end
 	;;
 	Install)
-		pcp_table_top "Downloading Iperf3"
+		pcp_border_begin
 		pcp_sufficient_free_space 72
-		if [ $? -eq 0 ] ; then
-			echo '                <textarea class="inform" style="height:160px">'
+		if [ $? -eq 0 ]; then
 			pcp_install_iperf3
-			echo '                </textarea>'
-			pcp_table_end
 		fi
+		pcp_border_end
 	;;
 	Remove)
-		pcp_table_top "Removing Iperf3"
-		echo '                <textarea class="inform" style="height:120px">'
-		echo '[ INFO ] Removing iperf3 Extension...'
+		pcp_border_begin
+		pcp_message INFO "Removing iperf3 Extension..." "text"
 		echo
 		echo 'After a reboot these extensions will be permanently deleted:'
 		pcp_remove_iperf3
 		pcp_backup "text"
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_border_end
 		REBOOT_REQUIRED=1
 	;;
 	Start)
 		echo '<form id="Stop" name="Stop Iperf" action="'$0'">'
-		pcp_table_top "Iperf3 Control"
-		pcp_start_row_shade
-		echo '            <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150 center">'
-		echo '                  <button type="submit" name="ACTION" value="Stop" >Stop</button>'
-		echo '                  <input type="hidden" name="IPERF3_SERVER_MODE" value="'$IPERF3_SERVER_MODE'">'
-		echo '                  <input type="hidden" name="IPERF3_SEND" value="'$IPERF3_SEND'">'
-		echo '                  <input type="hidden" name="IPERF3_UDP" value="'$IPERF3_UDP'">'
-		echo '                  <input type="hidden" name="IPERF_SERVER_IP" value="'$IPERF_SERVER_IP'">'
-		echo '                </td>'
-		echo '                <td>'
-		echo '                  <p>Stop iperf testing.</p>'
-		echo '                </td>'
-		echo '              </tr>'
-		pcp_table_end
+		echo '  <div class="row mx-1">'
+		echo '    <div class="'$COLUMN4_1'">'
+		echo '      <button class="'$BUTTON'" type="submit" name="ACTION" value="Stop">Stop</button>'
+		echo '      <input type="hidden" name="IPERF3_SERVER_MODE" value="'$IPERF3_SERVER_MODE'">'
+		echo '      <input type="hidden" name="IPERF3_SEND" value="'$IPERF3_SEND'">'
+		echo '      <input type="hidden" name="IPERF3_UDP" value="'$IPERF3_UDP'">'
+		echo '      <input type="hidden" name="IPERF_SERVER_IP" value="'$IPERF_SERVER_IP'">'
+		echo '    </div>'
+		echo '    <div class="'$COLUMN4_1'">'
+		echo '      <p>Stop iperf testing.</p>'
+		echo '    </div>'
+		echo '  </div>'
 		echo '</form>'
 
-		pcp_table_top "Iperf3 Output"
-		echo '                <textarea class="inform" style="height:240px">'
+		pcp_border_begin
 		if [ $(pcp_squeezelite_status) -eq 0 ]; then
 			echo '[ WARN ] Squeezelite is running, results might be affected'
 			echo '[ WARN ] Goto Main menu and stop squeezelite'
@@ -148,7 +140,7 @@ case "$ACTION" in
 			fi
 			if [ "$IPERF3_UDP" = "yes" -a "$IPERF3_SEND" = "no" ]; then
 				DURATION="-t 21 -O 1"
-				echo "[ INFO ] Ommiting 1st second of transmission, likely due to server being faster than rpi."
+				echo "[ INFO ] Omitting 1st second of transmission, likely due to server being faster than RPi."
 			else
 				DURATION="-t 20"
 			fi
@@ -171,8 +163,7 @@ case "$ACTION" in
 		if [ $? -ne 0 ]; then
 			echo "[ ERROR ] Iperf3 connection error, check to be sure server is running on selected <host>:<port>"
 		fi
-		echo '                </textarea>'
-		pcp_table_end
+		pcp_border_end
 
 		echo '<script>'
 		echo '  document.getElementById("Stop").style.display="none";'
@@ -183,205 +174,169 @@ esac
 #========================================================================================
 # Raspberry Pi Network Performance Diagnostics
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Raspberry Pi Network</legend>'
-echo '          <table class="bggrey percent100">'
+
+pcp_heading5 "Raspberry Pi Network"
 #-------------------------------------Row 1----------------------------------------------
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '            <div class="row">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Model:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_rpi_model)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>eth0 IP:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_diag_rpi_eth0_ip)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Physical MAC:</p>'
-echo '              </td>'
-echo '              <td>'
+echo '              </div>'
+echo '              <div>'
 echo '                <p>'$(pcp_diag_rpi_eth0_mac_address)'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #-------------------------------------Row 2----------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '            <div class="row">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Revison:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_rpi_revision)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>wlan0 IP:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_diag_rpi_wlan0_ip)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Wireless MAC:</p>'
-echo '              </td>'
-echo '              <td>'
+echo '              </div>'
+echo '              <div>'
 echo '                <p>'$(pcp_diag_rpi_wlan0_mac_address)'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #-------------------------------------Row 3----------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+echo '            <div class="row">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>PCB Revison:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_rpi_pcb_revision)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>LMS IP:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_diag_rpi_lmsip)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Controls MAC:</p>'
-echo '              </td>'
-echo '              <td>'
+echo '              </div>'
+echo '              <div>'
 echo '                <p>'$(pcp_controls_mac_address)'</p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+
 #========================================================================================
 # piCorePlayer
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>piCorePlayer</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td class="column150">'
+
+pcp_heading5 "piCorePlayer"
+echo '            <div class="row">'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Version:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$(pcp_picoreplayer_version)'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>pCP name:</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$NAME'</p>'
-echo '              </td>'
-echo '              <td class="column150">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>Hostname:</p>'
-echo '              </td>'
-echo '              <td>'
+echo '              </div>'
+echo '              <div>'
 echo '                <p>'$HOST'</p>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '              </div>'
+echo '            </div>'
 
 #========================================================================================
 # Network Performance
 #----------------------------------------------------------------------------------------
 echo '<form name="IPERF" action="'$0'">'
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Network Performance (iperf3)</legend>'
-echo '          <table class="bggrey percent100">'
+pcp_heading5 "Network Performance (iperf3)"
 #----------------------------------------------------------------------------------------
 pcp_incr_id
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
+echo '            <div class="row">'
+echo '              <div>'
 echo '                <p>&nbsp;&nbsp;&nbsp;&nbsp;For help setting up an iperf server on another machine. Please goto <a href="https://software.es.net/iperf/" target="_blank">ESNet</a> or <a href="https://iperf.fr/" target="_blank">iperf.fr</a></p>'
-echo '              </td>'
-echo '            </tr>'
+echo '              </div>'
+echo '            </div>'
 #----------------------------------------------------------------------------------------
-pcp_toggle_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '                <td class="column150 center">'
+echo '            <div class="row">'
+echo '                <div class="'$COLUMN4_1'">'
 if [ ! -f $TCEMNT/tce/optional/iperf3.tcz ]; then
 	echo '                  <input type="submit" name="ACTION" value="Install" />'
-	echo '                </td>'
-	echo '                <td colspan="2">'
+	echo '                </div>'
+	echo '                <div class="'$COLUMN4_1'">'
 	echo '                  <p>Install iperf3 on pCP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
+	echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '                    <p>This will install iperf3 network performance testing.</p>'
 	echo '                    <p>You will need to run iperf3 on another machine, preferrably your LMS server.</p>'
 	echo '                  </div>'
 else
 	echo '                  <input type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')"/>'
-	echo '                </td>'
-	echo '                <td colspan="2">'
+	echo '                </div>'
+	echo '                <div class="'$COLUMN4_1'">'
 	echo '                  <p>Remove iperf3 from pCP&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	echo '                    <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
+	echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '                    <p>This will remove the iperf3 extension.</p>'
 	echo '                  </div>'
 fi
-echo '                </td>'
-echo '              </tr>'
+echo '                </div>'
+echo '              </div>'
 #----------------------------------------------------------------------------------------
 if [ -x /usr/local/bin/iperf3 ]; then
 	[ "$IPERF3_SERVER_MODE" = "no" ] && IPERF3_SERVER_MODEno="checked" || IPERF3_SERVER_MODEyes="checked"
 	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '                <td class="column150 center">'
-	echo '                  <button type="submit" name="ACTION" value="Server_Mode" >Change Mode</button>'
-	echo '                </td>'
-	echo '                <td class="column210">'
+	echo '            <div class="row">'
+	echo '                <div class="'$COLUMN4_1'">'
+	echo '                  <button class="'$BUTTON'" type="submit" name="ACTION" value="Server_Mode" >Change Mode</button>'
+	echo '                </div>'
+	echo '                <div class="'$COLUMN4_1'">'
 	echo '                  <input id="rad1" type="radio" name="IPERF3_SERVER_MODE" value="yes" '$IPERF3_SERVER_MODEyes'>'
 	echo '                  <label for="rad1">Yes</label>'
 	echo '                  <input id="rad2" type="radio" name="IPERF3_SERVER_MODE" value="no" '$IPERF3_SERVER_MODEno'>'
 	echo '                  <label for="rad2">No</label>'
-	echo '                </td>'
-	echo '                <td>'
+	echo '                </div>'
+	echo '                <div class="'$COLUMN4_1'">'
 	echo '                  <p>Set iperf to server mode&nbsp;&nbsp;'
-	echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+	pcp_helpbadge
 	echo '                  </p>'
-	echo '                  <div id="'$ID'" class="less">'
+	echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '                    <p>Yes - This device will run in server mode.</p>'
 	echo '                    <p>No - This device will run in client mode.</p>'
 	echo '                  </div>'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '                </div>'
+	echo '              </div>'
 #----------------------------------------------------------------------------------------
 	if [ "$IPERF3_SERVER_MODE" = "no" ]; then
-		pcp_incr_id
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150 center">'
-		echo '                  <p class="row">Iperf3 Server IP</p>'
-		echo '                </td>'
-		echo '                <td class="column210">'
+		echo '              <div class="row mx-1">'
+		echo '                <div class="'$COLUMN4_1'">'
+		echo '                  <p>Iperf3 Server IP</p>'
+		echo '                </div>'
+		echo '                <div class="'$COLUMN4_1'">'
 		echo '                  <input class="large15"'
 		echo '                         type="text"'
 		echo '                         name="IPERF_SERVER_IP"'
@@ -389,33 +344,33 @@ if [ -x /usr/local/bin/iperf3 ]; then
 		echo '                         title="Iperf3 server IP"'
 		echo '                         pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\:\d{1,5})?"'
 		echo '                  >'
-		echo '                </td>'
-		echo '                <td>'
+		echo '                </div>'
+		pcp_incr_id
+		echo '                <div class="'$COLUMN4_1'">'
 		echo '                  <p>Connect to the specified iperf3 server&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
+		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '                    <p>&lt;server&gt;[:&lt;port&gt;]</p>'
 		echo '                    <p>Default port: 5201</p>'
 		echo '                    <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default Server port number.</p>'
-								  if [ "$LMSERVER" = "no" ]; then
+		                          if [ "$LMSERVER" = "no" ]; then
 		echo   '                    <p>Current LMS IP is (If that is where your iperf3 server is running:</p>'
 		echo   '                    <ul>'
 		echo   '                      <li>'$(pcp_lmsip)'</li>'
 		echo   '                    </ul>'
-								  fi
+		                          fi
 		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '                </div>'
+		echo '              </div>'
 	fi
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
+	echo '            <div class="row">'
+	echo '              <div class="'$COLUMN4_1'">'
 	echo '                <button type="submit" name="ACTION" value="Start" >Start</button>'
-	echo '              </td>'
-	echo '              <td class="column210">'
+	echo '              </div>'
+	echo '              <div class="'$COLUMN4_1'">'
 	if [ "$IPERF3_SERVER_MODE" = "no" ]; then
 		[ "$IPERF3_SEND" = "no" ] && IPERF3_SENDno="checked" || IPERF3_SENDyes="checked"
 		echo '                <input id="rad3" type="radio" name="IPERF3_SEND" value="yes" '$IPERF3_SENDyes'>'
@@ -423,16 +378,16 @@ if [ -x /usr/local/bin/iperf3 ]; then
 		echo '                <input id="rad4" type="radio" name="IPERF3_SEND" value="no" '$IPERF3_SENDno'>'
 		echo '                <label for="rad4">Download</label>'
 	fi
-	echo '              </td>'
-	echo '              <td>'
+	echo '              </div>'
+	echo '              <div class="'$COLUMN4_1'">'
 	echo '                <p>Start iperf testing</p>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '              </td>'
-	echo '              <td class="column210">'
+	echo '            <div class="row">'
+	echo '              <div class="'$COLUMN4_1'">'
+	echo '              </div>'
+	echo '              <div class="'$COLUMN4_1'">'
 	if [ "$IPERF3_SERVER_MODE" = "no" ]; then
 		[ "$IPERF3_UDP" = "yes" ] && IPERF3_UDPyes="checked" || IPERF3_UDPno="checked"
 		echo '                <input id="rad5" type="radio" name="IPERF3_UDP" value="yes" '$IPERF3_UDPyes'>'
@@ -440,41 +395,20 @@ if [ -x /usr/local/bin/iperf3 ]; then
 		echo '                <input id="rad6" type="radio" name="IPERF3_UDP" value="no" '$IPERF3_UDPno'>'
 		echo '                <label for="rad6">TCP</label>'
 	fi
-	echo '              </td>'
-	echo '              <td>'
-	echo '              </td>'
-	echo '            </tr>'
-	#------------------------------------------------------------------------------------
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td colspan="3"></td>'
-	echo '            </tr>'
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
 else
 	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="column150 center">'
-	echo '                <button type="submit" name="ACTION" value="Load" >Load</button>'
-	echo '              </td>'
-	echo '              <td>'
+	echo '            <div class="row mx-1">'
+	echo '              <div class="'$COLUMN4_1'">'
+	echo '                <button class="'$BUTTON'" type="submit" name="ACTION" value="Load" >Load</button>'
+	echo '              </div>'
+	echo '              <div class="'$COLUMN4_1'">'
 	echo '                <p>Load iperf extension.</p>'
-	echo '              </td>'
-	echo '            </tr>'
-	echo '            <tr class="padding '$ROWSHADE'">'
-	echo '              <td colspan="2"></td>'
-	echo '            </tr>'
+	echo '              </div>'
+	echo '            </div>'
 fi
 	#------------------------------------------------------------------------------------
-	echo '          </table>'
-	echo '        </fieldset>'
-	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
-
+pcp_html_end
