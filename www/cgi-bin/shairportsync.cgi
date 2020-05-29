@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 7.0.0 2020-05-29
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -10,9 +10,7 @@ pcp_html_head "Shairport-sync" "SBP"
 SHAIRPORT_CONFIG="$PCPCFG"
 SECTION_NAME=SHAIRPORTSYNC
 
-pcp_banner
-pcp_navigation
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 #========================================================================================
@@ -22,7 +20,7 @@ pcp_httpd_query_string
 pcp_shairportsettings_to_config() {
 	pcp_write_var_to_config SHAIRPORT_OUT "$SHAIRPORT_OUT"
 	pcp_write_var_to_config SHAIRPORT_CONTROL "$SHAIRPORT_CONTROL"
-	pcp_backup
+	pcp_backup "text"
 }
 
 pcp_shairport_default() {
@@ -39,14 +37,8 @@ pcp_shairport_default
 SHAIRPORT_VERSION=$(/usr/local/sbin/shairport-sync -V)
 
 pcp_debug_information() {
-	if [ $DEBUG -eq 1 ]; then
-		pcp_table_top "Debug information"
-		echo '<!-- Start of debug info -->'
-		pcp_debug_variables "html" SHAIRPORT_VERSION SHAIRPORT_OUT SHAIRPORT_CONTROL \
+	pcp_debug_variables "html" SHAIRPORT_VERSION SHAIRPORT_OUT SHAIRPORT_CONTROL \
 		OUTPUT SHAIRPORTSYNC_SHAIRPORT SHAIRPORT
-		echo '<!-- End of debug info -->'
-		pcp_table_end
-	fi
 }
 pcp_debug_information
 
@@ -55,35 +47,25 @@ pcp_debug_information
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Start)
-		pcp_table_top "Starting Shairport-sync"
 		pcp_shairport_start
-		pcp_table_end
 	;;
 	Stop)
-		pcp_table_top "Stopping Shairport-sync"
 		pcp_shairport_stop
-		pcp_table_end
 		sleep 1
 	;;
 	Restart)
-		pcp_table_top "Restarting Shairport-sync"
 		pcp_shairport_stop
 		sleep 1
 		pcp_shairport_start
-		pcp_table_end
 	;;
 	Default)
-		pcp_table_top "Setting defaults for Shairport-sync"
 		pcp_selected_soundcontrol
-		echo '[ INFO ] Writing to '${SHAIRPORT_CONFIG}'...'
+		pcp_message INFO "Writing to ${SHAIRPORT_CONFIG}..." "text"
 		pcp_shairportsettings_to_config
-		pcp_table_end
 	;;
 	Save)
-		pcp_table_top "Starting Shairport-sync"
-		echo '[ INFO ] Writing to '${SHAIRPORT_CONFIG}'...'
+		pcp_message INFO "Writing to ${SHAIRPORT_CONFIG}..." "text"
 		pcp_shairportsettings_to_config
-		pcp_table_end
 	;;
 	*)
 		ACTION="Initial"
@@ -92,130 +74,98 @@ esac
 
 . /$SHAIRPORT_CONFIG
 
-COLUMN1="column210 center"
+COLUMN3_1="col-sm-3"
+COLUMN3_2="col-sm-9"
 #========================================================================================
-# Shairport-sync settings table
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Shairport-sync Settings</legend>'
-echo '          <form name="settings" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
-
+pcp_border_begin
+pcp_heading5 "Shairport-sync Settings"
+echo '    <form name="settings" action="'$0'" method="get">'
 #--------------------------------shairport-sync output name------------------------------
 pcp_incr_id
-pcp_start_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="SHAIRPORT_OUT"'
-echo '                         value="'$SHAIRPORT_OUT'"'
-echo '                  >'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set name of Shairport-sync output device&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>If not changed Shairport-sync output device will be the default DAC specific values.</p>'
-echo '                    <p>If equalizer is enabled use equal as output device name.</p>'
-echo '                    <p>Please experiment if default settings are wrong.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-
+echo '      <div class="row mx-1">'
+echo '        <div class="'$COLUMN3_1'">'
+echo '          <input class="form-control form-control-sm"'
+echo '                 type="text"'
+echo '                 name="SHAIRPORT_OUT"'
+echo '                 value="'$SHAIRPORT_OUT'"'
+echo '          >'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_2'">'
+echo '          <p>Set name of Shairport-sync output device&nbsp;&nbsp;'
+pcp_helpbadge
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>If not changed Shairport-sync output device will be the default DAC specific values.</p>'
+echo '            <p>If equalizer is enabled use equal as output device name.</p>'
+echo '            <p>Please experiment if default settings are wrong.</p>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
 #------------------------------shairport-sync control name-------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <input class="large15"'
-echo '                         type="text"'
-echo '                         name="SHAIRPORT_CONTROL"'
-echo '                         value="'$SHAIRPORT_CONTROL'"'
-echo '                  >'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Set name of Output control used for Shairport-sync&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>Often the control name is Digital or PCM or left empty.</p>'
-echo '                    <p>If not changed Shairport-sync will use the default DAC specific values.</p>'
-echo '                    <p>If equalizer is enabled, the control name should be left empty.</p>'
-echo '                    <p>Please experiment if default settings are wrong.</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-
+echo '      <div class="row mx-1">'
+echo '        <div class="'$COLUMN3_1'">'
+echo '          <input class="form-control form-control-sm"'
+echo '                 type="text"'
+echo '                 name="SHAIRPORT_CONTROL"'
+echo '                 value="'$SHAIRPORT_CONTROL'"'
+echo '          >'
+echo '        </div>'
+echo '        <div class="'$COLUMN3_2'">'
+echo '          <p>Set name of Output control used for Shairport-sync&nbsp;&nbsp;'
+pcp_helpbadge
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>Often the control name is Digital or PCM or left empty.</p>'
+echo '            <p>If not changed Shairport-sync will use the default DAC specific values.</p>'
+echo '            <p>If equalizer is enabled, the control name should be left empty.</p>'
+echo '            <p>Please experiment if default settings are wrong.</p>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
 #----------------------------------------Default-----------------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'">'
-echo '                  <input type="submit"'
-echo '                         name="ACTION"'
-echo '                         value="Default"'
-echo '                         title="Default Settings"'
-echo '                  />'
-echo '                </td>'
-echo '                <td>'
-echo '                  <p>Load default Shairport-sync settings for your DAC&nbsp;&nbsp;'
-echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-echo '                  </p>'
-echo '                  <div id="'$ID'" class="less">'
-echo '                    <p>If needed change the settings and restart Shairport-sync to test the new settings.</p>'
-echo '                    <p>Remember to save your settings... and restart Shairport-sync</p>'
-echo '                  </div>'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-
+echo '      <div class="row mx-1">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'"'
+echo '                 type="submit"'
+echo '                 name="ACTION"'
+echo '                 value="Default"'
+echo '                 title="Default Settings"'
+echo '          />'
+echo '        </div>'
+echo '        <div class="col-1"></div>'
+echo '        <div class="col-9">'
+echo '          <p>Load default Shairport-sync settings for your DAC&nbsp;&nbsp;'
+pcp_helpbadge
+echo '          </p>'
+echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '            <p>If needed change the settings and restart Shairport-sync to test the new settings.</p>'
+echo '            <p>Remember to save your settings... and restart Shairport-sync</p>'
+echo '          </div>'
+echo '        </div>'
+echo '      </div>'
 #------------------------------------------Save------------------------------------------
 pcp_incr_id
-pcp_toggle_row_shade
-echo '              <tr class="'$ROWSHADE'">'
-echo '                <td class="'$COLUMN1'" colspan="2">'
-echo '                  <input type="submit"'
-echo '                         name="ACTION"'
-echo '                         value="Save"'
-echo '                         title="Save Shairport-sync settings"'
-echo '                  />'
-echo '                </td>'
-echo '              </tr>'
-#----------------------------------------------------------------------------------------
-
-#----------------------------------------------------------------------------------------
-echo '            </table>'
-echo '          </form>'
-echo '        </fieldset>'
+echo '      <div class="row mx-1 mb-2">'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'"'
+echo '                 type="submit"'
+echo '                 name="ACTION"'
+echo '                 value="Save"'
+echo '                 title="Save Shairport-sync settings"'
+echo '          >'
+echo '        </div>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+#----------------------------------------------------------------------------------------
+echo '    </form>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
-COLUMN1="column210 center"
 #========================================================================================
-# Shairport-sync Start,stop/restart table
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Control of Shairport-sync</legend>'
-echo '          <form name="buttons" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-#----------------------------------------------------------------------------------------
-
+pcp_border_begin
+pcp_heading5 "Control of Shairport-sync"
+echo '    <form name="buttons" action="'$0'" method="get">'
 #----------------------------------Shairport-sync Indication-----------------------------
 pcp_main_shairport_indication() {
 
@@ -226,86 +176,74 @@ pcp_main_shairport_indication() {
 	fi
 
 	pcp_incr_id
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td class="'$COLUMN1'">'
-	echo '                <p class="'$CLASS'">'$INDICATOR'</p>'
-	echo '              </td>'
-	echo '              <td>'
-	echo '                <p>Shairport-sync is '$STATUS'&nbsp;&nbsp;'
-	echo '                  <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-	echo '                </p>'
-	echo '                <div id="'$ID'" class="less">'
-	echo '                  <ul>'
-	echo '                    <li><span class="indicator_green">&#x2714;</span> = Shairport-sync running.</li>'
-	echo '                    <li><span class="indicator_red">&#x2718;</span> = Shairport-sync not running.</li>'
-	echo '                  </ul>'
-	echo '                  <p><b>Note:</b></p>'
-	echo '                  <ul>'
-	echo '                    <li>Shairport-sync must be running for music to play from iDevices.</li>'
-	echo '                  </ul>'
-	echo '                </div>'
-	echo '              </td>'
-	echo '            </tr>'
+	echo '      <div class="row mx-1">'
+	echo '        <div class="col-1 text-sm-right">'
+	echo '          <p>'$INDICATOR'</p>'
+	echo '        </div>'
+	echo '        <div class="col-11">'
+	echo '          <p>Shairport-sync is '$STATUS'&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '          </p>'
+	echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '            <ul>'
+	echo '              <li>'$(pcp_bi_check)' = Shairport-sync running.</li>'
+	echo '              <li>'$(pcp_bi_x)' = Shairport-sync not running.</li>'
+	echo '            </ul>'
+	echo '            <p><b>Note:</b></p>'
+	echo '            <ul>'
+	echo '              <li>Shairport-sync must be running for music to play from iDevices.</li>'
+	echo '            </ul>'
+	echo '          </div>'
+	echo '        </div>'
+	echo '      </div>'
 }
 pcp_main_shairport_indication
 #----------------------------------------------------------------------------------------
 
 if ! [ "$STATUS" = "running" ]; then
 	#-----------------------------------Start button-------------------------------------
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td class="'$COLUMN1'" colspan="2">'
-	echo '                  <input type="submit"'
+	echo '              <div class="row mx-1 mb-2">'
+	echo '                <div class="col-2">'
+	echo '                  <input class="'$BUTTON'"'
+	echo '                         type="submit"'
 	echo '                         name="ACTION"'
 	echo '                         value="Start"'
 	echo '                         title="Start Shairport-sync"'
 	echo '                  />'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '                </div>'
+	echo '              </div>'
 	#------------------------------------------------------------------------------------
 else
 	#--------------------------------Stop/Restart button---------------------------------
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <input type="submit"'
+	echo '              <div class="row mx-1 mb-2">'
+	echo '                <div class="col-2">'
+	echo '                  <input class="'$BUTTON'"'
+	echo '                         type="submit"'
 	echo '                         name="ACTION"'
 	echo '                         value="Stop"'
 	echo '                         title="Stop Shairport-sync"'
 	echo '                  />'
-	echo '                </td>'
-	echo '                <td>'
-	echo '                  <input type="submit"'
+	echo '                </div>'
+	echo '                <div class="col-2">'
+	echo '                  <input class="'$BUTTON'"'
+	echo '                         type="submit"'
 	echo '                         name="ACTION"'
 	echo '                         value="Restart"'
 	echo '                         title="Restart Shairport-sync"'
 	echo '                  />'
-	echo '                </td>'
-	echo '              </tr>'
+	echo '                </div>'
+	echo '              </div>'
 	#------------------------------------------------------------------------------------
 fi
-echo '            </table>'
 echo '          </form>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 if [ "$STATUS" = "running" ]; then
 	#------------------------------------------------------------------------------------
-	pcp_table_top "Shairport-sync is using these settings:"
 	echo '                <p>'"$(ps -eo args | grep shairport-sync | grep -v grep)"'</p>'
-	pcp_table_end
 	#------------------------------------------------------------------------------------
 fi
 
-pcp_footer
-pcp_copyright
-pcp_remove_query_string
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit

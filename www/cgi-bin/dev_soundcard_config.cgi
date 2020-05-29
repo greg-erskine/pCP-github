@@ -28,11 +28,11 @@ pcp_overlays_loaded
 #========================================================================================
 # Selection form
 #----------------------------------------------------------------------------------------
+pcp_border_begin
 pcp_heading5 "Select soundcard config file"
-
 echo '  <form name="soundcard" action="'$0'" method="get">'
 #----------------------------------------------------------------------------------------
-echo '    <div class="row">'
+echo '    <div class="row mx-1">'
 echo '      <div class="input-group col-3">'
 echo '        <select class="custom-select custom-select-sm" name="SELECTION">'
 
@@ -54,13 +54,14 @@ echo '          <p>The soundcard config files are located in '$DACLOCATION'</p>'
 echo '        </div>'
 echo '      </div>'
 echo '    </div>'
-echo '    <div class="row">'
+echo '    <div class="row mx-1 mb-2">'
 echo '      <div class="col-2">'
 echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Show">'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 echo '  </form>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 pcp_hr
 #------------------------------------Soundcard text--------------------------------------
@@ -73,11 +74,8 @@ pcp_soundcard_show() {
 #----------------------------------------------------------------------------------------
 
 #------------------------------------Loaded overlays-------------------------------------
-pcp_card_loaded() {
-	pcp_heading5 "Loaded overlays"
-	pcp_textarea "none" "echo $OVERLAYS | sed 's/ /\n/g'" 2
-}
-pcp_card_loaded
+pcp_heading5 "Loaded overlays"
+pcp_textarea "none" "echo $OVERLAYS | sed 's/ /\n/g'" 2
 #----------------------------------------------------------------------------------------
 
 pcp_html_end
