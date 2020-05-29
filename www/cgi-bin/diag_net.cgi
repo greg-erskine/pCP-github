@@ -1,7 +1,7 @@
 #!/bin/sh
 # Raspberry Pi network throughput diagnostics script
 
-# Version: 7.0.0 2020-05-28
+# Version: 7.0.0 2020-05-30
 
 . pcp-functions
 . pcp-rpi-functions
@@ -12,7 +12,8 @@ pcp_diagnostics
 pcp_httpd_query_string
 
 COLUMN3_1="col-sm-2"
-COLUMN4_2="col-sm-3"
+COLUMN3_2="col-sm-3"
+COLUMN3_3="col-sm-7"
 
 Set defaults.
 [ "$IPERF3_SERVER_MODE" = "" ] && IPERF3_SERVER_MODE="no"
@@ -101,8 +102,9 @@ case "$ACTION" in
 		REBOOT_REQUIRED=1
 	;;
 	Start)
-		echo '<form id="Stop" name="Stop Iperf" action="'$0'">'
-		echo '  <div class="row mx-1">'
+		echo '<form id="Stop" name="Stop_Iperf" action="'$0'">'
+		pcp_border_begin
+		echo '  <div class="row mx-1 mt-2">'
 		echo '    <div class="'$COLUMN3_1'">'
 		echo '      <button class="'$BUTTON'" type="submit" name="ACTION" value="Stop">Stop</button>'
 		echo '      <input type="hidden" name="IPERF3_SERVER_MODE" value="'$IPERF3_SERVER_MODE'">'
@@ -114,12 +116,13 @@ case "$ACTION" in
 		echo '      <p>Stop iperf testing.</p>'
 		echo '    </div>'
 		echo '  </div>'
+		pcp_border_end
 		echo '</form>'
 
-		pcp_border_begin
+		pcp_infobox_begin
 		if [ $(pcp_squeezelite_status) -eq 0 ]; then
-			echo '[ WARN ] Squeezelite is running, results might be affected'
-			echo '[ WARN ] Goto Main menu and stop squeezelite'
+			pcp_message WARN "Squeezelite is running, results might be affected." "text"
+			pcp_message WARN "Goto [Main Page] and {Stop] Squeezelite." "text"
 		fi
 
 		REV=""
@@ -151,7 +154,7 @@ case "$ACTION" in
 			IP3_IP=$(echo $IPERF_SERVER_IP | awk -F':' '{ print $1 }')
 			[ "$IPERF_SERVER_PORT" = "" ] && IPERF_SERVER_PORT=5201
 			IPERF_COMMAND="iperf3 -c $IP3_IP -p $IPERF_SERVER_PORT -V $UDP -b 300M $DURATION $REV"
-			echo "[ INFO ] Iperf will run for 20 seconds, then output will show......."
+			echo "[ INFO ] Iperf will run for 20 seconds, then output will show..."
 		else
 			echo "[ INFO ] Iperf running in server mode.  Press stop to quit."
 			echo "[ INFO ] Set Client to use IP Address: $(pcp_eth0_ip) or $(pcp_wlan0_ip)"
@@ -163,7 +166,7 @@ case "$ACTION" in
 		if [ $? -ne 0 ]; then
 			echo "[ ERROR ] Iperf3 connection error, check to be sure server is running on selected <host>:<port>"
 		fi
-		pcp_border_end
+		pcp_infobox_end
 
 		echo '<script>'
 		echo '  document.getElementById("Stop").style.display="none";'
