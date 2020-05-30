@@ -11,11 +11,18 @@ unset REBOOT_REQUIRED
 
 pcp_html_head "Show Temperature" "GE"
 
+pcp_navbar
+
 ACTION="Initial"
 pcp_httpd_query_string
 
 FAIL_MSG="ok"
 DEBUG=1
+
+COLUMN4_1="col-sm-2"
+COLUMN4_2="col-sm-3"
+COLUMN4_3="col-sm-3"
+COLUMN4_4="col-sm-4"
 
 #========================================================================================
 # Refer: https://datasheets.maximintegrated.com/en/ds/DS18B20.pdf
@@ -114,38 +121,36 @@ esac
 # w1-KERNEL.tcz and w1-gpio install
 #----------------------------------------------------------------------------------------
 pcp_install_w1() {
-	pcp_message INFO "Installing packages for 1-wire.'
-	pcp_message INFO "This can take a couple of minutes. Please wait...'
+	pcp_message INFO "Installing packages for 1-wire." "text"
+	pcp_message INFO "This can take a couple of minutes. Please wait..." "text"
 	sudo -u tc pcp-load -r $PCP_REPO -wi w1-KERNEL.tcz
 
-	pcp_mount_bootpart_nohtml
-	pcp_message INFO "Adding w1-gpio overlay to config.txt...'
+	pcp_mount_bootpart "text"
+	pcp_message INFO "Adding w1-gpio overlay to config.txt..." "text"
 	sed -i '/dtoverlay=w1-gpio/d' $CONFIGTXT
 	sudo echo "dtoverlay=w1-gpio" >> $CONFIGTXT
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=w1-gpio added." || FAIL_MSG="Can not add dtoverlay=w1-gpio."
-	pcp_umount_bootpart_nohtml
+	pcp_umount_bootpart "text"
 	REBOOT_REQUIRED=TRUE
 }
 
 pcp_uninstall_w1() {
-	pcp_message INFO "Removing packages for 1-wire.'
+	pcp_message INFO "Removing packages for 1-wire." "text"
 	sudo -u tc tce-audit builddb
 	[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete w1-KERNEL.tcz
 
-	pcp_mount_bootpart_nohtml
-	pcp_message INFO "Removing w1-gpio overlay from config.txt...'
+	pcp_mount_bootpart "text"
+	pcp_message INFO "Removing w1-gpio overlay from config.txt..." "text"
 	sed -i '/dtoverlay=w1-gpio/d' $CONFIGTXT
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=w1-gpio removed." || FAIL_MSG="Can not remove dtoverlay=w1-gpio."
-	pcp_umount_bootpart_nohtml
+	pcp_umount_bootpart "text"l
 	REBOOT_REQUIRED=TRUE
 }
 
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-echo '  <div>'
-echo '    <div>'
-echo '      <div class="row">'
+pcp_border_begin
 pcp_heading5 "1-wire temperature"
 
 #----------------------------------Install/Uninstall Buttons-----------------------------
@@ -156,11 +161,11 @@ if [ "$ACTION" = "Initial" ]; then
 	if ( ! df | grep w1- >/dev/null 2>&1 ); then
 		echo '              <div class="row">'
 		echo '                <div class="'$COLUMN4_1'">'
-		echo '                  <input type="submit" name="ACTION" value="Install" />'
+		echo '                  <input class="'$BUTTON'" type="submit" name="ACTION" value="Install">'
 		echo '                </div>'
-		echo '                <div>'
+		echo '                <div class="col-11">'
 		echo '                  <p>Install 1-wire&nbsp;&nbsp;'
-		echo '                    <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '                  </p>'
 		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '                    <p>Install 1-wire from repository.</p>'
@@ -177,10 +182,10 @@ if [ "$ACTION" = "Initial" ]; then
 		ROW=1
 		for W1_MASTER_SLAVE in $W1_MASTER_SLAVES; do
 			echo '              <div class="row">'
-			echo '                <div class="'$COLUMN4_1'">'
+			echo '                <div class="'$COLUMN4_2'">'
 			echo '                  <p>'$ROW'</p>'
 			echo '                </div>'
-			echo '                <div>'
+			echo '                <div class="'$COLUMN4_3'">'
 			echo '                  <p>'$(pcp_get_temperature "$(cat /sys/devices/w1_bus_master1/${W1_MASTER_SLAVE}/w1_slave)")'</p>'
 			echo '                </div>'
 			echo '              </div>'
@@ -190,11 +195,11 @@ if [ "$ACTION" = "Initial" ]; then
 		pcp_incr_id
 		echo '              <div class="row">'
 		echo '                <div class="'$COLUMN4_1'">'
-		echo '                  <input type="submit" name="ACTION" value="Uninstall">'
+		echo '                  <input class="'$BUTTON'" type="submit" name="ACTION" value="Uninstall">'
 		echo '                </div>'
-		echo '                <div>'
+		echo '                <div class="'$COLUMN4_2'">'
 		echo '                  <p>Uninstall 1-wire&nbsp;&nbsp;'
-		echo '                    <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '                  </p>'
 		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '                    <p>Uninstall 1-wire from '$NAME'.</p>'
@@ -205,153 +210,134 @@ if [ "$ACTION" = "Initial" ]; then
 	echo '          </form>'
 fi
 #----------------------------------------------------------------------------------------
+pcp_border_end
 
 #---------------------------------------Install------------------------------------------
 if [ "$ACTION" = "Install" ]; then
-	echo '                  <textarea class="inform" style="height:200px">'
+	pcp_infobox_begin
 	[ "$FAIL_MSG" = "ok" ] && pcp_install_w1
-	echo '                  </textarea>'
+	pcp_infobox_end
 fi
 #----------------------------------------------------------------------------------------
 
 #---------------------------------------Uninstall----------------------------------------
 if [ "$ACTION" = "Uninstall" ]; then
-	echo '                  <textarea class="inform" style="height:200px">'
+	pcp_infobox_begin
 	[ "$FAIL_MSG" = "ok" ] && pcp_uninstall_w1
-	echo '                  </textarea>'
+	pcp_infobox_end
 fi
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------------------------------------------------
-echo '      </div>'
-echo '    </div>'
-echo '  </div>'
-#----------------------------------------------------------------------------------------
 
 #--------------------------------Start/Stop/Clean----------------------------------------
-echo '  <div>'
-echo '    <div>'
-echo '      <div class="row">'
+pcp_border_begin
 pcp_heading5 "Temperature logging options"
 echo '          <form name="actions" action="'$0'" method="get">'
-echo '              <div>'
-echo '                <div>'
-echo '                  <input type="submit" name="OPTION" value="Start">'
-echo '                  <input type="submit" name="OPTION" value="Stop">'
-echo '                  <input type="submit" name="OPTION" value="Clean">'
-echo '                </div>'
+echo '            <div class="row">'
+echo '              <div class="'$COLUMN4_1'">'
+echo '                <input class="'$BUTTON'" type="submit" name="OPTION" value="Start">'
 echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
+echo '                <input class="'$BUTTON'" type="submit" name="OPTION" value="Stop">'
+echo '              </div>'
+echo '              <div class="'$COLUMN4_1'">'
+echo '                <input class="'$BUTTON'" type="submit" name="OPTION" value="Clean">'
+echo '              </div>'
+echo '            </div>'
 echo '          </form>'
-echo '      </div>'
-echo '    </div>'
-echo '  </div>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Debug
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	echo '  <div>'
-	echo '    <div>'
-	echo '      <div class="row">'
 	pcp_heading5 "Debug"
 	#------------------------------------------------------------------------------------
 	echo '            <div class="row">'
-	echo '              <div>'
-	echo '                <textarea class="inform" style="height:25px">'
+	echo '              <div class="col">'
+	pcp_infobox_begin
 	                        echo 'Looking for w1-gpio overlay...'
 	                        pcp_mount_bootpart_nohtml >/dev/null 2>&1
 	                        if ! cat $CONFIGTXT | grep dtoverlay=w1-gpio; then
-	                          pcp_message ERROR "w1-gpio overlay not found.'
+	                          pcp_message ERROR "w1-gpio overlay not found." "text"
 	                          FAIL_MSG="w1-gpio overlay not found."
 	                        fi
 	                        pcp_umount_bootpart_nohtml >/dev/null 2>&1
-	echo '                </textarea>'
+	pcp_infobox_end
 	echo '              </div>'
 	echo '            </div>'
 	#------------------------------------------------------------------------------------
 	echo '            <div class="row">'
-	echo '              <div>'
-	echo '                <textarea class="inform" style="height:70px">'
+	echo '              <div class="col">'
+	pcp_infobox_begin
 	                        echo 'Looking for wire in dmesg...'
 	                        if ! dmesg | grep wire; then
-	                          pcp_message ERROR "Nothing found in dmesg.'
+	                          pcp_message ERROR "Nothing found in dmesg." "text"
 	                          FAIL_MSG="Nothing found in dmesg."
 	                        fi
-	echo '                </textarea>'
+	pcp_infobox_end
 	echo '              </div>'
 	echo '            </div>'
 	#------------------------------------------------------------------------------------
 	echo '            <div class="row">'
-	echo '              <div>'
-	echo '                <textarea class="inform" style="height:70px">'
+	echo '              <div class="col">'
+	pcp_infobox_begin
 	                        echo 'Looking for errors in dmesg...'
 	                        if ! dmesg | grep w1_slave_driver; then
-	                          pcp_message ERROR "Nothing found in dmesg.'
+	                          pcp_message ERROR "Nothing found in dmesg." "text"
 	                          FAIL_MSG="No errors found in dmesg."
 	                        fi
-	echo '                </textarea>'
+	pcp_infobox_end
 	echo '              </div>'
 	echo '            </div>'
 	#------------------------------------------------------------------------------------
 	echo '            <div class="row">'
-	echo '              <div>'
-	echo '                <textarea class="inform" style="height:50px">'
+	echo '              <div class="col">'
+	pcp_infobox_begin
 	                        echo 'Looking for w1 modules...'
 	                        if ! lsmod | grep w1; then
-	                          pcp_message ERROR "No w1 modules found.'
+	                          pcp_message ERROR "No w1 modules found." "text"
 	                          FAIL_MSG="No w1 modules found."
 	                        fi
-	echo '                </textarea>'
+	pcp_infobox_end
 	echo '              </div>'
 	echo '            </div>'
 	#------------------------------------------------------------------------------------
 	echo '            <div class="row">'
-	echo '              <div>'
-	echo '                <textarea class="inform" style="height:50px">'
+	echo '              <div class="col">'
+	pcp_infobox_begin
 	                        echo 'Looking for devices...'
 	                        if ! ls /sys/bus/w1/devices/; then
-	                          pcp_message ERROR "No devices found.'
+	                          pcp_message ERROR "No devices found." "text"
 	                          FAIL_MSG="No devices found."
 	                        fi
-	echo '                </textarea>'
+	pcp_infobox_end
 	echo '              </div>'
 	echo '            </div>'
 	#------------------------------------------------------------------------------------
 	echo '            <div class="row">'
-	echo '              <div>'
-	echo '                <textarea class="inform" style="height:280px">'
+	echo '              <div class="col">'
+	pcp_infobox_begin
 	                        gpio readall
-	echo '                </textarea>'
+	pcp_infobox_end
 	echo '              </div>'
 	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	echo '      </div>'
-	echo '    </div>'
-	echo '  </div>'
+
 fi
 
 #========================================================================================
 # Generate status message and finish html page
 #----------------------------------------------------------------------------------------
-echo '  <div>'
-echo '    <div>'
-echo '      <div class="row">'
+
 pcp_heading5 "Status"
 echo '            <div class="row">'
-echo '              <div>'
+echo '              <div class="'$COLUMN4_1'">'
 echo '                <p>'$FAIL_MSG'</p>'
 echo '              </div>'
 echo '            </div>'
-echo '      </div>'
-echo '    </div>'
-echo '  </div>'
 
-pcp_footer
-pcp_copyright
-pcp_remove_query_string
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
 [ $REBOOT_REQUIRED ] && pcp_reboot_required
 exit

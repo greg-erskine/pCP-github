@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-30
+# Version: 7.0.0 2020-05-31
 
 . pcp-functions
 . pcp-rpi-functions
@@ -239,7 +239,7 @@ echo '      </div>'
 echo '      <div class="'$COLUMN3'">'
 echo '        Version:'
 echo '      </div>'
-echo '      <div class="'$COLUMN4'">'
+echo '      <div class="col-md-6">'
 echo '        '$(pcp_squeezelite_version)
 echo '      </div>'
 #-------------------------------------Row 2----------------------------------------------
