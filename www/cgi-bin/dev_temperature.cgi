@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-03-01
+# Version: 7.0.0 2020-05-30
 
 # Title: Temperature monitor
 # Description: Temperature using DS18B20
@@ -11,8 +11,6 @@ unset REBOOT_REQUIRED
 
 pcp_html_head "Show Temperature" "GE"
 
-pcp_banner
-pcp_running_script
 ACTION="Initial"
 pcp_httpd_query_string
 
@@ -116,12 +114,12 @@ esac
 # w1-KERNEL.tcz and w1-gpio install
 #----------------------------------------------------------------------------------------
 pcp_install_w1() {
-	echo '[ INFO ] Installing packages for 1-wire.'
-	echo '[ INFO ] This can take a couple of minutes. Please wait...'
+	pcp_message INFO "Installing packages for 1-wire.'
+	pcp_message INFO "This can take a couple of minutes. Please wait...'
 	sudo -u tc pcp-load -r $PCP_REPO -wi w1-KERNEL.tcz
 
 	pcp_mount_bootpart_nohtml
-	echo '[ INFO ] Adding w1-gpio overlay to config.txt...'
+	pcp_message INFO "Adding w1-gpio overlay to config.txt...'
 	sed -i '/dtoverlay=w1-gpio/d' $CONFIGTXT
 	sudo echo "dtoverlay=w1-gpio" >> $CONFIGTXT
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=w1-gpio added." || FAIL_MSG="Can not add dtoverlay=w1-gpio."
@@ -130,12 +128,12 @@ pcp_install_w1() {
 }
 
 pcp_uninstall_w1() {
-	echo '[ INFO ] Removing packages for 1-wire.'
+	pcp_message INFO "Removing packages for 1-wire.'
 	sudo -u tc tce-audit builddb
 	[ "$FAIL_MSG" = "ok" ] && sudo -u tc tce-audit delete w1-KERNEL.tcz
 
 	pcp_mount_bootpart_nohtml
-	echo '[ INFO ] Removing w1-gpio overlay from config.txt...'
+	pcp_message INFO "Removing w1-gpio overlay from config.txt...'
 	sed -i '/dtoverlay=w1-gpio/d' $CONFIGTXT
 	[ $? -eq 0 ] && echo "[ INFO ] dtoverlay=w1-gpio removed." || FAIL_MSG="Can not remove dtoverlay=w1-gpio."
 	pcp_umount_bootpart_nohtml
@@ -145,72 +143,65 @@ pcp_uninstall_w1() {
 #========================================================================================
 # Main
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
+echo '  <div>'
+echo '    <div>'
 echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>1-wire temperature</legend>'
+pcp_heading5 "1-wire temperature"
 
 #----------------------------------Install/Uninstall Buttons-----------------------------
 if [ "$ACTION" = "Initial" ]; then
 	pcp_incr_id
-	pcp_start_row_shade
 	echo '          <form name="main" action="'$0'" method="get">'
-	echo '            <table class="bggrey percent100">'
 
 	if ( ! df | grep w1- >/dev/null 2>&1 ); then
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150 center">'
+		echo '              <div class="row">'
+		echo '                <div class="'$COLUMN4_1'">'
 		echo '                  <input type="submit" name="ACTION" value="Install" />'
-		echo '                </td>'
-		echo '                <td>'
+		echo '                </div>'
+		echo '                <div>'
 		echo '                  <p>Install 1-wire&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
+		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '                    <p>Install 1-wire from repository.</p>'
 		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '                </div>'
+		echo '              </div>'
 	else
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td colspan="2">'
+		echo '              <div class="row">'
+		echo '                <div class="'$COLUMN4_1'">'
 		echo '                  <p>Number of sensors: '$W1_MASTER_SLAVE_COUNT'</p>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '                </div>'
+		echo '              </div>'
 
 		ROW=1
 		for W1_MASTER_SLAVE in $W1_MASTER_SLAVES; do
-			pcp_toggle_row_shade
-			echo '              <tr class="'$ROWSHADE'">'
-			echo '                <td class="column50 center">'
+			echo '              <div class="row">'
+			echo '                <div class="'$COLUMN4_1'">'
 			echo '                  <p>'$ROW'</p>'
-			echo '                </td>'
-			echo '                <td>'
+			echo '                </div>'
+			echo '                <div>'
 			echo '                  <p>'$(pcp_get_temperature "$(cat /sys/devices/w1_bus_master1/${W1_MASTER_SLAVE}/w1_slave)")'</p>'
-			echo '                </td>'
-			echo '              </tr>'
+			echo '                </div>'
+			echo '              </div>'
 			ROW=$((ROW+1))
 		done
 
 		pcp_incr_id
-		pcp_toggle_row_shade
-		echo '              <tr class="'$ROWSHADE'">'
-		echo '                <td class="column150 center">'
+		echo '              <div class="row">'
+		echo '                <div class="'$COLUMN4_1'">'
 		echo '                  <input type="submit" name="ACTION" value="Uninstall">'
-		echo '                </td>'
-		echo '                <td>'
+		echo '                </div>'
+		echo '                <div>'
 		echo '                  <p>Uninstall 1-wire&nbsp;&nbsp;'
-		echo '                    <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		echo '                    <a id="dt'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
 		echo '                  </p>'
-		echo '                  <div id="'$ID'" class="less">'
+		echo '                  <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '                    <p>Uninstall 1-wire from '$NAME'.</p>'
 		echo '                  </div>'
-		echo '                </td>'
-		echo '              </tr>'
+		echo '                </div>'
+		echo '              </div>'
 	fi
-	echo '            </table>'
 	echo '          </form>'
 fi
 #----------------------------------------------------------------------------------------
@@ -232,162 +223,129 @@ fi
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
-echo '        </fieldset>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+echo '  </div>'
 #----------------------------------------------------------------------------------------
 
 #--------------------------------Start/Stop/Clean----------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
+echo '  <div>'
+echo '    <div>'
 echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Temperature logging options</legend>'
+pcp_heading5 "Temperature logging options"
 echo '          <form name="actions" action="'$0'" method="get">'
-echo '            <table class="bggrey percent100">'
-echo '              <tr>'
-echo '                <td>'
+echo '              <div>'
+echo '                <div>'
 echo '                  <input type="submit" name="OPTION" value="Start">'
 echo '                  <input type="submit" name="OPTION" value="Stop">'
 echo '                  <input type="submit" name="OPTION" value="Clean">'
-echo '                </td>'
-echo '              </tr>'
-echo '            </table>'
+echo '                </div>'
+echo '              </div>'
 echo '          </form>'
-echo '        </fieldset>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+echo '  </div>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Debug
 #----------------------------------------------------------------------------------------
 if [ $DEBUG -eq 1 ]; then
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+	echo '  <div>'
+	echo '    <div>'
 	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Debug</legend>'
-	echo '          <table class="bggrey percent100">'
+	pcp_heading5 "Debug"
 	#------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '            <div class="row">'
+	echo '              <div>'
 	echo '                <textarea class="inform" style="height:25px">'
 	                        echo 'Looking for w1-gpio overlay...'
 	                        pcp_mount_bootpart_nohtml >/dev/null 2>&1
 	                        if ! cat $CONFIGTXT | grep dtoverlay=w1-gpio; then
-	                          echo '[ ERROR ] w1-gpio overlay not found.'
+	                          pcp_message ERROR "w1-gpio overlay not found.'
 	                          FAIL_MSG="w1-gpio overlay not found."
 	                        fi
 	                        pcp_umount_bootpart_nohtml >/dev/null 2>&1
 	echo '                </textarea>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_table_padding
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '            <div class="row">'
+	echo '              <div>'
 	echo '                <textarea class="inform" style="height:70px">'
 	                        echo 'Looking for wire in dmesg...'
 	                        if ! dmesg | grep wire; then
-	                          echo '[ ERROR ] Nothing found in dmesg.'
+	                          pcp_message ERROR "Nothing found in dmesg.'
 	                          FAIL_MSG="Nothing found in dmesg."
 	                        fi
 	echo '                </textarea>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_table_padding
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '            <div class="row">'
+	echo '              <div>'
 	echo '                <textarea class="inform" style="height:70px">'
 	                        echo 'Looking for errors in dmesg...'
 	                        if ! dmesg | grep w1_slave_driver; then
-	                          echo '[ ERROR ] Nothing found in dmesg.'
+	                          pcp_message ERROR "Nothing found in dmesg.'
 	                          FAIL_MSG="No errors found in dmesg."
 	                        fi
 	echo '                </textarea>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_table_padding
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '            <div class="row">'
+	echo '              <div>'
 	echo '                <textarea class="inform" style="height:50px">'
 	                        echo 'Looking for w1 modules...'
 	                        if ! lsmod | grep w1; then
-	                          echo '[ ERROR ] No w1 modules found.'
+	                          pcp_message ERROR "No w1 modules found.'
 	                          FAIL_MSG="No w1 modules found."
 	                        fi
 	echo '                </textarea>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_table_padding
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '            <div class="row">'
+	echo '              <div>'
 	echo '                <textarea class="inform" style="height:50px">'
 	                        echo 'Looking for devices...'
 	                        if ! ls /sys/bus/w1/devices/; then
-	                          echo '[ ERROR ] No devices found.'
+	                          pcp_message ERROR "No devices found.'
 	                          FAIL_MSG="No devices found."
 	                        fi
 	echo '                </textarea>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_table_padding
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
+	echo '            <div class="row">'
+	echo '              <div>'
 	echo '                <textarea class="inform" style="height:280px">'
 	                        gpio readall
 	echo '                </textarea>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_table_padding
+	echo '              </div>'
+	echo '            </div>'
 	#------------------------------------------------------------------------------------
-	echo '          </table>'
-	echo '        </fieldset>'
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '    </div>'
+	echo '  </div>'
 fi
 
 #========================================================================================
 # Generate status message and finish html page
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
+echo '  <div>'
+echo '    <div>'
 echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Status</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
+pcp_heading5 "Status"
+echo '            <div class="row">'
+echo '              <div>'
 echo '                <p>'$FAIL_MSG'</p>'
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
+echo '              </div>'
+echo '            </div>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+echo '    </div>'
+echo '  </div>'
 
 pcp_footer
 pcp_copyright

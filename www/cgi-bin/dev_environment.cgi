@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-09-21
+# Version: 7.0.0 2020-05-30
 
 # Title: Print the current environment
-# Description: Future, set the enviroment of busybox-httpd by launching
+# Description: Future, set the environment of busybox-httpd by launching
 # env - GLOBAL=/usr/local/etc/pcp/test.cfg PATH=/usr/local/sbin:/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin /usr/local/sbin/busybox-httpd -h /home/tc/www
 
 printf "%s\n\n" "Content-type: text/plain"
