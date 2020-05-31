@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-05-31
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -50,12 +50,12 @@ pcp_restore() {
 # restore original values.
 #----------------------------------------------------------------------------------------
 pcp_update() {
-	echo '<p class="info">[ INFO ] Copying pcp.cfg to /tmp...</p>'
+	pcp_message INFO "Copying pcp.cfg to /tmp..." "text"
 	sudo cp $PCPCFG /tmp/pcp.cfg
-	[ $? -ne 0 ] && echo '<p class="error">[ ERROR ] Error copying pcp.cfg to /tmp...</p>'
-	echo '<p class="info">[ INFO ] Setting pcp.cfg to defaults...</p>'
+	[ $? -ne 0 ] && pcp_message ERROR "Error copying pcp.cfg to /tmp...</p>'" "text"
+	pcp_message INFO "Setting pcp.cfg to defaults..." "text"
 	pcp_update_config_to_defaults
-	echo '<p class="info">[ INFO ] Updating pcp.cfg with original values...</p>'
+	pcp_message INFO "Updating pcp.cfg with original values..." "text"
 	. $PCPCFG
 	. /tmp/pcp.cfg
 	pcp_save_to_config
@@ -91,10 +91,10 @@ case "$SUBMIT" in
 		fi
 		[ $SQUEEZELITE = "no" ] && unset RESTART_REQUIRED
 		pcp_infobox_begin
-		pcp_message INFO "Saving config file." "html"
+		pcp_message INFO "Saving config file." "text"
 		pcp_save_to_config
 		pcp_footer static >/tmp/footer.html
-		pcp_backup "html"
+		pcp_backup "text"
 		pcp_infobox_end
 	;;
 	Binary)
@@ -118,10 +118,10 @@ case "$SUBMIT" in
 		esac
 		if [ $SAVE -eq 1 ]; then
 			pcp_infobox_begin
-			pcp_message INFO "Saving Squeezelite to $SQBINARY." "html"
-			pcp_message INFO "Saving config file." "html"
+			pcp_message INFO "Saving Squeezelite to $SQBINARY." "text"
+			pcp_message INFO "Saving config file." "text"
 			pcp_save_to_config
-			pcp_backup "html"
+			pcp_backup "text"
 			pcp_infobox_end
 		fi
 	;;
@@ -139,16 +139,16 @@ case "$SUBMIT" in
 		REBOOT_REQUIRED=1
 		case $GPIOPOWEROFF in
 			yes)
-				pcp_mount_bootpart_nohtml
+				pcp_mount_bootpart
 				sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
 				[ $GPIOPOWEROFF_HI = "yes" ] && ACTIVELOW="" || ACTIVELOW=",active_low=1"
 				echo "dtoverlay=gpio-poweroff,gpiopin=${GPIOPOWEROFF_GPIO}${ACTIVELOW}" >> $CONFIGTXT
-				pcp_umount_bootpart_nohtml
+				pcp_umount_bootpartm
 			;;
 			no)
-				pcp_mount_bootpart_nohtml
+				pcp_mount_bootpart
 				sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
-				pcp_umount_bootpart_nohtml
+				pcp_umount_bootpart
 			;;
 		esac
 		pcp_save_to_config
@@ -158,17 +158,17 @@ case "$SUBMIT" in
 		REBOOT_REQUIRED=1
 		case $GPIOSHUTDOWN in
 			yes)
-				pcp_mount_bootpart_nohtml
+				pcp_mount_bootpart
 				sed -i '/dtoverlay=gpio-shutdown/d' $CONFIGTXT
 				[ $GPIOSHUTDOWN_HI = "yes" ] && ACTIVELOW="active_low=0" || ACTIVELOW="active_low=1"
 				echo "dtoverlay=gpio-shutdown,gpio_pin=${GPIOSHUTDOWN_GPIO},${ACTIVELOW},gpio_pull=${GPIOSHUTDOWN_PU}" >> $CONFIGTXT
-				pcp_umount_bootpart_nohtml
+				pcp_umount_bootpart
 				install_shutdown_monitor
 			;;
 			no)
-				pcp_mount_bootpart_nohtml
+				pcp_mount_bootpart
 				sed -i '/dtoverlay=gpio-shutdown/d' $CONFIGTXT
-				pcp_umount_bootpart_nohtml
+				pcp_umount_bootpart
 				sed -i '/shutdown-monitor.tcz/d' $ONBOOTLST
 			;;
 		esac
@@ -179,7 +179,7 @@ case "$SUBMIT" in
 		install_shutdown_monitor
 	;;
 	*)
-		pcp_message ERROR "Invalid case argument." "html"
+		pcp_message ERROR "Invalid case argument." "text"
 	;;
 esac
 
@@ -191,7 +191,7 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	pcp_confirmation_required
 fi
 
-pcp_message ERROR "Remove this second backup!!!" "html"
+pcp_message ERROR "Remove this second backup!!!" "text"
 pcp_backup   # <===== GE Eventually remove this
 
 [ $RESTART_REQUIRED ] || pcp_redirect_button "Go Back" $FROM_PAGE 5

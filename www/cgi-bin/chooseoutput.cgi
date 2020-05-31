@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-13
+# Version: 7.0.0 2020-05-31
 
 . pcp-functions
 . pcp-lms-functions
@@ -29,19 +29,19 @@ pcp_debug_variables "html" QUERY_STRING AUDIO OUTPUT DTOVERLAY PARAMS1 PARAMS2 P
 pcp_infobox_begin
 
 if [ "$ORIG_AUDIO" = "$AUDIO" ]; then
-	pcp_message INFO "Audio output unchanged, still $AUDIO." "html"
+	pcp_message INFO "Audio output unchanged, still $AUDIO." "text"
 	if [ "$DEFAULTS" = "yes" ]; then
-		pcp_message INFO "Setting default ALSA parameters." "html"
-		pcp_squeezelite_stop "html"
+		pcp_message INFO "Setting default ALSA parameters." "text"
+		pcp_squeezelite_stop "text"
 		pcp_soundcontrol
-		pcp_squeezelite_start "html"
+		pcp_squeezelite_start "text"
 		pcp_save_to_config
 	else
-		pcp_message INFO "Nothing to do." "html"
+		pcp_message INFO "Nothing to do." "text"
 		unset CHANGED
 	fi
 else
-	pcp_message INFO "Audio output changed from $ORIG_AUDIO to $AUDIO." "html"
+	pcp_message INFO "Audio output changed from $ORIG_AUDIO to $AUDIO." "text"
 	# The next line is needed to clear OUTPUT from here when selecting USB.
 	# Whereas when pcp_read_chosen_audio is called from pcp_startup.sh it should use the correct USB OUTPUT from newpcp.
 	USBOUTPUT=""
@@ -50,7 +50,7 @@ fi
 
 # Only do something if $AUDIO variable has changed.
 if [ $CHANGED ]; then
-	pcp_squeezelite_stop "html"
+	pcp_squeezelite_stop "text"
 	pcp_soundcontrol
 
 	[ "$DEFAULTS" = "no" ] && ALSA_PARAMS=$ORIG_ALSA_PARAMS
@@ -60,7 +60,7 @@ if [ $CHANGED ]; then
 	PARAM1="$PARAMS1"
 
 	# Set the default settings
-	pcp_message INFO "Setting Audio output to $AUDIO." "html"
+	pcp_message INFO "Setting Audio output to $AUDIO." "text"
 
 	# If ALSA equalizer is chosen output it should always be equal.
 	[ "$ALSAeq" = "yes" ] && OUTPUT="equal"
@@ -115,13 +115,15 @@ if [ $CHANGED ]; then
 		pcp_confirmation_required
 	fi
 
-	pcp_squeezelite_start "html"
+	pcp_squeezelite_start "text"
 	pcp_save_to_config
 	pcp_read_chosen_audio
-	pcp_backup "html"
+	pcp_backup "text"
 fi
 
 pcp_infobox_end
+
 pcp_redirect_button "Go Back" "$FROM_PAGE" 15
 [ $CHANGED ] && pcp_reboot_required
 pcp_html_end
+exit

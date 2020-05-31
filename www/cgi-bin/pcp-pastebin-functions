@@ -54,12 +54,14 @@ pcp_install_wget() {
 pcp_pastebin_button() {
 	if [ $MODE -ge $MODE_PLAYER ]; then
 		echo '<!-- Start of pcp_pastebin_button -->'
-		echo '  <div class="form-group mt-3 mb-3">'
-		echo '    <form name="Pastebin" action="pastebin.cgi" method="get">'
-		echo '      <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Upload">Upload results to Pastebin</button>'
-		echo '      <input type="hidden" name="FILE" value="'$LOG'">'
-		echo '      <input type="hidden" name="REPORT" value="'${1}'">'
-		echo '    </form>'
+		echo '  <div class="row">'
+		echo '    <div class="col-3 mb-3">'
+		echo '      <form name="Pastebin" action="pastebin.cgi" method="get">'
+		echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Upload">Upload results to Pastebin</button>'
+		echo '        <input type="hidden" name="FILE" value="'$LOG'">'
+		echo '        <input type="hidden" name="REPORT" value="'${1}'">'
+		echo '      </form>'
+		echo '    </div>'
 		echo '  </div>'
 		echo '<!-- End of pcp_pastebin_button -->'
 	fi
