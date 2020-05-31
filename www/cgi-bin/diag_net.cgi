@@ -1,7 +1,7 @@
 #!/bin/sh
 # Raspberry Pi network throughput diagnostics script
 
-# Version: 7.0.0 2020-05-30
+# Version: 7.0.0 2020-05-31
 
 . pcp-functions
 . pcp-rpi-functions
@@ -14,6 +14,8 @@ pcp_httpd_query_string
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-3"
 COLUMN3_3="col-sm-7"
+
+LOG="${LOGDIR}/pcp_iperf.log"
 
 Set defaults.
 [ "$IPERF3_SERVER_MODE" = "" ] && IPERF3_SERVER_MODE="no"
@@ -122,7 +124,7 @@ case "$ACTION" in
 		pcp_infobox_begin
 		if [ $(pcp_squeezelite_status) -eq 0 ]; then
 			pcp_message WARN "Squeezelite is running, results might be affected." "text"
-			pcp_message WARN "Goto [Main Page] and {Stop] Squeezelite." "text"
+			pcp_message WARN "Goto [Main Page] and [Stop] Squeezelite." "text"
 		fi
 
 		REV=""
@@ -156,13 +158,13 @@ case "$ACTION" in
 			IPERF_COMMAND="iperf3 -c $IP3_IP -p $IPERF_SERVER_PORT -V $UDP -b 300M $DURATION $REV"
 			echo "[ INFO ] Iperf will run for 20 seconds, then output will show..."
 		else
-			echo "[ INFO ] Iperf running in server mode.  Press stop to quit."
+			echo "[ INFO ] Iperf running in server mode. Press stop to quit."
 			echo "[ INFO ] Set Client to use IP Address: $(pcp_eth0_ip) or $(pcp_wlan0_ip)"
 			IPERF_COMMAND="iperf3 -s -V"
 		fi
 		[ $DEBUG -eq 1 ] && echo "[ DEBUG ] Iperf command: $IPERF_COMMAND"
 
-		$IPERF_COMMAND
+		$IPERF_COMMAND | tee -a $LOG
 		if [ $? -ne 0 ]; then
 			echo "[ ERROR ] Iperf3 connection error, check to be sure server is running on selected <host>:<port>"
 		fi
@@ -338,17 +340,17 @@ if [ -x /usr/local/bin/iperf3 ]; then
 	echo '        </div>'
 	echo '        <div class="'$COLUMN3_2'">'
 	echo '          <input id="rad1" type="radio" name="IPERF3_SERVER_MODE" value="yes" '$IPERF3_SERVER_MODEyes'>'
-	echo '          <label for="rad1">Yes</label>'
+	echo '          <label for="rad1">Server</label>'
 	echo '          <input id="rad2" type="radio" name="IPERF3_SERVER_MODE" value="no" '$IPERF3_SERVER_MODEno'>'
-	echo '          <label for="rad2">No</label>'
+	echo '          <label for="rad2">Client</label>'
 	echo '        </div>'
 	echo '        <div class="'$COLUMN3_3'">'
 	echo '          <p>Set iperf to server mode&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '          </p>'
 	echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '            <p>Yes - This device will run in server mode.</p>'
-	echo '            <p>No - This device will run in client mode.</p>'
+	echo '            <p>Server - This device will run in server mode.</p>'
+	echo '            <p>Client - This device will run in client mode.</p>'
 	echo '          </div>'
 	echo '        </div>'
 	echo '      </div>'
@@ -377,7 +379,7 @@ if [ -x /usr/local/bin/iperf3 ]; then
 		echo '            <p>Default port: 5201</p>'
 		echo '            <p class="error"><b>Note:</b> Do not include the port number unless you have changed the default Server port number.</p>'
 		                  if [ "$LMSERVER" = "no" ]; then
-		echo   '            <p>Current LMS IP is (If that is where your iperf3 server is running:</p>'
+		echo   '            <p>Current LMS IP is (If that is where your iperf3 server is running):</p>'
 		echo   '            <ul>'
 		echo   '              <li>'$(pcp_lmsip)'</li>'
 		echo   '            </ul>'

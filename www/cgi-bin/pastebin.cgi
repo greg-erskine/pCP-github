@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 7.0.0 2020-05-31
 
 . pcp-functions
 . pcp-pastebin-functions
@@ -8,36 +8,32 @@
 
 pcp_html_head "Pastebin" "GE"
 
-pcp_banner
-pcp_navigation
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 FILE=$($HTTPD -d $FILE)
 UPLOAD_FILE="/tmp/pcp_pastebin.txt"
 
-#========================================================================================
-# Progress table
-#----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Progress</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
+COLUMN3_1="col-sm-2"
+COLUMN3_2="col-sm-3"
+COLUMN3_3="col-sm-7"
 
-pcp_debug_variables SUBMIT FILE UPLOAD_FILE REPORT
+#========================================================================================
+#
+#----------------------------------------------------------------------------------------
+pcp_border_begin
+pcp_heading5 "Progress"
+echo '      <div class="row mx-1 mb-2">'
+echo '        <div class="col-12">'
+
+pcp_debug_variables "html" SUBMIT FILE UPLOAD_FILE REPORT
 
 #----------------------------------------------------------------------------------------
 # Submit actions
 #----------------------------------------------------------------------------------------
 case "$SUBMIT" in
 	Upload)
-		echo '<p class="info">[ INFO ] Prepare for uploading...</p>'
+		pcp_message INFO "Prepare for uploading..." "text"
 		cp "$FILE" "$UPLOAD_FILE"
 		# Not really needed anymore <==GE
 		case $FILE in
@@ -48,8 +44,8 @@ case "$SUBMIT" in
 		esac
 	;;
 	Accept)
-		echo '<p class="info">[ INFO ] Upload paste has been accepted.</p>'
-		echo '<p class="info">[ INFO ] Encoding '$FILE'...</p>'
+		pcp_message INFO "Upload paste has been accepted." "text"
+		pcp_message INFO "Encoding $FILE..." "text"
 
 API_POST_CODE=$(/usr/bin/micropython -c '
 #!/usr/bin/micropython
@@ -86,154 +82,90 @@ infile.close
 		pcp_pastebin_paste $UPLOAD_FILE $REPORT
 	;;
 	Reject)
-		echo '<p class="info">[ INFO ] Rejected - paste was NOT uploaded.</p>'
+		pcp_message INFO "Rejected - paste was NOT uploaded." "text"
 		echo 'DELETED - paste was NOT uploaded.' >$UPLOAD_FILE
 	;;
 	*)
-		echo '<p class="info">[ INFO ] Invalid submit option.</p>'
+		pcp_message INFO "Invalid submit option." "text"
 		echo 'Invalid submit option.' >$UPLOAD_FILE
 	;;
 esac
 
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
+echo '        </div>'
 echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Paste form.
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Paste - '$REPORT'</legend>'
-echo '          <table class="bggrey percent100">'
-pcp_start_row_shade
-echo '            <tr class="'$ROWSHADE'">'
-echo '              <td>'
-                      pcp_textarea_inform "none" "cat $UPLOAD_FILE" 200
-echo '              </td>'
-echo '            </tr>'
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_heading5 "Paste - $REPORT"
+pcp_textarea "none" "cat $UPLOAD_FILE" 20
 #----------------------------------------------------------------------------------------
 
 if [ "$SUBMIT" = "Upload" ]; then
 #========================================================================================
 # Installing wget extension and dependencies.
 #----------------------------------------------------------------------------------------
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+	pcp_heading5 "Installing wget"
 	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Installing wget</legend>'
-	echo '          <table class="bggrey percent100">'
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_install_wget
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
+	echo '        <div class="col-12">'
+	                pcp_install_wget
+	echo '        </div>'
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
 # Accept or reject paste form.
 #----------------------------------------------------------------------------------------
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
-	echo '      <form name="Accept_reject" action="pastebin.cgi" method="get">'
-	echo '        <div class="row">'
-	echo '          <fieldset>'
-	echo '            <legend>WARNING</legend>'
-	echo '            <table class="bggrey percent100">'
-	pcp_start_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <p>The Paste window above contains the paste that will be uploaded into Pastebin.</p>'
-	echo '                  <p>Check you are happy with the contents BEFORE pressing the [ Accept ] button.</p>'
-	echo '                  <p><b>Note:</b> The paste:</p>'
-	echo '                  <ul>'
-	echo '                     <li>will be sent as a private paste, so it will not visable to the public.</li>'
-	echo '                     <li>will expire in 24 hours.</li>'
-	echo '                  </ul>'
-	echo '                  <p>Only press the [ Accept ] button if you AGREE to upload this paste to Pastebin.</p>'
-	echo '                  <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
-	echo '                </td>'
-	echo '              </tr>'
-	pcp_toggle_row_shade
-	echo '              <tr class="'$ROWSHADE'">'
-	echo '                <td>'
-	echo '                  <input type="submit" name="SUBMIT" value="Accept">'
-	echo '                  <input type="submit" name="SUBMIT" value="Reject">'
-	echo '                  <input type="hidden" name="FILE" value="'$FILE'">'
-	echo '                  <input type="hidden" name="REPORT" value="'$REPORT'">'
-	echo '                </td>'
-	echo '              </tr>'
-	echo '            </table>'
-	echo '          </fieldset>'
+	echo '      <div class="alert alert-primary mt-3" role="alert">'
+	echo '        <div class="col-12">'
+	echo '          <b>WARNING:</b>'
+	echo '          <p>The Paste window above contains the paste that will be uploaded into Pastebin.</p>'
+	echo '          <p>Check you are happy with the contents BEFORE pressing the [ Accept ] button.</p>'
+	echo '          <p><b>Note:</b> The paste:</p>'
+	echo '          <ul>'
+	echo '             <li>will be sent as a private paste, so it will not visable to the public.</li>'
+	echo '             <li>will expire in 24 hours.</li>'
+	echo '          </ul>'
+	echo '          <p>Only press the [ Accept ] button if you AGREE to upload this paste to Pastebin.</p>'
+	echo '          <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
 	echo '        </div>'
-	echo '      </form>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	echo '      </div>'
+
+
+	echo '    <form name="Accept_reject" action="pastebin.cgi" method="get">'
+	echo '      <div class="row mb-2">'
+	echo '        <div class="'$COLUMN3_1'">'
+	echo '          <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Accept">'
+	echo '        </div>'
+	echo '        <div class="'$COLUMN3_1'">'
+	echo '          <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Reject">'
+	echo '          <input type="hidden" name="FILE" value="'$FILE'">'
+	echo '          <input type="hidden" name="REPORT" value="'$REPORT'">'
+	echo '        </div>'
+	echo '      </div>'
+	echo '    </form>'
 fi
 
 #========================================================================================
 # Results form
 #----------------------------------------------------------------------------------------
 if [ "$SUBMIT" = "Accept" ]; then
-	echo '<table class="bggrey">'
-	echo '  <tr>'
-	echo '    <td>'
+	pcp_heading5 "Results"
+	pcp_border_begin
 	echo '      <div class="row">'
-	echo '        <fieldset>'
-	echo '          <legend>Results</legend>'
-	echo '          <table class="bggrey percent100">'
-	pcp_start_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	echo '                <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
-	echo '                <p>paste name: '$API_PASTE_NAME'</p>'
-	echo '                <p>url: '$PASTEBIN_URL'</p>'
+	echo '        <div class="col-12">'
+	echo '          <p>Please inform the pCP Team that you have uploaded a paste as we do not monitor Pastebin regularly.</p>'
+	echo '          <p>paste name: '$API_PASTE_NAME'</p>'
+	echo '          <p>url: '$PASTEBIN_URL'</p>'
 	[ $MODE -ge $MODE_DEVELOPER ] && [ $TEST -eq 4 ] &&
-	echo '                <a target="_blank" href="'$PASTEBIN_URL'">'$PASTEBIN_URL'</a>'
-	echo '              </td>'
-	echo '            </tr>'
-	pcp_toggle_row_shade
-	echo '            <tr class="'$ROWSHADE'">'
-	echo '              <td>'
-	                      pcp_redirect_button "Refresh Main Page" "main.cgi" 120
-	echo '              </td>'
-	echo '            </tr>'
-	echo '          </table>'
-	echo '        </fieldset>'
+	echo '          <a target="_blank" href="'$PASTEBIN_URL'">'$PASTEBIN_URL'</a>'
+	echo '        </div>'
 	echo '      </div>'
-	echo '    </td>'
-	echo '  </tr>'
-	echo '</table>'
+	pcp_border_end
+	pcp_redirect_button "Refresh Main Page" "main.cgi" 1200
 fi
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit

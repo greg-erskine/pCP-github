@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-23
+# Version: 7.0.0 2020-05-31
 
 # Title: Extensions
 # Description: Download, install, delete, update and report on extensions
@@ -27,8 +27,6 @@ pcp_controls
 pcp_navbar
 pcp_httpd_query_string
 pcp_debug_info
-
-DEBUG=0
 
 COLUMN3_1="col-sm-3"
 COLUMN3_2="col-sm-4"

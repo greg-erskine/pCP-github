@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 7.0.0 2020-05-08
+# Version: 7.0.0 2020-05-31
 
 pcp_debug_log "$0 - Running pcp-pastebin-functions..."
 
@@ -29,7 +29,7 @@ PBWGET="/usr/local/bin/wget"
 # wget routine - Check for wget.tcz and download and install.
 #----------------------------------------------------------------------------------------
 pcp_install_wget() {
-	echo '<textarea class="GExxxxxx" rows="4">'
+	pcp_infobox_begin
 	ls /usr/local/tce.installed/wget
 	if [ $? -eq 0 ]; then
 		echo 'wget.tcz already installed.'
@@ -45,7 +45,7 @@ pcp_install_wget() {
 		sudo -u tc tce-load -i wget.tcz
 		[ $? -eq 0 ] && echo 'Done.' || echo 'Error.'
 	fi
-	echo '</textarea>'
+	pcp_infobox_end
 }
 
 #========================================================================================
@@ -56,7 +56,7 @@ pcp_pastebin_button() {
 		echo '<!-- Start of pcp_pastebin_button -->'
 		echo '  <div class="form-group mt-3 mb-3">'
 		echo '    <form name="Pastebin" action="pastebin.cgi" method="get">'
-		echo '      <button type="submit" class="btn btn-primary" name="SUBMIT" value="Upload">Upload results to Pastebin</button>'
+		echo '      <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Upload">Upload results to Pastebin</button>'
 		echo '      <input type="hidden" name="FILE" value="'$LOG'">'
 		echo '      <input type="hidden" name="REPORT" value="'${1}'">'
 		echo '    </form>'
