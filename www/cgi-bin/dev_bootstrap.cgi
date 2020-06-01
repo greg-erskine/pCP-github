@@ -11,12 +11,8 @@ pcp_html_head "Dev bootstrap" "GE"
 
 echo '<hr>'
 
-echo '<script>'
-echo '    $(function() {'
-echo '        $('[data-toggle="tooltip"]').tooltip();'
-echo '    })'
-echo '</script>'
-echo ''
+pcp_activate_tooltip
+
 echo '<div>'
 echo '    <ul class="list-inline">'
 echo '        <li class="list-inline-item">'
@@ -45,13 +41,24 @@ echo '  Tooltip on bottom'
 echo '</button>'
 
 
-
+echo '<!-- HTML to write -->'
+echo '<a href="#" data-toggle="tooltip" title="Some tooltip text!">Hover over me!!!!!</a>'
+echo ''
+echo '<!-- Generated markup by the plugin -->'
+echo '<div class="tooltip bs-tooltip-top" role="tooltip">'
+echo '  <div class="arrow"></div>'
+echo '  <div class="tooltip-inner">'
+echo '    Some tooltip text!!!!!'
+echo '  </div>'
+echo '</div>'
 
 
 echo '<div class="container">'
 
 
 echo '<!-- HTML to write -->'
+
+echo '<br>'
 echo '<a href="#" data-toggle="tooltip" title="XXXX Some tooltip text!">Hover over me</a>'
 echo ''
 echo '<!-- Generated markup by the plugin -->'
@@ -76,13 +83,13 @@ echo '<hr>'
 
 echo '<hr>'
 
-echo '<a href="#" data-toggle="tooltip" title="Title Here">Hyperlink Text</a>'
-echo ''
-echo '<script>'
-echo '$(document).ready(function() {'
-echo '    $("body").tooltip({ selector: '[data-toggle=tooltip]' });'
-echo '});'
-echo '</script>'
+#echo '<a href="#" data-toggle="tooltip" title="Title Here">Hyperlink Text</a>'
+#echo ''
+#echo '<script>'
+#echo '$(document).ready(function() {'
+#echo '    $("body").tooltip({ selector: '[data-toggle=tooltip]' });'
+#echo '});'
+#echo '</script>'
 
 echo '<hr>'
 

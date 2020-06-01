@@ -11,6 +11,7 @@ pcp_html_head "Squeezelite Settings" "SBP"
 
 pcp_controls
 pcp_navbar
+pcp_activate_tooltip
 
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-4"
@@ -203,12 +204,6 @@ echo '</div>'
 
 . $PCPCFG
 
-echo '<script>'
-echo '    $(document).ready(function(){'
-echo '        $('[data-toggle="tooltip"]').tooltip();'
-echo '    });'
-echo '</script>'
-
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
@@ -225,13 +220,11 @@ echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Name of your player</p>'
 echo '      </div>'
 echo '      <div class="form-group '$COLUMN3_2'">'
-echo '        <input class="form-control form-control-sm"'
+echo '        <input class="form-control form-control-sm" data-toggle="tooltip" '
 echo '               type="text"'
 echo '               name="NAME"'
 echo '               value="'$NAME'"'
 echo '               required'
-echo '               data-toggle="tooltip"'
-echo '               data-placement="top"'
 echo '               title="Invalid characters: $ &amp; ` / &quot;"'
 echo '               pattern="[^$&`/\x22]+"'
 echo '        >'

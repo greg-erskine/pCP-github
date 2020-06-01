@@ -2,7 +2,7 @@
 # pcp-lms-functions
 # These are the common functions used to interface with LMS.
 
-# Version: 7.0.0 2020-05-19
+# Version: 7.0.0 2020-06-01
 
 pcp_debug_log "$0 - Running pcp-lms-functions..."
 
@@ -28,13 +28,34 @@ pcp_controls() {
 		[ -z $LMSIP ] && LMSIP=$(pcp_lmsip)
 		echo '<!-- Start of pcp_lms_controls toolbar -->'
 		echo '  <lms class="btn-group" role="group">'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')"><b>R</b></button>'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">'$(pcp_bi_volume_up_fill)'</button>'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">'$(pcp_bi_volume_down_fill)'</button>'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">'$(pcp_bi_skip_backward_fill)'</button>'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">'$(pcp_bi_skip_forward_fill)'</button>'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">'$(pcp_bi_play_fill)'</button>'
-		echo '    <button class="btn btn-sm text-secondary" onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">'$(pcp_bi_pause_fill)'</button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''randomplay'\'', '\''tracks'\'')">
+		                  <b>R</b></button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''+5'\'')">
+		                  '$(pcp_bi_volume_up_fill)'</button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''mixer'\'', '\''volume'\'', '\''-5'\'')">
+		                  '$(pcp_bi_volume_down_fill)'</button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''-1'\'')">
+		                  '$(pcp_bi_skip_backward_fill)'</button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''playlist'\'', '\''jump'\'', '\''+1'\'')">
+		                  '$(pcp_bi_skip_forward_fill)'</button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''play'\'')">
+		                  '$(pcp_bi_play_fill)'</button>'
+		echo '    <button class="btn btn-sm text-secondary"
+		                  style="font-size: 1.25em"
+		                  onclick="return lms_controls_send('\'''$LMSIP''\'', '\'''$LMSPORT''\'', '\'''$NAME''\'', '\''stop'\'')">
+		                  '$(pcp_bi_pause_fill)'</button>'
 		echo '  </lms>'
 		echo '<!-- End of pcp_lms_controls toolbar -->'
 	else
@@ -62,7 +83,7 @@ pcp_lms_favorites() {
 
 #========================================================================================
 # Get information from LMS json interface
-#	busybox wget -q -O- --post-data='{"id":1,"method":"slim.request","params": [ "-", [ "players", "0", "999" ] ]}'
+#  busybox wget -q -O- --post-data='{"id":1,"method":"slim.request","params": [ "-", [ "players", "0", "999" ] ]}'
 #          --header 'Content-Type: application/json' http://$LMSIP:9000/jsonrpc.js
 #----------------------------------------------------------------------------------------
 pcp_lms_build_loop() {

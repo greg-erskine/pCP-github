@@ -281,6 +281,14 @@ pcp_red_cross() {
 	STATUS="$1"
 }
 
+pcp_activate_tooltip() {
+	echo '<script>'
+	echo '  $(function() {'
+	echo '    $('\''[data-toggle="tooltip"]'\'').tooltip();'
+	echo '  })'
+	echo '</script>'
+}
+
 #========================================================================================
 # Free space on tce mount device  default:/mnt/mmcblk0p2
 #  - k = kilobytes free
