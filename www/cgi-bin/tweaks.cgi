@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-27
+# Version: 7.0.0 2020-06-02
 
 set -f
 
@@ -952,9 +952,9 @@ fi
 pcp_tweaks_install_jivelite() {
 
 	if [ ! -f $TCEMNT/tce/optional/pcp-jivelite.tcz ]; then
-		echo '  <div class="row mx-1">'
-		echo '    <form name="jivelite1" action="writetojivelite.cgi" method="get">'
-
+		echo '  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		#--------------------------------------------------------------------------------
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Install">'
 		echo '        <input type="hidden" name="OPTION" value="JIVELITE">'
@@ -970,24 +970,25 @@ pcp_tweaks_install_jivelite() {
 		echo '          <p>This will install Jivelite and VU meters on pCP.</p>'
 		echo '        </div>'
 		echo '      </div>'
-
-		echo '    </form>'
-		echo '  </div>'
+		echo '    </div>'
+		#--------------------------------------------------------------------------------
+		echo '  </form>'
 	else
-		echo '  <div class="row mx-1">'
-		echo '    <form name="jivelite1" action="writetojivelite.cgi" method="get">'
-		echo '      <div class="'$COLUMN3_3'">'
+		echo '  <form name="jivelite1" action="writetojivelite.cgi" method="get">'
+		#--------------------------------------------------------------------------------
+		echo '    <div class="row mx-1">'
+		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Update">'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_3'">'
+		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Reset">'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_3'">'
+		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove">'
 		echo '        <input type="hidden" name="OPTION" value="JIVELITE">'
 		echo '      </div>'
 		pcp_incr_id
-		echo '      <div class="'$COLUMN3_3'">'
+		echo '      <div class="col">'
 		echo '        <p>Update, Reset or Remove Jivelite from pCP&nbsp;&nbsp;'
 		pcp_helpbadge
 		echo '        </p>'
@@ -1006,8 +1007,9 @@ pcp_tweaks_install_jivelite() {
 		echo '          <p>Installing Jivelite will also install the VU Meters.<p>'
 		echo '        </div>'
 		echo '      </div>'
-		echo '    </form>'
-		echo '  </div>'
+		echo '    </div>'
+		#--------------------------------------------------------------------------------
+		echo '  </form>'
 	fi
 	pcp_hr
 	#------------------------------------------------------------------------------------
@@ -1065,7 +1067,6 @@ pcp_tweaks_enable_jivelite() {
 # Function to download/install/delete Jivelite VU Meters
 #----------------------------------------------------------------------------------------
 pcp_tweaks_vumeter() {
-
 	echo '  <form name="vumeter" action= "writetojivelite.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -1120,19 +1121,19 @@ pcp_tweaks_vumeter() {
 		#--------------------------------------------------------------------------------
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
-		echo '        <p class="debug">[ DEBUG ] Loop mounted extensions</p>'
+		              pcp_messge DEBUG "Loop mounted extensions" "html"
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
-		                       pcp_textarea "none" "df | grep /dev/loop " 200
+		              pcp_textarea "none" "df | grep /dev/loop " 200
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
-		echo '        <p class="debug">[ DEBUG ] Installed extensions</p>'
+		              pcp_messge DEBUG "Installed extensions" "html"
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
@@ -1197,24 +1198,26 @@ pcp_tweaks_screenrotate() {
 
 #---------------------------------------Screen Size--------------------------------------
 pcp_tweaks_screensize() {
-
 	echo '  <form name="screen_size" action="writetoscreenrotate.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN4_1'">'
+	echo '      <div class="col-2">'
 	echo '        <button class="'$BUTTON'" name="ACTION" value="Size">Set Size</button>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_2'">'
-	echo '        <p>Width:&nbsp;</p>'
+	echo '      <div class="col-1">'
+	echo '        <p>Width:</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_3'">'
-	echo '        <p><input class="form-control form-control-sm" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'"></p>'
+	echo '      <div class="col-2">'
+	echo '        <input class="form-control form-control-sm" type="text" name="JL_SCREEN_WIDTH" value="'$JL_SCREEN_WIDTH'">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_4'">'
-	echo '        <p>Height: <input class="form-control form-control-sm" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'"></p>'
+	echo '      <div class="col-1">'
+	echo '        <p>Height:</p>'
+	echo '      </div>'
+	echo '      <div class="col-2">'
+	echo '        <input class="form-control form-control-sm" type="text" name="JL_SCREEN_HEIGHT" value="'$JL_SCREEN_HEIGHT'">'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN1_1'">'
+	echo '      <div class="col-4">'
 	echo '        <p>Screen size&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '        </p>'
@@ -1310,13 +1313,13 @@ pcp_tweaks_lirc() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <p>IR remote control</p>'
+	echo '        <p>LIRC remote control</p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="col-1 text-right">'
 	echo '        <p>'$INDICATOR'</p>'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="col-9">'
 	echo '        <p>LIRC IR remote control is '$STATUS' &nbsp;&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '        </p>'
@@ -1343,11 +1346,11 @@ pcp_tweaks_lirc() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>IR remote control</p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
+		echo '      <div class="col-1 text-right">'
 		echo '        <p>'$INDICATOR'</p>'
 		echo '      </div>'
 		pcp_incr_id
-		echo '      <div class="'$COLUMN3_3'">'
+		echo '      <div class="col-9">'
 		echo '        <p>IR remote control for jivelite, using kernel keytables, is '$STATUS' &nbsp;&nbsp;&nbsp;'
 		pcp_helpbadge
 		echo '        </p>'
@@ -1363,7 +1366,7 @@ pcp_tweaks_lirc() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
-	echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="IR page">'
+	echo '        <input class="'$BUTTON' mb-3" type="submit" name="SUBMIT" value="IR page">'
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
