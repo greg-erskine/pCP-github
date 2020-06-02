@@ -50,7 +50,7 @@ pcp_restore_LMS_cache() {
 	sudo /usr/local/etc/init.d/slimserver stop
 	sudo rm -rf $TCEMNT/tce/slimserver/Cache/
 	sudo rm -rf $TCEMNT/tce/slimserver/prefs/
-	echo '<p class="info">[ INFO ] LMS is now using SD-card to store its values...</p>'
+	echo '<p class="info">[ INFO ] LMS is now using SD card to store its values...</p>'
 	echo '<p class="info">[ INFO ] LMS will automatically rescan your library again...</p>'
 	sudo /usr/local/etc/init.d/slimserver start
 }

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-02
+# Version: 7.0.0 2020-06-03
 
 . pcp-functions
 . pcp-lms-functions
@@ -78,13 +78,14 @@ pcp_backup_if_required() {
 # Generate status message and finish html page
 #----------------------------------------------------------------------------------------
 pcp_html_end() {
-
+	pcp_border_begin
 	pcp_heading5 "Status"
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="col-12">'
 	echo '        <p>'$FAIL_MSG'</p>'
 	echo '      </div>'
 	echo '    </div>'
+	pcp_border_end
 
 	pcp_footer
 	pcp_copyright
@@ -149,18 +150,22 @@ pcp_ir_install() {
 }
 
 #========================================================================================
-# LIRC uninstall
+# IR/LIRC uninstall
 #----------------------------------------------------------------------------------------
 pcp_ir_uninstall() {
-	sudo -u tc tce-audit builddb
+
 	case $1 in
 		lirc) EXTN="pcp-lirc.tcz";;
 		irtools) EXTN="pcp-irtools.tcz";;
 	esac
+
+	pcp_message INFO "Uninstalling packages for $1 remote control." "text"
+	sudo -u tc tce-audit builddb
+	echo
+	pcp_message INFO "After a reboot the following extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete $EXTN
 
 	pcp_message INFO "Removing configuration files..." "text"
-
 	case $1 in
 		lirc)
 			rm -f /home/tc/.lircrc
@@ -221,10 +226,10 @@ case "$ACTION" in
 esac
 
 #========================================================================================
-#----------------------------------------------------------------------------------------
 if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 
 	#====================================================================================
+	# Kernel Keytables (IR)
 	#------------------------------------------------------------------------------------
 	if [ "$JIVELITE" = "yes" ]; then
 		#------------------------------------------Install/Unintall IRTOOLS--------------
@@ -274,7 +279,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '        <button class="'$BUTTON'" id="UP3" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
-		echo '        <input class="xxxx" type="file" id="file1" name="KEYTABLE" onclick="document.getElementById('\''UP3'\'').disabled = false" '$UPLKEYDIS'>'
+		echo '        <input class="input" type="file" id="file1" name="KEYTABLE" onclick="document.getElementById('\''UP3'\'').disabled = false" '$UPLKEYDIS'>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>Upload custom <b>jivelite keytables</b> to pCP&nbsp;&nbsp;'
@@ -289,11 +294,13 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		pcp_border_end
 	fi
 
+	#====================================================================================
+	# Linux Infrared Remote Control (LIRC)
+	#------------------------------------------------------------------------------------
 	pcp_border_begin
 	pcp_heading5 "Linux Infrared Remote Control (LIRC)"
 	echo '  <form name="main" action="'$0'" method="get">'
-	#------------------------------------------Install/Unintall LIRC-------------------------
-
+	#-------------------------------------Install/Uninstall LIRC-------------------------
 	if [ "$IR_LIRC" = "yes" ]; then
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
@@ -325,9 +332,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '      </div>'
 		echo '    </div>'
 	fi
-	#----------------------------------------------------------------------------------------
-
-	#------------------------------------------Custom LIRC Config----------------------------
+	#--------------------------------------Custom LIRC Config----------------------------
 	[ -f /usr/local/etc/lirc/lircd.conf ] && DISABLED="" || DISABLED="disabled"
 
 	echo '    <div class="row mx-1">'
@@ -361,6 +366,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '    </div>'
 	#----------------------------------------------------------------------------------------
 	echo '  </form>'
+	#----------------------------------------------------------------------------------------
 
 	#----------------------------------------------------------------------------------------
 	echo '  <form name="Customlirc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
@@ -381,11 +387,11 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-	#----------------------------------------------------------------------------------------
 	echo '  </form>'
-
-	echo '  <form name="Customlircrc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
 	#----------------------------------------------------------------------------------------
+
+	#----------------------------------------------------------------------------------------
+	echo '  <form name="Customlircrc" action="uploadconffile.cgi" enctype="multipart/form-data" method="post">'
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" id="UP2" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
@@ -403,23 +409,23 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-	#----------------------------------------------------------------------------------------
 	echo '  </form>'
+	#------------------------------------------------------------------------------------
 	pcp_border_end
+	#------------------------------------------------------------------------------------
 
-
-	#----------------------------------------------------------------------------------------
+	#====================================================================================
+	# IR device Settings
+	#------------------------------------------------------------------------------------
 	pcp_border_begin
 	pcp_heading5 "IR device Settings"
 	echo '  <form name="settings" action="'$0'" method="get">'
-	#----------------------------------------------------------------------------------------
-
-	#------------------------------------------LIRC GPIO IN-----------------------------------
+	#------------------------------------------LIRC GPIO IN------------------------------
 	# gpio_in_pin    GPIO for input
-	#-----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
-	echo '        <input class="input"'
+	echo '        <input class="form-control form-control-sm"'
 	echo '               type="number"'
 	echo '               name="IR_GPIO_IN"'
 	echo '               value="'$IR_GPIO_IN'"'
@@ -442,15 +448,13 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
+	#--------------------------------------LIRC GPIO OUT---------------------------------
+	# gpio_out_pin    GPIO for output
 	#------------------------------------------------------------------------------------
-
 	if [ $MODE -ge $MODE_PLAYER ]; then
-		#------------------------------------------LIRC GPIO OUT-------------------------
-		# gpio_out_pin    GPIO for output
-		#--------------------------------------------------------------------------------
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
-		echo '        <input class="input"'
+		echo '        <input class="form-control form-control-sm"'
 		echo '               type="number"'
 		echo '               name="IR_GPIO_OUT"'
 		echo '               value="'$IR_GPIO_OUT'"'
@@ -472,14 +476,12 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '        </div>'
 		echo '      </div>'
 		echo '    </div>'
-		#----------------------------------------------------------------------------------------
 	fi
-
-	#------------------------------------------IR Device-------------------------------------
-	echo '    <div class="row">'
+	#------------------------------------------IR Device---------------------------------
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <input id="input'$ID'"'
-	echo '               class="input"'
+	echo '               class="form-control form-control-sm"'
 	echo '               type="text"'
 	echo '               name="IR_DEVICE"'
 	echo '               value="'$IR_DEVICE'"'
@@ -504,40 +506,35 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-	#----------------------------------------------------------------------------------------
-
-	#------------------------------------------Save------------------------------------------
+	#------------------------------------Save Button-------------------------------------
 	if [ "$IR_LIRC" = "yes" -o "$IR_KEYTABLES" = "yes" ]; then
 		pcp_incr_id
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <input class="'$BUTTON'"'
 		echo '               type="submit"'
 		echo '               name="ACTION"'
 		echo '               value="Save"'
 		echo '               title="Save LIRC settings"'
-		echo '        />'
+		echo '        >'
 		echo '      </div>'
 		echo '    </div>'
 	fi
-	#----------------------------------------------------------------------------------------
-
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	#------------------------------------------------------------------------------------
 	pcp_border_end
 fi
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
+# Actions
 #----------------------------------------------------------------------------------------
 if [ "$ACTION" != "Initial" ]; then
 	pcp_incr_id
+	pcp_heading5 "$ACTION"
 
-	pcp_heading5 "'$ACTION'"
-
-	#----------------------------------------------------------------------------------------
-
-	#---------------------------------------Install------------------------------------------
+	#---------------------------------------Install--------------------------------------
 	if [ "$ACTION" = "Install" ]; then
 		pcp_infobox_begin
 		pcp_internet_indicator
@@ -566,7 +563,6 @@ if [ "$ACTION" != "Initial" ]; then
 		REBOOT_REQUIRED=TRUE
 		pcp_infobox_end
 	fi
-
 	#----------------------------------------------------------------------------------------
 
 	#---------------------------------------Custom-------------------------------------------
@@ -640,8 +636,8 @@ if [ "$ACTION" != "Initial" ]; then
 		fi
 		[ $CONFIG_FOUND ] && echo "[ INFO ] Configuration file(s) found." || echo "[ WARN ] Configuration file(s) not found."
 	fi
-	#----------------------------------------------------------------------------------------
 	pcp_infobox_end
+	#----------------------------------------------------------------------------------------
 
 	#---------------------------------------Save---------------------------------------------
 	if [ "$ACTION" = "Save" ]; then
@@ -652,9 +648,6 @@ if [ "$ACTION" != "Initial" ]; then
 		REBOOT_REQUIRED=TRUE
 		pcp_infobox_end
 	fi
-	#----------------------------------------------------------------------------------------
-
-
 	#----------------------------------------------------------------------------------------
 fi
 
