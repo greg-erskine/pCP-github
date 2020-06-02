@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-26
+# Version: 7.0.0 2020-06-02
 
 . pcp-functions
 . pcp-lms-functions
@@ -215,7 +215,7 @@ pcp_main_update_sqlt() {
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="updateRalphys" action="updatesqlt.cgi" method="get">'
-	echo '        <button type="submit" class="'$BUTTON' mb-1" name="ACTION" value="update">Update</button>'
+	echo '        <button class="'$BUTTON' mb-1" type="submit" name="ACTION" value="update">Update</button>'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="full_update">Full Update</button>'
 	echo '      </form>'
 	echo '    </div>'
@@ -461,6 +461,60 @@ pcp_main_backup() {
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_backup
 #----------------------------------------------------------------------------------------
+
+pcp_main_backup_MODAL() {
+	echo '  <div class="row mx-1">'
+	echo '    <div class="'$COLUMN2_1'">'
+	echo '      <button class="'$BUTTON'" type="button" data-toggle="modal" data-target="#myModal">'
+	echo '        Backup'
+	echo '      </button>'
+	echo '    </div>'
+	echo '    <!-- The Modal -->'
+	echo '    <div class="modal fade" id="myModal">'
+	echo '      <div class="modal-dialog">'
+	echo '        <div class="modal-content">'
+	echo '        '
+	echo '          <!-- Modal Header -->'
+	echo '          <div class="modal-header">'
+	echo '            <h5 class="modal-title">Backup configuration</h5>'
+	echo '            <button class="close" type="button" data-dismiss="modal">×</button>'
+	echo '          </div>'
+	echo '          '
+	echo '          <!-- Modal body -->'
+	echo '          <div class="modal-body">'
+	echo '            Modal body..'
+	echo '          </div>'
+	echo '          '
+	echo '          <!-- Modal footer -->'
+	echo '          <div class="modal-footer">'
+	echo '            <a type="button" class="btn btn-success" href="backup.cgi">Backup</a>'
+	echo '            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>'
+	echo '          </div>'
+	echo '          '
+	echo '        </div>'
+	echo '      </div>'
+	echo '    </div>'
+
+	pcp_incr_id
+	echo '    <div class="'$COLUMN2_2'">'
+	echo '      <p>Backup your changes&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '      </p>'
+	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '        <p>This will do a piCore backup to your SD card.</p>'
+	echo '        <p>piCorePlayer does a backup after it changes any setting, so this option is really just for "peace of mind"'
+	echo '           before doing a shutdown or reboot.</p>'
+	echo '        <p><b>Note: </b>This will backup the following:</p>'
+	echo '        <ul>'
+	echo '          <li>Your configuration file.</li>'
+	echo '          <li>Your home directory.</li>'
+	echo '          <li>Files and directories defined in /opt/.filetool.lst</li>'
+	echo '        </ul>'
+	echo '      </div>'
+	echo '    </div>'
+	echo '  </div>'
+}
+[ $MODE -ge $MODE_PLAYERxx ] && pcp_main_backup_MODAL
 
 #------------------------------------------Shutdown--------------------------------------
 pcp_main_shutdown() {

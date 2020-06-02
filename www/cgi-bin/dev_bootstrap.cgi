@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-06-02
 
 # Title: Bootstrap
 # Description: Bootstrap test
