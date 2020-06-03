@@ -6,8 +6,8 @@ VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
 cat $1 | sed \
 	-e '/_row_shade/ d' \
-	-e '/table/ d' \
-	-e '/fieldset/ d' \
+	-e '/<table/ d' \
+	-e '/<fieldset/ d' \
 	-e '/pcp_banner/ d' \
 	-e '/pcp_running_script/ d' \
 	-e '/pcp_picoreplayers_toolbar/ d' \
@@ -68,10 +68,11 @@ echo '    <input class="form-control form-control-sm"'
 echo '  <div class="input-group '$COLUMN3_2'">'
 echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
 
-
-
+echo '  <div class="form-check form-check-inline">'
+echo '    <input class="form-check-input" id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
+echo '    <label class="form-check-label" for="rad1">On</label>'
 
 class="'$BUTTON'"
 
-style="cursor:pointer"
+
 

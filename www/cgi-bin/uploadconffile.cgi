@@ -46,6 +46,8 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 			;;
 			*KEYTABLE*)
 				FROM_PAGE=lirc.cgi
+				echo "jivelite keytables"
+				UPLOADED_FILE="/usr/local/etc/keytables/jivelite"
 				BACKUP_REQUIRED=1
 				RELOAD_KEYTABLE=1
 				break
@@ -73,7 +75,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 	fi
 	pcp_backup "text"
 else
-	echo "[ ERROR ] Script error! This routine only accepts form POST...."
+	echo "[ ERROR ] Script error! This routine only accepts form POST..."
 fi
 
 if [ $RESTART_LMS -eq 1 ]; then
@@ -83,7 +85,8 @@ if [ $RESTART_LMS -eq 1 ]; then
 fi
 
 if [ $RELOAD_KEYTABLE -eq 1 ]; then
-	echo ???
+	echo "[ INFO ] Loading keytable"
+	pcp_load_keytables
 fi
 
 [ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "text"

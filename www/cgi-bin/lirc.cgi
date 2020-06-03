@@ -169,7 +169,6 @@ pcp_ir_uninstall() {
 	case $1 in
 		lirc)
 			rm -f /home/tc/.lircrc
-
 			sudo sed -i '/pcp-lirc.tcz/d' $ONBOOTLST
 			sudo sed -i '/lircd.conf/d' /opt/.filetool.lst
 			sudo sed -i '/.lircrc/d' /opt/.filetool.lst
@@ -232,7 +231,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	# Kernel Keytables (IR)
 	#------------------------------------------------------------------------------------
 	if [ "$JIVELITE" = "yes" ]; then
-		#------------------------------------------Install/Unintall IRTOOLS--------------
+		#--------------------------Install/Unintall IRTOOLS------------------------------
 		pcp_border_begin
 		pcp_heading5 "Kernel Keytables (IR)"
 		echo '  <form name="main" action="'$0'" method="get">'
@@ -358,10 +357,10 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '          <p>To use your own configuration file(s): </p>'
 	echo '          <ol>'
 	echo '            <li>Copy the file(s) either:</li>'
-	echo '              <ul>'
-	echo '                <li>via ssh to the /tmp directory, <b>or</b></li>'
-	echo '                <li>to an attached USB flash drive.</li>'
-	echo '              </ul>'
+	echo '            <ul>'
+	echo '              <li>via ssh to the /tmp directory, <b>or</b></li>'
+	echo '              <li>to an attached USB flash drive.</li>'
+	echo '            </ul>'
 	echo '            <li>Press the [Custom] button and your configuration file(s) will be copied and used by pCP.</li>'
 	echo '          </ol>'
 	echo '          <p><b>Note:</b></p>'
@@ -502,6 +501,7 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '    </div>'
 	fi
 	#------------------------------------------IR Device---------------------------------
+	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <input id="input'$ID'"'
@@ -513,7 +513,6 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '               pattern="(lirc[0-9]|hidraw[0-9])"'
 	echo '        >'
 	echo '      </div>'
-	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
 	echo '        <p>Set IR Device to GPIO or USB&nbsp;&nbsp;'
 	pcp_helpbadge
@@ -522,9 +521,9 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '          <p>&lt;lirc[0-9]|hidraw[0-9]&gt;</p>'
 	echo '          <p><b>Default:</b> lirc0</p>'
 	echo '          <ul>'
-	echo '            <li class="pointer" title="Click to use lirc0" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option1\'')">'
+	echo '            <li style="cursor:pointer" title="Click to use lirc0" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option1\'')">'
 	echo '              <span id="option1">lirc0</span> - GPIO IR Receiver.</li>'
-	echo '            <li class="pointer" title="Click to use hidraw1" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option2\'')">'
+	echo '            <li style="cursor:pointer" title="Click to use hidraw1" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option2\'')">'
 	echo '              <span id="option2">hidraw1</span> - USB Remote control.</li>'
 	echo '          </ul>'
 	echo '        </div>'
