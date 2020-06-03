@@ -274,7 +274,7 @@ echo '      <div class="'$COLUMN3_3'">'
 
 if [ "$ALSAeq" = "yes" ]; then
 	echo '        <a hidden id="equal">equal</a>'
-	echo '        <p><b>Note:</b> ALSA equalizer: Output must be set to "equal".  Click <a href=# onclick="pcp_copy_click_to_input('\'input${ID}\',\'equal\'')">HERE</a> if not.</p>'
+	echo '        <p><b>Note:</b> ALSA equalizer: Output must be set to "equal". Click <a href=# onclick="pcp_copy_click_to_input('\'input${ID}\',\'equal\'')">HERE</a> if not.</p>'
 else
 	echo '        <p>Specify the output device (-o)&nbsp;&nbsp;'
 	pcp_helpbadge
@@ -288,10 +288,6 @@ else
 	echo '          <p>Available output devices (click to use):</p>'
 	echo '          <p>  hw: devices are normally the best choice, but try and decide for yourself:</p>'
 	echo '          <ul>'
-
-####
-# Fix cursor below.
-####
 
 	OPTION=1
 	OUT_DEVICES=$(aplay -L | grep -v '^  ' | grep -E -v 'dmix|dsnoop')

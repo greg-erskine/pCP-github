@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-20
+# Version: 7.0.0 2020-06-03
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
@@ -30,8 +30,8 @@ cat $1 | sed \
 	-e "s|id=\"'\$ID'|id=\"dt'\$ID'| g" \
 	-e "s|'\$ROWSHADE'|row| g" \
 	-e "s|echo '\(.*\)<legend>\(.*\)</legend>'|pcp_heading5 \"\2\"| g" \
-	-e "s|<td class=\"\(.*\)\">|<div class=\"'\$COLUMN4_1'\">| g" \
-	-e "s|<td colspan=\"\(.*\)\">|<div class=\"'\$COLUMN4_1'\">| g"
+	-e "s|<td class=\"\(.*\)\">|<div class=\"'\$COLUMN3_1'\">| g" \
+	-e "s|<td colspan=\"\(.*\)\">|<div class=\"'\$COLUMN3_1'\">| g"
 
 exit
 
@@ -60,7 +60,6 @@ echo '  <div class="'$BORDER'">'
 pcp_heading5
 
 pcp_helpbadge
-
 echo '  <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 
 echo '  <div class="form-group '$COLUMN2_1'">'
@@ -69,6 +68,10 @@ echo '    <input class="form-control form-control-sm"'
 echo '  <div class="input-group '$COLUMN3_2'">'
 echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
 
+
+
+
 class="'$BUTTON'"
 
+style="cursor:pointer"
 

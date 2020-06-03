@@ -1,21 +1,17 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 7.0.0 2020-06-03
 
 . pcp-functions
 
 pcp_html_head "Upload Configuration File" "PH"
 
-# This is not to upload executable files, the user rights and file mod should be set to be secure.
 # For other files, add the file variable to the case statement.  The lines below the case statement
 # should be common.
 
-pcp_banner
-
 RESTART_LMS=0
 
-pcp_table_top "Uploading File..."
-echo '<textarea class="inform" style="height:200px">'
+pcp_infobox_begin
 if [ "$REQUEST_METHOD" = "POST" ]; then
 	echo -n "[ INFO ] Uploading: "
 	TMPOUT=$(mktemp)
@@ -50,18 +46,16 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 			;;
 			*KEYTABLE*)
 				FROM_PAGE=lirc.cgi
-				echo "jivelite keytables"
-				UPLOADED_FILE="/usr/local/etc/keytables/jivelite"
 				BACKUP_REQUIRED=1
 				RELOAD_KEYTABLE=1
 				break
 			;;
 		esac
 	done
-	#strip the next two lines....still part of the header
+	# Strip the next two lines....still part of the header
 	read line
 	read line
-	#Pass content through strings to remove potential binary content.
+	# Pass content through strings to remove potential binary content.
 	cat - | strings >$TMPOUT
 	# Get the line count
 	LINES=$(wc -l $TMPOUT | cut -d ' ' -f 1)
@@ -89,19 +83,16 @@ if [ $RESTART_LMS -eq 1 ]; then
 fi
 
 if [ $RELOAD_KEYTABLE -eq 1 ]; then
-	echo "[ INFO ] Loading keytable"
-	pcp_load_keytables
+	echo ???
 fi
 
 [ $BACKUP_REQUIRED -eq 1 ] && pcp_backup "text"
-echo '</textarea>'
+pcp_infobox_end
 
 [ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
-pcp_table_middle
-pcp_redirect_button "Go Back" $FROM_PAGE 5
-pcp_table_end
-pcp_footer
-pcp_copyright
 
-echo '</body>'
-echo '</html>'
+pcp_redirect_button "Go Back" $FROM_PAGE 5
+
+pcp_html_end
+exit
+

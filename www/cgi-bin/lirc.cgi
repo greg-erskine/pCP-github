@@ -201,7 +201,7 @@ pcp_ir_uninstall() {
 }
 
 #========================================================================================
-# Main				<==== GE. This section is a little weird.
+# Main
 #----------------------------------------------------------------------------------------
 case "$ACTION" in
 	Install*)
@@ -279,7 +279,15 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 		echo '        <button class="'$BUTTON'" id="UP3" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
-		echo '        <input class="input" type="file" id="file1" name="KEYTABLE" onclick="document.getElementById('\''UP3'\'').disabled = false" '$UPLKEYDIS'>'
+		echo '        <div class="custom-file">'
+		echo '          <input class="custom-file-input form-control-sm"'
+		echo '                 type="file"'
+		echo '                 id="file1"'
+		echo '                 name="KEYTABLE"'
+		echo '                 onclick="document.getElementById('\''UP3'\'').disabled = false" '$UPLKEYDIS
+		echo '          >'
+		echo '          <label class="custom-file-label col-form-label-sm" for="file1">Choose file</label>'
+		echo '        </div>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>Upload custom <b>jivelite keytables</b> to pCP&nbsp;&nbsp;'
@@ -375,7 +383,15 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '        <button class="'$BUTTON'" id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="large22" type="file" id="file2" name="LIRCCONF" onclick="document.getElementById('\''UP1'\'').disabled = false">'
+	echo '        <div class="custom-file">'
+	echo '          <input class="custom-file-input form-control-sm"'
+	echo '                 type="file"'
+	echo '                 id="file2"'
+	echo '                 name="LIRCCONF"'
+	echo '                 onclick="document.getElementById('\''UP1'\'').disabled = false"'
+	echo '          >'
+	echo '          <label class="custom-file-label col-form-label-sm" for="file2">Choose file</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -397,7 +413,15 @@ if [ "$ACTION" = "Initial" ] || [ "$ACTION" = "Save" ]; then
 	echo '        <button class="'$BUTTON'" id="UP2" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="large22" type="file" id="file3" name="LIRCRC" onclick="document.getElementById('\''UP2'\'').disabled = false">'
+	echo '        <div class="custom-file">'
+	echo '          <input class="custom-file-input form-control-sm"'
+	echo '                 type="file"'
+	echo '                 id="file3"'
+	echo '                 name="LIRCRC"'
+	echo '                 onclick="document.getElementById('\''UP2'\'').disabled = false"'
+	echo '          >'
+	echo '          <label class="custom-file-label col-form-label-sm" for="file3">Choose file</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
