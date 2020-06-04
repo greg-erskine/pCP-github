@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 4.0.0 2018-08-11
+# Version: 7.0.0 2020-06-04
 
 set -f
 . pcp-functions
@@ -8,9 +8,8 @@ set -f
 unset REBOOT_REQUIRED
 
 pcp_html_head "Write to crontab" "SBP"
-pcp_banner
-pcp_running_script
 pcp_httpd_query_string
+pcp_navbar
 
 #----------------------------------------------------------------------------------------
 # Routines.
@@ -18,11 +17,11 @@ pcp_httpd_query_string
 pcp_cron_initialise() {
 	/etc/init.d/services/crond status >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		echo '<p class="info">[ INFO ] crond running.</p>'
+		pcp_message INFO "crond running." "text"
 	else
-		echo '<p class="WARN">[ WARN ] crond not running.</p>'
+		pcp_message WARN "crond not running." "text"
 		if [ "$REBOOT" = "Enabled" ] || [ "$RESTART" = "Enabled" ] || [ x"" != x"$CRON_COMMAND" ]; then
-			echo '<p class="INFO">[ INFO ] Starting crond...</p>'
+			pcp_message INFO "Starting crond..." "text"
 			sudo /etc/init.d/services/crond start
 		fi
 	fi
@@ -30,10 +29,12 @@ pcp_cron_initialise() {
 
 pcp_cron_config() {
 	REBOOT_REQUIRED=TRUE
-	MESSAGE='<p class="info">[ INFO ] cron added to '$CMDLINETXT'.</p>'
 	pcp_mount_bootpart >/dev/null 2>&1
 	sed -i 's/cron[ ]*//g' $CMDLINETXT
-	[ "$1" = "add" ] && ( sed -i '1 s/^/cron /' $CMDLINETXT; echo $MESSAGE )
+	if [ "$1" = "add" ]; then
+		sed -i '1 s/^/cron /' $CMDLINETXT
+		pcp_message INFO "cron added to $CMDLINETXT." "text"
+	fi
 	pcp_umount_bootpart >/dev/null 2>&1
 }
 
@@ -57,33 +58,32 @@ pcp_cron_debug() {
 	if [ $DEBUG -eq 1 ]; then
 		pcp_debug_variables "html" REBOOT RESTART RESTART_Y RESTART_N RB_H RB_WD RB_DMONTH RS_H RS_WD RS_DMONTH RB_CRON RS_CRON CRON_COMMAND
 
-		pcp_textarea_inform "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 60
-		pcp_textarea_inform "Current pcp.cfg" "grep -C 4 RESTART= $PCPCFG" 150
+		pcp_textarea "Contents of root crontab" "cat /var/spool/cron/crontabs/root" 6
+		pcp_textarea "Current pcp.cfg" "grep -C 4 RESTART= $PCPCFG" 15
 	fi
 }
 
 #----------------------------------------------------------------------------------------
 # Main.
 #----------------------------------------------------------------------------------------
-pcp_table_top "Schedule cronjobs"
+pcp_heading5 "Schedule cronjobs"
+pcp_infobox_begin
 pcp_cron_debug
 
 case $SUBMIT in
 	Reset)
-		echo '<p class="info">[ INFO ] Resetting cronjobs to default...</p>'
+		pcp_message INFO "Resetting cronjobs to default..." "text"
 		pcp_cron_reset
 		pcp_cron_config delete
 	;;
 	Clear)
-		echo '<p class="info">[ INFO ] Clearing all cronjobs...</p>'
+		pcp_message INFO "Clearing all cronjobs..." "text"
 		pcp_cron_reset
 		crontab -r -u root
 	;;
 	Save)
-		echo '<p class="info">[ INFO ] Saving current cronjob settings...</p>'
-
+		pcp_message INFO "Saving current cronjob settings..." "text"
 		pcp_cron_initialise
-
 		RB_CRON="0 $RB_H $RB_DMONTH * $RB_WD /sbin/reboot"
 		RS_CRON="0 $RS_H $RS_DMONTH * $RS_WD /usr/local/etc/init.d/squeezelite restart"
 
@@ -116,15 +116,15 @@ case $SUBMIT in
 esac
 
 pcp_save_to_config
-pcp_backup
+pcp_backup "text"
 pcp_cron_debug
-pcp_table_middle
+pcp_infobox_end
+
 pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 15
-pcp_table_end
-pcp_footer
-pcp_copyright
+
 [ $REBOOT_REQUIRED ] && pcp_reboot_required
 
 set +f
-echo '</body>'
-echo '</html>'
+
+pcp_html_end
+exit
