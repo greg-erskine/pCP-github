@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-02
+# Version: 7.0.0 2020-06-04
 
 set -f
 
@@ -150,10 +150,14 @@ pcp_tweaks_playertabs() {
 	echo '        <p>piCorePlayer Tabs</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="pt1" type="radio" name="PLAYERTABS" value="yes" '$PLAYERTABSyes'>'
-	echo '        <label for="pt1">Yes&nbsp;&nbsp;&nbsp;&nbsp;</label>'
-	echo '        <input id="pt2" type="radio" name="PLAYERTABS" value="no" '$PLAYERTABSno'>'
-	echo '        <label for="pt2">No</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="pt1" type="radio" name="PLAYERTABS" value="yes" '$PLAYERTABSyes'>'
+	echo '          <label class="form-check-label" for="pt1">Yes</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="pt2" type="radio" name="PLAYERTABS" value="no" '$PLAYERTABSno'>'
+	echo '          <label class="form-check-label" for="pt2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -195,10 +199,14 @@ pcp_tweaks_lmscontrols() {
 	echo '        <p>LMS Controls Toolbar</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="lc1" type="radio" name="LMSCONTROLS" value="yes" '$LMSCONTROLSyes'>'
-	echo '        <label for="lc1">Yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
-	echo '        <input id="lc2" type="radio" name="LMSCONTROLS" value="no" '$LMSCONTROLSno'>'
-	echo '        <label for="lc2">No</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="lc1" type="radio" name="LMSCONTROLS" value="yes" '$LMSCONTROLSyes'>'
+	echo '          <label class="form-check-label" for="lc1">Yes</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="lc2" type="radio" name="LMSCONTROLS" value="no" '$LMSCONTROLSno'>'
+	echo '          <label class="form-check-label" for="lc2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -240,10 +248,14 @@ pcp_tweaks_hdmipower() {
 	echo '        <p>HDMI power</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="hdmi1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERon'>'
-	echo '        <label for="hdmi1">On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>'
-	echo '        <input id="hdmi2" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERoff'>'
-	echo '        <label for="hdmi2">Off</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="hdmi1" type="radio" name="HDMIPOWER" value="on" '$HDMIPOWERon'>'
+	echo '          <label class="form-check-label" for="hdmi1">On</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="hdmi2" type="radio" name="HDMIPOWER" value="off" '$HDMIPOWERoff'>'
+	echo '          <label class="form-check-label" for="hdmi2">Off</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
