@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 7.0.0 2020-05-12
+# Version: 7.0.0 2020-06-05
 
 . pcp-functions
 . pcp-rpi-functions
@@ -18,12 +18,12 @@ pcp_navbar
 
 [ $(pcp_wifi_using_wifi) -eq 0 ] || pcp_wifi_not_using_wifi
 
-COLUMN4_1="col-2"
-COLUMN4_2="col-4"
-COLUMN4_3="col-2"
-COLUMN4_4="col-4"
+COLUMN4_1="col-6 col-lg-3 col-xl-2 text-right"
+COLUMN4_2="col-6 col-lg-3 col-xl-2"
+COLUMN4_3="col-6 col-lg-3 col-xl-2 text-right"
+COLUMN4_4="col-6 col-lg-3 col-xl-2"
 
-COLUMN4_2_lg="col-10"
+COLUMN4_2_lg="col-6"
 
 #========================================================================================
 # Routine to display:
@@ -240,9 +240,10 @@ echo >>$LOG
 #========================================================================================
 # Raspberry Pi
 #----------------------------------------------------------------------------------------
-pcp_heading5 "Wifi diagnostics" hr
+pcp_border_begin
+pcp_heading5 "Wifi diagnostics"
 #----------------------------------Wifi / Wifi MAC---------------------------------------
-echo '  <div class="row">'
+echo '  <div class="row mx-1 mb-2">'
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Wifi</p>'
 echo '    </div>'
@@ -255,9 +256,7 @@ echo '    </div>'
 echo '    <div class="'$COLUMN4_4'">'
 echo '      <p>'$(pcp_diag_wifi_wlan0_mac_address)'</p>'
 echo '    </div>'
-echo '  </div>'
 #----------------------------------SSID / Wifi IP----------------------------------------
-echo '  <div class="row">'
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>SSID:</p>'
 echo '    </div>'
@@ -270,9 +269,7 @@ echo '    </div>'
 echo '    <div class="'$COLUMN4_4'">'
 echo '      <p>'$(pcp_diag_wifi_wlan0_ip)'</p>'
 echo '    </div>'
-echo '  </div>'
 #----------------------------------Password / Security-----------------------------------
-echo '  <div class="row">'
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Password:</p>'
 echo '    </div>'
@@ -285,18 +282,14 @@ echo '    </div>'
 echo '    <div class="'$COLUMN4_4'">'
 echo '      <p>'$WPA_ENCRYPTION'</p>'
 echo '    </div>'
-echo '  </div>'
 #----------------------------------Passphrase--------------------------------------------
-echo '  <div class="row">'
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Passphrase:</p>'
 echo '    </div>'
 echo '    <div class="'$COLUMN4_2_lg'">'
 echo '      <p>'$WPA_PASSPHRASE'</p>'
 echo '    </div>'
-echo '  </div>'
 #----------------------------------Country/Hidden SSID-----------------------------------
-echo '  <div class="row">'
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Country:</p>'
 echo '    </div>'
@@ -319,18 +312,21 @@ else
 	pcp_red_cross "Reboot recommended."
 fi
 
-echo '  <div class="row">'
+echo '  <div class="row mx-1">'
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Uptime:</p>'
 echo '    </div>'
-echo '    <div class="'$COLUMN4_2'">'
+echo '    <div class="'$COLUMN4_2_lg'">'
 echo '      <p>'$(pcp_uptime_days)'</p>'
 echo '    </div>'
-echo '    <div class="'$COLUMN4_4'">'
-echo '      <p><span class="'$CLASS'">'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
+echo '    <div class="col-3">'
+echo '      <p><span>'$INDICATOR'</span>&nbsp;&nbsp;'$STATUS'</p>'
 echo '    </div>'
 echo '  </div>'
 #----------------------------------------------------------------------------------------
+pcp_border_end
+#----------------------------------------------------------------------------------------
+
 pcp_textarea "dmesg:" "pcp_diag_wifi_dmesg" "12"
 
 pcp_textarea "Loaded modules:" "pcp_diag_wifi_lsmod" "11"
