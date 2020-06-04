@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# Version: 4.1.0 2018-10-07
+# Version: 7.0.0 2020-06-04
 
 . pcp-functions
 . pcp-lms-functions
 
 pcp_html_head "Write to Autostart" "GE"
 
-pcp_banner
-pcp_running_script
 pcp_httpd_query_string
+
+pcp_navbar
 
 pcp_debug_variables "html" SUBMIT AUTOSTART A_S_LMS AUTOSTARTLMS A_S_FAV AUTOSTARTFAV USER_COMMAND_1 USER_COMMAND_2 USER_COMMAND_3
 
@@ -28,10 +28,10 @@ pcp_set_austostart_fav() {
 
 	pcp_save_to_config
 
-	echo '<p class="info">[ INFO ] Auto start favorite is: '$A_S_FAV'</p>'
-	echo '<p class="info">[ INFO ] Auto start favorite is set to: '$AUTOSTARTFAV'</p>'
+	pcp_message INFO "Auto start favorite is: $A_S_FAV" "text"
+	pcp_message INFO "Auto start favorite is set to: $AUTOSTARTFAV" "text"
 
-	pcp_backup
+	pcp_backup "text"
 
 	if [ "$SUBMIT" = "Test" ]; then
 		pcp_lms_auto_start_fav
@@ -53,10 +53,10 @@ pcp_set_austostart_lms() {
 
 	pcp_save_to_config
 
-	echo '<p class="info">[ INFO ] Auto start LMS command is: '$A_S_LMS'</p>'
-	echo '<p class="info">[ INFO ] Auto start LMS command is set to: '$AUTOSTARTLMS'</p>'
+	pcp_message INFO "Auto start LMS command is: $A_S_LMS" "text"
+	pcp_message INFO "Auto start LMS command is set to: $AUTOSTARTLMS" "text"
 
-	pcp_backup
+	pcp_backup "text"
 
 	if [ "$SUBMIT" = "Test" ]; then
 		pcp_lms_auto_start_lms
@@ -75,11 +75,11 @@ pcp_set_user_commands() {
 
 	pcp_save_to_config
 
-	echo '<p class="info">[ INFO ] User command #1 is set to: '$USER_COMMAND_1'</p>'
-	echo '<p class="info">[ INFO ] User command #2 is set to: '$USER_COMMAND_2'</p>'
-	echo '<p class="info">[ INFO ] User command #3 is set to: '$USER_COMMAND_3'</p>'
+	pcp_message INFO "User command #1 is set to: $USER_COMMAND_1" "text"
+	pcp_message INFO "User command #2 is set to: $USER_COMMAND_2" "text"
+	pcp_message INFO "User command #3 is set to: $USER_COMMAND_3" "text"
 
-	pcp_backup
+	pcp_backup "text"
 }
 
 #========================================================================================
@@ -87,31 +87,35 @@ pcp_set_user_commands() {
 #----------------------------------------------------------------------------------------
 case "$AUTOSTART" in
 	FAV)
-		pcp_table_top "Auto Start Favorite"
+		pcp_heading5 "Auto Start Favorite"
+		pcp_infobox_begin
 		pcp_httpd_query_string
 		pcp_set_austostart_fav
+		pcp_infobox_end
 	;;
 	LMS)
-		pcp_table_top "Auto Start LMS Command"
+		pcp_heading5 "Auto Start LMS Command"
+		pcp_infobox_begin
 		pcp_httpd_query_string_no_decode
 		pcp_set_austostart_lms
+		pcp_infobox_end
 	;;
 	CMD)
-		pcp_table_top "User Commands"
+		pcp_heading5 "User Commands"
+		pcp_infobox_begin
 		pcp_httpd_query_string_no_decode
 		pcp_set_user_commands
+		pcp_infobox_end
 	;;
 	*)
-		echo '<p class="error">[ ERROR ] Invalid AUTOSTART option: '$AUTOSTART'</p>'
+		pcp_infobox_begin
+		pcp_message ERROR "Invalid AUTOSTART option: $AUTOSTART" "text"
+		pcp_infobox_end
 	;;
 esac
 #----------------------------------------------------------------------------------------
 
-pcp_table_middle
 pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 5
-pcp_table_end
-pcp_footer
-pcp_copyright
 
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit

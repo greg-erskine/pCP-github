@@ -12,6 +12,7 @@ cat $1 | sed \
 	-e '/pcp_running_script/ d' \
 	-e '/pcp_picoreplayers_toolbar/ d' \
 	-e '/COLUMN\(.*\)"col\(.*\)/ d' \
+	-e '/pcp_table_middle/ d' \
 	-e "s|^# Version: \(.*\)|$VERSION| g" \
 	-e 's|pcp_navigation|pcp_navbar| g' \
 	-e 's/<tr>/<div>/ g' \
