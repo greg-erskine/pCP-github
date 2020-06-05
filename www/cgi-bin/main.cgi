@@ -59,9 +59,9 @@ pcp_main_squeezelite_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
+	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-sm-3 col-11">'
+	echo '    <div class="col-10 col-lg-3">'
 
 	if [ "$SQUEEZELITE" = "no" ]; then
 		echo '      <p>Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
@@ -96,9 +96,9 @@ pcp_main_lms_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
+	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-sm-3 col-11">'
+	echo '    <div class="col-11 col-lg-3">'
 	echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '      </p>'
@@ -126,9 +126,9 @@ pcp_main_shairport_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '    <div class="col-1 text-md-right">'$INDICATOR'</div>'
+	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-sm-3 col-11">'
+	echo '    <div class="col-10 col-lg-3">'
 	echo '      <p>Shairport is '$STATUS'&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '      </p>'
