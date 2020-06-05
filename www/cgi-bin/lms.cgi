@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-28
+# Version: 7.0.0 2020-06-06
 
 . pcp-functions
 . pcp-rpi-functions
@@ -77,9 +77,12 @@ pcp_install_lms() {
 
 pcp_remove_lms() {
 	sudo /usr/local/etc/init.d/slimserver stop >/dev/null 2>&1
+	pcp_message INFO "" "text" "-n"
 	sudo -u tc tce-audit builddb
+	echo
 	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete slimserver.tcz
+	echo
 	sudo sed -i '/slimserver.tcz/d' $ONBOOTLST
 }
 
@@ -117,10 +120,12 @@ pcp_install_fs() {
 
 pcp_remove_fs() {
 	pcp_message INFO "Removing additional file systems extensions..." "text"
+	pcp_message INFO "" "text" "-n"
 	sudo -u tc tce-audit builddb
 	echo
 	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete ntfs-3g.tcz
+	echo
 	sed -i '/ntfs-3g.tcz/d' $ONBOOTLST
 }
 
@@ -143,10 +148,12 @@ pcp_install_exfat() {
 
 pcp_remove_exfat() {
 	pcp_message INFO "Removing exFAT file system extensions..." "text"
+	pcp_message INFO "" "text" "-n"
 	sudo -u tc tce-audit builddb
 	echo
 	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete pcp-exfat-utils.tcz
+	echo
 	sed -i '/pcp-exfat-utils.tcz/d' $ONBOOTLST
 }
 
@@ -178,10 +185,12 @@ pcp_install_samba4() {
 pcp_remove_samba4() {
 	pcp_message INFO "Removing Samba extensions..." "text"
 	sed -i '/samba4.tcz/d' $ONBOOTLST
+	pcp_message INFO "" "text" "-n"
 	sudo -u tc tce-audit builddb
 	echo
 	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete samba4.tcz
+	echo
 	# The init.d script is now part of the extension, but make sure it is not in backup
 	sed -i '/usr\/local\/etc\/init.d\/samba/d' /opt/.filetool.lst
 	sed -i '/usr\/local\/var\/lib\/samba/d' /opt/.filetool.lst
@@ -248,7 +257,8 @@ case "$ACTION" in
 	;;
 	Install)
 		pcp_heading5 "Downloading Logitech Media Server (LMS)"
-		pcp_textarea_begin "" 12
+		pcp_infobox_begin
+#		pcp_textarea_begin "" 12
 		pcp_sufficient_free_space 48000
 		if [ $? -eq 0 ]; then
 			pcp_install_lms
@@ -260,7 +270,8 @@ case "$ACTION" in
 				pcp_message ERROR "Error Downloading LMS, please try again later." "text"
 			fi
 		fi
-		pcp_textbox_end
+#		pcp_textbox_end
+		pcp_infobox_end
 	;;
 	Remove)
 		pcp_heading5 "Removing Logitech Media Server (LMS)"
@@ -396,7 +407,7 @@ df | grep -qs ntfs
 # Warning message if using AudioCore
 #----------------------------------------------------------------------------------------
 pcp_lms_audiocore_warning() {
-	echo '  <div class="row">'
+	echo '  <div class="alert alert-primary" role="alert">'
 	echo '    <p><b>Warning:</b> Running LMS on the Realtime AudioCore is not recommended.</p>'
 	echo '    <ul>'
 	echo '      <li>Realtime kernels do not work well in a server environment.</li>'
@@ -410,6 +421,7 @@ pcp_lms_audiocore_warning() {
 # Main table
 #----------------------------------------------------------------------------------------
 pcp_border_begin
+echo '  <div class="row mt-3">'
 #-----------------------------------LMS Indication---------------------------------------
 if [ $(pcp_lms_status) -eq 0 ]; then
 	pcp_green_tick "running"
@@ -417,12 +429,11 @@ else
 	pcp_red_cross "not running"
 fi
 
-echo '  <div class="row mt-3">'
-echo '    <div class="col-1 text-md-right">'
+echo '    <div class="col-1 col-lg-1 ml-1 text-right">'
 echo '      <p>'$INDICATOR'</p>'
 echo '    </div>'
 pcp_incr_id
-echo '    <div class="col-3">'
+echo '    <div class="col-10 col-lg-3">'
 echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
 pcp_helpbadge
 echo '      </p>'
@@ -450,7 +461,7 @@ echo '      <div class="col-1 text-md-right">'
 echo '        <p>'$INDICATOR'</p>'
 echo '      </div>'
 pcp_incr_id
-echo '      <div class="col-3">'
+echo '      <div class="col-10 col-lg-3">'
 echo '        <p>Samba is '$STATUS'&nbsp;&nbsp;'
 pcp_helpbadge
 echo '        </p>'
@@ -466,7 +477,7 @@ echo '          </ul>'
 echo '        </div>'
 echo '      </div>'
 #----------------------------------------------------------------------------------------
-echo '    </div>'
+echo '  </div>'
 pcp_border_end
 
 pcp_border_begin
