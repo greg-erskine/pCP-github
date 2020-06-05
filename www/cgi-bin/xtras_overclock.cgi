@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-17
+# Version: 7.0.0 2020-06-05
+
 # Title: Advanced overclock
 # Description: Set overclock options for Raspberry Pi 0, 2, 3, 4
 
@@ -47,10 +48,7 @@ COLUMN3_3="col-sm-8"
 # Generate warning message
 #----------------------------------------------------------------------------------------
 pcp_warning_message() {
-	pcp_heading5 "Warning"
-
-	echo '  <div class="row">'
-	echo '    <div class="col-12">'
+	echo '    <div class="alert alert-primary" role="alert">'
 	echo '      <p><b>Warning:</b></p>'
 	echo '      <ul>'
 	echo '        <li>It can be dangerous to play with overclocking.</li>'
@@ -361,13 +359,13 @@ esac
 pcp_umount_bootpart >/dev/null 2>&1
 
 pcp_warning_message
-
-pcp_heading5 "Overclocking/underclocking" hr
+pcp_border_begin
+pcp_heading5 "Overclocking/underclocking"
 
 echo '  <form name="overclock" action="xtras_overclock.cgi" method="get">'
 #--------------------------------------Overclock/underclock------------------------------
 pcp_incr_id
-echo '    <div class="row">'
+echo '    <div class="row mx-1">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Overclock/underclock</p>'
 echo '      </div>'
@@ -452,7 +450,7 @@ echo '      </div>'
 echo '    </div>'
 #--------------------------------------Force turbo---------------------------------------
 pcp_incr_id
-echo '    <div class="row">'
+echo '    <div class="row mx-1">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Force turbo</p>'
 echo '      </div>'
@@ -476,7 +474,7 @@ echo '      </div>'
 echo '    </div>'
 #--------------------------------------GPU memory----------------------------------------
 pcp_incr_id
-echo '    <div class="row">'
+echo '    <div class="row mx-1">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>GPU memory</p>'
 echo '      </div>'
@@ -501,13 +499,14 @@ echo '        </div>'
 echo '      </div>'
 echo '    </div>'
 #--------------------------------------Buttons-------------------------------------------
-echo '    <div class="row">'
+echo '    <div class="row mx-1 mb-3">'
 echo '      <div class="'$COLUMN3_1'">'
 echo '        <input class="'$BUTTON'" type="submit" name="SUBMIT" value="Save">'
 echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 echo '  </form>'
+pcp_border_end
 
 if [ $DEBUG -eq 1 ]; then
 	#======================================================================================

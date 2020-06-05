@@ -12,7 +12,7 @@ pcp_html_head "xtras ALSA equal" "GE"
 pcp_controls
 pcp_navbar
 pcp_httpd_query_string
-pcp_remove_query_string
+#pcp_remove_query_string
 
 ASOUNDCONF=/etc/asound.conf
 
@@ -49,14 +49,16 @@ LB10="16 kHz"
 
 pcp_equal_devices_tabs() {
 	echo '<!-- Start of pcp_equalizer devices_tabs toolbar -->'
-	echo '<p style="margin-top:8px;">'
+	echo '  <div>'
+	echo '    <ul class="nav nav-tabs navbar-dark mt-1">'
 
 	for j in $EQUALDEVICES; do
-		[ "$j" = "$CUR_EQUAL_DEVICE" ] && TAB_STYLE="tab7a" || TAB_STYLE="tab7"
-		echo '  <a class="'$TAB_STYLE'" href="'$0'?CUR_EQUAL_DEVICE='$j'" title="'$j'">'$j'</a>'
+		[ "$j" = "$CUR_EQUAL_DEVICE" ] && TAB_ACTIVE="active" || TAB_ACTIVE=""
+		echo '  <a class="nav-link '$TAB_ACTIVE'" href="'$0'?CUR_EQUAL_DEVICE='$j'" title="'$j'">'$j'</a>'
 	done
 
-	echo '</p>'
+	echo '    </ul>'
+	echo '  </div>'
 	echo '<!-- End of pcp_equalizer devices toolbar -->'
 }
 
@@ -72,7 +74,7 @@ case "$ACTION" in
 	;;
 	Save)
 		RANGE="$R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $R10"
-		pcp_backup >/dev/null 2>&1
+		pcp_backup >/dev/null 2>&1 &
 	;;
 	Reset)
 		RANGE="66 66 66 66 66 66 66 66 66 66"
@@ -91,9 +93,9 @@ CURRENT_EQ_SETTINGS=$(sudo amixer -D $CUR_EQUAL_DEVICE contents | grep ": values
 pcp_debug_variables "html" ACTION CUR_EQUAL_DEVICE CURRENT_EQ_SETTINGS RANGE SET_EQUAL
 
 if [ x"" = x"$CURRENT_EQ_SETTINGS" ]; then
-	pcp_infobox_begin "" "html"
-	pcp_message ERROR "ALSA Equalizer is not loaded." "html"
-	pcp_message INFO "Load ALSA Equalizer from the [Tweaks] page." "html"
+	pcp_infobox_begin "" "text"
+	pcp_message ERROR "ALSA Equalizer is not loaded." "text"
+	pcp_message INFO "Load ALSA Equalizer from the [Tweaks] page." "text"
 	pcp_infobox_end
 	pcp_html_end
 	exit
@@ -102,8 +104,8 @@ fi
 pcp_equal_devices_tabs
 
 #-----------------------------Manual Equalizer Adjustment--------------------------------
-echo '  <div class="'$BORDER'">'
-pcp_heading5 "Manual Equalizer Adjustment for '$CUR_EQUAL_DEVICE'"
+pcp_border_begin
+pcp_heading5 "Manual Equalizer Adjustment for $CUR_EQUAL_DEVICE"
 echo '    <form name="manual_adjust" action="'$0'" method="get">'
 #----------------------------------------------------------------------------------------
 for VALUE in $CURRENT_EQ_SETTINGS
@@ -111,7 +113,7 @@ do
 	echo '      <div class="row mx-1">'
 	echo '        <div class="col-10">'
 	echo '          <div class="form-group">'
-	echo '            <input class="form-control" style="height:24px"'
+	echo '            <input class="custom-range" style="height:24px"'
 	echo '                   type="range"'
 	echo '                   id="R'$i'"'
 	echo '                   name="R'$i'"'
@@ -132,15 +134,14 @@ done
 echo '      <div class="row mx-1">'
 echo '        <div class="col-2">'
 echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Save">'
+echo '          <input type="hidden" name="CUR_EQUAL_DEVICE" value="'$CUR_EQUAL_DEVICE'">'
+echo '        </div>'
+echo '        <div class="col-2">'
+echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Test">'
 echo '        </div>'
 echo '        <div class="col-2">'
 echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Reset">'
 echo '        </div>'
-echo '        <div class="col-2">'
-echo '          <input class="'$BUTTON' type="submit" name="ACTION" value="Test">'
-echo '        </div>'
-echo '        <input type="hidden" name="CUR_EQUAL_DEVICE" value="'$CUR_EQUAL_DEVICE'">'
-
 #----------------------------------------------------------------------------------------
 pcp_incr_id
 echo '        <div class="col-6">'
@@ -159,12 +160,12 @@ echo '        </div>'
 echo '      </div>'
 #----------------------------------------------------------------------------------------
 echo '    </form>'
-echo '  </div>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Presets-------------------------------------------
 if [ $PRESETS -eq 1 ]; then
-	echo '  <div class="'$BORDER' mb-2">'
+	pcp_border_begin
 	pcp_heading5 "Presets"
 	echo '    <form name="presets" action="'$0'" method="get">'
 	#------------------------------------------------------------------------------------
@@ -213,7 +214,7 @@ if [ $PRESETS -eq 1 ]; then
 	echo '      </div>'
 	#------------------------------------------------------------------------------------
 	echo '    </form>'
-	echo '  </div>'
+	pcp_border_end
 fi
 #----------------------------------------------------------------------------------------
 
