@@ -39,8 +39,8 @@ COLUMN2_1="col-sm-2"
 COLUMN2_2="col-sm-10"
 
 COLUMN3_1="col-sm-2"
-COLUMN3_2="col-sm-4"
-COLUMN3_3="col-sm-6"
+COLUMN3_2="col-sm-2"
+COLUMN3_3="col-sm-8"
 
 COLUMN4_1="col-sm-2"
 COLUMN4_2="col-sm-4"
@@ -227,7 +227,6 @@ case "$ACTION" in
 			pcp_message INFO "Starting LMS..." "text"
 			pcp_message INFO "" "text" "-n"
 			sudo /usr/local/etc/init.d/slimserver start
-			echo '</div>'
 		else
 			pcp_message ERROR "LMS data disk not mounted at $MNT, LMS will not start." "text"
 		fi
@@ -239,7 +238,6 @@ case "$ACTION" in
 		pcp_message INFO "Stopping LMS..." "text"
 		pcp_message INFO "" "text" "-n"
 		sudo /usr/local/etc/init.d/slimserver stop
-		echo '</div>'
 		sleep 2
 		pcp_infobox_end
 	;;
@@ -249,16 +247,13 @@ case "$ACTION" in
 		pcp_message INFO "Restarting LMS..." "text"
 		pcp_message INFO "" "text" "-n"
 		sudo /usr/local/etc/init.d/slimserver stop
-		echo '</div>'
 		pcp_message INFO "" "text" "-n"
 		sudo /usr/local/etc/init.d/slimserver start
-		echo '</div>'
 		pcp_infobox_end
 	;;
 	Install)
 		pcp_heading5 "Downloading Logitech Media Server (LMS)"
 		pcp_infobox_begin
-#		pcp_textarea_begin "" 12
 		pcp_sufficient_free_space 48000
 		if [ $? -eq 0 ]; then
 			pcp_install_lms
@@ -270,7 +265,6 @@ case "$ACTION" in
 				pcp_message ERROR "Error Downloading LMS, please try again later." "text"
 			fi
 		fi
-#		pcp_textbox_end
 		pcp_infobox_end
 	;;
 	Remove)
@@ -457,7 +451,7 @@ else
 	pcp_red_cross "not running"
 fi
 
-echo '      <div class="col-1 text-md-right">'
+echo '      <div class="col-1 col-lg-1 ml-1 text-right">'
 echo '        <p>'$INDICATOR'</p>'
 echo '      </div>'
 pcp_incr_id
@@ -497,13 +491,15 @@ pcp_lms_enable_lms() {
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="rad1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>'
+	echo '          <label class="form-check-label" for="rad1">Yes</label>'
 	echo '          <input type="hidden" name="ACTION" value="Startup">'
-	echo '          <input id="rad1" type="radio" name="LMSERVER" value="yes" '$LMSERVERyes'>'
-	echo '          <label for="rad1">Yes</label>'
-	echo '          <input id="rad2" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>'
-	echo '          <label for="rad2">No</label>'
-	echo '        </p>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="rad2" type="radio" name="LMSERVER" value="no" '$LMSERVERno'>'
+	echo '          <label class="form-check-label" for="rad2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Automatic start of LMS when pCP boots&nbsp;&nbsp;'
@@ -578,14 +574,13 @@ pcp_lms_configure_lms() {
 echo '  <form name="LMS" action="'$0'">'
 #--------------------------------------Rescan LMS----------------------------------------
 pcp_rescan_lms() {
-
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Rescan LMS">'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="large22" name="RESCAN">'
+	echo '        <select class="xxxx" name="RESCAN">'
 	echo '          <option value="rescan">Look for new and changed media files</option>'
 	echo '          <option value="wipecache">Clear library and rescan everything</option>'
 	echo '        </select>'
@@ -605,7 +600,6 @@ pcp_rescan_lms() {
 
 #------------------------------------------Install/uninstall LMS-------------------------
 pcp_lms_install_lms() {
-
 	if [ ! -f $TCEMNT/tce/optional/slimserver.tcz ]; then
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
@@ -644,7 +638,6 @@ pcp_lms_install_lms() {
 
 #------------------------------------------Remove LMS cache-------------------------
 pcp_lms_remove_cache() {
-
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_cache" onclick="return confirm('\''This will remove all LMS Cache,settings and plugins.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove cache</button>'
@@ -666,7 +659,6 @@ pcp_lms_remove_cache() {
 
 #------------------------------------------Start LMS-------------------------------------
 pcp_lms_start_lms() {
-
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Start" '$DISABLE_LMS'>Start LMS</button>'
@@ -687,7 +679,6 @@ pcp_lms_start_lms() {
 
 #------------------------------------------Stop LMS--------------------------------------
 pcp_lms_stop_lms() {
-
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Stop" '$DISABLE_LMS'>Stop LMS</button>'
@@ -708,7 +699,6 @@ pcp_lms_stop_lms() {
 
 #---------------------------------Restart LMS--------------------------------------------
 pcp_lms_restart_lms() {
-
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Restart" '$DISABLE_LMS'>Restart LMS</button>'
@@ -745,12 +735,14 @@ pcp_lms_no_mysb() {
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Mysb" '$DISABLE_LMS'>No MySB</button>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>'
-	echo '        <input id="1rad1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes'>'
-	echo '        <label for="1rad1">Yes</label>'
-	echo '        <input id="1rad2" type="radio" name="NOMYSB" value="no" '$NOMYSBno'>'
-	echo '        <label for="1rad2">No</label>'
-	echo '        </p>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="1rad1" type="radio" name="NOMYSB" value="yes" '$NOMYSByes'>'
+	echo '          <label class="form-check-label" for="1rad1">Yes</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="1rad2" type="radio" name="NOMYSB" value="no" '$NOMYSBno'>'
+	echo '          <label class="form-check-label" for="1rad2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -779,12 +771,14 @@ pcp_lms_show_logs() {
 	echo '        <input class="'$BUTTON'" type="submit" value="Show Logs" '$DISABLE_LMS'>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>'
-	echo '          <input id="2rad1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes'>'
-	echo '          <label for="2rad1">Yes</label>'
-	echo '          <input id="2rad2" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno'>'
-	echo '          <label for="2rad2">No</label>'
-	echo '        </p>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="2rad1" type="radio" name="LOGSHOW" value="yes" '$LOGSHOWyes'>'
+	echo '          <label class="form-check-label" for="2rad1">Yes</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="2rad2" type="radio" name="LOGSHOW" value="no" '$LOGSHOWno'>'
+	echo '          <label class="form-check-label" for="2rad2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -813,12 +807,14 @@ pcp_lms_show_cconvert() {
 	echo '        <input class="'$BUTTON'" type="submit" value="Show CConv" '$DISABLE_LMS'>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <p>'
-	echo '          <input id="3rad1" type="radio" name="CCSHOW" value="yes" '$CCSHOWyes'>'
-	echo '          <label for="3rad1">Yes</label>'
-	echo '          <input id="3rad2" type="radio" name="CCSHOW" value="no" '$CCSHOWno'>'
-	echo '          <label for="3rad2">No</label>'
-	echo '        </p>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="3rad1" type="radio" name="CCSHOW" value="yes" '$CCSHOWyes'>'
+	echo '          <label class="form-check-label" for="3rad1">Yes</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="3rad2" type="radio" name="CCSHOW" value="no" '$CCSHOWno'>'
+	echo '          <label class="form-check-label" for="3rad2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -858,11 +854,11 @@ pcp_lms_customconvert() {
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <button class="'$BUTTON'" id="UP1" type="submit" name="ACTION" value="Custom" disabled>Upload</button>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="col-4">'
 	echo '        <input type="file" id="file" name="CUSTOMCONVERT" onclick="document.getElementById('\''UP1'\'').disabled = false">'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN3_3'">'
+	echo '      <div class="col-6">'
 	echo '        <p>Upload custom-convert to LMS&nbsp;'
 	pcp_helpbadge
 	echo '        </p>'
@@ -1351,7 +1347,7 @@ pcp_mount_usbdrives() {
 			echo '        <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 			echo '      </div>'
 			echo '      <div class="col-4">'
-			echo '        <p>/mnt/&#8239;<input class="large6" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
+			echo '        <p>/mnt/&#8239;<input class="xxxx" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
 			echo '      </div>'
 			echo '      <div class="col-2">'
 			echo '        <p>'$PART'</p>'
@@ -1691,13 +1687,13 @@ pcp_mount_netdrives() {
 		echo '        </p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN8_2'">'
-		echo '        <p>/mnt/&#8239;<input class="large6" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
+		echo '        <p>/mnt/&#8239;<input class="xxxx" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN8_3'">'
-		echo '        <input class="large8" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
+		echo '        <input class="xxxx" type="text" id="NETIP'${I}'" name="NETMOUNTIP'${I}'" value="'$IP'" title="Enter the IP Address of the Remote Server" '$REQUIRED' pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$">'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN8_4'">'
-		echo '        <input class="large6" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="" onclick="setfsopts('${I}')">'
+		echo '        <input class="xxxx" type="text" id="NETSHARE'${I}'" name="NETMOUNTSHARE'${I}'" value="'$SHARE'" title="Enter the Name of the Share. Expand the more> above for help" '$REQUIRED' pattern="" onclick="setfsopts('${I}')">'
 		echo '      </div>'
 
 		case "$FSTYPE" in
@@ -1706,19 +1702,19 @@ pcp_mount_netdrives() {
 		esac
 
 		echo '      <div class="column'$COLUMN8_5'">'
-		echo '        <select class="large6" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only CIFS(Samba) and NFS shares are supported" onchange="setfstype('${I}')">'
+		echo '        <select class="xxxx" id="NETFS'${I}'" name="NETMOUNTFSTYPE'${I}'" title="Only CIFS(Samba) and NFS shares are supported" onchange="setfstype('${I}')">'
 		echo '          <option value="cifs" '$CIFS1yes'>CIFS</option>'
 		echo '          <option value="nfs" '$NFS1yes'>NFS</option>'
 		echo '        </select>'
 		echo '      </div>'
 		echo '      <div class="column'$COLUMN8_6'">'
-		echo '        <input class="large6" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
+		echo '        <input class="xxxx" type="text" id="NETUSER'${I}'" name="NETMOUNTUSER'${I}'" value="'$USER'" title="Enter the Username for the remote share.&#13;Not used with NFS" '$USERdisable'>'
 		echo '      </div>'
 		echo '      <div class="column'$COLUMN8_7'">'
-		echo '        <input class="large6" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" onchange="setpwstyle('${I}')" '$USERdisable'>'
+		echo '        <input class="xxxx" type="password" id="NETPASS'${I}'" name="NETMOUNTPASS'${I}'" value="'$PASS'" title="Enter the Password for the remote share.&#13;Not used with NFS" onchange="setpwstyle('${I}')" '$USERdisable'>'
 		echo '      </div>'
 		echo '      <div class="column'$COLUMN8_8'">'
-		echo '        <input class="large10" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0">'
+		echo '        <input class="xxxx" type="text" id="NETOPTS'${I}'" name="NETMOUNTOPTIONS'${I}'" value="'$OPTIONS'" title="Enter any comma delimeted mount option&#13;i.e. uid=1001,gid=50,vers=2.0">'
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
@@ -1796,11 +1792,8 @@ pcp_border_begin
 # Samba Share Drive Support
 #----------------------------------------------------------------------------------------
 pcp_samba() {
-
 	pcp_heading5 "Setup Samba Share"
-
 	echo '  <form name="Samba_Setup" action="'$0'" method="get">'
-
 #----------------------------------------------------------------------------------------
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
@@ -1969,7 +1962,7 @@ pcp_samba() {
 		echo '        <p>Password:</p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
-		echo '        <p><input class="large12" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
+		echo '        <p><input class="xxxx" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		if [ "$STATUS" = "running" ]; then
@@ -1995,7 +1988,7 @@ pcp_samba() {
 		echo '        <p>Server Name</p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_1'">'
-		echo '        <input class="large12" type="text" name="NETBIOS" value="'$NETBIOS'" required>'
+		echo '        <input class="xxxx" type="text" name="NETBIOS" value="'$NETBIOS'" required>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>This is the Server name that will show up in your network browser&nbsp;&nbsp;'
@@ -2013,7 +2006,7 @@ pcp_samba() {
 		echo '         <p>Server WorkGroup</p>'
 		echo '       </div>'
 		echo '       <div class="'$COLUMN3_1'">'
-		echo '         <input class="large12" type="text" name="WGROUP" value="'$WGROUP'" required>'
+		echo '         <input class="xxxx" type="text" name="WGROUP" value="'$WGROUP'" required>'
 		echo '       </div>'
 		echo '       <div class="'$COLUMN4_1'">'
 		echo '         <p>This is the Server Work Group that will show up in your network browser&nbsp;&nbsp;'
@@ -2041,17 +2034,17 @@ pcp_samba() {
 
 			echo '                <div class="row mx-1">'
 			echo '                  <div class="'$COLUMN4_1'">'
-			echo -n '                    <input class="large8" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
+			echo -n '                    <input class="xxxx" type="text" ID="SHARE'$I'" name="SHARE'$I'" value="'
 			eval echo -n "\${SHARE${I}}"
 			echo '" title="Enter the name of the Share" pattern="^[a-zA-Z0-9_]{1,32}$" onchange="setsmbrequired('$I')">'
 			echo '                  </div>'
 			echo '                  <div class="'$COLUMN4_2'">'
-			echo -n '                    <input class="large12" type="text" ID="SHAREPATH'$I'" name="SHAREPATH'$I'" value="'
+			echo -n '                    <input class="xxxx" type="text" ID="SHAREPATH'$I'" name="SHAREPATH'$I'" value="'
 			eval echo -n "\${SHAREPATH${I}}"
 			echo '" title="Enter the Path to be Shared" '$REQ' pattern="^[a-zA-Z0-9_/]{1,64}$">'
 			echo '                  </div>'
 			echo '                  <div class="'$COLUMN4_3'">'
-			echo -n '                    <input class="large8" type="text" ID="SHAREMASK'$I'" name="SHAREMASK'$I'" value="'
+			echo -n '                    <input class="xxxx" type="text" ID="SHAREMASK'$I'" name="SHAREMASK'$I'" value="'
 			eval echo -n "\${SHAREMASK${I}}"
 			echo '" title="Enter the File mode for new files Default=0664" '$REQ' pattern="^[0-7]{4}$">'
 			echo '                  </div>'
@@ -2119,7 +2112,6 @@ pcp_border_end
 
 #------------------------------------------LMS log text area-----------------------------
 pcp_lms_logview() {
-
 	pcp_heading5 "Show LMS logs"
 	#------------------------------------------------------------------------------------
 	pcp_textarea "$LMS_SERV_LOG" 'cat $LMS_SERV_LOG' 25
