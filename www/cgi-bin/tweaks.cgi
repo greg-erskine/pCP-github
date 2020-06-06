@@ -41,6 +41,9 @@ pcp_the_end() {
 	exit
 }
 
+
+echo '<button style="position: fixed; bottom: 20px; right: 30px; z-index: 99" class="btn btn-primary" type="button">Top</button>'
+
 #========================================================================================
 # pCP System Tweaks
 #----------------------------------------------------------------------------------------

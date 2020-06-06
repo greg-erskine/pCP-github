@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-26
+# Version: 7.0.0 2020-06-06
 
 WWW_BUILD=0008
 
@@ -592,14 +592,6 @@ pcp_html_head() {
 	echo '<!-- End of pcp_html_head -->'
 }
 
-pcp_html_end() {
-	pcp_footer
-	pcp_copyright
-	echo '</main>'
-	echo '</body>'
-	echo '</html>'
-}
-
 pcp_navbar() {
 
 	case "$0" in
@@ -754,6 +746,14 @@ pcp_copyright() {
 	echo '    <div class="col-2"></div>'
 	echo '  </div>'
 	echo '<!-- End of pcp_copyright -->'
+}
+
+pcp_html_end() {
+	pcp_footer
+	echo '</main>'
+	pcp_copyright
+	echo '</body>'
+	echo '</html>'
 }
 
 pcp_diagnostics() {

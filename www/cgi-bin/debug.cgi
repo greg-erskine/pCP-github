@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-04
+# Version: 7.0.0 2020-06-06
 
 #=========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
@@ -121,17 +121,6 @@ echo '        <div class="'$COLUMN3_3'">'
 echo '          Set DEBUG.'
 echo '        </div>'
 echo '      </div>'
-
-#<div class="custom-control custom-switch">
-#  <input type="checkbox" class="custom-control-input" id="customSwitch1">
-#  <label class="custom-control-label" for="customSwitch1">Toggle this switch element</label>
-#</div>
-#<div class="custom-control custom-switch">
-#  <input type="checkbox" class="custom-control-input" disabled id="customSwitch2">
-#  <label class="custom-control-label" for="customSwitch2">Disabled switch element</label>
-#</div>
-
-
 #--------------------------------------MODE----------------------------------------------
 eval MODE${MODE}="selected"
 
@@ -178,10 +167,10 @@ echo '        </div>'
 echo '      </div>'
 #--------------------------------------BUTTONS-------------------------------------------
 echo '      <div class="row mx-1">'
-echo '        <div class="'$COLUMN3_1' mb-2">'
+echo '        <div class="col-6 col-md-2 mb-2">'
 echo '          <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Save</button>'
 echo '        </div>'
-echo '        <div class="'$COLUMN3_1' mb-2">'
+echo '        <div class="col-6 col-md-2 mb-2">'
 echo '          <button class="'$BUTTON'" type="submit" name="ACTION" value="Reset">Reset all</button>'
 echo '        </div>'
 echo '      </div>'
