@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-06
+# Version: 7.0.0 2020-06-07
 
 WWW_BUILD=0008
 
@@ -736,22 +736,20 @@ pcp_footer() {
 
 pcp_copyright() {
 	echo '<!-- Start of pcp_copyright -->'
-	echo '  <div class="row">'
-	echo '    <div class="col-2"></div>'
-	echo '    <div class="col-8 text-center">'
-	echo '      <small><small class="text-muted">The Software is provided "as is" without warranty of any kind, either express or implied,'
+	echo '  <div class="row justify-content-center ">'
+	echo '    <div class="col-12 col-lg-10 col-xl-8 text-center">'
+	echo '      <small><small class="text-muted"><p style="line-height: 1.2em;">The Software is provided "as is" without warranty of any kind, either express or implied,'
 	echo '         including without limitation any implied warranties of condition, uninterrupted use,'
-	echo '         merchantability, fitness for a particular purpose, or non-infringement.</small></small>'
+	echo '         merchantability, fitness for a particular purpose, or non-infringement.</p></small></small>'
 	echo '    </div>'
-	echo '    <div class="col-2"></div>'
 	echo '  </div>'
 	echo '<!-- End of pcp_copyright -->'
 }
 
 pcp_html_end() {
 	pcp_footer
-	echo '</main>'
 	pcp_copyright
+	echo '</main>'
 	echo '</body>'
 	echo '</html>'
 }
