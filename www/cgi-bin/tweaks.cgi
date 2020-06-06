@@ -91,7 +91,6 @@ pcp_tweaks_hostname() {
 
 #----------------------------------------------Timezone----------------------------------
 pcp_tweaks_timezone() {
-
 	echo '  <form name="tzone" action="writetotimezone.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -179,7 +178,7 @@ pcp_tweaks_playertabs() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_playertabs
 #----------------------------------------------------------------------------------------
@@ -228,12 +227,12 @@ pcp_tweaks_lmscontrols() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lmscontrols
 #----------------------------------------------------------------------------------------
 
-#----------------------------------------------HDMI Power--------------------------------
+#---------------------------------------HDMI Power---------------------------------------
 pcp_tweaks_hdmipower() {
 
 	case "$HDMIPOWER" in
@@ -277,14 +276,13 @@ pcp_tweaks_hdmipower() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_hdmipower
 #----------------------------------------------------------------------------------------
 
 #----------------------------------------------LMS Web Port------------------------------
 pcp_tweaks_lmswebport() {
-
 	echo '  <form name="lmswebport" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -322,14 +320,13 @@ pcp_tweaks_lmswebport() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_lmswebport
 #----------------------------------------------------------------------------------------
 
 #--------------------------------------Internet Check IP---------------------------------
 pcp_tweaks_internet_check_ip() {
-
 	echo '  <form name="internetcheckip" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -380,10 +377,11 @@ pcp_tweaks_internet_check_ip() {
 		echo '        <p>'$STATUS'</p>'
 		echo '      </div>'
 	fi
+
 	echo '      </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_internet_check_ip
 #----------------------------------------------------------------------------------------
@@ -447,7 +445,6 @@ if [ $MODE -ge $MODE_PLAYER ]; then
 fi
 #--------------------------------------Governor------------------------------------------
 pcp_tweaks_governor() {
-
 	echo '  <form name="governor" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -461,7 +458,7 @@ pcp_tweaks_governor() {
 	                do
 	                  SCALINGGOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
 	                  [ "$GOV" = "$SCALINGGOVERNOR" ] && SEL="selected" || SEL=""
-	                  echo '                    <option value="'$GOV'" '$SEL'>'$GOV'</option>'
+	                  echo '          <option value="'$GOV'" '$SEL'>'$GOV'</option>'
 	                done
 
 	echo '        </select>'
@@ -493,7 +490,7 @@ pcp_tweaks_governor() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_governor
 #----------------------------------------------------------------------------------------
@@ -559,14 +556,13 @@ pcp_tweaks_overclock() {
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	pcp_debug_variables "html" OVERCLOCK OCnone OCmild OCmoderate
-	echo '  <hr>'
+	pcp_hr
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_overclock
 #----------------------------------------------------------------------------------------
 
 #-------------------------------------CPU Isolation--------------------------------------
 pcp_tweaks_cpuisol() {
-
 	echo '  <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -588,7 +584,7 @@ pcp_tweaks_cpuisol() {
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>Isolation means the kernel will not run user tasks on the selected CPUs, unless specified.</p>'
-	echo '          <p><b>Recommended setting:&nbsp;</b>0,3</p>'
+	echo '          <p><b>Recommended setting:</b> 0,3</p>'
 	echo '          <p>CPU 0 to only run kernel interrupts.</p>'
 	echo '          <p>CPU 3 to run the squeezelite output thread.</p>'
 	echo '          <p>Squeezelite process settings available after reboot with isolation.</p>'
@@ -609,9 +605,8 @@ pcp_tweaks_cpuisol() {
 [ $MODE -ge $MODE_PLAYER -a $(pcp_rpi_type) -ge 2 ] && pcp_tweaks_cpuisol
 #----------------------------------------------------------------------------------------
 
-#-------------------------------------Squeezelite cpu affinity---------------------------
+#--------------------------------Squeezelite cpu affinity--------------------------------
 pcp_tweaks_sqlite_affinity() {
-
 	echo '  <form name="overclock" action= "writetooverclock.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '     <div class="row mx-1">'
@@ -701,7 +696,6 @@ pcp_tweaks_wol() {
 
 	pcp_border_begin
 	pcp_heading5 "Wake-on-LAN (WOL)"
-
 	echo '  <form name="wol" action="writetoconfig.cgi" method="get">'
 	#----------------------------------WOL-----------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -751,13 +745,13 @@ pcp_tweaks_wol() {
 	echo '        </p>'
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;'
-	echo '            <span id="option'$ID'a" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}a\'')">eth0</span> |'
-	echo '            <span id="option'$ID'b" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}b\'')">eth1</span> |'
-	echo '            <span id="option'$ID'c" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}c\'')">wlan0</span> |'
-	echo '            <span id="option'$ID'd" class="pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}d\'')">wlan1</span> '
+	echo '            <span id="option'$ID'a" style="cursor: pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}a\'')">eth0</span> |'
+	echo '            <span id="option'$ID'b" style="cursor: pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}b\'')">eth1</span> |'
+	echo '            <span id="option'$ID'c" style="cursor: pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}c\'')">wlan0</span> |'
+	echo '            <span id="option'$ID'd" style="cursor: pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}d\'')">wlan1</span> '
 	echo '            &gt;</p>'
-	echo '          <p class="pointer" title="Click to use '$7'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
-	echo '            <b>Example:</b> <span id="example'$ID'">'$7'</span></p>'
+	echo '          <p style="cursor: pointer" title="Click to use '$7'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
+	echo '            <b>Example:</b> <span id="example'$ID'">'$7'</span></p>'  # GE fix
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
@@ -807,15 +801,15 @@ pcp_border_end
 # Auto start tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_auto_start() {
-	pcp_border_begin
-	pcp_heading5 "Auto start tweaks"
 
-	#---------------------------------Auto start favorite--------------------------------
 	case "$A_S_FAV" in
 		Enabled) A_S_FAV_Y="checked" ;;
 		Disabled) A_S_FAV_N="checked" ;;
 	esac
 
+	#---------------------------------Auto start favorite--------------------------------
+	pcp_border_begin
+	pcp_heading5 "Auto start tweaks"
 	echo '  <form name="autostartfav" action="writetoautostart.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
@@ -1159,7 +1153,7 @@ pcp_tweaks_vumeter() {
 		#--------------------------------------------------------------------------------
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
-		              pcp_textarea "none" "df | grep /dev/loop " 200
+		              pcp_textarea "none" "df | grep /dev/loop " 20
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
@@ -1172,7 +1166,7 @@ pcp_tweaks_vumeter() {
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN1_1'">'
 		                       ls /usr/local/tce.installed >/tmp/installed.lst
-		                       pcp_textarea "none" "cat /tmp/installed.lst" 100
+		                       pcp_textarea "none" "cat /tmp/installed.lst" 10
 		echo '      </div>'
 		echo '    </div>'
 		#--------------------------------------------------------------------------------
@@ -1333,6 +1327,7 @@ if [ $MODE -ge $MODE_PLAYER ]; then
 	pcp_border_begin
 	pcp_heading5 "IR remote control"
 fi
+
 #========================================================================================
 # IR Remote table
 #----------------------------------------------------------------------------------------
@@ -1372,6 +1367,7 @@ pcp_tweaks_lirc() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	if [ "$JIVELITE" = "yes" ]; then
+
 		if [ $IR_KEYTABLES = "yes" ]; then
 			pcp_green_tick "loaded"
 		else
@@ -1418,7 +1414,6 @@ pcp_border_end
 pcp_tweaks_poweroff() {
 	pcp_border_begin
 	pcp_heading5 "Poweroff/Shutdown Overlays"
-
 	echo '  <form name="poweroff" action="writetoconfig.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
@@ -1502,14 +1497,17 @@ pcp_tweaks_poweroff() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
+
 	case $GPIOSHUTDOWN in
 		yes) GPIOSHUTDOWN_yes="checked";;
 		no)  GPIOSHUTDOWN_no="checked";;
 	esac
+
 	case $GPIOSHUTDOWN_HI in
 		yes) GPIOSHUTDOWN_HI_yes="checked";;
 		no)  GPIOSHUTDOWN_HI_no="checked";;
 	esac
+
 	case $GPIOSHUTDOWN_PU in
 		up)   GPIOSHUTDOWN_PU_up="checked";;
 		down) GPIOSHUTDOWN_PU_down="checked";;
@@ -1604,14 +1602,14 @@ pcp_border_end
 # Audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_audio_tweaks() {
-	pcp_border_begin
-	pcp_heading5 "Audio tweaks"
 
 	case "$SQUEEZELITE" in
 		yes) SQUEEZELITEyes="checked" ;;
 		no) SQUEEZELITEno="checked" ;;
 	esac
 
+	pcp_border_begin
+	pcp_heading5 "Audio tweaks"
 	echo '  <form name="setaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 #-------------------------------------------Squeezelite------------------------------
 	echo '    <div class="row mx-1">'
@@ -1877,14 +1875,14 @@ pcp_border_end
 # USB audio tweaks
 #----------------------------------------------------------------------------------------
 pcp_tweaks_usb_audio_tweaks() {
-	pcp_border_begin
-	pcp_heading5 "USB Audio tweaks"
 
 	case "$CMD" in
 		Default) CMDdefault="checked" ;;
 		Slow) CMDslow="checked" ;;
 	esac
 
+	pcp_border_begin
+	pcp_heading5 "USB Audio tweaks"
 	echo '  <form name="usbaudiotweaks" action="writetoaudiotweak.cgi" method="get">'
 	#-----------------------------------------dwc_otg.speed------------------------------
 	echo '    <div class="row mx-1">'
@@ -2022,8 +2020,6 @@ pcp_border_end
 #
 #----------------------------------------------------------------------------------------
 pcp_tweaks_cron() {
-	pcp_border_begin
-	pcp_heading5 "Schedule CRON jobs"
 
 	/etc/init.d/services/crond status >/dev/null 2>&1
 	if [ $? -eq 0 ]; then
@@ -2032,6 +2028,8 @@ pcp_tweaks_cron() {
 		pcp_red_cross " is not running"
 	fi
 
+	pcp_border_begin
+	pcp_heading5 "Schedule CRON jobs"
 	echo '  <form name="cronjob" action="writetocronjob.cgi" method="get">'
 	#-------------------------------------crond indicator--------------------------------
 	echo '    <div class="row mx-1">'
@@ -2204,8 +2202,7 @@ pcp_tweaks_cron() {
 	echo '          <p>This feature gives advanced users the possibility to manipulate the cron scheduler.'
 	echo '             It will allow users to add a single command to the cron job or'
 	echo '             to schedule a script that performs multiple actions.</p>'
-	echo '       
-	<p>Use ordinary cron syntax.</p>'
+	echo '          <p>Use ordinary cron syntax.</p>'
 	echo '          <p><b>Example:</b></p>'
 	echo '          <ul>'
 	echo '            <li>1 1 * * * /path/to/your/script.sh</li>'
@@ -2288,12 +2285,12 @@ pcp_tweaks_user_commands() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '    <script>'
-	echo '       var cmd1 = "'$USER_COMMAND_1'";'
-	echo '       var cmd2 = "'$USER_COMMAND_2'";'
-	echo '       var cmd3 = "'$USER_COMMAND_3'";'
-	echo '       document.getElementById("USER_COMMAND_1").value = decodeURIComponent(cmd1.replace(/\+/g, "%20"));'
-	echo '       document.getElementById("USER_COMMAND_2").value = decodeURIComponent(cmd2.replace(/\+/g, "%20"));'
-	echo '       document.getElementById("USER_COMMAND_3").value = decodeURIComponent(cmd3.replace(/\+/g, "%20"));'
+	echo '      var cmd1 = "'$USER_COMMAND_1'";'
+	echo '      var cmd2 = "'$USER_COMMAND_2'";'
+	echo '      var cmd3 = "'$USER_COMMAND_3'";'
+	echo '      document.getElementById("USER_COMMAND_1").value = decodeURIComponent(cmd1.replace(/\+/g, "%20"));'
+	echo '      document.getElementById("USER_COMMAND_2").value = decodeURIComponent(cmd2.replace(/\+/g, "%20"));'
+	echo '      document.getElementById("USER_COMMAND_3").value = decodeURIComponent(cmd3.replace(/\+/g, "%20"));'
 	echo '    </script>'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id

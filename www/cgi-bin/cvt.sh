@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-03
+# Version: 7.0.0 2020-06-06
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
@@ -58,10 +58,14 @@ pcp_textarea_end
 
 echo '  <div class="'$BORDER'">'
 
+pcp_border_begin
+pcp_border_end
+
 pcp_heading5
 
 pcp_helpbadge
 echo '  <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+class="'$BUTTON'"
 
 echo '  <div class="form-group '$COLUMN2_1'">'
 echo '    <input class="form-control form-control-sm"'
@@ -73,7 +77,4 @@ echo '  <div class="form-check form-check-inline">'
 echo '    <input class="form-check-input" id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
 echo '    <label class="form-check-label" for="rad1">On</label>'
 
-class="'$BUTTON'"
-
-
-
+style="cursor: pointer"
