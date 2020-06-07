@@ -38,8 +38,10 @@ pcp_install_cirrus() {
 pcp_remove_cirrus() {
 	pcp_message INFO "" "text" "-n"
 	sudo -u tc tce-audit builddb
+	echo
 	pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete rpi-cirrus-config.tcz
+	echo
 	sudo sed -i '/rpi-cirrus-config.tcz/d' $ONBOOTLST
 	pcp_message INFO "Removing configuration files..." "text"
 	rm -f $CIRRUSCONF
@@ -72,11 +74,11 @@ set_cirrus_conf() {
 		playback_to_lineout
 	fi
 	if [ x"$SPDIF" = x"" ]; then
-		pcp_message INFO "Setting Spdif OFF" "text"
+		pcp_message INFO "Setting SPDIF OFF" "text"
 		SPDIF=0
 		reset_spdif_out
 	else
-		pcp_message INFO "Setting Spdif ON" "text"
+		pcp_message INFO "Setting SPDIF ON" "text"
 		playback_to_spdif
 	fi
 

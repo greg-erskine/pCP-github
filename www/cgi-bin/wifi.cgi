@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-07
+# Version: 7.0.0 2020-06-08
 
 . pcp-functions
 . pcp-rpi-functions
@@ -217,7 +217,7 @@ esac
 #========================================================================================
 # Debug information.
 #----------------------------------------------------------------------------------------
-pcp_debug_variables "text" ACTION WIFI WPA_SSID WPA_PSK WPA_PW WPA_PASSWORD \
+pcp_debug_variables "html" ACTION WIFI WPA_SSID WPA_PSK WPA_PW WPA_PASSWORD \
 	WPA_PASSPHRASE WPA_ENCRYPTION WPA_HIDDENSSID RPI3INTWIFI RPIBLUETOOTH
 
 #========================================================================================
@@ -236,8 +236,6 @@ echo '  return true;'
 echo '}'
 echo '</script>'
 
-pcp_border_begin
-pcp_heading5 "Set wifi configuration"
 #----------------------------------------------------------------------------------------
 if [ "$WIFI" = "on" ]; then
 	WIFIon="checked"
@@ -249,6 +247,8 @@ else
 	COLUMN2="$COLUMN3_2"
 fi
 
+pcp_border_begin
+pcp_heading5 "Set wifi configuration"
 echo '  <form id="setwifi" name="setwifi" action="'$0'" method="get">'
 #--------------------------------------Wifi on/off---------------------------------------
 echo '    <div class="row mx-1">'
@@ -383,7 +383,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '               name="WPA_COUNTRY"'
 	echo '               value="'$WPA_COUNTRY'"'
 	echo '               pattern="[A-Z]{2}"'
-	echo '               title="Use Capital Letters."'
+	echo '               title="Use capital 2 letter coutry code."'
 	echo '        >'
 	echo '      </div>'
 	pcp_incr_id
@@ -515,14 +515,14 @@ pcp_border_end
 
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
-	pcp_border_begin
-	pcp_heading5 "RPi Built-in WiFi/Blue Tooth"
 #--------------------------------------Built-in Wifi-------------------------------------
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
 	esac
 
+	pcp_border_begin
+	pcp_heading5 "RPi Built-in WiFi/Blue Tooth"
 	echo '  <form id="rpiwifi" name="builtinwifi" action="writetowifi.cgi" method="get">'
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
@@ -593,7 +593,6 @@ fi
 
 if [ $DEBUG -eq 1 ]; then
 #--------------------------------------DEBUG---------------------------------------------
-	pcp_border_begin
 	pcp_heading5 "[ DEBUG ] $WPASUPPLICANTCONF tests"
 
 	pcp_infobox_begin
@@ -611,9 +610,11 @@ if [ $DEBUG -eq 1 ]; then
 #--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/newconfig.cfg"
 	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
-	pcp_textarea "none" "cat ${WPACONFIGFILE}" 8
 	if [ -f $WPACONFIGFILE ]; then
-		echo '    <div class="row mx-1">'
+		pcp_infobox_begin
+		cat ${WPACONFIGFILE}
+		pcp_infobox_end
+		echo '    <div class="row mt-2">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <form name="wpatest1" action="'$0'" method="get">'
 		echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Convert1">'
@@ -621,14 +622,18 @@ if [ $DEBUG -eq 1 ]; then
 		echo '      </div>'
 		echo '    </div>'
 	else
+		pcp_infobox_begin
 		pcp_message ERROR "$WPACONFIGFILE not found." "text"
+		pcp_infobox_end
 	fi
 
 #--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/wpa_supplicant.conf"
 	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
-	pcp_textarea "none" "cat ${WPACONFIGFILE}" 12
 	if [ -f $WPACONFIGFILE ]; then
+		pcp_infobox_begin
+		cat ${WPACONFIGFILE}
+		pcp_infobox_end
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <form name="wpatest2" action="'$0'" method="get">'
@@ -637,7 +642,9 @@ if [ $DEBUG -eq 1 ]; then
 		echo '      </div>'
 		echo '    </div>'
 	else
+		pcp_infobox_begin
 		pcp_message ERROR "$WPACONFIGFILE not found." "text"
+		pcp_infobox_end
 	fi
 
 	#--------------------------------------DEBUG-----------------------------------------
