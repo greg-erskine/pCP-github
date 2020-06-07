@@ -688,7 +688,7 @@ pcp_footer() {
 	if [ "$1" = "static" ]; then
 		echo '<!-- Start of pcp_footer -->'
 #		echo '  <footer class="container shadow">'
-		echo '    <div class="col-12 text-center bg-primary text-light pb-1">'
+		echo '    <div class="col-12 text-center bg-primary text-light pb-1 mt-2">'
 		echo '      <small>
 		              '$NAME' |
 		              piCorePlayer v'$(pcp_picoreplayer_version)' |
@@ -717,7 +717,7 @@ pcp_footer() {
 
 			echo '<!-- Start of pcp_footer -->'
 #			echo '  <footer class="container shadow bg-light">'
-			echo '    <div class="col-12 text-center bg-primary text-light pb-1">'
+			echo '    <div class="col-12 text-center bg-primary text-light pb-1 mt-2">'
 			echo '      <small>
 				          '$([ $TEST -eq 3 ] && echo $BETAREPOACTIVE)'
 				          '$NAME' |
@@ -1344,9 +1344,12 @@ pcp_redirect_button() {
 
 	echo '<!-- Start of pcp_redirect_button -->'
 	echo '  <form name="redirect button" action="'$2'" method="get">'
-	echo '    <div class="row mb-3 mt-3">'
+	echo '    <div class="row mt-3">'
 	echo '      <div class="col-6 col-sm-2">'
-	echo '        <input class="'$BUTTON'" type="submit" value="'$1'">'
+	echo '        <button class="'$BUTTON'" type="submit" value="'$1'">'
+	echo '          <span class="spinner-border spinner-border-sm" role="status"></span>'
+	echo '          &nbsp;&nbsp;'$1
+	echo '        </button>'
 	echo '      </div>'
 	echo '      <div class="col-6 col-sm-10">'
 	echo '        <span id="countdown"></span>'

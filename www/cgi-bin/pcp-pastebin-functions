@@ -2,7 +2,7 @@
 # pcp-pastebin-functions
 # These are the common Pastebin functions used by piCorePlayer.
 
-# Version: 7.0.0 2020-05-31
+# Version: 7.0.0 2020-06-07
 
 pcp_debug_log "$0 - Running pcp-pastebin-functions..."
 
@@ -55,7 +55,7 @@ pcp_pastebin_button() {
 	if [ $MODE -ge $MODE_PLAYER ]; then
 		echo '<!-- Start of pcp_pastebin_button -->'
 		echo '  <div class="row">'
-		echo '    <div class="col-3 mb-3">'
+		echo '    <div class="col-12 col-sm-3">'
 		echo '      <form name="Pastebin" action="pastebin.cgi" method="get">'
 		echo '        <button class="'$BUTTON'" type="submit" name="SUBMIT" value="Upload">Upload results to Pastebin</button>'
 		echo '        <input type="hidden" name="FILE" value="'$LOG'">'

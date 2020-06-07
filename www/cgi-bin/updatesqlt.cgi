@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-26
+# Version: 7.0.0 2020-06-07
 
 . pcp-functions
 
@@ -118,9 +118,13 @@ case "${ACTION}" in
 		pcp_heading5 "Removing FFMpeg extension"
 		pcp_infobox_begin
 		pcp_squeezelite_stop "text"
-		pcp_message INFO "FFMpeg extension marked for removal. Reboot required to complete." "text"
+#		pcp_message INFO "FFMpeg extension marked for removal. Reboot required to complete." "text"
+		pcp_message INFO "" "text" "-n"
 		sudo -u tc tce-audit builddb
+		echo
+		pcp_message INFO "After a reboot these extensions will be permanently deleted:" "text"
 		sudo -u tc tce-audit delete pcp-libffmpeg.tcz
+		echo
 		sed -i '/pcp-libffmpeg.tcz/d' $ONBOOTLST
 		REBOOT_REQUIRED=TRUE
 		pcp_squeezelite_start "text"

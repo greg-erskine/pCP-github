@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-26
+# Version: 7.0.0 2020-06-07
 
 . pcp-functions
 
@@ -28,6 +28,6 @@ if [ "$SHAIRPORT" = "yes" ]; then
 fi
 pcp_infobox_end
 
-pcp_redirect_button "Go Back" "$FROM_PAGE" 50
+pcp_redirect_button "Go Main Page" "$FROM_PAGE" 5
 
 pcp_html_end

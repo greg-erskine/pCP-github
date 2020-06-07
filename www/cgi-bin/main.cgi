@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-02
+# Version: 7.0.0 2020-06-07
 
 . pcp-functions
 . pcp-lms-functions
@@ -11,8 +11,8 @@ pcp_controls
 pcp_navbar
 pcp_httpd_query_string
 
-COLUMN2_1="col-sm-2 text-md-right"
-COLUMN2_2="col-10"
+COLUMN2_1="col-12 col-sm-4 col-lg-2 text-right"
+COLUMN2_2="col-12 col-sm-8 col-lg-10"
 
 #========================================================================================
 # Reboot page.
@@ -98,7 +98,7 @@ pcp_main_lms_indication() {
 
 	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-11 col-lg-3">'
+	echo '    <div class="col-10 col-lg-3">'
 	echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '      </p>'

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-06
+# Version: 7.0.0 2020-06-07
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
@@ -76,5 +76,8 @@ echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AU
 echo '  <div class="form-check form-check-inline">'
 echo '    <input class="form-check-input" id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
 echo '    <label class="form-check-label" for="rad1">On</label>'
+
+echo '    <div class="alert alert-primary" role="alert">'
+echo '      <b>Warning:</b>'
 
 style="cursor: pointer"

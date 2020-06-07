@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-27
+# Version: 7.0.0 2020-06-07
 
 . pcp-functions
 . pcp-rpi-functions
@@ -66,15 +66,17 @@ fi
 
 pcp_wifi_error_messages() {
 	if [ "$WIFI" = "on" ] && [ $ERROR_FLG ]; then
-		echo '      <div>'
-		echo '        <p><b>WARNINGS:</b>'
+		echo '      <div class="alert alert-primary" role="alert">'
+		echo '        <p><b>Warnings:</b>'
 		echo '          <ul>'
+
 		for i in 1 2 3 4 5; do
 			[ x"" != x"$(eval echo \$ERRMSG${i})" ] && echo '            <li>'$(eval echo \$ERRMSG${i})'</li>'
 		done
+
 		echo '          </ul>'
 		echo '        </p>'
-		echo '    </div>'
+		echo '      </div>'
 	fi
 }
 
@@ -116,10 +118,8 @@ case "$ACTION" in
 			pcp_wifi_read_wpa_supplicant "text"
 			pcp_message INFO "" "text" "-n"
 			/usr/local/etc/init.d/wifi wlan0 stop
-#			echo '</div>'
 			pcp_message INFO "" "text" "-n"
 			/usr/local/etc/init.d/wifi wlan0 start
-#			echo '</div>'
 			pcp_save_to_config
 			pcp_backup "text"
 			pcp_infobox_end
@@ -127,7 +127,6 @@ case "$ACTION" in
 			pcp_infobox_begin
 			pcp_message INFO "" "text" "-n"
 			/usr/local/etc/init.d/wifi wlan0 stop
-#			echo '</div>'
 			pcp_wifi_unload_wifi_extns "text"
 			pcp_wifi_unload_wifi_firmware_extns "text"
 			pcp_save_to_config
@@ -145,7 +144,7 @@ case "$ACTION" in
 		pcp_backup "text"
 		pcp_infobox_end
 	;;
-	#----------------------------------DEBUG - Developer options-----------------------------
+	#----------------------------------DEBUG - Developer options-------------------------
 	Read)
 		pcp_wifi_error_messages
 		pcp_heading5 "Read option"
@@ -175,7 +174,6 @@ case "$ACTION" in
 		pcp_infobox_begin
 		pcp_message INFO "" "text" "-n"
 		/usr/local/etc/init.d/wifi wlan0 start
-#		echo '</div>'
 		pcp_infobox_end
 	;;
 	Stop)
@@ -183,7 +181,6 @@ case "$ACTION" in
 		pcp_infobox_begin
 		pcp_message INFO "" "text" "-n"
 		/usr/local/etc/init.d/wifi wlan0 stop
-#		echo '</div>'
 		pcp_infobox_end
 	;;
 	Status)
@@ -191,7 +188,6 @@ case "$ACTION" in
 		pcp_infobox_begin
 		pcp_message INFO "" "text" "-n"
 		/usr/local/etc/init.d/wifi wlan0 status
-#		echo '</div>'
 		pcp_infobox_end
 	;;
 	Convert1)
@@ -260,10 +256,14 @@ echo '      <div class="'$COLUMN3_1'">'
 echo '        <p>Wifi</p>'
 echo '      </div>'
 echo '      <div class="'$COLUMN3_2'">'
-echo '        <input id="wifi1" type="radio" name="WIFI" value="on" '$WIFIon'>'
-echo '        <label for="wifi1">On&nbsp;&nbsp;&nbsp;</label>'
-echo '        <input id="wifi2" type="radio" name="WIFI" value="off" '$WIFIoff'>'
-echo '        <label for="wifi2">Off</label>'
+echo '        <div class="form-check form-check-inline">'
+echo '          <input class="form-check-input" id="wifi1" type="radio" name="WIFI" value="on" '$WIFIon'>'
+echo '          <label class="form-check-label" for="wifi1">On</label>'
+echo '        </div>'
+echo '        <div class="form-check form-check-inline">'
+echo '          <input class="form-check-input" id="wifi2" type="radio" name="WIFI" value="off" '$WIFIoff'>'
+echo '          <label class="form-check-label" for="wifi2">Off</label>'
+echo '        </div>'
 echo '      </div>'
 pcp_incr_id
 echo '      <div class="'$COLUMN3_3'">'
@@ -313,7 +313,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	echo '    <script type="text/javascript">'
+	echo '    <script>'
 	echo '      var enc = "'$ENCODED_WPA_SSID'";'
 	echo '      document.getElementById("ssid").value = decodeURIComponent(enc.replace(/\+/g, "%20"));'
 	echo '    </script>'
@@ -332,7 +332,7 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        >'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Enter wifi network password&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '        </p>'
@@ -410,12 +410,18 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Security Mode</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="1wifi1" type="radio" name="WPA_ENCRYPTION" value="WPA-PSK" '$WPA_ENCRYPTIONwpa'>'
-	echo '        <label for="1wifi1">WPA-PSK&nbsp;&nbsp;</label>'
-	echo '        <input id="1wifi2" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONwep'>'
-	echo '        <label for="1wifi2">WEP&nbsp;&nbsp;</label>'
-	echo '        <input id="1wifi3" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONopen'>'
-	echo '        <label for="1wifi3">OPEN</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="1wifi1" type="radio" name="WPA_ENCRYPTION" value="WPA-PSK" '$WPA_ENCRYPTIONwpa'>'
+	echo '          <label class="form-check-label" for="1wifi1">WPA-PSK</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="1wifi2" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONwep'>'
+	echo '          <label class="form-check-label" for="1wifi2">WEP</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="1wifi3" type="radio" name="WPA_ENCRYPTION" value="WEP" '$WPA_ENCRYPTIONopen'>'
+	echo '          <label class="form-check-label" for="1wifi3">OPEN</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -440,10 +446,14 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 	echo '        <p>Hidden SSID</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="2wifi1" type="radio" name="WPA_HIDDENSSID" value="1" '$WPA_HIDDENSSIDyes'>'
-	echo '        <label for="2wifi1">Yes&nbsp;&nbsp;</label>'
-	echo '        <input id="2wifi2" type="radio" name="WPA_HIDDENSSID" value="0" '$WPA_HIDDENSSIDno'>'
-	echo '        <label for="2wifi2">No</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="2wifi1" type="radio" name="WPA_HIDDENSSID" value="1" '$WPA_HIDDENSSIDyes'>'
+	echo '          <label class="form-check-label" for="2wifi1">Yes</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="2wifi2" type="radio" name="WPA_HIDDENSSID" value="0" '$WPA_HIDDENSSIDno'>'
+	echo '          <label class="form-check-label" for="2wifi2">No</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -460,19 +470,21 @@ if [ "$WIFI" = "on" ] && [ $(pcp_wifi_maintained_by_user) -ne 0 ]; then
 fi
 #--------------------------------------Buttons------------------------------------------
 echo '    <div class="row mx-1 mb-2">'
-echo '      <div class="col-2">'
 
 if [ "$WIFI" = "on" ]; then
+	echo '      <div class="col-2">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Save" onclick="return(validate());">'
 	echo '      </div>'
 	echo '      <div class="col-2">'
 	echo '        <input class="'$BUTTON'" type="button" name="DIAGNOSTICS" onClick="location.href='\'''diag_wifi.cgi''\''" value="Diagnostics">'
 	echo '        <input type="hidden" name="WPA_PASSPHRASE" value="'$WPA_PASSPHRASE'">'
+	echo '      </div>'
 else
+	echo '      <div class="col-2">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Config">Save</button>'
+	echo '      </div>'
 fi
 
-echo '      </div>'
 echo '    </div>'
 #--------------------------------------DEBUG---------------------------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
@@ -512,15 +524,19 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	esac
 
 	echo '  <form id="rpiwifi" name="builtinwifi" action="writetowifi.cgi" method="get">'
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>RPi built-in Wifi</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="intwifi1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>'
-	echo '        <label for="intwifi1">On&nbsp;&nbsp;&nbsp;</label>'
-	echo '        <input id="intwifi2" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>'
-	echo '        <label for="intwifi2">Off</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="intwifi1" type="radio" name="RPI3INTWIFI" value="on" '$RPIWIFIyes'>'
+	echo '          <label class="form-check-label" for="intwifi1">On</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="intwifi2" type="radio" name="RPI3INTWIFI" value="off" '$RPIWIFIno'>'
+	echo '          <label class="form-check-label" for="intwifi2">Off</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -538,15 +554,19 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 		off) RPIBLUETOOTHno="checked" ;;
 	esac
 
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <p>RPi built-in Bluetooth</p>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="blue1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>'
-	echo '        <label for="blue1">On&nbsp;&nbsp;&nbsp;</label>'
-	echo '        <input id="blue2" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>'
-	echo '        <label for="blue2">Off</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="blue1" type="radio" name="RPIBLUETOOTH" value="on" '$RPIBLUETOOTHyes'>'
+	echo '          <label class="form-check-label" for="blue1">On</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="blue2" type="radio" name="RPIBLUETOOTH" value="off" '$RPIBLUETOOTHno'>'
+	echo '          <label class="form-check-label" for="blue2">Off</label>'
+	echo '        </div>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN3_3'">'
@@ -559,7 +579,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '      </div>'
 	echo '    </div>'
 #--------------------------------------Buttons------------------------------------------
-	echo '    <div class="row">'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="wifi.cgi">'
@@ -609,7 +629,7 @@ if [ $DEBUG -eq 1 ]; then
 	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
 	pcp_textarea "none" "cat ${WPACONFIGFILE}" 12
 	if [ -f $WPACONFIGFILE ]; then
-		echo '    <div class="row">'
+		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <form name="wpatest2" action="'$0'" method="get">'
 		echo '          <input class="'$BUTTON'" type="submit" name="ACTION" value="Convert2">'
@@ -620,11 +640,11 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_message ERROR "$WPACONFIGFILE not found." "text"
 	fi
 
-	#--------------------------------------DEBUG---------------------------------------------
+	#--------------------------------------DEBUG-----------------------------------------
 	pcp_textarea "[ DEBUG ] $WPASUPPLICANTCONF" "cat ${WPASUPPLICANTCONF}" 15
 	pcp_textarea "[ DEBUG ] $FILETOOLLST" "cat $FILETOOLLST" 15
 	pcp_textarea "[ DEBUG ] $ONBOOTLST" "cat $ONBOOTLST" 15
-	#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 fi
 
 #---------------/usr/local/etc/pcp/wpa_supplicant.conf maintained by user----------------

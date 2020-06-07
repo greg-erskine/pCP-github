@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-05
+# Version: 7.0.0 2020-06-07
 
 . pcp-functions
 . pcp-soundcard-functions
@@ -171,7 +171,7 @@ pcp_set_equal_asound_output() {
 	local CNAME=$(echo $1 | awk -F'hw:CARD=' '{ print $2 }' | cut -d',' -f1)
 	local DEVNO=$(echo $1 | awk -F'DEV=' '{ print $2 }')
 
-	pcp_message INFO "$EQUAL_OUT_DEVICE is set to: $EQUAL_OUT_DEVICE" "text"
+	pcp_message INFO "\$EQUAL_OUT_DEVICE is set to: $EQUAL_OUT_DEVICE" "text"
 	pcp_debug_variables "text" CNAME DEVNO
 
 	if [ "$CNAME" != "" ]; then
@@ -186,7 +186,7 @@ pcp_set_equal_asound_output() {
 if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 	VARIABLE_CHANGED=TRUE
 
-	pcp_message INFO "$ALSAeq is set to: $ALSAeq" "text"
+	pcp_message INFO "\$ALSAeq is set to: $ALSAeq" "text"
 
 	# Determination of the number of the current sound-card
 	# This probably isn't necessary, as we will check at boot time, when using alsaequal
@@ -227,7 +227,7 @@ if [ "$ORIG_ALSAeq" != "$ALSAeq" ]; then
 		;;
 	esac
 else
-	[ $DEBUG -eq 1 ] && pcp_message DEBUG "$ALSAeq variable unchanged." "text"
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "\$ALSAeq variable unchanged." "text"
 fi
 
 if [ "$ALSAeq" = "yes" -a "$ORIG_EQUAL_OUT_DEVICE" != "$EQUAL_OUT_DEVICE" ]; then
@@ -235,7 +235,7 @@ if [ "$ALSAeq" = "yes" -a "$ORIG_EQUAL_OUT_DEVICE" != "$EQUAL_OUT_DEVICE" ]; the
 	RESTART_SQLT=TRUE
 	pcp_set_equal_asound_output "$EQUAL_OUT_DEVICE"
 else
-	[ $DEBUG -eq 1 ] && pcp_message DEBUG "$EQUAL_OUT_DEVICE variable unchanged." "text"
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "\$EQUAL_OUT_DEVICE variable unchanged." "text"
 fi
 
 #========================================================================================
@@ -321,7 +321,7 @@ if [ "$ORIG_STREAMER" != "$STREAMER" ] || [ "$STREAMER" == "yes" -a "$ORIG_STREA
 		;;
 	esac
 else
-	[ $DEBUG -eq 1 ] && pcp_message DEBUG "$STREAMER variable unchanged." "text"
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "\$STREAMER variable unchanged." "text"
 fi
 
 #========================================================================================
@@ -375,7 +375,7 @@ if [ "$ORIG_FSM" != "$FSM" ]; then
 	REBOOT_REQUIRED=TRUE
 
 	pcp_debug_variables "text" ORIG_FSM FSM
-	pcp_message INFO "$FSM is set to: $FSM" "text"
+	pcp_message INFO "\$FSM is set to: $FSM" "text"
 
 	case "$FSM" in
 		Default)

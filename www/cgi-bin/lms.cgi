@@ -1234,7 +1234,6 @@ pcp_mount_usbdrives() {
 	fi
 	#------------------------------------------------------------------------------------
 	pcp_heading5 "Pick from the following detected USB disks to mount"
-
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
 	#------------------------------------------------------------------------------------
 	pcp_incr_id
@@ -1258,9 +1257,9 @@ pcp_mount_usbdrives() {
 	#------------------------------------------------------------------------------------
 
 	#------------------------------------------------------------------------------------
-	echo '    <div class="row mx-1">'
+	echo '    <div class="form-row mx-1">'
 	echo '      <div class="col-1 text-sm-center"><p><b>Enabled</b></p></div>'
-	echo '      <div class="col-4"><p><b>Mount Point</b></p></div>'
+	echo '      <div class="col-2"><p><b>Mount Point</b></p></div>'
 	echo '      <div class="col-2"><p><b>Device</b></p></div>'
 	echo '      <div class="col-1"><p><b>Label</b></p></div>'
 	echo '      <div class="col-1"><p><b>FS Type</b></p></div>'
@@ -1340,15 +1339,22 @@ pcp_mount_usbdrives() {
 				DISABLE="disabled"
 				UUID="Invalid UUID, Please check/reformat disk"
 			fi
-			echo '    <div class="row mx-1">'
+			echo '    <div class="form-row mx-1">'
 			echo '      <div class="col-1 text-sm-center">'
 			echo '        <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
 			echo '        <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
 			echo '        <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 			echo '      </div>'
-			echo '      <div class="col-4">'
-			echo '        <p>/mnt/&#8239;<input class="xxxx" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"><p>'
+			echo '      <div class="col-2">'
+			echo '        <div class="input-group input-group-sm">'
+			echo '          <div class="input-group-prepend">'
+			echo '            <div class="input-group-text">/mnt/</div>'
+			echo '          </div>'
+			echo '          <input class="form-control form-control-sm" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$">'
+			echo '        </div>'
 			echo '      </div>'
+
+
 			echo '      <div class="col-2">'
 			echo '        <p>'$PART'</p>'
 			echo '      </div>'
