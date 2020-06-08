@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-07
+# Version: 7.0.0 2020-06-08
 
 set -f
 
@@ -550,7 +550,12 @@ pcp_tweaks_overclock() {
 	echo '        <input type="hidden" name="ACTION" value="oc">'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input class="'$BUTTON'" type="button" name="ADVANCED_OVERCLOCK" onClick="location.href='\'''xtras_overclock.cgi''\''" value="Advanced Overclock">'
+	echo '        <input class="'$BUTTON'"'
+	echo '               type="button"'
+	echo '               name="ADVANCED_OVERCLOCK"'
+	echo '               onClick="location.href='\'''xtras_overclock.cgi''\''"'
+	echo '               value="Advanced Overclock"'
+	echo '        >'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Go to Advanced Overclocking page.</p>'
@@ -627,7 +632,7 @@ pcp_tweaks_sqlite_affinity() {
 	pcp_incr_id
 	echo '       <div class="'$COLUMN3_3'">'
 	echo '         <p>Comma separated list of CPUs to run squeezelite process&nbsp;&nbsp;'
-	echo '           <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+	pcp_helpbadge
 	echo '         </p>'
 	echo '         <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '           <p><b>Recommended:&nbsp;</b>blank</p>'
@@ -691,11 +696,14 @@ pcp_tweaks_wol() {
 	esac
 
 	set -- $(arp $LMSIP)
+	SEVEN=$7
+	FOUR=$4
+	pcp_debug_variables "html" LMSIP FOUR SEVEN WOL_NIC WOL_LMSMACADDRESS
 
-	if [ $DEBUG -eq 1 ]; then
-		[ "$WOL_NIC" = "" ] && WOL_NIC=$7
-		[ "$WOL_LMSMACADDRESS" = "" ] && WOL_LMSMACADDRESS=$4
-	fi
+#	if [ $DEBUG -eq 1 ]; then
+#		[ x"$WOL_NIC" = x"" ] && WOL_NIC="$7"
+#		[ x"$WOL_LMSMACADDRESS" = x"" ] && WOL_LMSMACADDRESS="$4"
+#	fi
 
 	pcp_border_begin
 	pcp_heading5 "Wake-on-LAN (WOL)"
@@ -753,8 +761,8 @@ pcp_tweaks_wol() {
 	echo '            <span id="option'$ID'c" style="cursor: pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}c\'')">wlan0</span> |'
 	echo '            <span id="option'$ID'd" style="cursor: pointer" title="Click to use" onclick="pcp_copy_click_to_input('\'input${ID}\',\'option${ID}d\'')">wlan1</span> '
 	echo '            &gt;</p>'
-	echo '          <p style="cursor: pointer" title="Click to use '$7'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
-	echo '            <b>Example:</b> <span id="example'$ID'">'$7'</span></p>'  # GE fix
+	echo '          <p title="Click to use '$7'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
+	echo '            <b>Example:</b> <span id="example'$ID'">aaa'$7'</span></p>'  # GE fix
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
@@ -782,7 +790,7 @@ pcp_tweaks_wol() {
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;01:23:45:67:ab:cd:ef&gt;</p>'
 	echo '          <p class="pointer" title="Click to use '$4'" onclick="pcp_copy_click_to_input('\'input${ID}\',\'example${ID}\'')">'
-	echo '            <b>Example:</b> <span id="example'$ID'">'$4'</span></p>'
+	echo '            <b>Example:</b> <span id="example'$ID'">bbb'$4'</span></p>'
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
@@ -795,6 +803,7 @@ pcp_tweaks_wol() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
+	pcp_debug_variables "html" FOUR SEVEN WOL_NIC WOL_LMSMACADDRESS
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_tweaks_wol
 #----------------------------------------------------------------------------------------
@@ -2236,12 +2245,12 @@ pcp_tweaks_cron() {
 #----------------------------------------------------------------------------------------
 pcp_border_end
 
-#----------------------------------------------User Commands-----------------------------
+#-------------------------------------User Commands--------------------------------------
 pcp_tweaks_user_commands() {
 	pcp_border_begin
 	pcp_heading5 "User commands"
 	echo '  <form name="setusercommands" action="writetoautostart.cgi" method="get">'
-	#------------------------------------------------------------------------------------
+	#---------------------------------User command #1------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">User command #1</div>'
 	echo '      <div class="'$COLUMN2_2'">'
@@ -2256,7 +2265,7 @@ pcp_tweaks_user_commands() {
 	echo '        >'
 	echo '      </div>'
 	echo '    </div>'
-	#------------------------------------------------------------------------------------
+	#---------------------------------User command #2------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">User command #2</div>'
 	echo '      <div class="'$COLUMN2_2'">'
@@ -2271,7 +2280,7 @@ pcp_tweaks_user_commands() {
 	echo '        >'
 	echo '      </div>'
 	echo '    </div>'
-	#------------------------------------------------------------------------------------
+	#---------------------------------User command #3------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">User command #3</div>'
 	echo '      <div class="'$COLUMN2_2'">'

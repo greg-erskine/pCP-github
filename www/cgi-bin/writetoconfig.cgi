@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-31
+# Version: 7.0.0 2020-06-08
 
 . pcp-functions
 . pcp-soundcard-functions  # reset needs soundcard functions too.
@@ -52,7 +52,7 @@ pcp_restore() {
 pcp_update() {
 	pcp_message INFO "Copying pcp.cfg to /tmp..." "text"
 	sudo cp $PCPCFG /tmp/pcp.cfg
-	[ $? -ne 0 ] && pcp_message ERROR "Error copying pcp.cfg to /tmp...</p>'" "text"
+	[ $? -ne 0 ] && pcp_message ERROR "Error copying pcp.cfg to /tmp..." "text"
 	pcp_message INFO "Setting pcp.cfg to defaults..." "text"
 	pcp_update_config_to_defaults
 	pcp_message INFO "Updating pcp.cfg with original values..." "text"
@@ -61,6 +61,9 @@ pcp_update() {
 	pcp_save_to_config
 }
 
+#========================================================================================
+# Shutdown monitor
+#----------------------------------------------------------------------------------------
 install_shutdown_monitor() {
 	if [ ! -f $PACKAGEDIR/shutdown-monitor.tcz ]; then
 		echo "Installing Shutdown Monitor"
@@ -143,7 +146,7 @@ case "$SUBMIT" in
 				sed -i '/dtoverlay=gpio-poweroff/d' $CONFIGTXT
 				[ $GPIOPOWEROFF_HI = "yes" ] && ACTIVELOW="" || ACTIVELOW=",active_low=1"
 				echo "dtoverlay=gpio-poweroff,gpiopin=${GPIOPOWEROFF_GPIO}${ACTIVELOW}" >> $CONFIGTXT
-				pcp_umount_bootpartm
+				pcp_umount_bootpart
 			;;
 			no)
 				pcp_mount_bootpart
@@ -191,8 +194,7 @@ if [ "$ALSAeq" = "yes" ] && [ "$OUTPUT" != "equal" ]; then
 	pcp_confirmation_required
 fi
 
-pcp_message ERROR "Remove this second backup!!!" "text"
-pcp_backup   # <===== GE Eventually remove this
+#pcp_backup   # <===== GE Eventually remove this
 
 [ $RESTART_REQUIRED ] || pcp_redirect_button "Go Back" $FROM_PAGE 5
 

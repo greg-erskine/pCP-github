@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-03
+# Version: 7.0.0 2020-06-08
 
 . pcp-functions
 . pcp-lms-functions
@@ -164,7 +164,7 @@ pcp_ir_uninstall() {
 	echo
 	pcp_message INFO "After a reboot the following extensions will be permanently deleted:" "text"
 	sudo -u tc tce-audit delete $EXTN
-
+	echo
 	pcp_message INFO "Removing configuration files..." "text"
 	case $1 in
 		lirc)

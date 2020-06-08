@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-07
+# Version: 7.0.0 2020-06-08
 
 . pcp-functions
 . pcp-lms-functions
@@ -369,35 +369,6 @@ pcp_main_diagnostics() {
 	echo '  </div>'
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_diagnostics
-#----------------------------------------------------------------------------------------
-
-#------------------------------------------Save to USB-----------------------------------
-pcp_main_save_usb() {
-	echo '  <div class="row mx-1">'
-	echo '    <div class="form-group '$COLUMN2_1'">'
-	echo '      <form name="Saveconfig" action="save2usb.cgi" method="get">'
-	echo '        <button class="'$BUTTON'" type="submit" value="Save to USB">Save to USB</button>'
-	echo '      </form>'
-	echo '    </div>'
-	pcp_incr_id
-	echo '    <div class="'$COLUMN2_2'">'
-	echo '      <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
-	pcp_helpbadge
-	echo '      </p>'
-	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
-	echo '        <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
-	echo '        <p><b>Note:</b></p>'
-	echo '        <ul>'
-	echo '          <li>If you reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
-	echo '          <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
-	echo '          <li>This configuration file (newpcp.cfg) will be automatically renamed to usedpcp.cfg after rebooting.</li>'
-	echo '          <li>This method will only work on basic piCorePlayer setups.</li>'
-	echo '        </ul>'
-	echo '      </div>'
-	echo '    </div>'
-	echo '  </div>'
-}
-[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 pcp_border_end
 
@@ -907,6 +878,35 @@ pcp_main_dev() {
 	echo '  </div>'
 }
 [ $MODE -ge $MODE_DEVELOPER ] && [ -f ${WWWROOT}/cgi-bin/dev_main.cgi ] && pcp_main_dev
+#----------------------------------------------------------------------------------------
+
+#------------------------------------------Save to USB-----------------------------------
+pcp_main_save_usb() {
+	echo '  <div class="row mx-1">'
+	echo '    <div class="form-group '$COLUMN2_1'">'
+	echo '      <form name="Saveconfig" action="save2usb.cgi" method="get">'
+	echo '        <button class="'$BUTTON'" type="submit" value="Save to USB">Save to USB</button>'
+	echo '      </form>'
+	echo '    </div>'
+	pcp_incr_id
+	echo '    <div class="'$COLUMN2_2'">'
+	echo '      <p>Save your current configuration to the USB flash drive&nbsp;&nbsp;'
+	pcp_helpbadge
+	echo '      </p>'
+	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '        <p>This will copy the current configuration file to the attached USB flash drive/device.</p>'
+	echo '        <p><b>Note:</b></p>'
+	echo '        <ul>'
+	echo '          <li>If you reboot with this USB device attached, this configuration file will be uploaded and used.</li>'
+	echo '          <li>This is handy if you update your piCorePlayer or want to setup another piCorePlayer with similar settings.</li>'
+	echo '          <li>This configuration file (newpcp.cfg) will be automatically renamed to usedpcp.cfg after rebooting.</li>'
+	echo '          <li>This method will only work on basic piCorePlayer setups.</li>'
+	echo '        </ul>'
+	echo '      </div>'
+	echo '    </div>'
+	echo '  </div>'
+}
+[ $MODE -ge $MODE_DEVELOPER ] && pcp_main_save_usb
 #----------------------------------------------------------------------------------------
 [ $MODE -ge $MODE_DEVELOPER ] && pcp_border_end
 

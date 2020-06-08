@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-04
+# Version: 7.0.0 2020-06-08
 
 . pcp-functions
 . pcp-rpi-functions
@@ -771,7 +771,7 @@ pcp_squeezelite_log_level() {
 	echo '        </select>'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN3_2'">'
+	echo '      <div class="'$COLUMN3_3'">'
 	echo '        <p>Set logging level (-d)&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '        </p>'
@@ -969,13 +969,17 @@ pcp_squeezelite_power_gpio() {
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-	echo '    <div class="row mx-1">'
+	echo '    <div class="row mx-1 mb-3">'
 	echo '      <div class="'$COLUMN3_1'"></div>'
 	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <input id="pow1" type="radio" name="POWER_OUTPUT" value="H" title="Set GPIO active high" '$POH'>'
-	echo '        <label for="pow1">Active High&nbsp;&nbsp;</label>'
-	echo '        <input id="pow2" type="radio" name="POWER_OUTPUT" value="L" '$POL'>'
-	echo '        <label for="pow2">Active Low</label>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="pow1" type="radio" name="POWER_OUTPUT" value="H" title="Set GPIO active high" '$POH'>'
+	echo '          <label class="form-check-label" for="pow1">Active High</label>'
+	echo '        </div>'
+	echo '        <div class="form-check form-check-inline">'
+	echo '          <input class="form-check-input" id="pow2" type="radio" name="POWER_OUTPUT" value="L" '$POL'>'
+	echo '          <label class="form-check-label" for="pow2">Active Low</label>'
+	echo '        </div>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_3'"></div>'
 	echo '    </div>'
@@ -1094,7 +1098,7 @@ pcp_squeezelite_binary() {
 	#-------------------------Standard Squeezelite binary--------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1' text-sm-center">'
-	echo '        <input class="XXXX" id="sqreg" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
+	echo '        <input id="sqreg" type="radio" name="SQBINARY" value="default" '$DEFyes'>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>Squeezelite</p>'
@@ -1106,7 +1110,7 @@ pcp_squeezelite_binary() {
 	#---------------------------Custom Squeezelite binary--------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1' text-sm-center">'
-	echo '        <input class="XXXX" id="sqcust" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
+	echo '        <input id="sqcust" type="radio" name="SQBINARY" value="custom" '$CUSTOMyes'>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN3_2'">'
 	echo '        <p>Custom Squeezelite binary</p>'
@@ -1115,7 +1119,7 @@ pcp_squeezelite_binary() {
 	echo '        <p>Save your file as '$TCEMNT'/tce/squeezelite-custom</p>'
 	echo '      </div>'
 	echo '    </div>'
-	#--------------------------------------Submit button---------------------------------
+	#--------------------------------Submit button---------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <button class="'$BUTTON' mb-3" type="submit" name="SUBMIT" value="Binary" title="Save &quot;Squeezelite Binary&quot; to configuration file" '$DISABLE'>Set Binary</button>'
