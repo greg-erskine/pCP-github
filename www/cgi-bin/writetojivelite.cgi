@@ -1,14 +1,14 @@
 #!/bin/sh
 
-# Version: 6.0.0 2019-08-16
+# Version: 7.0.0 2020-06-09
 
 . /etc/init.d/tc-functions
 . pcp-functions
 
 pcp_html_head "Write to Jivelite Tweak" "SBP"
 
-pcp_banner
 pcp_httpd_query_string
+pcp_navbar
 
 BUILD=$(getBuild)
 MIRROR="${PCP_REPO%/}/$(getMajorVer).x/$BUILD/tcz"
@@ -44,9 +44,8 @@ SPACE_REQUIRED=13000
 # Routines
 #----------------------------------------------------------------------------------------
 pcp_html_end() {
-	pcp_table_middle
 	pcp_redirect_button "Go to Tweaks" "tweaks.cgi" 10
-	pcp_table_end
+	pcp_infoxbox_end
 	pcp_footer
 	pcp_copyright
 	[ $REBOOT_REQUIRED ] && pcp_lirc_popup
@@ -56,51 +55,49 @@ pcp_html_end() {
 }
 
 pcp_jivelite_debug() {
-	echo '<!-- Start of debug info -->'
 	pcp_debug_variables "html" MIRROR OPTION ACTION JIVELITE VISUALISER VUMETER JIVELITE_TCZ JIVELITE_MD5 DEFAULT_VUMETER AVAILABLE_VUMETERS
-	echo '<!-- End of debug info -->'
 }
 
 pcp_download_jivelite() {
 	JIVELITE_SUCCESS=FALSE
 	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		[ $DEBUG -eq 1 ] && pcp_message "info" 'pCP Repository available...' $MTYPE
-		pcp_message "info" 'Downloading Jivelite from the pCP Repository...' $MTYPE
-		pcp_message "info" 'Downloading will take a few minutes. Please wait...' $MTYPE
+		[ $DEBUG -eq 1 ] && pcp_message INFO "pCP Repository available..." $MTYPE
+		pcp_message INFO "Downloading Jivelite from the pCP Repository..." $MTYPE
+		pcp_message INFO "Downloading will take a few minutes. Please wait..." $MTYPE
 		sudo -u tc pcp-load -r $PCP_REPO -w $JIVELITE_TCZ
 		if [ $? -eq 0 ]; then
-			pcp_message "ok" $JIVELITE_TCZ' download successful.' $MTYPE
+			pcp_message OK "$JIVELITE_TCZ download successful." $MTYPE
 			JIVELITE_SUCCESS=TRUE
 		else
-			pcp_message "error" 'Download unsuccessful, MD5 mismatch, try again later!' "text"
+			pcp_message ERROR "Download unsuccessful, MD5 mismatch, try again later!" $MTYPE
 		fi
 	else
-		pcp_message "error" 'pCP Repository NOT available...' $MTYPE
+		pcp_message ERROR "pCP Repository NOT available..." $MTYPE
 	fi
 }
 
 pcp_install_jivelite() {
 	# We don't need to install extension, since we are rebooting.
-	pcp_message "info" 'Jivelite is installed.' $MTYPE
-	[ $DEBUG -eq 1 ] && pcp_message "debug" 'Jivelite is added to onboot.lst' $MTYPE
+	pcp_message INFO "Jivelite is installed." $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Jivelite is added to onboot.lst" $MTYPE
 	sed -i '/pcp-jivelite.tcz/d' $ONBOOTLST
 	echo 'pcp-jivelite.tcz' >> $ONBOOTLST
 
 	# New extension still installs into /opt.
-	[ $DEBUG -eq 1 ] && pcp_message "info" 'Jivelite is added to .xfiletool.lst' $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message INFO "Jivelite is added to .xfiletool.lst" $MTYPE
 	sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
 	echo 'opt/jivelite' >> /opt/.xfiletool.lst
 }
 
 pcp_delete_jivelite() {
-	pcp_message "info" 'Jivelite is removed from piCorePlayer.' $MTYPE
+	pcp_message INFO "Jivelite is removed from piCorePlayer." $MTYPE
 	sudo -u tc tce-audit builddb
 	sudo -u tc tce-audit delete $JIVELITE_TCZ
 	sudo rm -rf /home/tc/.jivelite
 	sudo sed -i '/pcp-jivelite.tcz/d' $ONBOOTLST
-	[ $DEBUG -eq 1 ] && pcp_message "debug" 'Jivelite is removed from onboot.lst' $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Jivelite is removed from onboot.lst" $MTYPE
 	sudo sed -i '/^opt\/jivelite/d' /opt/.xfiletool.lst
-	[ $DEBUG -eq 1 ] && pcp_message "debug" 'Jivelite is removed from .xfiletool.lst' $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Jivelite is removed from .xfiletool.lst" $MTYPE
 	JIVELITE="no"
 	VISUALISER="no"
 	pcp_save_to_config
@@ -108,35 +105,35 @@ pcp_delete_jivelite() {
 
 pcp_download_vumeters() {
 	if [ $(pcp_pcp_repo_accessible) -eq 0 ]; then
-		[ $DEBUG -eq 1 ] && pcp_message "debug" 'pCP Repository available...' $MTYPE
-		pcp_message "info" 'Downloading VU Meters from the pCP Repository...' $MTYPE
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "pCP Repository available..." $MTYPE
+		pcp_message INFO "Downloading VU Meters from the pCP Repository..." $MTYPE
 		for METER in $AVAILABLE_VUMETERS
 		do
 			sudo -u tc pcp-load -r $PCP_REPO -w $METER
 			if [ $? -eq 0 ]; then
-				pcp_message "ok" $METER' download successful.' $MTYPE
+				pcp_message OK "$METER download successful." $MTYPE
 			else
-				pcp_message "error" $METER' download unsuccessful, MD5 mismatch, try again later!' $MTYPE
+				pcp_message ERROR "$METER download unsuccessful, MD5 mismatch, try again later!" $MTYPE
 			fi
 		done
 	else
-		pcp_message "error" 'pCP Repository NOT available...' $MTYPE
+		pcp_message ERROR "pCP Repository NOT available..." $MTYPE
 	fi
 }
 
 pcp_install_default_vumeter() {
-	pcp_message "info" 'Installing default VU Meter...' $MTYPE
+	pcp_message INFO "Installing default VU Meter..." $MTYPE
 	sudo sed -i '/VU_Meter/d' $ONBOOTLST
 	sudo echo $DEFAULT_VUMETER >> $ONBOOTLST
-	[ $DEBUG -eq 1 ] && pcp_message "debug" 'Adding default VU Meter to onboot.lst...' $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Adding default VU Meter to onboot.lst..." $MTYPE
 }
 
 pcp_install_vumeter() {
-	pcp_message "info" 'Installing VU Meter...' $MTYPE
+	pcp_message INFO "Installing VU Meter..." $MTYPE
 	# Unmount all loop mounted VU_Meters.
 	# There should be only one or none mounted.
 	MOUNTED_METERS=$(df | grep VU_Meter | awk '{print $6}' )
-	[ $DEBUG -eq 1 ] && pcp_message "debug" $MOUNTED_METERS $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG $MOUNTED_METERS $MTYPE
 	for METER in $MOUNTED_METERS
 	do
 		sudo umount $METER
@@ -144,18 +141,18 @@ pcp_install_vumeter() {
 	rm -f /usr/local/tce.installed/VU_Meter*
 	sudo rm /opt/jivelite/share/jive/applets/JogglerSkin/images/UNOFFICIAL/VUMeter/vu_analog_25seq_w.png
 	sudo -u tc tce-load -i $VUMETER >/dev/null 2>&1
-	[ $DEBUG -eq 1 ] && pcp_message "debug" 'VU Meter is added to onboot.lst' $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "VU Meter is added to onboot.lst" $MTYPE
 	sudo sed -i '/VU_Meter/d' $ONBOOTLST
 	sudo echo $VUMETER >> $ONBOOTLST
 }
 
 pcp_delete_vumeters() {
-	pcp_message "info" 'Removing VU Meters...' $MTYPE
+	pcp_message INFO "Removing VU Meters..." $MTYPE
 	sudo -u tc tce-audit builddb
 	for METER in $(ls $PACKAGEDIR/VU_Meter*.tcz); do
 		sudo -u tc tce-audit delete $METER
 	done
-	[ $DEBUG -eq 1 ] && pcp_message "debug" 'Removing VU Meter from onboot.lst...' $MTYPE
+	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Removing VU Meter from onboot.lst..." $MTYPE
 	sudo sed -i '/VU_Meter/d' $ONBOOTLST
 }
 
@@ -176,13 +173,14 @@ pcp_jivelite_debug
 
 case "$OPTION" in
 	JIVELITE)
-		[ $DEBUG -eq 1 ] && pcp_message "debug" 'Doing OPTION: '$OPTION $MTYPE
-		[ $DEBUG -eq 1 ] && pcp_message "debug" 'Doing with ACTION: '$ACTION $MTYPE
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Doing OPTION: $OPTION" $MTYPE
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Doing with ACTION: $ACTION" $MTYPE
 		case "$ACTION" in
 			Install)
 				MTYPE="text"
-				pcp_table_textarea_top "Install Jivelite" "" "200"
-				pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
+				pcp_heading5 "Install Jivelite"
+				pcp_infobox_begin
+				pcp_sufficient_free_space "text" $SPACE_REQUIRED
 				if [ $? -eq 0 ]; then
 					pcp_download_jivelite
 					if [ $JIVELITE_SUCCESS ]; then
@@ -194,67 +192,71 @@ case "$OPTION" in
 						pcp_save_to_config
 						pcp_backup "text"
 					else
-						pcp_message "error" 'Error Downloading Jivelite, try again later.' $MTYPE
+						pcp_message ERROR "Error Downloading Jivelite, try again later." $MTYPE
 					fi
 				fi
-				echo '             </textarea>'
+				pcp_infobox_end
 			;;
 			Onboot)
 				MTYPE="text"
-				pcp_table_textarea_top  "Setting Jivelite onboot behaviour" "" "50"
+				pcp_heading5 "Setting Jivelite onboot behaviour"
+				pcp_infobox_begin
 				if [ "$JIVELITE" = "yes" ]; then
 					VISUALISER="yes"
-					pcp_message "info" 'Setting Jivelite to automatically start during boot...' $MTYPE
+					pcp_message INFO "Setting Jivelite to automatically start during boot..." $MTYPE
 				else
 					VISUALISER="no"
-					pcp_message "info" 'Setting Jivelite to not start during boot...' $MTYPE
+					pcp_message INFO "Setting Jivelite to not start during boot..." $MTYPE
 				fi
 				pcp_save_to_config
 				pcp_backup "text"
-				echo '             </textarea>'
+				pcp_infobox_end
 				unset REBOOT_REQUIRED
 			;;
 			Remove)
 				MTYPE="text"
-				pcp_table_textarea_top "Removing Jivelite" "" "300"
+				pcp_heading5 "Removing Jivelite"
+				pcp_infobox_begin
 				pcp_delete_jivelite
 				pcp_delete_vumeters
 				pcp_backup "text"
-				echo '             </textarea>'
+				pcp_infobox_end
 				REBOOT_REQUIRED=TRUE
 			;;
 			Reset)
 				unset REBOOT_REQUIRED
 				MTYPE="text"
-				pcp_table_textarea_top "Resetting Jivelite" "" "100"
-				pcp_message "info" 'Resetting Jivelite Configuration...' $MTYPE
+				pcp_heading5 "Resetting Jivelite"
+				pcp_infobox_begin
+				pcp_message INFO "Resetting Jivelite Configuration..." $MTYPE
 				rm -f /home/tc/.jivelite/userpath/settings/*.lua
 				pcp_backup "text"
 
 				sudo kill -SIGTERM `pidof jivelite`
 
 				if [ $? -ne 0 ]; then
-					pcp_message "error" 'Jivelite not killed...' $MTYPE
+					pcp_message ERROR "Jivelite not killed..." $MTYPE
 				else
-					pcp_message "ok" 'Jivelite killed...' $MTYPE
+					pcp_message OK "Jivelite killed..." $MTYPE
 				fi
 
-				pcp_message "info" 'Jivelite has been reset and restarted.' $MTYPE
-				pcp_message "info" 'Reconfigure Jivelite and then backup changes!' $MTYPE
-				echo '             </textarea>'
+				pcp_message INFO "Jivelite has been reset and restarted." $MTYPE
+				pcp_message INFO "Reconfigure Jivelite and then backup changes!" $MTYPE
+				pcp_infobox_end
 			;;
 			Update)
 				MTYPE="text"
-				pcp_table_textarea_top "Updating Jivelite" "" "80"
-#				pcp_sufficient_free_space "nohtml" $SPACE_REQUIRED
+				pcp_heading5 "Updating Jivelite"
+				pcp_infobox_begin
+#				pcp_sufficient_free_space "text" $SPACE_REQUIRED
 				if [ $? -eq 0 ]; then
 					pcp-update pcp-jivelite.tcz
 					CHK=$?
 					if [ $CHK -eq 2 ]; then
-						pcp_message "info" 'There is no update for Jivelite at this time.' $MTYPE
+						pcp_message INFO "There is no update for Jivelite at this time." $MTYPE
 						unset REBOOT_REQUIRED
 					elif [ $CHK -eq 1 ]; then
-						pcp_message "error" 'There was an error updating Jivelite, please try again later.' $MTYPE
+						pcp_message ERROR "'There was an error updating Jivelite, please try again later." $MTYPE
 						unset REBOOT_REQUIRED
 					else
 						REBOOT_REQUIRED=TRUE
@@ -262,29 +264,29 @@ case "$OPTION" in
 					for METER in $(PACKAGEDIR/VU_Meter*.tcz); do
 						pcp-update $METER
 						if [ $? -eq 0 ]; then
-							pcp_message "info" 'There was an update to VU Meters.' $MTYPE
+							pcp_message INFO "There was an update to VU Meters." $MTYPE
 							REBOOT_REQUIRED=TRUE
 						fi
 					done
 				fi
-				echo '             </textarea>'
+				pcp_infobox_end
 			;;
 			*)
 				MTYPE="text"
-				[ $DEBUG -eq 1 ] && pcp_message "debug" 'JIVELITE: '$JIVELITE
-				pcp_message "error" 'JIVELITE: '$JIVELITE', Bad ACTION:'$ACTION $MTYPE
+				[ $DEBUG -eq 1 ] && pcp_message DEBUG "JIVELITE: $JIVELITE" $MTYPE
+				pcp_message ERROR "JIVELITE: $JIVELITE, Bad ACTION: $ACTION" $MTYPE
 				unset REBOOT_REQUIRED
 			;;
 		esac
 	;;
 	VUMETER)
 		MTYPE="text"
-		[ $DEBUG -eq 1 ] && pcp_message "debug" 'Doing OPTION: '$OPTION $MTYPE
+		[ $DEBUG -eq 1 ] && pcp_message DEBUG "Doing OPTION: $OPTION" $MTYPE
 		case "$SUBMIT" in
 			Save)
 				pcp_install_vumeter
-				pcp_message "info" 'A restart of Jivelite is needed in order to finalize!' $MTYPE
-				pcp_message "info" 'Jivelite will now restart!' $MTYPE
+				pcp_message INFO "A restart of Jivelite is needed in order to finalize!" $MTYPE
+				pcp_message INFO "Jivelite will now restart!" $MTYPE
 				sudo kill -SIGTERM `pidof jivelite`
 				unset REBOOT_REQUIRED
 			;;
