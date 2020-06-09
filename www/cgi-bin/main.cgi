@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-08
+# Version: 7.0.0 2020-06-09
 
 . pcp-functions
 . pcp-lms-functions
@@ -59,19 +59,19 @@ pcp_main_squeezelite_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
+#	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-10 col-lg-3">'
+	echo '    <div class="col-12 col-lg-4 mx-1">'
 
 	if [ "$SQUEEZELITE" = "no" ]; then
-		echo '      <p>Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
+		echo '      <p>'$INDICATOR'&nbsp;&nbsp;Squeezelite is disabled on Tweaks page&nbsp;&nbsp;'
 	else
-		echo '      <p>Squeezelite is '$STATUS'&nbsp;&nbsp;'
+		echo '      <p>'$INDICATOR'&nbsp;&nbsp;Squeezelite is '$STATUS'&nbsp;&nbsp;'
 	fi
 
 	pcp_helpbadge
 	echo '      </p>'
-	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '      <div id="dt'$ID'" class="'$COLLAPSE' mr-2">'
 	echo '        <ul>'
 	echo '          <li>'$(pcp_bi_check)' = Squeezelite running.</li>'
 	echo '          <li>'$(pcp_bi_x)' = Squeezelite not running.</li>'
@@ -96,13 +96,13 @@ pcp_main_lms_indication() {
 		pcp_red_cross "not running"
 	fi
 
-	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
+#	echo '    <div class="col-1 col-lg-1 ml-1 text-right">'$INDICATOR'</div>'
 	pcp_incr_id
-	echo '    <div class="col-10 col-lg-3">'
-	echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
+	echo '    <div class="col-12 col-lg-4 mx-1">'
+	echo '      <p>'$INDICATOR'&nbsp;&nbsp;LMS is '$STATUS'&nbsp;&nbsp;'
 	pcp_helpbadge
 	echo '      </p>'
-	echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+	echo '      <div id="dt'$ID'" class="'$COLLAPSE' mr-2">'
 	echo '        <ul>'
 	echo '          <li>'$(pcp_bi_check)' = LMS running.</li>'
 	echo '          <li>'$(pcp_bi_x)' = LMS not running.</li>'
@@ -651,7 +651,6 @@ if [ $MODE -ge $MODE_BETA ]; then
 fi
 #------------------------------------------Static IP-------------------------------------
 pcp_main_static_ip() {
-
 	echo '  <div class="row mx-1">'
 	echo '    <div class="form-group '$COLUMN2_1'">'
 	echo '      <form name="Static IP" action="xtras_staticip.cgi" method="get">'
