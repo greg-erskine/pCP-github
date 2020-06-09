@@ -91,8 +91,12 @@ pcp_install_jivelite() {
 
 pcp_delete_jivelite() {
 	pcp_message INFO "Jivelite is removed from piCorePlayer." $MTYPE
+	pcp_message INFO "" $MTYPE "-n"
 	sudo -u tc tce-audit builddb
+	echo
+	pcp_message INFO "After a reboot these extensions will be permanently deleted:" $MTYPE
 	sudo -u tc tce-audit delete $JIVELITE_TCZ
+	echo
 	sudo rm -rf /home/tc/.jivelite
 	sudo sed -i '/pcp-jivelite.tcz/d' $ONBOOTLST
 	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Jivelite is removed from onboot.lst" $MTYPE
@@ -148,10 +152,14 @@ pcp_install_vumeter() {
 
 pcp_delete_vumeters() {
 	pcp_message INFO "Removing VU Meters..." $MTYPE
+	pcp_message INFO "" $MTYPE "-n"
 	sudo -u tc tce-audit builddb
+	echo
+	pcp_message INFO "After a reboot these extensions will be permanently deleted:" $MTYPE
 	for METER in $(ls $PACKAGEDIR/VU_Meter*.tcz); do
 		sudo -u tc tce-audit delete $METER
 	done
+	echo
 	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Removing VU Meter from onboot.lst..." $MTYPE
 	sudo sed -i '/VU_Meter/d' $ONBOOTLST
 }
@@ -180,7 +188,7 @@ case "$OPTION" in
 				MTYPE="text"
 				pcp_heading5 "Install Jivelite"
 				pcp_infobox_begin
-				pcp_sufficient_free_space "text" $SPACE_REQUIRED
+				pcp_sufficient_free_space $SPACE_REQUIRED "text"
 				if [ $? -eq 0 ]; then
 					pcp_download_jivelite
 					if [ $JIVELITE_SUCCESS ]; then
@@ -248,7 +256,7 @@ case "$OPTION" in
 				MTYPE="text"
 				pcp_heading5 "Updating Jivelite"
 				pcp_infobox_begin
-#				pcp_sufficient_free_space "text" $SPACE_REQUIRED
+				pcp_sufficient_free_space $SPACE_REQUIRED "text"
 				if [ $? -eq 0 ]; then
 					pcp-update pcp-jivelite.tcz
 					CHK=$?

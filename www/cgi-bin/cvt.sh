@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-07
+# Version: 7.0.0 2020-06-09
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
@@ -26,7 +26,7 @@ cat $1 | sed \
 	-e "s|echo '\[ DEBUG \] |pcp_message DEBUG \"| g" \
 	-e 's|pcp_textarea_inform|pcp_textarea| g' \
 	-e 's|pcp_table_top|pcp_heading5| g' \
-	-e 's|pcp_table_end|pcp_infoxbox_end| g' \
+	-e 's|pcp_table_end|pcp_infobox_end| g' \
 	-e "s|class=\"less|class=\"'\$COLLAPSE'| g" \
 	-e "s|id=\"'\$ID'|id=\"dt'\$ID'| g" \
 	-e "s|'\$ROWSHADE'|row| g" \
