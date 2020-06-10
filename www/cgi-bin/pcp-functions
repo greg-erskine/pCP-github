@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-08
+# Version: 7.0.0 2020-06-10
 
 WWW_BUILD=0008
 
@@ -22,15 +22,21 @@ pcp_debug_variables() {
 		local FORMAT=$1
 		shift
 
-		echo '<!-- Start of debug info -->'
-		echo '<div class="bg-white border border-secondary shadow rounded mt-1 px-3 py-1">'
+		if [ "$FORMAT" = "HTML" ]; then
+			echo '<!-- Start of debug info -->'
+			echo '<div class="bg-white border border-secondary shadow rounded mt-1 px-3 py-1">'
+		fi
+
 		for VAR in $@
 		do
 			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
 			pcp_message DEBUG "$MESSAGE" "$FORMAT"
 		done
-		echo '</div>'
-		echo '<!-- End of debug info -->'
+
+		if [ "$FORMAT" = "HTML" ]; then
+			echo '</div>'
+			echo '<!-- End of debug info -->'
+		fi
 	fi
 }
 

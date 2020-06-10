@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-06
+# Version: 7.0.0 2020-06-10
 
 . pcp-functions
 . pcp-rpi-functions
@@ -423,15 +423,15 @@ else
 	pcp_red_cross "not running"
 fi
 
-echo '    <div class="col-1 col-lg-1 ml-1 text-right">'
-echo '      <p>'$INDICATOR'</p>'
-echo '    </div>'
+#echo '    <div class="col-1 col-lg-1 ml-1 text-right">'
+#echo '      <p>'$INDICATOR'</p>'
+#echo '    </div>'
 pcp_incr_id
-echo '    <div class="col-10 col-lg-3">'
-echo '      <p>LMS is '$STATUS'&nbsp;&nbsp;'
+echo '    <div class="col-12 col-lg-4 mx-1">'
+echo '      <p>'$INDICATOR'&nbsp;&nbsp;LMS is '$STATUS'&nbsp;&nbsp;'
 pcp_helpbadge
 echo '      </p>'
-echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '      <div id="dt'$ID'" class="'$COLLAPSE' mr-2">'
 echo '        <ul>'
 echo '          <li>'$(pcp_bi_check)' = LMS running.</li>'
 echo '          <li>'$(pcp_bi_x)' = LMS not running.</li>'
@@ -440,7 +440,7 @@ echo '        <p><b>Note:</b></p>'
 echo '        <ul>'
 echo '          <li>LMS must be running to stream music to players from this pCP.</li>'
 echo '        </ul>'
-echo '      </div>' 
+echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 
@@ -451,15 +451,15 @@ else
 	pcp_red_cross "not running"
 fi
 
-echo '      <div class="col-1 col-lg-1 ml-1 text-right">'
-echo '        <p>'$INDICATOR'</p>'
-echo '      </div>'
+#echo '      <div class="col-1 col-lg-1 ml-1 text-right">'
+#echo '        <p>'$INDICATOR'</p>'
+#echo '      </div>'
 pcp_incr_id
-echo '      <div class="col-10 col-lg-3">'
-echo '        <p>Samba is '$STATUS'&nbsp;&nbsp;'
+echo '      <div class="col-12 col-lg-4 mx-1">'
+echo '        <p>'$INDICATOR'&nbsp;&nbsp;Samba is '$STATUS'&nbsp;&nbsp;'
 pcp_helpbadge
 echo '        </p>'
-echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+echo '        <div id="dt'$ID'" class="'$COLLAPSE' mr-2">'
 echo '          <ul>'
 echo '          <li>'$(pcp_bi_check)' = LMS running.</li>'
 echo '          <li>'$(pcp_bi_x)' = LMS not running.</li>'
@@ -677,7 +677,7 @@ pcp_lms_start_lms() {
 [ $MODE -ge $MODE_SERVER ] && pcp_lms_start_lms
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Stop LMS--------------------------------------
+#---------------------------------------Stop LMS-----------------------------------------
 pcp_lms_stop_lms() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
@@ -697,7 +697,7 @@ pcp_lms_stop_lms() {
 [ $MODE -ge $MODE_SERVER ] && pcp_lms_stop_lms
 #----------------------------------------------------------------------------------------
 
-#---------------------------------Restart LMS--------------------------------------------
+#--------------------------------------Restart LMS---------------------------------------
 pcp_lms_restart_lms() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
@@ -722,7 +722,7 @@ pcp_lms_restart_lms() {
 [ $MODE -ge $MODE_SERVER ] && pcp_lms_restart_lms
 #----------------------------------------------------------------------------------------
 
-#-------------------------------nomysqueezebox-------------------------------------------
+#------------------------------------nomysqueezebox--------------------------------------
 pcp_lms_no_mysb() {
 
 	case $OPTIONS in
@@ -758,7 +758,7 @@ pcp_lms_no_mysb() {
 [ $MODE -ge $MODE_SERVER ] && pcp_lms_no_mysb
 #----------------------------------------------------------------------------------------
 
-#-------------------------------Show LMS logs--------------------------------------------
+#-------------------------------------Show LMS logs--------------------------------------
 pcp_lms_show_logs() {
 
 	case "$LOGSHOW" in
@@ -921,17 +921,17 @@ pcp_slimserver_persistence() {
 
 	COL1="col-1"
 	COL2="col-2"
-	COL3="col-3"
-	COL4="col-6"
+	COL3="col-4"
+	COL4="col-5"
 
 	pcp_heading5 "Save LMS Server Cache and Preferences to Mounted Drive"
 
 	pcp_incr_id
 	echo '  <form name="Mount" action="writetomount.cgi" method="get">'
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COL1'"><p><b>Enabled</b></p></div>'
-	echo '      <div class="'$COL2'"><p><b>Mount Type</b></p></div>'
-	echo '      <div class="'$COL3'"><p><b>LMS Data Storage Location</b></p></div>'
+	echo '      <div class="'$COL1'"><dt>Enabled</dt></div>'
+	echo '      <div class="'$COL2'"><dt>Mount Type</dt></div>'
+	echo '      <div class="'$COL3'"><dt>LMS Data Storage Location</dt></div>'
 	echo '      <div class="'$COL4'">'
 	echo '        <p>This is the Location where LMS will save Data&nbsp;&nbsp;'
 	pcp_helpbadge
@@ -1012,8 +1012,6 @@ pcp_slimserver_persistence() {
 			echo '    <div class="'$COL4'">'
 			echo '      <p>There is a Cache folder found on this drive.</p>'
 			echo '    </div>'
-		else
-			echo '    <div class="'$COL4'"></div>'
 		fi
 		echo '    </div>'
 	done
@@ -1054,8 +1052,6 @@ pcp_slimserver_persistence() {
 		echo '      <div class="'$COL4'">'
 		echo '        <p>There is a Cache folder found on this drive.</p>'
 		echo '      </div>'
-	else
-		echo '      <div class="'$COL4'"></div>'
 	fi
 	echo '    </div>'
 #--------------------------------------Submit button-------------------------------------
@@ -1064,13 +1060,15 @@ pcp_slimserver_persistence() {
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Set">Set LMS Data</button>'
 	echo '        <input type="hidden" name="MOUNTTYPE" value="slimconfig">'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_2'">'
+	echo '      <div class="col">'
 	echo '        <p>Set the Data Location Only.</p>'
 	echo '      </div>'
+	echo '      </div>'
+	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Move">Move LMS Data</button>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN4_4'">'
+	echo '      <div class="col">'
 	echo '        <p>Set the Data Location and Move Cache to that location.</p>'
 	echo '      </div>'
 	echo '    </div>'
@@ -1255,16 +1253,22 @@ pcp_mount_usbdrives() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-
+	COL1="col-1"
+	COL2="col-2 mr-2"
+	COL3="col-2"
+	COL4="col-1 mr-3"
+	COL5="col-1"
+	COL6="col-3"
+	COL7="col-1"
 	#------------------------------------------------------------------------------------
 	echo '    <div class="form-row mx-1">'
-	echo '      <div class="col-1 text-sm-center"><p><b>Enabled</b></p></div>'
-	echo '      <div class="col-2"><p><b>Mount Point</b></p></div>'
-	echo '      <div class="col-2"><p><b>Device</b></p></div>'
-	echo '      <div class="col-1"><p><b>Label</b></p></div>'
-	echo '      <div class="col-1"><p><b>FS Type</b></p></div>'
-	echo '      <div class="col-2"><p><b>UUID</b></p></div>'
-	echo '      <div class="col-1"><p><b>Size</b></p></div>'
+	echo '      <div class="'$COL1'" text-sm-center"><p><b>Enabled</b></p></div>'
+	echo '      <div class="'$COL2'"><p><b>Mount Point</b></p></div>'
+	echo '      <div class="'$COL3'"><p><b>Device</b></p></div>'
+	echo '      <div class="'$COL4'"><p><b>Label</b></p></div>'
+	echo '      <div class="'$COL5'"><p><b>FS Type</b></p></div>'
+	echo '      <div class="'$COL6'"><p><b>UUID</b></p></div>'
+	echo '      <div class="'$COL7'"><p><b>Size</b></p></div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	# Find all USB devices currently attached to system
@@ -1340,12 +1344,12 @@ pcp_mount_usbdrives() {
 				UUID="Invalid UUID, Please check/reformat disk"
 			fi
 			echo '    <div class="form-row mx-1">'
-			echo '      <div class="col-1 text-sm-center">'
+			echo '      <div class="'$COL1' text-sm-center">'
 			echo '        <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
 			echo '        <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
 			echo '        <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
 			echo '      </div>'
-			echo '      <div class="col-2">'
+			echo '      <div class="'$COL2'">'
 			echo '        <div class="input-group input-group-sm">'
 			echo '          <div class="input-group-prepend">'
 			echo '            <div class="input-group-text">/mnt/</div>'
@@ -1353,21 +1357,19 @@ pcp_mount_usbdrives() {
 			echo '          <input class="form-control form-control-sm" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$">'
 			echo '        </div>'
 			echo '      </div>'
-
-
-			echo '      <div class="col-2">'
+			echo '      <div class="'$COL3'">'
 			echo '        <p>'$PART'</p>'
 			echo '      </div>'
-			echo '      <div class="col-1">'
+			echo '      <div class="'$COL4'">'
 			echo '        <p>'$LBL'</p>'
 			echo '      </div>'
-			echo '      <div class="col-1">'
+			echo '      <div class="'$COL5'">'
 			echo '        <p>'$PTTYPE'</p>'
 			echo '      </div>'
-			echo '      <div class="col-2">'
+			echo '      <div class="'$COL6'">'
 			echo '        <p>'$UUID'</p>'
 			echo '      </div>'
-			echo '      <div class="col-1">'
+			echo '      <div class="'$COL7'">'
 			echo '        <p>'$SIZExB'</p>'
 			echo '      </div>'
 			echo '    </div>'
@@ -1416,39 +1418,41 @@ pcp_mount_usbdrives() {
 		J=$((J+1))
 	done
 	#--------------------------------------Submit button---------------------------------
-
 	pcp_incr_id
 	echo '    <div class="row mx-1 mb-2">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Save">Set USB Mount</button>'
 	echo '        <input type="hidden" name="MOUNTTYPE" value="localdisk">'
-	echo '        <input type="hidden" name="NUMDRIVES" value="'$NUM_USB_ATTACHED'">'	
+	echo '        <input type="hidden" name="NUMDRIVES" value="'$NUM_USB_ATTACHED'">'
 	echo '      </div>'
+	echo '    </div>'
+	echo '    <div class="row mx-1 mb-2">'
 	echo '      <div class="'$COLUMN4_1'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Permissions" onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted SD or USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
 	echo '      </div>'
+	echo '    </div>'
 	case $LMSDATA in
 		usb*)
 			# Checkbox is disabled due to LMS using for cache storage, Keep the specific box enabled
-			echo '      <div class="'$COLUMN4_1'">'
+			echo '    <div class="row mx-1 mb-2">'
+			echo '      <div class="col">'
 			echo '        <input type="hidden" name="'$KEEPENABLED'" value="enabled">'
-			echo '      </div>'
-			echo '      <div class="'$COLUMN4_1'">'
-			echo '        <p> LMS is currently using disk '${LMSDATA:4}' for Data.&nbsp;&nbsp;'
-			echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+			echo '        <p><b>Warning:</b> LMS is currently using disk '${LMSDATA:4}' for Data&nbsp;&nbsp;'
+			pcp_helpbadge
 			echo '        </p>'
 			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
-			echo '          <p>Must Move LMS Data to another disk (SDcard or Network Share).</p>'
-			echo '          <p>in order to change this mount.</p>'
+			echo '          <p>Must Move LMS Data to another disk (SD card or Network Share)'
+			echo '             in order to change this mount.</p>'
 			echo '        </div>'
 			echo '      </div>'
+			echo '    </div>'
 		;;
 		*)
-			echo '      <div class="col">'
 			if [ "$EXTRAFSYS" = "no" ]; then
-				echo '        <p> For UTF-8 support on FAT formatted drives, please install extra file systems above.</p>'
+				echo '    <div class="col">'
+				echo '      <p>For UTF-8 support on FAT formatted drives, please install extra file systems above.</p>'
+				echo '    </div>'
 			fi
-			echo '      </div>'
 		;;
 	esac
 	echo '    </div>'
@@ -1637,14 +1641,14 @@ pcp_mount_netdrives() {
 
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
-	echo '      <div class="'$COLUMN8_1'"><p><b>Enabled</b></p></div>'
-	echo '      <div class="'$COLUMN8_2'"><p><b>Mount Point</b></p></div>'
-	echo '      <div class="'$COLUMN8_3'"><p><b>IP Address</b></p></div>'
-	echo '      <div class="'$COLUMN8_4'"><p><b>Share Name</b></p></div>'
-	echo '      <div class="'$COLUMN8_5'"><p><b>Share Type</b></p></div>'
-	echo '      <div class="'$COLUMN8_6'"><p><b>Username</b></p></div>'
-	echo '      <div class="'$COLUMN8_7'"><p><b>Password</b></p></div>'
-	echo '      <div class="'$COLUMN8_8'"><p><b>Options</b></p></div>'
+	echo '      <div class="'$COLUMN8_1'"><dt>Enabled</dt></div>'
+	echo '      <div class="'$COLUMN8_2'"><dt>Mount Point</dt></div>'
+	echo '      <div class="'$COLUMN8_3'"><dt>IP Address</dt></div>'
+	echo '      <div class="'$COLUMN8_4'"><dt>Share Name</dt></div>'
+	echo '      <div class="'$COLUMN8_5'"><dt>Share Type</dt></div>'
+	echo '      <div class="'$COLUMN8_6'"><dt>Username</dt></div>'
+	echo '      <div class="'$COLUMN8_7'"><dt>Password</dt></div>'
+	echo '      <div class="'$COLUMN8_8'"><dt>Options</dt></div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	I=1
@@ -1687,10 +1691,8 @@ pcp_mount_netdrives() {
 
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN8_1'">'
-		echo '        <p>'
 		echo '          <input type="checkbox" id="NET'${I}'" name="NETENABLE'${I}'" value="yes" onchange="setnetrequired('${I}')" '$NETENABLEyes' '$DISABLE'>'
 		echo '          <label for="NET'${I}'">&#8239;</label>'
-		echo '        </p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN8_2'">'
 		echo '        <p>/mnt/&#8239;<input class="xxxx" type="text" id="NETPOINT'${I}'" name="NETMOUNTPOINT'${I}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$"></p>'
@@ -1737,17 +1739,14 @@ pcp_mount_netdrives() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <p>'
 	echo '          <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
 	echo '          <label for="netclear">&nbsp;</label>'
-	echo '        </p>'
 	echo '      </div>'
-	echo '      <div class="'$COLUMN3_1'">'
+	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <p>Check this box to clear configuration data for unused shares.</p>'
 	echo '      </div>'
 	echo '    </div>'
 	#--------------------------------------Submit button---------------------------------
-
 	pcp_incr_id
 	echo '    <div class="row mx-1">'
 	if [ "$EXTRAFSYS" = "no" ]; then

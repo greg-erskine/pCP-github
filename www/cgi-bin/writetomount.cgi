@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 5.0.0 2019-05-28
+# Version: 7.0.0 2020-06-10
 
 . pcp-functions
 . pcp-lms-functions
@@ -10,8 +10,7 @@ ORIG_LMSDATA="$LMSDATA"
 
 pcp_html_head "Write to Disk Mounts" "PH"
 
-pcp_banner
-pcp_running_script
+pcp_navbar
 pcp_httpd_query_string
 
 WGET="/bin/busybox wget"
@@ -22,13 +21,12 @@ REBOOT_REQUIRED=0
 #========================================================================================================
 # Routines
 #--------------------------------------------------------------------------------------------------------
-
 pcp_move_LMS_cache() {
 	DEST=$(echo "$2" | sed 's/slimserver//')
 	sudo cp -avr $1 $DEST >/dev/null 2>&1
-	[ "$?" = "0" ] && sudo rm -rf $1 || echo '<p class="error">[ ERROR ] File Copy Error.</p>'
+	[ $? -eq 0 ] && sudo rm -rf $1 || pcp_message ERROR "File Copy Error." "text"
 
-	#Remove old Symlinks to the data location.  Will be recreated when LMS is started.
+	# Remove old Symlinks to the data location.  Will be recreated when LMS is started.
 	sudo rm -f /usr/local/slimserver/Cache
 	sudo rm -f /usr/local/slimserver/prefs
 	sync
@@ -37,17 +35,17 @@ pcp_move_LMS_cache() {
 pcp_do_umount () {
 	if [ -d $1 ]; then
 		df | grep -qws $1
-		if [ "$?" = "0" ]; then
+		if [ $? -eq 0 ]; then
 			umount $1
-			if [ "$?" = "0" ]; then
-				echo '<p class="info">[ INFO ] Mount '$1' Unmounted.</p>'
+			if [ $? -eq 0 ]; then
+				pcp_message INFO "Mount $1 Unmounted." "text"
 			else
-				echo '<p class="error">[ERROR] Mount point '$1' is Busy, Reboot will be required.</p>'
-				echo '<p class="error">[ERROR] Diskmount Options Saved Reboot to Mount.</p>'
-				REBOOT_REQUIRED="1"
+				pcp_message ERROR "Mount point $1 is Busy, Reboot will be required." "text"
+				pcp_message ERROR "Diskmount Options Saved, Reboot to Mount." "text"
+				REBOOT_REQUIRED=1
 			fi
 		else
-			echo '<p class="info">[ INFO ] New Mount Point '$1' is not in use.</p>'
+			pcp_message INFO "New Mount Point $1 is not in use." "text"
 		fi
 	fi
 }
@@ -55,19 +53,19 @@ pcp_do_umount () {
 #========================================================================================
 # Mounts section
 #----------------------------------------------------------------------------------------
-#Only do something if variable is changed
-pcp_table_top "Write to mount"
-[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTTYPE is: '$MOUNTTYPE'</p>'
+pcp_heading5 "Write to mount"
+pcp_infobox_begin
+pcp_debug_variables "text" MOUNTTYPE
 
 case ${ACTION} in
 	gptfdisk) 
 		MOUNTTYPE="skip"
 		EXTN="util-linux.tcz"
 		if [ -f $PACKAGEDIR/$EXTN ]; then
-			pcp_textarea_inform "none" "sudo -u tc pcp-load -i $EXTN" 50
+			pcp_textarea "none" "sudo -u tc pcp-load -i $EXTN" 5
 			echo $EXTN >> $ONBOOTLST
 		else
-			pcp_textarea_inform "none" "sudo -u tc pcp-load -wi $EXTN" 50
+			pcp_textarea "none" "sudo -u tc pcp-load -wi $EXTN" 5
 		fi
 	;;
 	Permissions)
@@ -76,7 +74,7 @@ case ${ACTION} in
 		for I in $ALLPARTS; do
 			# Do not show the boot Drive
 			if [ "$I" != "${BOOTMNT}" -a "$I" != "${TCEMNT}" ]; then
-				echo '<p class="info">[ INFO ] Setting write permissions on '$I'.</p>'
+				pcp_message INFO "Setting write permissions on $I." "text"
 				find $I -type d | grep -v "lost+found" | xargs -r chmod 755
 				find $I -type d | grep -v "lost+found" | xargs -r chown tc.staff
 				find $I -not -type d | xargs -r chmod 664
@@ -87,8 +85,8 @@ esac
 
 case "$MOUNTTYPE" in
 	localdisk)
-		#	READ Conf file
-		if [ -f  ${USBMOUNTCONF} ]; then
+		# READ Conf file
+		if [ -f ${USBMOUNTCONF} ]; then
 			SC=0
 			while read LINE; do
 				case $LINE in
@@ -112,18 +110,18 @@ case "$MOUNTTYPE" in
 			J=1
 			FOUND=0
 			while [ $J -le $SC ]; do
-				[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] I,J ='$I','$J'</p>'
+				[ $DEBUG -eq 1 ] && pcp_message DEBUG "I,J =$I,$J" "text"
 				ORIGUU=$(eval echo "\${ORIG_MOUNTUUID${J}}")
 				ORIGPNT=$(eval echo "\${ORIG_MOUNTPOINT${J}}")
 				ORIGENA=$(eval echo "\${ORIG_USBDISK${J}}")
 				if [ "$THISUU" = "$ORIGUU" ]; then
 					FOUND=1
-					[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG UU is: '$ORIGUU'</p>'
-					[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] This UU is: '$THISUU'</p>'
-					[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_USBDISK is: '$ORIGENA'</p>'
-					[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] This USBDISK is: '$THISENA'</p>'
-					[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTPOINT is: '$ORIGPNT'</p>'
-					[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] This MOUNTPOINT is: '$THISPNT'</p>'
+					[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG UU is: $ORIGUU" "text"
+					[ $DEBUG -eq 1 ] && pcp_message DEBUG "This UU is: $THISUU" "text"
+					[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_USBDISK is: $ORIGENA" "text"
+					[ $DEBUG -eq 1 ] && pcp_message DEBUG "This USBDISK is: $THISENA" "text"
+					[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_MOUNTPOINT is: $ORIGPNT" "text"
+					[ $DEBUG -eq 1 ] && pcp_message DEBUG "This MOUNTPOINT is: $THISPNT" "text"
 					if [ "$THISPNT" != "$ORIGPNT" -o "$THISENA" != "$ORIGENA" ]; then
 						MNTCHANGED=1
 						eval MNTCHANGED${I}=1
@@ -145,27 +143,27 @@ case "$MOUNTTYPE" in
 			OLDENA=$(eval echo "\${OLDUSBDISK${I}}")
 			OLDPNT=$(eval echo "\${OLDMOUNTPOINT${I}}")
 			CHANGED=$(eval echo "\${MNTCHANGED${I}}")
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTUUID'${I}' is: '$NEWUU'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_USBDISK'${I}' is: '$OLDENA'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] USBDISK'${I}' is: '$NEWENA'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_MOUNTPOINT'${I}' is: '$OLDPNT'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNTPOINT'${I}' is: '$NEWPNT'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MOUNT CHANGED'${I}'='$CHANGED'</p>'
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "MOUNTUUID${I} is: $NEWUU" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_USBDISK${I} is: $OLDENA" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "USBDISK${I} is: $NEWENA" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_MOUNTPOINT${I} is: $OLDPNT" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "MOUNTPOINT${I} is: $NEWPNT" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "MOUNT CHANGED${I}=$CHANGED" "text"
 			if [ $CHANGED -eq 0 ]; then
-				echo '<p class="info">[ INFO ] Mount Options Unchanged for Disk '$NEWUU'.</p>'
+				pcp_message INFO "Mount options unchanged for Disk $NEWUU." "text"
 			else
 				MNTCHANGED=1
-				echo '<p class="info">[ INFO ] Mount options have changed for Disk '$NEWUU'.</p>'
-				echo '<p class="info">[ INFO ] Mount Point is set to: '$NEWPNT'</p>'
+				pcp_message INFO "Mount options have changed for Disk $NEWUU." "text"
+				pcp_message INFO "Mount Point is set to: $NEWPNT" "text"
 				if [ "$OLDPNT" != "" ]; then
-					echo '<p class="info">[ INFO ] Unmounting Old Mount Point: /mnt/'$OLDPNT'.</p>'
+					pcp_message INFO "Unmounting Old Mount Point: /mnt/$OLDPNT." "text"
 					pcp_do_umount /mnt/$OLDPNT
 				fi
-				if [ $CHANGED -eq 1 -a "$REBOOT_REQUIRED" = "0" ]; then
+				if [ $CHANGED -eq 1 -a $REBOOT_REQUIRED -eq 0 ]; then
 					if [ "$NEWENA" != "" ]; then
-						echo '<p class="info">[ INFO ] Checking new Mount Point.</p>'
+						pcp_message INFO "Checking new Mount Point." "text"
 						pcp_do_umount /mnt/$NEWPNT
-						if [ "$REBOOT_REQUIRED" = "0" ]; then
+						if [ $REBOOT_REQUIRED -eq 0 ]; then
 							[ ! -d /mnt/$NEWPNT ] && mkdir -p /mnt/$NEWPNT
 							chown tc.staff /mnt/$NEWPNT
 							chmod 755 /mnt/$NEWPNT
@@ -173,14 +171,14 @@ case "$MOUNTTYPE" in
 							FSTYPE=$(blkid -U $NEWUU | xargs -I {} blkid {} -s TYPE | awk -F"TYPE=" '{print $NF}' | tr -d "\"")
 							case "$FSTYPE" in
 								ntfs)
-									echo '<p class="info">[ INFO ] Checking to make sure NTFS is not mounted.</p>'
+									pcp_message INFO "Checking to make sure NTFS is not mounted." "text"
 									umount $DEVICE
 									OPTIONS="-v -t ntfs-3g -o permissions,noatime"
 								;;
 								vfat|fat32)
-									#if Filesystem support installed, use utf-8 charset for fat.
+									# if Filesystem support installed, use utf-8 charset for fat.
 									df | grep -qs ntfs
-									[ "$?" = "0" ] && CHARSET=",iocharset=utf8" || CHARSET=""
+									[ $? -eq 0 ] && CHARSET=",iocharset=utf8" || CHARSET=""
 									umount $DEVICE  # need to unmount vfat incase 1st mount is not utf8
 									OPTIONS="-v -t vfat -o noauto,users,noatime,exec,umask=000,flush${CHARSET}"
 								;;
@@ -193,23 +191,23 @@ case "$MOUNTTYPE" in
 									OPTIONS="-v -o noatime"
 								;;
 							esac
-							echo '<p class="info">[ INFO ] Mounting Disk.</p>'
+							pcp_message INFO "Mounting Disk." "text"
 							case "$FSTYPE" in
-								exfat) [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount.exfat '$OPTIONS' '$DEVICE' /mnt/'$NEWPNT'</p>'
-									echo '<p class="info">[ INFO ] '
+								exfat) [ $DEBUG -eq 1 ] && pcp_message DEBUG "Mount Line is: mount.exfat $OPTIONS $DEVICE /mnt/$NEWPNT" "text"
+									pcp_message INFO "" "text" "-n"
 									modprobe fuse
 									mount.exfat $OPTIONS $DEVICE /mnt/$NEWPNT
 								;;
-								*) [ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] Mount Line is: mount '$OPTIONS' --uuid '$NEWUU' /mnt/'$NEWPNT'</p>'
-									echo '<p class="info">[ INFO ] '
+								*) [ $DEBUG -eq 1 ] && pcp_message DEBUG "Mount Line is: mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT" "text"
+									pcp_message INFO "" "text" "-n"
 									mount $OPTIONS --uuid $NEWUU /mnt/$NEWPNT
 								;;
 							esac
 							if [ $? -eq 0 ]; then
-								echo '</p><p class="info">[ INFO ] Disk Mounted Successfully.</p>'
+								pcp_message INFO "Disk Mounted Successfully." "text"
 							else
-								echo '</p><p class="error">[ERROR] Disk Mount Error, Try to Reboot.</p>'
-								REBOOT_REQUIRED="1"
+								pcp_message ERROR "Disk Mount Error, Try to Reboot." "text"
+								REBOOT_REQUIRED=1
 							fi
 						fi
 					fi
@@ -231,13 +229,13 @@ case "$MOUNTTYPE" in
 				fi
 				I=$((I+1))
 			done
-			pcp_backup
+			pcp_backup "text"
 		fi
 	;;
 	networkshare)
 		NETMNTCHANGED=0
 		NN=0
-		#cifs does not automatically load arc4, which is in the dependancies needed for SMB3 to work
+		# cifs does not automatically load arc4, which is in the dependencies needed for SMB3 to work
 		modprobe arc4
 		# Process the $QUERY_STRING Not decoding NETMOUNTSHAREs
 		eval $(echo "$QUERY_STRING" | awk -F'&' '{ for(i=1;i<=NF;i++) { if ($i ~ /^NETMOUNTSHARE/) printf "%s\"\n",$i} }' | sed 's/=/="/')
@@ -281,37 +279,37 @@ case "$MOUNTTYPE" in
 			ORIG_CHECK="${OLDENABLE}${OLDPNT}${OLDIP}${OLDSHARE}${OLDFSTYPE}${OLDUSER}${OLDPASS}${OLDOPTIONS}"
 			CHECK="${ENABLE}${PNT}${IP}${SHARE}${FSTYPE}${USER}${PASS}${OPTIONS}"
 			[ "$CHECK" = "nfs" -o "$CHECK" = "cifs" ] && CHECK=""
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] CHECK is: '$CHECK'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_CHECK is: '$ORIG_CHECK'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETENABLE'${I}' is: '$ENABLE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETENABLE'${I}' is: '$OLDENABLE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTPOINT'${I}' is: '$PNT'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTPOINT'${I}' is: '$OLDPNT'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTIP'${I}' is: '$IP'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTIP'${I}' is: '$OLDIP'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTSHARE'${I}' is: '$SHARE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTSHARE'${I}' is: '$OLDSHARE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTFSTYPE'${I}' is: '$FSTYPE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTFSTYPE'${I}' is: '$OLDFSTYPE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTUSER'${I}' is: '$USER'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTUSER'${I}' is: '$OLDUSER'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTPASS'${I}' is: '$PASS'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTPASS'${I}' is: '$OLDPASS'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] NETMOUNTOPTIONS'${I}' is: '$OPTIONS'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_NETMOUNTOPTIONS'${I}' is: '$OLDOPTIONS'</p>'
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "CHECK is: $CHECK" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_CHECK is: $ORIG_CHECK" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETENABLE${I} is: $ENABLE" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETENABLE${I} is: $OLDENABLE" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTPOINT${I} is: $PNT" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTPOINT${I} is: $OLDPNT" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTIP${I} is: $IP" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTIP${I} is: $OLDIP" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTSHARE${I} is: $SHARE" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTSHARE${I} is: $OLDSHARE" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTFSTYPE${I} is: $FSTYPE" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTFSTYPE${I} is: $OLDFSTYPE" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTUSER${I} is: $USER" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTUSER${I} is: $OLDUSER" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTPASS${I} is: $PASS" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTPASS${I} is: $OLDPASS" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "NETMOUNTOPTIONS${I} is: $OPTIONS" "text"
+			[ $DEBUG -eq 1 ] && pcp_message DEBUG "ORIG_NETMOUNTOPTIONS${I} is: $OLDOPTIONS" "text"
 			if [ "$ORIG_CHECK" = "$CHECK" ]; then
-				[ "$CHECK" != "" ] && echo '<p class="info">[ INFO ] Mount configuration unchanged for '$IP':/'$SHARE'</p>'
+				[ "$CHECK" != "" ] && pcp_message INFO "Mount configuration unchanged for $IP:/$SHARE" "text"
 			else
 				NETMNTCHANGED=1
-				echo '<p class="info">[ INFO ] Mount configuration changed for '$IP':/'$SHARE'</p>'
+				pcp_message INFO "Mount configuration changed for $IP:/$SHARE" "text"
 				if [ "$OLDPNT" != "" ]; then
-					echo '<p class="info">[ INFO ] Unmounting Old Mount Point: /mnt/'$OLDPNT'.</p>'
+					pcp_message INFO "Unmounting Old Mount Point: /mnt/$OLDPNT." "text"
 					pcp_do_umount /mnt/$OLDPNT
 				fi
-				if [ "$ENABLE" != "" -a "$REBOOT_REQUIRED" = "0" ]; then
-					echo '<p class="info">[ INFO ] Checking new Mount Point /mnt/'$PNT'.</p>'
+				if [ "$ENABLE" != "" -a $REBOOT_REQUIRED -eq 0 ]; then
+					pcp_message INFO "Checking new Mount Point /mnt/$PNT." "text"
 					pcp_do_umount /mnt/$PNT
-					echo '<p class="info">[ INFO ] Mounting Disk.</p>'
+					pcp_message INFO "Mounting Disk." "text"
 					[ ! -d /mnt/$PNT ] && mkdir -p /mnt/$PNT
 					case "$FSTYPE" in
 						cifs)
@@ -326,13 +324,13 @@ case "$MOUNTTYPE" in
 							MNTCMD="-v -t $FSTYPE -o $OPTS $IP:\"$(${HTTPD} -f -d $SHARE)\" /mnt/$PNT"
 						;;
 					esac
-					echo '<p class="info">[INFO] mount '$MNTCMD'</p>'
+					pcp_message INFO "mount $MNTCMD" "text"
 					/bin/sh -c "mount ${MNTCMD}"
 					if [ $? -eq 0 ]; then
-						echo '<p class="info">[ INFO ] Disk Mounted Successfully.</p>'
+						pcp_message INFO "Disk Mounted Successfully." "text"
 					else
-						echo '<p class="error">[ERROR] Disk Mount Error, Try to Reboot.</p>'
-						REBOOT_REQUIRED="1"
+						pcp_message ERROR "Disk Mount Error, Try to Reboot." "text"
+						REBOOT_REQUIRED=1
 					fi
 				fi
 			fi
@@ -347,7 +345,7 @@ case "$MOUNTTYPE" in
 				if [ "$(eval echo \${NETMOUNTPOINT${I}})" != "" ]; then
 					ENABLE=$(eval echo \${NETENABLE${I}})
 					if [ "$ENABLE" = "" -a "$CLEARUNUSED" = "yes" ]; then
-						J=$((J-1)) #Decrement the Counter written to the conf file
+						J=$((J-1)) # Decrement the counter written to the conf file
 					else
 						[ "$ENABLE" = "" ] && ENABLE="no"
 						echo "[$J]" >> $NETMOUNTCONF
@@ -364,15 +362,14 @@ case "$MOUNTTYPE" in
 				I=$((I+1))
 				J=$((J+1))
 			done
-			pcp_backup
+			pcp_backup "text"
 		fi
 	;;
 	slimconfig)
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_LMSDATA is: '$ORIG_LMSDATA'</p>'
-		[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] LMSDATA is: '$LMSDATA'</p>'
+		pcp_debug_variables "text" ORIG_LMSDATA LMSDATA
 
 		if [ "$ORIG_LMSDATA" = "$LMSDATA" ]; then
-			echo '<p class="info">[ INFO ] LMS Data directory Unchanged.</p>'
+			pcp_message INFO "LMS Data directory unchanged for $LMSDATA." "text"
 		else
 			case "$ORIG_LMSDATA" in
 				usb:*) DEV=$(blkid | grep ${ORIG_LMSDATA:4} | cut -d ':' -f1)
@@ -397,66 +394,63 @@ case "$MOUNTTYPE" in
 					MNT="${LMSDATA:4}/slimserver"
 					FSTYPE=$(mount | grep -w ${LMSDATA:4} | cut -d ' ' -f5)
 					case "$FSTYPE" in
-						cifs)echo '<p class="warn">[ WARN ] CIFS partitions may not work with LMS Cache.</p>';;
+						cifs) pcp_message WARN "CIFS partitions may not work with LMS Cache." "text";;
 						*);;
 					esac
 				;;
 				default) MNT="$TCEMNT/tce/slimserver";;
 			esac
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] ORIG_MNT is: '$ORIG_MNT'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] MNT is: '$MNT'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] DEV is: '$DEV'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] FSTYPE is: '$FSTYPE'</p>'
-			[ $DEBUG -eq 1 ] && echo '<p class="debug">[ DEBUG ] BADFORMAT is: '$BADFORMAT'</p>'
+
+			pcp_debug_variables "text" ORIG_MNT MNT DEV FSTYPE BADFORMAT
 
 			if [ "$BADFORMAT" = "no" ]; then
-				echo '<p class="info">[ INFO ] Setting LMS Data Directory to '$MNT'.</p>'
+				pcp_message INFO "Setting LMS Data Directory to $MNT." "text"
 				pcp_lms_set_slimconfig CACHE $MNT
 				pcp_save_to_config
-				pcp_backup
-				echo ''
+				pcp_backup "text"
+				echo
 				if [ "$ACTION" = "Move" ]; then
 					#========================================================================================
 					# Move LMS cache and prefs section
 					#----------------------------------------------------------------------------------------
-					WASRUNNING="0"
-					if [ "$(pcp_lms_status)" = "0" ]; then
-						WASRUNNING="1"
-						echo '<p class="info">[ INFO ] Stopping LMS</p>'
+					WASRUNNING=0
+					if [ $(pcp_lms_status) -eq 0 ]; then
+						WASRUNNING=1
+						pcp_message INFO "Stopping LMS..." "text"
+						pcp_message INFO "" "text" "-n"
 						/usr/local/etc/init.d/slimserver stop
 					fi
 					if [ -d $ORIG_MNT ]; then
-						echo '<p class="info">[ INFO ] Moving Data from '$ORIG_MNT' to '$MNT'</p>'
+						pcp_message INFO "Moving Data from $ORIG_MNT to $MNT" "text"
 						pcp_move_LMS_cache $ORIG_MNT $MNT
-						echo '<p class="ok">[  OK  ] DONE</p>'
+						pcp_message OK "DONE" "text"
 					fi
-					[ "$WASRUNNING" = "1" ] && (echo '<p class="info">[ INFO ] Starting LMS</p>';/usr/local/etc/init.d/slimserver start)
+					[ $WASRUNNING -eq 1 ] && (pcp_message INFO "Starting LMS" "text"; /usr/local/etc/init.d/slimserver start)
 				fi
 			else
-				echo '<p class="error">[ERROR] Unsupported partition type detected ('$FSTYPE'), please use a ntfs or linux partition type for Cache storage. (i.e. ext4)</p>'
+				pcp_message ERROR "Unsupported partition type detected ($FSTYPE), please use a NTFS or Linux partition type for Cache storage. (i.e. ext4)" "text"
 			fi
 		fi
 	;;
 	skip)
 	;;
 	*)
-		echo '<p class="error">[ERROR] Web Page Error, No MountType Submitted</p>'
+		pcp_message ERROR "Web Page Error, No MountType Submitted" "text"
 	;;
 esac
 
-echo '<hr>'
+pcp_infobox_end
 
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $USBMOUNTCONF" "cat $USBMOUNTCONF" 150
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $NETMOUNTCONF" "cat $NETMOUNTCONF" 150
-[ $DEBUG -eq 1 ] && pcp_textarea "Current $PCPCFG" "cat $PCPCFG" 150
+if [ $DEBUG -eq 1 ]; then
+	pcp_hr
+	pcp_textarea "Current $USBMOUNTCONF" "cat $USBMOUNTCONF" 10
+	pcp_textarea "Current $NETMOUNTCONF" "cat $NETMOUNTCONF" 10
+	pcp_textarea "Current $PCPCFG" "cat $PCPCFG" 10
+fi
 
-[ "$REBOOT_REQUIRED" = "1" ] && pcp_reboot_required
+[ $REBOOT_REQUIRED -eq 1 ] && pcp_reboot_required
 
-pcp_table_middle
-pcp_go_back_button
-pcp_table_end
-pcp_footer
-pcp_copyright
+pcp_redirect_button "Go to LMS" "lms.cgi" 100
 
-echo '</body>'
-echo '</html>'
+pcp_html_end
+exit
