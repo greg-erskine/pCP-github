@@ -30,7 +30,7 @@ pcp_debug_variables() {
 		for VAR in $@
 		do
 			MESSAGE='$'$VAR': '$(eval echo \$${VAR})
-			pcp_message DEBUG "$MESSAGE" "$FORMAT"
+			pcp_message DEBUG "$MESSAGE" $FORMAT
 		done
 
 		if [ "$FORMAT" = "HTML" ]; then
@@ -1472,6 +1472,7 @@ pcp_umount_bootpart_nohtml() {   # <==== GE Depreciated
 }
 
 pcp_mount_device() {
+	# $1 - device
 	# $2 - colour|text|html
 	FORMAT=$2
 
@@ -1485,6 +1486,7 @@ pcp_mount_device() {
 }
 
 pcp_umount_device() {
+	# $1 - device
 	# $2 - colour|text|html
 	FORMAT=$2
 
@@ -1500,8 +1502,8 @@ pcp_umount_device() {
 #----------------------------------------------------------------------------------------
 pcp_reboot() {
 	# $1 - colour|text|html|none
-
 	FORMAT=$1
+
 	[ "$FORMAT" = "none" ] || pcp_message INFO "piCorePlayer is rebooting..." $FORMAT
 	if [ "$NETMOUNT1" = "yes" ]; then
 		[ "$FORMAT" = "none" ] || pcp_message INFO "Unmounting Network Shared Drive..." $FORMAT
@@ -1513,9 +1515,9 @@ pcp_reboot() {
 
 pcp_shutdown() {
 	# $1 - colour|text|html|none
-
 	FORMAT=$1
-	[ "$FORMAT" = "none" ] || pcp_message INFO "piCorePlayer is shutting down..." "$FORMAT"
+
+	[ "$FORMAT" = "none" ] || pcp_message INFO "piCorePlayer is shutting down..." $FORMAT
 	exitcheck.sh
 }
 

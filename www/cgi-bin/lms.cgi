@@ -330,7 +330,7 @@ case "$ACTION" in
 	Install_Samba)
 		pcp_heading5 "Installing Samba4 Server"
 		pcp_infobox_begin
-		pcp_sufficient_free_space 25000
+		pcp_sufficient_free_space 25000 "text"
 		if [ $? -eq 0 ]; then
 			pcp_install_samba4
 		fi
@@ -444,7 +444,7 @@ echo '      </div>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 
-#------------------------------------Samba Indication-----------------------------------
+#------------------------------------Samba Indication------------------------------------
 if [ $(pcp_samba_status) -eq 0 ]; then
 	pcp_green_tick "running"
 else
@@ -579,8 +579,8 @@ pcp_rescan_lms() {
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Rescan LMS">'
 	echo '      </div>'
 	pcp_incr_id
-	echo '      <div class="'$COLUMN3_2'">'
-	echo '        <select class="xxxx" name="RESCAN">'
+	echo '      <div class="form-group '$COLUMN3_2'">'
+	echo '        <select class="form-control form-control-sm" name="RESCAN">'
 	echo '          <option value="rescan">Look for new and changed media files</option>'
 	echo '          <option value="wipecache">Clear library and rescan everything</option>'
 	echo '        </select>'
@@ -618,7 +618,12 @@ pcp_lms_install_lms() {
 	else
 		echo '    <div class="row mx-1">'
 		echo '      <div class="'$COLUMN2_1'">'
-		echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Remove" onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')">'
+		echo '        <input class="'$BUTTON'"'
+		echo '               type="submit"'
+		echo '               name="ACTION"'
+		echo '               value="Remove"'
+		echo '               onclick="return confirm('\''This will remove LMS from pCP.\n\nAre you sure?'\'')"'
+		echo '        >'
 		echo '      </div>'
 		pcp_incr_id
 		echo '      <div class="'$COLUMN2_2'">'
@@ -657,7 +662,7 @@ pcp_lms_remove_cache() {
 [ $MODE -ge $MODE_SERVER ] && pcp_lms_remove_cache
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Start LMS-------------------------------------
+#-------------------------------------| Start LMS |--------------------------------------
 pcp_lms_start_lms() {
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
@@ -829,7 +834,13 @@ pcp_lms_show_cconvert() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
-	echo '         <button class="'$BUTTON'" type="submit" name="ACTION" value="Remove_cconvert" onclick="return confirm('\''This will remove your custom convert settings file.\n\nAre you sure?'\'')" '$DISABLECACHE'>Remove CConv</button>'
+	echo '        <button class="'$BUTTON'"'
+	echo '                type="submit"'
+	echp '                name="ACTION"'
+	echo '                value="Remove_cconvert"'
+	echo '                onclick="return confirm('\''This will remove your custom convert settings file.\n\nAre you sure?'\'')"'
+	echo '                '$DISABLECACHE'>Remove CConv'
+	echo '        </button>'
 	echo '      </div>'
 	pcp_incr_id
 	echo '      <div class="'$COLUMN2_2'">'
@@ -981,8 +992,6 @@ pcp_slimserver_persistence() {
 				echo '      <div class="'$COL4'">'
 				echo '        <p>There is a Cache folder found on this drive.</p>'
 				echo '      </div>'
-			else
-				echo '      <div class="'$COL4'"></div>'
 			fi
 			echo '      </div>'
 		fi
@@ -1262,13 +1271,13 @@ pcp_mount_usbdrives() {
 	COL7="col-1"
 	#------------------------------------------------------------------------------------
 	echo '    <div class="form-row mx-1">'
-	echo '      <div class="'$COL1'" text-sm-center"><p><b>Enabled</b></p></div>'
-	echo '      <div class="'$COL2'"><p><b>Mount Point</b></p></div>'
-	echo '      <div class="'$COL3'"><p><b>Device</b></p></div>'
-	echo '      <div class="'$COL4'"><p><b>Label</b></p></div>'
-	echo '      <div class="'$COL5'"><p><b>FS Type</b></p></div>'
-	echo '      <div class="'$COL6'"><p><b>UUID</b></p></div>'
-	echo '      <div class="'$COL7'"><p><b>Size</b></p></div>'
+	echo '      <div class="'$COL1'" text-sm-center"><dt>Enabled</dt></div>'
+	echo '      <div class="'$COL2'"><dt>Mount Point</dt></div>'
+	echo '      <div class="'$COL3'"><dt>Device</dt></div>'
+	echo '      <div class="'$COL4'"><dt>Label</dt></div>'
+	echo '      <div class="'$COL5'"><dt>FS Type</dt></div>'
+	echo '      <div class="'$COL6'"><dt>UUID</dt></div>'
+	echo '      <div class="'$COL7'"><dt>Size</dt></div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	# Find all USB devices currently attached to system
@@ -1629,7 +1638,6 @@ pcp_mount_netdrives() {
 	echo '      }'
 	echo '    </script>'
 	#------------------------------------------------------------------------------------
-
 	COLUMN8_1="col-1"
 	COLUMN8_2="col-1"
 	COLUMN8_3="col-1"
@@ -1638,7 +1646,6 @@ pcp_mount_netdrives() {
 	COLUMN8_6="col-1"
 	COLUMN8_7="col-1"
 	COLUMN8_8="col-1"
-
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN8_1'"><dt>Enabled</dt></div>'
@@ -1739,8 +1746,8 @@ pcp_mount_netdrives() {
 	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '          <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
-	echo '          <label for="netclear">&nbsp;</label>'
+	echo '        <input id="netclear" type="checkbox" name="CLEARUNUSED" value="yes">'
+	echo '        <label for="netclear">&nbsp;</label>'
 	echo '      </div>'
 	echo '      <div class="'$COLUMN4_2'">'
 	echo '        <p>Check this box to clear configuration data for unused shares.</p>'
@@ -1871,17 +1878,15 @@ pcp_samba() {
 		echo '        <button class="'$BUTTON'" type="submit" name="COMMAND" value="autostart">SMB Autostart</button>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
-		echo '      <p>'
 		echo '        <input type="hidden" name="ACTION" value="Startup">'
 		echo '        <input id="radsmb1" type="radio" name="SAMBA" value="yes" '$SAMBAyes'>'
 		echo '        <label for="radsmb1">Yes</label>'
 		echo '        <input id="radsmb2" type="radio" name="SAMBA" value="no" '$SAMBAno'>'
 		echo '        <label for="radsmb2">No</label>'
-		echo '      </p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>Automatic start of Samba when pCP boots&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>Yes - will enable automatic start of Samba when pCP boots.</p>'
@@ -1901,7 +1906,7 @@ pcp_samba() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <p>Start Samba&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will start Samba.</p>'
@@ -1916,7 +1921,7 @@ pcp_samba() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <p>Stop Samba&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will stop Samba.</p>'
@@ -1931,7 +1936,7 @@ pcp_samba() {
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <p>Restart Samba&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p>This will stop Samba and then restart it.</p>'
@@ -1967,21 +1972,24 @@ pcp_samba() {
 		echo '        <p>Password:</p>'
 		echo '      </div>'
 		echo '      <div class="'$COLUMN3_2'">'
-		echo '        <p><input class="xxxx" type="password" name="SAMBAPASS" value="" '$PWDISABLE'></p>'
+		echo '        <input class="xxxx" type="password" name="SAMBAPASS" value="" '$PWDISABLE'>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_2'">'
 		if [ "$STATUS" = "running" ]; then
-			echo '      <p>Username and Password to be used to access share&nbsp;&nbsp;'
-			echo '        <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
-			echo '      </p>'
-			echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
-			echo '        <p>Needs to be done first time.</p>'
-			echo '        <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
+			echo '      <div class="'$COLUMN3_2'">'
+			echo '        <p>Username and Password to be used to access share&nbsp;&nbsp;'
+			pcp_helpbadge
+			echo '        </p>'
+			echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
+			echo '          <p>Needs to be done first time.</p>'
+			echo '          <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
+			echo '        </div>'
 			echo '      </div>'
 		else
-			echo '      <p>Samba has to be running to set password.</p>'
+			echo '      <div class="'$COLUMN3_2'">'
+			echo '        <p>Samba has to be running to set password.</p>'
+			echo '      </div>'
 		fi
-		echo '    </div>'
+		
 		#--------------------------------------------------------------------------------
 		echo '  </form>'
 		#--------------------------------------------------------------------------------
@@ -1992,12 +2000,12 @@ pcp_samba() {
 		echo '      <div class="'$COLUMN3_1'">'
 		echo '        <p>Server Name</p>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_1'">'
+		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <input class="xxxx" type="text" name="NETBIOS" value="'$NETBIOS'" required>'
 		echo '      </div>'
-		echo '      <div class="'$COLUMN3_1'">'
+		echo '      <div class="'$COLUMN3_3'">'
 		echo '        <p>This is the Server name that will show up in your network browser&nbsp;&nbsp;'
-		echo '          <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '        </p>'
 		echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '          <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
@@ -2010,12 +2018,12 @@ pcp_samba() {
 		echo '       <div class="'$COLUMN3_1'">'
 		echo '         <p>Server WorkGroup</p>'
 		echo '       </div>'
-		echo '       <div class="'$COLUMN3_1'">'
+		echo '       <div class="'$COLUMN3_2'">'
 		echo '         <input class="xxxx" type="text" name="WGROUP" value="'$WGROUP'" required>'
 		echo '       </div>'
-		echo '       <div class="'$COLUMN4_1'">'
+		echo '       <div class="'$COLUMN3_3'">'
 		echo '         <p>This is the Server Work Group that will show up in your network browser&nbsp;&nbsp;'
-		echo '           <a id="'$ID'a" class="moreless" href=# onclick="return more('\'''$ID''\'')">more></a>'
+		pcp_helpbadge
 		echo '         </p>'
 		echo '         <div id="dt'$ID'" class="'$COLLAPSE'">'
 		echo '           <p><b>Note:</b> This value is cached by alot of machines and may not change immediately in the browser.</p>'
@@ -2024,11 +2032,10 @@ pcp_samba() {
 		echo '     </div>'
 		#--------------------------------------------------------------------------------
 		echo '     <div class="row mx-1">'
-		echo '       <div class="'$COLUMN4_1'"><p><b>Share Name</b></p></div>'
-		echo '       <div class="'$COLUMN4_2'"><p><b>Share Path</b></p></div>'
-		echo '       <div class="'$COLUMN4_3'"><p><b>Create File Mode</b></p></div>'
-		echo '       <div class="'$COLUMN4_4'"><p><b>Read ONLY</b></p></div>'
-		echo '       <div class="'$COLUMN3_2'"> </div>'
+		echo '       <div class="'$COLUMN4_1'"><dt>Share Name</dt></div>'
+		echo '       <div class="'$COLUMN4_2'"><dt>Share Path</dt></div>'
+		echo '       <div class="'$COLUMN4_3'"><dt>Create File Mode</dt></div>'
+		echo '       <div class="'$COLUMN4_4'"><dt>Read ONLY</dt></div>'
 		echo '     </div>'
 		I=1
 		SC=$((SC+1))
@@ -2062,7 +2069,7 @@ pcp_samba() {
 			echo '        <input type="checkbox" id="RO'${I}'" name="SHARERO'$I'" value="yes" '$SHAREROyes'>'
 			echo '        <label for="RO'${I}'">&#8239;</label>'
 			echo '      </div>'
-			echo '      <div class="column'$COL5'">'
+			echo '      <div class="xxxx">'
 			echo '        <input type="button" value="Remove" onclick="eraseshare('$I')">'
 			echo '      </div>'
 			echo '    </div>'
