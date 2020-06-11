@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-10
+# Version: 7.0.0 2020-06-11
 
 . pcp-functions
 . pcp-rpi-functions
@@ -1262,7 +1262,7 @@ pcp_mount_usbdrives() {
 	echo '      </div>'
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
-	COL1="col-1"
+	COL1="col-1 text-center"
 	COL2="col-2 mr-2"
 	COL3="col-2"
 	COL4="col-1 mr-3"
@@ -1271,7 +1271,7 @@ pcp_mount_usbdrives() {
 	COL7="col-1"
 	#------------------------------------------------------------------------------------
 	echo '    <div class="form-row mx-1">'
-	echo '      <div class="'$COL1'" text-sm-center"><dt>Enabled</dt></div>'
+	echo '      <div class="'$COL1'"><dt>Enabled</dt></div>'
 	echo '      <div class="'$COL2'"><dt>Mount Point</dt></div>'
 	echo '      <div class="'$COL3'"><dt>Device</dt></div>'
 	echo '      <div class="'$COL4'"><dt>Label</dt></div>'
@@ -1353,7 +1353,7 @@ pcp_mount_usbdrives() {
 				UUID="Invalid UUID, Please check/reformat disk"
 			fi
 			echo '    <div class="form-row mx-1">'
-			echo '      <div class="'$COL1' text-sm-center">'
+			echo '      <div class="'$COL1'">'
 			echo '        <input type="checkbox" id="USB'${NUM_USB_ATTACHED}'" name="USBDISK'${NUM_USB_ATTACHED}'" value="enabled" onchange="setrequired('${NUM_USB_ATTACHED}')" '$USBDISKyes' '$DISABLE'>'
 			echo '        <label for="USB'${NUM_USB_ATTACHED}'">&nbsp;</label>'
 			echo '        <input type="hidden" name="MOUNTUUID'${NUM_USB_ATTACHED}'" value="'$UUID'">'
@@ -1366,31 +1366,19 @@ pcp_mount_usbdrives() {
 			echo '          <input class="form-control form-control-sm" type="text" id="USBPOINT'${NUM_USB_ATTACHED}'" name="MOUNTPOINT'${NUM_USB_ATTACHED}'" value="'$PNT'" '$REQUIRED' pattern="(?!sd)(?!mmcblk)^[a-zA-Z0-9_]{1,32}$">'
 			echo '        </div>'
 			echo '      </div>'
-			echo '      <div class="'$COL3'">'
-			echo '        <p>'$PART'</p>'
-			echo '      </div>'
-			echo '      <div class="'$COL4'">'
-			echo '        <p>'$LBL'</p>'
-			echo '      </div>'
-			echo '      <div class="'$COL5'">'
-			echo '        <p>'$PTTYPE'</p>'
-			echo '      </div>'
-			echo '      <div class="'$COL6'">'
-			echo '        <p>'$UUID'</p>'
-			echo '      </div>'
-			echo '      <div class="'$COL7'">'
-			echo '        <p>'$SIZExB'</p>'
-			echo '      </div>'
+			echo '      <div class="'$COL3'">'$PART'</div>'
+			echo '      <div class="'$COL4'">'$LBL'</div>'
+			echo '      <div class="'$COL5'">'$PTTYPE'</div>'
+			echo '      <div class="'$COL6'">'$UUID'</div>'
+			echo '      <div class="'$COL7'">'$SIZExB'</div>'
 			echo '    </div>'
 		fi
 	done
 	#------------------------------------------------------------------------------------
 	fdisk -l | grep -q "Found valid GPT"
 	if [ $? -eq 0 ]; then
-
 		echo '    <div class="row mx-1">'
-		echo '      <div class="'$COLUMN3_1'">'
-		echo '      </div>'
+		echo '      <div class="'$COLUMN3_1'"></div>'
 		echo '      <div class="'$COLUMN3_2'">'
 		echo '        <p>Disk with GPT partition table Found! Install extension "util-linux.tcz" for compatability.</p>'
 		echo '      </div>'
