@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 6.0.0 2020-01-01
+# Version: 7.0.0 2020-06-12
 
 # Title: Quiet boot
 # Description: Disables boot messages and startup script output
@@ -9,9 +9,8 @@
 
 pcp_html_head "Security" "GE"
 
-pcp_banner
-pcp_running_script
 pcp_httpd_query_string
+pcp_navbar
 
 #https://forums.slimdevices.com/showthread.php?109777-Starting-piCorePlayer-without-on-screen-console-messages-possible
 
@@ -27,36 +26,20 @@ pcp_httpd_query_string
 #pCPstop------
 
 #----------------------------------------------------------------------------------------
-echo '<table class="bggrey">'
-echo '  <tr>'
-echo '    <td>'
-echo '      <div class="row">'
-echo '        <fieldset>'
-echo '          <legend>Quiet boot</legend>'
-echo '          <table class="bggrey percent100">'
+pcp_heading5 "Quiet boot"
 #----------------------------------------------------------------------------------------
-echo '            <tr>'
-echo '              <td>'
-echo '                <p>logo.nologo in cmdline.txt <==== Raspberry Pi logo</p>'
-echo '                <p>console=tty3  in cmdline.txt <==== Redirect to nowhere</p>'
-echo '                <p>disable_splash=1 in config.txt <==== splash screen</p>'
-echo '                <p>/opt/bootlocal.sh</p>'
-echo '                <p>/usr/local/etc/init.d/pcp_startup.sh > /var/log/pcp_boot.log 2>&1</p>'
-echo '                <p></p>'
-echo '              </td>'
-echo '            </tr>'
-#----------------------------------------------------------------------------------------
-echo '          </table>'
-echo '        </fieldset>'
-echo '      </div>'
-echo '    </td>'
-echo '  </tr>'
-echo '</table>'
+pcp_border_begin
+echo '    <div class="row mx-1">'
+echo '      <ul>'
+echo '        <li>logo.nologo in cmdline.txt <== Raspberry Pi logo</li>'
+echo '        <li>console=tty3 in cmdline.txt <== Redirect to nowhere</li>'
+echo '        <li>disable_splash=1 in config.txt <== splash screen</li>'
+echo '        <li>/opt/bootlocal.sh</li>'
+echo '        <li>/usr/local/etc/init.d/pcp_startup.sh > /var/log/pcp_boot.log 2>&1</li>'
+echo '      </ul>'
+echo '    </div>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
-pcp_footer
-pcp_copyright
-
-echo '</body>'
-echo '</html>'
+pcp_html_end
 exit

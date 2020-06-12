@@ -1,13 +1,15 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-09
+# Version: 7.0.0 2020-06-12
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
 cat $1 | sed \
 	-e '/_row_shade/ d' \
 	-e '/<table/ d' \
+	-e '|</table| d' \
 	-e '/<fieldset/ d' \
+	-e '|</fieldset| d' \
 	-e '/pcp_banner/ d' \
 	-e '/pcp_running_script/ d' \
 	-e '/pcp_picoreplayers_toolbar/ d' \
