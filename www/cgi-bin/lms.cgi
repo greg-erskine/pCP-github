@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-11
+# Version: 7.0.0 2020-06-12
 
 . pcp-functions
 . pcp-rpi-functions
@@ -1072,7 +1072,7 @@ pcp_slimserver_persistence() {
 	echo '      <div class="col">'
 	echo '        <p>Set the Data Location Only.</p>'
 	echo '      </div>'
-	echo '      </div>'
+	echo '    </div>'
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN4_3'">'
 	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Move">Move LMS Data</button>'
@@ -1425,7 +1425,11 @@ pcp_mount_usbdrives() {
 	echo '    </div>'
 	echo '    <div class="row mx-1 mb-2">'
 	echo '      <div class="'$COLUMN4_1'">'
-	echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="Permissions" onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted SD or USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
+	echo '        <button class="'$BUTTON'"'
+	echo '                type="submit"'
+	echo '                name="ACTION"'
+	echo '                value="Permissions"'
+	echo '                onclick="return confirm('\''This will set user ownership and write permissions to user tc on all mounted SD or USB disks.\n\nAre you sure?'\'')">Set Write Permissions</button>'
 	echo '      </div>'
 	echo '    </div>'
 	case $LMSDATA in

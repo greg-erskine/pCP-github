@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-08
+# Version: 7.0.0 2020-06-12
 
 . pcp-functions
 . pcp-rpi-functions
@@ -486,7 +486,12 @@ else
 fi
 
 echo '    </div>'
+pcp_border_end
+
 #--------------------------------------DEBUG---------------------------------------------
+pcp_border_begin
+pcp_heading5 "Developer buttons"
+#----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '    <div class="row mx-1 mb-2">'
 	echo '      <div class="'$COLUMN3_1'">'
@@ -512,6 +517,7 @@ fi
 #----------------------------------------------------------------------------------------
 echo '  </form>'
 pcp_border_end
+#----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
@@ -591,23 +597,24 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 fi
 #----------------------------------------------------------------------------------------
 
-if [ $DEBUG -eq 1 ]; then
 #--------------------------------------DEBUG---------------------------------------------
+if [ $DEBUG -eq 1 ]; then
 	pcp_heading5 "[ DEBUG ] $WPASUPPLICANTCONF tests"
-
 	pcp_infobox_begin
+
 	if [ $(pcp_exists_wpa_supplicant) -eq 0 ]; then
 		pcp_message INFO "$WPASUPPLICANTCONF exists." "text"
 	else
 		pcp_message ERROR "$WPASUPPLICANTCONF does not exists." "text"
 	fi
+
 	if [ $(pcp_wifi_maintained_by_pcp) -eq 0 ]; then
 		pcp_message INFO "$WPASUPPLICANTCONF \"Maintained by piCorePlayer\"." "text"
 	else
 		pcp_message ERROR "$WPASUPPLICANTCONF not \"Maintained by piCorePlayer\"." "text"
 	fi
 	pcp_infobox_end
-#--------------------------------------DEBUG---------------------------------------------
+
 	WPACONFIGFILE="/tmp/newconfig.cfg"
 	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
 	if [ -f $WPACONFIGFILE ]; then
@@ -627,7 +634,6 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_infobox_end
 	fi
 
-#--------------------------------------DEBUG---------------------------------------------
 	WPACONFIGFILE="/tmp/wpa_supplicant.conf"
 	pcp_heading5 "[ DEBUG ] $WPACONFIGFILE"
 	if [ -f $WPACONFIGFILE ]; then
@@ -647,12 +653,11 @@ if [ $DEBUG -eq 1 ]; then
 		pcp_infobox_end
 	fi
 
-	#--------------------------------------DEBUG-----------------------------------------
 	pcp_textarea "[ DEBUG ] $WPASUPPLICANTCONF" "cat ${WPASUPPLICANTCONF}" 15
 	pcp_textarea "[ DEBUG ] $FILETOOLLST" "cat $FILETOOLLST" 15
 	pcp_textarea "[ DEBUG ] $ONBOOTLST" "cat $ONBOOTLST" 15
-	#------------------------------------------------------------------------------------
 fi
+#----------------------------------------------------------------------------------------
 
 #---------------/usr/local/etc/pcp/wpa_supplicant.conf maintained by user----------------
 if [ "$WIFI" = "on" ]; then
@@ -660,12 +665,11 @@ if [ "$WIFI" = "on" ]; then
 	if [ $(pcp_wifi_maintained_by_user) -eq 0 ]; then
 		pcp_textarea "/usr/local/etc/pcp/wpa_supplicant.conf maintained by user" "cat ${WPASUPPLICANTCONF}" 15
 	fi
-#-----------------------------------------Wifi information-------------------------------
+	#---------------------------------Wifi information-----------------------------------
 	[ x"" = x"$(pcp_wlan0_mac_address)" ] && WLANMAC=" is missing - insert wifi adapter and [Save] to connect." || WLANMAC=$(pcp_wlan0_mac_address)
 	[ x"" = x"$(pcp_wlan0_ip)" ] && WLANIP=" is missing - [Reboot] or [Save] to connect." || WLANIP=$(pcp_wlan0_ip)
 
 	pcp_heading5 "Wifi information"
-
 	echo '  <div class="row mx-1">'
 	echo '    <div class="'$COLUMN3_1'">'
 	echo '      <input class="'$BUTTON'" form="setwifi" type="submit" name="SUBMIT" value="Scan">'
@@ -677,12 +681,11 @@ if [ "$WIFI" = "on" ]; then
 	echo '      <p>Wifi IP: '$WLANIP'</p>'
 	echo '    </div>'
 	echo '  </div>'
-
-#-------------------------------------Display available wifi networks--------------------
+	#----------------------------Display available wifi networks-------------------------
 	if [ "$SUBMIT" = "Scan" ]; then
 		pcp_textarea "Available wifi networks" "pcp_wifi_available_networks" 15
 	fi
-#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	pcp_border_end
 fi
 #----------------------------------------------------------------------------------------
@@ -694,7 +697,6 @@ wifi_apmode_page() {
 	[ "$WIFI" = "on" ] && DISABLED="disabled" || unset DISABLED
 	pcp_border_begin
 	pcp_heading5 "Wireless Access Point (WAP) configuration page"
-
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN2_1'">'
 	echo '        <form action="wifi_apmode.cgi" method="get">'
@@ -719,7 +721,6 @@ wifi_apmode_page() {
 #-----------------------------------Network wait-----------------------------------------
 pcp_border_begin
 pcp_heading5 "Network wait"
-
 echo '  <form id="Network_wait" name="Network_wait" action="'$0'" method="get">'
 #----------------------------------------------------------------------------------------
 echo '    <div class="row mx-1">'
