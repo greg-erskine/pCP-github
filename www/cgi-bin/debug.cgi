@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-06
+# Version: 7.0.0 2020-06-14
 
-#=========================================================================================
+#========================================================================================
 # This cgi script quickly turns on/off/sets $DEBUG, $TEST and $MODE in pcp.cfg from
 # your web browser.
 #
@@ -12,14 +12,14 @@
 #	$MODE    m=[0-100]
 #	ALL      a=[0]
 #
-# Non-interactive examples: DOES NOT WORK!!! <==GE
+# Non-interactive examples:
 #	Turn debug on:   http://192.168.1.xxx/cgi-bin/debug.cgi?d=1
 #	Turn debug off:  http://192.168.1.xxx/cgi-bin/debug.cgi?d=0
 #	Turn all off:    http://192.168.1.xxx/cgi-bin/debug.cgi?a=0
 #
 # Interactive mode example:
 #	http://192.168.1.xxx/cgi-bin/debug.cgi
-#-----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 
 . pcp-functions
 
@@ -27,6 +27,7 @@
 # Functions
 #----------------------------------------------------------------------------------------
 pcp_debug_save() {
+	[ x"$debug" = x"on" ] && d=1 || d=0
 	pcp_write_var_to_config DEBUG $d
 	pcp_write_var_to_config TEST $t
 	pcp_write_var_to_config MODE $m
@@ -69,33 +70,30 @@ pcp_httpd_query_string
 
 if [ x"" != x"$QUERY_STRING" ] && [ x"" = x"$ACTION" ]; then
 	pcp_debug_cli
+	pcp_remove_query_string
 	echo '<body onload="javascript:location.href=document.referrer;">'
 	exit 0
 fi
 
 case "$ACTION" in
-	Save) pcp_debug_save ;;
-	Res*) pcp_debug_reset ;;
+	Save) pcp_debug_save;;
+	Res*) pcp_debug_reset;;
 esac
 
 pcp_navbar
+pcp_debug_variables "html" QUERY_STRING ACTION DEBUG d MODE m TEST t
 
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-2"
 COLUMN3_3="col-sm-8"
 #========================================================================================
-# Debug info
-#----------------------------------------------------------------------------------------
-pcp_debug_variables "html" QUERY_STRING DEBUG d MODE m TEST t ACTION
-
-#========================================================================================
-# Debug table
+# Debug form
 #----------------------------------------------------------------------------------------
 pcp_border_begin
 pcp_heading5 "Set debug options"
 echo '    <form name="debug" action="'$0'" method="get">'
 #--------------------------------------DEBUG---------------------------------------------
-eval D${DEBUG}SELECTED="checked"
+[ $d -eq 1 ] && D1SELECTED="checked"
 
 echo '      <div class="form-group row mx-1">'
 echo '        <div class="'$COLUMN3_1'">'
@@ -103,24 +101,25 @@ echo '          <dt>DEBUG</dt>'
 echo '        </div>'
 echo '        <div class="'$COLUMN3_2'">'
 echo '          <div class="custom-control custom-switch">'
-echo '            <input class="custom-control-input" id="rad1" type="checkbox" name="d" value="1" '$D1SELECTED'>'
-echo '            <label class="custom-control-label" for="rad1"></label>'
+echo '            <input class="custom-control-input" onclick="pcp_xxx('\'$debug\'')" id="cbx" type="checkbox" name="debug" value="on" '$D1SELECTED'>'
+echo '            <label class="custom-control-label" for="cbx" id="cbl"></label>'
 echo '          </div>'
-
-#echo '          <div class="form-check form-check-inline">'
-#echo '            <input class="form-check-input" id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
-#echo '            <label class="form-check-label" for="rad1">On</label>'
-#echo '          </div>'
-#echo '          <div class="form-check form-check-inline">'
-#echo '            <input class="form-check-input" id="rad2" type="radio" name="d" value="0" '$D0SELECTED'>'
-#echo '            <label class="form-check-label" for="rad2">Off</label>'
-#echo '          </div>'
-
 echo '        </div>'
 echo '        <div class="'$COLUMN3_3'">'
 echo '          Set DEBUG.'
 echo '        </div>'
 echo '      </div>'
+
+
+
+echo '<script>'
+echo '    function pcp_xxx(fred) {'
+echo '      document.getElementById("cbl").innerHTML=fred;'
+echo '    }'
+echo '</script>'
+
+echo '<script>pcp_xxx('\'$debug\'')</script>'
+
 #--------------------------------------MODE----------------------------------------------
 eval MODE${MODE}="selected"
 
