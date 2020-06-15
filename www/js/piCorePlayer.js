@@ -19,6 +19,15 @@ function setbg(elementID,color) {
 	document.getElementById(elementID).style.background=color;
 }
 
+function pcp_switch_label(switchId,labelOn,labelOff) {
+	var checkBox = document.getElementById(switchId);
+	if (checkBox.checked == true){
+		document.getElementById(switchId+"l").innerHTML=labelOn;
+	} else {
+		document.getElementById(switchId+"l").innerHTML=labelOff;
+	}
+}
+
 function pcp_copy_click_to_input(inputID,clickID) {
 	document.getElementById(inputID).value = document.getElementById(clickID).innerHTML;
 }

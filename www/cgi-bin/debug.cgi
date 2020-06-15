@@ -23,6 +23,7 @@
 
 . pcp-functions
 
+[ $DEBUG -eq 1 ] && d=1 || d=0
 #========================================================================================
 # Functions
 #----------------------------------------------------------------------------------------
@@ -101,8 +102,20 @@ echo '          <dt>DEBUG</dt>'
 echo '        </div>'
 echo '        <div class="'$COLUMN3_2'">'
 echo '          <div class="custom-control custom-switch">'
-echo '            <input class="custom-control-input" onclick="pcp_xxx('\'$debug\'')" id="cbx" type="checkbox" name="debug" value="on" '$D1SELECTED'>'
-echo '            <label class="custom-control-label" for="cbx" id="cbl"></label>'
+echo '            <input class="custom-control-input"'
+#echo '                   onload="pcp_switch_label('\'cbx\',\'Xon\',\'Xoff\'')"'
+echo '                   onclick="pcp_switch_label('\'cbx\',\'on\',\'off\'')"'
+echo '                   id="cbx"'
+echo '                   type="checkbox"'
+echo '                   name="debug"'
+echo '                   value="on"'
+echo '                   '$D1SELECTED
+echo '              >'
+echo '            <label class="custom-control-label"'
+#echo '                   onload="pcp_switch_label('\'cbx\',\'Xon\',\'Xoff\'')"'
+echo '                   for="cbx"'
+echo '                   id="cbxl">'
+echo '            </label>'
 echo '          </div>'
 echo '        </div>'
 echo '        <div class="'$COLUMN3_3'">'
@@ -110,15 +123,7 @@ echo '          Set DEBUG.'
 echo '        </div>'
 echo '      </div>'
 
-
-
-echo '<script>'
-echo '    function pcp_xxx(fred) {'
-echo '      document.getElementById("cbl").innerHTML=fred;'
-echo '    }'
-echo '</script>'
-
-echo '<script>pcp_xxx('\'$debug\'')</script>'
+echo '<script>pcp_switch_label('\'cbx\',\'on\',\'off\'')</script>'
 
 #--------------------------------------MODE----------------------------------------------
 eval MODE${MODE}="selected"
