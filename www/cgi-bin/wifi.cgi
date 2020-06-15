@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-12
+# Version: 7.0.0 2020-06-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -232,7 +232,7 @@ echo '        alert("SSID, Password and Country Code\nMUST be entered!");'
 echo '        return false;'
 echo '      }'
 echo '    }'
-echo '  return true;'
+echo '    return true;'
 echo '}'
 echo '</script>'
 
@@ -274,7 +274,7 @@ echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '          <p>&lt;On|Off&gt;</p>'
 echo '          <ul>'
 echo '            <li>Turning wifi on will enable the remaining fields.</li>'
-echo '            <li>Turn wifi on if you have Raspberry Pi with built-in wifi.</li>'
+echo '            <li>Turn wifi on if you have a Raspberry Pi with built-in wifi.</li>'
 echo '            <li>Turn wifi on if you have compatible USB wifi adapter installed.</li>'
 echo '            <li>Set wifi to off if you are not using wifi.</li>'
 echo '          </ul>'
@@ -486,13 +486,14 @@ else
 fi
 
 echo '    </div>'
+#----------------------------------------------------------------------------------------
 pcp_border_end
 
 #--------------------------------------DEBUG---------------------------------------------
-pcp_border_begin
-pcp_heading5 "Developer buttons"
-#----------------------------------------------------------------------------------------
 if [ $MODE -ge $MODE_DEVELOPER ]; then
+	pcp_border_begin
+	pcp_heading5 "Developer buttons"
+	#------------------------------------------------------------------------------------
 	echo '    <div class="row mx-1 mb-2">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Read">'
@@ -513,15 +514,15 @@ if [ $MODE -ge $MODE_DEVELOPER ]; then
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Status">'
 	echo '      </div>'
 	echo '    </div>'
+	#------------------------------------------------------------------------------------
+	pcp_border_end
 fi
 #----------------------------------------------------------------------------------------
 echo '  </form>'
-pcp_border_end
-#----------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------
 if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
-#--------------------------------------Built-in Wifi-------------------------------------
+	#--------------------------------------Built-in Wifi---------------------------------
 	case "$RPI3INTWIFI" in
 		on) RPIWIFIyes="checked" ;;
 		off) RPIWIFIno="checked" ;;
@@ -554,7 +555,7 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-#--------------------------------------Built-in Blue tooth-------------------------------
+	#--------------------------------------Built-in Blue tooth---------------------------
 	case "$RPIBLUETOOTH" in
 		on) RPIBLUETOOTHyes="checked" ;;
 		off) RPIBLUETOOTHno="checked" ;;
@@ -584,14 +585,14 @@ if [ $(pcp_rpi_has_inbuilt_wifi) -eq 0 ] || [ $TEST -eq 1 ]; then
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
-#--------------------------------------Buttons------------------------------------------
+	#--------------------------------------Buttons--------------------------------------
 	echo '    <div class="row mx-1">'
 	echo '      <div class="'$COLUMN3_1'">'
 	echo '        <input class="'$BUTTON'" type="submit" name="ACTION" value="Save">'
 	echo '        <input type="hidden" name="FROM_PAGE" value="wifi.cgi">'
 	echo '      </div>'
 	echo '    </div>'
-#----------------------------------------------------------------------------------------
+	#------------------------------------------------------------------------------------
 	echo '  </form>'
 	pcp_border_end
 fi

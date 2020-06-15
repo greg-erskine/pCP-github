@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-08
+# Version: 7.0.0 2020-06-15
 
 . pcp-functions
 . pcp-rpi-functions
@@ -145,7 +145,7 @@ pcp_debug_variables "html" RP_MODEL
 #========================================================================================
 # Start Audio output table
 #----------------------------------------------------------------------------------------
-echo '<div class="'$BORDER'">'
+pcp_border_begin
 pcp_heading5 "Audio output device settings"
 echo '  <form name="setaudio" action="chooseoutput.cgi" method="get" id="setaudio">'
 #--------------------------------------Audio output-------------------------------
@@ -200,14 +200,14 @@ fi
 #----------------------------------------------------------------------------------------
 echo '  </form>'
 #----------------------------------------------------------------------------------------
-echo '</div>'
+pcp_border_end
 
 . $PCPCFG
 
 #========================================================================================
 # Start Squeezelite settings table
 #----------------------------------------------------------------------------------------
-echo '<div class="'$BORDER'">'
+pcp_border_begin
 pcp_heading5 "Change Squeezelite settings"
 echo '  <form name="squeeze" action="writetoconfig.cgi" method="get">'
 #----------------------------------------------------------------------------------------
@@ -919,7 +919,7 @@ pcp_squeezelite_volume() {
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;control&gt;</p>'
 	echo '          <p>Use ALSA control for volume adjustment otherwise use software volume adjustment.</p>'
-	echo '          <p>Select and use the appropiate name of the possible controls from the list below.</p>'
+	echo '          <p>Select and use the appropriate name of the possible controls from the list below.</p>'
 	echo '          <p><b>Note:</b> Not supported with -U option.</p>'
 	pcp_cards_controls
 	echo '        </div>'
@@ -1009,9 +1009,9 @@ pcp_squeezelite_power_script() {
 	echo '        <div id="dt'$ID'" class="'$COLLAPSE'">'
 	echo '          <p>&lt;/path/script.sh&gt;</p>'
 	echo '          <p>Squeezelite will run this script when the Power On/Off button is pressed.</p>'
-	echo '          <p class="error"><b>WARNING:</b></p>'
-	echo '          <p class="error">Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
-	echo '          <p class="error">If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'
+	echo '          <p><b>WARNING:</b></p>'
+	echo '          <p>Use caution when connecting to GPIOs. PERMANENT damage can occur.</p>'
+	echo '          <p>If using mains voltages ensure you are FULLY QUALIFIED. DEATH can occur.</p>'
 	echo '        </div>'
 	echo '      </div>'
 	echo '    </div>'
@@ -1051,7 +1051,7 @@ pcp_squeezelite_various_input() {
 pcp_submit_button
 #----------------------------------------------------------------------------------------
 echo '  </form>'
-echo '</div>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
 
 #========================================================================================
@@ -1080,7 +1080,7 @@ pcp_squeezelite_binary() {
 		*) DEFyes="checked";;
 	esac
 
-	echo '<div class="'$BORDER'">'
+	pcp_border_begin
 	pcp_heading5 "Set Squeezelite binary"
 	echo '  <form name="binary" action="writetoconfig.cgi" method="get">'
 	#-----------------------------------Headings-----------------------------------------
@@ -1132,7 +1132,7 @@ pcp_squeezelite_binary() {
 	echo '    </div>'
 	#------------------------------------------------------------------------------------
 	echo '  </form>'
-	echo '</div>'
+	pcp_border_end
 }
 [ $MODE -ge $MODE_PLAYER ] && pcp_squeezelite_binary
 #----------------------------------------------------------------------------------------

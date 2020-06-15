@@ -981,8 +981,8 @@ pcp_heading5() {
 	# $2 - hr
 
 	[ "$2" = "hr" ] && echo '<hr>'
-	echo '  <div class="row">'
-	echo '    <div class="col-12 my-2 ml-3">'
+	echo '  <div class="row my-2 ml-1">'
+	echo '    <div class="col-12">'
 	echo '      <h4>'$1'</h4>'
 	echo '    </div>'
 	echo '  </div>'
