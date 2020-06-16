@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-15
+# Version: 7.0.0 2020-06-16
 
 # Title: HAT information
 # Description: Easy method for viewing the HAT information
@@ -22,7 +22,7 @@ pcp_log_header $0
 echo ====================================================================================== >>$LOG
 
 #========================================================================================
-# Routines
+# Functions
 #----------------------------------------------------------------------------------------
 pcp_overlays_loaded() {
 	pcp_mount_bootpart >/dev/null 2>&1
@@ -35,7 +35,7 @@ pcp_overlays_loaded() {
 #----------------------------------------------------------------------------------------
 pcp_heading5 "HAT information"
 pcp_border_begin
-#----------------------------------------------------------------------------------------
+
 for HEADING in $HATHEADINGS
 do
 	INFO=$(cat ${HATDIRECTORY}${HEADING})
@@ -49,14 +49,13 @@ do
 done
 
 pcp_border_end
-
+#----------------------------------------------------------------------------------------
 pcp_heading5 "DATA"
 pcp_border_begin
 echo '    <div class="row mx-1 my-2">'
 echo '      <div class="col-12">'$DATA'</div>'
 echo '    </div>'
 pcp_border_end
-
 #----------------------------------------------------------------------------------------
 pcp_overlays_loaded
 pcp_debug_variables "HTML" OVERLAYS HEADING DATA
