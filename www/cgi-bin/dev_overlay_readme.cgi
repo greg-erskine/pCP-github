@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-05-15
+# Version: 7.0.0 2020-06-16
 
 # Title: Overlays README
 # Description: Easy method for viewing the README file in /mnt/mmcblk0p1/overlays
@@ -75,17 +75,17 @@ COLUMN3="col-2"
 #========================================================================================
 # Selection form
 #----------------------------------------------------------------------------------------
+pcp_border_begin
 pcp_heading5 "Select overlay"
-
 echo '    <form name="log" action="'$0'" method="get">'
-echo '      <div class="row">'
+echo '      <div class="row mx-1">'
 echo '        <div class="input-group '$COLUMN1'">'
 echo '          <select class="custom-select custom-select-sm" name="SELECTION">'
 
 	              for OVERLAY in $PCPOVERLAYS
 	              do
 	                  [ "$SELECTION" = "$OVERLAY" ] && SELECTED="selected" || SELECTED=""
-	                  echo '                    <option value="'$OVERLAY'" '$SELECTED'>'$(echo ${OVERLAY/.txt/})$AS'</option>'
+	                  echo '            <option value="'$OVERLAY'" '$SELECTED'>'$(echo ${OVERLAY/.txt/})$AS'</option>'
 	              done
 
 echo '          </select>'
@@ -93,27 +93,31 @@ echo '        </div>'
 pcp_incr_id
 echo '        <div class="'$COLUMN2'">'
 echo '          <p>Select overlay to show&nbsp;&nbsp;'
-echo '          <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
+pcp_helpbadge
 echo '          </p>'
 echo '          <div id="dt'$ID'" class="'$COLLAPSE'">'
 echo '            <p>The overlays are located in /mnt/mmcblk0p1/overlays</p>'
 echo '          </div>'
 echo '        </div>'
+echo '      </div>'
+#----------------------------------------------------------------------------------------
+echo '      <div class="row mx-1 mb-2">'
 echo '        <div class="'$COLUMN3'">'
 echo '          <input type="submit" class="'$BUTTON'" name="ACTION" value="Show">'
 echo '        </div>'
 echo '      </div>'
 echo '    </form>'
+pcp_border_end
 #----------------------------------------------------------------------------------------
-echo '    <hr>'
-#------------------------------------------Overlay text area-----------------------------
+pcp_hr
+#-----------------------------------Overlay text area------------------------------------
 pcp_overlay_show() {
 	pcp_textarea "${SELECTION/.txt/} overlay" 'cat ${TMPPATH}/${TEMPDIR}/$SELECTION' 8
 }
 [ "$ACTION" = "Show" ] && pcp_overlay_show
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Overlays loaded-------------------------------
+#------------------------------------Overlays loaded-------------------------------------
 pcp_overlay_loaded() {
 	pcp_textarea "Loaded overlays" 'cat ${TMPPATH}/${TEMPDIR}/LOADED_OVERLAYS' 3
 }
