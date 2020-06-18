@@ -1,15 +1,15 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-12
+# Version: 7.0.0 2020-06-18
 
 VERSION="# Version: 7.0.0 $(date "+%Y-%m-%d")"
 
 cat $1 | sed \
 	-e '/_row_shade/ d' \
 	-e '/<table/ d' \
-	-e '|</table| d' \
+	-e '/<.table/ d' \
 	-e '/<fieldset/ d' \
-	-e '|</fieldset| d' \
+	-e '/<.fieldset/ d' \
 	-e '/pcp_banner/ d' \
 	-e '/pcp_running_script/ d' \
 	-e '/pcp_picoreplayers_toolbar/ d' \
@@ -52,38 +52,32 @@ COLUMN4_2="col-sm-3"
 COLUMN4_3="col-sm-2"
 COLUMN4_4="col-sm-6"
 
-INFOBOX
--------
-pcp_infobox_begin
+pcp_infobox_begin "" 10
 pcp_infobox_end
 
-TEXTAREA
---------
 pcp_textarea_begin "" 10
 pcp_textarea_end
 
-BORDER
-------
+echo '  <div class="'$BORDER'">'
+
 pcp_border_begin
 pcp_border_end
 
-HEADING
--------
 pcp_heading5
 
 pcp_helpbadge
 echo '  <a type="button" data-toggle="collapse" data-target="#dt'$ID'">'$HELPBADGE'</a>'
 class="'$BUTTON'"
 
-echo '    <div class="form-group '$COLUMN2_1'">'
-echo '      <input class="form-control form-control-sm"'
+echo '  <div class="form-group '$COLUMN2_1'">'
+echo '    <input class="form-control form-control-sm"'
 
-echo '    <div class="input-group '$COLUMN3_2'">'
-echo '      <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
+echo '  <div class="input-group '$COLUMN3_2'">'
+echo '    <select class="custom-select custom-select-sm" id="audiocard" name="AUDIO">'
 
-echo '    <div class="form-check form-check-inline">'
-echo '      <input class="form-check-input" id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
-echo '      <label class="form-check-label" for="rad1">On</label>'
+echo '  <div class="form-check form-check-inline">'
+echo '    <input class="form-check-input" id="rad1" type="radio" name="d" value="1" '$D1SELECTED'>'
+echo '    <label class="form-check-label" for="rad1">On</label>'
 
 echo '    <div class="alert alert-primary" role="alert">'
 echo '      <b>Warning:</b>'
