@@ -1,12 +1,9 @@
 #!/bin/sh
 
 # Version: 7.0.0 2020-05-23
-<<<<<<< HEAD
-=======
 
 # Title: Static IP
 # Description: Set a static IP. The preferred method is to use DHCP.
->>>>>>> origin/develop
 
 #========================================================================================
 # This script sets a static IP.
@@ -84,11 +81,7 @@ pcp_edit_bootlocal() {
 # Add/delete nodhcp boot code to /mnt/mmcblk0p1/cmdline.txt ($CMDLINETXT).
 #----------------------------------------------------------------------------------------
 pcp_nodhcp_bootcode() {
-<<<<<<< HEAD
-	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing '$CMDLINETXT'..." "html"
-=======
 	[ $DEBUG -eq 1 ] && pcp_message DEBUG "Writing $CMDLINETXT..." "html"
->>>>>>> origin/develop
 	pcp_mount_bootpart >/dev/null
 	if mount | grep $VOLUME >/dev/null; then
 		sed -i 's/nodhcp //g' $CMDLINETXT
@@ -387,11 +380,7 @@ esac
 pcp_get_nodhcp
 
 #--------------------------------------Warning message-----------------------------------
-<<<<<<< HEAD
-echo '    <div>'
-=======
 echo '    <div class="alert alert-primary" role="alert">'
->>>>>>> origin/develop
 echo '      <p><b>Warning:</b></p>'
 echo '      <ul>'
 echo '        <li>The recommended method to set a static IP address is to map the MAC address to an IP address in your router.</li>'
@@ -403,32 +392,16 @@ echo '      </ul>'
 echo '    </div>'
 #----------------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-pcp_network_tabs
-
 COLUMN3_1="col-sm-2"
 COLUMN3_2="col-sm-3"
 COLUMN3_3="col-sm-7"
-
-=======
-COLUMN3_1="col-sm-2"
-COLUMN3_2="col-sm-3"
-COLUMN3_3="col-sm-7"
->>>>>>> origin/develop
 #----------------------------------------------------------------------------------------
 [ "$SUBMIT" = "Save" -a "$STATIC" != "firstrun" -a "$DHCP" = "off" ] && pcp_validate_static_ip
 pcp_network_tabs
 
-<<<<<<< HEAD
-echo '  <div class="'$BORDER'">'
-pcp_heading5 "Set static IP for $NETWORK"
-echo '    <form name="staticip" action="'$0'" method="get" id="staticip">'
-
-=======
 echo '  <div class="'$BORDER' mb-2">'
 pcp_heading5 "Set static IP for $NETWORK"
 echo '    <form name="staticip" action="'$0'" method="get" id="staticip">'
->>>>>>> origin/develop
 #-----------------------------------------DHCP-------------------------------------------
 echo '        <div class="row mx-1">'
 echo '          <div class="'$COLUMN3_1'">'
@@ -665,20 +638,10 @@ echo '  </div>'
 if [ $DEBUG -eq 1 ]; then
 	pcp_hr
 	pcp_textarea "" "cat /opt/${NETWORK}.sh" 10
-<<<<<<< HEAD
-
-	pcp_textarea "" "cat /etc/resolv.conf" 5
-
-	pcp_mount_bootpart >/dev/null
-	pcp_textarea "" "cat $CMDLINETXT" 5
-	pcp_umount_bootpart >/dev/null
-
-=======
 	pcp_textarea "" "cat /etc/resolv.conf" 5
 	pcp_mount_bootpart >/dev/null
 	pcp_textarea "" "cat $CMDLINETXT" 5
 	pcp_umount_bootpart >/dev/null
->>>>>>> origin/develop
 	pcp_textarea "" "cat /opt/bootlocal.sh" 10
 
 fi
