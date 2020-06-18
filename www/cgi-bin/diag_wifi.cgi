@@ -1,7 +1,7 @@
 #!/bin/sh
 # Wifi diagnostics script
 
-# Version: 7.0.0 2020-06-05
+# Version: 7.0.0 2020-06-18
 
 . pcp-functions
 . pcp-rpi-functions
@@ -109,7 +109,7 @@ pcp_diag_wifi_lsusb() {
 	echo "wifi usb report (lsusb)" >>$LOG
 	echo ========================================================================================= >>$LOG
 	USB=$(lsusb | grep -vE "ID 0424|ID 1d6b")
-	if [ "$USB" = "" ]; then
+	if [ x"$USB" = x"" ]; then
 		echo "None found." | tee -a $LOG
 	else
 		lsusb | grep -vE "ID 0424|ID 1d6b" | tee -a $LOG
@@ -202,20 +202,12 @@ pcp_diag_wifi_ping_lms() {
 #----------------------------------------------------------------------------------------
 pcp_diag_wifi_wlan0_ip() {
 	RESULT=$(pcp_wlan0_ip)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
+	echo ${RESULT:-None}
 }
 
 pcp_diag_wifi_wlan0_mac_address() {
 	RESULT=$(pcp_wlan0_mac_address)
-	[ x"" = x"$RESULT" ] && echo "None" || echo $RESULT
-}
-
-pcp_diag_wifi_password() {
-	[ x"" = x"$PASSWORD" ] && echo "None" || echo $PASSWORD
-}
-
-pcp_diag_wifi_hiddenssid() {
-	[ x"" = x"$WPA_HIDDENSSID" ] && echo "no" || echo $WPA_HIDDENSSID
+	echo ${RESULT:-None}
 }
 
 #========================================================================================
@@ -228,10 +220,10 @@ echo ===========================================================================
 echo "Wifi:        "$WIFI >>$LOG
 echo "SSID:        "$WPA_SSID >>$LOG
 echo "Password:    "$WPA_PASSWORD >>$LOG
-echo "Passphrase:  "$WPA_PASSPHRASE >>$LOG
+echo "Passphrase:  "${WPA_PASSPHRASE:-None} >>$LOG
 echo "Security:    "$WPA_ENCRYPTION >>$LOG
-echo "Country:     "$WPA_COUNTRY >>$LOG
-echo "Hidden SSID: "$(pcp_diag_wifi_hiddenssid) >>$LOG
+echo "Country:     "${WPA_COUNTRY:-None} >>$LOG
+echo "Hidden SSID: "$WPA_HIDDENSSID >>$LOG
 echo "MAC address: "$(pcp_diag_wifi_wlan0_mac_address) >>$LOG
 echo "Uptime:      "$(pcp_uptime_days) >>$LOG
 echo ========================================================================================= >>$LOG
@@ -287,20 +279,20 @@ echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Passphrase:</p>'
 echo '    </div>'
 echo '    <div class="'$COLUMN4_2_lg'">'
-echo '      <p>'$WPA_PASSPHRASE'</p>'
+echo '      <p>'${WPA_PASSPHRASE:-None}'</p>'
 echo '    </div>'
 #----------------------------------Country/Hidden SSID-----------------------------------
 echo '    <div class="'$COLUMN4_1'">'
 echo '      <p>Country:</p>'
 echo '    </div>'
 echo '    <div class="'$COLUMN4_2'">'
-echo '      <p>'$WPA_COUNTRY'</p>'
+echo '      <p>'${WPA_COUNTRY:-None}'</p>'
 echo '    </div>'
 echo '    <div class="'$COLUMN4_3'">'
 echo '      <p>Hidden SSID:</p>'
 echo '    </div>'
 echo '    <div class="'$COLUMN4_4'">'
-echo '      <p>'$(pcp_diag_wifi_hiddenssid)'</p>'
+echo '      <p>'$WPA_HIDDENSSID'</p>'
 echo '    </div>'
 echo '  </div>'
 #----------------------------------------------------------------------------------------

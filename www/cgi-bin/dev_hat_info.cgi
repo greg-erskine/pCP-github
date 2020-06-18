@@ -38,16 +38,19 @@ if [ -d $HATDIRECTORY ]; then
 	pcp_border_begin
 	HATHEADINGS=$(ls $HATDIRECTORY)
 
+	I=1
 	for HEADING in $HATHEADINGS
 	do
 		INFO=$(cat ${HATDIRECTORY}${HEADING})
-		DATA=$DATA'"'$INFO'", '
+#		DATA=$DATA'"'$INFO'", '
+		[ $I -eq 1 ] && DATA=${INFO} || DATA=${DATA}:${INFO}
 
 		echo $HEADING': '$INFO >>$LOG
 		echo '    <div class="row mx-1">'
 		echo '      <div class="col-2">'$HEADING'</div>'
 		echo '      <div class="col-10">'$INFO'</div>'
 		echo '    </div>'
+		I=$((I+1))
 	done
 
 	pcp_border_end
