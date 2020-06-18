@@ -14,7 +14,6 @@ pcp_httpd_query_string
 pcp_navbar
 
 HATDIRECTORY="/proc/device-tree/hat/"
-HATHEADINGS=$(ls $HATDIRECTORY)
 
 LOG="${LOGDIR}/pcp_hat_info.log"
 pcp_log_header $0
@@ -34,8 +33,8 @@ pcp_overlays_loaded() {
 # Main HTML
 #----------------------------------------------------------------------------------------
 pcp_heading5 "HAT information"
-pcp_border_begin
 
+<<<<<<< Updated upstream
 I=1
 for HEADING in $HATHEADINGS
 do
@@ -50,15 +49,39 @@ do
 	echo '    </div>'
 	I=$((I+1))
 done
+=======
+if [ -d $HATDIRECTORY ]; then
+	pcp_border_begin
+	HATHEADINGS=$(ls $HATDIRECTORY)
 
-pcp_border_end
-#----------------------------------------------------------------------------------------
-pcp_heading5 "DATA"
-pcp_border_begin
-echo '    <div class="row mx-1 my-2">'
-echo '      <div class="col-12">'$DATA'</div>'
-echo '    </div>'
-pcp_border_end
+	for HEADING in $HATHEADINGS
+	do
+		INFO=$(cat ${HATDIRECTORY}${HEADING})
+		DATA=$DATA'"'$INFO'", '
+
+		echo $HEADING': '$INFO >>$LOG
+		echo '    <div class="row mx-1">'
+		echo '      <div class="col-2">'$HEADING'</div>'
+		echo '      <div class="col-10">'$INFO'</div>'
+		echo '    </div>'
+	done
+
+	pcp_border_end
+	#------------------------------------------------------------------------------------
+	pcp_heading5 "DATA"
+	pcp_border_begin
+	echo '    <div class="row mx-1 my-2">'
+	echo '      <div class="col-12">'$DATA'</div>'
+	echo '    </div>'
+	pcp_border_end
+
+else
+	pcp_infobox_begin
+	pcp_message WARN "No HAT data available." "text"
+	pcp_infobox_end
+fi
+>>>>>>> Stashed changes
+
 #----------------------------------------------------------------------------------------
 pcp_overlays_loaded
 pcp_debug_variables "HTML" OVERLAYS HEADING DATA
