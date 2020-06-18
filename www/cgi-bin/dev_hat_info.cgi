@@ -34,22 +34,6 @@ pcp_overlays_loaded() {
 #----------------------------------------------------------------------------------------
 pcp_heading5 "HAT information"
 
-<<<<<<< Updated upstream
-I=1
-for HEADING in $HATHEADINGS
-do
-	INFO=$(cat ${HATDIRECTORY}${HEADING})
-#	DATA=$DATA'"'$INFO'", '
-	[ $I -eq 1 ] && DATA=${INFO} || DATA=${DATA}:${INFO}
-
-	echo $HEADING': '$INFO >>$LOG
-	echo '    <div class="row mx-1">'
-	echo '      <div class="col-2">'$HEADING'</div>'
-	echo '      <div class="col-10">'$INFO'</div>'
-	echo '    </div>'
-	I=$((I+1))
-done
-=======
 if [ -d $HATDIRECTORY ]; then
 	pcp_border_begin
 	HATHEADINGS=$(ls $HATDIRECTORY)
@@ -80,7 +64,6 @@ else
 	pcp_message WARN "No HAT data available." "text"
 	pcp_infobox_end
 fi
->>>>>>> Stashed changes
 
 #----------------------------------------------------------------------------------------
 pcp_overlays_loaded
