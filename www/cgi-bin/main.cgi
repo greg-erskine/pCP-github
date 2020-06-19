@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Version: 7.0.0 2020-06-09
+# Version: 7.0.0 2020-06-20
 
 . pcp-functions
 . pcp-lms-functions
@@ -232,7 +232,7 @@ pcp_main_update_sqlt() {
 	echo '          <li>Full Update will update squeezelite and all libraries, requiring a reboot.</li>'
 	echo '          <li>Internet access is required.</li>'
 	echo '          <li>The basic version is 1.3MB which plays PCM, (WAV/AIFF), FLAC, MP3, OGG and AAC.</li>'
-	echo '          <li>If the FFMpeg library is added, can additionally play ALAC and WMA.</li>'
+	echo '          <li>If the FFmpeg library is added, can additionally play ALAC and WMA.</li>'
 	echo '          <li>Triode is the original author of Squeezelite.</li>'
 	echo '          <li>Ralphy provides Squeezelite binaries with additional features enabled.</li>'
 	echo '          <li>For more information on Squeezelite - see <a href="https://code.google.com/p/squeezelite/" target="_blank">Squeezelite Google code</a>.</li>'
@@ -247,7 +247,7 @@ pcp_main_update_sqlt() {
 [ $MODE -ge $MODE_PLAYER ] && pcp_main_update_sqlt
 #----------------------------------------------------------------------------------------
 
-#------------------------------------------Install/Remove FFMPEG-------------------------
+#------------------------------------------Install/Remove FFmpeg-------------------------
 pcp_main_ffmpeg() {
 
 	if [ ! -f /$TCEMNT/tce/optional/pcp-libffmpeg.tcz ]; then
@@ -259,21 +259,21 @@ pcp_main_ffmpeg() {
 	if [ "${VERSIONsmall}" = "selected" ]; then
 		echo '  <div class="row mx-1">'
 		echo '    <div class="form-group '$COLUMN2_1'">'
-		echo '      <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
+		echo '      <form name="updateFFmpeg" action="updatesqlt.cgi" method="get">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="inst_ffmpeg">Install</button>'
 		echo '      </form>'
 		echo '    </div>'
 		pcp_incr_id
 		echo '    <div class="'$COLUMN2_2'">'
-		echo '      <p>Install FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
+		echo '      <p>Install FFmpeg libraries for Squeezelite&nbsp;&nbsp;'
 		pcp_helpbadge
 		echo '      </p>'
 		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '        <p>This will download and install FFMpeg Libraries from the pCP repository.</p>'
+		echo '        <p>This will download and install FFmpeg Libraries from the pCP repository.</p>'
 		echo '        <p><b>Note:</b></p>'
 		echo '        <ul>'
 		echo '          <li>Internet access is required.</li>'
-		echo '          <li>The 7MB FFMpeg library adds playback of ALAC and WMA.</li>'
+		echo '          <li>The 7MB FFmpeg library adds playback of ALAC and WMA.</li>'
 		echo '        </ul>'
 		echo '      </div>'
 		echo '    </div>'
@@ -281,17 +281,17 @@ pcp_main_ffmpeg() {
 	else
 		echo '  <div class="row mx-1">'
 		echo '    <div class="form-group '$COLUMN2_1'">'
-		echo '      <form name="updateFFMpeg" action="updatesqlt.cgi" method="get">'
+		echo '      <form name="updateFFmpeg" action="updatesqlt.cgi" method="get">'
 		echo '        <button class="'$BUTTON'" type="submit" name="ACTION" value="rem_ffmpeg">Remove</button>'
 		echo '      </form>'
 		echo '    </div>'
 		pcp_incr_id
 		echo '    <div class="'$COLUMN2_2'">'
-		echo '      <p>Remove FFMpeg libraries for Squeezelite&nbsp;&nbsp;'
+		echo '      <p>Remove FFmpeg libraries for Squeezelite&nbsp;&nbsp;'
 		pcp_helpbadge
 		echo '      </p>'
 		echo '      <div id="dt'$ID'" class="'$COLLAPSE'">'
-		echo '        <p>This will remove the FFMpeg Libraries from the system.</p>'
+		echo '        <p>This will remove the FFmpeg Libraries from the system.</p>'
 		echo '      </div>'
 		echo '    </div>'
 		echo '  </div>'
